@@ -26,3 +26,47 @@ export interface Profile {
   referred_by: string | null;
   created_at: string;
 }
+
+export type QuoteStatus = 'pending' | 'quoted' | 'won' | 'lost';
+export type LeadStatus = 'new' | 'contacted' | 'won' | 'lost';
+
+export interface FreightQuote {
+  id: string;
+  user_id: string | null;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  origin: string;
+  destination: string;
+  weight_kg: number | null;
+  client_type: string | null;
+  status: QuoteStatus;
+  created_at: string;
+}
+
+export interface ContactLead {
+  id: string;
+  user_id: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+  phone: string | null;
+  company: string | null;
+  country: string | null;
+  sales_channel: string | null;
+  interests: string[] | null;
+  message: string | null;
+  status: LeadStatus;
+  created_at: string;
+}
+
+export interface AppNotification {
+  id: string;
+  user_id: string;
+  type: string;
+  title: string;
+  body: string | null;
+  link: string | null;
+  read: boolean;
+  created_at: string;
+}

@@ -3,6 +3,7 @@ import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
 import { stripeRouter } from "./stripe";
+import { chatRouter } from "./chat";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,9 +12,9 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
-  // API routes (Stripe checkout + webhook) — must be registered before the
-  // SPA catch-all below.
+  // API routes — must be registered before the SPA catch-all below.
   app.use("/api", stripeRouter);
+  app.use("/api", chatRouter);
 
   // Serve static files from dist/public in production
   const staticPath =

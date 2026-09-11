@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mail, Phone, Send, CheckCircle } from 'lucide-react';
+import { Mail, Phone, Send, CheckCircle, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { trackLead } from '@/lib/analytics';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export default function ContactFormExpanded() {
   const { language } = useLanguage();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -19,6 +22,7 @@ export default function ContactFormExpanded() {
     subscribe: true,
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState(1);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -40,10 +44,29 @@ export default function ContactFormExpanded() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    setSubmitting(true);
+
+    if (isSupabaseConfigured) {
+      await supabase.from('contact_leads').insert({
+        user_id: user?.id ?? null,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        company: formData.company,
+        country: formData.country,
+        sales_channel: formData.salesChannel,
+        interests: formData.interests,
+        message: formData.message,
+      });
+    } else {
+      console.log('Form submitted (Supabase not configured):', formData);
+    }
+
     trackLead({ content_name: 'contact_form', interests: formData.interests.join(',') });
+    setSubmitting(false);
     setSubmitted(true);
     setTimeout(() => {
       setFormData({
@@ -353,9 +376,10 @@ export default function ContactFormExpanded() {
                   ) : (
                     <Button
                       type="submit"
+                      disabled={submitting}
                       className="flex-1 rounded-full bg-accent hover:bg-accent/90 text-white border-0 shadow-glow-lg hover:shadow-glow-lg transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
                     >
-                      <Send size={18} />
+                      {submitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                       {language === 'es' ? 'Enviar' : 'Submit'}
                     </Button>
                   )}

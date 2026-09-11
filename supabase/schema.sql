@@ -1,5 +1,5 @@
--- Easycomex — Supabase schema for auth profiles (cliente / vendedor)
--- + referral program tracking
+-- Easycomex — Supabase schema: auth profiles (cliente / vendedor),
+-- referral program, freight quotes, contact leads, and notifications.
 --
 -- How to use:
 -- 1. Create a free project at https://supabase.com
@@ -59,11 +59,57 @@ create policy "profiles: insert own"
   on public.profiles for insert
   with check (auth.uid() = id);
 
+-- =======================================================================
+-- Notifications (in-app, shown via the bell icon on the dashboard)
+-- =======================================================================
+
+create table if not exists public.notifications (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  type text not null,
+  title text not null,
+  body text,
+  link text,
+  read boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+alter table public.notifications enable row level security;
+
+create policy "notifications: read own"
+  on public.notifications for select
+  using (auth.uid() = user_id);
+
+create policy "notifications: mark own as read"
+  on public.notifications for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- No insert policy on purpose — rows are only ever created by the
+-- SECURITY DEFINER trigger functions below, which bypass RLS.
+
+create or replace function public.notify_vendedores(p_type text, p_title text, p_body text, p_link text default '/dashboard')
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  insert into public.notifications (user_id, type, title, body, link)
+  select id, p_type, p_title, p_body, p_link
+  from public.profiles
+  where role = 'vendedor';
+end;
+$$;
+
+-- =======================================================================
 -- Auto-create a profile row (role = cliente) whenever someone signs up.
 -- If the sign-up came through a referral link (?ref=CODE, captured
 -- client-side in localStorage and sent as the 'referred_by_code' auth
 -- metadata field — see client/src/lib/referral.ts), resolve that code
--- to the referrer's profile id and store it in referred_by.
+-- to the referrer's profile id, store it in referred_by, and notify
+-- the referrer.
+-- =======================================================================
+
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -88,6 +134,18 @@ begin
     referrer_id
   )
   on conflict (id) do nothing;
+
+  if referrer_id is not null then
+    insert into public.notifications (user_id, type, title, body, link)
+    values (
+      referrer_id,
+      'referral_signup',
+      'Nuevo referido',
+      coalesce(new.raw_user_meta_data ->> 'full_name', new.email) || ' se registró con tu link.',
+      '/dashboard'
+    );
+  end if;
+
   return new;
 end;
 $$;
@@ -97,14 +155,124 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
+-- =======================================================================
+-- Freight quotes (calculadora de fletes)
+-- =======================================================================
+
+create table if not exists public.freight_quotes (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.profiles (id) on delete set null,
+  name text,
+  email text,
+  phone text,
+  origin text not null,
+  destination text not null,
+  weight_kg numeric,
+  client_type text,
+  status text not null default 'pending', -- pending | quoted | won | lost
+  created_at timestamptz not null default now()
+);
+
+alter table public.freight_quotes enable row level security;
+
+-- The calculator is public (no login required), so anyone can submit one.
+create policy "freight_quotes: anyone can submit"
+  on public.freight_quotes for insert
+  with check (true);
+
+create policy "freight_quotes: read own"
+  on public.freight_quotes for select
+  using (auth.uid() = user_id);
+
+create policy "freight_quotes: vendedor reads all"
+  on public.freight_quotes for select
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'vendedor'));
+
+create policy "freight_quotes: vendedor updates status"
+  on public.freight_quotes for update
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'vendedor'));
+
+create or replace function public.handle_new_freight_quote()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  perform public.notify_vendedores(
+    'new_quote',
+    'Nueva cotización de flete',
+    coalesce(new.name, new.email, 'Un visitante') || ': ' || new.origin || ' → ' || new.destination
+  );
+  return new;
+end;
+$$;
+
+drop trigger if exists on_freight_quote_created on public.freight_quotes;
+create trigger on_freight_quote_created
+  after insert on public.freight_quotes
+  for each row execute procedure public.handle_new_freight_quote();
+
+-- =======================================================================
+-- Contact form leads
+-- =======================================================================
+
+create table if not exists public.contact_leads (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.profiles (id) on delete set null,
+  first_name text,
+  last_name text,
+  email text,
+  phone text,
+  company text,
+  country text,
+  sales_channel text,
+  interests text[],
+  message text,
+  status text not null default 'new', -- new | contacted | won | lost
+  created_at timestamptz not null default now()
+);
+
+alter table public.contact_leads enable row level security;
+
+create policy "contact_leads: anyone can submit"
+  on public.contact_leads for insert
+  with check (true);
+
+create policy "contact_leads: read own"
+  on public.contact_leads for select
+  using (auth.uid() = user_id);
+
+create policy "contact_leads: vendedor reads all"
+  on public.contact_leads for select
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'vendedor'));
+
+create policy "contact_leads: vendedor updates status"
+  on public.contact_leads for update
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'vendedor'));
+
+create or replace function public.handle_new_contact_lead()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  perform public.notify_vendedores(
+    'new_lead',
+    'Nuevo lead de contacto',
+    coalesce(new.first_name || ' ' || new.last_name, new.email, 'Un visitante') || ' llenó el formulario de contacto.'
+  );
+  return new;
+end;
+$$;
+
+drop trigger if exists on_contact_lead_created on public.contact_leads;
+create trigger on_contact_lead_created
+  after insert on public.contact_leads
+  for each row execute procedure public.handle_new_contact_lead();
+
 -- ---------------------------------------------------------------------
 -- Suggested next tables (not created here, add when you build the
 -- matching feature):
---
--- freight_quotes   (id, user_id -> profiles.id, origin, destination,
---                    weight_kg, client_type, status, created_at)
---   Feeds the "Tus cotizaciones de flete" card on the client dashboard
---   and the freight calculator form.
 --
 -- plan_subscriptions (id, user_id -> profiles.id, plan, stripe_customer_id,
 --                      stripe_subscription_id, status, created_at)

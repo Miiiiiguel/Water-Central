@@ -12,6 +12,7 @@ import Home from "./pages/Home";
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const ChatbotWidget = lazy(() => import("./components/ChatbotWidget"));
 
 function PageFallback() {
   return <div className="min-h-screen bg-white" />;
@@ -60,6 +61,9 @@ function App() {
             <TooltipProvider>
               <Toaster />
               <Router />
+              <Suspense fallback={null}>
+                <ChatbotWidget />
+              </Suspense>
             </TooltipProvider>
           </AuthProvider>
         </ThemeProvider>

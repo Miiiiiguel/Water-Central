@@ -1,26 +1,48 @@
 import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Calculator, CheckCircle, Send } from 'lucide-react';
+import { Calculator, CheckCircle, Send, Loader2 } from 'lucide-react';
 import { trackLead } from '@/lib/analytics';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export default function FreightSection() {
   const { language } = useLanguage();
+  const { user, profile } = useAuth();
   const [form, setForm] = useState({
+    email: '',
     origin: '',
     destination: '',
     weight: '',
     clientType: 'brand',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
+
+    if (isSupabaseConfigured) {
+      await supabase.from('freight_quotes').insert({
+        user_id: user?.id ?? null,
+        name: profile?.full_name ?? null,
+        email: user?.email ?? (form.email || null),
+        origin: form.origin,
+        destination: form.destination,
+        weight_kg: form.weight ? Number(form.weight) : null,
+        client_type: form.clientType,
+      });
+    } else {
+      console.log('Freight quote submitted (Supabase not configured):', form);
+    }
+
     trackLead({ content_name: 'freight_calculator', client_type: form.clientType });
+    setSubmitting(false);
     setSubmitted(true);
   };
 
@@ -110,6 +132,21 @@ export default function FreightSection() {
                   </div>
                 </div>
 
+                {!user && (
+                  <div>
+                    <label className="block text-sm font-semibold text-foreground mb-2">Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      required
+                      placeholder="tu@email.com"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
+                    />
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-2">
                     {language === 'es' ? 'Peso estimado (kg)' : 'Estimated weight (kg)'}
@@ -144,9 +181,10 @@ export default function FreightSection() {
 
                 <Button
                   type="submit"
+                  disabled={submitting}
                   className="w-full rounded-full bg-accent hover:bg-accent/90 text-white border-0 py-6 text-base font-semibold shadow-glow hover:shadow-glow-lg transition-all duration-300 flex items-center justify-center gap-2"
                 >
-                  <Send size={18} />
+                  {submitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                   {language === 'es' ? 'Calcular mi envío' : 'Calculate my shipment'}
                 </Button>
               </form>

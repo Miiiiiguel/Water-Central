@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
   LogOut, Package, FileText, CalendarClock, Users, TrendingUp,
-  Inbox, ArrowRight, Loader2, Copy, Check, Gift,
+  Inbox, ArrowRight, Loader2, Copy, Check, Gift, MapPin,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase } from '@/lib/supabase';
+import { supabase, FreightQuote, Profile } from '@/lib/supabase';
 import { buildReferralLink } from '@/lib/referral';
+import NotificationBell from '@/components/NotificationBell';
 
 function TopBar() {
   const { profile, user, signOut } = useAuth();
@@ -35,6 +36,7 @@ function TopBar() {
           <span className="hidden md:inline text-sm text-muted-foreground">
             {profile?.full_name || user?.email}
           </span>
+          <NotificationBell />
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 text-sm font-bold text-foreground transition-colors bg-transparent cursor-pointer"
@@ -48,7 +50,7 @@ function TopBar() {
   );
 }
 
-function StatCard({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
+function StatCard({ icon: Icon, label, value }: { icon: any; label: string; value: string | number }) {
   return (
     <div className="bg-white rounded-3xl border border-gray-100 app-shadow p-6">
       <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center text-white mb-4">
@@ -80,6 +82,13 @@ function EmptyState({ icon: Icon, title, description, ctaLabel, ctaHref }: { ico
     </div>
   );
 }
+
+const statusLabel: Record<string, { es: string; en: string }> = {
+  pending: { es: 'Pendiente', en: 'Pending' },
+  quoted: { es: 'Cotizado', en: 'Quoted' },
+  won: { es: 'Ganado', en: 'Won' },
+  lost: { es: 'Perdido', en: 'Lost' },
+};
 
 function ReferralCard() {
   const { profile } = useAuth();
@@ -140,11 +149,24 @@ function ReferralCard() {
 
 function ClienteDashboard() {
   const { language } = useLanguage();
+  const { user } = useAuth();
+  const [quotes, setQuotes] = useState<FreightQuote[] | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('freight_quotes')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => setQuotes((data as FreightQuote[]) ?? []));
+  }, [user]);
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard icon={Package} label={language === 'es' ? 'Plan activo' : 'Active plan'} value={language === 'es' ? 'Ninguno' : 'None'} />
-        <StatCard icon={FileText} label={language === 'es' ? 'Cotizaciones enviadas' : 'Quotes submitted'} value="0" />
+        <StatCard icon={FileText} label={language === 'es' ? 'Cotizaciones enviadas' : 'Quotes submitted'} value={quotes?.length ?? 0} />
         <StatCard icon={CalendarClock} label={language === 'es' ? 'Consultoría agendada' : 'Consultation booked'} value={language === 'es' ? 'No' : 'No'} />
       </div>
 
@@ -154,15 +176,38 @@ function ClienteDashboard() {
         <div className="p-6 border-b border-gray-100">
           <h2 className="font-bold text-primary">{language === 'es' ? 'Tus cotizaciones de flete' : 'Your freight quotes'}</h2>
         </div>
-        <EmptyState
-          icon={Inbox}
-          title={language === 'es' ? 'Aún no tienes cotizaciones' : "You don't have quotes yet"}
-          description={language === 'es'
-            ? 'Cuando uses la calculadora de fletes, tus cotizaciones aparecerán acá.'
-            : 'Once you use the freight calculator, your quotes will show up here.'}
-          ctaLabel={language === 'es' ? 'Ir a la calculadora' : 'Go to the calculator'}
-          ctaHref="/#calculadora"
-        />
+        {quotes === null ? (
+          <div className="flex justify-center py-12"><Loader2 className="animate-spin text-accent" size={24} /></div>
+        ) : quotes.length === 0 ? (
+          <EmptyState
+            icon={Inbox}
+            title={language === 'es' ? 'Aún no tienes cotizaciones' : "You don't have quotes yet"}
+            description={language === 'es'
+              ? 'Cuando uses la calculadora de fletes, tus cotizaciones aparecerán acá.'
+              : 'Once you use the freight calculator, your quotes will show up here.'}
+            ctaLabel={language === 'es' ? 'Ir a la calculadora' : 'Go to the calculator'}
+            ctaHref="/#calculadora"
+          />
+        ) : (
+          <ul className="divide-y divide-gray-100">
+            {quotes.map((q) => (
+              <li key={q.id} className="p-5 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-accent flex-shrink-0">
+                    <MapPin size={18} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-foreground truncate">{q.origin} → {q.destination}</p>
+                    <p className="text-xs text-muted-foreground">{new Date(q.created_at).toLocaleDateString()} {q.weight_kg ? `· ${q.weight_kg} kg` : ''}</p>
+                  </div>
+                </div>
+                <span className="text-xs font-bold text-accent bg-secondary rounded-full px-3 py-1 flex-shrink-0">
+                  {language === 'es' ? statusLabel[q.status]?.es : statusLabel[q.status]?.en}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div className="bg-white rounded-3xl border border-gray-100 app-shadow">
@@ -185,25 +230,76 @@ function ClienteDashboard() {
 
 function VendedorDashboard() {
   const { language } = useLanguage();
+  const [clients, setClients] = useState<Profile[] | null>(null);
+  const [pendingQuotes, setPendingQuotes] = useState<number | null>(null);
+  const [leadsThisMonth, setLeadsThisMonth] = useState<number | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from('profiles')
+      .select('*')
+      .eq('role', 'cliente')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => setClients((data as Profile[]) ?? []));
+
+    supabase
+      .from('freight_quotes')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending')
+      .then(({ count }) => setPendingQuotes(count ?? 0));
+
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    supabase
+      .from('contact_leads')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', startOfMonth.toISOString())
+      .then(({ count }) => setLeadsThisMonth(count ?? 0));
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard icon={Users} label={language === 'es' ? 'Clientes registrados' : 'Registered clients'} value="0" />
-        <StatCard icon={FileText} label={language === 'es' ? 'Cotizaciones pendientes' : 'Pending quotes'} value="0" />
-        <StatCard icon={TrendingUp} label={language === 'es' ? 'Diagnósticos este mes' : 'Diagnoses this month'} value="0" />
+        <StatCard icon={Users} label={language === 'es' ? 'Clientes registrados' : 'Registered clients'} value={clients?.length ?? 0} />
+        <StatCard icon={FileText} label={language === 'es' ? 'Cotizaciones pendientes' : 'Pending quotes'} value={pendingQuotes ?? 0} />
+        <StatCard icon={TrendingUp} label={language === 'es' ? 'Leads este mes' : 'Leads this month'} value={leadsThisMonth ?? 0} />
       </div>
 
       <div className="bg-white rounded-3xl border border-gray-100 app-shadow">
         <div className="p-6 border-b border-gray-100">
           <h2 className="font-bold text-primary">{language === 'es' ? 'Clientes' : 'Clients'}</h2>
         </div>
-        <EmptyState
-          icon={Users}
-          title={language === 'es' ? 'Sin clientes todavía' : 'No clients yet'}
-          description={language === 'es'
-            ? 'A medida que se registren marcas, las vas a ver listadas acá con su plan y estado.'
-            : 'As brands sign up, you will see them listed here with their plan and status.'}
-        />
+        {clients === null ? (
+          <div className="flex justify-center py-12"><Loader2 className="animate-spin text-accent" size={24} /></div>
+        ) : clients.length === 0 ? (
+          <EmptyState
+            icon={Users}
+            title={language === 'es' ? 'Sin clientes todavía' : 'No clients yet'}
+            description={language === 'es'
+              ? 'A medida que se registren marcas, las vas a ver listadas acá con su plan y estado.'
+              : 'As brands sign up, you will see them listed here with their plan and status.'}
+          />
+        ) : (
+          <ul className="divide-y divide-gray-100">
+            {clients.map((c) => (
+              <li key={c.id} className="p-5 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="w-10 h-10 rounded-full bg-secondary text-accent font-bold flex items-center justify-center flex-shrink-0">
+                    {(c.full_name || c.email).charAt(0).toUpperCase()}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-foreground truncate">{c.full_name || c.email}</p>
+                    <p className="text-xs text-muted-foreground truncate">{c.company || c.email}</p>
+                  </div>
+                </div>
+                <span className="text-xs text-muted-foreground flex-shrink-0">
+                  {new Date(c.created_at).toLocaleDateString()}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
