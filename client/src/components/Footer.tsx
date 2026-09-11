@@ -51,12 +51,12 @@ export default function Footer() {
 
   const legal = language === 'es'
     ? [
-        { label: 'Política de privacidad', href: '#' },
-        { label: 'Términos y condiciones', href: '#' },
+        { label: 'Política de privacidad', href: '/privacidad' },
+        { label: 'Términos y condiciones', href: '/terminos' },
       ]
     : [
-        { label: 'Privacy Policy', href: '#' },
-        { label: 'Terms & Conditions', href: '#' },
+        { label: 'Privacy Policy', href: '/privacidad' },
+        { label: 'Terms & Conditions', href: '/terminos' },
       ];
 
   return (

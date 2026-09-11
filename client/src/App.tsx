@@ -12,6 +12,8 @@ import Home from "./pages/Home";
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const Terms = lazy(() => import("./pages/Terms"));
 const ChatbotWidget = lazy(() => import("./components/ChatbotWidget"));
 
 function PageFallback() {
@@ -35,6 +37,16 @@ function Router() {
       <Route path={"/dashboard"}>
         <Suspense fallback={<PageFallback />}>
           <Dashboard />
+        </Suspense>
+      </Route>
+      <Route path={"/privacidad"}>
+        <Suspense fallback={<PageFallback />}>
+          <PrivacyPolicy />
+        </Suspense>
+      </Route>
+      <Route path={"/terminos"}>
+        <Suspense fallback={<PageFallback />}>
+          <Terms />
         </Suspense>
       </Route>
       <Route path={"/404"} component={NotFound} />

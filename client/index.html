@@ -30,6 +30,10 @@
     <meta name="theme-color" content="#1B1A45" />
     <meta name="format-detection" content="telephone=yes" />
 
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png" />
+
     <!-- Structured Data / Schema.org -->
     <script type="application/ld+json">
     {
@@ -81,14 +85,54 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+    <!-- Splash screen styles (removed by client/src/main.tsx once the app mounts) -->
+    <style>
+      #app-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        background: radial-gradient(circle at 50% 40%, #fff6f0 0%, #ffffff 70%);
+        transition: opacity 0.35s ease;
+      }
+      #app-splash.app-splash-hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .app-splash-logo {
+        font-family: 'Baloo 2', 'Inter', sans-serif;
+        font-weight: 800;
+        font-size: 2rem;
+        letter-spacing: -0.02em;
+      }
+      .app-splash-logo .easy { color: #FF5A36; }
+      .app-splash-logo .comex { color: #1B1A45; }
+      .app-splash-spinner {
+        width: 28px;
+        height: 28px;
+        border-radius: 9999px;
+        border: 3px solid #FFF1EA;
+        border-top-color: #FF5A36;
+        animation: app-splash-spin 0.8s linear infinite;
+      }
+      @keyframes app-splash-spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
   </head>
 
   <body>
+    <div id="app-splash" aria-hidden="true">
+      <span class="app-splash-logo"><span class="easy">easy</span><span class="comex">comex</span></span>
+      <span class="app-splash-spinner"></span>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- Analytics: Uncomment and configure when ready
-    <script defer src="YOUR_ANALYTICS_ENDPOINT/umami" data-website-id="YOUR_WEBSITE_ID"></script>
-    -->
   </body>
 
 </html>

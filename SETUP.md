@@ -142,15 +142,38 @@ empiezan con `VITE_` son públicas (van al navegador); las demás
 (Stripe, Anthropic) NO llevan ese prefijo porque deben quedarse solo en
 el servidor.
 
-## 9. Lo que no construí todavía (y por qué)
+## 9. Seguridad
+
+El servidor ya corre con cabeceras de seguridad (Helmet: CSP, HSTS,
+X-Frame-Options, etc.), límite de peticiones por IP en todas las rutas
+`/api/*` (más estricto en el chatbot y el checkout), y validación de
+cada body de request con `zod` — nada de lo que llega del navegador se
+usa sin validar. El acceso a datos está controlado por Row Level
+Security en Supabase (cada tabla en `supabase/schema.sql` con sus
+políticas), no solo por el código del cliente.
+
+También se eliminó una herramienta de debug de la plantilla original
+(`vite-plugin-manus-runtime`) que inyectaba ~370KB de código de
+terceros sin revisar en cada página — no aportaba nada a tu app y era
+superficie de ataque innecesaria.
+
+## 10. App instalable (PWA) y apps nativas
+
+El sitio ya es una PWA instalable (manifest + service worker vía
+`vite-plugin-pwa`) y hay proyectos nativos de iOS/Android generados con
+Capacitor, listos para compilar. Ver [`APP_STORE.md`](./APP_STORE.md)
+para los pasos exactos de publicación — esa parte sí necesita tu Mac,
+tus cuentas de desarrollador y pasar la revisión de cada tienda, nada
+de eso se puede hacer desde acá.
+
+## 11. Lo que no construí todavía (y por qué)
 
 Para ser honesto sobre el alcance real de lo que hay hoy:
 
-- **Push notifications reales** (que lleguen con la app cerrada) — necesitan
-  service worker + claves VAPID + una tabla de suscripciones. Es una pieza
-  grande aparte, no algo que se pueda "agregar de paso".
-- **App instalable (PWA)** — manifest + service worker + iconos reales.
-  Relacionado con lo anterior.
+- **Push notifications reales** (que lleguen con la app cerrada, no solo
+  dentro de la pestaña abierta) — necesitan claves VAPID + una tabla de
+  suscripciones además del service worker que ya existe. Es una pieza
+  aparte, no algo que se pueda "agregar de paso".
 - **Comisiones de afiliados con pagos reales** — hoy el programa de
   referidos rastrea quién refirió a quién, pero no calcula ni paga
   comisiones en dinero.

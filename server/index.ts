@@ -4,6 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { stripeRouter } from "./stripe";
 import { chatRouter } from "./chat";
+import { securityHeaders, apiRateLimiter } from "./security";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,7 +13,14 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
+  // Needed for correct req.protocol / rate-limit IPs behind a reverse
+  // proxy (Render, Railway, etc. all sit behind one).
+  app.set("trust proxy", 1);
+
+  app.use(securityHeaders);
+
   // API routes — must be registered before the SPA catch-all below.
+  app.use("/api", apiRateLimiter);
   app.use("/api", stripeRouter);
   app.use("/api", chatRouter);
 

@@ -1,5 +1,7 @@
 import express from 'express';
 import Anthropic from '@anthropic-ai/sdk';
+import { z } from 'zod';
+import { chatRateLimiter } from './security';
 
 // Optional AI-powered upgrade for the guide chatbot. Without
 // ANTHROPIC_API_KEY set, this route returns 503 and the client falls
@@ -27,18 +29,31 @@ function getClient(): Anthropic | null {
   return new Anthropic({ apiKey });
 }
 
+const chatBodySchema = z.object({
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant']),
+        content: z.string().min(1).max(2000),
+      })
+    )
+    .min(1)
+    .max(20),
+});
+
 export const chatRouter = express.Router();
 
-chatRouter.post('/chat', express.json(), async (req, res) => {
+chatRouter.post('/chat', chatRateLimiter, express.json(), async (req, res) => {
   const client = getClient();
   if (!client) {
     return res.status(503).json({ error: 'AI chat no está configurado (falta ANTHROPIC_API_KEY).' });
   }
 
-  const { messages } = req.body as { messages?: { role: 'user' | 'assistant'; content: string }[] };
-  if (!messages || !Array.isArray(messages) || messages.length === 0) {
-    return res.status(400).json({ error: 'messages is required' });
+  const parsed = chatBodySchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Mensaje inválido.' });
   }
+  const { messages } = parsed.data;
 
   try {
     const response = await client.messages.create({

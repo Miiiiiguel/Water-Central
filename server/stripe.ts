@@ -1,5 +1,7 @@
 import express from 'express';
 import Stripe from 'stripe';
+import { z } from 'zod';
+import { checkoutRateLimiter } from './security';
 
 // Server-side Stripe integration.
 //
@@ -30,20 +32,26 @@ function getStripeClient(): Stripe | null {
   return new Stripe(key);
 }
 
+const checkoutBodySchema = z.object({
+  plan: z.enum(['diagnostico_madurez', 'analisis_mercado']),
+});
+
 export const stripeRouter = express.Router();
 
-stripeRouter.post('/create-checkout-session', express.json(), async (req, res) => {
+stripeRouter.post('/create-checkout-session', checkoutRateLimiter, express.json(), async (req, res) => {
   const stripe = getStripeClient();
   if (!stripe) {
     return res.status(503).json({ error: 'Stripe no está configurado en el servidor (falta STRIPE_SECRET_KEY).' });
   }
 
-  const { plan } = req.body as { plan?: string };
-  const envKey = plan ? PLAN_PRICE_ENV[plan] : undefined;
-  const priceId = envKey ? process.env[envKey] : undefined;
+  const parsed = checkoutBodySchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Plan inválido.' });
+  }
 
+  const priceId = process.env[PLAN_PRICE_ENV[parsed.data.plan]];
   if (!priceId) {
-    return res.status(400).json({ error: `Plan desconocido o sin price ID configurado: ${plan}` });
+    return res.status(400).json({ error: `Plan sin price ID configurado: ${parsed.data.plan}` });
   }
 
   const appUrl = process.env.PUBLIC_APP_URL || `${req.protocol}://${req.get('host')}`;
