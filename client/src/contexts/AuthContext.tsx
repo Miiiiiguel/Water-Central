@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured, Profile } from '@/lib/supabase';
+import { trackSignUp } from '@/lib/analytics';
+import { getStoredReferralCode } from '@/lib/referral';
 
 interface AuthContextType {
   session: Session | null;
@@ -54,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName, company } },
+      options: { data: { full_name: fullName, company, referred_by_code: getStoredReferralCode() } },
     });
     if (error) return { error: error.message };
     // The profiles row is created by a DB trigger (see supabase/schema.sql).
@@ -68,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role: 'cliente',
       });
     }
+    trackSignUp({ company });
     return { error: null };
   };
 

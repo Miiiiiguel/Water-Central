@@ -1,4 +1,5 @@
 -- Easycomex — Supabase schema for auth profiles (cliente / vendedor)
+-- + referral program tracking
 --
 -- How to use:
 -- 1. Create a free project at https://supabase.com
@@ -18,6 +19,8 @@ create table if not exists public.profiles (
   full_name text,
   company text,
   role public.user_role not null default 'cliente',
+  referral_code text not null unique default substr(md5(random()::text || clock_timestamp()::text), 1, 8),
+  referred_by uuid references public.profiles (id) on delete set null,
   created_at timestamptz not null default now()
 );
 
@@ -27,6 +30,12 @@ alter table public.profiles enable row level security;
 create policy "profiles: read own"
   on public.profiles for select
   using (auth.uid() = id);
+
+-- A user can see the (limited) profiles of people they referred, to
+-- power the "Tus referidos" card on the dashboard.
+create policy "profiles: read own referrals"
+  on public.profiles for select
+  using (referred_by = auth.uid());
 
 -- Vendedores (internal team) can read every profile — needed for the
 -- client-list dashboard.
@@ -51,19 +60,32 @@ create policy "profiles: insert own"
   with check (auth.uid() = id);
 
 -- Auto-create a profile row (role = cliente) whenever someone signs up.
+-- If the sign-up came through a referral link (?ref=CODE, captured
+-- client-side in localStorage and sent as the 'referred_by_code' auth
+-- metadata field — see client/src/lib/referral.ts), resolve that code
+-- to the referrer's profile id and store it in referred_by.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer set search_path = public
 as $$
+declare
+  referrer_id uuid;
 begin
-  insert into public.profiles (id, email, full_name, company, role)
+  if new.raw_user_meta_data ->> 'referred_by_code' is not null then
+    select id into referrer_id
+    from public.profiles
+    where referral_code = new.raw_user_meta_data ->> 'referred_by_code';
+  end if;
+
+  insert into public.profiles (id, email, full_name, company, role, referred_by)
   values (
     new.id,
     new.email,
     new.raw_user_meta_data ->> 'full_name',
     new.raw_user_meta_data ->> 'company',
-    'cliente'
+    'cliente',
+    referrer_id
   )
   on conflict (id) do nothing;
   return new;
@@ -87,4 +109,9 @@ create trigger on_auth_user_created
 -- plan_subscriptions (id, user_id -> profiles.id, plan, stripe_customer_id,
 --                      stripe_subscription_id, status, created_at)
 --   Feeds the "Elige tu plan" card and links to Stripe (see server/stripe.ts).
+--
+-- referral_commissions (id, referrer_id -> profiles.id, referred_id ->
+--                        profiles.id, amount, status, created_at)
+--   If you want to pay out real commissions (not just track who
+--   referred whom), add this once a referral converts to a paid plan.
 -- ---------------------------------------------------------------------

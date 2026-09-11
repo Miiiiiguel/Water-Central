@@ -2,6 +2,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Check, Sparkles, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { trackInitiateCheckout } from '@/lib/analytics';
 
 interface Plan {
   step: number;
@@ -58,6 +59,7 @@ export default function PlansSection() {
     }
     setCheckoutError(null);
     setCheckingOut(plan.step);
+    trackInitiateCheckout({ plan: plan.checkoutPlan });
     try {
       const res = await fetch('/api/create-checkout-session', {
         method: 'POST',

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Calculator, CheckCircle, Send } from 'lucide-react';
+import { trackLead } from '@/lib/analytics';
 
 export default function FreightSection() {
   const { language } = useLanguage();
@@ -19,6 +20,7 @@ export default function FreightSection() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    trackLead({ content_name: 'freight_calculator', client_type: form.clientType });
     setSubmitted(true);
   };
 

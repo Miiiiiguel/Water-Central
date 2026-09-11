@@ -1,11 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
   LogOut, Package, FileText, CalendarClock, Users, TrendingUp,
-  Inbox, ArrowRight, Loader2,
+  Inbox, ArrowRight, Loader2, Copy, Check, Gift,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/lib/supabase';
+import { buildReferralLink } from '@/lib/referral';
 
 function TopBar() {
   const { profile, user, signOut } = useAuth();
@@ -79,6 +81,63 @@ function EmptyState({ icon: Icon, title, description, ctaLabel, ctaHref }: { ico
   );
 }
 
+function ReferralCard() {
+  const { profile } = useAuth();
+  const { language } = useLanguage();
+  const [copied, setCopied] = useState(false);
+  const [count, setCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!profile) return;
+    supabase
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .eq('referred_by', profile.id)
+      .then(({ count }) => setCount(count ?? 0));
+  }, [profile]);
+
+  if (!profile) return null;
+  const link = buildReferralLink(profile.referral_code);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard unavailable — the link is still visible to copy manually
+    }
+  };
+
+  return (
+    <div className="bg-gradient-to-br from-primary to-indigo-950 rounded-3xl app-shadow p-6 text-white">
+      <div className="flex items-center gap-2 mb-2">
+        <Gift size={18} className="text-accent" />
+        <h2 className="font-bold">{language === 'es' ? 'Tu link de referidos' : 'Your referral link'}</h2>
+      </div>
+      <p className="text-white/70 text-sm mb-4">
+        {language === 'es'
+          ? `${count ?? 0} persona${count === 1 ? '' : 's'} se ha${count === 1 ? '' : 'n'} registrado con tu link.`
+          : `${count ?? 0} ${count === 1 ? 'person has' : 'people have'} signed up with your link.`}
+      </p>
+      <div className="flex items-center gap-2 bg-white/10 rounded-2xl p-1.5">
+        <input
+          readOnly
+          value={link}
+          className="flex-1 bg-transparent border-0 outline-none text-sm text-white/90 px-3 min-w-0"
+        />
+        <button
+          onClick={handleCopy}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-accent hover:bg-accent/90 text-white text-xs font-bold flex-shrink-0 border-0 cursor-pointer transition-colors"
+        >
+          {copied ? <Check size={14} /> : <Copy size={14} />}
+          {copied ? (language === 'es' ? 'Copiado' : 'Copied') : (language === 'es' ? 'Copiar' : 'Copy')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ClienteDashboard() {
   const { language } = useLanguage();
   return (
@@ -88,6 +147,8 @@ function ClienteDashboard() {
         <StatCard icon={FileText} label={language === 'es' ? 'Cotizaciones enviadas' : 'Quotes submitted'} value="0" />
         <StatCard icon={CalendarClock} label={language === 'es' ? 'Consultoría agendada' : 'Consultation booked'} value={language === 'es' ? 'No' : 'No'} />
       </div>
+
+      <ReferralCard />
 
       <div className="bg-white rounded-3xl border border-gray-100 app-shadow">
         <div className="p-6 border-b border-gray-100">

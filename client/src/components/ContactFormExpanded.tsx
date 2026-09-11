@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Mail, Phone, Send, CheckCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { trackLead } from '@/lib/analytics';
 
 export default function ContactFormExpanded() {
   const { language } = useLanguage();
@@ -42,6 +43,7 @@ export default function ContactFormExpanded() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
+    trackLead({ content_name: 'contact_form', interests: formData.interests.join(',') });
     setSubmitted(true);
     setTimeout(() => {
       setFormData({

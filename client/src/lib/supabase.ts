@@ -8,7 +8,7 @@ export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 // During local/dev setup before the real project keys are added, we fall back
 // to a placeholder client so the app doesn't crash on import. Every call will
 // simply fail until VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY are set — see
-// supabase/README.md for setup steps.
+// SETUP.md for setup steps.
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder-anon-key'
@@ -22,5 +22,7 @@ export interface Profile {
   full_name: string | null;
   company: string | null;
   role: UserRole;
+  referral_code: string;
+  referred_by: string | null;
   created_at: string;
 }

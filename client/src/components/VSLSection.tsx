@@ -1,7 +1,8 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { Search, BarChart2, Lightbulb, ListChecks, ArrowRight } from 'lucide-react';
+import { Search, BarChart2, Lightbulb, ListChecks, ArrowRight, CalendarClock } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { openCalendlyPopup, isCalendlyConfigured } from '@/lib/calendly';
 
 export default function VSLSection() {
   const { language } = useLanguage();
@@ -64,15 +65,24 @@ export default function VSLSection() {
 
         <div className={`text-center transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <Button
-            className="rounded-full bg-accent hover:bg-accent/90 text-white px-8 py-6 text-base sm:text-lg font-semibold border-0 app-shadow transition-all duration-300 hover:scale-105 inline-flex items-center gap-2"
-            onClick={() => {
-              const el = document.getElementById('contacto');
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            className="rounded-full bg-accent hover:bg-accent/90 text-white px-8 py-6 text-base sm:text-lg font-semibold border-0 app-shadow transition-all duration-300 hover:scale-105 inline-flex items-center gap-2 group"
+            onClick={async () => {
+              const opened = await openCalendlyPopup();
+              if (!opened) {
+                const el = document.getElementById('contacto');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }
             }}
           >
+            {isCalendlyConfigured && <CalendarClock size={20} />}
             {language === 'es' ? '¡Agenda 20 minutos de consultoría gratis!' : 'Book your free 20-minute consultation!'}
             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
           </Button>
+          {!isCalendlyConfigured && (
+            <p className="text-xs text-muted-foreground mt-3">
+              {language === 'es' ? '(Calendario en camino — por ahora te contactamos por el formulario)' : '(Scheduling coming soon — for now we\'ll reach out via the form)'}
+            </p>
+          )}
         </div>
       </div>
     </section>

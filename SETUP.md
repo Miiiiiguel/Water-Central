@@ -59,7 +59,47 @@ crecimiento" es a medida (cotización) y el diagnóstico básico es
 gratuito. Si quieres cobrar también el diagnóstico de madurez (USD 6.90),
 avísame y conecto ese botón también.
 
-## 3. Variables de entorno
+## 3. Calendario (Calendly o Cal.com)
+
+1. Crea tu página de agenda en [calendly.com](https://calendly.com) o
+   [cal.com](https://cal.com) para la consultoría de 30 minutos.
+2. Copia la URL pública (ej. `https://calendly.com/tu-usuario/consultoria`)
+   en `VITE_CALENDLY_URL`.
+
+Con eso, el botón "¡Agenda 20 minutos de consultoría gratis!" abre el
+calendario real en un popup. Si no la configuras, el botón simplemente
+hace scroll al formulario de contacto — no se rompe nada.
+
+## 4. Tracking de ads (Meta, TikTok, Google)
+
+Como vas a correr campañas pagadas, esto es importante: sin pixeles
+instalados no podés saber qué campaña realmente trae clientes, ni dejar
+que Meta/TikTok optimicen el gasto hacia gente que se parece a tus
+leads reales.
+
+1. Crea el pixel en cada plataforma:
+   - Meta: [Events Manager](https://business.facebook.com/events_manager)
+   - TikTok: [TikTok Ads Manager -> Assets -> Events](https://ads.tiktok.com)
+   - Google: [Google Analytics 4](https://analytics.google.com)
+2. Copia cada ID en `VITE_META_PIXEL_ID`, `VITE_TIKTOK_PIXEL_ID`,
+   `VITE_GA_MEASUREMENT_ID`.
+
+El sitio ya dispara los eventos que le importan a un anunciante:
+`Lead` (formulario de contacto y calculadora de fletes),
+`InitiateCheckout` (click en un plan pago), y `CompleteRegistration`
+(registro nuevo). Podés dejar cualquiera de las tres plataformas vacía
+si no la usas — no se rompe nada.
+
+## 5. Programa de referidos
+
+Ya funciona de verdad: cada usuario tiene un link único
+(`easycomex.com/?ref=SUCODIGO`) visible en su dashboard, con botón de
+copiar y contador de cuántas personas se registraron con ese link. No
+necesita configuración — corre solo con `supabase/schema.sql` ya
+aplicado. Si más adelante querés pagar comisiones reales, avísame y
+agrego una tabla de comisiones y un flujo de aprobación.
+
+## 6. Variables de entorno
 
 Copia `.env.example` a `.env` y llena los valores de arriba. Las que
 empiezan con `VITE_` son públicas (van al navegador); las de Stripe NO

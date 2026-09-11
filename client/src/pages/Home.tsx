@@ -11,6 +11,7 @@ import VSLSection from '@/components/VSLSection';
 import PlansSection from '@/components/PlansSection';
 import FreightSection from '@/components/FreightSection';
 import TeamSection from '@/components/TeamSection';
+import TestimonialsSection from '@/components/TestimonialsSection';
 import FAQSection from '@/components/FAQSection';
 import ContactFormExpanded from '@/components/ContactFormExpanded';
 import CTASection from '@/components/CTASection';
@@ -43,6 +44,7 @@ export default function Home() {
       <div id="pronostico">
         <VSLSection />
       </div>
+      <TestimonialsSection />
       <div id="planes">
         <PlansSection />
       </div>
