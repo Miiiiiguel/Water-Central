@@ -1,24 +1,10 @@
 import { ShoppingCart, Ship, TrendingUp, Warehouse, BarChart3, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ServicesSection() {
-  const [visibleCards, setVisibleCards] = useState<boolean[]>([false, false, false, false, false, false]);
   const { t } = useLanguage();
-
-  useEffect(() => {
-    const timers = [100, 200, 300, 400, 500, 600].map((delay, index) =>
-      setTimeout(() => {
-        setVisibleCards((prev) => {
-          const newState = [...prev];
-          newState[index] = true;
-          return newState;
-        });
-      }, delay)
-    );
-    return () => timers.forEach(clearTimeout);
-  }, []);
 
   const services = [
     { icon: ShoppingCart, title: t('services.service1'), description: t('services.service1_desc') },
@@ -56,11 +42,14 @@ export default function ServicesSection() {
           {services.map((service, index) => {
             const Icon = service.icon;
             return (
-              <div
+              <motion.div
                 key={index}
-                className={`group bg-white rounded-3xl p-8 border border-gray-100 app-shadow hover:-translate-y-1 transition-all duration-500 ${
-                  visibleCards[index] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
+                whileHover={{ y: -6 }}
+                className="group bg-white rounded-3xl p-8 border border-gray-100 app-shadow"
               >
                 <div className="w-14 h-14 bg-accent rounded-2xl flex items-center justify-center text-white mb-5 group-hover:scale-110 transition-transform duration-300">
                   <Icon size={26} strokeWidth={2.25} />
@@ -69,7 +58,7 @@ export default function ServicesSection() {
                   {service.title}
                 </h3>
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed">{service.description}</p>
-              </div>
+              </motion.div>
             );
           })}
         </div>

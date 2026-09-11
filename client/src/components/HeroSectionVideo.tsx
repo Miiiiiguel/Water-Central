@@ -81,7 +81,7 @@ export default function HeroSectionVideo() {
             </Button>
             <Button
               onClick={() => {
-                const el = document.getElementById('servicios');
+                const el = document.getElementById('vsl');
                 if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }}
               variant="outline"

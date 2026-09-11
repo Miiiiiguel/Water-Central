@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Calculator, FileSearch, TrendingUp, MessageCircle } from 'lucide-react';
+import { Link } from 'wouter';
+import { Menu, X, Calculator, FileSearch, TrendingUp, MessageCircle, UserCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -94,6 +97,14 @@ export default function Header() {
 
         {/* Right Section */}
         <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+          <Link
+            href={user ? '/dashboard' : '/login'}
+            className="hidden sm:flex items-center gap-1.5 p-2 rounded-full hover:bg-orange-50 text-primary transition-colors"
+            aria-label={user ? (language === 'es' ? 'Mi cuenta' : 'My account') : (language === 'es' ? 'Ingresar' : 'Log in')}
+          >
+            <UserCircle2 size={22} strokeWidth={2} />
+          </Link>
+
           <LanguageSwitcher />
 
           <Button
@@ -148,6 +159,14 @@ export default function Header() {
                 {item.label}
               </button>
             ))}
+            <Link
+              href={user ? '/dashboard' : '/login'}
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-3 text-foreground hover:text-accent hover:bg-orange-50 transition-all py-3 px-4 rounded-xl font-medium"
+            >
+              <UserCircle2 size={18} />
+              {user ? (language === 'es' ? 'Mi cuenta' : 'My account') : (language === 'es' ? 'Ingresar' : 'Log in')}
+            </Link>
           </div>
           <Button
             className="w-full rounded-full bg-primary hover:bg-primary/90 text-white border-0 mt-1 py-5 font-bold gap-2"

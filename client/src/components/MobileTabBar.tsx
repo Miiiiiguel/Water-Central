@@ -1,21 +1,25 @@
-import { Home, Calculator, FileSearch, Users, MessageCircle } from 'lucide-react';
+import { useLocation } from 'wouter';
+import { Home, Calculator, FileSearch, UserCircle2, MessageCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function MobileTabBar() {
   const { language } = useLanguage();
+  const { user } = useAuth();
+  const [, navigate] = useLocation();
 
   const tabs = [
-    { icon: Home, label: language === 'es' ? 'Inicio' : 'Home', href: '#inicio' },
-    { icon: Calculator, label: language === 'es' ? 'Fletes' : 'Freight', href: '#calculadora' },
-    { icon: MessageCircle, label: language === 'es' ? 'Contacto' : 'Contact', href: '#contacto', primary: true },
-    { icon: FileSearch, label: language === 'es' ? 'Planes' : 'Plans', href: '#planes' },
-    { icon: Users, label: language === 'es' ? 'Equipo' : 'Team', href: '#equipo' },
+    { icon: Home, label: language === 'es' ? 'Inicio' : 'Home', action: () => scrollTo('#inicio') },
+    { icon: Calculator, label: language === 'es' ? 'Fletes' : 'Freight', action: () => scrollTo('#calculadora') },
+    { icon: MessageCircle, label: language === 'es' ? 'Contacto' : 'Contact', action: () => scrollTo('#contacto'), primary: true },
+    { icon: FileSearch, label: language === 'es' ? 'Planes' : 'Plans', action: () => scrollTo('#planes') },
+    { icon: UserCircle2, label: user ? (language === 'es' ? 'Cuenta' : 'Account') : (language === 'es' ? 'Ingresar' : 'Log in'), action: () => navigate(user ? '/dashboard' : '/login') },
   ];
 
-  const handleClick = (href: string) => {
+  function scrollTo(href: string) {
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  }
 
   return (
     <nav
@@ -29,7 +33,7 @@ export default function MobileTabBar() {
             return (
               <button
                 key={tab.label}
-                onClick={() => handleClick(tab.href)}
+                onClick={tab.action}
                 className="flex flex-col items-center gap-1 -mt-7 bg-transparent border-0 cursor-pointer"
                 aria-label={tab.label}
               >
@@ -43,7 +47,7 @@ export default function MobileTabBar() {
           return (
             <button
               key={tab.label}
-              onClick={() => handleClick(tab.href)}
+              onClick={tab.action}
               className="flex flex-col items-center gap-1 px-2 py-1 text-muted-foreground hover:text-accent transition-colors bg-transparent border-0 cursor-pointer"
               aria-label={tab.label}
             >

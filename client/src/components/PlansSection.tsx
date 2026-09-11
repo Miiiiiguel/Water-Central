@@ -1,6 +1,6 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { Check, Sparkles } from 'lucide-react';
+import { Check, Sparkles, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface Plan {
@@ -9,6 +9,7 @@ interface Plan {
   price: { es: string; en: string };
   features: { es: string[]; en: string[] };
   highlighted?: boolean;
+  checkoutPlan?: string;
 }
 
 const plans: Plan[] = [
@@ -39,12 +40,42 @@ const plans: Plan[] = [
       es: ['Análisis personalizado de tu oportunidad en Amazon y TikTok Shop', '2 horas de asesoría 1 a 1 con nuestros especialistas'],
       en: ['Personalized opportunity analysis on Amazon and TikTok Shop', '2 hours of 1-on-1 advisory with our specialists'],
     },
+    checkoutPlan: 'analisis_mercado',
   },
 ];
 
 export default function PlansSection() {
   const { language } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
+  const [checkingOut, setCheckingOut] = useState<number | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  const handlePlanClick = async (plan: Plan) => {
+    if (!plan.checkoutPlan) {
+      const el = document.getElementById('contacto');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    setCheckoutError(null);
+    setCheckingOut(plan.step);
+    try {
+      const res = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: plan.checkoutPlan }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || 'checkout_failed');
+      window.location.href = data.url;
+    } catch {
+      setCheckoutError(
+        language === 'es'
+          ? 'Los pagos con Stripe aún no están configurados en este entorno.'
+          : 'Stripe payments are not configured in this environment yet.'
+      );
+      setCheckingOut(null);
+    }
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -121,18 +152,23 @@ export default function PlansSection() {
                 ))}
               </ul>
               <Button
+                disabled={checkingOut === plan.step}
                 className={
                   plan.highlighted
                     ? 'bg-white text-primary hover:bg-gray-100 border-0 font-bold'
                     : 'rounded-full bg-accent hover:bg-accent/90 text-white border-0'
                 }
-                onClick={() => {
-                  const el = document.getElementById('contacto');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }}
+                onClick={() => handlePlanClick(plan)}
               >
-                {language === 'es' ? 'Empezar' : 'Get started'}
+                {checkingOut === plan.step ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  language === 'es' ? 'Empezar' : 'Get started'
+                )}
               </Button>
+              {checkoutError && checkingOut === null && plan.checkoutPlan && (
+                <p className={`text-xs mt-2 ${plan.highlighted ? 'text-orange-200' : 'text-red-500'}`}>{checkoutError}</p>
+              )}
             </div>
           ))}
         </div>
