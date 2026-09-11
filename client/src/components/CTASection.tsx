@@ -25,9 +25,9 @@ export default function CTASection() {
   return (
     <section id="cta-section" className="py-20 md:py-32 relative overflow-hidden">
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary via-blue-700 to-primary"></div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-primary via-indigo-900 to-primary"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-400/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
       </div>
 
       <div className="container relative z-10">
@@ -37,7 +37,7 @@ export default function CTASection() {
               isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
             }`}
           >
-            <Sparkles size={16} className="text-cyan-300 animate-pulse" />
+            <Sparkles size={16} className="text-orange-300 animate-pulse" />
             <span className="text-white text-sm font-semibold">
               {language === 'es' ? '¿Qué puedes perder?' : 'What do you have to lose?'}
             </span>
@@ -57,7 +57,7 @@ export default function CTASection() {
             }`}
           >
             {questions.map((q, index) => (
-              <p key={index} className="text-cyan-100 text-base md:text-lg">
+              <p key={index} className="text-orange-100 text-base md:text-lg">
                 {q}
               </p>
             ))}
@@ -68,7 +68,7 @@ export default function CTASection() {
               href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-500 hover:to-cyan-600 text-primary px-8 sm:px-10 py-5 text-base sm:text-lg font-bold inline-flex items-center gap-2 rounded-lg shadow-glow-lg hover:shadow-glow-lg transition-all duration-300 hover:scale-105 group"
+              className="bg-white hover:bg-orange-50 text-primary px-8 sm:px-10 py-5 text-base sm:text-lg font-bold inline-flex items-center gap-2 rounded-full app-shadow transition-all duration-300 hover:scale-105 group"
             >
               <MessageCircle size={22} />
               {language === 'es' ? 'Contáctanos ahora' : 'Contact us now'}

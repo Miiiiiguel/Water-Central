@@ -62,19 +62,19 @@ export default function Footer() {
   return (
     <footer className="bg-gradient-to-b from-slate-900 to-slate-950 text-gray-300 py-16 md:py-20 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute top-0 left-0 w-96 h-96 bg-orange-600/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
       </div>
 
       <div className="container relative z-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
           {/* Brand */}
           <div className={`lg:col-span-2 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div className="flex items-center gap-2 mb-4 group hover-scale">
-              <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-lg flex items-center justify-center shadow-glow group-hover:shadow-glow-lg transition-all">
-                <span className="text-white font-bold text-lg">E</span>
-              </div>
-              <span className="font-bold text-white text-lg">easycomex</span>
+            <div className="mb-4 hover-scale">
+              <span className="font-logo text-2xl tracking-tight">
+                <span className="text-accent">easy</span>
+                <span className="text-white">comex</span>
+              </span>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed">
               {language === 'es'
@@ -89,7 +89,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               {services.map((item) => (
                 <li key={item.label}>
-                  <a href={item.href} className="hover:text-cyan-400 transition-colors hover:translate-x-1 inline-block transition-transform">
+                  <a href={item.href} className="hover:text-orange-400 transition-colors hover:translate-x-1 inline-block transition-transform">
                     {item.label}
                   </a>
                 </li>
@@ -103,7 +103,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm mb-6">
               {company.map((item) => (
                 <li key={item.label}>
-                  <a href={item.href} className="hover:text-cyan-400 transition-colors hover:translate-x-1 inline-block transition-transform">
+                  <a href={item.href} className="hover:text-orange-400 transition-colors hover:translate-x-1 inline-block transition-transform">
                     {item.label}
                   </a>
                 </li>
@@ -112,7 +112,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               {partners.map((item) => (
                 <li key={item.label}>
-                  <a href={item.href} className="hover:text-cyan-400 transition-colors hover:translate-x-1 inline-block transition-transform">
+                  <a href={item.href} className="hover:text-orange-400 transition-colors hover:translate-x-1 inline-block transition-transform">
                     {item.label}
                   </a>
                 </li>
@@ -125,20 +125,20 @@ export default function Footer() {
             <h4 className="font-semibold text-white mb-4">{language === 'es' ? 'Contacto' : 'Contact'}</h4>
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-2 group">
-                <Phone size={16} className="text-cyan-400 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                <a href="https://api.whatsapp.com/send/?phone=573136380121" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">
+                <Phone size={16} className="text-orange-400 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                <a href="https://api.whatsapp.com/send/?phone=573136380121" target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors">
                   (+57) 313 6380121
                 </a>
               </li>
               <li className="flex items-center gap-2 group">
-                <Mail size={16} className="text-cyan-400 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                <a href="mailto:info@easycomex.com" className="hover:text-cyan-400 transition-colors">
+                <Mail size={16} className="text-orange-400 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                <a href="mailto:info@easycomex.com" className="hover:text-orange-400 transition-colors">
                   info@easycomex.com
                 </a>
               </li>
               <li className="flex items-center gap-2 group">
-                <Mail size={16} className="text-cyan-400 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                <a href="mailto:gerencia@easycomex.com" className="hover:text-cyan-400 transition-colors">
+                <Mail size={16} className="text-orange-400 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                <a href="mailto:gerencia@easycomex.com" className="hover:text-orange-400 transition-colors">
                   gerencia@easycomex.com
                 </a>
               </li>
@@ -152,7 +152,7 @@ export default function Footer() {
           <p>&copy; {currentYear} Easycomex. {language === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.'}</p>
           <div className="flex flex-wrap justify-center gap-4 md:gap-6">
             {legal.map((item) => (
-              <a key={item.label} href={item.href} className="hover:text-cyan-400 transition-colors">
+              <a key={item.label} href={item.href} className="hover:text-orange-400 transition-colors">
                 {item.label}
               </a>
             ))}

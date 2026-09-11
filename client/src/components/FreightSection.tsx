@@ -25,17 +25,17 @@ export default function FreightSection() {
   return (
     <section id="calculadora" className="py-20 md:py-32 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-0 left-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
       </div>
 
       <div className="container relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
           {/* Copy */}
           <div>
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full mb-6">
-              <Calculator size={16} className="text-cyan-600" />
-              <span className="text-cyan-700 font-semibold text-sm">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/10 border border-orange-500/30 rounded-full mb-6">
+              <Calculator size={16} className="text-orange-600" />
+              <span className="text-orange-700 font-semibold text-sm">
                 {language === 'es' ? 'Calculadora de fletes internacionales' : 'International freight calculator'}
               </span>
             </div>
@@ -54,7 +54,7 @@ export default function FreightSection() {
                 language === 'es' ? '220 destinos internacionales' : '220 international destinations',
               ].map((item) => (
                 <div key={item} className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-cyan-500 flex-shrink-0" />
+                  <CheckCircle className="w-5 h-5 text-orange-500 flex-shrink-0" />
                   <span className="text-sm font-medium text-foreground">{item}</span>
                 </div>
               ))}
@@ -62,10 +62,10 @@ export default function FreightSection() {
           </div>
 
           {/* Form */}
-          <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-premium-lg">
+          <div className="bg-white rounded-3xl border border-gray-100 p-8 app-shadow">
             {submitted ? (
               <div className="text-center py-10">
-                <CheckCircle className="w-14 h-14 text-cyan-500 mx-auto mb-4" />
+                <CheckCircle className="w-14 h-14 text-orange-500 mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-primary mb-2">
                   {language === 'es' ? '¡Listo!' : 'All set!'}
                 </h3>
@@ -89,7 +89,7 @@ export default function FreightSection() {
                       onChange={handleChange}
                       required
                       placeholder={language === 'es' ? 'Ej. Bogotá, Colombia' : 'E.g. Bogotá, Colombia'}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all duration-300"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
                     />
                   </div>
                   <div>
@@ -103,7 +103,7 @@ export default function FreightSection() {
                       onChange={handleChange}
                       required
                       placeholder={language === 'es' ? 'Ej. Miami, USA' : 'E.g. Miami, USA'}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all duration-300"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
                     />
                   </div>
                 </div>
@@ -120,7 +120,7 @@ export default function FreightSection() {
                     onChange={handleChange}
                     required
                     placeholder="50"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all duration-300"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
                   />
                 </div>
 
@@ -132,7 +132,7 @@ export default function FreightSection() {
                     name="clientType"
                     value={form.clientType}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all duration-300"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
                   >
                     <option value="brand">{language === 'es' ? 'Marca / Ecommerce' : 'Brand / Ecommerce'}</option>
                     <option value="individual">{language === 'es' ? 'Persona natural' : 'Individual'}</option>
@@ -142,7 +142,7 @@ export default function FreightSection() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white border-0 py-6 text-base font-semibold shadow-glow hover:shadow-glow-lg transition-all duration-300 flex items-center justify-center gap-2"
+                  className="w-full rounded-full bg-accent hover:bg-accent/90 text-white border-0 py-6 text-base font-semibold shadow-glow hover:shadow-glow-lg transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   <Send size={18} />
                   {language === 'es' ? 'Calcular mi envío' : 'Calculate my shipment'}

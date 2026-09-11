@@ -29,14 +29,14 @@ export default function FloatingButtons() {
       icon: MessageSquare,
       label: language === 'es' ? 'SMS' : 'Text Us',
       href: `sms:${phoneNumber}?body=${encodeURIComponent(whatsappMessage)}`,
-      color: 'bg-blue-500 hover:bg-blue-600',
+      color: 'bg-orange-500 hover:bg-orange-600',
       ariaLabel: 'Send a text message',
     },
     {
       icon: Phone,
       label: language === 'es' ? 'Llamar' : 'Call Now',
       href: `tel:${phoneNumber}`,
-      color: 'bg-cyan-500 hover:bg-cyan-600',
+      color: 'bg-orange-500 hover:bg-orange-600',
       ariaLabel: 'Call us now',
     },
   ];
@@ -52,8 +52,8 @@ export default function FloatingButtons() {
         />
       )}
 
-      {/* Floating Button Container */}
-      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8 z-50 flex flex-col items-end gap-3">
+      {/* Floating Button Container (desktop only — mobile uses the bottom tab bar's Contact button) */}
+      <div className="hidden md:flex fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 flex-col items-end gap-3">
         {/* Action Buttons */}
         {isOpen && (
           <div className="flex flex-col gap-2 mb-2 animate-fade-in-up">
@@ -83,13 +83,13 @@ export default function FloatingButtons() {
           className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-full shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center ${
             isOpen
               ? 'bg-gray-700 hover:bg-gray-800'
-              : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700'
+              : 'bg-accent hover:bg-accent/90'
           }`}
           aria-label={isOpen ? 'Close contact options' : 'Open contact options'}
           aria-expanded={isOpen}
         >
           {!isOpen && showPulse && (
-            <span className="absolute inset-0 rounded-full bg-cyan-500 animate-ping opacity-30" />
+            <span className="absolute inset-0 rounded-full bg-orange-500 animate-ping opacity-30" />
           )}
           {isOpen ? (
             <X size={24} className="text-white" />

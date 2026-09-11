@@ -12,7 +12,7 @@ export default function LanguageSwitcher() {
         size="sm"
         className={`rounded-full px-3 py-1 text-xs font-semibold transition-all duration-200 h-7 ${
           language === 'en'
-            ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-sm'
+            ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-sm'
             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
         }`}
         aria-label="Switch to English"
@@ -26,7 +26,7 @@ export default function LanguageSwitcher() {
         size="sm"
         className={`rounded-full px-3 py-1 text-xs font-semibold transition-all duration-200 h-7 ${
           language === 'es'
-            ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-sm'
+            ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-sm'
             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
         }`}
         aria-label="Cambiar a Español"

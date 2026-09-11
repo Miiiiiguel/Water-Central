@@ -88,8 +88,8 @@ export default function ContactFormExpanded() {
   return (
     <section className="py-20 md:py-32 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-600/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
       </div>
 
       <div className="container relative z-10">
@@ -116,7 +116,7 @@ export default function ContactFormExpanded() {
                     rel={info.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                     className="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition-all duration-300 group"
                   >
-                    <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-glow group-hover:shadow-glow-lg transition-all">
+                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-glow group-hover:shadow-glow-lg transition-all">
                       <Icon className="text-white" size={24} />
                     </div>
                     <div>
@@ -130,19 +130,19 @@ export default function ContactFormExpanded() {
 
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-cyan-500" />
+                <CheckCircle className="w-5 h-5 text-orange-500" />
                 <span className="text-sm font-medium text-foreground">
                   {language === 'es' ? 'Diagnóstico sin costo' : 'No-cost diagnosis'}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-cyan-500" />
+                <CheckCircle className="w-5 h-5 text-orange-500" />
                 <span className="text-sm font-medium text-foreground">
                   {language === 'es' ? 'Sin obligación' : 'No obligation'}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-cyan-500" />
+                <CheckCircle className="w-5 h-5 text-orange-500" />
                 <span className="text-sm font-medium text-foreground">
                   {language === 'es' ? 'Respuesta en 24 horas' : 'Response within 24 hours'}
                 </span>
@@ -152,13 +152,13 @@ export default function ContactFormExpanded() {
 
           {/* Contact Form - Multi-Step */}
           <div className="animate-fade-in-right">
-            <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-8 shadow-premium-lg">
+            <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-gray-100 p-8 app-shadow">
               <div className="flex gap-2 mb-8">
                 {[1, 2, 3].map((s) => (
                   <div
                     key={s}
                     className={`h-2 flex-1 rounded-full transition-all duration-300 ${
-                      s <= step ? 'bg-gradient-to-r from-cyan-500 to-blue-600' : 'bg-gray-200'
+                      s <= step ? 'bg-gradient-to-r from-orange-500 to-orange-600' : 'bg-gray-200'
                     }`}
                   />
                 ))}
@@ -177,7 +177,7 @@ export default function ContactFormExpanded() {
                         value={formData.firstName}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all duration-300"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
                         placeholder={language === 'es' ? 'Tu nombre' : 'Your first name'}
                       />
                     </div>
@@ -192,7 +192,7 @@ export default function ContactFormExpanded() {
                         value={formData.lastName}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all duration-300"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
                         placeholder={language === 'es' ? 'Tu apellido' : 'Your last name'}
                       />
                     </div>
@@ -205,7 +205,7 @@ export default function ContactFormExpanded() {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all duration-300"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
                         placeholder={language === 'es' ? 'tu@email.com' : 'your@email.com'}
                       />
                     </div>
@@ -220,7 +220,7 @@ export default function ContactFormExpanded() {
                         value={formData.phone}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all duration-300"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
                         placeholder="+57 300 000 0000"
                       />
                     </div>
@@ -239,7 +239,7 @@ export default function ContactFormExpanded() {
                         value={formData.company}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all duration-300"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
                         placeholder={language === 'es' ? 'Tu marca' : 'Your brand'}
                       />
                     </div>
@@ -254,7 +254,7 @@ export default function ContactFormExpanded() {
                         value={formData.country}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all duration-300"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
                         placeholder={language === 'es' ? 'Tu país' : 'Your country'}
                       />
                     </div>
@@ -267,7 +267,7 @@ export default function ContactFormExpanded() {
                         name="salesChannel"
                         value={formData.salesChannel}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all duration-300"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
                       >
                         <option value="none">{language === 'es' ? 'Todavía no vendo online' : "I don't sell online yet"}</option>
                         <option value="amazon">Amazon</option>
@@ -289,13 +289,13 @@ export default function ContactFormExpanded() {
                         {interests.map((interest) => (
                           <label
                             key={interest.id}
-                            className="flex items-center gap-2 p-3 border border-gray-300 rounded-lg hover:border-cyan-500 hover:bg-cyan-50 cursor-pointer transition-all duration-300"
+                            className="flex items-center gap-2 p-3 border border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 cursor-pointer transition-all duration-300"
                           >
                             <input
                               type="checkbox"
                               checked={formData.interests.includes(interest.id)}
                               onChange={() => handleCheckbox(interest.id)}
-                              className="w-4 h-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
+                              className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
                             />
                             <span className="text-sm font-medium text-foreground">{interest.label}</span>
                           </label>
@@ -312,18 +312,18 @@ export default function ContactFormExpanded() {
                         value={formData.message}
                         onChange={handleChange}
                         rows={4}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition-all duration-300 resize-none"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300 resize-none"
                         placeholder={language === 'es' ? 'Cuéntanos más sobre tu marca...' : 'Tell us more about your brand...'}
                       ></textarea>
                     </div>
 
-                    <label className="flex items-center gap-2 p-3 border border-gray-300 rounded-lg hover:border-cyan-500 hover:bg-cyan-50 cursor-pointer transition-all duration-300">
+                    <label className="flex items-center gap-2 p-3 border border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 cursor-pointer transition-all duration-300">
                       <input
                         type="checkbox"
                         name="subscribe"
                         checked={formData.subscribe}
                         onChange={handleChange}
-                        className="w-4 h-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
+                        className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
                       />
                       <span className="text-sm font-medium text-foreground">
                         {language === 'es'
@@ -344,14 +344,14 @@ export default function ContactFormExpanded() {
                     <Button
                       type="button"
                       onClick={() => setStep(step + 1)}
-                      className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white border-0"
+                      className="flex-1 rounded-full bg-accent hover:bg-accent/90 text-white border-0"
                     >
                       {language === 'es' ? 'Siguiente' : 'Next'}
                     </Button>
                   ) : (
                     <Button
                       type="submit"
-                      className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white border-0 shadow-glow-lg hover:shadow-glow-lg transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
+                      className="flex-1 rounded-full bg-accent hover:bg-accent/90 text-white border-0 shadow-glow-lg hover:shadow-glow-lg transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
                     >
                       <Send size={18} />
                       {language === 'es' ? 'Enviar' : 'Submit'}

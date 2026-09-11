@@ -21,14 +21,14 @@ export default function VSLSection() {
   return (
     <section className="py-20 md:py-32 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-600/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
       </div>
 
       <div className="container relative z-10">
         <div className={`max-w-3xl mx-auto text-center mb-14 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full mb-6">
-            <span className="text-cyan-700 font-semibold text-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/10 border border-orange-500/30 rounded-full mb-6">
+            <span className="text-orange-700 font-semibold text-sm">
               {language === 'es' ? 'Consultoría 1 a 1' : '1-on-1 consulting'}
             </span>
           </div>
@@ -49,11 +49,11 @@ export default function VSLSection() {
           {steps.map((step, index) => {
             const Icon = step.icon;
             return (
-              <div key={index} className="relative bg-white rounded-xl p-6 border border-gray-200 text-center hover:shadow-premium-lg hover:border-cyan-500/50 transition-all duration-300 group">
-                <div className="absolute -top-3 -left-3 w-7 h-7 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-bold flex items-center justify-center shadow-glow">
+              <div key={index} className="relative bg-white rounded-xl p-6 border border-gray-200 text-center hover:shadow-premium-lg hover:border-orange-500/50 transition-all duration-300 group">
+                <div className="absolute -top-3 -left-3 w-7 h-7 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold flex items-center justify-center shadow-glow">
                   {index + 1}
                 </div>
-                <div className="w-14 h-14 mx-auto bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center mb-4 shadow-glow group-hover:scale-110 transition-transform duration-300">
+                <div className="w-14 h-14 mx-auto bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mb-4 shadow-glow group-hover:scale-110 transition-transform duration-300">
                   <Icon className="text-white" size={26} />
                 </div>
                 <p className="font-semibold text-foreground">{step.title}</p>
@@ -64,7 +64,7 @@ export default function VSLSection() {
 
         <div className={`text-center transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <Button
-            className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-6 text-base sm:text-lg font-semibold border-0 shadow-glow-lg hover:shadow-glow-lg transition-all duration-300 hover:scale-105 inline-flex items-center gap-2"
+            className="rounded-full bg-accent hover:bg-accent/90 text-white px-8 py-6 text-base sm:text-lg font-semibold border-0 app-shadow transition-all duration-300 hover:scale-105 inline-flex items-center gap-2"
             onClick={() => {
               const el = document.getElementById('contacto');
               if (el) el.scrollIntoView({ behavior: 'smooth' });

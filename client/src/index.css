@@ -43,40 +43,40 @@
 }
 
 :root {
-  /* Easycomex - Paleta Azul/Blanco/Gris (placeholder, reemplazar con marca real) */
-  --primary: #1E3A8A; /* Azul Profundo */
-  --primary-foreground: #FFFFFF; /* Blanco */
-  --sidebar-primary: #06B6D4; /* Azul Cian */
+  /* Easycomex - Naranja/Navy/Blanco (marca real) */
+  --primary: #1B1A45; /* Navy profundo del logo/CTA */
+  --primary-foreground: #FFFFFF;
+  --sidebar-primary: #FF5A36; /* Naranja del logo */
   --sidebar-primary-foreground: #FFFFFF;
-  --chart-1: #06B6D4;
-  --chart-2: #0891B2;
-  --chart-3: #1E3A8A;
-  --chart-4: #1E40AF;
-  --chart-5: #1E3A8A;
-  --radius: 0.65rem;
-  --background: #FFFFFF; /* Blanco Puro */
-  --foreground: #1F2937; /* Gris Oscuro */
-  --card: #F9FAFB; /* Gris Muy Claro */
-  --card-foreground: #1F2937;
+  --chart-1: #FF5A36;
+  --chart-2: #FF8552;
+  --chart-3: #1B1A45;
+  --chart-4: #342F7A;
+  --chart-5: #FF5A36;
+  --radius: 1rem;
+  --background: #FFFFFF;
+  --foreground: #1B1A45; /* Navy para texto principal */
+  --card: #FAFAFC;
+  --card-foreground: #1B1A45;
   --popover: #FFFFFF;
-  --popover-foreground: #1F2937;
-  --secondary: #E5E7EB; /* Gris Claro */
-  --secondary-foreground: #374151; /* Gris Medio */
-  --muted: #D1D5DB; /* Gris Medio-Claro */
-  --muted-foreground: #6B7280; /* Gris Neutral */
-  --accent: #06B6D4; /* Azul Cian - Acento Principal */
+  --popover-foreground: #1B1A45;
+  --secondary: #FFF1EA; /* Durazno claro para pills/chips */
+  --secondary-foreground: #C8431B;
+  --muted: #EFEFF4;
+  --muted-foreground: #6B6B85;
+  --accent: #FF5A36; /* Naranja - Acento Principal */
   --accent-foreground: #FFFFFF;
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
-  --border: #E5E7EB;
-  --input: #F3F4F6;
-  --ring: #06B6D4;
+  --border: #ECECF3;
+  --input: #F5F5F9;
+  --ring: #FF5A36;
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #1F2937;
-  --sidebar-accent: #06B6D4;
+  --sidebar-foreground: #1B1A45;
+  --sidebar-accent: #FF5A36;
   --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: #E5E7EB;
-  --sidebar-ring: #06B6D4;
+  --sidebar-border: #ECECF3;
+  --sidebar-ring: #FF5A36;
 }
 
 .dark {
@@ -123,7 +123,7 @@
     font-family: 'Inter', sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Baloo 2', 'Inter', sans-serif;
     font-weight: 700;
   }
   h1 {
@@ -136,8 +136,12 @@
     @apply text-2xl md:text-3xl font-bold;
   }
   .font-heading {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Baloo 2', 'Inter', sans-serif;
     font-weight: 700;
+  }
+  .font-logo {
+    font-family: 'Baloo 2', 'Inter', sans-serif;
+    font-weight: 800;
   }
   .font-body {
     font-family: 'Inter', sans-serif;
@@ -258,10 +262,10 @@
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), 0 0 40px rgba(30, 58, 138, 0.1);
+    box-shadow: 0 0 20px rgba(255, 90, 54, 0.3), 0 0 40px rgba(27, 26, 69, 0.1);
   }
   50% {
-    box-shadow: 0 0 40px rgba(6, 182, 212, 0.6), 0 0 60px rgba(30, 58, 138, 0.2);
+    box-shadow: 0 0 40px rgba(255, 90, 54, 0.6), 0 0 60px rgba(27, 26, 69, 0.2);
   }
 }
 
@@ -370,19 +374,19 @@
 /* ========== GRADIENT BACKGROUNDS ========== */
 
 .bg-gradient-premium {
-  background: linear-gradient(135deg, #1E3A8A 0%, #0891B2 50%, #06B6D4 100%);
+  background: linear-gradient(135deg, #1B1A45 0%, #FF8552 50%, #FF5A36 100%);
 }
 
 .bg-gradient-dark {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+  background: linear-gradient(135deg, #0f172a 0%, #1B1A45 100%);
 }
 
 .bg-gradient-cyan {
-  background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+  background: linear-gradient(135deg, #FF5A36 0%, #FF8552 100%);
 }
 
 .bg-gradient-mesh {
-  background: linear-gradient(135deg, #1E3A8A 0%, #06B6D4 50%, #0891B2 100%);
+  background: linear-gradient(135deg, #1B1A45 0%, #FF5A36 50%, #FF8552 100%);
   background-size: 400% 400%;
   animation: gradientShift 15s ease infinite;
 }
@@ -406,24 +410,24 @@
   background: rgba(15, 23, 42, 0.5);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(6, 182, 212, 0.2);
+  border: 1px solid rgba(255, 90, 54, 0.2);
 }
 
 .glass-premium {
-  background: rgba(30, 58, 138, 0.1);
+  background: rgba(27, 26, 69, 0.1);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(6, 182, 212, 0.3);
+  border: 1px solid rgba(255, 90, 54, 0.3);
 }
 
 /* ========== SHADOW ENHANCEMENTS ========== */
 
 .shadow-glow {
-  box-shadow: 0 0 30px rgba(6, 182, 212, 0.2);
+  box-shadow: 0 0 30px rgba(255, 90, 54, 0.2);
 }
 
 .shadow-glow-lg {
-  box-shadow: 0 0 60px rgba(6, 182, 212, 0.3);
+  box-shadow: 0 0 60px rgba(255, 90, 54, 0.3);
 }
 
 .shadow-premium {
@@ -450,7 +454,7 @@
 }
 
 .hover-glow:hover {
-  box-shadow: 0 0 30px rgba(6, 182, 212, 0.5);
+  box-shadow: 0 0 30px rgba(255, 90, 54, 0.5);
 }
 
 .hover-scale {
@@ -472,7 +476,7 @@
   background: white;
   background-clip: padding-box;
   border: 2px solid transparent;
-  background-image: linear-gradient(white, white), linear-gradient(135deg, #1E3A8A, #06B6D4);
+  background-image: linear-gradient(white, white), linear-gradient(135deg, #1B1A45, #FF5A36);
   background-origin: border-box;
   background-clip: padding-box, border-box;
 }
@@ -480,14 +484,14 @@
 /* ========== TEXT EFFECTS ========== */
 
 .text-gradient {
-  background: linear-gradient(135deg, #1E3A8A 0%, #06B6D4 100%);
+  background: linear-gradient(135deg, #1B1A45 0%, #FF5A36 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .text-glow {
-  text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+  text-shadow: 0 0 20px rgba(255, 90, 54, 0.5);
 }
 
 /* ========== SCROLL ANIMATIONS ========== */
@@ -538,10 +542,10 @@
 
 @keyframes glow-pulse {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.4), 0 0 40px rgba(6, 182, 212, 0.2);
+    box-shadow: 0 0 20px rgba(255, 90, 54, 0.4), 0 0 40px rgba(255, 90, 54, 0.2);
   }
   50% {
-    box-shadow: 0 0 40px rgba(6, 182, 212, 0.8), 0 0 80px rgba(6, 182, 212, 0.4);
+    box-shadow: 0 0 40px rgba(255, 90, 54, 0.8), 0 0 80px rgba(255, 90, 54, 0.4);
   }
 }
 
@@ -598,10 +602,10 @@
 
 @keyframes neon-glow {
   0%, 100% {
-    text-shadow: 0 0 10px rgba(6, 182, 212, 0.5), 0 0 20px rgba(6, 182, 212, 0.3);
+    text-shadow: 0 0 10px rgba(255, 90, 54, 0.5), 0 0 20px rgba(255, 90, 54, 0.3);
   }
   50% {
-    text-shadow: 0 0 20px rgba(6, 182, 212, 1), 0 0 40px rgba(6, 182, 212, 0.6), 0 0 60px rgba(6, 182, 212, 0.3);
+    text-shadow: 0 0 20px rgba(255, 90, 54, 1), 0 0 40px rgba(255, 90, 54, 0.6), 0 0 60px rgba(255, 90, 54, 0.3);
   }
 }
 
@@ -662,15 +666,15 @@
 
 /* Shadow Utilities */
 .shadow-glow-lg {
-  box-shadow: 0 0 30px rgba(6, 182, 212, 0.4), 0 0 60px rgba(6, 182, 212, 0.2);
+  box-shadow: 0 0 30px rgba(255, 90, 54, 0.4), 0 0 60px rgba(255, 90, 54, 0.2);
 }
 
 .shadow-glow-xl {
-  box-shadow: 0 0 50px rgba(6, 182, 212, 0.5), 0 0 100px rgba(6, 182, 212, 0.3);
+  box-shadow: 0 0 50px rgba(255, 90, 54, 0.5), 0 0 100px rgba(255, 90, 54, 0.3);
 }
 
 .shadow-premium-lg {
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 40px rgba(6, 182, 212, 0.15);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 40px rgba(255, 90, 54, 0.15);
 }
 
 /* Backdrop Effects */
@@ -701,7 +705,7 @@
 
 /* Gradient Text */
 .gradient-text {
-  background: linear-gradient(135deg, #06B6D4 0%, #1E3A8A 100%);
+  background: linear-gradient(135deg, #FF5A36 0%, #1B1A45 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -722,7 +726,7 @@
 }
 
 .hover-glow:hover {
-  box-shadow: 0 0 30px rgba(6, 182, 212, 0.5);
+  box-shadow: 0 0 30px rgba(255, 90, 54, 0.5);
 }
 
 /* Transition Utilities */
@@ -732,4 +736,30 @@
 
 .transition-smooth-lg {
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========== MARQUEE (partner logos) ========== */
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
+/* ========== APP-STYLE HELPERS ========== */
+
+.app-shadow {
+  box-shadow: 0 1px 2px rgba(27, 26, 69, 0.04), 0 12px 28px -8px rgba(27, 26, 69, 0.14);
+}
+
+.mask-fade {
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
 }

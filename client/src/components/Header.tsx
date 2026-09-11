@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Calculator, FileSearch, TrendingUp, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -21,14 +21,17 @@ export default function Header() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const navItems = [
+  const toolPills = [
+    { label: t('header.calculadora'), href: '#calculadora', icon: Calculator },
+    { label: t('header.diagnostico'), href: '#planes', icon: FileSearch },
+    { label: t('header.pronostico'), href: '#pronostico', icon: TrendingUp },
+  ];
+
+  const menuItems = [
     { label: t('header.inicio'), href: '#inicio' },
     { label: t('header.servicios'), href: '#servicios' },
-    { label: t('header.planes'), href: '#planes' },
-    { label: t('header.calculadora'), href: '#calculadora' },
     { label: t('header.equipo'), href: '#equipo' },
     { label: t('header.faq'), href: '#faq' },
-    { label: t('header.contacto'), href: '#contacto' },
   ];
 
   const handleNavClick = (href: string) => {
@@ -55,56 +58,56 @@ export default function Header() {
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-sm'
-          : 'bg-white/10 backdrop-blur-xl border-b border-white/20'
+          ? 'bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-sm'
+          : 'bg-white/70 backdrop-blur-xl border-b border-transparent'
       }`}
     >
-      <div className="container flex items-center justify-between h-16 md:h-20">
+      <div className="container flex items-center justify-between h-16 md:h-20 gap-3">
         {/* Logo */}
-        <button 
+        <button
           onClick={() => handleNavClick('#inicio')}
-          className="flex items-center gap-2 group hover-scale flex-shrink-0 bg-transparent border-0 p-0 cursor-pointer"
+          className="flex items-center group hover-scale flex-shrink-0 bg-transparent border-0 p-0 cursor-pointer"
         >
-          <div className="w-9 h-9 md:w-10 md:h-10 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-lg flex items-center justify-center shadow-glow group-hover:shadow-glow-lg transition-all">
-            <span className="text-white font-bold text-base md:text-lg">E</span>
-          </div>
-          <span className="font-bold text-lg md:text-xl text-primary hidden sm:inline bg-gradient-to-r from-primary to-cyan-600 bg-clip-text text-transparent">
-            easycomex
+          <span className="font-logo text-2xl md:text-3xl tracking-tight leading-none">
+            <span className="text-accent">easy</span>
+            <span className="text-primary">comex</span>
           </span>
         </button>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
-          {navItems.map((item, index) => (
-            <button
-              key={item.label}
-              onClick={() => handleNavClick(item.href)}
-              className="text-foreground hover:text-accent transition-colors text-sm font-medium relative group whitespace-nowrap bg-transparent border-0 p-0 cursor-pointer"
-              style={{ transitionDelay: `${index * 50}ms` }}
-            >
-              {item.label}
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-accent to-cyan-600 group-hover:w-full transition-all duration-300"></span>
-            </button>
-          ))}
+        {/* Desktop tool pills */}
+        <nav className="hidden lg:flex items-center gap-2 flex-1 justify-center">
+          {toolPills.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.label}
+                onClick={() => handleNavClick(item.href)}
+                className="pill-nav-item flex items-center gap-2 rounded-full bg-secondary text-secondary-foreground hover:bg-orange-100 hover:scale-105 px-4 py-2.5 text-sm font-bold whitespace-nowrap bg-transparent border-0 cursor-pointer"
+                style={{ backgroundColor: 'var(--secondary)' }}
+              >
+                <Icon size={16} strokeWidth={2.5} />
+                {item.label}
+              </button>
+            );
+          })}
         </nav>
 
         {/* Right Section */}
-        <div className="flex items-center gap-2 md:gap-4">
-          {/* Language Switcher */}
+        <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
           <LanguageSwitcher />
 
-          {/* CTA Button */}
           <Button
-            className="hidden md:inline-flex bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white border-0 shadow-glow hover:shadow-glow-lg transition-all duration-300 hover:scale-105 text-sm px-4 lg:px-6"
+            className="hidden md:inline-flex rounded-full bg-primary hover:bg-primary/90 text-white border-0 app-shadow transition-all duration-300 hover:scale-105 text-sm font-bold px-5 lg:px-6 gap-2"
             onClick={handleCtaClick}
           >
+            <MessageCircle size={16} strokeWidth={2.5} />
             {t('header.prueba')}
           </Button>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors bg-transparent border-0 cursor-pointer"
+            className="lg:hidden p-2 hover:bg-orange-50 rounded-full transition-colors bg-transparent border-0 cursor-pointer"
             aria-label={isOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isOpen}
           >
@@ -116,23 +119,41 @@ export default function Header() {
       {/* Mobile Navigation */}
       <div
         className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+          isOpen ? 'max-h-[640px] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
-        <nav className="container py-4 flex flex-col gap-1 border-t border-gray-200 bg-white/95 backdrop-blur-xl">
-          {navItems.map((item) => (
-            <button
-              key={item.label}
-              onClick={() => handleNavClick(item.href)}
-              className="text-foreground hover:text-accent hover:bg-cyan-50 transition-all py-3 px-4 rounded-lg font-medium text-left bg-transparent border-0 cursor-pointer w-full"
-            >
-              {item.label}
-            </button>
-          ))}
+        <nav className="container py-4 flex flex-col gap-4 border-t border-gray-100 bg-white/95 backdrop-blur-xl">
+          <div className="flex flex-col gap-2">
+            {toolPills.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.label}
+                  onClick={() => handleNavClick(item.href)}
+                  className="flex items-center gap-3 text-secondary-foreground bg-secondary hover:bg-orange-100 transition-all py-3 px-4 rounded-2xl font-bold text-left border-0 cursor-pointer w-full"
+                >
+                  <Icon size={18} strokeWidth={2.5} />
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="flex flex-col gap-1 pt-2 border-t border-gray-100">
+            {menuItems.map((item) => (
+              <button
+                key={item.label}
+                onClick={() => handleNavClick(item.href)}
+                className="text-foreground hover:text-accent hover:bg-orange-50 transition-all py-3 px-4 rounded-xl font-medium text-left bg-transparent border-0 cursor-pointer w-full"
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
           <Button
-            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white border-0 mt-2 py-5"
+            className="w-full rounded-full bg-primary hover:bg-primary/90 text-white border-0 mt-1 py-5 font-bold gap-2"
             onClick={handleCtaClick}
           >
+            <MessageCircle size={18} strokeWidth={2.5} />
             {t('header.prueba')}
           </Button>
         </nav>

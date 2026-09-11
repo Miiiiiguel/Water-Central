@@ -17,11 +17,13 @@ export const translations = {
     'header.servicios': 'Servicios',
     'header.beneficios': 'Cómo te ayudamos',
     'header.planes': 'Planes',
-    'header.calculadora': 'Calculadora',
+    'header.calculadora': 'Calculadora de fletes',
+    'header.diagnostico': 'Diagnóstico',
+    'header.pronostico': 'Pronóstico',
     'header.equipo': 'Equipo',
     'header.faq': 'FAQ',
     'header.contacto': 'Contacto',
-    'header.prueba': 'Diagnóstico Gratis',
+    'header.prueba': 'Contáctanos',
 
     // Hero
     'hero.badge': 'Finalmente una compañía que hace que las cosas pasen',
@@ -77,11 +79,13 @@ export const translations = {
     'header.servicios': 'Services',
     'header.beneficios': 'How we help',
     'header.planes': 'Plans',
-    'header.calculadora': 'Calculator',
+    'header.calculadora': 'Freight calculator',
+    'header.diagnostico': 'Diagnosis',
+    'header.pronostico': 'Forecast',
     'header.equipo': 'Team',
     'header.faq': 'FAQ',
     'header.contacto': 'Contact',
-    'header.prueba': 'Free Diagnosis',
+    'header.prueba': 'Contact us',
 
     // Hero
     'hero.badge': 'Finally, a company that makes things happen',
