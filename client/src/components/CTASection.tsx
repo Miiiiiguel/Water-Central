@@ -2,7 +2,9 @@ import { MessageCircle, ArrowRight, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const WHATSAPP_URL = 'https://wa.me/573176438766';
+import { whatsappUrl } from '@/lib/contact';
+
+const WHATSAPP_URL = whatsappUrl();
 
 export default function CTASection() {
   const { language } = useLanguage();

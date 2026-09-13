@@ -5,6 +5,8 @@ import { fileURLToPath } from "url";
 import { stripeRouter } from "./stripe";
 import { chatRouter } from "./chat";
 import { pushRouter } from "./push";
+import { ttsRouter } from "./tts";
+import { healthRouter } from "./health";
 import { securityHeaders, permissionsPolicy, corsPolicy, methodAllowlist, apiRateLimiter } from "./security";
 import { validateEnv } from "./env";
 
@@ -32,6 +34,8 @@ async function startServer() {
   app.use("/api", stripeRouter);
   app.use("/api", chatRouter);
   app.use("/api", pushRouter);
+  app.use("/api", ttsRouter);
+  app.use("/api", healthRouter);
   // Anything under /api that no router claimed is a 404, never the SPA shell.
   app.use("/api", (_req, res) => res.status(404).json({ error: "Not found" }));
 

@@ -1,9 +1,11 @@
 import { Compass, Share2, Rocket, LineChart, Gauge } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSpotlight } from '@/lib/useSpotlight';
 
 export default function BenefitsSection() {
   const { t } = useLanguage();
+  const spotlight = useSpotlight();
 
   const benefits = [
     { icon: Compass, title: t('benefits.benefit1'), description: t('benefits.benefit1_desc') },
@@ -47,7 +49,8 @@ export default function BenefitsSection() {
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.6 }}
             whileHover={{ y: -6 }}
-            className="md:col-span-2 relative rounded-3xl bg-gradient-to-br from-primary via-indigo-950 to-primary p-8 md:p-10 text-white overflow-hidden app-shadow"
+            {...spotlight}
+            className="card-spotlight md:col-span-2 relative rounded-3xl bg-gradient-to-br from-primary via-indigo-950 to-primary p-8 md:p-10 text-white overflow-hidden app-shadow"
           >
             <div className="absolute -top-20 -right-20 w-72 h-72 bg-accent/25 rounded-full blur-3xl pointer-events-none"></div>
             <div className="absolute -bottom-24 -left-10 w-64 h-64 bg-indigo-400/15 rounded-full blur-3xl pointer-events-none"></div>
@@ -70,7 +73,8 @@ export default function BenefitsSection() {
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.6, delay: (index + 1) * 0.08 }}
                 whileHover={{ y: -6 }}
-                className="group relative rounded-3xl bg-white border border-gray-100 app-shadow hover:shadow-premium-lg transition-shadow duration-300 p-8"
+                {...spotlight}
+                className="card-spotlight group relative rounded-3xl bg-white border border-gray-100 app-shadow hover:shadow-premium-lg transition-shadow duration-300 p-8"
               >
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center mb-5 shadow-glow group-hover:shadow-glow-lg transition-all duration-300 group-hover:scale-110">
                   <Icon className="text-white" size={24} />

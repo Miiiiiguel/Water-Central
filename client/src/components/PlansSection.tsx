@@ -4,6 +4,7 @@ import { Check, Sparkles, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { trackInitiateCheckout } from '@/lib/analytics';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSpotlight } from '@/lib/useSpotlight';
 
 interface Plan {
   step: number;
@@ -55,6 +56,7 @@ const plans: Plan[] = [
 export default function PlansSection() {
   const { language } = useLanguage();
   const { getAccessToken } = useAuth();
+  const spotlight = useSpotlight();
   const [isVisible, setIsVisible] = useState(false);
   const [checkingOut, setCheckingOut] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -139,10 +141,11 @@ export default function PlansSection() {
           {plans.map((plan) => (
             <div
               key={plan.step}
-              className={`relative rounded-2xl p-8 border flex flex-col ${
+              {...spotlight}
+              className={`card-spotlight relative rounded-3xl p-8 border flex flex-col transition-transform duration-300 hover:-translate-y-1 ${
                 plan.highlighted
-                  ? 'bg-gradient-to-b from-primary to-indigo-950 text-white border-transparent shadow-glow-lg lg:-translate-y-4'
-                  : 'bg-white border-gray-200 app-shadow'
+                  ? 'bg-gradient-to-b from-primary to-indigo-950 text-white border-transparent shadow-glow-lg lg:-translate-y-4 lg:hover:-translate-y-5'
+                  : 'bg-white border-gray-100 app-shadow hover:shadow-premium-lg'
               }`}
             >
               {plan.highlighted && (

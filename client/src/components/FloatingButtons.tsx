@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Phone, MessageCircle, X, MessageSquare } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { WHATSAPP_NUMBER } from '@/lib/contact';
 
 export default function FloatingButtons() {
   const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [showPulse, setShowPulse] = useState(true);
 
-  const whatsappNumber = '573176438766';
-  const phoneNumber = '+573136380121';
+  const whatsappNumber = WHATSAPP_NUMBER;
+  const phoneNumber = `+${WHATSAPP_NUMBER}`;
   const whatsappMessage = language === 'es'
     ? 'Hola, quiero saber cómo puede ayudarme Easycomex a vender en Estados Unidos.'
     : 'Hi, I would like to know how Easycomex can help me sell in the United States.';

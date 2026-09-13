@@ -199,22 +199,40 @@ una campana junto a la de notificaciones normales; al tocarla pide
 permiso al navegador y guarda la suscripción. Si `VITE_VAPID_PUBLIC_KEY`
 no está configurada, ese botón simplemente no aparece — no rompe nada.
 
-## 7. Chatbot de guía
+## 7. Marco Polo (asistente con voz)
 
-Funciona ya mismo, sin configurar nada: responde preguntas sobre
-servicios, precios, cómo empezar, etc. usando reglas simples
-(`client/src/lib/chatbotKnowledge.ts`), y si no sabe algo ofrece
-conectar por WhatsApp — nunca inventa precios ni promesas.
+Marco Polo es el guía de la app — el explorador que abrió rutas
+comerciales, ahora ayudando marcas a llegar a USA. Funciona ya mismo,
+sin configurar nada:
 
-Si querés que también entienda preguntas abiertas con IA real (no solo
-las que coinciden con las reglas):
-1. Crea una cuenta en [console.anthropic.com](https://console.anthropic.com).
-2. Genera una API key y ponla en `ANTHROPIC_API_KEY`.
+- Responde sobre servicios, precios, logística, pagos, cuenta, referidos
+  y cómo empezar (`client/src/lib/chatbotKnowledge.ts`), y **te lleva a
+  la sección** correspondiente del sitio cuando aplica.
+- **Habla**: con el botón de altavoz en su cabecera lee las respuestas en
+  voz alta usando la voz del navegador (gratis, sin cuentas; elige una
+  voz en español latino si el dispositivo la tiene).
+- **Escucha**: el botón de micrófono deja dictar la pregunta (Chrome,
+  Edge, Safari; en navegadores sin soporte el botón no aparece).
+- Recuerda la conversación mientras dure la visita, y la primera vez
+  saluda con una burbuja a los pocos segundos.
+- Si no sabe algo, ofrece pasar con una persona por WhatsApp — nunca
+  inventa precios ni promesas.
 
-Con eso, el chatbot usa el modelo de Anthropic para responder cualquier
-pregunta, siempre limitado a hablar solo de Easycomex (así no puede
-"alucinar" cosas fuera de lo que realmente ofrecés). Si la key falla o
-no está, vuelve solo a las respuestas por reglas — nunca se rompe.
+Dos mejoras opcionales, cada una con su key:
+
+**IA real** (entiende preguntas abiertas, no solo las de las reglas):
+1. Cuenta en [console.anthropic.com](https://console.anthropic.com).
+2. API key en `ANTHROPIC_API_KEY`.
+Siempre limitado a hablar de Easycomex; si la key falla vuelve a reglas.
+
+**Voz premium** (suena a locutor en vez de a sintetizador):
+1. Cuenta en [elevenlabs.io](https://elevenlabs.io) (tiene plan gratis
+   para probar).
+2. En **Voices**, elegí o creá una voz en español y copiá su **Voice ID**.
+3. `ELEVENLABS_API_KEY` + `ELEVENLABS_VOICE_ID`.
+Cada respuesta pasa por su API (se cobra por caracteres); hay un límite
+de 40 audios por IP cada 15 minutos para que nadie te agote el crédito.
+Si la key no está o falla, Marco Polo vuelve a la voz del navegador solo.
 
 ## 8. Variables de entorno
 
@@ -301,10 +319,11 @@ Para ser honesto sobre el alcance real de lo que hay hoy:
 - **Monitoreo de errores en producción** (Sentry u otro) — útil una vez
   el sitio tenga tráfico real, para enterarte de errores antes que tus
   usuarios te escriban.
-- **Kalodata / Cisex** — mencionaste que querés integrar estas dos
-  herramientas; todavía no sé qué datos o funcionalidad exacta querés
-  traer de cada una, así que no empecé — ver la conversación para los
-  detalles que faltan.
+- **Kalodata / Sicex** — el panel de Integraciones del dashboard ya
+  tiene su lugar y las variables `KALODATA_API_KEY` / `SICEX_API_KEY`
+  están reservadas, pero no hay ninguna llamada real todavía: falta la
+  documentación de sus APIs y las credenciales. En cuanto lleguen, se
+  conecta ahí mismo.
 
 Ninguno de estos está fingido ni a medias en el código — simplemente no
 existen todavía. Decime cuál te importa primero y lo construyo con el

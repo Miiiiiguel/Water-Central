@@ -377,28 +377,50 @@ function ExportButton({ label, onClick, disabled }: { label: string; onClick: ()
   );
 }
 
-// Placeholder for the Kalodata (TikTok Shop) + Sicex (foreign trade data)
-// integrations the team asked for. Deliberately honest about the state:
-// no fabricated numbers, just what each tool would unlock once wired up
-// server-side with real API credentials. Swap this for real cards fed
-// by a server endpoint once those keys exist — see SETUP.md.
-function MarketIntelPanel() {
-  const { language } = useLanguage();
+// Live status of every integration, read from GET /api/health (booleans
+// only — the server never sends key values). This is the "what's left
+// to connect" checklist for the team; Kalodata/Sicex live here too, and
+// stay honest: no data is shown until real API access exists.
+type HealthIntegrations = Record<string, boolean>;
 
-  const tools = [
-    {
-      name: 'Kalodata',
-      description: language === 'es'
-        ? 'Productos en tendencia, ventas y competidores en TikTok Shop.'
-        : 'Trending products, sales, and competitors on TikTok Shop.',
-    },
-    {
-      name: 'Sicex',
-      description: language === 'es'
-        ? 'Datos reales de importación/exportación por país y producto para tus análisis de mercado.'
-        : 'Real import/export data by country and product for your market analyses.',
-    },
+function IntegrationsPanel() {
+  const { language } = useLanguage();
+  const [health, setHealth] = useState<HealthIntegrations | null | 'error'>(null);
+
+  useEffect(() => {
+    fetch('/api/health')
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setHealth(d.integrations ?? {}))
+      .catch(() => setHealth('error'));
+  }, []);
+
+  const rows: { key: string; name: string; description: { es: string; en: string }; group: 'intel' | 'core' }[] = [
+    { key: 'kalodata', name: 'Kalodata', group: 'intel', description: { es: 'Productos en tendencia, ventas y competidores en TikTok Shop.', en: 'Trending products, sales and competitors on TikTok Shop.' } },
+    { key: 'sicex', name: 'Sicex', group: 'intel', description: { es: 'Datos reales de importación/exportación por país y producto.', en: 'Real import/export data by country and product.' } },
+    { key: 'supabase', name: 'Supabase', group: 'core', description: { es: 'Login, registro, base de datos, notificaciones.', en: 'Login, sign-up, database, notifications.' } },
+    { key: 'stripe', name: 'Stripe', group: 'core', description: { es: 'Cobros con tarjeta.', en: 'Card payments.' } },
+    { key: 'stripeWebhook', name: 'Stripe webhook', group: 'core', description: { es: 'Registra cada pago en el dashboard.', en: 'Records each payment in the dashboard.' } },
+    { key: 'push', name: 'Push', group: 'core', description: { es: 'Notificaciones con la app cerrada.', en: 'Notifications with the app closed.' } },
+    { key: 'chatAI', name: 'Marco Polo · IA', group: 'core', description: { es: 'Respuestas abiertas con Anthropic (sin esto usa reglas).', en: 'Open answers via Anthropic (rule-based without it).' } },
+    { key: 'voicePremium', name: 'Marco Polo · voz premium', group: 'core', description: { es: 'ElevenLabs (sin esto usa la voz del navegador).', en: 'ElevenLabs (browser voice without it).' } },
+    { key: 'calendly', name: 'Calendly', group: 'core', description: { es: 'Agenda de consultorías.', en: 'Consultation booking.' } },
+    { key: 'metaPixel', name: 'Meta Pixel', group: 'core', description: { es: 'Tracking de ads.', en: 'Ad tracking.' } },
+    { key: 'tiktokPixel', name: 'TikTok Pixel', group: 'core', description: { es: 'Tracking de ads.', en: 'Ad tracking.' } },
+    { key: 'googleAnalytics', name: 'Google Analytics', group: 'core', description: { es: 'Analítica web.', en: 'Web analytics.' } },
   ];
+
+  const statusPill = (key: string) => {
+    if (health === null) return <Skeleton className="h-6 w-24 rounded-full" />;
+    const on = health !== 'error' && health[key];
+    return (
+      <span className={`flex items-center gap-1.5 text-xs font-bold rounded-full px-3 py-1 flex-shrink-0 ${on ? 'text-green-700 bg-green-50' : 'text-muted-foreground bg-gray-100'}`}>
+        <Plug size={12} />
+        {on ? (language === 'es' ? 'Conectado' : 'Connected') : (language === 'es' ? 'No conectado' : 'Not connected')}
+      </span>
+    );
+  };
+
+  const connected = health && health !== 'error' ? rows.filter((r) => health[r.key]).length : 0;
 
   return (
     <div className="bg-white rounded-3xl border border-gray-100 app-shadow">
@@ -406,32 +428,48 @@ function MarketIntelPanel() {
         <span className="w-10 h-10 rounded-2xl bg-secondary flex items-center justify-center text-accent flex-shrink-0">
           <BarChart3 size={18} />
         </span>
-        <div>
-          <h2 className="font-bold text-primary">{language === 'es' ? 'Inteligencia de mercado' : 'Market intelligence'}</h2>
+        <div className="flex-1 min-w-0">
+          <h2 className="font-bold text-primary">{language === 'es' ? 'Integraciones' : 'Integrations'}</h2>
           <p className="text-xs text-muted-foreground">
-            {language === 'es' ? 'Pendiente de conectar tus cuentas' : 'Pending your account connections'}
+            {health === 'error'
+              ? (language === 'es' ? 'No se pudo consultar el servidor.' : 'Could not reach the server.')
+              : (language === 'es' ? `${connected} de ${rows.length} conectadas · se activan solo con las keys en el servidor` : `${connected} of ${rows.length} connected · activated just by adding keys on the server`)}
           </p>
         </div>
       </div>
+      <div className="px-6 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+        {language === 'es' ? 'Inteligencia de mercado' : 'Market intelligence'}
+      </div>
       <ul className="divide-y divide-gray-100">
-        {tools.map((tool) => (
-          <li key={tool.name} className="p-5 flex items-center justify-between gap-4">
+        {rows.filter((r) => r.group === 'intel').map((r) => (
+          <li key={r.key} className="px-6 py-4 flex items-center justify-between gap-4">
             <div className="min-w-0">
-              <p className="font-semibold text-foreground">{tool.name}</p>
-              <p className="text-xs text-muted-foreground">{tool.description}</p>
+              <p className="font-semibold text-foreground">{r.name}</p>
+              <p className="text-xs text-muted-foreground">{r.description[language]}</p>
             </div>
-            <span className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground bg-gray-100 rounded-full px-3 py-1 flex-shrink-0">
-              <Plug size={12} />
-              {language === 'es' ? 'No conectado' : 'Not connected'}
-            </span>
+            {statusPill(r.key)}
           </li>
         ))}
       </ul>
-      <div className="px-5 pb-5">
+      <div className="px-6 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground border-t border-gray-100">
+        {language === 'es' ? 'Plataforma' : 'Platform'}
+      </div>
+      <ul className="divide-y divide-gray-100">
+        {rows.filter((r) => r.group === 'core').map((r) => (
+          <li key={r.key} className="px-6 py-3.5 flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="font-semibold text-foreground text-sm">{r.name}</p>
+              <p className="text-xs text-muted-foreground">{r.description[language]}</p>
+            </div>
+            {statusPill(r.key)}
+          </li>
+        ))}
+      </ul>
+      <div className="px-6 py-4 border-t border-gray-100">
         <p className="text-xs text-muted-foreground">
           {language === 'es'
-            ? 'Necesitamos las API keys de cada plataforma para traer datos reales acá — nunca vamos a mostrar números inventados mientras tanto.'
-            : "We need each platform's API keys to bring in real data here — we'll never show made-up numbers in the meantime."}
+            ? 'Cada fila se pone en verde sola al agregar su variable en el hosting (ver README). Kalodata y Sicex no muestran datos hasta tener acceso real — nunca números inventados.'
+            : 'Each row turns green on its own once its variable is added on the host (see README). Kalodata and Sicex show no data until real access exists — never made-up numbers.'}
         </p>
       </div>
     </div>
@@ -495,7 +533,7 @@ function VendedorDashboard() {
         <StatCard icon={TrendingUp} label={language === 'es' ? 'Leads este mes' : 'Leads this month'} value={leadsThisMonth ?? 0} />
       </div>
 
-      <MarketIntelPanel />
+      <IntegrationsPanel />
 
       <div className="bg-white rounded-3xl border border-gray-100 app-shadow">
         <div className="p-6 border-b border-gray-100 flex items-center justify-between">

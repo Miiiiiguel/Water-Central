@@ -17,6 +17,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const PaymentResult = lazy(() => import("./pages/PaymentResult"));
 const ChatbotWidget = lazy(() => import("./components/ChatbotWidget"));
+import ScrollProgress from "./components/ScrollProgress";
 
 function PageFallback() {
   return <div className="min-h-screen bg-white" />;
@@ -100,6 +101,7 @@ function App() {
           <AuthProvider>
             <TooltipProvider>
               <Toaster />
+              <ScrollProgress />
               <Router />
               <Suspense fallback={null}>
                 <ChatbotWidget />

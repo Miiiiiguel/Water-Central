@@ -23,6 +23,8 @@ export const securityHeaders = helmet({
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://assets.calendly.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:', 'https:'],
+      // blob: is how Marco Polo plays server-generated voice clips.
+      mediaSrc: ["'self'", 'blob:'],
       connectSrc: [
         "'self'",
         'https://*.supabase.co',
@@ -55,19 +57,23 @@ export const permissionsPolicy: RequestHandler = (_req, res, next) => {
   next();
 };
 
-// Browser-facing API calls from anything other than the site itself
-// are only allowed from the native app shells and (in dev) Vite.
-// Server-to-server callers (Stripe, Supabase webhooks) send no Origin
-// header and are unaffected.
-export const corsPolicy = cors({
-  origin(origin, callback) {
-    if (!origin || allowedOrigins().includes(origin)) return callback(null, true);
-    callback(new Error('Origin not allowed'));
-  },
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  maxAge: 600,
-});
+// Browser-facing API calls are allowed from the site itself (whatever
+// host it's currently served on — so a fresh deploy works before
+// PUBLIC_APP_URL/DNS are final), the native app shells, PUBLIC_APP_URL,
+// and (in dev) Vite. Server-to-server callers (Stripe, Supabase
+// webhooks) send no Origin header and are unaffected.
+export const corsPolicy: RequestHandler = (req, res, next) => {
+  const self = `${req.protocol}://${req.get('host')}`;
+  cors({
+    origin(origin, callback) {
+      if (!origin || origin === self || allowedOrigins().includes(origin)) return callback(null, true);
+      callback(new Error('Origin not allowed'));
+    },
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    maxAge: 600,
+  })(req, res, next);
+};
 
 // Reject anything that isn't a method this API actually uses.
 export const methodAllowlist: RequestHandler = (req, res, next) => {
@@ -102,6 +108,14 @@ export const chatRateLimiter = rateLimit({
 export const checkoutRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Premium voice hits a paid API per call — keep it tight.
+export const ttsRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 40,
   standardHeaders: true,
   legacyHeaders: false,
 });

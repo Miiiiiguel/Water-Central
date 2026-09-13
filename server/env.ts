@@ -19,11 +19,12 @@ const GROUPS: { label: string; vars: string[] }[] = [
   { label: 'Stripe', vars: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'STRIPE_PRICE_DIAGNOSTICO_MADUREZ', 'STRIPE_PRICE_ANALISIS_MERCADO'] },
   { label: 'Push notifications', vars: ['VAPID_PUBLIC_KEY', 'VAPID_PRIVATE_KEY', 'VAPID_SUBJECT', 'SUPABASE_SERVICE_ROLE_KEY', 'PUSH_WEBHOOK_SECRET'] },
   { label: 'Supabase (client)', vars: ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'] },
+  { label: 'Marco Polo premium voice', vars: ['ELEVENLABS_API_KEY', 'ELEVENLABS_VOICE_ID'] },
 ];
 
 // Secrets that must never carry the VITE_ prefix (Vite would inline them
 // into the public browser bundle).
-const SERVER_ONLY = ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'ANTHROPIC_API_KEY', 'VAPID_PRIVATE_KEY', 'SUPABASE_SERVICE_ROLE_KEY', 'PUSH_WEBHOOK_SECRET'];
+const SERVER_ONLY = ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'ANTHROPIC_API_KEY', 'VAPID_PRIVATE_KEY', 'SUPABASE_SERVICE_ROLE_KEY', 'PUSH_WEBHOOK_SECRET', 'ELEVENLABS_API_KEY', 'KALODATA_API_KEY', 'SICEX_API_KEY'];
 
 export function validateEnv() {
   for (const group of GROUPS) {

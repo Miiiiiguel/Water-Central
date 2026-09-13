@@ -1,0 +1,60 @@
+# One-click deploy on Render: Dashboard -> New -> Blueprint -> this repo.
+# Every env var below is optional: leave it blank and that integration
+# simply stays off (the app degrades gracefully). Fill them in later from
+# Render -> Environment without redeploying code.
+services:
+  - type: web
+    name: easycomex
+    runtime: node
+    plan: starter
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PUBLIC_APP_URL
+        sync: false
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_DIAGNOSTICO_MADUREZ
+        sync: false
+      - key: STRIPE_PRICE_ANALISIS_MERCADO
+        sync: false
+      - key: VITE_CALENDLY_URL
+        sync: false
+      - key: VITE_META_PIXEL_ID
+        sync: false
+      - key: VITE_TIKTOK_PIXEL_ID
+        sync: false
+      - key: VITE_GA_MEASUREMENT_ID
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_VOICE_ID
+        sync: false
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VITE_VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false
+      - key: PUSH_WEBHOOK_SECRET
+        sync: false
+      - key: KALODATA_API_KEY
+        sync: false
+      - key: SICEX_API_KEY
+        sync: false

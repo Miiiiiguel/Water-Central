@@ -772,6 +772,55 @@ html, body {
   transform: scale(0.97);
 }
 
+/* ========== PREMIUM SURFACES: aurora, dot grid, spotlight cards ========== */
+
+@keyframes aurora-drift {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+  50%  { transform: translate3d(4%, -3%, 0) rotate(4deg) scale(1.06); }
+  100% { transform: translate3d(-3%, 4%, 0) rotate(-3deg) scale(1.02); }
+}
+
+.aurora {
+  position: absolute;
+  inset: -25%;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 48% at 22% 30%, rgba(255, 90, 54, 0.22), transparent 62%),
+    radial-gradient(34% 44% at 78% 22%, rgba(255, 133, 82, 0.20), transparent 62%),
+    radial-gradient(44% 54% at 58% 82%, rgba(27, 26, 69, 0.12), transparent 62%),
+    radial-gradient(28% 36% at 10% 80%, rgba(255, 176, 130, 0.16), transparent 60%);
+  filter: blur(46px);
+  animation: aurora-drift 22s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.dot-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(27, 26, 69, 0.10) 1px, transparent 1.2px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%);
+}
+
+.card-spotlight {
+  position: relative;
+}
+.card-spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 90, 54, 0.16), transparent 62%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.card-spotlight:hover::before {
+  opacity: 1;
+}
+
 /* Loading skeleton: a moving highlight over a solid base instead of a
    flat pulse — closer to how native apps show "content is coming". */
 @keyframes skeleton-shimmer {
