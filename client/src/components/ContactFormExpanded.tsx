@@ -377,7 +377,7 @@ export default function ContactFormExpanded() {
                     <Button
                       type="submit"
                       disabled={submitting}
-                      className="flex-1 rounded-full bg-accent hover:bg-accent/90 text-white border-0 shadow-glow-lg hover:shadow-glow-lg transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
+                      className="tap-scale flex-1 rounded-full bg-accent hover:bg-accent/90 text-white border-0 shadow-glow-lg hover:shadow-glow-lg transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
                     >
                       {submitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                       {language === 'es' ? 'Enviar' : 'Submit'}

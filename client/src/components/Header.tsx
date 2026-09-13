@@ -69,7 +69,7 @@ export default function Header() {
         {/* Logo */}
         <button
           onClick={() => handleNavClick('#inicio')}
-          className="flex items-center group hover-scale flex-shrink-0 bg-transparent border-0 p-0 cursor-pointer"
+          className="tap-scale-sm flex items-center group hover-scale flex-shrink-0 bg-transparent border-0 p-0 cursor-pointer"
         >
           <span className="font-logo text-2xl md:text-3xl tracking-tight leading-none">
             <span className="text-accent">easy</span>
@@ -85,7 +85,7 @@ export default function Header() {
               <button
                 key={item.label}
                 onClick={() => handleNavClick(item.href)}
-                className="pill-nav-item flex items-center gap-2 rounded-full bg-secondary text-secondary-foreground hover:bg-orange-100 hover:scale-105 px-4 py-2.5 text-sm font-bold whitespace-nowrap bg-transparent border-0 cursor-pointer"
+                className="tap-scale-sm pill-nav-item flex items-center gap-2 rounded-full bg-secondary text-secondary-foreground hover:bg-orange-100 hover:scale-105 px-4 py-2.5 text-sm font-bold whitespace-nowrap bg-transparent border-0 cursor-pointer"
                 style={{ backgroundColor: 'var(--secondary)' }}
               >
                 <Icon size={16} strokeWidth={2.5} />
@@ -108,7 +108,7 @@ export default function Header() {
           <LanguageSwitcher />
 
           <Button
-            className="hidden md:inline-flex rounded-full bg-primary hover:bg-primary/90 text-white border-0 app-shadow transition-all duration-300 hover:scale-105 text-sm font-bold px-5 lg:px-6 gap-2"
+            className="tap-scale hidden md:inline-flex rounded-full bg-primary hover:bg-primary/90 text-white border-0 app-shadow transition-all duration-300 hover:scale-105 text-sm font-bold px-5 lg:px-6 gap-2"
             onClick={handleCtaClick}
           >
             <MessageCircle size={16} strokeWidth={2.5} />

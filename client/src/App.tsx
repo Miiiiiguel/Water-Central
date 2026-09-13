@@ -2,7 +2,8 @@ import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
+import { AnimatePresence, motion } from "framer-motion";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -20,39 +21,55 @@ function PageFallback() {
   return <div className="min-h-screen bg-white" />;
 }
 
+// Native-style page transition: a soft slide + fade instead of an
+// instant hard swap, so moving between screens feels like an app
+// rather than a website reloading a new page.
+const pageTransition = {
+  initial: { opacity: 0, x: 12 },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: -12 },
+  transition: { duration: 0.22, ease: [0.22, 1, 0.36, 1] as const },
+};
+
 function Router() {
+  const [location] = useLocation();
+
   return (
-    <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/login"}>
-        <Suspense fallback={<PageFallback />}>
-          <Login />
-        </Suspense>
-      </Route>
-      <Route path={"/registro"}>
-        <Suspense fallback={<PageFallback />}>
-          <Register />
-        </Suspense>
-      </Route>
-      <Route path={"/dashboard"}>
-        <Suspense fallback={<PageFallback />}>
-          <Dashboard />
-        </Suspense>
-      </Route>
-      <Route path={"/privacidad"}>
-        <Suspense fallback={<PageFallback />}>
-          <PrivacyPolicy />
-        </Suspense>
-      </Route>
-      <Route path={"/terminos"}>
-        <Suspense fallback={<PageFallback />}>
-          <Terms />
-        </Suspense>
-      </Route>
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div key={location} {...pageTransition}>
+        <Switch location={location}>
+          <Route path={"/"} component={Home} />
+          <Route path={"/login"}>
+            <Suspense fallback={<PageFallback />}>
+              <Login />
+            </Suspense>
+          </Route>
+          <Route path={"/registro"}>
+            <Suspense fallback={<PageFallback />}>
+              <Register />
+            </Suspense>
+          </Route>
+          <Route path={"/dashboard"}>
+            <Suspense fallback={<PageFallback />}>
+              <Dashboard />
+            </Suspense>
+          </Route>
+          <Route path={"/privacidad"}>
+            <Suspense fallback={<PageFallback />}>
+              <PrivacyPolicy />
+            </Suspense>
+          </Route>
+          <Route path={"/terminos"}>
+            <Suspense fallback={<PageFallback />}>
+              <Terms />
+            </Suspense>
+          </Route>
+          <Route path={"/404"} component={NotFound} />
+          {/* Final fallback route */}
+          <Route component={NotFound} />
+        </Switch>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 

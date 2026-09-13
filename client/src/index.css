@@ -792,3 +792,25 @@ html {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* ========== APP FEEL: tap feedback, native scroll, safe areas ========== */
+
+/* Stops the rubbery "web page" overscroll bounce so panning feels closer
+   to a native scroll view. */
+html, body {
+  overscroll-behavior-y: contain;
+}
+
+/* A quick, springy press-down on tap — the thing that most makes a
+   button feel "native" instead of a flat web click. Skips anything
+   already disabled and respects prefers-reduced-motion globally above. */
+.tap-scale {
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+.tap-scale:active {
+  transform: scale(0.94);
+}
+.tap-scale-sm:active {
+  transform: scale(0.97);
+}

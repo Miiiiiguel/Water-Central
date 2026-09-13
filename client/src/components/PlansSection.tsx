@@ -156,9 +156,9 @@ export default function PlansSection() {
               <Button
                 disabled={checkingOut === plan.step}
                 className={
-                  plan.highlighted
+                  'tap-scale ' + (plan.highlighted
                     ? 'bg-white text-primary hover:bg-gray-100 border-0 font-bold'
-                    : 'rounded-full bg-accent hover:bg-accent/90 text-white border-0'
+                    : 'rounded-full bg-accent hover:bg-accent/90 text-white border-0')
                 }
                 onClick={() => handlePlanClick(plan)}
               >

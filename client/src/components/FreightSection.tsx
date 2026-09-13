@@ -182,7 +182,7 @@ export default function FreightSection() {
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="w-full rounded-full bg-accent hover:bg-accent/90 text-white border-0 py-6 text-base font-semibold shadow-glow hover:shadow-glow-lg transition-all duration-300 flex items-center justify-center gap-2"
+                  className="tap-scale w-full rounded-full bg-accent hover:bg-accent/90 text-white border-0 py-6 text-base font-semibold shadow-glow hover:shadow-glow-lg transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   {submitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                   {language === 'es' ? 'Calcular mi envío' : 'Calculate my shipment'}

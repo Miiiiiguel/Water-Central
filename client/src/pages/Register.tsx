@@ -171,7 +171,7 @@ export default function Register() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full rounded-full bg-accent hover:bg-accent/90 text-white py-6 font-bold border-0 app-shadow flex items-center justify-center gap-2"
+              className="tap-scale w-full rounded-full bg-accent hover:bg-accent/90 text-white py-6 font-bold border-0 app-shadow flex items-center justify-center gap-2"
             >
               {loading ? (language === 'es' ? 'Creando cuenta…' : 'Creating account…') : (language === 'es' ? 'Crear cuenta' : 'Create account')}
               {!loading && <ArrowRight size={18} />}

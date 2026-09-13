@@ -2,6 +2,7 @@ import { useLocation } from 'wouter';
 import { Home, Calculator, FileSearch, UserCircle2, MessageCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { hapticTap } from '@/lib/native';
 
 export default function MobileTabBar() {
   const { language } = useLanguage();
@@ -33,8 +34,8 @@ export default function MobileTabBar() {
             return (
               <button
                 key={tab.label}
-                onClick={tab.action}
-                className="flex flex-col items-center gap-1 -mt-7 bg-transparent border-0 cursor-pointer"
+                onClick={() => { hapticTap(); tab.action(); }}
+                className="tap-scale flex flex-col items-center gap-1 -mt-7 bg-transparent border-0 cursor-pointer"
                 aria-label={tab.label}
               >
                 <span className="w-14 h-14 rounded-full bg-accent text-white flex items-center justify-center app-shadow border-4 border-white">
@@ -47,8 +48,8 @@ export default function MobileTabBar() {
           return (
             <button
               key={tab.label}
-              onClick={tab.action}
-              className="flex flex-col items-center gap-1 px-2 py-1 text-muted-foreground hover:text-accent transition-colors bg-transparent border-0 cursor-pointer"
+              onClick={() => { hapticTap(); tab.action(); }}
+              className="tap-scale-sm flex flex-col items-center gap-1 px-2 py-1 text-muted-foreground hover:text-accent transition-colors bg-transparent border-0 cursor-pointer"
               aria-label={tab.label}
             >
               <Icon size={20} strokeWidth={2.25} />

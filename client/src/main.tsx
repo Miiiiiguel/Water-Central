@@ -2,10 +2,12 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import { initAnalytics } from "./lib/analytics";
 import { captureReferralCode } from "./lib/referral";
+import { initNative } from "./lib/native";
 import "./index.css";
 
 initAnalytics();
 captureReferralCode();
+initNative();
 
 createRoot(document.getElementById("root")!).render(<App />);
 

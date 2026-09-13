@@ -11,6 +11,27 @@ import { buildReferralLink } from '@/lib/referral';
 import { downloadCSV } from '@/lib/csv';
 import { isPushConfigured, getPushStatus, subscribeToPush, unsubscribeFromPush, PushStatus } from '@/lib/push';
 import NotificationBell from '@/components/NotificationBell';
+import { Skeleton } from '@/components/ui/skeleton';
+
+function ListSkeleton({ rows = 3, avatar = true, trailing = 'badge' }: { rows?: number; avatar?: boolean; trailing?: 'badge' | 'date' | 'none' }) {
+  return (
+    <ul className="divide-y divide-gray-100">
+      {Array.from({ length: rows }).map((_, i) => (
+        <li key={i} className="p-5 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            {avatar && <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />}
+            <div className="min-w-0 flex-1 space-y-2">
+              <Skeleton className="h-3.5 w-2/5" />
+              <Skeleton className="h-3 w-3/5" />
+            </div>
+          </div>
+          {trailing === 'badge' && <Skeleton className="h-6 w-16 rounded-full flex-shrink-0" />}
+          {trailing === 'date' && <Skeleton className="h-3 w-14 flex-shrink-0" />}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function PushToggle() {
   const { user } = useAuth();
@@ -49,7 +70,7 @@ function PushToggle() {
           ? (language === 'es' ? 'Desactivar notificaciones push' : 'Turn off push notifications')
           : (language === 'es' ? 'Activar notificaciones push' : 'Turn on push notifications')
       }
-      className="p-2 rounded-full hover:bg-orange-50 transition-colors bg-transparent border-0 cursor-pointer disabled:opacity-50"
+      className="tap-scale-sm p-2 rounded-full hover:bg-orange-50 transition-colors bg-transparent border-0 cursor-pointer disabled:opacity-50"
     >
       {subscribed ? <Bell size={20} className="text-accent" /> : <BellOff size={20} className="text-muted-foreground" />}
     </button>
@@ -86,7 +107,7 @@ function TopBar() {
           <NotificationBell />
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 text-sm font-bold text-foreground transition-colors bg-transparent cursor-pointer"
+            className="tap-scale-sm flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 text-sm font-bold text-foreground transition-colors bg-transparent cursor-pointer"
           >
             <LogOut size={16} />
             {language === 'es' ? 'Salir' : 'Log out'}
@@ -224,7 +245,7 @@ function ClienteDashboard() {
           <h2 className="font-bold text-primary">{language === 'es' ? 'Tus cotizaciones de flete' : 'Your freight quotes'}</h2>
         </div>
         {quotes === null ? (
-          <div className="flex justify-center py-12"><Loader2 className="animate-spin text-accent" size={24} /></div>
+          <ListSkeleton rows={3} />
         ) : quotes.length === 0 ? (
           <EmptyState
             icon={Inbox}
@@ -351,7 +372,7 @@ function VendedorDashboard() {
           <ExportButton label={language === 'es' ? 'Exportar CSV' : 'Export CSV'} onClick={exportClients} disabled={!clients?.length} />
         </div>
         {clients === null ? (
-          <div className="flex justify-center py-12"><Loader2 className="animate-spin text-accent" size={24} /></div>
+          <ListSkeleton rows={4} trailing="date" />
         ) : clients.length === 0 ? (
           <EmptyState
             icon={Users}
@@ -388,7 +409,7 @@ function VendedorDashboard() {
           <ExportButton label={language === 'es' ? 'Exportar CSV' : 'Export CSV'} onClick={exportQuotes} disabled={!quotes?.length} />
         </div>
         {quotes === null ? (
-          <div className="flex justify-center py-12"><Loader2 className="animate-spin text-accent" size={24} /></div>
+          <ListSkeleton rows={3} avatar={false} />
         ) : quotes.length === 0 ? (
           <EmptyState
             icon={MapPin}
@@ -420,7 +441,7 @@ function VendedorDashboard() {
           <ExportButton label={language === 'es' ? 'Exportar CSV' : 'Export CSV'} onClick={exportLeads} disabled={!leads?.length} />
         </div>
         {leads === null ? (
-          <div className="flex justify-center py-12"><Loader2 className="animate-spin text-accent" size={24} /></div>
+          <ListSkeleton rows={3} avatar={false} trailing="date" />
         ) : leads.length === 0 ? (
           <EmptyState
             icon={Inbox}
