@@ -108,6 +108,7 @@ function App() {
             <TooltipProvider>
               <Toaster />
               <ScrollProgress />
+              <div className="grain" aria-hidden="true" />
               <Router />
               <Suspense fallback={null}>
                 <ChatbotWidget />

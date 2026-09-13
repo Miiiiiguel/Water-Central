@@ -107,8 +107,13 @@
       .app-splash-logo {
         font-family: 'Baloo 2', 'Inter', sans-serif;
         font-weight: 800;
-        font-size: 2rem;
+        font-size: 2.25rem;
         letter-spacing: -0.02em;
+        animation: app-splash-pop 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+      @keyframes app-splash-pop {
+        from { opacity: 0; transform: scale(0.86) translateY(6px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
       }
       .app-splash-logo .easy { color: #FF5A36; }
       .app-splash-logo .comex { color: #1B1A45; }

@@ -141,11 +141,14 @@ export default function PlansSection() {
           {plans.map((plan) => (
             <div
               key={plan.step}
+              className={plan.highlighted ? 'gradient-border-animated shadow-glow-lg lg:-translate-y-4 transition-transform duration-300 lg:hover:-translate-y-5' : 'contents'}
+            >
+            <div
               {...spotlight}
-              className={`card-spotlight relative rounded-3xl p-8 border flex flex-col transition-transform duration-300 hover:-translate-y-1 ${
+              className={`card-spotlight relative rounded-3xl p-8 border flex flex-col h-full transition-transform duration-300 ${
                 plan.highlighted
-                  ? 'bg-gradient-to-b from-primary to-indigo-950 text-white border-transparent shadow-glow-lg lg:-translate-y-4 lg:hover:-translate-y-5'
-                  : 'bg-white border-gray-100 app-shadow hover:shadow-premium-lg'
+                  ? 'bg-gradient-to-b from-primary to-indigo-950 text-white border-transparent'
+                  : 'bg-white border-gray-100 app-shadow hover:shadow-premium-lg hover:-translate-y-1'
               }`}
             >
               {plan.highlighted && (
@@ -177,8 +180,8 @@ export default function PlansSection() {
               <Button
                 disabled={checkingOut !== null}
                 className={
-                  'tap-scale ' + (plan.highlighted
-                    ? 'bg-white text-primary hover:bg-gray-100 border-0 font-bold'
+                  'tap-scale btn-shine ' + (plan.highlighted
+                    ? 'rounded-full bg-white text-primary hover:bg-gray-100 border-0 font-bold'
                     : 'rounded-full bg-accent hover:bg-accent/90 text-white border-0')
                 }
                 onClick={() => handlePlanClick(plan)}
@@ -206,6 +209,7 @@ export default function PlansSection() {
               {checkoutError && checkingOut === null && (plan.checkoutPlan || plan.secondaryCheckout) && (
                 <p className={`text-xs mt-2 ${plan.highlighted ? 'text-orange-200' : 'text-red-500'}`}>{checkoutError}</p>
               )}
+            </div>
             </div>
           ))}
         </div>

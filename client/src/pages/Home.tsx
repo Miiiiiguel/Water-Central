@@ -23,7 +23,7 @@ const GlobalReachSection = lazy(() => import('@/components/GlobalReachSection'))
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white pb-20 md:pb-0">
+    <div className="min-h-screen bg-primary pb-20 md:pb-0">
       <Header />
       <div id="inicio">
         <HeroSectionVideo />

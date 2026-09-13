@@ -31,7 +31,7 @@ function ProductWidget({ platform, side }: { platform: 'tiktok' | 'amazon'; side
 
   return (
     <div
-      className={`hidden xl:block absolute top-1/2 -translate-y-1/2 ${side === 'left' ? 'left-4 2xl:left-10 -rotate-2' : 'right-4 2xl:right-10 rotate-2'} w-64 bg-white rounded-2xl app-shadow border border-gray-100 p-4 z-20 animate-float`}
+      className={`hidden xl:block absolute top-1/2 -translate-y-1/2 ${side === 'left' ? 'left-4 2xl:left-10 -rotate-2' : 'right-4 2xl:right-10 rotate-2'} w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-premium-lg border border-white/60 p-4 z-20 animate-float`}
       style={{ animationDuration: side === 'left' ? '7s' : '8s', animationDelay: side === 'left' ? '0s' : '1s' }}
     >
       <div className="flex items-start justify-between mb-3">
