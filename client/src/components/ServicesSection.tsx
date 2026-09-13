@@ -49,9 +49,9 @@ export default function ServicesSection() {
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
                 whileHover={{ y: -6 }}
-                className="group bg-white rounded-3xl p-8 border border-gray-100 app-shadow"
+                className="group bg-white rounded-3xl p-8 border border-gray-100 app-shadow hover:shadow-premium-lg transition-shadow duration-300"
               >
-                <div className="w-14 h-14 bg-accent rounded-2xl flex items-center justify-center text-white mb-5 group-hover:scale-110 transition-transform duration-300">
+                <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center text-white mb-5 shadow-glow group-hover:shadow-glow-lg group-hover:scale-110 transition-all duration-300">
                   <Icon size={26} strokeWidth={2.25} />
                 </div>
                 <h3 className="text-lg md:text-xl font-bold text-primary mb-2">

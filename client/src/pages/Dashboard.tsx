@@ -12,6 +12,7 @@ import { buildReferralLink } from '@/lib/referral';
 import { downloadCSV } from '@/lib/csv';
 import { isPushConfigured, getPushStatus, subscribeToPush, unsubscribeFromPush, PushStatus } from '@/lib/push';
 import NotificationBell from '@/components/NotificationBell';
+import CountUp from '@/components/CountUp';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function ListSkeleton({ rows = 3, avatar = true, trailing = 'badge' }: { rows?: number; avatar?: boolean; trailing?: 'badge' | 'date' | 'none' }) {
@@ -119,14 +120,28 @@ function TopBar() {
   );
 }
 
-function StatCard({ icon: Icon, label, value }: { icon: any; label: string; value: string | number }) {
+function StatCard({ icon: Icon, label, value, accent = false }: { icon: any; label: string; value: string | number; accent?: boolean }) {
+  const isNumeric = typeof value === 'number';
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 app-shadow p-6">
-      <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center text-white mb-4">
-        <Icon size={22} />
+    <div
+      className={`relative overflow-hidden rounded-3xl p-6 app-shadow transition-all duration-300 hover:-translate-y-1 ${
+        accent
+          ? 'bg-gradient-to-br from-primary via-indigo-950 to-primary'
+          : 'bg-white border border-gray-100'
+      }`}
+    >
+      {accent && <div className="absolute -top-10 -right-10 w-40 h-40 bg-accent/25 rounded-full blur-3xl pointer-events-none" />}
+      <div
+        className={`relative w-12 h-12 rounded-2xl flex items-center justify-center mb-4 ${
+          accent ? 'bg-white/15' : 'bg-gradient-to-br from-orange-500 to-orange-600 shadow-glow'
+        }`}
+      >
+        <Icon size={22} className="text-white" />
       </div>
-      <p className="text-2xl font-black text-primary">{value}</p>
-      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className={`relative text-2xl font-black ${accent ? 'text-white' : 'text-primary'}`}>
+        {isNumeric ? <CountUp value={String(value)} /> : value}
+      </p>
+      <p className={`relative text-sm ${accent ? 'text-white/70' : 'text-muted-foreground'}`}>{label}</p>
     </div>
   );
 }
@@ -235,7 +250,7 @@ function ClienteDashboard() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard icon={Package} label={language === 'es' ? 'Plan activo' : 'Active plan'} value={language === 'es' ? 'Ninguno' : 'None'} />
-        <StatCard icon={FileText} label={language === 'es' ? 'Cotizaciones enviadas' : 'Quotes submitted'} value={quotes?.length ?? 0} />
+        <StatCard icon={FileText} label={language === 'es' ? 'Cotizaciones enviadas' : 'Quotes submitted'} value={quotes?.length ?? 0} accent />
         <StatCard icon={CalendarClock} label={language === 'es' ? 'Consultoría agendada' : 'Consultation booked'} value={language === 'es' ? 'No' : 'No'} />
       </div>
 
@@ -423,7 +438,7 @@ function VendedorDashboard() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard icon={Users} label={language === 'es' ? 'Clientes registrados' : 'Registered clients'} value={clients?.length ?? 0} />
+        <StatCard icon={Users} label={language === 'es' ? 'Clientes registrados' : 'Registered clients'} value={clients?.length ?? 0} accent />
         <StatCard icon={FileText} label={language === 'es' ? 'Cotizaciones pendientes' : 'Pending quotes'} value={pendingQuotes ?? 0} />
         <StatCard icon={TrendingUp} label={language === 'es' ? 'Leads este mes' : 'Leads this month'} value={leadsThisMonth ?? 0} />
       </div>

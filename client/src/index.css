@@ -771,3 +771,18 @@ html, body {
 .tap-scale-sm:active {
   transform: scale(0.97);
 }
+
+/* Loading skeleton: a moving highlight over a solid base instead of a
+   flat pulse — closer to how native apps show "content is coming". */
+@keyframes skeleton-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-shimmer {
+  background-color: var(--muted);
+  background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+  background-repeat: no-repeat;
+  background-size: 400px 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}

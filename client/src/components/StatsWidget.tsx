@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import CountUp from './CountUp';
 
 export default function StatsWidget() {
   const { t } = useLanguage();
@@ -34,7 +35,7 @@ export default function StatsWidget() {
         {stats.map((stat, index) => (
           <div key={index} className="relative text-center group hover:scale-105 transition-transform duration-300">
             <div className="text-3xl sm:text-4xl md:text-5xl font-black text-accent mb-1 md:mb-2">
-              {stat.number}
+              <CountUp value={stat.number} />
             </div>
             <div className="text-[11px] sm:text-xs md:text-base text-white/70 leading-tight">
               {stat.label}
