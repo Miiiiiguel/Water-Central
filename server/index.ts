@@ -10,6 +10,7 @@ import { healthRouter } from "./health";
 import { leadsRouter } from "./leads";
 import { cspRouter } from "./csp";
 import { securityHeaders, permissionsPolicy, corsPolicy, methodAllowlist, apiRateLimiter } from "./security";
+import compression from "compression";
 import { validateEnv } from "./env";
 import { initMonitoring, attachErrorMonitoring, captureException } from "./monitoring";
 import { logSecurityEvent } from "./log";
@@ -52,7 +53,19 @@ async function startServer() {
       ? path.resolve(__dirname, "public")
       : path.resolve(__dirname, "..", "dist", "public");
 
-  app.use(express.static(staticPath, { dotfiles: "allow" })); // .well-known/security.txt
+  // gzip/brotli-negotiated compression for the static bundle (the main
+  // JS chunk goes from ~1.2MB to ~340KB). Deliberately NOT applied to
+  // /api responses: compressing responses that mix secrets with
+  // attacker-influenced input is what the BREACH attack exploits.
+  app.use(compression({ filter: (req, res) => !req.path.startsWith("/api") && compression.filter(req, res) }));
+
+  // iOS Universal Links need this exact path with a JSON content type and
+  // no extension — express.static would serve it as an octet-stream.
+  app.get("/.well-known/apple-app-site-association", (_req, res) => {
+    res.type("application/json").sendFile(path.join(staticPath, ".well-known", "apple-app-site-association"));
+  });
+
+  app.use(express.static(staticPath, { dotfiles: "allow" })); // .well-known/*
 
   // Handle client-side routing - serve index.html for all routes
   app.get("*", (_req, res) => {

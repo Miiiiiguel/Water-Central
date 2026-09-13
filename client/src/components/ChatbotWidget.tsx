@@ -4,7 +4,7 @@ import { X, Send, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle } from 'l
 import { useLanguage } from '@/contexts/LanguageContext';
 import { matchKnowledge, MARCO_POLO, type SectionAction } from '@/lib/chatbotKnowledge';
 import { whatsappUrl } from '@/lib/contact';
-import { hapticTap } from '@/lib/native';
+import { hapticTap, openExternal } from '@/lib/native';
 import { isSTTSupported, isTTSSupported, speak, stopSpeaking, startListening } from '@/lib/voice';
 import MarcoPoloAvatar from './MarcoPoloAvatar';
 
@@ -110,6 +110,23 @@ export default function ChatbotWidget() {
 
   useEffect(() => () => { stopSpeaking(); stopListeningRef.current(); }, []);
 
+  // Close like a native sheet: Escape on desktop, and the Android/browser
+  // back button on phones (a history entry is pushed while the panel is
+  // open so "back" closes Marco Polo instead of leaving the page/app).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    const onPop = () => setOpen(false);
+    window.addEventListener('keydown', onKey);
+    window.history.pushState({ ...(window.history.state ?? {}), marcoPolo: true }, '');
+    window.addEventListener('popstate', onPop);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('popstate', onPop);
+      if (window.history.state?.marcoPolo) window.history.back();
+    };
+  }, [open]);
+
   const say = useCallback(
     (text: string) => {
       if (!voiceOn) return;
@@ -163,7 +180,7 @@ export default function ChatbotWidget() {
 
     if (trimmed === '__human__') {
       setMessages((prev) => [...prev, { role: 'user', content: language === 'es' ? 'Quiero hablar con una persona' : 'I want to talk to a person', at: Date.now() }]);
-      window.open(whatsappUrl(language === 'es' ? 'Hola, vengo del sitio de Easycomex y quiero hablar con alguien del equipo.' : 'Hi, I came from the Easycomex site and want to talk to someone on the team.'), '_blank', 'noopener,noreferrer');
+      openExternal(whatsappUrl(language === 'es' ? 'Hola, vengo del sitio de Easycomex y quiero hablar con alguien del equipo.' : 'Hi, I came from the Easycomex site and want to talk to someone on the team.'));
       return;
     }
 

@@ -45,6 +45,9 @@ function getStripeClient(): Stripe | null {
 
 const checkoutBodySchema = z.object({
   plan: z.enum(['diagnostico_madurez', 'analisis_mercado']),
+  // The native app opens Checkout in the system browser; its return
+  // pages get a flag so they can say "you can go back to the app now".
+  platform: z.enum(['web', 'native']).default('web'),
 });
 
 export const stripeRouter = express.Router();
@@ -69,15 +72,23 @@ stripeRouter.post('/create-checkout-session', checkoutRateLimiter, express.json(
 
   const appUrl = process.env.PUBLIC_APP_URL || `${req.protocol}://${req.get('host')}`;
   const user = await getUserFromRequest(req);
+  const native = parsed.data.platform === 'native' ? '&native=1' : '';
 
   try {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${appUrl}/pago/exito?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/pago/cancelado`,
+      success_url: `${appUrl}/pago/exito?session_id={CHECKOUT_SESSION_ID}${native}`,
+      cancel_url: `${appUrl}/pago/cancelado?x=1${native}`,
       ...(user ? { client_reference_id: user.id, customer_email: user.email } : {}),
       metadata: { plan, user_id: user?.id ?? '' },
+      // Checkout page in the buyer's language; Apple Pay / Google Pay
+      // appear automatically once enabled in the Stripe dashboard.
+      locale: 'auto',
+      allow_promotion_codes: true,
+      // Always create a Stripe Customer so receipts, refunds and any
+      // future subscription are tied to one record per buyer.
+      customer_creation: 'always',
     });
     res.json({ url: session.url });
   } catch (err) {
@@ -108,14 +119,25 @@ stripeRouter.post('/stripe-webhook', express.raw({ type: 'application/json', lim
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     if (session.payment_status === 'paid') {
-      await recordPayment(session);
+      await recordPayment(stripe, session);
+    }
+  }
+
+  // A refund issued from the Stripe dashboard flips the dashboard row so
+  // "Plan activo" never claims a refunded purchase.
+  if (event.type === 'charge.refunded') {
+    const charge = event.data.object as Stripe.Charge;
+    const admin = getSupabaseAdmin();
+    const intent = typeof charge.payment_intent === 'string' ? charge.payment_intent : null;
+    if (admin && intent && charge.refunded) {
+      await admin.from('payments').update({ status: 'refunded' }).eq('stripe_payment_intent', intent);
     }
   }
 
   res.json({ received: true });
 });
 
-async function recordPayment(session: Stripe.Checkout.Session) {
+async function recordPayment(stripe: Stripe, session: Stripe.Checkout.Session) {
   const admin = getSupabaseAdmin();
   if (!admin) {
     console.warn('Payment received but SUPABASE_SERVICE_ROLE_KEY is not set — not recorded:', session.id);
@@ -125,19 +147,33 @@ async function recordPayment(session: Stripe.Checkout.Session) {
   const plan = session.metadata?.plan ?? null;
   const userId = session.metadata?.user_id || session.client_reference_id || null;
   const email = session.customer_details?.email ?? session.customer_email ?? null;
+  const paymentIntent = typeof session.payment_intent === 'string' ? session.payment_intent : null;
+
+  // Stripe's hosted receipt — shown as "Ver recibo" in the dashboard.
+  let receiptUrl: string | null = null;
+  if (paymentIntent) {
+    try {
+      const intent = await stripe.paymentIntents.retrieve(paymentIntent, { expand: ['latest_charge'] });
+      const charge = intent.latest_charge;
+      if (charge && typeof charge !== 'string') receiptUrl = charge.receipt_url ?? null;
+    } catch (err) {
+      console.warn('Could not fetch receipt URL:', (err as Error).message);
+    }
+  }
 
   // Idempotent on stripe_session_id — Stripe retries webhooks, and we
   // must never record the same purchase twice.
   const { error } = await admin.from('payments').upsert(
     {
       stripe_session_id: session.id,
-      stripe_payment_intent: typeof session.payment_intent === 'string' ? session.payment_intent : null,
+      stripe_payment_intent: paymentIntent,
       user_id: userId || null,
       email,
       plan,
       amount_cents: session.amount_total ?? 0,
       currency: session.currency ?? 'usd',
       status: 'paid',
+      receipt_url: receiptUrl,
     },
     { onConflict: 'stripe_session_id' }
   );

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { isNative } from '@/lib/native';
 
 function GoogleLogo() {
   return (
@@ -18,6 +19,11 @@ export default function GoogleButton({ onError }: { onError: (message: string) =
   const { signInWithGoogle } = useAuth();
   const { language } = useLanguage();
   const [loading, setLoading] = useState(false);
+
+  // Google refuses OAuth inside embedded WebViews ("disallowed_useragent"),
+  // so inside the iOS/Android app this would only ever show an error.
+  // Native Google Sign-In is a separate integration — see APP_STORE.md.
+  if (isNative) return null;
 
   const handleClick = async () => {
     setLoading(true);

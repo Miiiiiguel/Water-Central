@@ -2,12 +2,28 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import { initAnalytics } from "./lib/analytics";
 import { captureReferralCode } from "./lib/referral";
-import { initNative } from "./lib/native";
+import { initNative, isNative } from "./lib/native";
 import "./index.css";
+
+// Webfonts: the <link> in index.html is a preload so it never blocks first
+// paint; here it becomes a real stylesheet (CSP forbids inline onload).
+const webfonts = document.getElementById("webfonts") as HTMLLinkElement | null;
+if (webfonts) {
+  webfonts.rel = "stylesheet";
+  webfonts.removeAttribute("as");
+}
 
 initAnalytics();
 captureReferralCode();
 initNative();
+
+// PWA service worker (offline shell + push). Web only: inside the native
+// app the bundle is already local and WKWebView doesn't support it.
+if (!isNative && "serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => {});
+  });
+}
 
 // Optional client error monitoring. Loaded on demand so the SDK never
 // ships in the bundle unless a DSN is configured.

@@ -11,6 +11,7 @@ import { supabase, FreightQuote, Profile, ContactLead, Payment } from '@/lib/sup
 import { buildReferralLink } from '@/lib/referral';
 import { downloadCSV } from '@/lib/csv';
 import { isPushConfigured, getPushStatus, subscribeToPush, unsubscribeFromPush, PushStatus } from '@/lib/push';
+import { RESUME_EVENT } from '@/lib/native';
 import NotificationBell from '@/components/NotificationBell';
 import CountUp from '@/components/CountUp';
 import MfaSetup from '@/components/MfaSetup';
@@ -92,7 +93,7 @@ function TopBar() {
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-gray-100">
+    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-gray-100 pt-[env(safe-area-inset-top)]">
       <div className="container flex items-center justify-between h-16 md:h-20">
         <Link href="/" className="font-logo text-xl md:text-2xl tracking-tight">
           <span className="text-accent">easy</span>
@@ -255,13 +256,25 @@ function ClienteDashboard() {
 
     // Written only by the Stripe webhook on the server — a client can
     // read its own rows here but never create one (see schema.sql).
-    supabase
-      .from('payments')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('status', 'paid')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => setPayments((data as Payment[]) ?? []));
+    const loadPayments = () =>
+      supabase
+        .from('payments')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'paid')
+        .order('created_at', { ascending: false })
+        .then(({ data }) => setPayments((data as Payment[]) ?? []));
+    loadPayments();
+
+    // After paying in the system browser (native app) or another tab,
+    // the webhook has usually landed by the time the user is back here.
+    const onVisible = () => { if (document.visibilityState === 'visible') loadPayments(); };
+    window.addEventListener(RESUME_EVENT, loadPayments);
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      window.removeEventListener(RESUME_EVENT, loadPayments);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, [user]);
 
   const latestPayment = payments?.[0] ?? null;
@@ -354,9 +367,16 @@ function ClienteDashboard() {
                     </p>
                   </div>
                 </div>
-                <span className="text-xs font-bold text-green-700 bg-green-50 rounded-full px-3 py-1 flex-shrink-0">
-                  {language === 'es' ? 'Pagado' : 'Paid'}
-                </span>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {p.receipt_url && (
+                    <a href={p.receipt_url} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-accent hover:underline">
+                      {language === 'es' ? 'Ver recibo' : 'View receipt'}
+                    </a>
+                  )}
+                  <span className="text-xs font-bold text-green-700 bg-green-50 rounded-full px-3 py-1">
+                    {language === 'es' ? 'Pagado' : 'Paid'}
+                  </span>
+                </div>
               </li>
             ))}
           </ul>

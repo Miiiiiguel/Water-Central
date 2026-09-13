@@ -357,8 +357,12 @@ create table if not exists public.payments (
   status text not null default 'paid', -- paid | refunded
   stripe_session_id text not null unique,
   stripe_payment_intent text,
+  receipt_url text,                    -- Stripe-hosted receipt ("Ver recibo")
   created_at timestamptz not null default now()
 );
+
+-- Safe to re-run on a project that created the table before this column existed.
+alter table public.payments add column if not exists receipt_url text;
 
 alter table public.payments enable row level security;
 

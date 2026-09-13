@@ -71,6 +71,7 @@ export interface Payment {
   currency: string;
   status: 'paid' | 'refunded';
   stripe_session_id: string;
+  receipt_url: string | null;
   created_at: string;
 }
 

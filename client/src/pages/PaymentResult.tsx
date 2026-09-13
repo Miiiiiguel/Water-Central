@@ -11,6 +11,9 @@ export default function PaymentResult({ status }: { status: 'success' | 'cancell
   const { language } = useLanguage();
   const { user } = useAuth();
   const ok = status === 'success';
+  // Set by the server when Checkout was opened from the native app's
+  // system browser: the user's next step is simply to go back to the app.
+  const fromApp = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('native') === '1';
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4 py-16">
@@ -48,6 +51,14 @@ export default function PaymentResult({ status }: { status: 'success' | 'cancell
                   ? 'No se realizó ningún cobro. Si tuviste algún problema o querés hablar antes de decidir, escribinos.'
                   : 'You were not charged. If something went wrong or you want to talk before deciding, message us.')}
           </p>
+
+          {fromApp && (
+            <div className="p-3 rounded-2xl bg-orange-50 border border-orange-100 text-sm text-orange-900 mb-6">
+              {language === 'es'
+                ? 'Ya podés cerrar esta ventana y volver a la app de Easycomex — tu dashboard se actualiza solo.'
+                : 'You can close this window and go back to the Easycomex app — your dashboard updates on its own.'}
+            </div>
+          )}
 
           <div className="flex flex-col gap-3">
             {ok ? (

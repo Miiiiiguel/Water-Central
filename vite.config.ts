@@ -16,7 +16,9 @@ export default defineConfig({
       srcDir: "src",
       filename: "sw.ts",
       registerType: "autoUpdate",
-      injectRegister: "script",
+      // Registered by hand in main.tsx so the native app (where WKWebView
+      // has no service workers) skips it instead of logging an error.
+      injectRegister: null,
       includeAssets: ["icons/icon-32.png", "icons/icon-180.png"],
       manifest: {
         name: "Easycomex",
@@ -35,7 +37,7 @@ export default defineConfig({
       injectManifest: {
         // The 3D globe chunk is huge and lazy-loaded on purpose — don't
         // make the service worker download it upfront on every install.
-        globIgnores: ["**/GlobalReachSection-*.js"],
+        globIgnores: ["**/Globe3D-*.js", "**/GlobalReachSection-*.js"],
       },
     }),
   ],

@@ -18,6 +18,15 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- App Links: https://easycomex.com/pago/... opens the app after a
+                 Stripe payment. Verified only once .well-known/assetlinks.json
+                 carries the release keystore's SHA-256 (see APP_STORE.md). -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="easycomex.com" android:pathPrefix="/pago" />
+            </intent-filter>
         </activity>
 
         <provider

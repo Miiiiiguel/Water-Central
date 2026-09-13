@@ -1,11 +1,27 @@
-import { Suspense } from 'react';
+import { Suspense, lazy, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Plane, Ship, Truck } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import Globe3D from './Globe3D';
+import GlobeFallback from './GlobeFallback';
+
+// three.js + WebGL only ships to devices that can afford it. Phones and
+// low-core machines get the CSS globe: same look, no jank, ~600 KB less JS.
+const Globe3D = lazy(() => import('./Globe3D'));
+
+function useLightweightGlobe(): boolean {
+  return useMemo(() => {
+    if (typeof window === 'undefined') return true;
+    const small = window.matchMedia('(max-width: 640px)').matches;
+    const cores = navigator.hardwareConcurrency ?? 4;
+    const memory = (navigator as unknown as { deviceMemory?: number }).deviceMemory ?? 4;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return small || cores <= 2 || memory <= 2 || reduced;
+  }, []);
+}
 
 export default function GlobalReachSection() {
   const { language } = useLanguage();
+  const lightweight = useLightweightGlobe();
 
   const modes = [
     { icon: Plane, label: language === 'es' ? 'Aéreo' : 'Air' },
@@ -57,9 +73,13 @@ export default function GlobalReachSection() {
           transition={{ duration: 0.8 }}
           className="order-1 lg:order-2 h-72 sm:h-96 lg:h-[26rem]"
         >
-          <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-white/40 text-sm">Cargando…</div>}>
-            <Globe3D className="w-full h-full" />
-          </Suspense>
+          {lightweight ? (
+            <GlobeFallback />
+          ) : (
+            <Suspense fallback={<GlobeFallback />}>
+              <Globe3D className="w-full h-full" />
+            </Suspense>
+          )}
         </motion.div>
       </div>
     </section>

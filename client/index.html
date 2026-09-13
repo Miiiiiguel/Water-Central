@@ -3,7 +3,7 @@
 
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <!-- Primary SEO Meta Tags -->
     <title>Easycomex | Lleva tu marca a vender en Estados Unidos</title>
@@ -84,7 +84,11 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <!-- Preloaded (high priority) but NOT render-blocking: main.tsx flips it
+         to a stylesheet once the app script runs. Text renders immediately in
+         the system font and swaps when the webfont arrives; a slow or offline
+         font CDN can no longer hold the whole page white. -->
+    <link id="webfonts" rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" />
 
     <!-- Splash screen styles (removed by client/src/main.tsx once the app mounts) -->
     <style>

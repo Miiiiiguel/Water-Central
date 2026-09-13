@@ -5,21 +5,16 @@ import MarqueeLogos from '@/components/MarqueeLogos';
 import StatsWidget from '@/components/StatsWidget';
 import ServicesSection from '@/components/ServicesSection';
 import BenefitsSection from '@/components/BenefitsSection';
-import ImpactSection from '@/components/ImpactSection';
-import VSLPlayerSection from '@/components/VSLPlayerSection';
-import VSLSection from '@/components/VSLSection';
-import PlansSection from '@/components/PlansSection';
-import FreightSection from '@/components/FreightSection';
-import TeamSection from '@/components/TeamSection';
-import TestimonialsSection from '@/components/TestimonialsSection';
-import FAQSection from '@/components/FAQSection';
-import ContactFormExpanded from '@/components/ContactFormExpanded';
-import CTASection from '@/components/CTASection';
-import Footer from '@/components/Footer';
 import FloatingButtons from '@/components/FloatingButtons';
 import MobileTabBar from '@/components/MobileTabBar';
 
 const GlobalReachSection = lazy(() => import('@/components/GlobalReachSection'));
+// recharts is ~400KB — only the charts section needs it, so it loads
+// after the above-the-fold content instead of blocking it.
+const ImpactSection = lazy(() => import('@/components/ImpactSection'));
+// Plans, freight, team, FAQ, contact, footer: one chunk that loads right
+// after first paint so the initial JS parse stays short on phones.
+const HomeLowerSections = lazy(() => import('@/components/HomeLowerSections'));
 
 export default function Home() {
   return (
@@ -39,23 +34,12 @@ export default function Home() {
       <div id="beneficios">
         <BenefitsSection />
       </div>
-      <ImpactSection />
-      <VSLPlayerSection />
-      <div id="pronostico">
-        <VSLSection />
-      </div>
-      <TestimonialsSection />
-      <div id="planes">
-        <PlansSection />
-      </div>
-      <FreightSection />
-      <TeamSection />
-      <FAQSection />
-      <div id="contacto">
-        <ContactFormExpanded />
-      </div>
-      <CTASection />
-      <Footer />
+      <Suspense fallback={<div className="h-96 bg-white" />}>
+        <ImpactSection />
+      </Suspense>
+      <Suspense fallback={<div className="min-h-screen bg-white" />}>
+        <HomeLowerSections />
+      </Suspense>
       <FloatingButtons />
       <MobileTabBar />
     </div>

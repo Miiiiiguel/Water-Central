@@ -60,7 +60,7 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
+      className={`sticky top-0 z-50 transition-all duration-300 pt-[env(safe-area-inset-top)] ${
         dark
           ? 'bg-transparent border-b border-transparent'
           : 'bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-sm'

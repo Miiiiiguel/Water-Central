@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { trackInitiateCheckout } from '@/lib/analytics';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSpotlight } from '@/lib/useSpotlight';
+import { isNative, openExternal } from '@/lib/native';
 
 interface Plan {
   step: number;
@@ -75,10 +76,18 @@ export default function PlansSection() {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ plan: checkoutPlan }),
+        body: JSON.stringify({ plan: checkoutPlan, platform: isNative ? 'native' : 'web' }),
       });
       const data = await res.json();
       if (!res.ok || !data.url) throw new Error(data.error || 'checkout_failed');
+      if (isNative) {
+        // Stripe Checkout must run in the system browser, not the WebView
+        // (Apple/Google policy and Stripe's own requirement). The app
+        // refreshes payments when it comes back to the foreground.
+        await openExternal(data.url);
+        setCheckingOut(null);
+        return;
+      }
       window.location.href = data.url;
     } catch {
       setCheckoutError(

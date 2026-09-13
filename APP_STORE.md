@@ -70,6 +70,103 @@ en iOS).
       datos de uso si tenés píxeles de Meta/TikTok/GA activos. Usa la
       política de privacidad (`/privacidad`) como referencia exacta.
 
+### 3b. Pagos dentro de la app: Stripe vs. compras integradas
+
+Las tiendas obligan a usar **su** sistema de pago (Apple IAP / Google
+Play Billing, con 15-30% de comisión) solo para **contenido digital que
+se consume dentro de la app**. Lo que vende Easycomex son **servicios
+prestados fuera de la app por personas** (diagnóstico entregado por el
+equipo, análisis de mercado, asesoría 1 a 1). Eso cae en la excepción
+explícita de ambas tiendas — Apple guideline 3.1.3(e) "servicios
+consumidos fuera de la app" y la política de Google Play sobre servicios
+físicos/personales — y **puede cobrarse con Stripe**.
+
+Cómo lo hace la app para cumplir y que Stripe funcione:
+- El checkout se abre en el **navegador del sistema** (Safari View
+  Controller / Chrome Custom Tab), nunca dentro del WebView. Stripe
+  exige eso y Apple/Google lo prefieren.
+- Al pagar, la página de éxito avisa "ya podés volver a la app", y la
+  app **refresca los pagos sola** al volver al frente (el webhook de
+  Stripe ya registró el pago). Con Universal/App Links configurados
+  (abajo) el navegador se cierra y vuelve a la app automáticamente.
+- Stripe crea un Customer por comprador, manda **recibo por email** (si
+  activás "Email customers about successful payments" en Stripe →
+  Settings → Emails), y el dashboard muestra **Ver recibo**. Un reembolso
+  hecho desde Stripe quita el plan del dashboard solo.
+- **Apple Pay y Google Pay** aparecen solos en el checkout una vez que
+  los activás en Stripe → Settings → Payment methods (Stripe registra el
+  dominio automáticamente para Checkout).
+
+Para la revisión de Apple, en **App Review Notes** escribí algo así:
+> "Purchases in this app are for consulting and market-analysis services
+> delivered by our team outside the app (reports, 1:1 sessions). They are
+> processed via Stripe in the system browser per guideline 3.1.3(e)."
+
+Si aun así un revisor lo objeta (pasa), la salida es mover el botón de
+pago a la web y dejar la app solo para seguimiento — avisame y lo hago
+en una hora, sin tocar nada más.
+
+### 3c. Volver a la app después de pagar (Universal Links / App Links)
+
+Ya está el andamiaje; falta lo que solo existe cuando tengas las cuentas:
+
+- **iOS**: en Xcode → target App → Signing & Capabilities → **+
+  Associated Domains** → `applinks:easycomex.com`. Luego editá
+  `client/public/.well-known/apple-app-site-association` reemplazando
+  `TEAMID` por tu Team ID de Apple (lo ves en developer.apple.com →
+  Membership). Se sirve con el content-type correcto ya.
+- **Android**: `AndroidManifest.xml` ya declara el intent-filter para
+  `https://easycomex.com/pago/*`. Cuando tengas el keystore de release,
+  sacá su huella (`keytool -list -v -keystore easycomex.jks | grep SHA256`)
+  y ponela en `client/public/.well-known/assetlinks.json`.
+- Sin esto todo sigue funcionando: el usuario cierra el navegador a
+  mano y la app ya tiene el pago.
+
+### 3d. Login con Google dentro de la app
+
+Google **bloquea** su OAuth dentro de WebViews, así que en la app el
+botón de Google se oculta solo (queda el registro por email, que funciona
+igual). Para tenerlo nativo hace falta crear en Google Cloud un OAuth
+client de tipo **iOS** (con el bundle id `com.easycomex.app`) y otro
+**Android** (con la huella SHA-1 del keystore), y conectar el SDK nativo
+con Supabase (`signInWithIdToken`). Es medio día de trabajo y necesita
+esas dos credenciales tuyas — avisame cuando las tengas.
+
+### 3e. Pruebas realizadas y cómo repetirlas
+
+Corren en cada push (GitHub Actions) y podés lanzarlas vos:
+
+- `pnpm test:app` — simula un teléfono con la CPU 4 veces más lenta:
+  mide LCP, tiempo a DOM listo, KB de JavaScript, tareas largas; recorre
+  **todas** las pantallas y ejecuta los flujos principales (Marco Polo,
+  calculadora, idioma) exigiendo **cero errores de JavaScript**.
+- `pnpm security:smoke <url>` — 14 comprobaciones de seguridad.
+- `pnpm check` + `pnpm build` — tipos y compilación.
+
+Resultado actual (teléfono emulado, CPU 4× más lenta): **LCP ≈ 0,9-1,0 s**,
+DOM listo ≈ 0,44 s, 349 KB de JS en la primera carga, 17/17 pruebas.
+
+Lo que se corrigió a raíz de estas pruebas para la app instalada:
+- **Las fuentes de Google ya no bloquean el render.** Antes la hoja de
+  estilos de fuentes se cargaba de forma bloqueante: si el CDN tardaba o
+  no había red (pasa dentro de una app), la pantalla quedaba en blanco
+  hasta que fallara la petición (en la prueba: 12,6 s de pantalla vacía).
+  Ahora el texto aparece al instante con la fuente del sistema y cambia
+  a Baloo/Inter cuando llegan.
+- El JavaScript inicial bajó a la mitad (compresión gzip en el servidor
+  + las gráficas, el globo 3D y las secciones bajo el pliegue se cargan
+  después del primer render, en chunks separados).
+- Marco Polo se cierra con Escape y con el botón "atrás" de Android
+  (antes "atrás" salía de la app con el chat abierto).
+- Aurora y grano más livianos en pantallas chicas; el globo 3D se
+  reemplaza por una versión CSS en teléfonos (WebGL en gama baja
+  congelaba el scroll).
+- Service worker solo en la web (WKWebView no lo soporta y lo registraba
+  con error).
+- Enlaces externos (WhatsApp, Calendly, Stripe) abren en el navegador del
+  sistema en vez de "navegar" la app.
+- Respeto del notch/isla dinámica (`safe-area-inset`) en las cabeceras.
+
 ### 4. Una advertencia real sobre Apple
 
 Apple rechaza apps que son "solo un sitio web envuelto" (guideline 4.2,

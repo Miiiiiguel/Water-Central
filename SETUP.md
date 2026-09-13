@@ -107,6 +107,14 @@ mercado (USD 499)** con su botón principal, y **Diagnóstico de madurez
   nadie obtiene nada por abrirlas a mano — la fuente de verdad es el
   webhook firmado.
 
+**Recibos, reembolsos, Apple Pay / Google Pay:** el dashboard muestra
+"Ver recibo" (recibo alojado por Stripe) en cada pago; un reembolso
+hecho desde Stripe → Payments desactiva el plan solo (webhook
+`charge.refunded`); Apple Pay y Google Pay aparecen en el checkout al
+activarlos en Stripe → Settings → Payment methods. Activá también
+Stripe → Settings → Emails → "Successful payments" para que el cliente
+reciba el recibo por correo. Para la app nativa ver `APP_STORE.md` §3b.
+
 **¿Stripe o otra pasarela?** Stripe cobra en USD con tarjetas de todo el
 mundo y es lo más simple para una empresa que vende un servicio en USD.
 Si más adelante querés cobrar en pesos colombianos con PSE/Nequi, las
