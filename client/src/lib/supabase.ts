@@ -60,6 +60,20 @@ export interface ContactLead {
   created_at: string;
 }
 
+export type PlanId = 'diagnostico_madurez' | 'analisis_mercado';
+
+export interface Payment {
+  id: string;
+  user_id: string | null;
+  email: string | null;
+  plan: PlanId | string;
+  amount_cents: number;
+  currency: string;
+  status: 'paid' | 'refunded';
+  stripe_session_id: string;
+  created_at: string;
+}
+
 export interface AppNotification {
   id: string;
   user_id: string;

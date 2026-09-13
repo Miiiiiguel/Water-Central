@@ -4,6 +4,7 @@ import { Mail, Lock, AlertTriangle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import GoogleButton from '@/components/GoogleButton';
 
 export default function Login() {
   const { language } = useLanguage();
@@ -61,6 +62,8 @@ export default function Login() {
               {error}
             </div>
           )}
+
+          <GoogleButton onError={setError} />
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

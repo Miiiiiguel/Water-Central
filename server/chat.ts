@@ -1,7 +1,7 @@
 import express from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
-import { chatRateLimiter } from './security';
+import { chatRateLimiter, JSON_BODY_LIMIT } from './security';
 
 // Optional AI-powered upgrade for the guide chatbot. Without
 // ANTHROPIC_API_KEY set, this route returns 503 and the client falls
@@ -43,7 +43,7 @@ const chatBodySchema = z.object({
 
 export const chatRouter = express.Router();
 
-chatRouter.post('/chat', chatRateLimiter, express.json(), async (req, res) => {
+chatRouter.post('/chat', chatRateLimiter, express.json({ limit: JSON_BODY_LIMIT }), async (req, res) => {
   const client = getClient();
   if (!client) {
     return res.status(503).json({ error: 'AI chat no está configurado (falta ANTHROPIC_API_KEY).' });

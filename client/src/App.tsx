@@ -15,6 +15,7 @@ const Register = lazy(() => import("./pages/Register"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const Terms = lazy(() => import("./pages/Terms"));
+const PaymentResult = lazy(() => import("./pages/PaymentResult"));
 const ChatbotWidget = lazy(() => import("./components/ChatbotWidget"));
 
 function PageFallback() {
@@ -62,6 +63,16 @@ function Router() {
           <Route path={"/terminos"}>
             <Suspense fallback={<PageFallback />}>
               <Terms />
+            </Suspense>
+          </Route>
+          <Route path={"/pago/exito"}>
+            <Suspense fallback={<PageFallback />}>
+              <PaymentResult status="success" />
+            </Suspense>
+          </Route>
+          <Route path={"/pago/cancelado"}>
+            <Suspense fallback={<PageFallback />}>
+              <PaymentResult status="cancelled" />
             </Suspense>
           </Route>
           <Route path={"/404"} component={NotFound} />

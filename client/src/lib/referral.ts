@@ -24,6 +24,15 @@ export function getStoredReferralCode(): string | null {
   }
 }
 
+/** Once the code has been applied to an account it's no longer needed. */
+export function clearStoredReferralCode() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 export function buildReferralLink(referralCode: string): string {
   return `${window.location.origin}/?ref=${referralCode}`;
 }

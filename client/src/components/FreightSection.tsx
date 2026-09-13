@@ -15,6 +15,7 @@ export default function FreightSection() {
     destination: '',
     weight: '',
     clientType: 'brand',
+    website: '', // honeypot — see ContactFormExpanded
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -25,16 +26,19 @@ export default function FreightSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (form.website) return;
     setSubmitting(true);
+
+    const weight = Number(form.weight);
 
     if (isSupabaseConfigured) {
       await supabase.from('freight_quotes').insert({
         user_id: user?.id ?? null,
         name: profile?.full_name ?? null,
-        email: user?.email ?? (form.email || null),
-        origin: form.origin,
-        destination: form.destination,
-        weight_kg: form.weight ? Number(form.weight) : null,
+        email: user?.email ?? (form.email.trim().toLowerCase() || null),
+        origin: form.origin.trim().slice(0, 120),
+        destination: form.destination.trim().slice(0, 120),
+        weight_kg: Number.isFinite(weight) && weight > 0 && weight < 100000 ? weight : null,
         client_type: form.clientType,
       });
     } else {
@@ -177,6 +181,19 @@ export default function FreightSection() {
                     <option value="individual">{language === 'es' ? 'Persona natural' : 'Individual'}</option>
                     <option value="freight-forwarder">{language === 'es' ? 'Otro operador logístico' : 'Other freight forwarder'}</option>
                   </select>
+                </div>
+
+                <div className="absolute -left-[9999px] top-0 h-0 w-0 overflow-hidden" aria-hidden="true">
+                  <label htmlFor="freight-website">Website</label>
+                  <input
+                    id="freight-website"
+                    type="text"
+                    name="website"
+                    value={form.website}
+                    onChange={handleChange}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
                 </div>
 
                 <Button

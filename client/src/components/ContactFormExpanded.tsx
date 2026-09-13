@@ -20,6 +20,9 @@ export default function ContactFormExpanded() {
     interests: [] as string[],
     message: '',
     subscribe: true,
+    // Honeypot: invisible to people, filled in by dumb bots. Never rendered
+    // visibly and never sent — if it has a value, the submit is a no-op.
+    website: '',
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -46,20 +49,23 @@ export default function ContactFormExpanded() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.website) return; // bot tripped the honeypot
     setSubmitting(true);
+
+    const clean = (s: string, max: number) => s.trim().slice(0, max);
 
     if (isSupabaseConfigured) {
       await supabase.from('contact_leads').insert({
         user_id: user?.id ?? null,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        company: formData.company,
-        country: formData.country,
+        first_name: clean(formData.firstName, 80),
+        last_name: clean(formData.lastName, 80),
+        email: clean(formData.email, 160).toLowerCase(),
+        phone: clean(formData.phone, 40),
+        company: clean(formData.company, 120),
+        country: clean(formData.country, 80),
         sales_channel: formData.salesChannel,
-        interests: formData.interests,
-        message: formData.message,
+        interests: formData.interests.slice(0, 10),
+        message: clean(formData.message, 2000),
       });
     } else {
       console.log('Form submitted (Supabase not configured):', formData);
@@ -80,6 +86,7 @@ export default function ContactFormExpanded() {
         interests: [] as string[],
         message: '',
         subscribe: true,
+        website: '',
       });
       setStep(1);
       setSubmitted(false);
@@ -340,6 +347,19 @@ export default function ContactFormExpanded() {
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300 resize-none"
                         placeholder={language === 'es' ? 'Cuéntanos más sobre tu marca...' : 'Tell us more about your brand...'}
                       ></textarea>
+                    </div>
+
+                    <div className="absolute -left-[9999px] top-0 h-0 w-0 overflow-hidden" aria-hidden="true">
+                      <label htmlFor="contact-website">Website</label>
+                      <input
+                        id="contact-website"
+                        type="text"
+                        name="website"
+                        value={formData.website}
+                        onChange={handleChange}
+                        tabIndex={-1}
+                        autoComplete="off"
+                      />
                     </div>
 
                     <label className="flex items-center gap-2 p-3 border border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 cursor-pointer transition-all duration-300">

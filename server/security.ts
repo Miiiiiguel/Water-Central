@@ -1,5 +1,8 @@
 import helmet from 'helmet';
+import cors from 'cors';
 import rateLimit from 'express-rate-limit';
+import type { RequestHandler } from 'express';
+import { allowedOrigins } from './env';
 
 // Security headers. The CSP allowlist covers every third-party
 // integration this app actually uses (fonts, Calendly, ad pixels,
@@ -35,9 +38,47 @@ export const securityHeaders = helmet({
       upgradeInsecureRequests: [],
     },
   },
+  // One year, subdomains included, eligible for browser preload lists.
+  strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   // Cross-Origin-Embedder-Policy off — it would block the Calendly/YouTube iframes.
   crossOriginEmbedderPolicy: false,
 });
+
+// Helmet doesn't ship Permissions-Policy; this turns off browser
+// features the app never uses so a script injection can't reach them.
+export const permissionsPolicy: RequestHandler = (_req, res, next) => {
+  res.setHeader(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), payment=(self "https://checkout.stripe.com"), usb=(), bluetooth=(), interest-cohort=()'
+  );
+  next();
+};
+
+// Browser-facing API calls from anything other than the site itself
+// are only allowed from the native app shells and (in dev) Vite.
+// Server-to-server callers (Stripe, Supabase webhooks) send no Origin
+// header and are unaffected.
+export const corsPolicy = cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins().includes(origin)) return callback(null, true);
+    callback(new Error('Origin not allowed'));
+  },
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 600,
+});
+
+// Reject anything that isn't a method this API actually uses.
+export const methodAllowlist: RequestHandler = (req, res, next) => {
+  if (!['GET', 'POST', 'HEAD', 'OPTIONS'].includes(req.method)) {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+  next();
+};
+
+// Every JSON body this API accepts is tiny — anything bigger is abuse.
+export const JSON_BODY_LIMIT = '16kb';
 
 // General ceiling on API traffic per IP.
 export const apiRateLimiter = rateLimit({

@@ -4,6 +4,7 @@ import { Mail, Lock, User, Building2, AlertTriangle, ArrowRight, CheckCircle } f
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import GoogleButton from '@/components/GoogleButton';
 
 export default function Register() {
   const { language } = useLanguage();
@@ -88,6 +89,8 @@ export default function Register() {
               {error}
             </div>
           )}
+
+          <GoogleButton onError={setError} />
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

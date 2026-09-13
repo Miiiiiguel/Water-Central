@@ -124,11 +124,13 @@ begin
     where referral_code = new.raw_user_meta_data ->> 'referred_by_code';
   end if;
 
+  -- Email/password sign-ups send full_name + company; Google sign-ins
+  -- send full_name / name (and avatar_url) from the Google profile.
   insert into public.profiles (id, email, full_name, company, role, referred_by)
   values (
     new.id,
     new.email,
-    new.raw_user_meta_data ->> 'full_name',
+    coalesce(new.raw_user_meta_data ->> 'full_name', new.raw_user_meta_data ->> 'name'),
     new.raw_user_meta_data ->> 'company',
     'cliente',
     referrer_id
@@ -296,16 +298,112 @@ create policy "push_subscriptions: manage own"
 -- sender reads this table with the Supabase service role key instead,
 -- which bypasses RLS on purpose (see server/push.ts).
 
+-- =======================================================================
+-- Referral code for OAuth sign-ups (Google). Email sign-ups pass the
+-- code as auth metadata and handle_new_user() resolves it; OAuth has no
+-- metadata hook, so the client calls this right after the first login.
+-- Only sets referred_by if it's still empty, never lets you refer
+-- yourself, and notifies the referrer exactly like the trigger does.
+-- =======================================================================
+
+create or replace function public.apply_referral_code(p_code text)
+returns boolean
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  me uuid := auth.uid();
+  referrer_id uuid;
+  my_name text;
+begin
+  if me is null or p_code is null then
+    return false;
+  end if;
+
+  select id into referrer_id from public.profiles where referral_code = p_code;
+  if referrer_id is null or referrer_id = me then
+    return false;
+  end if;
+
+  update public.profiles
+  set referred_by = referrer_id
+  where id = me and referred_by is null;
+
+  if not found then
+    return false;
+  end if;
+
+  select coalesce(full_name, email) into my_name from public.profiles where id = me;
+  insert into public.notifications (user_id, type, title, body, link)
+  values (referrer_id, 'referral_signup', 'Nuevo referido', my_name || ' se registró con tu link.', '/dashboard');
+
+  return true;
+end;
+$$;
+
+-- =======================================================================
+-- Payments (written ONLY by the server's Stripe webhook using the
+-- service-role key — see server/stripe.ts). This table is the source of
+-- truth for "Plan activo" in the dashboard.
+-- =======================================================================
+
+create table if not exists public.payments (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.profiles (id) on delete set null,
+  email text,
+  plan text not null,                 -- diagnostico_madurez | analisis_mercado
+  amount_cents integer not null,
+  currency text not null default 'usd',
+  status text not null default 'paid', -- paid | refunded
+  stripe_session_id text not null unique,
+  stripe_payment_intent text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.payments enable row level security;
+
+create policy "payments: read own"
+  on public.payments for select
+  using (auth.uid() = user_id);
+
+create policy "payments: vendedor reads all"
+  on public.payments for select
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'vendedor'));
+
+-- No insert/update policy on purpose: only the service-role key (server)
+-- can write here, so a client can never mark itself as paid.
+
+-- Tell the team when money comes in.
+create or replace function public.handle_new_payment()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  perform public.notify_vendedores(
+    'new_payment',
+    'Nuevo pago recibido',
+    coalesce(new.email, 'Un cliente') || ' pagó ' || new.plan || ' (' || (new.amount_cents / 100.0)::text || ' ' || upper(new.currency) || ')'
+  );
+  if new.user_id is not null then
+    insert into public.notifications (user_id, type, title, body, link)
+    values (new.user_id, 'payment_confirmed', 'Pago confirmado', 'Tu pago fue recibido. Te contactamos en menos de 24 horas.', '/dashboard');
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_payment_created on public.payments;
+create trigger on_payment_created
+  after insert on public.payments
+  for each row execute procedure public.handle_new_payment();
+
 -- ---------------------------------------------------------------------
--- Suggested next tables (not created here, add when you build the
--- matching feature):
---
--- plan_subscriptions (id, user_id -> profiles.id, plan, stripe_customer_id,
---                      stripe_subscription_id, status, created_at)
---   Feeds the "Elige tu plan" card and links to Stripe (see server/stripe.ts).
+-- Suggested next table (not created here, add when you build it):
 --
 -- referral_commissions (id, referrer_id -> profiles.id, referred_id ->
---                        profiles.id, amount, status, created_at)
+--                        profiles.id, payment_id -> payments.id, amount,
+--                        status, created_at)
 --   If you want to pay out real commissions (not just track who
 --   referred whom), add this once a referral converts to a paid plan.
 -- ---------------------------------------------------------------------

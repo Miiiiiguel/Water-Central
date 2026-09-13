@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured, Profile } from '@/lib/supabase';
 import { trackSignUp } from '@/lib/analytics';
-import { getStoredReferralCode } from '@/lib/referral';
+import { getStoredReferralCode, clearStoredReferralCode } from '@/lib/referral';
 
 interface AuthContextType {
   session: Session | null;
@@ -12,7 +12,10 @@ interface AuthContextType {
   configured: boolean;
   signUp: (email: string, password: string, fullName: string, company: string) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signInWithGoogle: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
+  // Bearer token for calling our own /api routes as the logged-in user.
+  getAccessToken: () => string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,6 +30,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile((data as Profile) ?? null);
   };
 
+  // Email sign-ups pass the referral code as auth metadata (resolved by
+  // the DB trigger). Google sign-ins can't, so we apply it here on the
+  // first session — the RPC is a no-op if the user was already referred.
+  const applyPendingReferral = async () => {
+    const code = getStoredReferralCode();
+    if (!code) return;
+    const { data } = await supabase.rpc('apply_referral_code', { p_code: code });
+    if (data === true) clearStoredReferralCode();
+  };
+
   useEffect(() => {
     if (!isSupabaseConfigured) {
       setLoading(false);
@@ -39,10 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession(newSession);
       if (newSession?.user) {
         fetchProfile(newSession.user.id);
+        if (event === 'SIGNED_IN') applyPendingReferral().then(() => fetchProfile(newSession.user.id));
       } else {
         setProfile(null);
       }
@@ -54,9 +68,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp: AuthContextType['signUp'] = async (email, password, fullName, company) => {
     if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía (faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' };
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: email.trim().toLowerCase(),
       password,
-      options: { data: { full_name: fullName, company, referred_by_code: getStoredReferralCode() } },
+      options: { data: { full_name: fullName.trim(), company: company.trim(), referred_by_code: getStoredReferralCode() } },
     });
     if (error) return { error: error.message };
     // The profiles row is created by a DB trigger (see supabase/schema.sql).
@@ -64,9 +78,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (data.user) {
       await supabase.from('profiles').upsert({
         id: data.user.id,
-        email,
-        full_name: fullName,
-        company,
+        email: email.trim().toLowerCase(),
+        full_name: fullName.trim(),
+        company: company.trim(),
         role: 'cliente',
       });
     }
@@ -76,7 +90,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn: AuthContextType['signIn'] = async (email, password) => {
     if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía (faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' };
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+    return { error: error ? error.message : null };
+  };
+
+  const signInWithGoogle: AuthContextType['signInWithGoogle'] = async () => {
+    if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía (faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' };
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+        queryParams: { access_type: 'offline', prompt: 'select_account' },
+      },
+    });
     return { error: error ? error.message : null };
   };
 
@@ -84,6 +110,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     setProfile(null);
   };
+
+  const getAccessToken = () => session?.access_token ?? null;
 
   return (
     <AuthContext.Provider
@@ -95,7 +123,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         configured: isSupabaseConfigured,
         signUp,
         signIn,
+        signInWithGoogle,
         signOut,
+        getAccessToken,
       }}
     >
       {children}

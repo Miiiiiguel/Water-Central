@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Check, Sparkles, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { trackInitiateCheckout } from '@/lib/analytics';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Plan {
   step: number;
@@ -11,6 +12,8 @@ interface Plan {
   features: { es: string[]; en: string[] };
   highlighted?: boolean;
   checkoutPlan?: string;
+  // A second, paid option inside a card whose main action is free.
+  secondaryCheckout?: { plan: string; label: { es: string; en: string } };
 }
 
 const plans: Plan[] = [
@@ -21,6 +24,10 @@ const plans: Plan[] = [
     features: {
       es: ['Diagnóstico básico gratis', 'Diagnóstico de madurez con comentarios y próximos pasos (USD 6.90)'],
       en: ['Free basic diagnosis', 'Maturity diagnosis with feedback and next steps (USD 6.90)'],
+    },
+    secondaryCheckout: {
+      plan: 'diagnostico_madurez',
+      label: { es: 'Comprar diagnóstico de madurez · USD 6.90', en: 'Buy maturity diagnosis · USD 6.90' },
     },
   },
   {
@@ -47,24 +54,26 @@ const plans: Plan[] = [
 
 export default function PlansSection() {
   const { language } = useLanguage();
+  const { getAccessToken } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
-  const [checkingOut, setCheckingOut] = useState<number | null>(null);
+  const [checkingOut, setCheckingOut] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
-  const handlePlanClick = async (plan: Plan) => {
-    if (!plan.checkoutPlan) {
-      const el = document.getElementById('contacto');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-      return;
-    }
+  const startCheckout = async (checkoutPlan: string) => {
     setCheckoutError(null);
-    setCheckingOut(plan.step);
-    trackInitiateCheckout({ plan: plan.checkoutPlan });
+    setCheckingOut(checkoutPlan);
+    trackInitiateCheckout({ plan: checkoutPlan });
     try {
+      // When logged in, the server verifies this token itself and ties
+      // the payment to the account — the client never sends a user id.
+      const token = getAccessToken();
       const res = await fetch('/api/create-checkout-session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: plan.checkoutPlan }),
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ plan: checkoutPlan }),
       });
       const data = await res.json();
       if (!res.ok || !data.url) throw new Error(data.error || 'checkout_failed');
@@ -77,6 +86,15 @@ export default function PlansSection() {
       );
       setCheckingOut(null);
     }
+  };
+
+  const handlePlanClick = (plan: Plan) => {
+    if (!plan.checkoutPlan) {
+      const el = document.getElementById('contacto');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    startCheckout(plan.checkoutPlan);
   };
 
   useEffect(() => {
@@ -154,7 +172,7 @@ export default function PlansSection() {
                 ))}
               </ul>
               <Button
-                disabled={checkingOut === plan.step}
+                disabled={checkingOut !== null}
                 className={
                   'tap-scale ' + (plan.highlighted
                     ? 'bg-white text-primary hover:bg-gray-100 border-0 font-bold'
@@ -162,13 +180,27 @@ export default function PlansSection() {
                 }
                 onClick={() => handlePlanClick(plan)}
               >
-                {checkingOut === plan.step ? (
+                {plan.checkoutPlan && checkingOut === plan.checkoutPlan ? (
                   <Loader2 size={18} className="animate-spin" />
                 ) : (
                   language === 'es' ? 'Empezar' : 'Get started'
                 )}
               </Button>
-              {checkoutError && checkingOut === null && plan.checkoutPlan && (
+              {plan.secondaryCheckout && (
+                <button
+                  type="button"
+                  disabled={checkingOut !== null}
+                  onClick={() => startCheckout(plan.secondaryCheckout!.plan)}
+                  className="tap-scale-sm mt-3 w-full text-sm font-semibold text-accent hover:underline bg-transparent border-0 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {checkingOut === plan.secondaryCheckout.plan ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    language === 'es' ? plan.secondaryCheckout.label.es : plan.secondaryCheckout.label.en
+                  )}
+                </button>
+              )}
+              {checkoutError && checkingOut === null && (plan.checkoutPlan || plan.secondaryCheckout) && (
                 <p className={`text-xs mt-2 ${plan.highlighted ? 'text-orange-200' : 'text-red-500'}`}>{checkoutError}</p>
               )}
             </div>

@@ -1,21 +1,14 @@
 import express from 'express';
 import webpush from 'web-push';
-import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
-import { pushRateLimiter } from './security';
+import { pushRateLimiter, JSON_BODY_LIMIT } from './security';
+import { getSupabaseAdmin } from './supabaseAdmin';
 
 // Sends a real push notification (works with the tab/app closed) every
 // time a row is inserted into public.notifications. Wired up via a
 // Supabase Database Webhook — see SETUP.md section 6. Without the env
 // vars below, this route stays disabled and the app keeps working with
 // in-app notifications only (NotificationBell).
-
-function getSupabaseAdmin() {
-  const url = process.env.VITE_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceRoleKey) return null;
-  return createClient(url, serviceRoleKey);
-}
 
 function vapidReady() {
   return Boolean(
@@ -37,7 +30,7 @@ const webhookBodySchema = z.object({
 
 export const pushRouter = express.Router();
 
-pushRouter.post('/push/notify', pushRateLimiter, express.json(), async (req, res) => {
+pushRouter.post('/push/notify', pushRateLimiter, express.json({ limit: JSON_BODY_LIMIT }), async (req, res) => {
   const expectedSecret = process.env.PUSH_WEBHOOK_SECRET;
   if (!expectedSecret || req.header('x-push-secret') !== expectedSecret) {
     return res.status(401).json({ error: 'Unauthorized' });

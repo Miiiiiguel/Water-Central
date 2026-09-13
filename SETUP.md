@@ -31,6 +31,34 @@ Con eso, `/login`, `/registro` y `/dashboard` funcionan de verdad, y el
 formulario de contacto + la calculadora de fletes empiezan a guardar
 datos reales en vez de perderse en la consola del navegador.
 
+### Login con Google
+
+El botón "Continuar con Google" ya está en `/login` y `/registro`. Para
+activarlo (10 minutos, sin código):
+
+1. En [console.cloud.google.com](https://console.cloud.google.com) crea
+   un proyecto (o usa uno tuyo) -> **APIs & Services -> Credentials ->
+   Create credentials -> OAuth client ID**, tipo **Web application**.
+   - En **Authorized redirect URIs** pega la URL de callback que te
+     muestra Supabase en el paso 2 (tiene la forma
+     `https://TU-PROYECTO.supabase.co/auth/v1/callback`).
+   - Antes te va a pedir configurar la **OAuth consent screen**: nombre
+     "Easycomex", tu email de soporte, y el logo si querés.
+2. En Supabase: **Authentication -> Providers -> Google**, actívalo y
+   pega el **Client ID** y **Client Secret** que te dio Google.
+3. En Supabase: **Authentication -> URL Configuration**, agrega tu
+   dominio real a **Redirect URLs** (ej. `https://easycomex.com/**`).
+   Sin esto Google te devuelve al usuario a localhost.
+
+Quien entra con Google recibe un perfil `cliente` automáticamente (con
+su nombre de Google) y, si llegó por un link de referido, el referido se
+aplica igual que en el registro con email.
+
+**Nota para la app nativa (iOS/Android):** el login con Google desde la
+app instalada necesita un deep link de vuelta a la app (esquema
+`com.easycomex.app://`). Eso queda pendiente para cuando compilemos la
+app nativa; en la web funciona ya.
+
 ## 2. Pagos (Stripe)
 
 1. Crea una cuenta en [stripe.com](https://stripe.com) (modo test para
@@ -58,11 +86,33 @@ no van a existir. Necesitas correr el servidor Node (`pnpm build && pnpm
 start`) en un host que ejecute Node — Render, Railway, Fly.io, un VPS,
 etc.
 
-De momento solo el plan de **Análisis de mercado (USD 499)** tiene botón
-de pago conectado, porque es el único con precio fijo — el "Plan de
-crecimiento" es a medida (cotización) y el diagnóstico básico es
-gratuito. Si quieres cobrar también el diagnóstico de madurez (USD 6.90),
-avísame y conecto ese botón también.
+6. Pon también `SUPABASE_SERVICE_ROLE_KEY` (Supabase -> Project Settings
+   -> API -> `service_role`). Es lo que le permite al webhook **registrar
+   el pago** en la tabla `payments` — sin eso el cobro ocurre en Stripe
+   pero la app no se entera.
+
+Los dos planes con precio fijo ya están conectados: **Análisis de
+mercado (USD 499)** con su botón principal, y **Diagnóstico de madurez
+(USD 6.90)** como opción secundaria dentro de la tarjeta del paso 1. El
+"Plan de crecimiento" sigue siendo a medida (lleva al formulario).
+
+**Cómo fluye un pago de verdad:**
+- Si el cliente está logueado, el checkout queda atado a su cuenta (el
+  servidor verifica su sesión, nunca confía en un id que mande el
+  navegador). Si no está logueado, igual puede pagar como invitado.
+- Stripe llama a tu webhook cuando el pago se completa -> el servidor
+  guarda la fila en `payments` -> el dashboard del cliente muestra "Plan
+  activo" y "Tus pagos", y tu equipo recibe una notificación "Nuevo pago".
+- Las páginas `/pago/exito` y `/pago/cancelado` son solo informativas:
+  nadie obtiene nada por abrirlas a mano — la fuente de verdad es el
+  webhook firmado.
+
+**¿Stripe o otra pasarela?** Stripe cobra en USD con tarjetas de todo el
+mundo y es lo más simple para una empresa que vende un servicio en USD.
+Si más adelante querés cobrar en pesos colombianos con PSE/Nequi, las
+opciones locales son **Wompi** (de Bancolombia) o **Mercado Pago** — se
+integran igual (checkout hospedado + webhook) y podrían convivir con
+Stripe. Avísame y lo armo cuando tengas la cuenta.
 
 ## 3. Calendario (Calendly o Cal.com)
 
@@ -175,18 +225,62 @@ el servidor.
 
 ## 9. Seguridad
 
-El servidor ya corre con cabeceras de seguridad (Helmet: CSP, HSTS,
-X-Frame-Options, etc.), límite de peticiones por IP en todas las rutas
-`/api/*` (más estricto en el chatbot y el checkout), y validación de
-cada body de request con `zod` — nada de lo que llega del navegador se
-usa sin validar. El acceso a datos está controlado por Row Level
-Security en Supabase (cada tabla en `supabase/schema.sql` con sus
-políticas), no solo por el código del cliente.
+### Lo que ya está activo (sin que hagas nada)
 
-También se eliminó una herramienta de debug de la plantilla original
-(`vite-plugin-manus-runtime`) que inyectaba ~370KB de código de
-terceros sin revisar en cada página — no aportaba nada a tu app y era
-superficie de ataque innecesaria.
+- **Cabeceras de seguridad** (Helmet): Content Security Policy con lista
+  blanca por dominio, HSTS de 1 año con `preload`, `X-Frame-Options`,
+  `Referrer-Policy`, `Permissions-Policy` (cámara, micrófono, GPS,
+  USB y Bluetooth apagados para toda la app).
+- **CORS con lista blanca**: `/api/*` solo acepta llamadas desde tu
+  dominio (`PUBLIC_APP_URL`) y desde la app nativa. Cualquier otro
+  origen es rechazado.
+- **Rate limiting por IP** en todas las rutas `/api/*`, más estricto en
+  chatbot, checkout y el webhook de push.
+- **Validación de cada request** con `zod`, cuerpos JSON limitados a
+  16 KB, solo métodos GET/POST, y `/api/*` desconocidos devuelven 404
+  (nunca la página).
+- **Identidad verificada en el servidor**: para atar un pago a una
+  cuenta, el servidor valida el JWT de Supabase por su cuenta — el
+  navegador nunca dice "soy el usuario X".
+- **Row Level Security** en cada tabla de Supabase. La tabla `payments`
+  no tiene política de escritura para clientes: solo el servidor (con la
+  service role key) puede marcar algo como pagado.
+- **Webhooks firmados**: Stripe (firma criptográfica) y Supabase
+  (secreto compartido en header).
+- **Honeypot anti-bots** en el formulario de contacto y la calculadora:
+  un campo invisible que solo llenan los bots; si tiene valor, el envío
+  se descarta en silencio. Además todo lo que se guarda se recorta a
+  longitudes razonables.
+- **Chequeo de configuración al arrancar**: el servidor avisa en logs si
+  falta la mitad de una integración, si una clave secreta lleva prefijo
+  `VITE_` (¡eso la haría pública!), o si usás una key live de Stripe
+  fuera de producción.
+- **Dependencias limpias**: se eliminaron paquetes de la plantilla
+  original que no se usaban y traían ~65 vulnerabilidades conocidas
+  (`axios`, `streamdown`, `nanoid`) y una herramienta de debug que
+  inyectaba ~370KB de código de terceros en cada página.
+- `/.well-known/security.txt` para que investigadores sepan a dónde
+  reportar un problema.
+
+### Lo que depende de tu cuenta de Supabase (5 minutos, muy recomendado)
+
+En **Authentication -> Settings** de tu proyecto:
+
+- [ ] **Confirm email** activado — evita cuentas con emails ajenos.
+- [ ] **Leaked password protection** (Supabase lo compara contra
+      HaveIBeenPwned) — bloquea contraseñas ya filtradas.
+- [ ] **Minimum password length** en 8+ (la app ya exige 6, subilo acá).
+- [ ] **Captcha** (hCaptcha o Cloudflare Turnstile) en signup/login —
+      frena registros masivos automatizados. Si lo activás, avisame y
+      agrego el widget al formulario (son 10 líneas).
+- [ ] **Rate limits** de auth: dejá los valores por defecto o bajalos.
+
+### Lo que depende de dónde hostees
+
+- HTTPS obligatorio (Render/Railway/Fly lo dan gratis). HSTS ya está
+  activo, así que sin HTTPS el sitio directamente no carga — a propósito.
+- Las variables sin `VITE_` van en el panel de secretos del hosting,
+  nunca en el repo.
 
 ## 10. App instalable (PWA) y apps nativas
 

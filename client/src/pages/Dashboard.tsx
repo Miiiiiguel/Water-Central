@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase, FreightQuote, Profile, ContactLead } from '@/lib/supabase';
+import { supabase, FreightQuote, Profile, ContactLead, Payment } from '@/lib/supabase';
 import { buildReferralLink } from '@/lib/referral';
 import { downloadCSV } from '@/lib/csv';
 import { isPushConfigured, getPushStatus, subscribeToPush, unsubscribeFromPush, PushStatus } from '@/lib/push';
@@ -231,10 +231,16 @@ function ReferralCard() {
   );
 }
 
+const planLabel: Record<string, { es: string; en: string }> = {
+  diagnostico_madurez: { es: 'Diagnóstico de madurez', en: 'Maturity diagnosis' },
+  analisis_mercado: { es: 'Análisis de mercado', en: 'Market analysis' },
+};
+
 function ClienteDashboard() {
   const { language } = useLanguage();
   const { user } = useAuth();
   const [quotes, setQuotes] = useState<FreightQuote[] | null>(null);
+  const [payments, setPayments] = useState<Payment[] | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -244,12 +250,27 @@ function ClienteDashboard() {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .then(({ data }) => setQuotes((data as FreightQuote[]) ?? []));
+
+    // Written only by the Stripe webhook on the server — a client can
+    // read its own rows here but never create one (see schema.sql).
+    supabase
+      .from('payments')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('status', 'paid')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => setPayments((data as Payment[]) ?? []));
   }, [user]);
+
+  const latestPayment = payments?.[0] ?? null;
+  const activePlanLabel = latestPayment
+    ? (planLabel[latestPayment.plan]?.[language === 'es' ? 'es' : 'en'] ?? latestPayment.plan)
+    : (language === 'es' ? 'Ninguno' : 'None');
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard icon={Package} label={language === 'es' ? 'Plan activo' : 'Active plan'} value={language === 'es' ? 'Ninguno' : 'None'} />
+        <StatCard icon={Package} label={language === 'es' ? 'Plan activo' : 'Active plan'} value={activePlanLabel} />
         <StatCard icon={FileText} label={language === 'es' ? 'Cotizaciones enviadas' : 'Quotes submitted'} value={quotes?.length ?? 0} accent />
         <StatCard icon={CalendarClock} label={language === 'es' ? 'Consultoría agendada' : 'Consultation booked'} value={language === 'es' ? 'No' : 'No'} />
       </div>
@@ -296,17 +317,48 @@ function ClienteDashboard() {
 
       <div className="bg-white rounded-3xl border border-gray-100 app-shadow">
         <div className="p-6 border-b border-gray-100">
-          <h2 className="font-bold text-primary">{language === 'es' ? 'Elige tu plan' : 'Choose your plan'}</h2>
+          <h2 className="font-bold text-primary">
+            {payments?.length
+              ? (language === 'es' ? 'Tus pagos' : 'Your payments')
+              : (language === 'es' ? 'Elige tu plan' : 'Choose your plan')}
+          </h2>
         </div>
-        <EmptyState
-          icon={TrendingUp}
-          title={language === 'es' ? 'Aún no tienes un plan activo' : "You don't have an active plan yet"}
-          description={language === 'es'
-            ? 'Empieza con el diagnóstico gratuito o el plan que mejor se ajuste a tu marca.'
-            : 'Start with the free diagnosis or the plan that fits your brand best.'}
-          ctaLabel={language === 'es' ? 'Ver planes' : 'See plans'}
-          ctaHref="/#planes"
-        />
+        {payments === null ? (
+          <ListSkeleton rows={2} avatar={false} trailing="date" />
+        ) : payments.length === 0 ? (
+          <EmptyState
+            icon={TrendingUp}
+            title={language === 'es' ? 'Aún no tienes un plan activo' : "You don't have an active plan yet"}
+            description={language === 'es'
+              ? 'Empieza con el diagnóstico gratuito o el plan que mejor se ajuste a tu marca.'
+              : 'Start with the free diagnosis or the plan that fits your brand best.'}
+            ctaLabel={language === 'es' ? 'Ver planes' : 'See plans'}
+            ctaHref="/#planes"
+          />
+        ) : (
+          <ul className="divide-y divide-gray-100">
+            {payments.map((p) => (
+              <li key={p.id} className="p-5 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center flex-shrink-0">
+                    <Check size={18} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-foreground truncate">
+                      {planLabel[p.plan]?.[language === 'es' ? 'es' : 'en'] ?? p.plan}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(p.created_at).toLocaleDateString()} · {(p.amount_cents / 100).toFixed(2)} {p.currency.toUpperCase()}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs font-bold text-green-700 bg-green-50 rounded-full px-3 py-1 flex-shrink-0">
+                  {language === 'es' ? 'Pagado' : 'Paid'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
