@@ -3,6 +3,7 @@ import type { Session, User } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured, Profile } from '@/lib/supabase';
 import { trackSignUp } from '@/lib/analytics';
 import { getStoredReferralCode, clearStoredReferralCode } from '@/lib/referral';
+import { getMfaStatus } from '@/lib/mfa';
 
 interface AuthContextType {
   session: Session | null;
@@ -10,9 +11,14 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   configured: boolean;
+  // The account has 2FA enabled but this session hasn't passed the code yet.
+  mfaRequired: boolean;
+  refreshMfa: () => Promise<void>;
   signUp: (email: string, password: string, fullName: string, company: string) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
+  resetPassword: (email: string) => Promise<{ error: string | null }>;
+  updatePassword: (password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   // Bearer token for calling our own /api routes as the logged-in user.
   getAccessToken: () => string | null;
@@ -24,10 +30,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mfaRequired, setMfaRequired] = useState(false);
 
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
     setProfile((data as Profile) ?? null);
+  };
+
+  const refreshMfa = async () => {
+    try {
+      const status = await getMfaStatus();
+      setMfaRequired(status.required);
+    } catch {
+      setMfaRequired(false);
+    }
   };
 
   // Email sign-ups pass the referral code as auth metadata (resolved by
@@ -48,7 +64,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
-      if (data.session?.user) fetchProfile(data.session.user.id);
+      if (data.session?.user) {
+        fetchProfile(data.session.user.id);
+        refreshMfa();
+      }
       setLoading(false);
     });
 
@@ -56,9 +75,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(newSession);
       if (newSession?.user) {
         fetchProfile(newSession.user.id);
+        refreshMfa();
         if (event === 'SIGNED_IN') applyPendingReferral().then(() => fetchProfile(newSession.user.id));
       } else {
         setProfile(null);
+        setMfaRequired(false);
       }
     });
 
@@ -106,9 +127,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error ? error.message : null };
   };
 
+  const resetPassword: AuthContextType['resetPassword'] = async (email) => {
+    if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía.' };
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+      redirectTo: `${window.location.origin}/restablecer`,
+    });
+    return { error: error ? error.message : null };
+  };
+
+  const updatePassword: AuthContextType['updatePassword'] = async (password) => {
+    const { error } = await supabase.auth.updateUser({ password });
+    return { error: error ? error.message : null };
+  };
+
+  // Global scope: revokes the refresh token everywhere, not just this tab.
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: 'global' });
     setProfile(null);
+    setMfaRequired(false);
   };
 
   const getAccessToken = () => session?.access_token ?? null;
@@ -121,9 +157,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profile,
         loading,
         configured: isSupabaseConfigured,
+        mfaRequired,
+        refreshMfa,
         signUp,
         signIn,
         signInWithGoogle,
+        resetPassword,
+        updatePassword,
         signOut,
         getAccessToken,
       }}

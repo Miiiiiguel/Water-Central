@@ -1,6 +1,5 @@
-import { cn } from "@/lib/utils";
 import { AlertTriangle, RotateCcw } from "lucide-react";
-import { Component, ReactNode } from "react";
+import { Component, ErrorInfo, ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
@@ -11,6 +10,10 @@ interface State {
   error: Error | null;
 }
 
+// Last line of defense for render errors. Users get a friendly screen;
+// the details go to the console and to Sentry when it's configured
+// (see main.tsx). Stack traces are only shown in local development —
+// in production they can reveal file paths and internals.
 class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -21,34 +24,34 @@ class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error(error, info.componentStack);
+    (window as any).__sentry?.captureException?.(error, { extra: { componentStack: info.componentStack } });
+  }
+
   render() {
     if (this.state.hasError) {
       return (
         <div className="flex items-center justify-center min-h-screen p-8 bg-background">
-          <div className="flex flex-col items-center w-full max-w-2xl p-8">
-            <AlertTriangle
-              size={48}
-              className="text-destructive mb-6 flex-shrink-0"
-            />
-
-            <h2 className="text-xl mb-4">An unexpected error occurred.</h2>
-
-            <div className="p-4 w-full rounded bg-muted overflow-auto mb-6">
-              <pre className="text-sm text-muted-foreground whitespace-break-spaces">
-                {this.state.error?.stack}
+          <div className="flex flex-col items-center text-center w-full max-w-md">
+            <span className="w-16 h-16 rounded-2xl bg-orange-50 text-accent flex items-center justify-center mb-6">
+              <AlertTriangle size={30} />
+            </span>
+            <h2 className="text-xl font-black text-primary mb-2">Algo salió mal</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              Ya quedó registrado para revisarlo. Recargá la página para seguir.
+            </p>
+            {import.meta.env.DEV && this.state.error && (
+              <pre className="w-full text-left text-xs text-muted-foreground bg-muted rounded-xl p-3 overflow-auto mb-6 max-h-48">
+                {this.state.error.stack}
               </pre>
-            </div>
-
+            )}
             <button
               onClick={() => window.location.reload()}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg",
-                "bg-primary text-primary-foreground",
-                "hover:opacity-90 cursor-pointer"
-              )}
+              className="tap-scale inline-flex items-center gap-2 px-6 py-3 rounded-full bg-accent hover:bg-accent/90 text-white font-bold border-0 cursor-pointer"
             >
               <RotateCcw size={16} />
-              Reload Page
+              Recargar
             </button>
           </div>
         </div>

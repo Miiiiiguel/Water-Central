@@ -3,12 +3,13 @@ import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import type { RequestHandler } from 'express';
 import { allowedOrigins } from './env';
+import { logSecurityEvent } from './log';
 
 // Security headers. The CSP allowlist covers every third-party
 // integration this app actually uses (fonts, Calendly, ad pixels,
-// Supabase, YouTube embed for the VSL section). If you add a new
-// integration later, its domain needs to be added here too or the
-// browser will silently block it.
+// Supabase, YouTube embed for the VSL section, Sentry ingest). If you
+// add a new integration later, its domain needs to be added here too or
+// the browser will silently block it — and report it to /api/csp-report.
 export const securityHeaders = helmet({
   contentSecurityPolicy: {
     directives: {
@@ -20,6 +21,9 @@ export const securityHeaders = helmet({
         'https://analytics.tiktok.com',
         'https://www.googletagmanager.com',
       ],
+      // 'unsafe-inline' for styles only: framer-motion/Radix/sonner set
+      // inline style attributes and inject <style> tags at runtime, and
+      // CSS injection is not a code-execution vector. Scripts stay strict.
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://assets.calendly.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:', 'https:'],
@@ -31,13 +35,18 @@ export const securityHeaders = helmet({
         'wss://*.supabase.co',
         'https://www.google-analytics.com',
         'https://analytics.tiktok.com',
+        'https://*.ingest.sentry.io',
+        'https://*.ingest.us.sentry.io',
+        'https://*.ingest.de.sentry.io',
       ],
       frameSrc: ["'self'", 'https://calendly.com', 'https://www.youtube.com'],
+      workerSrc: ["'self'"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
       formAction: ["'self'", 'https://checkout.stripe.com'],
       frameAncestors: ["'self'"],
       upgradeInsecureRequests: [],
+      reportUri: ['/api/csp-report'],
     },
   },
   // One year, subdomains included, eligible for browser preload lists.
@@ -49,10 +58,11 @@ export const securityHeaders = helmet({
 
 // Helmet doesn't ship Permissions-Policy; this turns off browser
 // features the app never uses so a script injection can't reach them.
+// Microphone stays on for Marco Polo's dictation (same-origin only).
 export const permissionsPolicy: RequestHandler = (_req, res, next) => {
   res.setHeader(
     'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(), payment=(self "https://checkout.stripe.com"), usb=(), bluetooth=(), interest-cohort=()'
+    'camera=(), microphone=(self), geolocation=(), payment=(self "https://checkout.stripe.com"), usb=(), bluetooth=(), interest-cohort=()'
   );
   next();
 };
@@ -67,6 +77,7 @@ export const corsPolicy: RequestHandler = (req, res, next) => {
   cors({
     origin(origin, callback) {
       if (!origin || origin === self || allowedOrigins().includes(origin)) return callback(null, true);
+      logSecurityEvent('cors_rejected', req);
       callback(new Error('Origin not allowed'));
     },
     methods: ['GET', 'POST'],
@@ -78,6 +89,7 @@ export const corsPolicy: RequestHandler = (req, res, next) => {
 // Reject anything that isn't a method this API actually uses.
 export const methodAllowlist: RequestHandler = (req, res, next) => {
   if (!['GET', 'POST', 'HEAD', 'OPTIONS'].includes(req.method)) {
+    logSecurityEvent('method_rejected', req);
     return res.status(405).json({ error: 'Method not allowed' });
   }
   next();
@@ -86,45 +98,25 @@ export const methodAllowlist: RequestHandler = (req, res, next) => {
 // Every JSON body this API accepts is tiny — anything bigger is abuse.
 export const JSON_BODY_LIMIT = '16kb';
 
-// General ceiling on API traffic per IP.
-export const apiRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// All limiters log who hit them, so a brute-force or scraping attempt
+// shows up in the security log instead of silently getting 429s.
+function makeLimiter(name: string, limit: number, windowMs = 15 * 60 * 1000) {
+  return rateLimit({
+    windowMs,
+    limit,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (req, res) => {
+      logSecurityEvent('rate_limited', req, { limiter: name, limit, windowMs });
+      res.status(429).json({ error: 'Demasiadas solicitudes. Intenta de nuevo en unos minutos.' });
+    },
+  });
+}
 
-// The chatbot calls a paid LLM API — worth a tighter limit than the rest.
-export const chatRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 30,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Demasiados mensajes. Intenta de nuevo en unos minutos.' },
-});
-
-// Checkout session creation — cheap to call but still worth capping
-// against accidental loops or abuse.
-export const checkoutRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 20,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Premium voice hits a paid API per call — keep it tight.
-export const ttsRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 40,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Called by the Supabase Database Webhook on every new notification row —
-// bursty by nature (a busy day can fire many), but still capped.
-export const pushRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 300,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+export const apiRateLimiter = makeLimiter('api', 100);        // general ceiling per IP
+export const chatRateLimiter = makeLimiter('chat', 30);       // paid LLM API
+export const checkoutRateLimiter = makeLimiter('checkout', 20);
+export const ttsRateLimiter = makeLimiter('tts', 40);         // paid voice API
+export const pushRateLimiter = makeLimiter('push', 300);      // bursty webhook
+export const formRateLimiter = makeLimiter('forms', 8);       // contact + freight submissions
+export const cspReportLimiter = makeLimiter('csp_report', 60);

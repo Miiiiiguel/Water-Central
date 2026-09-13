@@ -16,6 +16,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const PaymentResult = lazy(() => import("./pages/PaymentResult"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const ChatbotWidget = lazy(() => import("./components/ChatbotWidget"));
 import ScrollProgress from "./components/ScrollProgress";
 
@@ -64,6 +65,11 @@ function Router() {
           <Route path={"/terminos"}>
             <Suspense fallback={<PageFallback />}>
               <Terms />
+            </Suspense>
+          </Route>
+          <Route path={"/restablecer"}>
+            <Suspense fallback={<PageFallback />}>
+              <ResetPassword />
             </Suspense>
           </Route>
           <Route path={"/pago/exito"}>

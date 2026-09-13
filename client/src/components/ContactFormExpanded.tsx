@@ -4,11 +4,10 @@ import { Mail, Phone, Send, CheckCircle, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { trackLead } from '@/lib/analytics';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export default function ContactFormExpanded() {
   const { language } = useLanguage();
-  const { user } = useAuth();
+  const { getAccessToken } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -26,6 +25,7 @@ export default function ContactFormExpanded() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [step, setStep] = useState(1);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -49,26 +49,42 @@ export default function ContactFormExpanded() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.website) return; // bot tripped the honeypot
     setSubmitting(true);
+    setSubmitError(null);
 
-    const clean = (s: string, max: number) => s.trim().slice(0, max);
-
-    if (isSupabaseConfigured) {
-      await supabase.from('contact_leads').insert({
-        user_id: user?.id ?? null,
-        first_name: clean(formData.firstName, 80),
-        last_name: clean(formData.lastName, 80),
-        email: clean(formData.email, 160).toLowerCase(),
-        phone: clean(formData.phone, 40),
-        company: clean(formData.company, 120),
-        country: clean(formData.country, 80),
-        sales_channel: formData.salesChannel,
-        interests: formData.interests.slice(0, 10),
-        message: clean(formData.message, 2000),
+    // Goes through the server (rate-limited, validated, honeypot-checked
+    // there too) — see server/leads.ts. The honeypot value is sent as-is
+    // so the server can drop bot submissions without tipping them off.
+    const token = getAccessToken();
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          company: formData.company,
+          country: formData.country,
+          sales_channel: formData.salesChannel,
+          interests: formData.interests,
+          message: formData.message,
+          website: formData.website,
+        }),
       });
-    } else {
-      console.log('Form submitted (Supabase not configured):', formData);
+      if (res.status === 503) {
+        console.log('Form submitted (backend not configured yet):', formData);
+      } else if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setSubmitError(data.error || (language === 'es' ? 'No se pudo enviar. Intenta de nuevo.' : 'Could not send. Please try again.'));
+        setSubmitting(false);
+        return;
+      }
+    } catch {
+      setSubmitError(language === 'es' ? 'Sin conexión. Intenta de nuevo.' : 'No connection. Please try again.');
+      setSubmitting(false);
+      return;
     }
 
     trackLead({ content_name: 'contact_form', interests: formData.interests.join(',') });
@@ -405,6 +421,9 @@ export default function ContactFormExpanded() {
                   )}
                 </div>
 
+                {submitError && (
+                  <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-red-700 text-sm text-center">{submitError}</div>
+                )}
                 {submitted && (
                   <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-center animate-fade-in-up flex items-center justify-center gap-2">
                     <CheckCircle size={20} />

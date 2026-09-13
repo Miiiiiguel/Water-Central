@@ -3,6 +3,7 @@ import webpush from 'web-push';
 import { z } from 'zod';
 import { pushRateLimiter, JSON_BODY_LIMIT } from './security';
 import { getSupabaseAdmin } from './supabaseAdmin';
+import { logSecurityEvent } from './log';
 
 // Sends a real push notification (works with the tab/app closed) every
 // time a row is inserted into public.notifications. Wired up via a
@@ -33,6 +34,7 @@ export const pushRouter = express.Router();
 pushRouter.post('/push/notify', pushRateLimiter, express.json({ limit: JSON_BODY_LIMIT }), async (req, res) => {
   const expectedSecret = process.env.PUSH_WEBHOOK_SECRET;
   if (!expectedSecret || req.header('x-push-secret') !== expectedSecret) {
+    logSecurityEvent('webhook_unauthorized', req, { webhook: 'push' });
     return res.status(401).json({ error: 'Unauthorized' });
   }
 

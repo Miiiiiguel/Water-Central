@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { z } from 'zod';
 import { checkoutRateLimiter, JSON_BODY_LIMIT } from './security';
 import { getSupabaseAdmin, getUserFromRequest } from './supabaseAdmin';
+import { logSecurityEvent } from './log';
 
 // Server-side Stripe integration.
 //
@@ -56,6 +57,7 @@ stripeRouter.post('/create-checkout-session', checkoutRateLimiter, express.json(
 
   const parsed = checkoutBodySchema.safeParse(req.body);
   if (!parsed.success) {
+    logSecurityEvent('invalid_input', req, { form: 'checkout' });
     return res.status(400).json({ error: 'Plan inválido.' });
   }
   const plan = parsed.data.plan as PlanId;
@@ -99,7 +101,7 @@ stripeRouter.post('/stripe-webhook', express.raw({ type: 'application/json', lim
     const signature = req.headers['stripe-signature'] as string;
     event = stripe.webhooks.constructEvent(req.body, signature, webhookSecret);
   } catch (err) {
-    console.error('Stripe webhook signature verification failed:', err);
+    logSecurityEvent('webhook_signature_failed', req, { webhook: 'stripe' });
     return res.status(400).send('Webhook signature verification failed.');
   }
 

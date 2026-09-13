@@ -12,7 +12,10 @@
     "format": "prettier --write .",
     "cap:sync": "vite build && cap sync",
     "cap:android": "pnpm cap:sync && cap open android",
-    "cap:ios": "pnpm cap:sync && cap open ios"
+    "cap:ios": "pnpm cap:sync && cap open ios",
+    "audit": "pnpm audit --prod --audit-level=high",
+    "security:smoke": "node scripts/security-smoke.mjs",
+    "backup:db": "bash scripts/backup-db.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.125.0",
@@ -48,6 +51,8 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
+    "@sentry/node": "^10.74.0",
+    "@sentry/react": "^10.74.0",
     "@stripe/stripe-js": "^9.16.0",
     "@supabase/supabase-js": "^2.116.0",
     "class-variance-authority": "^0.7.1",
@@ -117,7 +122,10 @@
       "wouter@3.7.1": "patches/wouter@3.7.1.patch"
     },
     "overrides": {
-      "tailwindcss>nanoid": "3.3.7"
+      "tailwindcss>nanoid": "3.3.7",
+      "qs@<6.16.0": ">=6.16.0",
+      "path-to-regexp@<0.1.13": "0.1.13",
+      "lodash@<4.18.0": ">=4.18.0"
     },
     "onlyBuiltDependencies": [
       "sharp"

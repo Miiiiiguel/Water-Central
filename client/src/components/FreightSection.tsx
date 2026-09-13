@@ -4,11 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Calculator, CheckCircle, Send, Loader2 } from 'lucide-react';
 import { trackLead } from '@/lib/analytics';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export default function FreightSection() {
   const { language } = useLanguage();
-  const { user, profile } = useAuth();
+  const { user, getAccessToken } = useAuth();
   const [form, setForm] = useState({
     email: '',
     origin: '',
@@ -19,6 +18,7 @@ export default function FreightSection() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -26,23 +26,36 @@ export default function FreightSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.website) return;
     setSubmitting(true);
+    setSubmitError(null);
 
     const weight = Number(form.weight);
-
-    if (isSupabaseConfigured) {
-      await supabase.from('freight_quotes').insert({
-        user_id: user?.id ?? null,
-        name: profile?.full_name ?? null,
-        email: user?.email ?? (form.email.trim().toLowerCase() || null),
-        origin: form.origin.trim().slice(0, 120),
-        destination: form.destination.trim().slice(0, 120),
-        weight_kg: Number.isFinite(weight) && weight > 0 && weight < 100000 ? weight : null,
-        client_type: form.clientType,
+    const token = getAccessToken();
+    try {
+      const res = await fetch('/api/quotes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({
+          email: user?.email ?? (form.email || undefined),
+          origin: form.origin,
+          destination: form.destination,
+          weight_kg: Number.isFinite(weight) && weight > 0 ? weight : null,
+          client_type: form.clientType,
+          website: form.website,
+        }),
       });
-    } else {
-      console.log('Freight quote submitted (Supabase not configured):', form);
+      if (res.status === 503) {
+        console.log('Freight quote submitted (backend not configured yet):', form);
+      } else if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setSubmitError(data.error || (language === 'es' ? 'No se pudo enviar. Intenta de nuevo.' : 'Could not send. Please try again.'));
+        setSubmitting(false);
+        return;
+      }
+    } catch {
+      setSubmitError(language === 'es' ? 'Sin conexión. Intenta de nuevo.' : 'No connection. Please try again.');
+      setSubmitting(false);
+      return;
     }
 
     trackLead({ content_name: 'freight_calculator', client_type: form.clientType });
@@ -195,6 +208,10 @@ export default function FreightSection() {
                     autoComplete="off"
                   />
                 </div>
+
+                {submitError && (
+                  <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-red-700 text-sm text-center">{submitError}</div>
+                )}
 
                 <Button
                   type="submit"

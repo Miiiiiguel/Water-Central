@@ -1,15 +1,25 @@
 import express from 'express';
+import { getProfileFromRequest } from './supabaseAdmin';
 
-// GET /api/health — which integrations are configured. Booleans only,
-// never values. This is what the "Integraciones" panel in the team
-// dashboard reads so you can see at a glance what's left to connect.
+// GET /api/health
+//   - Unauthenticated (hosting health checks): { ok: true } only.
+//   - Team members (vendedor JWT): which integrations are configured, as
+//     booleans — never values. Powers the "Integraciones" dashboard panel.
+// Configuration details aren't secret, but there's no reason to hand a
+// map of the stack to anonymous visitors either.
 
 const set = (name: string) => Boolean(process.env[name] && process.env[name]!.trim());
 
 export const healthRouter = express.Router();
 
-healthRouter.get('/health', (_req, res) => {
+healthRouter.get('/health', async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
+
+  const ctx = await getProfileFromRequest(req);
+  if (!ctx || ctx.profile.role !== 'vendedor') {
+    return res.json({ ok: true });
+  }
+
   res.json({
     ok: true,
     env: process.env.NODE_ENV || 'development',
@@ -21,6 +31,7 @@ healthRouter.get('/health', (_req, res) => {
       push: set('VAPID_PUBLIC_KEY') && set('VAPID_PRIVATE_KEY') && set('PUSH_WEBHOOK_SECRET'),
       chatAI: set('ANTHROPIC_API_KEY'),
       voicePremium: set('ELEVENLABS_API_KEY') && set('ELEVENLABS_VOICE_ID'),
+      monitoring: set('SENTRY_DSN'),
       calendly: set('VITE_CALENDLY_URL'),
       metaPixel: set('VITE_META_PIXEL_ID'),
       tiktokPixel: set('VITE_TIKTOK_PIXEL_ID'),

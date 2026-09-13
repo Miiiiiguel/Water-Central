@@ -13,6 +13,8 @@ import { downloadCSV } from '@/lib/csv';
 import { isPushConfigured, getPushStatus, subscribeToPush, unsubscribeFromPush, PushStatus } from '@/lib/push';
 import NotificationBell from '@/components/NotificationBell';
 import CountUp from '@/components/CountUp';
+import MfaSetup from '@/components/MfaSetup';
+import MfaChallenge from '@/components/MfaChallenge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function ListSkeleton({ rows = 3, avatar = true, trailing = 'badge' }: { rows?: number; avatar?: boolean; trailing?: 'badge' | 'date' | 'none' }) {
@@ -385,13 +387,17 @@ type HealthIntegrations = Record<string, boolean>;
 
 function IntegrationsPanel() {
   const { language } = useLanguage();
+  const { getAccessToken } = useAuth();
   const [health, setHealth] = useState<HealthIntegrations | null | 'error'>(null);
 
   useEffect(() => {
-    fetch('/api/health')
+    // The server only reveals configuration to a verified vendedor token.
+    const token = getAccessToken();
+    fetch('/api/health', { headers: token ? { Authorization: `Bearer ${token}` } : {} })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => setHealth(d.integrations ?? {}))
+      .then((d) => setHealth(d.integrations ?? 'error'))
       .catch(() => setHealth('error'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const rows: { key: string; name: string; description: { es: string; en: string }; group: 'intel' | 'core' }[] = [
@@ -403,6 +409,7 @@ function IntegrationsPanel() {
     { key: 'push', name: 'Push', group: 'core', description: { es: 'Notificaciones con la app cerrada.', en: 'Notifications with the app closed.' } },
     { key: 'chatAI', name: 'Marco Polo · IA', group: 'core', description: { es: 'Respuestas abiertas con Anthropic (sin esto usa reglas).', en: 'Open answers via Anthropic (rule-based without it).' } },
     { key: 'voicePremium', name: 'Marco Polo · voz premium', group: 'core', description: { es: 'ElevenLabs (sin esto usa la voz del navegador).', en: 'ElevenLabs (browser voice without it).' } },
+    { key: 'monitoring', name: 'Sentry', group: 'core', description: { es: 'Monitoreo de errores y eventos de seguridad.', en: 'Error and security event monitoring.' } },
     { key: 'calendly', name: 'Calendly', group: 'core', description: { es: 'Agenda de consultorías.', en: 'Consultation booking.' } },
     { key: 'metaPixel', name: 'Meta Pixel', group: 'core', description: { es: 'Tracking de ads.', en: 'Ad tracking.' } },
     { key: 'tiktokPixel', name: 'TikTok Pixel', group: 'core', description: { es: 'Tracking de ads.', en: 'Ad tracking.' } },
@@ -640,7 +647,7 @@ function VendedorDashboard() {
 }
 
 export default function Dashboard() {
-  const { user, profile, loading, configured } = useAuth();
+  const { user, profile, loading, configured, mfaRequired } = useAuth();
   const [, navigate] = useLocation();
   const { language } = useLanguage();
 
@@ -675,6 +682,17 @@ export default function Dashboard() {
     );
   }
 
+  // 2FA is enabled on this account but this session hasn't passed the
+  // code yet (e.g. a Google sign-in landed here directly): nothing
+  // renders until it does. RLS enforces the same on the data side.
+  if (mfaRequired) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <MfaChallenge onSuccess={() => { /* mfaRequired flips via refreshMfa */ }} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <TopBar />
@@ -688,6 +706,9 @@ export default function Dashboard() {
             : (language === 'es' ? 'Así va tu expansión a Estados Unidos.' : "Here's how your US expansion is going.")}
         </p>
         {profile?.role === 'vendedor' ? <VendedorDashboard /> : <ClienteDashboard />}
+        <div className="mt-6">
+          <MfaSetup />
+        </div>
       </main>
     </div>
   );

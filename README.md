@@ -34,6 +34,7 @@ verde sola al agregar su variable.
 | **Push reales** | `VAPID_PUBLIC_KEY`, `VITE_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `PUSH_WEBHOOK_SECRET` | `npx web-push generate-vapid-keys` + webhook en Supabase | SETUP.md §6 |
 | **Marco Polo · IA** | `ANTHROPIC_API_KEY` | console.anthropic.com | SETUP.md §7 |
 | **Marco Polo · voz premium** | `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID` | elevenlabs.io (sin esto usa la voz del navegador, gratis) | SETUP.md §7 |
+| **Sentry** (errores + eventos de seguridad) | `SENTRY_DSN`, `VITE_SENTRY_DSN` | sentry.io | SECURITY.md §10 |
 | **Kalodata / Sicex** | `KALODATA_API_KEY`, `SICEX_API_KEY` | Tus cuentas en cada plataforma | pendiente de docs de sus APIs |
 
 Regla de oro: todo lo que empieza con `VITE_` es público (va al
@@ -81,4 +82,8 @@ android/ ios/    Proyectos nativos (Capacitor)
 ```
 
 Documentación detallada: [`SETUP.md`](./SETUP.md) (paso a paso por
-integración), [`APP_STORE.md`](./APP_STORE.md) (tiendas).
+integración), [`APP_STORE.md`](./APP_STORE.md) (tiendas),
+[`SECURITY.md`](./SECURITY.md) (estado de seguridad punto por punto,
+backups y recuperación).
+
+Antes de salir a producción: `pnpm security:smoke https://tu-dominio`.

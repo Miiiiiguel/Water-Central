@@ -27,8 +27,8 @@ export default function Register() {
       setError(language === 'es' ? 'Las contraseñas no coinciden.' : 'Passwords do not match.');
       return;
     }
-    if (password.length < 6) {
-      setError(language === 'es' ? 'La contraseña debe tener al menos 6 caracteres.' : 'Password must be at least 6 characters.');
+    if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/\d/.test(password)) {
+      setError(language === 'es' ? 'La contraseña debe tener al menos 8 caracteres, con letras y números.' : 'Password must be at least 8 characters, with letters and numbers.');
       return;
     }
 
