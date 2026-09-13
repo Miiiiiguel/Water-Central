@@ -270,6 +270,32 @@ create trigger on_contact_lead_created
   after insert on public.contact_leads
   for each row execute procedure public.handle_new_contact_lead();
 
+-- =======================================================================
+-- Push notification subscriptions (real push, works with the tab/app
+-- closed — see SETUP.md section 6 for how to wire this up end to end).
+-- One row per browser/device that opted in.
+-- =======================================================================
+
+create table if not exists public.push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.push_subscriptions enable row level security;
+
+create policy "push_subscriptions: manage own"
+  on public.push_subscriptions for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- No policy grants access to other users' rows — the server-side push
+-- sender reads this table with the Supabase service role key instead,
+-- which bypasses RLS on purpose (see server/push.ts).
+
 -- ---------------------------------------------------------------------
 -- Suggested next tables (not created here, add when you build the
 -- matching feature):

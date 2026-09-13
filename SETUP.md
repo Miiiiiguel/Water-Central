@@ -104,19 +104,50 @@ necesita configuración extra — corre solo con `supabase/schema.sql` ya
 aplicado. Si más adelante querés pagar comisiones reales, avísame y
 agrego una tabla de comisiones y un flujo de aprobación.
 
-## 6. Notificaciones (campanita en el dashboard)
+## 6. Notificaciones (campanita en el dashboard + push real)
 
-También funciona solo con Supabase ya configurado, sin nada extra que
-crear. El equipo (`vendedor`) recibe una notificación cada vez que entra
-un lead nuevo o una cotización de flete; quien refiere a alguien recibe
-una notificación cuando esa persona se registra. Se actualiza en vivo
-(sin recargar la página) usando Supabase Realtime.
+Las notificaciones **dentro de la app** (la campanita) ya funcionan solo
+con Supabase configurado, sin nada extra. El equipo (`vendedor`) recibe
+una notificación cada vez que entra un lead nuevo o una cotización de
+flete; quien refiere a alguien recibe una notificación cuando esa persona
+se registra. Se actualiza en vivo (sin recargar la página) con Supabase
+Realtime.
 
-Esto es notificaciones **dentro de la app** — para que lleguen aunque
-la persona no tenga la pestaña abierta (push real al celular/navegador)
-hace falta más infraestructura (service worker + claves VAPID). No lo
-armé todavía porque es una pieza grande aparte; avísame si la querés y
-la construyo.
+También hay **push real** — llega aunque la persona tenga la app/pestaña
+cerrada, como cualquier notificación de celular. Necesita 3 pasos:
+
+1. **Genera tus claves VAPID** (identifican tu servidor ante los
+   navegadores). Corré esto una sola vez:
+   ```bash
+   npx web-push generate-vapid-keys
+   ```
+   Te da un `Public Key` y un `Private Key`. Ponlos en:
+   - `VITE_VAPID_PUBLIC_KEY` **y** `VAPID_PUBLIC_KEY` — sí, el mismo
+     valor en las dos (una la lee el navegador, la otra el servidor).
+   - `VAPID_PRIVATE_KEY` — nunca la expongas al cliente.
+   - `VAPID_SUBJECT` — un `mailto:tu-email@easycomex.com` (o tu URL).
+2. **Dale al servidor acceso completo a Supabase.** En tu proyecto de
+   Supabase, ve a **Project Settings -> API** y copia la key
+   **`service_role`** (distinta de la `anon` que ya usás) en
+   `SUPABASE_SERVICE_ROLE_KEY`. Esta key se salta las políticas RLS a
+   propósito — solo la usa el servidor para leer a quién mandarle el
+   push, nunca llega al navegador.
+3. **Conecta el webhook de Supabase.** En tu proyecto, ve a
+   **Database -> Webhooks -> Create a new hook**:
+   - Table: `notifications`, evento: `INSERT`
+   - Type: `HTTP Request` -> `POST` a
+     `https://tu-dominio.com/api/push/notify`
+   - Headers: agrega `x-push-secret` con el mismo valor que pusiste en
+     `PUSH_WEBHOOK_SECRET` (generá uno random, ej. `openssl rand -hex 32`)
+
+Con esos 3 pasos, cada vez que se crea una notificación (nuevo lead,
+nueva cotización, nuevo referido) Supabase le avisa a tu servidor, y tu
+servidor manda el push real a cada dispositivo suscrito de ese usuario.
+
+Del lado del cliente no hace falta nada extra — en el dashboard aparece
+una campana junto a la de notificaciones normales; al tocarla pide
+permiso al navegador y guarda la suscripción. Si `VITE_VAPID_PUBLIC_KEY`
+no está configurada, ese botón simplemente no aparece — no rompe nada.
 
 ## 7. Chatbot de guía
 
@@ -170,17 +201,16 @@ de eso se puede hacer desde acá.
 
 Para ser honesto sobre el alcance real de lo que hay hoy:
 
-- **Push notifications reales** (que lleguen con la app cerrada, no solo
-  dentro de la pestaña abierta) — necesitan claves VAPID + una tabla de
-  suscripciones además del service worker que ya existe. Es una pieza
-  aparte, no algo que se pueda "agregar de paso".
 - **Comisiones de afiliados con pagos reales** — hoy el programa de
   referidos rastrea quién refirió a quién, pero no calcula ni paga
   comisiones en dinero.
 - **Monitoreo de errores en producción** (Sentry u otro) — útil una vez
   el sitio tenga tráfico real, para enterarte de errores antes que tus
   usuarios te escriban.
-- **Exportar clientes/leads a CSV** desde el dashboard del equipo.
+- **Kalodata / Cisex** — mencionaste que querés integrar estas dos
+  herramientas; todavía no sé qué datos o funcionalidad exacta querés
+  traer de cada una, así que no empecé — ver la conversación para los
+  detalles que faltan.
 
 Ninguno de estos está fingido ni a medias en el código — simplemente no
 existen todavía. Decime cuál te importa primero y lo construyo con el

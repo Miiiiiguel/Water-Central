@@ -9,6 +9,12 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
+      // A custom service worker (client/src/sw.ts) instead of the fully
+      // generated one, so it can also handle real push notifications —
+      // see SETUP.md section 6.
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.ts",
       registerType: "autoUpdate",
       injectRegister: "script",
       includeAssets: ["icons/icon-32.png", "icons/icon-180.png"],
@@ -26,10 +32,7 @@ export default defineConfig({
           { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
         ],
       },
-      workbox: {
-        // Only precache the app shell; let API calls (Stripe, chat,
-        // Supabase) always hit the network instead of being cached.
-        navigateFallbackDenylist: [/^\/api\//],
+      injectManifest: {
         // The 3D globe chunk is huge and lazy-loaded on purpose — don't
         // make the service worker download it upfront on every install.
         globIgnores: ["**/GlobalReachSection-*.js"],

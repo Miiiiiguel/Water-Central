@@ -4,6 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { stripeRouter } from "./stripe";
 import { chatRouter } from "./chat";
+import { pushRouter } from "./push";
 import { securityHeaders, apiRateLimiter } from "./security";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,6 +24,7 @@ async function startServer() {
   app.use("/api", apiRateLimiter);
   app.use("/api", stripeRouter);
   app.use("/api", chatRouter);
+  app.use("/api", pushRouter);
 
   // Serve static files from dist/public in production
   const staticPath =

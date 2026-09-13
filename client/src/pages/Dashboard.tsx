@@ -2,13 +2,59 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
   LogOut, Package, FileText, CalendarClock, Users, TrendingUp,
-  Inbox, ArrowRight, Loader2, Copy, Check, Gift, MapPin,
+  Inbox, ArrowRight, Loader2, Copy, Check, Gift, MapPin, Bell, BellOff, Download,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase, FreightQuote, Profile } from '@/lib/supabase';
+import { supabase, FreightQuote, Profile, ContactLead } from '@/lib/supabase';
 import { buildReferralLink } from '@/lib/referral';
+import { downloadCSV } from '@/lib/csv';
+import { isPushConfigured, getPushStatus, subscribeToPush, unsubscribeFromPush, PushStatus } from '@/lib/push';
 import NotificationBell from '@/components/NotificationBell';
+
+function PushToggle() {
+  const { user } = useAuth();
+  const { language } = useLanguage();
+  const [status, setStatus] = useState<PushStatus>('unsupported');
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!isPushConfigured) return;
+    getPushStatus().then(setStatus);
+  }, []);
+
+  if (!isPushConfigured || status === 'denied') return null;
+
+  const handleToggle = async () => {
+    if (!user || busy) return;
+    setBusy(true);
+    if (status === 'subscribed') {
+      await unsubscribeFromPush();
+      setStatus('unsubscribed');
+    } else {
+      const { error } = await subscribeToPush(user.id);
+      setStatus(error ? 'denied' : 'subscribed');
+    }
+    setBusy(false);
+  };
+
+  const subscribed = status === 'subscribed';
+
+  return (
+    <button
+      onClick={handleToggle}
+      disabled={busy}
+      title={
+        subscribed
+          ? (language === 'es' ? 'Desactivar notificaciones push' : 'Turn off push notifications')
+          : (language === 'es' ? 'Activar notificaciones push' : 'Turn on push notifications')
+      }
+      className="p-2 rounded-full hover:bg-orange-50 transition-colors bg-transparent border-0 cursor-pointer disabled:opacity-50"
+    >
+      {subscribed ? <Bell size={20} className="text-accent" /> : <BellOff size={20} className="text-muted-foreground" />}
+    </button>
+  );
+}
 
 function TopBar() {
   const { profile, user, signOut } = useAuth();
@@ -36,6 +82,7 @@ function TopBar() {
           <span className="hidden md:inline text-sm text-muted-foreground">
             {profile?.full_name || user?.email}
           </span>
+          <PushToggle />
           <NotificationBell />
           <button
             onClick={handleLogout}
@@ -228,11 +275,24 @@ function ClienteDashboard() {
   );
 }
 
+function ExportButton({ label, onClick, disabled }: { label: string; onClick: () => void; disabled?: boolean }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline bg-transparent border-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+    >
+      <Download size={14} />
+      {label}
+    </button>
+  );
+}
+
 function VendedorDashboard() {
   const { language } = useLanguage();
   const [clients, setClients] = useState<Profile[] | null>(null);
-  const [pendingQuotes, setPendingQuotes] = useState<number | null>(null);
-  const [leadsThisMonth, setLeadsThisMonth] = useState<number | null>(null);
+  const [quotes, setQuotes] = useState<FreightQuote[] | null>(null);
+  const [leads, setLeads] = useState<ContactLead[] | null>(null);
 
   useEffect(() => {
     supabase
@@ -244,19 +304,38 @@ function VendedorDashboard() {
 
     supabase
       .from('freight_quotes')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'pending')
-      .then(({ count }) => setPendingQuotes(count ?? 0));
+      .select('*')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => setQuotes((data as FreightQuote[]) ?? []));
 
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
     supabase
       .from('contact_leads')
-      .select('id', { count: 'exact', head: true })
-      .gte('created_at', startOfMonth.toISOString())
-      .then(({ count }) => setLeadsThisMonth(count ?? 0));
+      .select('*')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => setLeads((data as ContactLead[]) ?? []));
   }, []);
+
+  const pendingQuotes = quotes?.filter((q) => q.status === 'pending').length ?? null;
+  const leadsThisMonth = leads
+    ? leads.filter((l) => {
+        const created = new Date(l.created_at);
+        const now = new Date();
+        return created.getFullYear() === now.getFullYear() && created.getMonth() === now.getMonth();
+      }).length
+    : null;
+
+  const exportClients = () => downloadCSV('easycomex-clientes.csv', (clients ?? []).map((c) => ({
+    nombre: c.full_name ?? '', email: c.email, empresa: c.company ?? '', rol: c.role, registrado: c.created_at,
+  })));
+  const exportQuotes = () => downloadCSV('easycomex-cotizaciones.csv', (quotes ?? []).map((q) => ({
+    nombre: q.name ?? '', email: q.email ?? '', telefono: q.phone ?? '', origen: q.origin, destino: q.destination,
+    peso_kg: q.weight_kg ?? '', tipo_cliente: q.client_type ?? '', estado: q.status, fecha: q.created_at,
+  })));
+  const exportLeads = () => downloadCSV('easycomex-leads.csv', (leads ?? []).map((l) => ({
+    nombre: `${l.first_name ?? ''} ${l.last_name ?? ''}`.trim(), email: l.email ?? '', telefono: l.phone ?? '',
+    empresa: l.company ?? '', pais: l.country ?? '', canal: l.sales_channel ?? '',
+    intereses: (l.interests ?? []).join('; '), mensaje: l.message ?? '', estado: l.status, fecha: l.created_at,
+  })));
 
   return (
     <div className="space-y-6">
@@ -267,8 +346,9 @@ function VendedorDashboard() {
       </div>
 
       <div className="bg-white rounded-3xl border border-gray-100 app-shadow">
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
           <h2 className="font-bold text-primary">{language === 'es' ? 'Clientes' : 'Clients'}</h2>
+          <ExportButton label={language === 'es' ? 'Exportar CSV' : 'Export CSV'} onClick={exportClients} disabled={!clients?.length} />
         </div>
         {clients === null ? (
           <div className="flex justify-center py-12"><Loader2 className="animate-spin text-accent" size={24} /></div>
@@ -295,6 +375,70 @@ function VendedorDashboard() {
                 </div>
                 <span className="text-xs text-muted-foreground flex-shrink-0">
                   {new Date(c.created_at).toLocaleDateString()}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="bg-white rounded-3xl border border-gray-100 app-shadow">
+        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+          <h2 className="font-bold text-primary">{language === 'es' ? 'Cotizaciones de flete' : 'Freight quotes'}</h2>
+          <ExportButton label={language === 'es' ? 'Exportar CSV' : 'Export CSV'} onClick={exportQuotes} disabled={!quotes?.length} />
+        </div>
+        {quotes === null ? (
+          <div className="flex justify-center py-12"><Loader2 className="animate-spin text-accent" size={24} /></div>
+        ) : quotes.length === 0 ? (
+          <EmptyState
+            icon={MapPin}
+            title={language === 'es' ? 'Sin cotizaciones todavía' : 'No quotes yet'}
+            description={language === 'es'
+              ? 'Cuando alguien use la calculadora de fletes, va a aparecer acá.'
+              : 'Once someone uses the freight calculator, it will show up here.'}
+          />
+        ) : (
+          <ul className="divide-y divide-gray-100">
+            {quotes.slice(0, 5).map((q) => (
+              <li key={q.id} className="p-5 flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="font-semibold text-foreground truncate">{q.name || q.email || (language === 'es' ? 'Un visitante' : 'A visitor')}</p>
+                  <p className="text-xs text-muted-foreground truncate">{q.origin} → {q.destination}</p>
+                </div>
+                <span className="text-xs font-bold text-accent bg-secondary rounded-full px-3 py-1 flex-shrink-0">
+                  {language === 'es' ? statusLabel[q.status]?.es : statusLabel[q.status]?.en}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="bg-white rounded-3xl border border-gray-100 app-shadow">
+        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+          <h2 className="font-bold text-primary">{language === 'es' ? 'Leads de contacto' : 'Contact leads'}</h2>
+          <ExportButton label={language === 'es' ? 'Exportar CSV' : 'Export CSV'} onClick={exportLeads} disabled={!leads?.length} />
+        </div>
+        {leads === null ? (
+          <div className="flex justify-center py-12"><Loader2 className="animate-spin text-accent" size={24} /></div>
+        ) : leads.length === 0 ? (
+          <EmptyState
+            icon={Inbox}
+            title={language === 'es' ? 'Sin leads todavía' : 'No leads yet'}
+            description={language === 'es'
+              ? 'Cuando alguien llene el formulario de contacto, va a aparecer acá.'
+              : 'Once someone fills out the contact form, it will show up here.'}
+          />
+        ) : (
+          <ul className="divide-y divide-gray-100">
+            {leads.slice(0, 5).map((l) => (
+              <li key={l.id} className="p-5 flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="font-semibold text-foreground truncate">{`${l.first_name ?? ''} ${l.last_name ?? ''}`.trim() || l.email || (language === 'es' ? 'Un visitante' : 'A visitor')}</p>
+                  <p className="text-xs text-muted-foreground truncate">{l.company || l.email}</p>
+                </div>
+                <span className="text-xs text-muted-foreground flex-shrink-0">
+                  {new Date(l.created_at).toLocaleDateString()}
                 </span>
               </li>
             ))}

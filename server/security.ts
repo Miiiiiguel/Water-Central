@@ -64,3 +64,12 @@ export const checkoutRateLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+// Called by the Supabase Database Webhook on every new notification row —
+// bursty by nature (a busy day can fire many), but still capped.
+export const pushRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
