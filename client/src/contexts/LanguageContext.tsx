@@ -160,6 +160,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setIsInitialized(true);
   }, []);
 
+  // Keep <html lang> in sync — screen readers and search engines rely on
+  // it, and it was hardcoded to "es" regardless of the toggle before this.
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     if (typeof window !== 'undefined') {

@@ -3,6 +3,7 @@ import { Link, useLocation } from 'wouter';
 import {
   LogOut, Package, FileText, CalendarClock, Users, TrendingUp,
   Inbox, ArrowRight, Loader2, Copy, Check, Gift, MapPin, Bell, BellOff, Download,
+  BarChart3, Plug,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -309,6 +310,67 @@ function ExportButton({ label, onClick, disabled }: { label: string; onClick: ()
   );
 }
 
+// Placeholder for the Kalodata (TikTok Shop) + Sicex (foreign trade data)
+// integrations the team asked for. Deliberately honest about the state:
+// no fabricated numbers, just what each tool would unlock once wired up
+// server-side with real API credentials. Swap this for real cards fed
+// by a server endpoint once those keys exist — see SETUP.md.
+function MarketIntelPanel() {
+  const { language } = useLanguage();
+
+  const tools = [
+    {
+      name: 'Kalodata',
+      description: language === 'es'
+        ? 'Productos en tendencia, ventas y competidores en TikTok Shop.'
+        : 'Trending products, sales, and competitors on TikTok Shop.',
+    },
+    {
+      name: 'Sicex',
+      description: language === 'es'
+        ? 'Datos reales de importación/exportación por país y producto para tus análisis de mercado.'
+        : 'Real import/export data by country and product for your market analyses.',
+    },
+  ];
+
+  return (
+    <div className="bg-white rounded-3xl border border-gray-100 app-shadow">
+      <div className="p-6 border-b border-gray-100 flex items-center gap-3">
+        <span className="w-10 h-10 rounded-2xl bg-secondary flex items-center justify-center text-accent flex-shrink-0">
+          <BarChart3 size={18} />
+        </span>
+        <div>
+          <h2 className="font-bold text-primary">{language === 'es' ? 'Inteligencia de mercado' : 'Market intelligence'}</h2>
+          <p className="text-xs text-muted-foreground">
+            {language === 'es' ? 'Pendiente de conectar tus cuentas' : 'Pending your account connections'}
+          </p>
+        </div>
+      </div>
+      <ul className="divide-y divide-gray-100">
+        {tools.map((tool) => (
+          <li key={tool.name} className="p-5 flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="font-semibold text-foreground">{tool.name}</p>
+              <p className="text-xs text-muted-foreground">{tool.description}</p>
+            </div>
+            <span className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground bg-gray-100 rounded-full px-3 py-1 flex-shrink-0">
+              <Plug size={12} />
+              {language === 'es' ? 'No conectado' : 'Not connected'}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <div className="px-5 pb-5">
+        <p className="text-xs text-muted-foreground">
+          {language === 'es'
+            ? 'Necesitamos las API keys de cada plataforma para traer datos reales acá — nunca vamos a mostrar números inventados mientras tanto.'
+            : "We need each platform's API keys to bring in real data here — we'll never show made-up numbers in the meantime."}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function VendedorDashboard() {
   const { language } = useLanguage();
   const [clients, setClients] = useState<Profile[] | null>(null);
@@ -365,6 +427,8 @@ function VendedorDashboard() {
         <StatCard icon={FileText} label={language === 'es' ? 'Cotizaciones pendientes' : 'Pending quotes'} value={pendingQuotes ?? 0} />
         <StatCard icon={TrendingUp} label={language === 'es' ? 'Leads este mes' : 'Leads this month'} value={leadsThisMonth ?? 0} />
       </div>
+
+      <MarketIntelPanel />
 
       <div className="bg-white rounded-3xl border border-gray-100 app-shadow">
         <div className="p-6 border-b border-gray-100 flex items-center justify-between">
