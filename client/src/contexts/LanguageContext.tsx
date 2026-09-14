@@ -90,7 +90,7 @@ export const translations = {
     // Hero
     'hero.badge': 'No promises. Numbers.',
     'hero.title1': 'Sell your brand',
-    'hero.title2': 'anywhere in the world',
+    'hero.title2': 'worldwide',
     'hero.title3': 'without guessing',
     'hero.subtitle': 'The US, Europe, Mexico, Canada — wherever your buyer is. We tell you what it costs to enter, what comes back and how long it takes. And if your product will not work, we tell you that too.',
     'hero.cta1': 'Get my plan',
