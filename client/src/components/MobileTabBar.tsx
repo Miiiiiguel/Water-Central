@@ -1,5 +1,5 @@
 import { useLocation } from 'wouter';
-import { Home, Calculator, FileSearch, UserCircle2, MessageCircle } from 'lucide-react';
+import { Home, FileSearch, UserCircle2, MessageCircle, Globe2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { hapticTap } from '@/lib/native';
@@ -11,7 +11,7 @@ export default function MobileTabBar() {
 
   const tabs = [
     { icon: Home, label: language === 'es' ? 'Inicio' : 'Home', action: () => scrollTo('#inicio') },
-    { icon: Calculator, label: language === 'es' ? 'Fletes' : 'Freight', action: () => scrollTo('#calculadora') },
+    { icon: Globe2, label: language === 'es' ? 'Mercados' : 'Markets', action: () => scrollTo('#inteligencia') },
     { icon: MessageCircle, label: language === 'es' ? 'Contacto' : 'Contact', action: () => scrollTo('#contacto'), primary: true },
     { icon: FileSearch, label: language === 'es' ? 'Planes' : 'Plans', action: () => scrollTo('#planes') },
     { icon: UserCircle2, label: user ? (language === 'es' ? 'Cuenta' : 'Account') : (language === 'es' ? 'Ingresar' : 'Log in'), action: () => navigate(user ? '/dashboard' : '/login') },

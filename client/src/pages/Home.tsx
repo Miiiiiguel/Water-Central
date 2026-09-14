@@ -9,6 +9,7 @@ import FloatingButtons from '@/components/FloatingButtons';
 import MobileTabBar from '@/components/MobileTabBar';
 import { useIdleMount } from '@/lib/useIdleMount';
 
+const MarketIntelSection = lazy(() => import('@/components/MarketIntelSection'));
 const GlobalReachSection = lazy(() => import('@/components/GlobalReachSection'));
 // recharts is ~400KB — only the charts section needs it, so it loads
 // after the above-the-fold content instead of blocking it.
@@ -22,9 +23,10 @@ export default function Home() {
   // the first scroll/tap) before it hydrates, staggered so the three
   // heavy sections never mount inside the same frame. Each placeholder
   // reserves the section's height so nothing jumps when it appears.
-  const globeReady = useIdleMount(2000, 0);
-  const chartsReady = useIdleMount(2000, 150);
-  const lowerReady = useIdleMount(2000, 320);
+  const intelReady = useIdleMount(1500, 0);
+  const globeReady = useIdleMount(2000, 120);
+  const chartsReady = useIdleMount(2000, 260);
+  const lowerReady = useIdleMount(2000, 420);
 
   return (
     <div className="min-h-screen bg-primary pb-20 md:pb-0">
@@ -37,6 +39,9 @@ export default function Home() {
       <div id="servicios">
         <ServicesSection />
       </div>
+      <Suspense fallback={<div id="inteligencia" className="min-h-[46rem] bg-white" />}>
+        {intelReady ? <MarketIntelSection /> : <div id="inteligencia" className="min-h-[46rem] bg-white" />}
+      </Suspense>
       <Suspense fallback={<div className="h-96 bg-primary" />}>
         {globeReady ? <GlobalReachSection /> : <div className="h-96 bg-primary" />}
       </Suspense>

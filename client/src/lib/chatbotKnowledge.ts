@@ -4,7 +4,7 @@
 // the AI backend's system prompt so it never drifts from what Easycomex
 // actually offers.
 
-export type SectionAction = 'planes' | 'calculadora' | 'contacto' | 'pronostico' | 'vsl';
+export type SectionAction = 'planes' | 'calculadora' | 'contacto' | 'pronostico' | 'vsl' | 'inteligencia';
 
 export interface KnowledgeEntry {
   id: string;
@@ -89,6 +89,19 @@ export const knowledgeBase: KnowledgeEntry[] = [
       es: 'Nuestro Prep Center en USA recibe tu mercancía, la inspecciona, la etiqueta según las reglas de cada marketplace y la despacha a los centros de Amazon (FBA) o directo a tus clientes finales.',
       en: 'Our US Prep Center receives your goods, inspects them, labels them to each marketplace\'s rules and ships them to Amazon (FBA) warehouses or straight to your end customers.',
     },
+  },
+  {
+    id: 'inteligencia',
+    keywords: [
+      'inteligencia de mercado', 'inteligencia', 'datos', 'aduana', 'aduanas', 'importadores', 'importa', 'exporta',
+      'competencia', 'quien importa', 'quien compra', 'mas vendidos', 'más vendidos', 'tendencia', 'tendencias',
+      'kalodata', 'sicex', 'market intelligence', 'customs', 'who imports', 'best selling', 'competitors', 'trends',
+    ],
+    answer: {
+      es: 'Tenemos fuentes de aduanas oficiales y de inteligencia de marketplaces de los principales países del mundo. Puedo buscarte cosas como qué empresas importan un producto, o cuáles son los más vendidos en TikTok Shop. Tenés consultas gratis todos los días al crear tu cuenta — mirá los ejemplos acá abajo.',
+      en: 'We have official customs sources and marketplace intelligence for the world\u2019s main countries. I can look up things like which companies import a product, or what is selling best on TikTok Shop. You get free lookups every day when you create your account — see the examples below.',
+    },
+    action: 'inteligencia',
   },
   {
     id: 'logistica',

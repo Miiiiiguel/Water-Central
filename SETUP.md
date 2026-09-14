@@ -398,3 +398,29 @@ función (`toResult`) y comentado.
   una barra con la fuente activa, y el contador de consultas del día.
 - **En el dashboard**: tarjeta "Investigación de Marco Polo" con las
   consultas restantes, los créditos y el botón para comprar más.
+
+### Sección "Inteligencia de mercado" en la home
+
+Es la vitrina de lo anterior, con el copy de Julian:
+
+> **Todo lo que necesitas para conocer el mercado internacional.**
+> Contamos con las mejores fuentes de aduanas oficiales e inteligencia de
+> mercado de los principales países del mundo.
+
+Debajo hay **preguntas de ejemplo** (el "ejercicio gratis de muestra").
+Al tocar una, Marco Polo se abre solo, muestra la pregunta como si la
+hubiera escrito el visitante y la busca en la fuente correcta:
+
+- *¿Qué empresas colombianas importan zapatos?* → aduanas (Sicex)
+- *Los jeans más vendidos en TikTok Shop Estados Unidos* → marketplaces (Kalodata)
+- *¿Cuánto café se exporta a Estados Unidos y quién lo compra?* → aduanas
+- *¿Qué marcas de cosmética natural están creciendo?* → marketplaces
+
+Editás la lista en `client/src/components/MarketIntelSection.tsx`
+(array `examples`): cada entrada tiene la pregunta que ve el visitante y
+el término que se manda a la API, porque una pregunta no es una query.
+
+Como la búsqueda pega contra fuentes de pago, **pide crear cuenta** antes
+de correr la consulta. Ese es el embudo: pregunta gratis → cuenta → 2
+consultas diarias incluidas → planes con más. "Inteligencia de mercado"
+quedó de primero en el menú y en la barra inferior del celular.

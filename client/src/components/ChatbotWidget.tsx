@@ -8,7 +8,7 @@ import { hapticTap, isNative, openExternal } from '@/lib/native';
 import { isSTTSupported, isTTSSupported, speak, stopSpeaking, startListening } from '@/lib/voice';
 import MarcoPoloAvatar from './MarcoPoloAvatar';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchQuota, runResearch, formatResult, SOURCE_LABEL, SOURCE_BLURB, type ResearchQuota, type ResearchSource } from '@/lib/research';
+import { fetchQuota, runResearch, formatResult, SOURCE_LABEL, SOURCE_BLURB, RESEARCH_EVENT, type ResearchQuota, type ResearchRequest, type ResearchSource } from '@/lib/research';
 
 interface ChatMessage {
   role: 'user' | 'bot';
@@ -143,6 +143,21 @@ export default function ChatbotWidget() {
     };
   }, [open]);
 
+  // The "Inteligencia de mercado" section fires this when a visitor taps
+  // one of the example questions: open, show the question as if they had
+  // typed it, and run the lookup. Handlers live in a ref so the listener
+  // is attached once instead of on every render.
+  const researchRequestRef = useRef<(req: ResearchRequest) => void>(() => {});
+  useEffect(() => {
+    const onRequest = (e: Event) => {
+      const detail = (e as CustomEvent<ResearchRequest>).detail;
+      if (!detail?.source || !detail?.query) return;
+      researchRequestRef.current(detail);
+    };
+    window.addEventListener(RESEARCH_EVENT, onRequest);
+    return () => window.removeEventListener(RESEARCH_EVENT, onRequest);
+  }, []);
+
   const say = useCallback(
     (text: string) => {
       if (!voiceOn) return;
@@ -234,8 +249,8 @@ export default function ChatbotWidget() {
     if (outcome.kind === 'unauthenticated') {
       pushBot(
         language === 'es'
-          ? 'Para investigar necesito saber quién sos: creá tu cuenta (es gratis) y te doy consultas diarias incluidas.'
-          : 'To research I need to know who you are: create your account (free) and you get daily lookups included.',
+          ? 'Esta búsqueda va contra fuentes de pago, así que necesito saber quién sos. Creá tu cuenta en 30 segundos (es gratis) y arrancás con 2 consultas por día incluidas — más si tenés un plan.'
+          : 'This search hits paid sources, so I need to know who you are. Create your account in 30 seconds (it is free) and you start with 2 lookups a day included — more with a plan.',
         { quickReplies: [{ label: language === 'es' ? 'Crear cuenta' : 'Create account', value: '__register__' }] }
       );
       return;
@@ -268,6 +283,17 @@ export default function ChatbotWidget() {
     }
 
     pushBot(outcome.message || (language === 'es' ? 'No pude completar la consulta.' : 'I could not complete the lookup.'));
+  };
+
+  researchRequestRef.current = (req: ResearchRequest) => {
+    dismissNudge();
+    setOpen(true);
+    setResearchMode(null);
+    setMessages((prev) => [
+      ...prev,
+      { role: 'user', content: req.question ?? req.query, at: Date.now() },
+    ]);
+    doResearch(req.source, req.query);
   };
 
   const sendMessage = (text: string) => {

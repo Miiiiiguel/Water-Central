@@ -7,6 +7,22 @@
 
 export type ResearchSource = 'kalodata' | 'sicex';
 
+/**
+ * Any part of the site can ask Marco Polo to run a lookup by dispatching
+ * this event; the chat widget listens, opens itself and takes over. Kept
+ * as an event (not a context) so a section can trigger the chatbot
+ * without the two components importing each other.
+ */
+export const RESEARCH_EVENT = 'easycomex:research';
+
+export interface ResearchRequest {
+  source: ResearchSource;
+  /** The term sent to the provider. */
+  query: string;
+  /** The human phrasing to echo in the chat, when there is one. */
+  question?: string;
+}
+
 export interface ResearchRow {
   label: string;
   value: string;

@@ -214,6 +214,29 @@ try {
   fail('Checkout summary flow', String(e).slice(0, 140));
 }
 
+// Market intelligence: an example question must open Marco Polo and get
+// a real answer back (or an honest "not connected"/"sign in" reply) —
+// never silence, and never invented data.
+try {
+  await page.goto(base + '/', { waitUntil: 'load' });
+  await page.waitForTimeout(1200);
+  await page.evaluate(() => document.getElementById('inteligencia')?.scrollIntoView());
+  await page.waitForTimeout(500);
+  await page.getByRole('button', { name: /importan zapatos|import shoes/i }).first().click();
+  await page.waitForTimeout(2500);
+  const chat = await page.locator('[role="dialog"]').first().innerText();
+  const echoed = /zapatos|shoes/i.test(chat);
+  const answered = /(cuenta|account|conectad|connected|resultado|result)/i.test(chat);
+  (echoed && answered ? ok : fail)(
+    'Market intelligence example reaches Marco Polo',
+    echoed ? (answered ? 'asked and answered' : 'no answer') : 'question not echoed'
+  );
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(400);
+} catch (e) {
+  fail('Market intelligence example flow', String(e).slice(0, 140));
+}
+
 // ---- 3. Every route renders without JS errors -------------------------
 for (const route of ['/login', '/registro', '/dashboard', '/restablecer', '/privacidad', '/terminos', '/pago/exito', '/pago/cancelado', '/no-existe-404']) {
   const before = errors.length;

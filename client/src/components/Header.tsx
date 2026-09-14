@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
-import { Menu, X, Calculator, FileSearch, TrendingUp, MessageCircle, UserCircle2 } from 'lucide-react';
+import { Menu, X, Calculator, FileSearch, TrendingUp, MessageCircle, UserCircle2, Globe2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -29,7 +29,9 @@ export default function Header() {
 
   const dark = !scrolled && !isOpen;
 
+  // Order matters: market intelligence is the headline tool, so it leads.
   const toolPills = [
+    { label: t('header.inteligencia'), href: '#inteligencia', icon: Globe2 },
     { label: t('header.calculadora'), href: '#calculadora', icon: Calculator },
     { label: t('header.diagnostico'), href: '#planes', icon: FileSearch },
     { label: t('header.pronostico'), href: '#pronostico', icon: TrendingUp },
