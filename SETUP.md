@@ -336,3 +336,65 @@ Para ser honesto sobre el alcance real de lo que hay hoy:
 Ninguno de estos está fingido ni a medias en el código — simplemente no
 existen todavía. Decime cuál te importa primero y lo construyo con el
 mismo cuidado que el resto.
+
+---
+
+## Investigación de Marco Polo (Kalodata + Sicex) con cuotas
+
+Marco Polo puede consultar **Kalodata** (analítica de TikTok Shop) y
+**Sicex** (registros reales de importación/exportación) desde el chat.
+Cada consulta se cobra contra una cuota diaria que depende del plan; al
+agotarse, el usuario compra un paquete de consultas con Stripe.
+
+### Cuotas por plan (editables en `server/research.ts`, sin migración)
+
+| Plan | Consultas gratis por día |
+|---|---|
+| Cuenta registrada, sin plan | 2 |
+| Diagnóstico de madurez (USD 6.90) | 5 |
+| Análisis de mercado (USD 499) | 25 |
+| Acompañamiento (suscripción) | 100 |
+| Paquete comprado | +50 créditos, no vencen |
+
+La cuenta y el cobro ocurren **en el servidor**, dentro de una sola
+función SQL (`spend_research_quota`): dos pestañas abiertas no pueden
+gastar la última consulta gratis dos veces, y el cliente no puede
+regalarse consultas. Si la fuente falla, la consulta se devuelve
+(`refund_research_quota`).
+
+### Qué tenés que cargar vos
+
+En el hosting (nunca en el repo):
+
+```
+KALODATA_API_KEY=...        # tu clave de Kalodata
+KALODATA_API_URL=...        # endpoint completo de búsqueda
+SICEX_API_KEY=...
+SICEX_API_URL=...
+# Solo si la API no usa "Authorization: Bearer":
+KALODATA_AUTH_STYLE=header|query
+KALODATA_AUTH_NAME=x-api-key
+```
+
+Y en Stripe, un precio para el paquete de consultas:
+
+```
+STRIPE_PRICE_CREDITOS_MARCO_POLO=price_...
+```
+
+**Hasta que esas variables existan, Marco Polo dice literalmente que la
+fuente no está conectada** y no muestra ningún dato. Nunca inventa
+números: esa fue la regla desde el principio y sigue igual.
+
+El conector (`server/connectors.ts`) es genérico a propósito: manda la
+búsqueda como `q`/`keyword` y lee la lista que venga (`data`, `results`,
+`items`, `records`…). Cuando tengas la documentación de cada API,
+lo único que puede necesitar ajuste es ese mapeo — está en una sola
+función (`toResult`) y comentado.
+
+### Dónde se ve
+
+- **En el chat**: chips "Investigar en Kalodata" / "Investigar en Sicex",
+  una barra con la fuente activa, y el contador de consultas del día.
+- **En el dashboard**: tarjeta "Investigación de Marco Polo" con las
+  consultas restantes, los créditos y el botón para comprar más.

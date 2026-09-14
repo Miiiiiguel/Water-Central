@@ -36,8 +36,8 @@ healthRouter.get('/health', async (req, res) => {
       metaPixel: set('VITE_META_PIXEL_ID'),
       tiktokPixel: set('VITE_TIKTOK_PIXEL_ID'),
       googleAnalytics: set('VITE_GA_MEASUREMENT_ID'),
-      kalodata: set('KALODATA_API_KEY'),
-      sicex: set('SICEX_API_KEY'),
+      kalodata: set('KALODATA_API_KEY') && set('KALODATA_API_URL'),
+      sicex: set('SICEX_API_KEY') && set('SICEX_API_URL'),
     },
   });
 });

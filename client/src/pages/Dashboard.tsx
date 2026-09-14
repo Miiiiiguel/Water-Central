@@ -3,20 +3,21 @@ import { Link, useLocation } from 'wouter';
 import {
   LogOut, Package, FileText, CalendarClock, Users, TrendingUp,
   Inbox, ArrowRight, Loader2, Copy, Check, Gift, MapPin, Bell, BellOff, Download,
-  BarChart3, Plug,
+  BarChart3, Plug, Receipt, RefreshCw, Search, Sparkles,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase, FreightQuote, Profile, ContactLead, Payment } from '@/lib/supabase';
+import { supabase, FreightQuote, Profile, ContactLead, Payment, Subscription } from '@/lib/supabase';
 import { buildReferralLink } from '@/lib/referral';
 import { downloadCSV } from '@/lib/csv';
 import { isPushConfigured, getPushStatus, subscribeToPush, unsubscribeFromPush, PushStatus } from '@/lib/push';
-import { RESUME_EVENT } from '@/lib/native';
+import { RESUME_EVENT, openExternal } from '@/lib/native';
 import NotificationBell from '@/components/NotificationBell';
 import CountUp from '@/components/CountUp';
 import MfaSetup from '@/components/MfaSetup';
 import MfaChallenge from '@/components/MfaChallenge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { fetchQuota, type ResearchQuota } from '@/lib/research';
 
 function ListSkeleton({ rows = 3, avatar = true, trailing = 'badge' }: { rows?: number; avatar?: boolean; trailing?: 'badge' | 'date' | 'none' }) {
   return (
@@ -237,13 +238,197 @@ function ReferralCard() {
 const planLabel: Record<string, { es: string; en: string }> = {
   diagnostico_madurez: { es: 'Diagnóstico de madurez', en: 'Maturity diagnosis' },
   analisis_mercado: { es: 'Análisis de mercado', en: 'Market analysis' },
+  acompanamiento: { es: 'Acompañamiento mensual', en: 'Monthly retainer' },
+  suscripcion: { es: 'Suscripción', en: 'Subscription' },
 };
+
+const paymentStatusStyle: Record<string, { badge: string; icon: string }> = {
+  paid: { badge: 'text-green-700 bg-green-50', icon: 'bg-green-50 text-green-600' },
+  pending: { badge: 'text-blue-700 bg-blue-50', icon: 'bg-blue-50 text-blue-600' },
+  refunded: { badge: 'text-gray-600 bg-gray-100', icon: 'bg-gray-100 text-gray-500' },
+  failed: { badge: 'text-red-700 bg-red-50', icon: 'bg-red-50 text-red-600' },
+};
+
+const paymentStatusLabel: Record<string, { es: string; en: string }> = {
+  paid: { es: 'Pagado', en: 'Paid' },
+  pending: { es: 'Procesando', en: 'Processing' },
+  refunded: { es: 'Reembolsado', en: 'Refunded' },
+  failed: { es: 'No completado', en: 'Not completed' },
+};
+
+// Opens Stripe's own billing portal: invoices, payment method, and
+// cancelling a recurring plan all live there, so none of that is
+// re-implemented (or exposed) here. In the native app it opens in the
+// system browser, like Checkout.
+function BillingPortalButton() {
+  const { language } = useLanguage();
+  const { getAccessToken } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const open = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const token = getAccessToken();
+      const res = await fetch('/api/billing-portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: '{}',
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.message || 'portal_failed');
+      await openExternal(data.url);
+    } catch (err) {
+      setError(
+        (err as Error).message && (err as Error).message !== 'portal_failed'
+          ? (err as Error).message
+          : language === 'es'
+            ? 'No pudimos abrir el portal de facturación.'
+            : 'We could not open the billing portal.'
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-end gap-1">
+      <button
+        type="button"
+        onClick={open}
+        disabled={busy}
+        className="tap-scale-sm inline-flex items-center gap-2 text-xs font-bold text-accent hover:underline bg-transparent border-0 cursor-pointer disabled:opacity-50"
+      >
+        {busy ? <Loader2 size={14} className="animate-spin" /> : <Receipt size={14} />}
+        {language === 'es' ? 'Facturación' : 'Billing'}
+      </button>
+      {error && <span className="text-[11px] text-muted-foreground max-w-[16rem] text-right">{error}</span>}
+    </div>
+  );
+}
+
+// Marco Polo's research allowance: how many Kalodata/Sicex lookups this
+// account has left today, and whether those sources are connected at all.
+// Every number here comes from the server — the client cannot grant
+// itself lookups, and nothing is shown for a source that is not wired up.
+function ResearchQuotaCard() {
+  const { language } = useLanguage();
+  const { getAccessToken } = useAuth();
+  const [quota, setQuota] = useState<ResearchQuota | null>(null);
+  const [busy, setBusy] = useState(false);
+  const es = language === 'es';
+
+  useEffect(() => {
+    fetchQuota(getAccessToken()).then(setQuota);
+  }, [getAccessToken]);
+
+  if (!quota) return null;
+
+  const buy = async () => {
+    setBusy(true);
+    try {
+      const token = getAccessToken();
+      const res = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ plan: 'creditos_marco_polo', platform: 'web' }),
+      });
+      const data = await res.json();
+      if (data.url) await openExternal(data.url);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const connected = quota.sources.kalodata || quota.sources.sicex;
+  const pct = quota.dailyLimit > 0 ? Math.round((quota.freeRemaining / quota.dailyLimit) * 100) : 0;
+
+  return (
+    <div className="bg-white rounded-3xl border border-gray-100 app-shadow p-6">
+      <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 text-white flex items-center justify-center flex-shrink-0 shadow-glow">
+            <Search size={18} />
+          </span>
+          <div className="min-w-0">
+            <p className="font-bold text-primary">{es ? 'Investigación de Marco Polo' : "Marco Polo's research"}</p>
+            <p className="text-xs text-muted-foreground">
+              {es ? 'Consultas a Kalodata y Sicex desde el chat' : 'Kalodata and Sicex lookups from the chat'}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={buy}
+          disabled={busy}
+          className="tap-scale-sm inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent hover:bg-accent/90 text-white text-xs font-bold border-0 cursor-pointer disabled:opacity-50 transition-colors"
+        >
+          {busy ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+          {es ? 'Comprar consultas' : 'Buy lookups'}
+        </button>
+      </div>
+
+      <div className="flex items-baseline gap-2 mb-2">
+        <span className="text-3xl font-black text-primary">{quota.freeRemaining}</span>
+        <span className="text-sm text-muted-foreground">
+          {es ? `de ${quota.dailyLimit} gratis hoy` : `of ${quota.dailyLimit} free today`}
+          {quota.credits > 0 && (es ? ` · ${quota.credits} créditos` : ` · ${quota.credits} credits`)}
+        </span>
+      </div>
+      <div className="h-2 rounded-full bg-gray-100 overflow-hidden mb-3">
+        <div className="h-full rounded-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-500" style={{ width: `${pct}%` }} />
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        {connected
+          ? es
+            ? 'Tu plan define cuántas consultas trae cada día. Cuando se acaban, seguís con créditos comprados.'
+            : 'Your plan sets how many lookups you get each day. When they run out, purchased credits take over.'
+          : es
+            ? 'Kalodata y Sicex todavía no están conectados: hasta que el equipo cargue los accesos, Marco Polo no muestra datos de esas fuentes (y nunca inventa números).'
+            : 'Kalodata and Sicex are not connected yet: until the team loads the access, Marco Polo shows no data from those sources (and never invents numbers).'}
+      </p>
+    </div>
+  );
+}
+
+// Only rendered when a recurring plan actually exists in Stripe.
+function SubscriptionCard({ sub }: { sub: Subscription }) {
+  const { language } = useLanguage();
+  const es = language === 'es';
+  const active = sub.status === 'active' || sub.status === 'trialing';
+  const renews = sub.current_period_end ? new Date(sub.current_period_end).toLocaleDateString() : null;
+
+  return (
+    <div className="bg-white rounded-3xl border border-gray-100 app-shadow p-6 flex items-center justify-between gap-4 flex-wrap">
+      <div className="flex items-center gap-3 min-w-0">
+        <span className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 ${active ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-accent'}`}>
+          <RefreshCw size={18} />
+        </span>
+        <div className="min-w-0">
+          <p className="font-bold text-primary truncate">
+            {(sub.plan && planLabel[sub.plan]?.[es ? 'es' : 'en']) ?? (es ? 'Plan recurrente' : 'Recurring plan')}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {sub.cancel_at_period_end
+              ? es ? `Se cancela el ${renews}` : `Cancels on ${renews}`
+              : renews
+                ? es ? `Se renueva el ${renews}` : `Renews on ${renews}`
+                : sub.status}
+          </p>
+        </div>
+      </div>
+      <BillingPortalButton />
+    </div>
+  );
+}
 
 function ClienteDashboard() {
   const { language } = useLanguage();
   const { user } = useAuth();
   const [quotes, setQuotes] = useState<FreightQuote[] | null>(null);
   const [payments, setPayments] = useState<Payment[] | null>(null);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -256,14 +441,24 @@ function ClienteDashboard() {
 
     // Written only by the Stripe webhook on the server — a client can
     // read its own rows here but never create one (see schema.sql).
-    const loadPayments = () =>
+    const loadPayments = () => {
+      // Every status, not just 'paid': a voucher payment still clearing
+      // ('pending') or a refund must be visible to the buyer too.
       supabase
         .from('payments')
         .select('*')
         .eq('user_id', user.id)
-        .eq('status', 'paid')
         .order('created_at', { ascending: false })
         .then(({ data }) => setPayments((data as Payment[]) ?? []));
+      // Empty unless a plan is configured as recurring in Stripe.
+      supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .then(({ data }) => setSubscription(((data as Subscription[]) ?? [])[0] ?? null));
+    };
     loadPayments();
 
     // After paying in the system browser (native app) or another tab,
@@ -277,10 +472,12 @@ function ClienteDashboard() {
     };
   }, [user]);
 
-  const latestPayment = payments?.[0] ?? null;
+  // Only a paid, non-refunded purchase counts as an active plan.
+  const latestPayment = payments?.find((p) => p.status === 'paid') ?? null;
   const activePlanLabel = latestPayment
     ? (planLabel[latestPayment.plan]?.[language === 'es' ? 'es' : 'en'] ?? latestPayment.plan)
     : (language === 'es' ? 'Ninguno' : 'None');
+  const hasBilling = !!(payments?.length || subscription);
 
   return (
     <div className="space-y-6">
@@ -289,6 +486,10 @@ function ClienteDashboard() {
         <StatCard icon={FileText} label={language === 'es' ? 'Cotizaciones enviadas' : 'Quotes submitted'} value={quotes?.length ?? 0} accent />
         <StatCard icon={CalendarClock} label={language === 'es' ? 'Consultoría agendada' : 'Consultation booked'} value={language === 'es' ? 'No' : 'No'} />
       </div>
+
+      {subscription && <SubscriptionCard sub={subscription} />}
+
+      <ResearchQuotaCard />
 
       <ReferralCard />
 
@@ -331,12 +532,13 @@ function ClienteDashboard() {
       </div>
 
       <div className="bg-white rounded-3xl border border-gray-100 app-shadow">
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-gray-100 flex items-center justify-between gap-4">
           <h2 className="font-bold text-primary">
             {payments?.length
               ? (language === 'es' ? 'Tus pagos' : 'Your payments')
               : (language === 'es' ? 'Elige tu plan' : 'Choose your plan')}
           </h2>
+          {hasBilling && !subscription && <BillingPortalButton />}
         </div>
         {payments === null ? (
           <ListSkeleton rows={2} avatar={false} trailing="date" />
@@ -355,8 +557,8 @@ function ClienteDashboard() {
             {payments.map((p) => (
               <li key={p.id} className="p-5 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center flex-shrink-0">
-                    <Check size={18} />
+                  <span className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${paymentStatusStyle[p.status]?.icon ?? paymentStatusStyle.paid.icon}`}>
+                    {p.status === 'pending' ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
                   </span>
                   <div className="min-w-0">
                     <p className="font-semibold text-foreground truncate">
@@ -373,8 +575,8 @@ function ClienteDashboard() {
                       {language === 'es' ? 'Ver recibo' : 'View receipt'}
                     </a>
                   )}
-                  <span className="text-xs font-bold text-green-700 bg-green-50 rounded-full px-3 py-1">
-                    {language === 'es' ? 'Pagado' : 'Paid'}
+                  <span className={`text-xs font-bold rounded-full px-3 py-1 ${paymentStatusStyle[p.status]?.badge ?? paymentStatusStyle.paid.badge}`}>
+                    {paymentStatusLabel[p.status]?.[language === 'es' ? 'es' : 'en'] ?? p.status}
                   </span>
                 </div>
               </li>
@@ -723,7 +925,7 @@ export default function Dashboard() {
         <p className="text-muted-foreground mb-8">
           {profile?.role === 'vendedor'
             ? (language === 'es' ? 'Vista general de tus clientes.' : 'Overview of your clients.')
-            : (language === 'es' ? 'Así va tu expansión a Estados Unidos.' : "Here's how your US expansion is going.")}
+            : (language === 'es' ? 'Así va tu expansión.' : "Here's how your expansion is going.")}
         </p>
         {profile?.role === 'vendedor' ? <VendedorDashboard /> : <ClienteDashboard />}
         <div className="mt-6">

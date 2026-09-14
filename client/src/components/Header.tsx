@@ -69,7 +69,7 @@ export default function Header() {
       <div className="container flex items-center justify-between h-16 md:h-20 gap-3">
         <button
           onClick={() => handleNavClick('#inicio')}
-          className="tap-scale-sm flex items-center group hover-scale flex-shrink-0 bg-transparent border-0 p-0 cursor-pointer"
+          className="tap-scale-sm flex items-center group hover-scale flex-shrink-0 bg-transparent border-0 p-0 py-2 cursor-pointer"
         >
           <span className="font-logo text-2xl md:text-3xl tracking-tight leading-none">
             <span className="text-accent">easy</span>

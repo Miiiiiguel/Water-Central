@@ -149,8 +149,8 @@ export default function ContactFormExpanded() {
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
               {language === 'es'
-                ? 'Completa el formulario y un especialista te contactará en 24 horas con un diagnóstico de tu oportunidad en el mercado americano.'
-                : 'Complete the form and a specialist will contact you within 24 hours with a diagnosis of your opportunity in the US market.'}
+                ? 'Llena esto y un especialista te escribe en menos de 24 horas con un diagnóstico real de tu oportunidad afuera. Gratis y sin vueltas.'
+                : 'Fill this in and a specialist writes back within 24 hours with a real diagnosis of your opportunity abroad. Free, no runaround.'}
             </p>
 
             <div className="space-y-6 mb-12">

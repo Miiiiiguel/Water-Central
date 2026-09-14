@@ -45,13 +45,13 @@ export default function GlobalReachSection() {
           className="order-2 lg:order-1 text-center lg:text-left"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-5">
-            {language === 'es' ? 'Alcance verdaderamente' : 'Truly'}
-            <span className="block text-accent">{language === 'es' ? 'internacional' : 'international reach'}</span>
+            {language === 'es' ? 'Tu marca, sin' : 'Your brand, with no'}
+            <span className="block text-accent">{language === 'es' ? 'fronteras' : 'borders'}</span>
           </h2>
           <p className="text-white/70 text-base md:text-lg mb-8 max-w-md mx-auto lg:mx-0">
             {language === 'es'
-              ? '220 destinos conectados. Tu producto sale de Latinoamérica y llega a manos de tu cliente en Estados Unidos sin fricción.'
-              : '220 connected destinations. Your product leaves Latin America and reaches your US customer without friction.'}
+              ? '220 destinos conectados. Tu producto sale de tu bodega y llega a tu cliente en Estados Unidos, Europa, México o Asia. Sin intermediarios de más.'
+              : '220 connected destinations. Your product leaves your warehouse and reaches your customer in the US, Europe, Mexico or Asia. No extra middlemen.'}
           </p>
           <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
             {modes.map((m) => {

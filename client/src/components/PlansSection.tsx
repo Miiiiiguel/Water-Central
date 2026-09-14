@@ -6,6 +6,7 @@ import { trackInitiateCheckout } from '@/lib/analytics';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSpotlight } from '@/lib/useSpotlight';
 import { isNative, openExternal } from '@/lib/native';
+import CheckoutSheet, { type CheckoutItem } from '@/components/CheckoutSheet';
 
 interface Plan {
   step: number;
@@ -21,11 +22,11 @@ interface Plan {
 const plans: Plan[] = [
   {
     step: 1,
-    title: { es: 'Diagnóstico de tu situación actual', en: 'Diagnosis of your current situation' },
+    title: { es: 'Diagnóstico: ¿tu marca aguanta salir?', en: 'Diagnosis: is your brand ready to go out?' },
     price: { es: 'Gratis · Madurez USD 6.90', en: 'Free · Maturity USD 6.90' },
     features: {
-      es: ['Diagnóstico básico gratis', 'Diagnóstico de madurez con comentarios y próximos pasos (USD 6.90)'],
-      en: ['Free basic diagnosis', 'Maturity diagnosis with feedback and next steps (USD 6.90)'],
+      es: ['Diagnóstico básico gratis, sin llamada de ventas', 'Diagnóstico de madurez con comentarios y próximos pasos concretos (USD 6.90)'],
+      en: ['Free basic diagnosis, no sales call', 'Maturity diagnosis with feedback and concrete next steps (USD 6.90)'],
     },
     secondaryCheckout: {
       plan: 'diagnostico_madurez',
@@ -34,11 +35,11 @@ const plans: Plan[] = [
   },
   {
     step: 2,
-    title: { es: 'Plan de crecimiento de ventas ecommerce en USA', en: 'US ecommerce sales growth plan' },
+    title: { es: 'Plan de crecimiento en los mercados que te sirven', en: 'Growth plan for the markets that fit you' },
     price: { es: 'A medida', en: 'Custom' },
     features: {
-      es: ['Impacto en facturación estimado para tu compañía', 'Logística internacional (Prep Center) + comisiones de canal'],
-      en: ['Estimated revenue impact for your company', 'International logistics (Prep Center) + channel fees'],
+      es: ['Cuánto puedes facturar y en qué países, con números', 'Logística internacional, Prep Center y comisiones de cada canal'],
+      en: ['How much you can bill and in which countries, with numbers', 'International logistics, Prep Center and each channel\u2019s fees'],
     },
     highlighted: true,
   },
@@ -47,8 +48,8 @@ const plans: Plan[] = [
     title: { es: 'Análisis de mercado y competencia', en: 'Market & competitor analysis' },
     price: { es: 'USD 499', en: 'USD 499' },
     features: {
-      es: ['Análisis personalizado de tu oportunidad en Amazon y TikTok Shop', '2 horas de asesoría 1 a 1 con nuestros especialistas'],
-      en: ['Personalized opportunity analysis on Amazon and TikTok Shop', '2 hours of 1-on-1 advisory with our specialists'],
+      es: ['Tu oportunidad real en Amazon y TikTok Shop, mercado por mercado', '2 horas de asesoría 1 a 1 con especialistas, no con un becario'],
+      en: ['Your real opportunity on Amazon and TikTok Shop, market by market', '2 hours of 1-on-1 advisory with specialists, not an intern'],
     },
     checkoutPlan: 'analisis_mercado',
   },
@@ -61,6 +62,13 @@ export default function PlansSection() {
   const [isVisible, setIsVisible] = useState(false);
   const [checkingOut, setCheckingOut] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  // The order summary shown before Stripe opens (see CheckoutSheet).
+  const [sheetItem, setSheetItem] = useState<CheckoutItem | null>(null);
+
+  const openSheet = (item: CheckoutItem) => {
+    setCheckoutError(null);
+    setSheetItem(item);
+  };
 
   const startCheckout = async (checkoutPlan: string) => {
     setCheckoutError(null);
@@ -86,6 +94,7 @@ export default function PlansSection() {
         // refreshes payments when it comes back to the foreground.
         await openExternal(data.url);
         setCheckingOut(null);
+        setSheetItem(null);
         return;
       }
       window.location.href = data.url;
@@ -105,7 +114,12 @@ export default function PlansSection() {
       if (el) el.scrollIntoView({ behavior: 'smooth' });
       return;
     }
-    startCheckout(plan.checkoutPlan);
+    openSheet({
+      plan: plan.checkoutPlan,
+      title: language === 'es' ? plan.title.es : plan.title.en,
+      features: language === 'es' ? plan.features.es : plan.features.en,
+      priceLabel: language === 'es' ? plan.price.es : plan.price.en,
+    });
   };
 
   useEffect(() => {
@@ -141,8 +155,8 @@ export default function PlansSection() {
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {language === 'es'
-              ? 'Desde un diagnóstico gratuito hasta un análisis completo de mercado: empieza donde tu marca esté hoy.'
-              : "From a free diagnosis to a full market analysis: start wherever your brand is today."}
+              ? 'Del diagnóstico gratis al análisis completo de mercado. Empieza donde estés hoy y paga solo por lo que de verdad necesitas.'
+              : "From a free diagnosis to a full market analysis. Start where you are today and pay only for what you actually need."}
           </p>
         </div>
 
@@ -205,8 +219,18 @@ export default function PlansSection() {
                 <button
                   type="button"
                   disabled={checkingOut !== null}
-                  onClick={() => startCheckout(plan.secondaryCheckout!.plan)}
-                  className="tap-scale-sm mt-3 w-full text-sm font-semibold text-accent hover:underline bg-transparent border-0 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                  onClick={() =>
+                    openSheet({
+                      plan: plan.secondaryCheckout!.plan,
+                      title: language === 'es' ? 'Diagnóstico de madurez' : 'Maturity diagnosis',
+                      features:
+                        language === 'es'
+                          ? ['Diagnóstico completo de la madurez ecommerce de tu marca', 'Comentarios de nuestros especialistas y próximos pasos concretos']
+                          : ['Full diagnosis of your brand’s ecommerce maturity', 'Specialist feedback and concrete next steps'],
+                      priceLabel: 'USD 6.90',
+                    })
+                  }
+                  className="tap-scale-sm mt-3 w-full py-2.5 text-sm font-semibold text-accent hover:underline bg-transparent border-0 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {checkingOut === plan.secondaryCheckout.plan ? (
                     <Loader2 size={16} className="animate-spin" />
@@ -223,6 +247,15 @@ export default function PlansSection() {
           ))}
         </div>
       </div>
+
+      <CheckoutSheet
+        item={sheetItem}
+        open={sheetItem !== null}
+        busy={checkingOut !== null}
+        error={checkoutError}
+        onConfirm={() => sheetItem && startCheckout(sheetItem.plan)}
+        onClose={() => { if (checkingOut === null) setSheetItem(null); }}
+      />
     </section>
   );
 }

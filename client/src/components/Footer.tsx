@@ -78,8 +78,8 @@ export default function Footer() {
             </div>
             <p className="text-sm text-gray-400 leading-relaxed">
               {language === 'es'
-                ? 'Llevamos tus productos e historias por el mundo de una manera responsable. Desbloqueamos tu verdadero potencial de ecommerce en Estados Unidos.'
-                : 'We take your products and stories around the world responsibly. We unlock your true ecommerce potential in the United States.'}
+                ? 'Sacamos tu marca de su mercado local y la ponemos a vender en el mundo: Estados Unidos, Europa, México, Asia. Con números sobre la mesa.'
+                : 'We take your brand out of its local market and get it selling worldwide: the US, Europe, Mexico, Asia. With the numbers on the table.'}
             </p>
           </div>
 
@@ -89,7 +89,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               {services.map((item) => (
                 <li key={item.label}>
-                  <a href={item.href} className="hover:text-orange-400 transition-colors hover:translate-x-1 inline-block transition-transform">
+                  <a href={item.href} className="tap-target hover:text-orange-400 transition-colors hover:translate-x-1 inline-block transition-transform">
                     {item.label}
                   </a>
                 </li>
@@ -103,7 +103,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm mb-6">
               {company.map((item) => (
                 <li key={item.label}>
-                  <a href={item.href} className="hover:text-orange-400 transition-colors hover:translate-x-1 inline-block transition-transform">
+                  <a href={item.href} className="tap-target hover:text-orange-400 transition-colors hover:translate-x-1 inline-block transition-transform">
                     {item.label}
                   </a>
                 </li>
@@ -112,7 +112,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               {partners.map((item) => (
                 <li key={item.label}>
-                  <a href={item.href} className="hover:text-orange-400 transition-colors hover:translate-x-1 inline-block transition-transform">
+                  <a href={item.href} className="tap-target hover:text-orange-400 transition-colors hover:translate-x-1 inline-block transition-transform">
                     {item.label}
                   </a>
                 </li>
@@ -126,19 +126,19 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-2 group">
                 <Phone size={16} className="text-orange-400 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                <a href="https://api.whatsapp.com/send/?phone=573136380121" target="_blank" rel="noopener noreferrer" className="hover:text-orange-400 transition-colors">
+                <a href="https://api.whatsapp.com/send/?phone=573136380121" target="_blank" rel="noopener noreferrer" className="tap-target hover:text-orange-400 transition-colors">
                   (+57) 313 6380121
                 </a>
               </li>
               <li className="flex items-center gap-2 group">
                 <Mail size={16} className="text-orange-400 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                <a href="mailto:info@easycomex.com" className="hover:text-orange-400 transition-colors">
+                <a href="mailto:info@easycomex.com" className="tap-target hover:text-orange-400 transition-colors">
                   info@easycomex.com
                 </a>
               </li>
               <li className="flex items-center gap-2 group">
                 <Mail size={16} className="text-orange-400 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                <a href="mailto:gerencia@easycomex.com" className="hover:text-orange-400 transition-colors">
+                <a href="mailto:gerencia@easycomex.com" className="tap-target hover:text-orange-400 transition-colors">
                   gerencia@easycomex.com
                 </a>
               </li>
@@ -152,7 +152,7 @@ export default function Footer() {
           <p>&copy; {currentYear} Easycomex. {language === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.'}</p>
           <div className="flex flex-wrap justify-center gap-4 md:gap-6">
             {legal.map((item) => (
-              <a key={item.label} href={item.href} className="hover:text-orange-400 transition-colors">
+              <a key={item.label} href={item.href} className="tap-target hover:text-orange-400 transition-colors">
                 {item.label}
               </a>
             ))}

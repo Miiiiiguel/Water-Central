@@ -41,7 +41,7 @@ export default function CTASection() {
           >
             <Sparkles size={16} className="text-orange-300 animate-pulse" />
             <span className="text-white text-sm font-semibold">
-              {language === 'es' ? '¿Qué puedes perder?' : 'What do you have to lose?'}
+              {language === 'es' ? '¿Qué estás esperando?' : 'What are you waiting for?'}
             </span>
           </div>
 

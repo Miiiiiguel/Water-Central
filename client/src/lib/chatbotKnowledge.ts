@@ -16,18 +16,18 @@ export interface KnowledgeEntry {
 
 export const MARCO_POLO = {
   name: 'Marco Polo',
-  tagline: { es: 'Tu guía para vender en USA', en: 'Your guide to selling in the US' },
+  tagline: { es: 'Tu guía para vender en el mundo', en: 'Your guide to selling worldwide' },
   greeting: {
-    es: '¡Hola! Soy Marco Polo, tu guía de Easycomex. Abrí rutas comerciales hace 700 años y ahora ayudo a marcas como la tuya a llegar a Estados Unidos. ¿Por dónde empezamos?',
-    en: "Hi! I'm Marco Polo, your Easycomex guide. I opened trade routes 700 years ago and now I help brands like yours reach the United States. Where do we start?",
+    es: 'Soy Marco Polo. Abrí rutas comerciales hace 700 años; ahora saco marcas de su mercado local y las pongo a vender en el mundo. Dime qué vendes y vamos al grano.',
+    en: "I'm Marco Polo. I opened trade routes 700 years ago; now I take brands out of their local market and get them selling worldwide. Tell me what you sell and let's cut to it.",
   },
   nudge: {
-    es: '¿Te ayudo a vender en Estados Unidos?',
-    en: 'Want help selling in the US?',
+    es: '¿Vemos dónde vale más tu producto?',
+    en: 'Want to see where your product is worth more?',
   },
   fallback: {
-    es: 'Esa ruta todavía no la tengo mapeada, pero un especialista del equipo sí — te paso con ellos por WhatsApp.',
-    en: "I haven't mapped that route yet, but a specialist on the team has — let me hand you over on WhatsApp.",
+    es: 'Esa ruta no la tengo mapeada y no te voy a inventar una respuesta. Te paso con un especialista del equipo por WhatsApp.',
+    en: "I have not mapped that route and I am not going to invent an answer. Let me hand you to a specialist on WhatsApp.",
   },
 };
 
@@ -36,23 +36,23 @@ export const knowledgeBase: KnowledgeEntry[] = [
     id: 'quien-eres',
     keywords: ['quien eres', 'quién eres', 'marco polo', 'que eres', 'eres un bot', 'who are you', 'what are you'],
     answer: {
-      es: 'Soy Marco Polo, el asistente de Easycomex. Respondo dudas sobre cómo vender en Estados Unidos, precios, logística y por dónde empezar. Si necesitás algo más específico, te conecto con una persona del equipo.',
-      en: "I'm Marco Polo, Easycomex's assistant. I answer questions about selling in the US, pricing, logistics and where to start. If you need something more specific, I'll connect you with a person on the team.",
+      es: 'Soy Marco Polo, el asistente de Easycomex. Respondo sobre mercados, precios, logística y por dónde empezar, y puedo investigar demanda y competencia en Kalodata y Sicex. Lo que no sé, te lo digo y te paso con el equipo.',
+      en: "I'm Marco Polo, Easycomex's assistant. I answer questions about markets, pricing, logistics and where to start, and I can research demand and competition in Kalodata and Sicex. What I do not know, I say so and hand you to the team.",
     },
   },
   {
     id: 'servicios',
     keywords: ['servicio', 'ofrecen', 'hacen', 'ayudan', 'que hacen', 'services', 'what do you do'],
     answer: {
-      es: 'Ayudamos a marcas latinoamericanas a vender en Estados Unidos: nuevos canales de venta (Amazon, TikTok Shop, Shopify), logística internacional puerta a puerta, Prep Center en USA, estrategia ecommerce, inteligencia de mercado y análisis de tu oportunidad.',
-      en: 'We help Latin American brands sell in the United States: new sales channels (Amazon, TikTok Shop, Shopify), door-to-door international logistics, a US Prep Center, ecommerce strategy, market intelligence, and opportunity analysis.',
+      es: 'Sacamos marcas de su mercado local y las ponemos a vender donde el producto valga más: Estados Unidos, Europa, México, Asia. Canales (Amazon, TikTok Shop, Shopify), logística puerta a puerta a 220 destinos, Prep Center en USA, estrategia e inteligencia de mercado.',
+      en: 'We take brands out of their local market and get them selling where the product is worth more: the US, Europe, Mexico, Asia. Channels (Amazon, TikTok Shop, Shopify), door-to-door logistics to 220 destinations, a US Prep Center, strategy and market intelligence.',
     },
   },
   {
     id: 'empezar',
     keywords: ['empezar', 'comenzar', 'como empiezo', 'primer paso', 'start', 'get started', 'how do i begin', 'begin'],
     answer: {
-      es: 'Lo más fácil es empezar con el diagnóstico gratuito de tu situación actual. Con eso te proponemos un plan de crecimiento y, si lo necesitás, un análisis de mercado. Te llevo a los planes.',
+      es: 'Diagnóstico gratis primero. Si hay oportunidad te armamos el plan; si no, te lo decimos. Te llevo a los planes.',
       en: 'The easiest way is to start with the free diagnosis of your current situation. From there we propose a growth plan and, if needed, a market analysis. Let me take you to the plans.',
     },
     action: 'planes',
@@ -78,8 +78,8 @@ export const knowledgeBase: KnowledgeEntry[] = [
     id: 'amazon-tiktok',
     keywords: ['amazon', 'tiktok', 'shopify', 'canal', 'canales', 'vender en', 'channel', 'marketplace', 'fba'],
     answer: {
-      es: 'Sí, te ayudamos a vender en Amazon (incluye FBA vía nuestro Prep Center en USA), TikTok Shop y Shopify, con estrategia de contenido y pauta para cada canal.',
-      en: 'Yes, we help you sell on Amazon (including FBA through our US Prep Center), TikTok Shop and Shopify, with content and ad strategy for each channel.',
+      es: 'Sí: Amazon (con FBA vía nuestro Prep Center en USA), TikTok Shop y Shopify, en el país que te sirva. Con estrategia de contenido y pauta para cada canal.',
+      en: 'Yes: Amazon (with FBA through our US Prep Center), TikTok Shop and Shopify, in whichever country fits you. With content and ad strategy per channel.',
     },
   },
   {
@@ -94,7 +94,7 @@ export const knowledgeBase: KnowledgeEntry[] = [
     id: 'logistica',
     keywords: ['logistica', 'logística', 'envio', 'envío', 'flete', 'aduana', 'shipping', 'freight', 'customs', 'importar', 'exportar'],
     answer: {
-      es: 'Ofrecemos logística internacional puerta a puerta, aérea y marítima, a 220 destinos. Te llevo a la calculadora de fletes para una tarifa estimada.',
+      es: 'Puerta a puerta, aérea y marítima, a 220 destinos en el mundo. Te llevo a la calculadora para una tarifa estimada.',
       en: 'We offer door-to-door international logistics, air and ocean, to 220 destinations. Let me take you to the freight calculator for an estimated rate.',
     },
     action: 'calculadora',
@@ -103,7 +103,7 @@ export const knowledgeBase: KnowledgeEntry[] = [
     id: 'tiempo',
     keywords: ['tiempo', 'cuanto tarda', 'cuánto tarda', 'cuando', 'cuándo', 'resultados', 'how long', 'timeline', 'when'],
     answer: {
-      es: 'Depende del canal y del punto de partida de tu marca. Por eso siempre empezamos con un diagnóstico y un plan de acción con metas y tiempos claros.',
+      es: 'Depende del canal y de dónde arranques. Nadie serio te da una fecha sin ver tus números: por eso va primero el diagnóstico, con metas y tiempos escritos.',
       en: "It depends on the channel and your brand's starting point. That's why we always start with a diagnosis and an action plan with clear goals and timelines.",
     },
   },
@@ -145,8 +145,8 @@ export const knowledgeBase: KnowledgeEntry[] = [
     id: 'gracias',
     keywords: ['gracias', 'thanks', 'thank you', 'genial', 'perfecto', 'ok'],
     answer: {
-      es: '¡Con gusto! Cuando quieras seguimos trazando la ruta hacia Estados Unidos.',
-      en: 'Anytime! Whenever you\'re ready we keep charting the route to the US.',
+      es: 'De nada. Cuando quieras seguimos trazando la ruta.',
+      en: 'Anytime. Whenever you are ready we keep charting the route.',
     },
   },
 ];

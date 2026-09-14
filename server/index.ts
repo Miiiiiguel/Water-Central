@@ -8,6 +8,7 @@ import { pushRouter } from "./push";
 import { ttsRouter } from "./tts";
 import { healthRouter } from "./health";
 import { leadsRouter } from "./leads";
+import { researchRouter } from "./research";
 import { cspRouter } from "./csp";
 import { securityHeaders, permissionsPolicy, corsPolicy, methodAllowlist, apiRateLimiter } from "./security";
 import compression from "compression";
@@ -43,6 +44,7 @@ async function startServer() {
   app.use("/api", ttsRouter);
   app.use("/api", healthRouter);
   app.use("/api", leadsRouter);
+  app.use("/api", researchRouter);
   app.use("/api", cspRouter);
   // Anything under /api that no router claimed is a 404, never the SPA shell.
   app.use("/api", (_req, res) => res.status(404).json({ error: "Not found" }));

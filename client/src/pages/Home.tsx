@@ -7,6 +7,7 @@ import ServicesSection from '@/components/ServicesSection';
 import BenefitsSection from '@/components/BenefitsSection';
 import FloatingButtons from '@/components/FloatingButtons';
 import MobileTabBar from '@/components/MobileTabBar';
+import { useIdleMount } from '@/lib/useIdleMount';
 
 const GlobalReachSection = lazy(() => import('@/components/GlobalReachSection'));
 // recharts is ~400KB — only the charts section needs it, so it loads
@@ -17,6 +18,14 @@ const ImpactSection = lazy(() => import('@/components/ImpactSection'));
 const HomeLowerSections = lazy(() => import('@/components/HomeLowerSections'));
 
 export default function Home() {
+  // Everything below the fold waits for the browser to be idle (or for
+  // the first scroll/tap) before it hydrates, staggered so the three
+  // heavy sections never mount inside the same frame. Each placeholder
+  // reserves the section's height so nothing jumps when it appears.
+  const globeReady = useIdleMount(2000, 0);
+  const chartsReady = useIdleMount(2000, 150);
+  const lowerReady = useIdleMount(2000, 320);
+
   return (
     <div className="min-h-screen bg-primary pb-20 md:pb-0">
       <Header />
@@ -29,16 +38,16 @@ export default function Home() {
         <ServicesSection />
       </div>
       <Suspense fallback={<div className="h-96 bg-primary" />}>
-        <GlobalReachSection />
+        {globeReady ? <GlobalReachSection /> : <div className="h-96 bg-primary" />}
       </Suspense>
       <div id="beneficios">
         <BenefitsSection />
       </div>
       <Suspense fallback={<div className="h-96 bg-white" />}>
-        <ImpactSection />
+        {chartsReady ? <ImpactSection /> : <div className="h-96 bg-white" />}
       </Suspense>
       <Suspense fallback={<div className="min-h-screen bg-white" />}>
-        <HomeLowerSections />
+        {lowerReady ? <HomeLowerSections /> : <div className="min-h-screen bg-white" />}
       </Suspense>
       <FloatingButtons />
       <MobileTabBar />

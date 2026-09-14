@@ -1,19 +1,105 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
-import { CheckCircle2, XCircle, ArrowRight, MessageCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, ArrowRight, MessageCircle, Loader2, Clock } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Landing pages Stripe redirects back to. Deliberately informational
-// only: the real confirmation is the webhook writing public.payments —
-// anyone can type this URL, so nothing here grants access to anything.
+type Verification =
+  | { state: 'idle' }
+  | { state: 'checking' }
+  | { state: 'paid'; plan: string | null; amountCents: number | null; currency: string | null }
+  | { state: 'processing' }
+  | { state: 'unknown' };
+
+// Landing pages Stripe redirects back to.
+//
+// The success page asks the server to confirm the Checkout session with
+// Stripe before it claims anything, so a hand-typed URL says "we could
+// not confirm a payment" instead of "thank you". Access is still granted
+// only by the webhook writing public.payments — never by this page.
 export default function PaymentResult({ status }: { status: 'success' | 'cancelled' }) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const ok = status === 'success';
+  const es = language === 'es';
   // Set by the server when Checkout was opened from the native app's
   // system browser: the user's next step is simply to go back to the app.
-  const fromApp = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('native') === '1';
+  const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
+  const fromApp = params.get('native') === '1';
+  const sessionId = params.get('session_id');
+
+  const [verification, setVerification] = useState<Verification>({ state: ok && sessionId ? 'checking' : 'idle' });
+
+  useEffect(() => {
+    if (!ok || !sessionId) return;
+    let cancelled = false;
+    let attempt = 0;
+
+    const check = async () => {
+      attempt += 1;
+      try {
+        const res = await fetch(`/api/checkout-session/${encodeURIComponent(sessionId)}`);
+        if (cancelled) return;
+        if (res.status === 503) return setVerification({ state: 'idle' }); // Stripe not configured here
+        if (!res.ok) return setVerification({ state: 'unknown' });
+        const data = await res.json();
+        if (data.paid) {
+          setVerification({ state: 'paid', plan: data.planLabel ?? data.plan ?? null, amountCents: data.amountCents ?? null, currency: data.currency ?? null });
+        } else if (attempt < 3) {
+          // Card payments are instant, but vouchers and bank debits take
+          // a moment to flip to 'paid'. Give it two more tries.
+          setVerification({ state: 'checking' });
+          window.setTimeout(check, 2500);
+        } else {
+          setVerification({ state: 'processing' });
+        }
+      } catch {
+        if (!cancelled) setVerification({ state: 'unknown' });
+      }
+    };
+
+    check();
+    return () => { cancelled = true; };
+  }, [ok, sessionId]);
+
+  const money =
+    verification.state === 'paid' && verification.amountCents != null
+      ? new Intl.NumberFormat(es ? 'es-CO' : 'en-US', { style: 'currency', currency: (verification.currency ?? 'usd').toUpperCase() }).format(verification.amountCents / 100)
+      : null;
+
+  const checking = verification.state === 'checking';
+  const processing = verification.state === 'processing';
+  const unknown = verification.state === 'unknown';
+  const good = ok && !processing && !unknown;
+
+  const title = !ok
+    ? es ? 'Pago cancelado' : 'Payment cancelled'
+    : checking
+      ? es ? 'Confirmando tu pago…' : 'Confirming your payment…'
+      : processing
+        ? es ? 'Tu pago se está procesando' : 'Your payment is processing'
+        : unknown
+          ? es ? 'No pudimos confirmar este pago' : "We couldn't confirm this payment"
+          : es ? '¡Pago recibido!' : 'Payment received!';
+
+  const body = !ok
+    ? es
+      ? 'No se realizó ningún cobro. Si tuviste algún problema o querés hablar antes de decidir, escribinos.'
+      : 'You were not charged. If something went wrong or you want to talk before deciding, message us.'
+    : checking
+      ? es ? 'Estamos verificando la transacción con Stripe. Toma unos segundos.' : 'We are verifying the transaction with Stripe. This takes a few seconds.'
+      : processing
+        ? es
+          ? 'Tu medio de pago necesita unos minutos para acreditarse. Apenas se confirme te llega el email y el plan aparece en tu dashboard, sin que tengas que hacer nada.'
+          : 'Your payment method needs a few minutes to clear. As soon as it confirms you get an email and the plan appears in your dashboard — nothing else to do.'
+        : unknown
+          ? es
+            ? 'Si acabás de pagar, revisá tu email: Stripe envía el recibo al confirmar. Si no, escribinos y lo verificamos con vos.'
+            : 'If you just paid, check your email: Stripe sends the receipt on confirmation. Otherwise message us and we will check it with you.'
+          : es
+            ? 'Gracias. Te enviamos la confirmación a tu email y nuestro equipo te contacta en menos de 24 horas para arrancar.'
+            : 'Thank you. We sent a confirmation to your email and our team will reach out within 24 hours to get started.';
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4 py-16">
@@ -31,30 +117,26 @@ export default function PaymentResult({ status }: { status: 'success' | 'cancell
         <div className="bg-white rounded-3xl border border-gray-100 app-shadow p-8 md:p-10">
           <div
             className={`w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center ${
-              ok ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-accent'
+              good ? 'bg-green-50 text-green-600' : processing || checking ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-accent'
             }`}
           >
-            {ok ? <CheckCircle2 size={40} /> : <XCircle size={40} />}
+            {checking ? <Loader2 size={36} className="animate-spin" /> : processing ? <Clock size={38} /> : good ? <CheckCircle2 size={40} /> : <XCircle size={40} />}
           </div>
 
-          <h1 className="text-2xl md:text-3xl font-black text-primary mb-3">
-            {ok
-              ? (language === 'es' ? '¡Pago recibido!' : 'Payment received!')
-              : (language === 'es' ? 'Pago cancelado' : 'Payment cancelled')}
-          </h1>
-          <p className="text-muted-foreground leading-relaxed mb-8">
-            {ok
-              ? (language === 'es'
-                  ? 'Gracias. Te enviamos la confirmación a tu email y nuestro equipo te contacta en menos de 24 horas para arrancar.'
-                  : 'Thank you. We sent a confirmation to your email and our team will reach out within 24 hours to get started.')
-              : (language === 'es'
-                  ? 'No se realizó ningún cobro. Si tuviste algún problema o querés hablar antes de decidir, escribinos.'
-                  : 'You were not charged. If something went wrong or you want to talk before deciding, message us.')}
-          </p>
+          <h1 className="text-2xl md:text-3xl font-black text-primary mb-3">{title}</h1>
+
+          {verification.state === 'paid' && (verification.plan || money) && (
+            <div className="inline-flex flex-col items-center gap-1 px-4 py-3 mb-5 rounded-2xl bg-green-50 border border-green-100">
+              {verification.plan && <span className="text-sm font-bold text-green-900">{verification.plan}</span>}
+              {money && <span className="text-xl font-black text-green-700">{money}</span>}
+            </div>
+          )}
+
+          <p className="text-muted-foreground leading-relaxed mb-8">{body}</p>
 
           {fromApp && (
             <div className="p-3 rounded-2xl bg-orange-50 border border-orange-100 text-sm text-orange-900 mb-6">
-              {language === 'es'
+              {es
                 ? 'Ya podés cerrar esta ventana y volver a la app de Easycomex — tu dashboard se actualiza solo.'
                 : 'You can close this window and go back to the Easycomex app — your dashboard updates on its own.'}
             </div>
@@ -67,8 +149,8 @@ export default function PaymentResult({ status }: { status: 'success' | 'cancell
                 className="tap-scale inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-accent hover:bg-accent/90 text-white font-bold transition-colors"
               >
                 {user
-                  ? (language === 'es' ? 'Ir a mi dashboard' : 'Go to my dashboard')
-                  : (language === 'es' ? 'Crear mi cuenta para seguir el avance' : 'Create my account to track progress')}
+                  ? (es ? 'Ir a mi dashboard' : 'Go to my dashboard')
+                  : (es ? 'Crear mi cuenta para seguir el avance' : 'Create my account to track progress')}
                 <ArrowRight size={18} />
               </Link>
             ) : (
@@ -76,7 +158,7 @@ export default function PaymentResult({ status }: { status: 'success' | 'cancell
                 href="/#planes"
                 className="tap-scale inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-accent hover:bg-accent/90 text-white font-bold transition-colors"
               >
-                {language === 'es' ? 'Volver a los planes' : 'Back to plans'}
+                {es ? 'Volver a los planes' : 'Back to plans'}
                 <ArrowRight size={18} />
               </Link>
             )}
@@ -87,7 +169,7 @@ export default function PaymentResult({ status }: { status: 'success' | 'cancell
               className="tap-scale-sm inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full border border-gray-200 hover:bg-gray-50 text-sm font-bold text-foreground transition-colors"
             >
               <MessageCircle size={16} />
-              {language === 'es' ? 'Hablar por WhatsApp' : 'Chat on WhatsApp'}
+              {es ? 'Hablar por WhatsApp' : 'Chat on WhatsApp'}
             </a>
           </div>
         </div>

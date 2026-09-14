@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, Send, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle } from 'lucide-react';
+import { X, Send, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle, Search, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { matchKnowledge, MARCO_POLO, type SectionAction } from '@/lib/chatbotKnowledge';
 import { whatsappUrl } from '@/lib/contact';
-import { hapticTap, openExternal } from '@/lib/native';
+import { hapticTap, isNative, openExternal } from '@/lib/native';
 import { isSTTSupported, isTTSSupported, speak, stopSpeaking, startListening } from '@/lib/voice';
 import MarcoPoloAvatar from './MarcoPoloAvatar';
+import { useAuth } from '@/contexts/AuthContext';
+import { fetchQuota, runResearch, formatResult, SOURCE_LABEL, SOURCE_BLURB, type ResearchQuota, type ResearchSource } from '@/lib/research';
 
 interface ChatMessage {
   role: 'user' | 'bot';
@@ -23,6 +25,8 @@ function menuQuickReplies(language: string) {
   return [
     { label: language === 'es' ? '¿Cómo empiezo?' : 'How do I start?', value: language === 'es' ? 'como empiezo' : 'how do i start' },
     { label: language === 'es' ? '¿Cuánto cuesta?' : 'How much is it?', value: language === 'es' ? 'cuanto cuesta' : 'how much does it cost' },
+    { label: language === 'es' ? 'Investigar en Kalodata' : 'Research on Kalodata', value: '__research:kalodata__' },
+    { label: language === 'es' ? 'Investigar en Sicex' : 'Research on Sicex', value: '__research:sicex__' },
     { label: language === 'es' ? 'Calcular un flete' : 'Freight quote', value: language === 'es' ? 'flete' : 'freight' },
     { label: language === 'es' ? 'Hablar con una persona' : 'Talk to a person', value: '__human__' },
   ];
@@ -49,6 +53,7 @@ function timeLabel(at: number) {
 
 export default function ChatbotWidget() {
   const { language } = useLanguage();
+  const { getAccessToken } = useAuth();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>(() => load<ChatMessage[]>(STORAGE_KEY, []));
   const [input, setInput] = useState('');
@@ -63,6 +68,10 @@ export default function ChatbotWidget() {
       return false;
     }
   });
+  // Research desk: which source Marco Polo is waiting for a term for,
+  // and how many lookups this account has left (server-owned numbers).
+  const [researchMode, setResearchMode] = useState<ResearchSource | null>(null);
+  const [quota, setQuota] = useState<ResearchQuota | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const stopListeningRef = useRef<() => void>(() => {});
   const inputRef = useRef<HTMLInputElement>(null);
@@ -109,6 +118,13 @@ export default function ChatbotWidget() {
   }, [messages, typing, open]);
 
   useEffect(() => () => { stopSpeaking(); stopListeningRef.current(); }, []);
+
+  // Quota is only meaningful for a signed-in user; it refreshes on open
+  // so the chip never shows a stale "2 left" after yesterday's usage.
+  useEffect(() => {
+    if (!open) return;
+    fetchQuota(getAccessToken()).then(setQuota);
+  }, [open, getAccessToken]);
 
   // Close like a native sheet: Escape on desktop, and the Android/browser
   // back button on phones (a history entry is pushed while the panel is
@@ -173,10 +189,115 @@ export default function ChatbotWidget() {
     }
   };
 
+  // Sends the user to Stripe to buy a pack of extra lookups.
+  const buyCredits = async () => {
+    try {
+      const token = getAccessToken();
+      const res = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ plan: 'creditos_marco_polo', platform: isNative ? 'native' : 'web' }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error('checkout_failed');
+      if (isNative) await openExternal(data.url);
+      else window.location.href = data.url;
+    } catch {
+      pushBot(
+        language === 'es'
+          ? 'No pude abrir el pago. Escribinos por WhatsApp y lo resolvemos.'
+          : 'I could not open checkout. Message us on WhatsApp and we will sort it.',
+        { quickReplies: [{ label: language === 'es' ? 'WhatsApp' : 'WhatsApp', value: '__human__' }] }
+      );
+    }
+  };
+
+  // Runs one lookup and reports exactly what happened — including the
+  // cases where there is nothing to show.
+  const doResearch = async (source: ResearchSource, term: string) => {
+    setTyping(true);
+    const outcome = await runResearch(getAccessToken(), source, term);
+    setTyping(false);
+    setResearchMode(null);
+
+    if (outcome.kind === 'ok') {
+      setQuota(outcome.quota);
+      pushBot(formatResult(outcome, language), {
+        quickReplies: [
+          { label: language === 'es' ? 'Otra consulta' : 'Another lookup', value: `__research:${source}__` },
+          { label: language === 'es' ? 'Hablar con una persona' : 'Talk to a person', value: '__human__' },
+        ],
+      });
+      return;
+    }
+
+    if (outcome.kind === 'unauthenticated') {
+      pushBot(
+        language === 'es'
+          ? 'Para investigar necesito saber quién sos: creá tu cuenta (es gratis) y te doy consultas diarias incluidas.'
+          : 'To research I need to know who you are: create your account (free) and you get daily lookups included.',
+        { quickReplies: [{ label: language === 'es' ? 'Crear cuenta' : 'Create account', value: '__register__' }] }
+      );
+      return;
+    }
+
+    if (outcome.kind === 'not_connected') {
+      pushBot(
+        language === 'es'
+          ? `${SOURCE_LABEL[outcome.source]} todavía no está conectado a la app, así que no tengo datos reales que darte — y no te voy a inventar números. Avisá al equipo para que carguen el acceso.`
+          : `${SOURCE_LABEL[outcome.source]} is not connected to the app yet, so I have no real data to give you — and I will not invent numbers. Ask the team to load the access.`,
+        { quickReplies: [{ label: language === 'es' ? 'Avisar al equipo' : 'Tell the team', value: '__human__' }] }
+      );
+      return;
+    }
+
+    if (outcome.kind === 'quota_exhausted') {
+      if (outcome.quota) setQuota(outcome.quota);
+      pushBot(
+        language === 'es'
+          ? `${outcome.message} También podés subir de plan y tener más consultas incluidas todos los días.`
+          : `${outcome.message} You can also move up a plan and get more lookups included every day.`,
+        {
+          quickReplies: [
+            { label: language === 'es' ? 'Comprar consultas' : 'Buy lookups', value: '__buy_credits__' },
+            { label: language === 'es' ? 'Ver planes' : 'See plans', value: language === 'es' ? 'cuanto cuesta' : 'how much does it cost' },
+          ],
+        }
+      );
+      return;
+    }
+
+    pushBot(outcome.message || (language === 'es' ? 'No pude completar la consulta.' : 'I could not complete the lookup.'));
+  };
+
   const sendMessage = (text: string) => {
     const trimmed = text.trim().slice(0, 500);
     if (!trimmed || typing) return;
     hapticTap();
+
+    // Start a research flow: ask for the term, then the next message runs it.
+    const research = /^__research:(kalodata|sicex)__$/.exec(trimmed);
+    if (research) {
+      const source = research[1] as ResearchSource;
+      setResearchMode(source);
+      pushBot(
+        language === 'es'
+          ? `Dale. En ${SOURCE_LABEL[source]} puedo ver ${SOURCE_BLURB[source].es}. Escribime el producto o categoría (por ejemplo: "velas de soya" o "shapewear").`
+          : `Sure. In ${SOURCE_LABEL[source]} I can see ${SOURCE_BLURB[source].en}. Type the product or category (for example: "soy candles" or "shapewear").`
+      );
+      window.setTimeout(() => inputRef.current?.focus(), 100);
+      return;
+    }
+
+    if (trimmed === '__buy_credits__') {
+      buyCredits();
+      return;
+    }
+
+    if (trimmed === '__register__') {
+      window.location.href = '/registro';
+      return;
+    }
 
     if (trimmed === '__human__') {
       setMessages((prev) => [...prev, { role: 'user', content: language === 'es' ? 'Quiero hablar con una persona' : 'I want to talk to a person', at: Date.now() }]);
@@ -186,6 +307,12 @@ export default function ChatbotWidget() {
 
     setMessages((prev) => [...prev, { role: 'user', content: trimmed, at: Date.now() }]);
     setInput('');
+
+    if (researchMode) {
+      doResearch(researchMode, trimmed);
+      return;
+    }
+
     respond(trimmed).finally(() => setTyping(false));
   };
 
@@ -251,7 +378,7 @@ export default function ChatbotWidget() {
             exit={{ opacity: 0, y: 8, scale: 0.95 }}
             className="fixed bottom-[10.5rem] md:bottom-24 left-4 md:left-6 z-50 max-w-[16rem] bg-white rounded-2xl rounded-bl-md app-shadow border border-gray-100 p-3 pr-8"
           >
-            <button onClick={dismissNudge} className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100 bg-transparent border-0 cursor-pointer text-muted-foreground" aria-label="Cerrar">
+            <button onClick={dismissNudge} className="absolute top-1 right-1 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 bg-transparent border-0 cursor-pointer text-muted-foreground" aria-label="Cerrar">
               <X size={14} />
             </button>
             <button onClick={openChat} className="text-left bg-transparent border-0 cursor-pointer">
@@ -319,6 +446,30 @@ export default function ChatbotWidget() {
               </button>
             </div>
 
+            {/* Research quota — only for a signed-in account, and only
+                with numbers the server gave us. */}
+            {quota && (
+              <div className="flex items-center justify-between gap-2 px-4 py-2 bg-orange-50 border-b border-orange-100 flex-shrink-0">
+                <span className="flex items-center gap-1.5 text-[11px] font-semibold text-orange-900 min-w-0">
+                  <Sparkles size={12} className="text-accent flex-shrink-0" />
+                  <span className="truncate">
+                    {language === 'es'
+                      ? `${quota.freeRemaining} de ${quota.dailyLimit} consultas gratis hoy`
+                      : `${quota.freeRemaining} of ${quota.dailyLimit} free lookups today`}
+                    {quota.credits > 0 && (language === 'es' ? ` · ${quota.credits} créditos` : ` · ${quota.credits} credits`)}
+                  </span>
+                </span>
+                {!quota.canQuery && (
+                  <button
+                    onClick={buyCredits}
+                    className="tap-scale-sm text-[11px] font-bold text-accent hover:underline bg-transparent border-0 cursor-pointer flex-shrink-0"
+                  >
+                    {language === 'es' ? 'Comprar más' : 'Buy more'}
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* Messages */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-gradient-to-b from-gray-50/60 to-white">
               {messages.map((m, i) => (
@@ -332,7 +483,7 @@ export default function ChatbotWidget() {
                           : 'bg-white border border-gray-100 text-foreground rounded-bl-md app-shadow'
                       }`}
                     >
-                      {m.content}
+                      <span className="whitespace-pre-line">{m.content}</span>
                     </div>
                     <span className="text-[10px] text-muted-foreground mt-1 px-1">{timeLabel(m.at)}</span>
                     {m.quickReplies && (
@@ -364,6 +515,20 @@ export default function ChatbotWidget() {
             </div>
 
             {/* Composer */}
+            {researchMode && (
+              <div className="flex items-center justify-between gap-2 px-4 py-1.5 bg-primary text-white text-[11px] font-semibold flex-shrink-0">
+                <span className="flex items-center gap-1.5">
+                  <Search size={12} />
+                  {language === 'es' ? `Buscando en ${SOURCE_LABEL[researchMode]}` : `Searching ${SOURCE_LABEL[researchMode]}`}
+                </span>
+                <button
+                  onClick={() => setResearchMode(null)}
+                  className="tap-scale-sm text-white/80 hover:text-white bg-transparent border-0 cursor-pointer"
+                >
+                  {language === 'es' ? 'Cancelar' : 'Cancel'}
+                </button>
+              </div>
+            )}
             <form
               onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
               className="flex items-center gap-2 p-3 border-t border-gray-100 flex-shrink-0 bg-white"
@@ -385,7 +550,13 @@ export default function ChatbotWidget() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 maxLength={500}
-                placeholder={listening ? (language === 'es' ? 'Te escucho…' : 'Listening…') : (language === 'es' ? 'Pregúntale a Marco Polo…' : 'Ask Marco Polo…')}
+                placeholder={
+                  listening
+                    ? (language === 'es' ? 'Te escucho…' : 'Listening…')
+                    : researchMode
+                      ? (language === 'es' ? `Producto a buscar en ${SOURCE_LABEL[researchMode]}…` : `Product to look up in ${SOURCE_LABEL[researchMode]}…`)
+                      : (language === 'es' ? 'Pregúntale a Marco Polo…' : 'Ask Marco Polo…')
+                }
                 className="flex-1 min-w-0 px-3.5 py-2.5 rounded-full border border-gray-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none text-sm transition-all"
               />
               <button

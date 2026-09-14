@@ -59,7 +59,7 @@ export default function Register() {
             {language === 'es' ? 'Crea tu cuenta' : 'Create your account'}
           </h1>
           <p className="text-muted-foreground text-sm mb-6">
-            {language === 'es' ? 'Empieza a vender en Estados Unidos con Easycomex' : 'Start selling in the US with Easycomex'}
+            {language === 'es' ? 'Empieza a vender afuera con Easycomex' : 'Start selling abroad with Easycomex'}
           </p>
 
           {!configured && (

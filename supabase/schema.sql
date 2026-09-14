@@ -363,6 +363,8 @@ create table if not exists public.payments (
 
 -- Safe to re-run on a project that created the table before this column existed.
 alter table public.payments add column if not exists receipt_url text;
+-- status also takes 'pending' (voucher/bank-debit payments that clear
+-- later) and 'failed' (the buyer never completed one of those).
 
 alter table public.payments enable row level security;
 
@@ -402,6 +404,71 @@ create trigger on_payment_created
   after insert on public.payments
   for each row execute procedure public.handle_new_payment();
 
+-- =======================================================================
+-- Stripe customer id on the profile.
+--
+-- One Stripe Customer per buyer is what ties receipts, invoices,
+-- subscriptions and the billing portal to the same person. Written only
+-- by the server (service-role key); the "update own, role locked"
+-- policy below already prevents a client from changing it.
+-- =======================================================================
+
+alter table public.profiles add column if not exists stripe_customer_id text unique;
+
+-- =======================================================================
+-- Subscriptions (recurring plans). Written ONLY by the Stripe webhook.
+--
+-- Whether a plan is one-off or recurring is decided by the price you
+-- create in Stripe — the server reads the price and picks the checkout
+-- mode. If every plan stays one-off this table simply stays empty.
+-- =======================================================================
+
+create table if not exists public.subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.profiles (id) on delete set null,
+  stripe_subscription_id text not null unique,
+  stripe_customer_id text,
+  plan text,
+  status text not null,                 -- active | trialing | past_due | canceled | unpaid
+  current_period_end timestamptz,
+  cancel_at_period_end boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.subscriptions enable row level security;
+
+create policy "subscriptions: read own"
+  on public.subscriptions for select
+  using (auth.uid() = user_id);
+
+create policy "subscriptions: vendedor reads all"
+  on public.subscriptions for select
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'vendedor'));
+
+-- No insert/update policy on purpose: the server's service-role key is
+-- the only writer, so nobody can grant themselves an active plan.
+
+create index if not exists subscriptions_user_idx on public.subscriptions (user_id, status);
+
+-- =======================================================================
+-- Stripe webhook event log — replay protection.
+--
+-- Stripe retries an event until it receives a 2xx and can deliver the
+-- same event more than once. The server inserts the event id before
+-- handling it: a duplicate hits this unique key and is skipped, so a
+-- retry can never charge, record or notify twice.
+-- =======================================================================
+
+create table if not exists public.stripe_events (
+  id text primary key,                  -- Stripe event id (evt_...)
+  type text,
+  received_at timestamptz not null default now()
+);
+
+alter table public.stripe_events enable row level security;
+-- Deliberately no policies: server-only table, invisible to every client.
+
 -- ---------------------------------------------------------------------
 -- Suggested next table (not created here, add when you build it):
 --
@@ -411,3 +478,159 @@ create trigger on_payment_created
 --   If you want to pay out real commissions (not just track who
 --   referred whom), add this once a referral converts to a paid plan.
 -- ---------------------------------------------------------------------
+
+-- =======================================================================
+-- Marco Polo research desk: Kalodata / Sicex lookups with a daily quota.
+--
+-- Each plan includes N free lookups per day (the number lives in
+-- server/research.ts, so pricing changes do not need a migration). Past
+-- that the user spends credits bought with Stripe.
+--
+-- Everything is written by the server with the service-role key. The
+-- client can read its own usage (to show "3 left today") but can never
+-- insert a row or hand itself credits.
+-- =======================================================================
+
+create table if not exists public.research_usage (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  source text not null,                 -- kalodata | sicex
+  query text,
+  billed text not null,                 -- free | credit
+  created_at timestamptz not null default now()
+);
+
+alter table public.research_usage enable row level security;
+
+create policy "research_usage: read own"
+  on public.research_usage for select
+  using (auth.uid() = user_id);
+
+create policy "research_usage: vendedor reads all"
+  on public.research_usage for select
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'vendedor'));
+
+-- The daily count is the hottest query in this feature.
+create index if not exists research_usage_daily_idx
+  on public.research_usage (user_id, billed, created_at desc);
+
+create table if not exists public.research_credits (
+  user_id uuid primary key references public.profiles (id) on delete cascade,
+  credits integer not null default 0 check (credits >= 0),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.research_credits enable row level security;
+
+create policy "research_credits: read own"
+  on public.research_credits for select
+  using (auth.uid() = user_id);
+
+-- No insert/update policy: only the Stripe webhook (service role) grants
+-- credits, so nobody can top themselves up for free.
+
+-- ---------------------------------------------------------------------
+-- spend_research_quota: decide and record in ONE atomic statement.
+--
+-- Returns 'free' (a free daily lookup was used), 'credit' (a purchased
+-- credit was spent) or 'blocked' (nothing left). Without this being a
+-- single transaction, two parallel requests could both spend the last
+-- free lookup — the classic double-spend.
+-- ---------------------------------------------------------------------
+create or replace function public.spend_research_quota(
+  p_user_id uuid,
+  p_daily_limit integer,
+  p_source text,
+  p_query text
+)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_used integer;
+  v_billed text;
+begin
+  -- Lock this user's credit row (creating it if needed) so the whole
+  -- decision for one user is serialized.
+  insert into public.research_credits (user_id, credits)
+  values (p_user_id, 0)
+  on conflict (user_id) do nothing;
+
+  perform 1 from public.research_credits where user_id = p_user_id for update;
+
+  select count(*) into v_used
+  from public.research_usage
+  where user_id = p_user_id
+    and billed = 'free'
+    and created_at >= date_trunc('day', now() at time zone 'utc');
+
+  if v_used < p_daily_limit then
+    v_billed := 'free';
+  elsif (select credits from public.research_credits where user_id = p_user_id) > 0 then
+    update public.research_credits
+      set credits = credits - 1, updated_at = now()
+      where user_id = p_user_id;
+    v_billed := 'credit';
+  else
+    return 'blocked';
+  end if;
+
+  insert into public.research_usage (user_id, source, query, billed)
+  values (p_user_id, p_source, left(coalesce(p_query, ''), 160), v_billed);
+
+  return v_billed;
+end;
+$$;
+
+revoke all on function public.spend_research_quota(uuid, integer, text, text) from public, anon, authenticated;
+
+-- Give the lookup back when the provider itself failed: drop the usage
+-- row we just wrote and return the credit if one was spent.
+create or replace function public.refund_research_quota(p_user_id uuid, p_billed text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_id uuid;
+begin
+  select id into v_id
+  from public.research_usage
+  where user_id = p_user_id and billed = p_billed
+  order by created_at desc
+  limit 1;
+
+  if v_id is not null then
+    delete from public.research_usage where id = v_id;
+    if p_billed = 'credit' then
+      update public.research_credits
+        set credits = credits + 1, updated_at = now()
+        where user_id = p_user_id;
+    end if;
+  end if;
+end;
+$$;
+
+revoke all on function public.refund_research_quota(uuid, text) from public, anon, authenticated;
+
+-- Credits bought with Stripe land here (see recordPayment in
+-- server/stripe.ts): the webhook is the only writer.
+create or replace function public.grant_research_credits(p_user_id uuid, p_credits integer)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.research_credits (user_id, credits)
+  values (p_user_id, greatest(p_credits, 0))
+  on conflict (user_id) do update
+    set credits = public.research_credits.credits + greatest(p_credits, 0),
+        updated_at = now();
+end;
+$$;
+
+revoke all on function public.grant_research_credits(uuid, integer) from public, anon, authenticated;

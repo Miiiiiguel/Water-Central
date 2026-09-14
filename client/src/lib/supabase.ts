@@ -69,9 +69,23 @@ export interface Payment {
   plan: PlanId | string;
   amount_cents: number;
   currency: string;
-  status: 'paid' | 'refunded';
+  // 'pending' = a voucher/bank-debit payment that has not cleared yet.
+  status: 'paid' | 'refunded' | 'pending' | 'failed';
   stripe_session_id: string;
   receipt_url: string | null;
+  created_at: string;
+}
+
+// Recurring plans. Written only by the Stripe webhook; empty unless the
+// price configured in Stripe is a recurring one.
+export interface Subscription {
+  id: string;
+  user_id: string | null;
+  stripe_subscription_id: string;
+  plan: string | null;
+  status: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid' | string;
+  current_period_end: string | null;
+  cancel_at_period_end: boolean;
   created_at: string;
 }
 

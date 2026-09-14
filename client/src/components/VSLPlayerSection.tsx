@@ -29,7 +29,7 @@ export default function VSLPlayerSection({ youtubeId }: VSLPlayerSectionProps) {
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-primary">
             {language === 'es' ? 'De marca local a' : 'From local brand to'}
-            <span className="text-accent"> {language === 'es' ? 'vendida en USA' : 'selling in the US'}</span>
+            <span className="text-accent"> {language === 'es' ? 'vendida en el mundo' : 'selling worldwide'}</span>
           </h2>
         </motion.div>
 

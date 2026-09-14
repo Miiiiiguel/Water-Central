@@ -51,7 +51,7 @@ export default function ImpactSection() {
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             {language === 'es'
-              ? 'Así se ve una expansión a USA planeada vs. una improvisada. Datos ilustrativos basados en trayectorias típicas de marcas que trabajan con nosotros.'
+              ? 'Así se ve una expansión planeada frente a una improvisada, en cualquier mercado. Datos ilustrativos basados en trayectorias típicas de marcas que trabajan con nosotros.'
               : "This is what a planned US expansion looks like vs. an improvised one. Illustrative data based on typical trajectories of brands that work with us."}
           </p>
         </motion.div>

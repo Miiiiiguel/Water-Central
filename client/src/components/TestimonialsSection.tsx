@@ -34,7 +34,7 @@ export default function TestimonialsSection() {
         >
           <h2 className="text-4xl md:text-5xl font-black text-primary mb-4">
             {language === 'es' ? 'Marcas que ya' : 'Brands already'}
-            <span className="text-accent"> {language === 'es' ? 'están vendiendo en USA' : 'selling in the US'}</span>
+            <span className="text-accent"> {language === 'es' ? 'ya venden afuera' : 'already sell abroad'}</span>
           </h2>
         </motion.div>
 

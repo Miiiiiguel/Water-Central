@@ -81,7 +81,7 @@ export default function FreightSection() {
               </span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-primary mb-6">
-              {language === 'es' ? '¿Cuánto cuesta enviar tu producto a USA?' : 'How much does it cost to ship your product to the US?'}
+              {language === 'es' ? '¿Cuánto cuesta sacar tu producto del país?' : 'What does it cost to ship your product abroad?'}
             </h2>
             <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
               {language === 'es'
@@ -143,7 +143,7 @@ export default function FreightSection() {
                       value={form.destination}
                       onChange={handleChange}
                       required
-                      placeholder={language === 'es' ? 'Ej. Miami, USA' : 'E.g. Miami, USA'}
+                      placeholder={language === 'es' ? 'Ej. Miami, Madrid, Ciudad de México' : 'E.g. Miami, Madrid, Mexico City'}
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
                     />
                   </div>

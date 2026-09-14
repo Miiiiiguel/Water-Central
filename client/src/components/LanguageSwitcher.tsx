@@ -10,7 +10,7 @@ export default function LanguageSwitcher() {
         onClick={() => setLanguage('en')}
         variant={language === 'en' ? 'default' : 'ghost'}
         size="sm"
-        className={`rounded-full px-3 py-1 text-xs font-semibold transition-all duration-200 h-7 ${
+        className={`rounded-full px-3.5 py-1 text-xs font-semibold transition-all duration-200 h-9 ${
           language === 'en'
             ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-sm'
             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
@@ -24,7 +24,7 @@ export default function LanguageSwitcher() {
         onClick={() => setLanguage('es')}
         variant={language === 'es' ? 'default' : 'ghost'}
         size="sm"
-        className={`rounded-full px-3 py-1 text-xs font-semibold transition-all duration-200 h-7 ${
+        className={`rounded-full px-3.5 py-1 text-xs font-semibold transition-all duration-200 h-9 ${
           language === 'es'
             ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-sm'
             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'

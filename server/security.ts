@@ -100,7 +100,7 @@ export const JSON_BODY_LIMIT = '16kb';
 
 // All limiters log who hit them, so a brute-force or scraping attempt
 // shows up in the security log instead of silently getting 429s.
-function makeLimiter(name: string, limit: number, windowMs = 15 * 60 * 1000) {
+export function makeLimiter(name: string, limit: number, windowMs = 15 * 60 * 1000) {
   return rateLimit({
     windowMs,
     limit,

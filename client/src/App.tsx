@@ -19,9 +19,23 @@ const PaymentResult = lazy(() => import("./pages/PaymentResult"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const ChatbotWidget = lazy(() => import("./components/ChatbotWidget"));
 import ScrollProgress from "./components/ScrollProgress";
+import { useIdleMount } from "./lib/useIdleMount";
 
 function PageFallback() {
   return <div className="min-h-screen bg-white" />;
+}
+
+// Marco Polo is a floating button: nobody needs it in the first second,
+// so it mounts once the browser is idle (or on the first interaction)
+// and stays out of the first-load critical path.
+function DeferredChatbot() {
+  const ready = useIdleMount(2500, 500);
+  if (!ready) return null;
+  return (
+    <Suspense fallback={null}>
+      <ChatbotWidget />
+    </Suspense>
+  );
 }
 
 // Native-style page transition: a soft slide + fade instead of an
@@ -110,9 +124,7 @@ function App() {
               <ScrollProgress />
               <div className="grain" aria-hidden="true" />
               <Router />
-              <Suspense fallback={null}>
-                <ChatbotWidget />
-              </Suspense>
+              <DeferredChatbot />
             </TooltipProvider>
           </AuthProvider>
         </ThemeProvider>
