@@ -59,6 +59,50 @@ app instalada necesita un deep link de vuelta a la app (esquema
 `com.easycomex.app://`). Eso queda pendiente para cuando compilemos la
 app nativa; en la web funciona ya.
 
+## 1b. Poner la app en línea (Render)
+
+Esta app **necesita un servidor que corra Node**: las rutas `/api/*` son
+un servidor Express, no funciones estáticas. Un hosting que solo sirve
+archivos (Vercel sin configurar, Netlify, GitHub Pages) muestra la página
+pero deja muerta la calculadora de fletes, el guardado del diagnóstico,
+los formularios y Marco Polo.
+
+`render.yaml` está en el repo con las 43 variables ya declaradas.
+
+1. [render.com](https://render.com) → **New** → **Blueprint** → conecta
+   este repositorio. Render lee `render.yaml` y arma el servicio solo.
+2. Te va a pedir cada variable marcada `sync: false`. **Puedes dejarlas
+   casi todas vacías y llenarlas después**; lo mínimo para que la app
+   sirva de algo son las tres de Supabase:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY` ← Project Settings → API → `service_role`
+3. **Create**. El primer build tarda unos minutos.
+4. Cuando termine, copia la URL que te da Render (algo como
+   `https://easycomex.onrender.com`) y ponla en `PUBLIC_APP_URL`. Esto
+   importa: define a dónde vuelve el cliente después de pagar y qué
+   orígenes pueden llamar a `/api`. Sin ella, la app confía en el host de
+   la petición, que se puede falsificar.
+5. Verifica: abre `https://tu-url/api/health`. Debe responder
+   `{"ok":true}`. Si responde eso, el servidor está vivo.
+
+Luego, entra a la app, **regístrate**, y en el SQL Editor de Supabase
+conviértete en parte del equipo:
+
+```sql
+update public.profiles set role = 'vendedor' where email = 'tu@correo.com';
+```
+
+Recarga el dashboard y vas a ver el panel del equipo: diagnósticos,
+cotizaciones, leads y pagos según vayan entrando, con exportación a CSV.
+
+**Sobre el plan:** `starter` son USD 7/mes y la app queda siempre
+despierta. El plan `free` de Render duerme tras 15 minutos sin tráfico y
+despertar tarda unos 50 segundos — sirve para probar, no para vender.
+
+**Alternativas:** el `Dockerfile` del repo funciona igual en Railway,
+Fly.io o cualquier VPS. Lo que no cambia es el requisito: Node corriendo.
+
 ## 2. Pagos (Stripe)
 
 1. Crea una cuenta en [stripe.com](https://stripe.com) (modo test para
