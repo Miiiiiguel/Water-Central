@@ -89,6 +89,18 @@ export function parseListing(payload: unknown): SicexFile[] {
   });
 }
 
+/**
+ * True for the zero-byte marker files object storage uses to make an
+ * "empty directory" exist (.placeholder, _SUCCESS, .keep …). They are
+ * provisioning artefacts, not data — counting them as files makes an
+ * empty drop look like a populated one.
+ */
+export function isPlaceholder(file: { name: string; bytes: number }): boolean {
+  if (file.bytes > 0) return false;
+  const base = file.name.split('/').pop()?.toLowerCase() ?? '';
+  return base === '' || base.startsWith('.') || base === '_success' || base.endsWith('.keep');
+}
+
 /** Best guess at how to read a file, from its extension. */
 export function formatOf(name: string): 'csv' | 'tsv' | 'json' | 'jsonl' | 'parquet' | 'excel' | 'zip' | 'unknown' {
   const ext = name.toLowerCase().split('.').pop() ?? '';

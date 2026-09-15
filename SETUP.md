@@ -506,6 +506,11 @@ de texto más grande. **Correlo desde una máquina con salida a
 `*.dfs.core.windows.net`** (el entorno de desarrollo de Claude lo tiene
 bloqueado por política de red).
 
+**Si la carpeta solo tiene un `.placeholder` de 0 bytes**, significa que
+Sicex aprovisionó el espacio y la credencial sirve, pero todavía no
+publicó ningún dato. El explorador lo dice con esas palabras. No hay nada
+que programar hasta que aparezcan archivos reales.
+
 ### Paso 2: importar
 
 Con esa salida se construye el importador a Postgres. La ventaja de este

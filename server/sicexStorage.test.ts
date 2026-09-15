@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fileUrl, formatOf, humanBytes, listUrl, parseListing, parseSicexUrl } from './sicexStorage';
+import { fileUrl, formatOf, humanBytes, isPlaceholder, listUrl, parseListing, parseSicexUrl } from './sicexStorage';
 
 // The SAS below is fake — these tests only exercise URL shaping and parsing.
 const SAS = 'sv=2025-11-05&sr=d&sp=rl&sig=FAKESIGNATURE%3D';
@@ -98,5 +98,20 @@ describe('humanBytes', () => {
     expect(humanBytes(512)).toBe('512 B');
     expect(humanBytes(2048)).toBe('2.0 KB');
     expect(humanBytes(5 * 1024 * 1024)).toBe('5.0 MB');
+  });
+});
+
+describe('isPlaceholder', () => {
+  it('recognises the zero-byte markers that fake an empty directory', () => {
+    // Exactly what the Sicex drop returned before any data was published.
+    expect(isPlaceholder({ name: 'e658138d/.placeholder', bytes: 0 })).toBe(true);
+    expect(isPlaceholder({ name: 'dir/_SUCCESS', bytes: 0 })).toBe(true);
+    expect(isPlaceholder({ name: 'dir/.keep', bytes: 0 })).toBe(true);
+  });
+
+  it('never hides a file that actually has bytes', () => {
+    expect(isPlaceholder({ name: 'dir/.placeholder', bytes: 12 })).toBe(false);
+    expect(isPlaceholder({ name: 'dir/enero.csv', bytes: 0 })).toBe(false);
+    expect(isPlaceholder({ name: 'dir/enero.csv', bytes: 9000 })).toBe(false);
   });
 });

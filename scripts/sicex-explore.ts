@@ -11,7 +11,7 @@
  * file shapes instead of assumptions.
  */
 import {
-  formatOf, humanBytes, listSicexFiles, parseSicexUrl, peekSicexFile, type SicexFile,
+  formatOf, humanBytes, isPlaceholder, listSicexFiles, parseSicexUrl, peekSicexFile, type SicexFile,
 } from '../server/sicexStorage';
 
 const raw = process.argv[2] || process.env.SICEX_SAS_URL;
@@ -50,11 +50,21 @@ try {
   process.exit(2);
 }
 
-const real = files.filter((f) => !f.isDirectory);
 const dirs = files.filter((f) => f.isDirectory);
+const allFiles = files.filter((f) => !f.isDirectory);
+const markers = allFiles.filter(isPlaceholder);
+const real = allFiles.filter((f) => !isPlaceholder(f));
 
 if (real.length === 0) {
-  console.log('La carpeta está vacía (o el SAS no alcanza a ver su contenido).\n');
+  if (markers.length > 0) {
+    console.log('La carpeta existe y la credencial funciona, pero TODAVÍA NO HAY DATOS.');
+    console.log(`Solo está el marcador de carpeta vacía: ${markers.map((m) => m.name.split('/').pop()).join(', ')}\n`);
+    for (const m of markers) console.log(`  creado/modificado: ${m.lastModified}`);
+    console.log('\nSicex aprovisionó el espacio pero no ha publicado ningún archivo.');
+    console.log('Hay que pedirles que empiecen a dejar los datos.\n');
+  } else {
+    console.log('La carpeta está vacía (o el SAS no alcanza a ver su contenido).\n');
+  }
   process.exit(0);
 }
 
