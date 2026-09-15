@@ -11,7 +11,17 @@
 --    There is no public sign-up flow for the vendedor role on purpose —
 --    every new sign-up defaults to 'cliente'.
 
-create type public.user_role as enum ('cliente', 'vendedor');
+-- Postgres no tiene `create type if not exists`, así que lo envolvemos:
+-- este archivo tiene que poder correrse otra vez sin dar error.
+do $$
+begin
+  if not exists (select 1 from pg_type t
+                 join pg_namespace n on n.oid = t.typnamespace
+                 where t.typname = 'user_role' and n.nspname = 'public') then
+    create type public.user_role as enum ('cliente', 'vendedor');
+  end if;
+end
+$$;
 
 create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
@@ -27,18 +37,21 @@ create table if not exists public.profiles (
 alter table public.profiles enable row level security;
 
 -- Everyone can read their own profile.
+drop policy if exists "profiles: read own" on public.profiles;
 create policy "profiles: read own"
   on public.profiles for select
   using (auth.uid() = id);
 
 -- A user can see the (limited) profiles of people they referred, to
 -- power the "Tus referidos" card on the dashboard.
+drop policy if exists "profiles: read own referrals" on public.profiles;
 create policy "profiles: read own referrals"
   on public.profiles for select
   using (referred_by = auth.uid());
 
 -- Vendedores (internal team) can read every profile — needed for the
 -- client-list dashboard.
+drop policy if exists "profiles: vendedor reads all" on public.profiles;
 create policy "profiles: vendedor reads all"
   on public.profiles for select
   using (
@@ -50,11 +63,13 @@ create policy "profiles: vendedor reads all"
 
 -- Users can update their own profile, but never their own role
 -- (role changes are an admin/SQL-only action, see step 4 above).
+drop policy if exists "profiles: update own, role locked" on public.profiles;
 create policy "profiles: update own, role locked"
   on public.profiles for update
   using (auth.uid() = id)
   with check (auth.uid() = id and role = (select role from public.profiles where id = auth.uid()));
 
+drop policy if exists "profiles: insert own" on public.profiles;
 create policy "profiles: insert own"
   on public.profiles for insert
   with check (auth.uid() = id);
@@ -76,10 +91,12 @@ create table if not exists public.notifications (
 
 alter table public.notifications enable row level security;
 
+drop policy if exists "notifications: read own" on public.notifications;
 create policy "notifications: read own"
   on public.notifications for select
   using (auth.uid() = user_id);
 
+drop policy if exists "notifications: mark own as read" on public.notifications;
 create policy "notifications: mark own as read"
   on public.notifications for update
   using (auth.uid() = user_id)
@@ -178,18 +195,22 @@ create table if not exists public.freight_quotes (
 alter table public.freight_quotes enable row level security;
 
 -- The calculator is public (no login required), so anyone can submit one.
+drop policy if exists "freight_quotes: anyone can submit" on public.freight_quotes;
 create policy "freight_quotes: anyone can submit"
   on public.freight_quotes for insert
   with check (true);
 
+drop policy if exists "freight_quotes: read own" on public.freight_quotes;
 create policy "freight_quotes: read own"
   on public.freight_quotes for select
   using (auth.uid() = user_id);
 
+drop policy if exists "freight_quotes: vendedor reads all" on public.freight_quotes;
 create policy "freight_quotes: vendedor reads all"
   on public.freight_quotes for select
   using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'vendedor'));
 
+drop policy if exists "freight_quotes: vendedor updates status" on public.freight_quotes;
 create policy "freight_quotes: vendedor updates status"
   on public.freight_quotes for update
   using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'vendedor'));
@@ -236,18 +257,22 @@ create table if not exists public.contact_leads (
 
 alter table public.contact_leads enable row level security;
 
+drop policy if exists "contact_leads: anyone can submit" on public.contact_leads;
 create policy "contact_leads: anyone can submit"
   on public.contact_leads for insert
   with check (true);
 
+drop policy if exists "contact_leads: read own" on public.contact_leads;
 create policy "contact_leads: read own"
   on public.contact_leads for select
   using (auth.uid() = user_id);
 
+drop policy if exists "contact_leads: vendedor reads all" on public.contact_leads;
 create policy "contact_leads: vendedor reads all"
   on public.contact_leads for select
   using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'vendedor'));
 
+drop policy if exists "contact_leads: vendedor updates status" on public.contact_leads;
 create policy "contact_leads: vendedor updates status"
   on public.contact_leads for update
   using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'vendedor'));
@@ -289,6 +314,7 @@ create table if not exists public.push_subscriptions (
 
 alter table public.push_subscriptions enable row level security;
 
+drop policy if exists "push_subscriptions: manage own" on public.push_subscriptions;
 create policy "push_subscriptions: manage own"
   on public.push_subscriptions for all
   using (auth.uid() = user_id)
@@ -368,10 +394,12 @@ alter table public.payments add column if not exists receipt_url text;
 
 alter table public.payments enable row level security;
 
+drop policy if exists "payments: read own" on public.payments;
 create policy "payments: read own"
   on public.payments for select
   using (auth.uid() = user_id);
 
+drop policy if exists "payments: vendedor reads all" on public.payments;
 create policy "payments: vendedor reads all"
   on public.payments for select
   using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'vendedor'));
@@ -438,10 +466,12 @@ create table if not exists public.subscriptions (
 
 alter table public.subscriptions enable row level security;
 
+drop policy if exists "subscriptions: read own" on public.subscriptions;
 create policy "subscriptions: read own"
   on public.subscriptions for select
   using (auth.uid() = user_id);
 
+drop policy if exists "subscriptions: vendedor reads all" on public.subscriptions;
 create policy "subscriptions: vendedor reads all"
   on public.subscriptions for select
   using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'vendedor'));
@@ -502,10 +532,12 @@ create table if not exists public.research_usage (
 
 alter table public.research_usage enable row level security;
 
+drop policy if exists "research_usage: read own" on public.research_usage;
 create policy "research_usage: read own"
   on public.research_usage for select
   using (auth.uid() = user_id);
 
+drop policy if exists "research_usage: vendedor reads all" on public.research_usage;
 create policy "research_usage: vendedor reads all"
   on public.research_usage for select
   using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'vendedor'));
@@ -522,6 +554,7 @@ create table if not exists public.research_credits (
 
 alter table public.research_credits enable row level security;
 
+drop policy if exists "research_credits: read own" on public.research_credits;
 create policy "research_credits: read own"
   on public.research_credits for select
   using (auth.uid() = user_id);
