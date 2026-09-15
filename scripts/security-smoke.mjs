@@ -108,6 +108,26 @@ await check('Invalid input rejected with generic message', async () => {
   return String(r.status);
 });
 
+await check('Diagnostic references are validated and never enumerable', async () => {
+  const bad = await fetch(base + '/api/diagnostic/not-a-ref');
+  expect(bad.status === 400, `bad ref status ${bad.status}`);
+  const unknown = await fetch(base + '/api/diagnostic/ecx_' + '0'.repeat(32));
+  expect([404, 503].includes(unknown.status) || unknown.status === 200 && !(await unknown.clone().json()).actions, `unknown ref status ${unknown.status}`);
+  const text = await unknown.text();
+  expect(!/Acción recomendada|Registre su marca/.test(text), 'actions leaked');
+  return `${bad.status} / ${unknown.status}`;
+});
+
+await check('Wompi webhook rejects unsigned events', async () => {
+  const r = await fetch(base + '/api/diagnostic/wompi-events', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ event: 'transaction.updated', data: { transaction: { reference: 'ecx_' + 'a'.repeat(32), status: 'APPROVED' } }, timestamp: 1, signature: { properties: ['transaction.status'], checksum: 'deadbeef' } }),
+  });
+  expect([401, 503].includes(r.status), `status ${r.status}`);
+  return String(r.status);
+});
+
 await check('Health endpoint hides configuration from anonymous callers', async () => {
   const r = await fetch(base + '/api/health');
   const j = await r.json();

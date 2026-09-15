@@ -19,7 +19,8 @@
     "backup:db": "bash scripts/backup-db.sh",
     "test": "vitest run",
     "test:watch": "vitest",
-    "sicex:explore": "tsx scripts/sicex-explore.ts"
+    "sicex:explore": "tsx scripts/sicex-explore.ts",
+    "kalodata:check": "tsx scripts/kalodata-check.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.125.0",

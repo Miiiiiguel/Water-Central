@@ -519,7 +519,10 @@ function ClienteDashboard() {
                   </span>
                   <div className="min-w-0">
                     <p className="font-semibold text-foreground truncate">{q.origin} → {q.destination}</p>
-                    <p className="text-xs text-muted-foreground">{new Date(q.created_at).toLocaleDateString()} {q.weight_kg ? `· ${q.weight_kg} kg` : ''}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(q.created_at).toLocaleDateString()} {q.weight_kg ? `· ${q.weight_kg} kg` : ''}
+                      {q.quote_cop ? ` · ${q.quote_cop.toLocaleString('es-CO')} COP` : ''}
+                    </p>
                   </div>
                 </div>
                 <span className="text-xs font-bold text-accent bg-secondary rounded-full px-3 py-1 flex-shrink-0">
@@ -746,7 +749,7 @@ function VendedorDashboard() {
   })));
   const exportQuotes = () => downloadCSV('easycomex-cotizaciones.csv', (quotes ?? []).map((q) => ({
     nombre: q.name ?? '', email: q.email ?? '', telefono: q.phone ?? '', origen: q.origin, destino: q.destination,
-    peso_kg: q.weight_kg ?? '', tipo_cliente: q.client_type ?? '', estado: q.status, fecha: q.created_at,
+    peso_kg: q.weight_kg ?? '', tipo_cliente: q.client_type ?? '', zona: q.zone ?? '', cotizacion_cop: q.quote_cop ?? '', estado: q.status, fecha: q.created_at,
   })));
   const exportLeads = () => downloadCSV('easycomex-leads.csv', (leads ?? []).map((l) => ({
     nombre: `${l.first_name ?? ''} ${l.last_name ?? ''}`.trim(), email: l.email ?? '', telefono: l.phone ?? '',

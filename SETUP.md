@@ -64,8 +64,8 @@ app nativa; en la web funciona ya.
 1. Crea una cuenta en [stripe.com](https://stripe.com) (modo test para
    probar, sin necesidad de datos reales de tu empresa todavía).
 2. En el dashboard de Stripe, crea dos **Products** con su **Price**:
-   - "Diagnóstico de madurez" — USD 6.90, pago único
    - "Análisis de mercado y competencia" — USD 499, pago único
+   - (El diagnóstico de madurez se cobra con Wompi, no con Stripe — ver §2b.)
 3. Copia el `price_...` de cada uno en:
    - `STRIPE_PRICE_DIAGNOSTICO_MADUREZ`
    - `STRIPE_PRICE_ANALISIS_MERCADO`
@@ -91,10 +91,10 @@ etc.
    el pago** en la tabla `payments` — sin eso el cobro ocurre en Stripe
    pero la app no se entera.
 
-Los dos planes con precio fijo ya están conectados: **Análisis de
-mercado (USD 499)** con su botón principal, y **Diagnóstico de madurez
-(USD 6.90)** como opción secundaria dentro de la tarjeta del paso 1. El
-"Plan de crecimiento" sigue siendo a medida (lleva al formulario).
+El plan con precio fijo por Stripe es **Análisis de mercado (USD 499)**,
+con su botón principal. La tarjeta del paso 1 lleva al **diagnóstico de
+madurez** (`/diagnostico`, cobrado con Wompi — §2b). El "Plan de
+crecimiento" sigue siendo a medida (lleva al formulario).
 
 **Cómo fluye un pago de verdad:**
 - Si el cliente está logueado, el checkout queda atado a su cuenta (el
@@ -121,6 +121,78 @@ Si más adelante querés cobrar en pesos colombianos con PSE/Nequi, las
 opciones locales son **Wompi** (de Bancolombia) o **Mercado Pago** — se
 integran igual (checkout hospedado + webhook) y podrían convivir con
 Stripe. Avísame y lo armo cuando tengas la cuenta.
+
+## 2b. Diagnóstico de madurez (Wompi)
+
+La página `/diagnostico` es el cuestionario del equipo: 17 preguntas en
+5 etapas, nivel de madurez de 0 a 100 % y un comentario por cada punto,
+todo gratis. Lo que se paga es el **plan de acción** (qué hacer con cada
+brecha): **USD 9.99 / $39.900 COP**, pago único, con **Wompi**.
+
+Por qué Wompi y no Stripe acá: es la pasarela colombiana (PSE, Nequi,
+Daviplata, tarjetas) y liquida en pesos. Un comprador de fuera de
+Colombia también paga con tarjeta, pero ve el cargo en COP y su banco
+convierte. Si algún día quieres cobrarle USD reales, Stripe ya está
+construido y es cambiar una línea.
+
+1. En [comercios.wompi.co](https://comercios.wompi.co) → **Desarrolladores**
+   copia las cuatro llaves en `.env`: `WOMPI_PUBLIC_KEY`,
+   `WOMPI_PRIVATE_KEY`, `WOMPI_INTEGRITY_SECRET`, `WOMPI_EVENTS_SECRET`.
+   Mientras pruebas usa las `pub_test_` / `prv_test_` y deja
+   `WOMPI_ENV=sandbox`; en producción, las `pub_prod_` y
+   `WOMPI_ENV=production`.
+2. En **Eventos** registra la URL `https://tu-dominio.com/api/diagnostic/wompi-events`.
+   Es la vía autoritativa a "pagado" aunque el cliente cierre la pestaña.
+3. `SUPABASE_SERVICE_ROLE_KEY` tiene que estar (la tabla `diagnostics`
+   no tiene políticas RLS a propósito: solo el servidor la toca).
+4. Precio: `DIAGNOSTIC_PRICE_COP_CENTS` (por defecto 3990000) y
+   `DIAGNOSTIC_PRICE_USD_DISPLAY` (por defecto 9.99).
+
+**Cómo fluye:** el navegador pide una firma a `/api/diagnostic/wompi-init`
+(el servidor decide el monto y firma con el secreto de integridad, que
+nunca sale del servidor) → abre el widget de Wompi → cuando el widget
+dice "aprobado", el navegador **no desbloquea nada**: llama a
+`/api/diagnostic/confirm`, el servidor lee la transacción desde la API de
+Wompi, verifica referencia + monto + moneda y solo entonces marca la fila
+como pagada y devuelve las acciones.
+
+**Mejora sobre la versión original en WordPress:** ahí las acciones
+recomendadas viajaban al navegador y se tapaban con CSS (se leían en
+devtools). Acá viven en `server/diagnosticActions.ts` y solo salen del
+servidor cuando la fila está pagada. El test
+`client/src/lib/diagnosticContent.test.ts` falla si alguien vuelve a
+meter una acción en el bundle del cliente.
+
+Tu equipo ve cada diagnóstico terminado como notificación ("Nuevo
+diagnóstico de madurez: empresa, 56 %, 7 brechas") y en la tabla
+`diagnostics` de Supabase con el correo y celular del lead.
+
+## 2c. Calculadora de fletes (tarifa real)
+
+La calculadora de la portada cotiza **con tu tabla real** — la misma de
+EasyComex Calculator v2.2.4 en WordPress — pero el cálculo ocurre en el
+servidor (`server/freight.ts`) y la tabla (`server/freightData.json`)
+nunca llega al navegador: el cliente ve destinos y su precio, no tus
+tarifas ni tus descuentos.
+
+- **Datos:** 211 destinos, 9 zonas (A–I) con 48 bandas cada una, y los
+  tres tipos de cliente (Normal 30 %, Multiplicador 40 %, VIP 50 %).
+  Estados Unidos son dos filas: "excepto Miami" (zona B) y "Miami"
+  (zona I); el selector muestra las dos.
+- **Cálculo:** peso facturable = máx(real, volumétrico ÷ 5000) sumando
+  paquetes; banda plana `[min, max)` hasta 21 kg, por kilo de ahí en
+  adelante; descuento sobre la base. `server/freight.test.ts` compara
+  216 combinaciones contra el motor original (`server/fixtures/`) y
+  fallan si alguien cambia un número.
+- **Zona F corregida:** el JSON trae la banda `[18, 18.5) = 2 232 851`
+  que a la tabla de WordPress le falta. **Agrégala también en JetEngine**
+  (`flete_tarifa_base`: zona F, no multiplicador, 18 – 18.5, 2232851) o
+  el sitio viejo seguirá cotizando mal ese rango.
+- **Actualizar tarifas:** reemplaza `server/freightData.json` con el
+  nuevo export (mismo formato) y corre `pnpm test`. Sin migraciones.
+- **Leads:** cada cotización con correo (o con sesión) queda en
+  `freight_quotes` con `zone` y `quote_cop`, visible en el panel y en
+  el CSV del equipo.
 
 ## 3. Calendario (Calendly o Cal.com)
 
@@ -351,7 +423,7 @@ agotarse, el usuario compra un paquete de consultas con Stripe.
 | Plan | Consultas gratis por día |
 |---|---|
 | Cuenta registrada, sin plan | 2 |
-| Diagnóstico de madurez (USD 6.90) | 5 |
+| Diagnóstico de madurez (USD 9.99 · Wompi) | 5 |
 | Análisis de mercado (USD 499) | 25 |
 | Acompañamiento (suscripción) | 100 |
 | Paquete comprado | +50 créditos, no vencen |
@@ -369,6 +441,8 @@ En el hosting (nunca en el repo):
 ```
 KALODATA_API_KEY=...        # tu clave de Kalodata
 KALODATA_API_URL=...        # endpoint completo de búsqueda
+#                             (¿no sabes cuál? `pnpm kalodata:check "<url>"`
+#                              prueba las formas de auth y te dice cuál sirve)
 SICEX_API_KEY=...
 SICEX_API_URL=...
 # Solo si la API no usa "Authorization: Bearer":

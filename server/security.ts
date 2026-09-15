@@ -16,6 +16,7 @@ export const securityHeaders = helmet({
       defaultSrc: ["'self'"],
       scriptSrc: [
         "'self'",
+        'https://checkout.wompi.co',
         'https://assets.calendly.com',
         'https://connect.facebook.net',
         'https://analytics.tiktok.com',
@@ -38,12 +39,13 @@ export const securityHeaders = helmet({
         'https://*.ingest.sentry.io',
         'https://*.ingest.us.sentry.io',
         'https://*.ingest.de.sentry.io',
+        'https://*.wompi.co',
       ],
-      frameSrc: ["'self'", 'https://calendly.com', 'https://www.youtube.com'],
+      frameSrc: ["'self'", 'https://calendly.com', 'https://www.youtube.com', 'https://checkout.wompi.co'],
       workerSrc: ["'self'"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
-      formAction: ["'self'", 'https://checkout.stripe.com'],
+      formAction: ["'self'", 'https://checkout.stripe.com', 'https://checkout.wompi.co'],
       frameAncestors: ["'self'"],
       upgradeInsecureRequests: [],
       reportUri: ['/api/csp-report'],
@@ -62,7 +64,7 @@ export const securityHeaders = helmet({
 export const permissionsPolicy: RequestHandler = (_req, res, next) => {
   res.setHeader(
     'Permissions-Policy',
-    'camera=(), microphone=(self), geolocation=(), payment=(self "https://checkout.stripe.com"), usb=(), bluetooth=(), interest-cohort=()'
+    'camera=(), microphone=(self), geolocation=(), payment=(self "https://checkout.stripe.com" "https://checkout.wompi.co"), usb=(), bluetooth=(), interest-cohort=()'
   );
   next();
 };

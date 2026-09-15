@@ -40,6 +40,8 @@ export interface FreightQuote {
   destination: string;
   weight_kg: number | null;
   client_type: string | null;
+  zone?: string | null;
+  quote_cop?: number | null;
   status: QuoteStatus;
   created_at: string;
 }

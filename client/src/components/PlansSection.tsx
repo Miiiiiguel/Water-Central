@@ -1,3 +1,4 @@
+import { Link } from 'wouter';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Check, Sparkles, Loader2 } from 'lucide-react';
@@ -15,22 +16,23 @@ interface Plan {
   features: { es: string[]; en: string[] };
   highlighted?: boolean;
   checkoutPlan?: string;
-  // A second, paid option inside a card whose main action is free.
-  secondaryCheckout?: { plan: string; label: { es: string; en: string } };
+  // A second option inside a card whose main action is free: a route
+  // of its own (the maturity diagnosis lives at /diagnostico).
+  secondaryLink?: { href: string; label: { es: string; en: string } };
 }
 
 const plans: Plan[] = [
   {
     step: 1,
     title: { es: 'Diagnóstico: ¿tu marca aguanta salir?', en: 'Diagnosis: is your brand ready to go out?' },
-    price: { es: 'Gratis · Madurez USD 6.90', en: 'Free · Maturity USD 6.90' },
+    price: { es: 'Gratis · Plan de acción USD 9.99', en: 'Free · Action plan USD 9.99' },
     features: {
-      es: ['Diagnóstico básico gratis, sin llamada de ventas', 'Diagnóstico de madurez con comentarios y próximos pasos concretos (USD 6.90)'],
-      en: ['Free basic diagnosis, no sales call', 'Maturity diagnosis with feedback and concrete next steps (USD 6.90)'],
+      es: ['17 preguntas, 3 minutos: tu nivel de madurez y un comentario por cada punto, gratis y sin llamada de ventas', 'Plan de acción por cada brecha: qué hacer, en qué orden y con qué herramientas (USD 9.99 · $39.900 COP)'],
+      en: ['17 questions, 3 minutes: your maturity level and a comment on every point, free and with no sales call', 'An action plan for every gap: what to do, in what order and with which tools (USD 9.99 · $39.900 COP)'],
     },
-    secondaryCheckout: {
-      plan: 'diagnostico_madurez',
-      label: { es: 'Comprar diagnóstico de madurez · USD 6.90', en: 'Buy maturity diagnosis · USD 6.90' },
+    secondaryLink: {
+      href: '/diagnostico',
+      label: { es: 'Hacer el diagnóstico de madurez →', en: 'Take the maturity diagnosis →' },
     },
   },
   {
@@ -109,6 +111,11 @@ export default function PlansSection() {
   };
 
   const handlePlanClick = (plan: Plan) => {
+    if (plan.secondaryLink && !plan.checkoutPlan) {
+      // The free diagnosis IS the product here — go straight to it.
+      window.location.assign(plan.secondaryLink.href);
+      return;
+    }
     if (!plan.checkoutPlan) {
       const el = document.getElementById('contacto');
       if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -215,31 +222,15 @@ export default function PlansSection() {
                   language === 'es' ? 'Empezar' : 'Get started'
                 )}
               </Button>
-              {plan.secondaryCheckout && (
-                <button
-                  type="button"
-                  disabled={checkingOut !== null}
-                  onClick={() =>
-                    openSheet({
-                      plan: plan.secondaryCheckout!.plan,
-                      title: language === 'es' ? 'Diagnóstico de madurez' : 'Maturity diagnosis',
-                      features:
-                        language === 'es'
-                          ? ['Diagnóstico completo de la madurez ecommerce de tu marca', 'Comentarios de nuestros especialistas y próximos pasos concretos']
-                          : ['Full diagnosis of your brand’s ecommerce maturity', 'Specialist feedback and concrete next steps'],
-                      priceLabel: 'USD 6.90',
-                    })
-                  }
-                  className="tap-scale-sm mt-3 w-full py-2.5 text-sm font-semibold text-accent hover:underline bg-transparent border-0 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+              {plan.secondaryLink && (
+                <Link
+                  href={plan.secondaryLink.href}
+                  className="tap-scale-sm mt-3 flex w-full items-center justify-center py-2.5 text-sm font-semibold text-accent hover:underline"
                 >
-                  {checkingOut === plan.secondaryCheckout.plan ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    language === 'es' ? plan.secondaryCheckout.label.es : plan.secondaryCheckout.label.en
-                  )}
-                </button>
+                  {language === 'es' ? plan.secondaryLink.label.es : plan.secondaryLink.label.en}
+                </Link>
               )}
-              {checkoutError && checkingOut === null && (plan.checkoutPlan || plan.secondaryCheckout) && (
+              {checkoutError && checkingOut === null && plan.checkoutPlan && (
                 <p className={`text-xs mt-2 ${plan.highlighted ? 'text-orange-200' : 'text-red-500'}`}>{checkoutError}</p>
               )}
             </div>

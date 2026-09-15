@@ -28,6 +28,7 @@ verde sola al agregar su variable.
 |---|---|---|---|
 | **Supabase** (login, DB, notificaciones) | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | supabase.com → Project Settings → API. Ejecutá `supabase/schema.sql` una vez. | SETUP.md §1 |
 | **Login con Google** | (ninguna) | Google Cloud OAuth client → Supabase → Auth → Providers → Google | SETUP.md §1 |
+| **Wompi** (diagnóstico de madurez) | `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_INTEGRITY_SECRET`, `WOMPI_EVENTS_SECRET`, `WOMPI_ENV` | comercios.wompi.co → Desarrolladores | SETUP.md §2b |
 | **Stripe** (pagos) | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_DIAGNOSTICO_MADUREZ`, `STRIPE_PRICE_ANALISIS_MERCADO`, `PUBLIC_APP_URL` | stripe.com → Developers | SETUP.md §2 |
 | **Calendly** | `VITE_CALENDLY_URL` | calendly.com | SETUP.md §3 |
 | **Pixels** (Meta / TikTok / GA4) | `VITE_META_PIXEL_ID`, `VITE_TIKTOK_PIXEL_ID`, `VITE_GA_MEASUREMENT_ID` | Cada Ads Manager | SETUP.md §4 |

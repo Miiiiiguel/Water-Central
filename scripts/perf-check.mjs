@@ -171,15 +171,19 @@ try {
 try {
   await page.evaluate(() => document.getElementById('calculadora')?.scrollIntoView());
   await page.waitForTimeout(500);
-  await page.fill('input[name="origin"]', 'Bogotá');
-  await page.fill('input[name="destination"]', 'Miami');
+  // Real quote: 20 kg to Miami (zone I) as a Normal client must come back
+  // priced from the server-side tariff table.
+  await page.locator('#freight-destination:not([disabled])').waitFor({ timeout: 8000 });
+  await page.selectOption('#freight-destination', '197');
+  await page.selectOption('#freight-client-type', 'Normal');
   const emailField = page.locator('input[name="email"]').first();
   if (await emailField.count()) await emailField.fill('qa@example.com');
   await page.fill('input[name="weight"]', '20');
   await page.getByRole('button', { name: /Calcular|Calculate/ }).click();
   await page.waitForTimeout(1500);
-  const done = (await page.getByText(/recibimos|received|enviad|sent|Gracias|Thank|Intenta|try again/i).count()) > 0;
-  (done ? ok : fail)('Freight form submits (or reports an error cleanly)', done ? 'handled' : 'no feedback shown');
+  const priced = await page.getByText(/Tu cotización|Your quote/).count();
+  const amount = priced ? await page.locator('text=/^\\$[\\d.]+ COP$/').first().innerText().catch(() => '') : '';
+  (priced ? ok : fail)('Freight calculator prices a real shipment', priced ? `Miami, 20 kg, Normal → ${amount}` : 'no quote shown');
 } catch (e) {
   fail('Freight form flow', String(e).slice(0, 120));
 }
@@ -197,7 +201,9 @@ try {
 try {
   await page.evaluate(() => document.getElementById('planes')?.scrollIntoView());
   await page.waitForTimeout(400);
-  await page.getByRole('button', { name: /Comprar diagnóstico|Buy maturity/ }).first().click();
+  // Step 3 (market analysis) is the Stripe-priced card; step 1 now links
+  // to the free diagnosis and step 2 is custom-quoted.
+  await page.getByRole('button', { name: /^(Empezar|Get started)$/ }).nth(2).click();
   await page.waitForTimeout(600);
   const sheet = page.locator('[role="dialog"]').filter({ hasText: /Resumen|summary/i }).first();
   const text = await sheet.innerText();
@@ -256,8 +262,49 @@ try {
   fail('ROI calculator flow', String(e).slice(0, 140));
 }
 
+// Maturity diagnosis: the whole free flow must work with no backend
+// configured, and the paid actions must never be in the page.
+try {
+  await page.goto(base + '/diagnostico', { waitUntil: 'load' });
+  await page.evaluate(() => localStorage.clear());
+  await page.fill('input[autocomplete="name"]', 'Prueba QA');
+  await page.fill('input[type="email"]', 'qa@example.com');
+  await page.click('button[type="submit"]');
+  await page.waitForTimeout(500);
+  // 16 yes/no questions (alternating) and one open question.
+  for (let i = 0; i < 17; i++) {
+    // Cards slide in one at a time (mode="wait"); act on the current one
+    // only once it has actually mounted.
+    await page.locator(`[data-question="${i}"]`).waitFor({ state: 'visible', timeout: 8000 });
+    const open = await page.locator('input[maxlength="300"]').count();
+    if (open) {
+      await page.click('text=/Ver mi resultado|See my result|Continuar|Continue/');
+    } else {
+      await page.click(i % 2 === 0 ? 'button:has-text("Sí")' : 'button:has-text("No")');
+    }
+    await page.waitForTimeout(320);
+  }
+  await page.waitForSelector('text=/Comentarios punto por punto|Point-by-point comments/', { timeout: 8000 });
+  const pct = await page.locator('text=/^\\d+%$/').first().innerText().catch(() => '');
+  ok('Diagnosis flow reaches the result', `score ${pct}`);
+  const html = await page.content();
+  const leaked = /Registre su marca validando|Acción recomendada<\/span>[^<]*<\/div>[^<]*<div[^>]*>[^<]{20,}/.test(html) || html.includes('tmsearch.uspto.gov');
+  (leaked ? fail : ok)('Paid actions never reach an unpaid page', leaked ? 'action text found in DOM' : 'locked');
+  const locked = await page.getByText(/Desbloquea tus acciones|Unlock your recommended actions/).count();
+  (locked === 1 ? ok : fail)('Diagnosis paywall is shown for gaps', `${locked} paywall(s)`);
+  // A reload must bring the result back, not the intro.
+  await page.reload({ waitUntil: 'load' });
+  await page.waitForTimeout(800);
+  const restored = await page.getByText(/Comentarios punto por punto|Point-by-point comments|Desbloquea tus acciones/).count();
+  (restored ? ok : fail)('Diagnosis result survives a reload', restored ? 'restored' : 'lost');
+  await page.evaluate(() => localStorage.clear());
+} catch (e) {
+  const where = await page.locator('body').innerText().then((t) => t.slice(0, 160).replace(/\s+/g, ' ')).catch(() => '?');
+  fail('Diagnosis flow', String(e).slice(0, 100) + ' | page: ' + where);
+}
+
 // ---- 3. Every route renders without JS errors -------------------------
-for (const route of ['/login', '/registro', '/dashboard', '/roi', '/restablecer', '/privacidad', '/terminos', '/pago/exito', '/pago/cancelado', '/no-existe-404']) {
+for (const route of ['/login', '/registro', '/dashboard', '/roi', '/diagnostico', '/restablecer', '/privacidad', '/terminos', '/pago/exito', '/pago/cancelado', '/no-existe-404']) {
   const before = errors.length;
   try {
     await page.goto(base + route, { waitUntil: 'domcontentloaded' });

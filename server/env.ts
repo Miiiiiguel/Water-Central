@@ -17,6 +17,7 @@ function isSet(name: string) {
 // of a group are set, that's almost always a mistake.
 const GROUPS: { label: string; vars: string[] }[] = [
   { label: 'Stripe', vars: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'STRIPE_PRICE_DIAGNOSTICO_MADUREZ', 'STRIPE_PRICE_ANALISIS_MERCADO'] },
+  { label: 'Wompi (diagnóstico de madurez)', vars: ['WOMPI_PUBLIC_KEY', 'WOMPI_INTEGRITY_SECRET', 'WOMPI_EVENTS_SECRET', 'SUPABASE_SERVICE_ROLE_KEY'] },
   { label: 'Push notifications', vars: ['VAPID_PUBLIC_KEY', 'VAPID_PRIVATE_KEY', 'VAPID_SUBJECT', 'SUPABASE_SERVICE_ROLE_KEY', 'PUSH_WEBHOOK_SECRET'] },
   { label: 'Supabase (client)', vars: ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'] },
   { label: 'Marco Polo premium voice', vars: ['ELEVENLABS_API_KEY', 'ELEVENLABS_VOICE_ID'] },
@@ -24,7 +25,7 @@ const GROUPS: { label: string; vars: string[] }[] = [
 
 // Secrets that must never carry the VITE_ prefix (Vite would inline them
 // into the public browser bundle).
-const SERVER_ONLY = ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'ANTHROPIC_API_KEY', 'VAPID_PRIVATE_KEY', 'SUPABASE_SERVICE_ROLE_KEY', 'PUSH_WEBHOOK_SECRET', 'ELEVENLABS_API_KEY', 'KALODATA_API_KEY', 'SICEX_API_KEY'];
+const SERVER_ONLY = ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'ANTHROPIC_API_KEY', 'VAPID_PRIVATE_KEY', 'SUPABASE_SERVICE_ROLE_KEY', 'PUSH_WEBHOOK_SECRET', 'ELEVENLABS_API_KEY', 'KALODATA_API_KEY', 'SICEX_API_KEY', 'SICEX_SAS_URL', 'WOMPI_PRIVATE_KEY', 'WOMPI_INTEGRITY_SECRET', 'WOMPI_EVENTS_SECRET'];
 
 export function validateEnv() {
   for (const group of GROUPS) {
@@ -43,6 +44,10 @@ export function validateEnv() {
 
   if (isSet('STRIPE_SECRET_KEY') && process.env.STRIPE_SECRET_KEY!.startsWith('sk_live_') && !isProduction) {
     warn('STRIPE_SECRET_KEY is a LIVE key but NODE_ENV is not "production". Use sk_test_ locally.');
+  }
+
+  if (isSet('WOMPI_PUBLIC_KEY') && process.env.WOMPI_PUBLIC_KEY!.startsWith('pub_prod_') && process.env.WOMPI_ENV !== 'production') {
+    warn('WOMPI_PUBLIC_KEY is a production key but WOMPI_ENV is not "production" — transactions will be checked against the sandbox and never confirm.');
   }
 
   if (isProduction) {

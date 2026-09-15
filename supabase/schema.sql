@@ -634,3 +634,71 @@ end;
 $$;
 
 revoke all on function public.grant_research_credits(uuid, integer) from public, anon, authenticated;
+
+-- =======================================================================
+-- Diagnóstico de madurez.
+--
+-- One row per completed diagnosis: who took it, what they answered, the
+-- score, and whether they paid to unlock the recommended actions.
+--
+-- Written and read ONLY by the server (service-role key). No client
+-- policies on purpose: the recommended actions are the paid product, so
+-- they must never reach a browser that has not paid — which is why the
+-- answers live here and the server decides what to send back.
+-- =======================================================================
+
+create table if not exists public.diagnostics (
+  id uuid primary key default gen_random_uuid(),
+  -- Payment reference; also the key the client uses to fetch its result.
+  ref text not null unique,
+  user_id uuid references public.profiles (id) on delete set null,
+  empresa text,
+  nombre text,
+  celular text,
+  correo text,
+  pais text,
+  -- Answers indexed the same way as FLAT in diagnosticContent.ts.
+  answers jsonb not null default '[]'::jsonb,
+  score integer not null default 0,
+  gaps integer not null default 0,
+  paid boolean not null default false,
+  amount_cents integer,
+  currency text,
+  gateway text,                          -- wompi | stripe
+  transaction_id text,
+  created_at timestamptz not null default now(),
+  paid_at timestamptz
+);
+
+alter table public.diagnostics enable row level security;
+-- Deliberately no policies: server-only table.
+
+create index if not exists diagnostics_created_idx on public.diagnostics (created_at desc);
+create index if not exists diagnostics_user_idx on public.diagnostics (user_id, created_at desc);
+
+-- Tell the team when someone finishes a diagnosis.
+create or replace function public.handle_new_diagnostic()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  perform public.notify_vendedores(
+    'new_diagnostic',
+    'Nuevo diagnóstico de madurez',
+    coalesce(new.empresa, new.correo, 'Alguien') || ' obtuvo ' || new.score || '% (' || new.gaps || ' brechas).'
+  );
+  return new;
+end;
+$$;
+
+drop trigger if exists on_diagnostic_created on public.diagnostics;
+create trigger on_diagnostic_created
+  after insert on public.diagnostics
+  for each row execute procedure public.handle_new_diagnostic();
+
+-- ---------------------------------------------------------------------
+-- Freight calculator: the quoted price travels with the lead.
+-- ---------------------------------------------------------------------
+alter table public.freight_quotes add column if not exists zone text;
+alter table public.freight_quotes add column if not exists quote_cop integer;

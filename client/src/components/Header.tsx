@@ -35,7 +35,7 @@ export default function Header() {
     { label: t('header.inteligencia'), href: '#inteligencia', icon: Globe2 },
     { label: t('header.roi'), href: '/roi', icon: Calculator },
     { label: t('header.calculadora'), href: '#calculadora', icon: Ship },
-    { label: t('header.diagnostico'), href: '#planes', icon: FileSearch },
+    { label: t('header.diagnostico'), href: '/diagnostico', icon: FileSearch },
     { label: t('header.pronostico'), href: '#pronostico', icon: TrendingUp },
   ];
 
