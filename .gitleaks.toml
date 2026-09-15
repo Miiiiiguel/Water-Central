@@ -1,0 +1,25 @@
+# Configuración de gitleaks.
+#
+# El conjunto de reglas por defecto se mantiene COMPLETO (`useDefault`).
+# Lo único que hay acá es una excepción, deliberadamente estrecha: una
+# cadena exacta, no un archivo ni un directorio, para que cualquier
+# secreto nuevo —incluso en el mismo archivo— siga fallando el escaneo.
+#
+# Si alguna vez hay que añadir otra excepción: que sea el valor literal y
+# con su razón escrita. Nunca una ruta ni un patrón amplio; el día que
+# esto tape una llave de verdad, el daño es real.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Valores de ejemplo publicados por los proveedores en su documentación"
+regexes = [
+  # Secreto de integridad del ejemplo resuelto de la documentación de
+  # Wompi (docs.wompi.co -> widget checkout -> firma de integridad).
+  # server/wompi.test.ts lo usa para comprobar que nuestra firma da el
+  # mismo hash que ellos publican. Es público por diseño: aparece tal
+  # cual en su documentación, no pertenece a ninguna cuenta nuestra y no
+  # sirve para cobrar nada.
+  '''prod_integrity_Z5mMke9x0k8gpErbDqwrJXMqsI6SFli6''',
+]

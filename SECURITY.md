@@ -185,3 +185,17 @@ Leyenda: ✅ hecho · ⚙️ necesita tu acción · ➖ no aplica
 ## Reportar un problema
 
 `/.well-known/security.txt` → `info@easycomex.com`.
+
+
+## Excepciones del escaneo de secretos
+
+`.gitleaks.toml` mantiene el conjunto de reglas por defecto completo y
+añade **una sola** excepción: el secreto de integridad del ejemplo
+resuelto que Wompi publica en su documentación, usado en
+`server/wompi.test.ts` para comprobar que nuestra firma da el mismo hash
+que ellos. Es público por diseño y no pertenece a ninguna cuenta nuestra.
+
+La excepción es la **cadena exacta**, no la ruta del archivo: un secreto
+nuevo en ese mismo archivo sigue tumbando el escaneo. Cualquier
+excepción futura se escribe igual — valor literal y razón escrita —
+porque el día que una de estas tape una llave real, el daño es real.
