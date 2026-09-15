@@ -34,9 +34,8 @@ const KEY = process.env.KALODATA_API_KEY;
 //   https://www.kalodata.com/openapi/v1/tiktok/{módulo}/{acción}
 // con módulos category | shop | creator | product | video | livestream
 // y acciones rank | detail.
-const DEFAULT_URL = 'https://www.kalodata.com/openapi/v1/tiktok/product/rank';
+const DEFAULT_URL = 'https://www.kalodata.com/openapi/v1/tiktok/video/detail';
 const URL_ARG = process.argv[2] || process.env.KALODATA_API_URL || DEFAULT_URL;
-const QUERY = process.argv[3] || 'jeans';
 
 function line(s = '') {
   console.log(s);
@@ -56,19 +55,17 @@ type Attempt = { label: string; header: string };
 // nombran, y los demás quedan como red de seguridad.
 const HEADERS = ['secret-key', 'X-Secret-Key', 'secretKey', 'Authorization', 'x-api-key', 'accessKey'];
 
+// Los parámetros fijos de depuración que Kalodata publica para
+// /video/detail. Usarlos tal cual es deliberado: si esto falla, el
+// problema es la llave o el encabezado, nunca los parámetros.
 function bodyFor() {
-  const end = new Date();
-  const start = new Date();
-  start.setUTCDate(start.getUTCDate() - 30);
-  const iso = (d: Date) => d.toISOString().slice(0, 10);
   return {
     region: 'US',
-    language: 'en',
+    language: 'en-US',
     currency: 'USD',
-    date_range: { start_date: iso(start), end_date: iso(end) },
-    keyword: QUERY,
-    page: 1,
-    page_size: 5,
+    date_range: 'last7Day',
+    video_id: '7404191282148511007',
+    need_extra: false,
   };
 }
 
@@ -85,11 +82,14 @@ async function probe(a: Attempt): Promise<Attempt | null> {
       body: JSON.stringify(bodyFor()),
       signal: AbortSignal.timeout(15000),
     });
-    const text = (await res.text()).slice(0, 300).replace(/\s+/g, ' ');
+    const text = (await res.text()).slice(0, 400).replace(/\s+/g, ' ');
     if (/not in allowlist|egress|proxy/i.test(text)) blockedByProxy = true;
-    const mark = res.ok ? '✓' : res.status === 401 || res.status === 403 ? '·' : '?';
-    line(`  ${mark} ${a.label.padEnd(18)} ${res.status}  ${text.slice(0, 120)}`);
-    return res.ok ? a : null;
+    // Kalodata contesta 200 con success:false cuando algo está mal, así
+    // que un 200 no basta para cantar victoria.
+    const authOk = res.ok && !/"success"\s*:\s*false/.test(text);
+    const mark = authOk ? '✓' : res.status === 401 || res.status === 403 ? '·' : '?';
+    line(`  ${mark} ${a.label.padEnd(18)} ${res.status}  ${text.slice(0, 150)}`);
+    return authOk ? a : null;
   } catch (err) {
     line(`  ✗ ${a.label.padEnd(18)} ${String(err).slice(0, 100)}`);
     return null;
@@ -97,7 +97,7 @@ async function probe(a: Attempt): Promise<Attempt | null> {
 }
 
 line(`Endpoint: ${URL_ARG}`);
-line(`Consulta de prueba: "${QUERY}"`);
+line('Cuerpo: los parámetros fijos de depuración de Kalodata para /video/detail.');
 line('');
 
 if (process.env.KALODATA_AUTH_NAME) line(`(KALODATA_AUTH_NAME=${process.env.KALODATA_AUTH_NAME})`);
@@ -122,8 +122,9 @@ if (winner) {
   if (winner.label !== 'secret-key') line(`    KALODATA_AUTH_NAME=${winner.label}`);
   else line('    (no hace falta KALODATA_AUTH_NAME: `secret-key` es el valor por defecto)');
   line('');
-  line('  Arriba está la respuesta real: mándamela y termino de mapear');
-  line('  los campos a lo que muestra Marco Polo.');
+  line('');
+  line('  Arriba está la respuesta real de Kalodata. Mándamela y confirmo');
+  line('  el mapeo de campos contra lo que muestra Marco Polo.');
 } else {
   line('✗ Ninguna forma respondió 200.');
   line('');

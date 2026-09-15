@@ -439,8 +439,19 @@ La forma de la API (confirmada por su soporte) ya está en
   acciones `rank` y `detail`.
 - Llave en el encabezado **`secret-key`** (cambiable con
   `KALODATA_AUTH_NAME` si algún día lo renombran).
-- Cuerpo: `region`, `language`, `currency`, `date_range`, más `keyword`
-  y paginación.
+- Cuerpo: `region`, `language`, `currency`, `date_range` (los cuatro
+  obligatorios), más `keyword` y paginación. Tres detalles que no se
+  adivinan y que cuestan un crédito cada vez que se fallan:
+  - `language` es un **locale suyo** (`en-US`, `es-ES`…), no el `es`/`en`
+    de la app.
+  - `date_range` es un **string**, no un objeto: `last30Day`,
+    `yyyy-MM-dd~yyyy-MM-dd` o `yyyy-MM`.
+  - La respuesta viene envuelta en `{ success, data, message, cached,
+    code }` y puede traer **HTTP 200 con `success: false`** — un fallo
+    disfrazado de éxito. Se trata como error, para devolver la cuota en
+    vez de mostrar una respuesta vacía como resultado.
+- `KALODATA_API_URL` es la **base**, no un endpoint; déjalo vacío salvo
+  que cambien de dominio. Si pegas la ruta completa se recorta sola.
 - **Mercados:** US, GB, ID, TH, VN, PH, MY, SG, JP, MX, DE, IT, FR, ES,
   BR. Un país fuera de esa lista cae a US en vez de gastar un crédito en
   una consulta que iba a fallar.
