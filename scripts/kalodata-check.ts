@@ -48,40 +48,50 @@ if (!KEY) {
 }
 line(`Llave: ${KEY.slice(0, 8)}…${KEY.slice(-4)} (${KEY.length} caracteres)`);
 
-type Attempt = { label: string; headers: Record<string, string>; url: string };
+type Attempt = { label: string; header: string };
 
-function attempts(base: string): Attempt[] {
-  const withQuery = (extra: Record<string, string> = {}) => {
-    const u = new URL(base);
-    u.searchParams.set('keyword', QUERY);
-    for (const [k, v] of Object.entries(extra)) u.searchParams.set(k, v);
-    return u.toString();
+// El soporte de Kalodata confirmó: POST + JSON, llave en un encabezado,
+// campos comunes region / language / currency / date_range. Lo único que
+// falta confirmar es el NOMBRE del encabezado — `secret-key` es el que
+// nombran, y los demás quedan como red de seguridad.
+const HEADERS = ['secret-key', 'X-Secret-Key', 'secretKey', 'Authorization', 'x-api-key', 'accessKey'];
+
+function bodyFor() {
+  const end = new Date();
+  const start = new Date();
+  start.setUTCDate(start.getUTCDate() - 30);
+  const iso = (d: Date) => d.toISOString().slice(0, 10);
+  return {
+    region: 'US',
+    language: 'en',
+    currency: 'USD',
+    date_range: { start_date: iso(start), end_date: iso(end) },
+    keyword: QUERY,
+    page: 1,
+    page_size: 5,
   };
-  const json = { 'Content-Type': 'application/json', Accept: 'application/json' };
-  return [
-    { label: 'Authorization: Bearer', headers: { ...json, Authorization: `Bearer ${KEY}` }, url: withQuery() },
-    { label: 'x-api-key', headers: { ...json, 'x-api-key': KEY! }, url: withQuery() },
-    { label: 'accessKey', headers: { ...json, accessKey: KEY! }, url: withQuery() },
-    { label: 'access-key', headers: { ...json, 'access-key': KEY! }, url: withQuery() },
-    { label: 'apikey (query)', headers: json, url: withQuery({ apikey: KEY! }) },
-    { label: 'access_key (query)', headers: json, url: withQuery({ access_key: KEY! }) },
-  ];
 }
 
 // Un proxy corporativo o de sandbox contesta 403 sin que la petición
 // llegue a Kalodata. Distinguirlo importa: no es un problema de la llave.
 let blockedByProxy = false;
 
-async function probe(a: Attempt) {
+async function probe(a: Attempt): Promise<Attempt | null> {
+  const value = a.header === 'Authorization' ? `Bearer ${KEY}` : KEY!;
   try {
-    const res = await fetch(a.url, { headers: a.headers, signal: AbortSignal.timeout(12000) });
-    const text = (await res.text()).slice(0, 200).replace(/\s+/g, ' ');
+    const res = await fetch(URL_ARG, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json', [a.header]: value },
+      body: JSON.stringify(bodyFor()),
+      signal: AbortSignal.timeout(15000),
+    });
+    const text = (await res.text()).slice(0, 300).replace(/\s+/g, ' ');
     if (/not in allowlist|egress|proxy/i.test(text)) blockedByProxy = true;
     const mark = res.ok ? '✓' : res.status === 401 || res.status === 403 ? '·' : '?';
-    line(`  ${mark} ${a.label.padEnd(22)} ${res.status}  ${text.slice(0, 110)}`);
+    line(`  ${mark} ${a.label.padEnd(18)} ${res.status}  ${text.slice(0, 120)}`);
     return res.ok ? a : null;
   } catch (err) {
-    line(`  ✗ ${a.label.padEnd(22)} ${String(err).slice(0, 90)}`);
+    line(`  ✗ ${a.label.padEnd(18)} ${String(err).slice(0, 100)}`);
     return null;
   }
 }
@@ -90,33 +100,30 @@ line(`Endpoint: ${URL_ARG}`);
 line(`Consulta de prueba: "${QUERY}"`);
 line('');
 
-const configured = process.env.KALODATA_AUTH_STYLE;
-if (configured) line(`(KALODATA_AUTH_STYLE=${configured} · KALODATA_AUTH_NAME=${process.env.KALODATA_AUTH_NAME || 'x-api-key'})`);
-line('Probando formas de autenticación:');
+if (process.env.KALODATA_AUTH_NAME) line(`(KALODATA_AUTH_NAME=${process.env.KALODATA_AUTH_NAME})`);
+line('Probando nombres de encabezado (POST + JSON):');
 
 // Paramos en cuanto una funcione: una llamada que pasa GASTA CRÉDITOS
 // (1 crédito ~ 0.1 USD). Un 401/403 no cuesta nada, así que probar las
 // formas equivocadas es gratis — acertar es lo que se cobra, y con una
 // vez basta.
 let winner: Attempt | null = null;
-for (const a of attempts(URL_ARG)) {
-  winner = await probe(a);
+for (const header of HEADERS) {
+  winner = await probe({ label: header, header });
   if (winner) break;
 }
 
 line('');
 if (winner) {
-  const isQuery = winner.label.includes('query');
-  const name = winner.label.replace(' (query)', '');
-  line(`✓ Funciona con: ${winner.label}`);
+  line(`✓ Funciona con el encabezado: ${winner.label}`);
   line('');
   line('  Pon esto en tu .env:');
-  line(`    KALODATA_API_URL=${URL_ARG}`);
-  if (winner.label.startsWith('Authorization')) line('    KALODATA_AUTH_STYLE=bearer');
-  else {
-    line(`    KALODATA_AUTH_STYLE=${isQuery ? 'query' : 'header'}`);
-    line(`    KALODATA_AUTH_NAME=${name}`);
-  }
+  line(`    KALODATA_API_KEY=<tu llave>`);
+  if (winner.label !== 'secret-key') line(`    KALODATA_AUTH_NAME=${winner.label}`);
+  else line('    (no hace falta KALODATA_AUTH_NAME: `secret-key` es el valor por defecto)');
+  line('');
+  line('  Arriba está la respuesta real: mándamela y termino de mapear');
+  line('  los campos a lo que muestra Marco Polo.');
 } else {
   line('✗ Ninguna forma respondió 200.');
   line('');

@@ -10,11 +10,15 @@
 // not configured or answers with nothing, the caller is told exactly
 // that.
 //
-//   KALODATA_API_KEY    key from your Kalodata account
-//   KALODATA_API_URL    full endpoint, e.g. https://api.kalodata.com/v1/products/search
-//   KALODATA_AUTH_STYLE bearer (default) | header | query
-//   KALODATA_AUTH_NAME  header/query parameter name when not bearer (default: x-api-key)
-//   SICEX_API_KEY / SICEX_API_URL / SICEX_AUTH_STYLE / SICEX_AUTH_NAME   same idea
+//   KALODATA_API_KEY   llave del Centro Abierto. Kalodata vive en su
+//                      propio módulo (server/kalodata.ts) porque su forma
+//                      es conocida: POST + JSON, llave en el encabezado
+//                      `secret-key`, ruta /openapi/v1/tiktok/{módulo}/rank.
+//   SICEX_API_KEY / SICEX_API_URL / SICEX_AUTH_STYLE / SICEX_AUTH_NAME
+//                      el conector genérico de abajo, para cuando Sicex
+//                      exponga una API HTTP directa.
+
+import { isConfigured as kalodataConfigured, missingConfig as kalodataMissing, runKalodata as kalodataQuery } from './kalodata';
 
 export interface ResearchRow {
   label: string;
@@ -55,12 +59,15 @@ function readConfig(id: 'kalodata' | 'sicex'): ProviderConfig {
 }
 
 export function isConfigured(id: 'kalodata' | 'sicex'): boolean {
+  // Kalodata tiene endpoint conocido: le basta la llave.
+  if (id === 'kalodata') return kalodataConfigured();
   const c = readConfig(id);
   return !!(c.key && c.url);
 }
 
 /** What is still missing before this source can be used. */
 export function missingConfig(id: 'kalodata' | 'sicex'): string[] {
+  if (id === 'kalodata') return kalodataMissing();
   const c = readConfig(id);
   const missing: string[] = [];
   if (!c.key) missing.push(`${id.toUpperCase()}_API_KEY`);
@@ -148,8 +155,11 @@ async function call(config: ProviderConfig, query: string, country?: string): Pr
   }
 }
 
+// Kalodata no encaja en el conector genérico: es POST + JSON con la
+// llave en un encabezado, y su cuerpo lleva region / language /
+// currency / date_range. Vive en su propio módulo, con pruebas.
 export function runKalodata(query: string, country?: string): Promise<ResearchResult> {
-  return call(readConfig('kalodata'), query, country);
+  return kalodataQuery(query, country);
 }
 
 export function runSicex(query: string, country?: string): Promise<ResearchResult> {

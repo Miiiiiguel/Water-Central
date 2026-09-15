@@ -424,6 +424,36 @@ agotarse, el usuario compra un paquete de consultas con Stripe.
 |---|---|
 | Cuenta registrada, sin plan | 2 |
 | Diagnóstico de madurez (USD 9.99 · Wompi) | 5 |
+
+### Kalodata (TikTok Shop)
+
+Llave: Centro Abierto → Cuenta → **Gestión de claves de API**. Ojo:
+generar una nueva **invalida la anterior al instante** y la clave no se
+vuelve a mostrar. Va en `KALODATA_API_KEY`, server-only.
+
+La forma de la API (confirmada por su soporte) ya está en
+`server/kalodata.ts`, con 15 pruebas:
+
+- **POST + JSON** a `/openapi/v1/tiktok/{módulo}/{acción}` — módulos
+  `product`, `shop`, `creator`, `video`, `livestream`, `category`;
+  acciones `rank` y `detail`.
+- Llave en el encabezado **`secret-key`** (cambiable con
+  `KALODATA_AUTH_NAME` si algún día lo renombran).
+- Cuerpo: `region`, `language`, `currency`, `date_range`, más `keyword`
+  y paginación.
+- **Mercados:** US, GB, ID, TH, VN, PH, MY, SG, JP, MX, DE, IT, FR, ES,
+  BR. Un país fuera de esa lista cae a US en vez de gastar un crédito en
+  una consulta que iba a fallar.
+
+**Costos.** Kalodata cobra por llamada: **1 crédito ≈ 0.1 USD**. Por eso
+la cuota vive en el servidor y `page_size` está topado en 20. Antes de
+abrir esto al público, revisa la tabla de arriba contra el costo real por
+módulo — con un saldo de USD 16, dos consultas diarias gratis por usuario
+registrado se lo comen rápido.
+
+**Verificar la conexión:** `pnpm kalodata:check`. Prueba los nombres de
+encabezado habituales y **para en cuanto uno funciona** (los fallidos no
+cuestan; el que acierta sí, y con una vez basta).
 | Análisis de mercado (USD 499) | 25 |
 | Acompañamiento (suscripción) | 100 |
 | Paquete comprado | +50 créditos, no vencen |
