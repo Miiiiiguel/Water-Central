@@ -467,3 +467,53 @@ El candado **no es decorativo**: se abre cuando existe una fila pagada en
 `public.payments` con ese plan, y esa fila solo la escribe el webhook de
 Stripe. Antes de eso la tabla se ve borrosa y el botón lleva al checkout
 real.
+
+---
+
+## Sicex: cómo entrega los datos (y cómo conectarlo)
+
+Sicex **no es una API REST con api-key**. Entrega los datos de dos formas
+distintas, y conviene no confundirlas:
+
+**1. Un servidor MCP (SISDUAN)** — el que documenta el archivo
+`sicex-trade.skill`. Sirve consultas analíticas en vivo (rankings de
+importadores, top productos, series de tiempo). Se autentica con una
+sesión por usuario a través del selector de conectores de Claude y depende
+de la suscripción. Para usarlo desde nuestro servidor haría falta que
+Sicex nos dé la **URL del MCP + un token servidor-a-servidor**; con eso se
+conecta vía el conector MCP de la API de Claude. **Todavía no lo tenemos.**
+
+**2. Una carpeta de Azure Data Lake con SAS de solo lectura** — la que
+Sicex ofrece para PowerBI, Tableau y Python. **Esto sí lo tenemos.** Es
+una sola variable:
+
+```
+SICEX_SAS_URL=https://<cuenta>.dfs.core.windows.net/<filesystem>/<carpeta>?sv=...&sig=...
+```
+
+### Paso 1: mirar qué hay adentro
+
+Antes de escribir el importador hay que ver los archivos reales — formato,
+columnas, con qué frecuencia los dejan. Para eso:
+
+```bash
+SICEX_SAS_URL="<la url completa>" pnpm sicex:explore
+```
+
+Imprime: permisos y vencimiento del SAS, cuántos archivos hay y de qué
+tipo, los más recientes, y una muestra de las primeras líneas del archivo
+de texto más grande. **Correlo desde una máquina con salida a
+`*.dfs.core.windows.net`** (el entorno de desarrollo de Claude lo tiene
+bloqueado por política de red).
+
+### Paso 2: importar
+
+Con esa salida se construye el importador a Postgres. La ventaja de este
+camino sobre el MCP es de plata: las consultas de Marco Polo pegarían
+contra **nuestra** base y no contra un servicio medido, así que las
+consultas gratis del plan salen prácticamente gratis. La contra es que no
+es tiempo real: es tan fresco como el último archivo que Sicex deje.
+
+El código de acceso está en `server/sicexStorage.ts` (funciones puras,
+14 pruebas en `pnpm test`): parsea la URL, arma las llamadas a List Path,
+pagina, y lee archivos por rango de bytes.

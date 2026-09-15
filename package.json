@@ -18,7 +18,8 @@
     "test:app": "node scripts/perf-check.mjs",
     "backup:db": "bash scripts/backup-db.sh",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "sicex:explore": "tsx scripts/sicex-explore.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.125.0",
