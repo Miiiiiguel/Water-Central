@@ -17,6 +17,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const PaymentResult = lazy(() => import("./pages/PaymentResult"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const RoiCalculator = lazy(() => import("./pages/RoiCalculator"));
 const ChatbotWidget = lazy(() => import("./components/ChatbotWidget"));
 import ScrollProgress from "./components/ScrollProgress";
 import { useIdleMount } from "./lib/useIdleMount";
@@ -79,6 +80,11 @@ function Router() {
           <Route path={"/terminos"}>
             <Suspense fallback={<PageFallback />}>
               <Terms />
+            </Suspense>
+          </Route>
+          <Route path={"/roi"}>
+            <Suspense fallback={<PageFallback />}>
+              <RoiCalculator />
             </Suspense>
           </Route>
           <Route path={"/restablecer"}>

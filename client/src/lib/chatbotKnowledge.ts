@@ -12,6 +12,8 @@ export interface KnowledgeEntry {
   answer: { es: string; en: string };
   // When matched on the home page, Marco Polo scrolls the user there.
   action?: SectionAction;
+  /** A page of its own to open instead of scrolling (e.g. '/roi'). */
+  route?: string;
 }
 
 export const MARCO_POLO = {
@@ -56,6 +58,19 @@ export const knowledgeBase: KnowledgeEntry[] = [
       en: 'The easiest way is to start with the free diagnosis of your current situation. From there we propose a growth plan and, if needed, a market analysis. Let me take you to the plans.',
     },
     action: 'planes',
+  },
+  {
+    id: 'roi',
+    keywords: [
+      'roi', 'retorno', 'rentabilidad', 'calculadora roi', 'simulador', 'cuanto gano', 'cuánto gano',
+      'margen', 'utilidad', 'ganancia', 'inversion inicial', 'inversión inicial', 'cuanto invierto',
+      'flujo de caja', 'payback', 'return', 'profit', 'margin', 'how much do i make', 'investment',
+    ],
+    answer: {
+      es: 'Tenemos una calculadora de ROI: escribís precio, costo, peso, inventario y presupuesto, y te muestra utilidad, margen, cuándo recuperás la inversión y el flujo de caja mes a mes de dos años. Es gratis y te la abro ahora.',
+      en: 'We have an ROI calculator: type your price, cost, weight, inventory and budget, and it shows profit, margin, when you recover the investment and the month-by-month cash flow for two years. It is free — let me open it.',
+    },
+    route: '/roi',
   },
   {
     id: 'precio',

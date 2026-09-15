@@ -8,7 +8,7 @@ import { hapticTap, isNative, openExternal } from '@/lib/native';
 import { isSTTSupported, isTTSSupported, speak, stopSpeaking, startListening } from '@/lib/voice';
 import MarcoPoloAvatar from './MarcoPoloAvatar';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchQuota, runResearch, formatResult, SOURCE_LABEL, SOURCE_BLURB, RESEARCH_EVENT, type ResearchQuota, type ResearchRequest, type ResearchSource } from '@/lib/research';
+import { fetchQuota, runResearch, formatResult, consumePendingResearch, SOURCE_LABEL, SOURCE_BLURB, RESEARCH_EVENT, type ResearchQuota, type ResearchRequest, type ResearchSource } from '@/lib/research';
 
 interface ChatMessage {
   role: 'user' | 'bot';
@@ -152,9 +152,15 @@ export default function ChatbotWidget() {
     const onRequest = (e: Event) => {
       const detail = (e as CustomEvent<ResearchRequest>).detail;
       if (!detail?.source || !detail?.query) return;
+      consumePendingResearch(); // this one is being handled now
       researchRequestRef.current(detail);
     };
     window.addEventListener(RESEARCH_EVENT, onRequest);
+
+    // A tap that happened before this widget existed is waiting for us.
+    const parked = consumePendingResearch();
+    if (parked) researchRequestRef.current(parked);
+
     return () => window.removeEventListener(RESEARCH_EVENT, onRequest);
   }, []);
 
@@ -196,7 +202,8 @@ export default function ChatbotWidget() {
     const match = matchKnowledge(query);
     if (match) {
       pushBot(match.answer[language]);
-      if (match.action) window.setTimeout(() => scrollToSection(match.action!), 600);
+      if (match.route) window.setTimeout(() => { window.location.href = match.route!; }, 900);
+      else if (match.action) window.setTimeout(() => scrollToSection(match.action!), 600);
     } else {
       pushBot(MARCO_POLO.fallback[language], {
         quickReplies: [{ label: language === 'es' ? 'Hablar con una persona' : 'Talk to a person', value: '__human__' }],

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'wouter';
-import { Menu, X, Calculator, FileSearch, TrendingUp, MessageCircle, UserCircle2, Globe2 } from 'lucide-react';
+import { Link, useLocation } from 'wouter';
+import { Menu, X, Calculator, FileSearch, TrendingUp, MessageCircle, UserCircle2, Globe2, Ship } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,6 +13,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const { t, language } = useLanguage();
   const { user } = useAuth();
+  const [, navigate] = useLocation();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -32,7 +33,8 @@ export default function Header() {
   // Order matters: market intelligence is the headline tool, so it leads.
   const toolPills = [
     { label: t('header.inteligencia'), href: '#inteligencia', icon: Globe2 },
-    { label: t('header.calculadora'), href: '#calculadora', icon: Calculator },
+    { label: t('header.roi'), href: '/roi', icon: Calculator },
+    { label: t('header.calculadora'), href: '#calculadora', icon: Ship },
     { label: t('header.diagnostico'), href: '#planes', icon: FileSearch },
     { label: t('header.pronostico'), href: '#pronostico', icon: TrendingUp },
   ];
@@ -44,8 +46,14 @@ export default function Header() {
     { label: t('header.faq'), href: '#faq' },
   ];
 
+  // A pill can point at a section of the home page (#anchor) or at a
+  // route of its own (/roi); the first scrolls, the second navigates.
   const handleNavClick = (href: string) => {
     setIsOpen(false);
+    if (!href.startsWith('#')) {
+      navigate(href);
+      return;
+    }
     setTimeout(() => {
       const el = document.querySelector(href);
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });

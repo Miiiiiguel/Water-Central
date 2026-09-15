@@ -237,8 +237,27 @@ try {
   fail('Market intelligence example flow', String(e).slice(0, 140));
 }
 
+// ROI calculator: typing a number must move the headline figures, and
+// the paid reports must stay locked until someone buys them.
+try {
+  await page.goto(base + '/roi', { waitUntil: 'load' });
+  await page.waitForTimeout(1200);
+  const statsOf = async () =>
+    (await page.locator('text=/RETURN ON INVESTMENT|RETORNO SOBRE/i').first().locator('xpath=ancestor::section[1]').innerText());
+  const before = await statsOf();
+  await page.fill('#in_price', '95');
+  await page.waitForTimeout(600);
+  const after = await statsOf();
+  (before !== after ? ok : fail)('ROI recalculates when an input changes', before !== after ? 'figures moved' : 'no change');
+
+  const locked = await page.getByText(/Unlock now|Desbloquear ahora/).count();
+  (locked >= 2 ? ok : fail)('Paid ROI reports stay behind the paywall', `${locked} locked report(s)`);
+} catch (e) {
+  fail('ROI calculator flow', String(e).slice(0, 140));
+}
+
 // ---- 3. Every route renders without JS errors -------------------------
-for (const route of ['/login', '/registro', '/dashboard', '/restablecer', '/privacidad', '/terminos', '/pago/exito', '/pago/cancelado', '/no-existe-404']) {
+for (const route of ['/login', '/registro', '/dashboard', '/roi', '/restablecer', '/privacidad', '/terminos', '/pago/exito', '/pago/cancelado', '/no-existe-404']) {
   const before = errors.length;
   try {
     await page.goto(base + route, { waitUntil: 'domcontentloaded' });

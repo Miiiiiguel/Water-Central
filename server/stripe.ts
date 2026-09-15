@@ -41,6 +41,9 @@ export const PLANS = {
   acompanamiento: { priceEnv: 'STRIPE_PRICE_ACOMPANAMIENTO', label: 'Acompañamiento mensual' },
   // Pack of extra Marco Polo research lookups (Kalodata / Sicex).
   creditos_marco_polo: { priceEnv: 'STRIPE_PRICE_CREDITOS_MARCO_POLO', label: `${CREDIT_PACK.credits} consultas de Marco Polo` },
+  // ROI calculator reports (see client/src/pages/RoiCalculator.tsx).
+  reporte_detalle: { priceEnv: 'STRIPE_PRICE_REPORTE_DETALLE', label: 'Desglose de costos mes a mes' },
+  reporte_pronostico: { priceEnv: 'STRIPE_PRICE_REPORTE_PRONOSTICO', label: 'Pronóstico completo a 2 años' },
 } as const;
 
 type PlanId = keyof typeof PLANS;

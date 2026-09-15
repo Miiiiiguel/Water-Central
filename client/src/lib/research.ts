@@ -23,6 +23,25 @@ export interface ResearchRequest {
   question?: string;
 }
 
+// Marco Polo mounts lazily, once the browser is idle, so a visitor who
+// taps an example question in the first seconds would fire the event
+// into nothing. The request is therefore parked here as well: whichever
+// happens first — the listener hearing the event, or the widget mounting
+// and draining the buffer — the lookup still runs, exactly once.
+let pending: ResearchRequest | null = null;
+
+export function requestResearch(req: ResearchRequest) {
+  pending = req;
+  window.dispatchEvent(new CustomEvent(RESEARCH_EVENT, { detail: req }));
+}
+
+/** Takes the parked request, if any, and clears it. */
+export function consumePendingResearch(): ResearchRequest | null {
+  const req = pending;
+  pending = null;
+  return req;
+}
+
 export interface ResearchRow {
   label: string;
   value: string;

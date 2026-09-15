@@ -16,7 +16,9 @@
     "audit": "pnpm audit --prod --audit-level=high",
     "security:smoke": "node scripts/security-smoke.mjs",
     "test:app": "node scripts/perf-check.mjs",
-    "backup:db": "bash scripts/backup-db.sh"
+    "backup:db": "bash scripts/backup-db.sh",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.125.0",

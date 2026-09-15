@@ -424,3 +424,46 @@ Como la búsqueda pega contra fuentes de pago, **pide crear cuenta** antes
 de correr la consulta. Ese es el embudo: pregunta gratis → cuenta → 2
 consultas diarias incluidas → planes con más. "Inteligencia de mercado"
 quedó de primero en el menú y en la barra inferior del celular.
+
+---
+
+## Calculadora ROI (`/roi`)
+
+Es el modelo financiero de Easycomex, con los números del cliente. Entra
+por el botón **Calculadora ROI** del menú, o preguntándole a Marco Polo
+por ROI / rentabilidad / cuánto gano.
+
+### Cómo está armada
+
+- **`client/src/lib/roiModel.ts`** — toda la matemática, pura y sin DOM:
+  rampas de unidades, aranceles, fletes, crecimiento de Año 2, inversión
+  inicial. Es tu modelo, portado tal cual; **no lo "mejores" sin querer**,
+  porque estos son los números que el equipo defiende en una reunión.
+- **`client/src/lib/roiModel.test.ts`** — 18 pruebas que fijan esa
+  matemática con valores calculados a mano (`pnpm test`). Si alguien
+  cambia una fórmula sin querer, el build falla.
+- **`client/src/pages/RoiCalculator.tsx`** — solo entradas, layout y los
+  dos reportes de pago.
+
+### Supuestos fijos (en `roiModel.ts`, arriba del todo)
+
+Flete USD 6.90/kg · arancel recíproco 12.5% (siempre) · arancel de
+acuerdo comercial 8% (solo si el producto **no** califica) · envío
+doméstico USD 7 cuando el precio ≥ USD 35 · alistamiento USD 3.50
+(conservador) / USD 3.00 (optimista) · ADS extra 8% desde el mes 4 ·
+Año 2: precio +4%, costo +6%, ADS 6% de ventas.
+
+Cambiar cualquiera de esos es editar una constante con nombre, en un
+solo lugar.
+
+### Los dos reportes de pago
+
+| Reporte | Precio | Antes | Plan en Stripe |
+|---|---|---|---|
+| Desglose de costos mes a mes | USD 39.90 | USD 69.90 | `STRIPE_PRICE_REPORTE_DETALLE` |
+| Pronóstico completo a 2 años | USD 99.90 | USD 120.90 | `STRIPE_PRICE_REPORTE_PRONOSTICO` |
+
+El candado **no es decorativo**: se abre cuando existe una fila pagada en
+`public.payments` con ese plan, y esa fila solo la escribe el webhook de
+Stripe. Antes de eso la tabla se ve borrosa y el botón lleva al checkout
+real.

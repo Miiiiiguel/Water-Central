@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Landmark, LineChart, ArrowRight, Sparkles, Search } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSpotlight } from '@/lib/useSpotlight';
-import { RESEARCH_EVENT, type ResearchRequest } from '@/lib/research';
+import { requestResearch, type ResearchRequest } from '@/lib/research';
 
 // "Inteligencia de mercado": the section that sells what Marco Polo can
 // actually look up, and lets a visitor try it with one click.
@@ -86,7 +86,7 @@ export default function MarketIntelSection() {
       query: example.query,
       question: es ? example.question.es : example.question.en,
     };
-    window.dispatchEvent(new CustomEvent(RESEARCH_EVENT, { detail }));
+    requestResearch(detail);
   };
 
   return (
