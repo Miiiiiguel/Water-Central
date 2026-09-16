@@ -1,7 +1,7 @@
 import helmet from 'helmet';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
-import type { RequestHandler } from 'express';
+import type { Request, RequestHandler } from 'express';
 import { allowedOrigins } from './env';
 import { logSecurityEvent } from './log';
 
@@ -104,10 +104,16 @@ export const JSON_BODY_LIMIT = '16kb';
 
 // All limiters log who hit them, so a brute-force or scraping attempt
 // shows up in the security log instead of silently getting 429s.
-export function makeLimiter(name: string, limit: number, windowMs = 15 * 60 * 1000) {
+export function makeLimiter(
+  name: string,
+  limit: number,
+  windowMs = 15 * 60 * 1000,
+  skip?: (req: Request) => boolean
+) {
   return rateLimit({
     windowMs,
     limit,
+    ...(skip ? { skip } : {}),
     standardHeaders: true,
     legacyHeaders: false,
     handler: (req, res) => {
@@ -117,7 +123,20 @@ export function makeLimiter(name: string, limit: number, windowMs = 15 * 60 * 10
   });
 }
 
-export const apiRateLimiter = makeLimiter('api', 100);        // general ceiling per IP
+/**
+ * Techo general por IP.
+ *
+ * `/health` queda fuera, y no es un detalle: el host lo consulta cada
+ * pocos segundos para saber si la app sigue viva. Con el límite puesto,
+ * pasaba de 100 peticiones en 15 minutos, recibía 429, y Render lo leía
+ * como "la instancia está caída" — reiniciaba el servicio, y vuelta a
+ * empezar. Un limitador pensado para frenar abuso terminaba tumbando el
+ * servidor solo.
+ *
+ * Exponerlo sin límite es seguro: a quien no está autenticado le
+ * contesta `{ ok: true }` y nada más.
+ */
+export const apiRateLimiter = makeLimiter('api', 100, 15 * 60 * 1000, (req) => req.path === '/health');
 export const chatRateLimiter = makeLimiter('chat', 30);       // paid LLM API
 export const checkoutRateLimiter = makeLimiter('checkout', 20);
 export const ttsRateLimiter = makeLimiter('tts', 40);         // paid voice API
