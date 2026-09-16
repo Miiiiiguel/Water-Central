@@ -1,7 +1,40 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+/**
+ * La llave anónima viaja en un encabezado HTTP en cada petición, y los
+ * encabezados solo admiten Latin-1. Si al copiar y pegar se cuela una
+ * comilla curva, unos puntos suspensivos «…» o un espacio invisible, el
+ * navegador rompe TODAS las peticiones con un error incomprensible:
+ *
+ *   Failed to read the 'headers' property from 'RequestInit':
+ *   String contains non ISO-8859-1 code point.
+ *
+ * Nada en ese mensaje dice "revisa tu variable de entorno". Así que lo
+ * detectamos acá: limpiamos los espacios de sobra y, si queda algún
+ * carácter imposible, lo decimos claro y tratamos la configuración como
+ * ausente — la app muestra "no configurado" en vez de fallar en cada
+ * clic sin explicación.
+ */
+function cleanEnv(value: string | undefined, name: string): string | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed) return undefined;
+  // eslint-disable-next-line no-control-regex
+  const bad = trimmed.match(/[^\u0000-\u00ff]/);
+  if (bad) {
+    console.error(
+      `[supabase] ${name} tiene un carácter que no cabe en un encabezado HTTP: ` +
+        `"${bad[0]}" (U+${bad[0].codePointAt(0)!.toString(16).toUpperCase().padStart(4, '0')}), ` +
+        `en la posición ${bad.index}. Casi siempre es basura de copiar y pegar. ` +
+        `Vuelve a copiar el valor desde Supabase (Settings -> API) con el botón de copiar ` +
+        `y pégalo de nuevo, borrando antes el campo entero.`
+    );
+    return undefined;
+  }
+  return trimmed;
+}
+
+const supabaseUrl = cleanEnv(import.meta.env.VITE_SUPABASE_URL as string | undefined, 'VITE_SUPABASE_URL');
+const supabaseAnonKey = cleanEnv(import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined, 'VITE_SUPABASE_ANON_KEY');
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
