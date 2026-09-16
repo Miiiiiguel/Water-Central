@@ -194,6 +194,42 @@ opciones locales son **Wompi** (de Bancolombia) o **Mercado Pago** — se
 integran igual (checkout hospedado + webhook) y podrían convivir con
 Stripe. Avísame y lo armo cuando tengas la cuenta.
 
+## 2a-bis. Correo saliente (Resend)
+
+Sin esto la app no manda **ningún** correo, y dos cosas se rompen sin
+hacer ruido:
+
+- Quien paga el plan de acción sólo puede volver a verlo desde el mismo
+  navegador: la referencia vive en su `localStorage`. Cierra la pestaña,
+  limpia el navegador o lo abre en el celular y **pierde lo que pagó**,
+  aunque la fila siga intacta en la base de datos.
+- Un lead que entra de madrugada se queda en la campanita del dashboard.
+  Si nadie abre el dashboard, el lead se enfría.
+
+1. [resend.com](https://resend.com) → verifica tu dominio → **API Keys**.
+2. Tres variables:
+   - `RESEND_API_KEY`
+   - `EMAIL_FROM` — el remitente verificado, p. ej.
+     `Easycomex <hola@easycomex.com>`
+   - `TEAM_EMAIL` — a dónde le llegan los leads al equipo
+
+Qué sale con eso puesto:
+
+| Cuándo | A quién | Qué lleva |
+|---|---|---|
+| Se marca un pago | Al comprador | Recibo + **el enlace para volver a su plan** |
+| Formulario de contacto | Al equipo | Datos del lead; responder le escribe directo a él |
+| Formulario de contacto | A quien escribió | Acuse: llegó, respondemos en 24 h hábiles |
+| Cotización de flete | Al equipo | Origen, destino, peso y tipo de cliente |
+
+Y en `/diagnostico` hay un **"¿ya compraste tu plan y lo perdiste?"** que
+reenvía el enlace al correo con el que se pagó. Contesta lo mismo exista
+o no ese correo, para que nadie pueda averiguar quién te compró probando
+direcciones.
+
+Sin `RESEND_API_KEY` todo esto queda apagado y la app funciona igual que
+antes — ninguna ruta falla por no poder mandar un correo.
+
 ## 2b. Diagnóstico de madurez (Wompi)
 
 La página `/diagnostico` es el cuestionario del equipo: 17 preguntas en

@@ -90,7 +90,9 @@ export const corsPolicy: RequestHandler = (req, res, next) => {
 
 // Reject anything that isn't a method this API actually uses.
 export const methodAllowlist: RequestHandler = (req, res, next) => {
-  if (!['GET', 'POST', 'HEAD', 'OPTIONS'].includes(req.method)) {
+  // DELETE entró con /api/account: borrar la cuenta es lo único que
+  // esta API borra, y merece el verbo correcto.
+  if (!['GET', 'POST', 'DELETE', 'HEAD', 'OPTIONS'].includes(req.method)) {
     logSecurityEvent('method_rejected', req);
     return res.status(405).json({ error: 'Method not allowed' });
   }

@@ -50,6 +50,9 @@ healthRouter.get('/health', async (req, res) => {
         set('WOMPI_INTEGRITY_SECRET') &&
         set('WOMPI_EVENTS_SECRET'),
       publicAppUrl: set('PUBLIC_APP_URL'),
+      // Sin esto no sale recibo al comprador ni aviso de lead al equipo.
+      email: set('RESEND_API_KEY') && set('EMAIL_FROM'),
+      emailTeamInbox: set('TEAM_EMAIL'),
     },
   });
 });

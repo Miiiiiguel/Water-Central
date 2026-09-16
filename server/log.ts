@@ -17,6 +17,7 @@ export type SecurityEventType =
   | 'webhook_signature_failed'
   | 'webhook_unauthorized'
   | 'csp_violation'
+  | 'account_deleted'
   | 'server_error';
 
 export function logSecurityEvent(type: SecurityEventType, req: Request | null, details: Record<string, unknown> = {}) {

@@ -15,6 +15,7 @@ import { RESUME_EVENT, openExternal } from '@/lib/native';
 import NotificationBell from '@/components/NotificationBell';
 import CountUp from '@/components/CountUp';
 import MfaSetup from '@/components/MfaSetup';
+import DeleteAccount from '@/components/DeleteAccount';
 import MfaChallenge from '@/components/MfaChallenge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { fetchQuota, type ResearchQuota } from '@/lib/research';
@@ -631,6 +632,8 @@ function IntegrationsPanel() {
     { key: 'supabase', name: 'Supabase', group: 'core', description: { es: 'Login, registro, base de datos, notificaciones.', en: 'Login, sign-up, database, notifications.' } },
     { key: 'stripe', name: 'Stripe', group: 'core', description: { es: 'Cobros con tarjeta.', en: 'Card payments.' } },
     { key: 'stripeWebhook', name: 'Stripe webhook', group: 'core', description: { es: 'Registra cada pago en el dashboard.', en: 'Records each payment in the dashboard.' } },
+    { key: 'email', name: 'Correo (Resend)', group: 'core', description: { es: 'Recibo al comprador y aviso de cada lead. Sin esto, nada sale por correo.', en: 'Buyer receipt and lead alerts. Without it, no email goes out.' } },
+    { key: 'emailTeamInbox', name: 'Bandeja del equipo', group: 'core', description: { es: 'A qué correo llegan los leads (TEAM_EMAIL).', en: 'Where lead alerts land (TEAM_EMAIL).' } },
     { key: 'wompi', name: 'Wompi', group: 'core', description: { es: 'Cobro del plan de acción del diagnóstico (Colombia).', en: 'Charges the diagnostic action plan (Colombia).' } },
     { key: 'publicAppUrl', name: 'PUBLIC_APP_URL', group: 'core', description: { es: 'A dónde vuelve el cliente tras pagar y qué orígenes pueden llamar a /api.', en: 'Where the customer returns after paying, and which origins may call /api.' } },
     { key: 'push', name: 'Push', group: 'core', description: { es: 'Notificaciones con la app cerrada.', en: 'Notifications with the app closed.' } },
@@ -935,6 +938,9 @@ export default function Dashboard() {
         {profile?.role === 'vendedor' ? <VendedorDashboard /> : <ClienteDashboard />}
         <div className="mt-6">
           <MfaSetup />
+        </div>
+        <div className="mt-6">
+          <DeleteAccount />
         </div>
       </main>
     </div>

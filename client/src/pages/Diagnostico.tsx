@@ -244,7 +244,91 @@ function IntroScreen({ lead, onChange, onStart, es }: { lead: Lead; onChange: (l
           {es ? 'Tus datos se usan solo para tu diagnóstico y seguimiento. No los compartimos.' : 'Your details are used only for your diagnosis and follow-up. We never share them.'}
         </p>
       </form>
+
+      <RecoverBox es={es} />
     </motion.div>
+  );
+}
+
+/**
+ * "Ya compré mi plan y lo perdí."
+ *
+ * La referencia vive en el localStorage del navegador: quien cambia de
+ * equipo, limpia el navegador o simplemente cierra la pestaña se queda
+ * sin lo que pagó. La fila sigue en el servidor; esto es la puerta.
+ *
+ * El servidor contesta lo mismo exista o no ese correo, así que acá se
+ * muestra ese mismo mensaje sin prometer que algo salió.
+ */
+function RecoverBox({ es }: { es: boolean }) {
+  const [open, setOpen] = useState(false);
+  const [correo, setCorreo] = useState('');
+  const [state, setState] = useState<'idle' | 'sending' | 'done'>('idle');
+  const [error, setError] = useState<string | null>(null);
+
+  const enviar = async () => {
+    setState('sending');
+    setError(null);
+    try {
+      const res = await fetch('/api/diagnostic/recover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error ?? (es ? 'No se pudo enviar.' : 'Could not send.'));
+        setState('idle');
+        return;
+      }
+      setState('done');
+    } catch {
+      setError(es ? 'No hay conexión. Intenta de nuevo.' : 'No connection. Try again.');
+      setState('idle');
+    }
+  };
+
+  return (
+    <div className="mx-auto mt-6 max-w-2xl text-center text-sm">
+      {!open ? (
+        <button type="button" onClick={() => setOpen(true)} className="text-muted-foreground underline hover:text-accent">
+          {es ? '¿Ya compraste tu plan de acción y lo perdiste?' : 'Already bought your action plan and lost it?'}
+        </button>
+      ) : state === 'done' ? (
+        <p className="rounded-2xl bg-orange-50 px-5 py-4 text-left text-muted-foreground">
+          {es
+            ? 'Si ese correo tiene un plan de acción pagado, ya va en camino. Revisa también la carpeta de spam.'
+            : 'If that address has a paid action plan, it is on its way. Check your spam folder too.'}
+        </p>
+      ) : (
+        <div className="rounded-2xl bg-gray-50 px-5 py-4 text-left">
+          <p className="mb-2 font-semibold text-primary">{es ? 'Te reenviamos el enlace' : 'We will resend your link'}</p>
+          <p className="mb-3 text-xs text-muted-foreground">
+            {es ? 'Escribe el correo con el que pagaste.' : 'Enter the email you paid with.'}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <input
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              placeholder="correo@empresa.com"
+              className="min-w-0 flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-accent"
+            />
+            <button
+              type="button"
+              onClick={enviar}
+              disabled={!correo.includes('@') || state === 'sending'}
+              className="tap-scale-sm rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+            >
+              {state === 'sending' ? (es ? 'Enviando…' : 'Sending…') : es ? 'Enviar' : 'Send'}
+            </button>
+          </div>
+          {error && <p className="mt-2 text-xs font-semibold text-red-600">{error}</p>}
+        </div>
+      )}
+    </div>
   );
 }
 

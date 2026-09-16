@@ -10,6 +10,7 @@ import {
   fetchTransaction, integritySignature, transactionPaysFor, verifyEventChecksum, wompiConfigured, wompiEnv, type WompiEvent,
 } from './wompi';
 import { FLAT, TOTAL_QUESTIONS, gapsIn, scorePct, tierFor, type Answer } from '../client/src/lib/diagnosticContent';
+import { appUrl, diagnosticReceipt, emailConfigured, sendEmail } from './email';
 
 // Diagnóstico de madurez.
 //
@@ -96,8 +97,10 @@ async function loadRow(ref: string): Promise<DiagnosticRow | null> {
 async function markPaid(ref: string, tx: { id?: string; amount_in_cents?: number; currency?: string }) {
   const admin = getSupabaseAdmin();
   if (!admin) return;
-  // Idempotent on purpose: the webhook and /confirm can both arrive.
-  await admin
+  // Idempotent on purpose: el webhook y /confirm pueden llegar los dos.
+  // `.select()` dice si esta llamada fue la que lo marcó; la segunda no
+  // devuelve filas, y así el recibo sale una sola vez.
+  const { data } = await admin
     .from('diagnostics')
     .update({
       paid: true,
@@ -108,7 +111,44 @@ async function markPaid(ref: string, tx: { id?: string; amount_in_cents?: number
       currency: tx.currency ?? null,
     })
     .eq('ref', ref)
-    .eq('paid', false);
+    .eq('paid', false)
+    .select('*');
+
+  const row = (data as DiagnosticRow[] | null)?.[0];
+  if (row) void sendReceipt(row);
+}
+
+/**
+ * El recibo con el enlace para volver a entrar.
+ *
+ * La referencia vive en el localStorage del comprador: si cierra la
+ * pestaña o cambia de equipo, este correo es su única forma de volver a
+ * lo que pagó. Se manda sin esperar y sin propagar errores — un correo
+ * caído no puede deshacer un pago que ya entró.
+ */
+async function sendReceipt(row: DiagnosticRow) {
+  if (!emailConfigured() || !row.correo) return;
+  const base = appUrl();
+  if (!base) {
+    console.warn('[diagnostic] PUBLIC_APP_URL sin definir: no se manda el recibo, el enlace saldría roto.');
+    return;
+  }
+  const gaps = gapsIn(scoredAnswers(row.answers)).length;
+  const sent = await sendEmail(
+    diagnosticReceipt(
+      {
+        nombre: row.nombre ?? '',
+        empresa: row.empresa ?? '',
+        correo: row.correo,
+        score: row.score,
+        tier: tierFor(row.score).name,
+        gaps,
+        ref: row.ref,
+      },
+      base
+    )
+  );
+  if (!sent) console.error('[diagnostic] no se pudo mandar el recibo de', row.ref);
 }
 
 /** What the browser is allowed to see for a row. Actions only once paid. */
@@ -268,6 +308,38 @@ diagnosticRouter.post('/diagnostic/wompi-events', express.json({ limit: '64kb' }
     }
   }
   return res.json({ received: true });
+});
+
+// "Perdí mi diagnóstico": se lo reenviamos al correo con el que pagó.
+//
+// Contesta lo mismo exista o no ese correo. Si dijera "ese correo no
+// tiene nada", cualquiera podría averiguar quién te compró probando
+// direcciones — y eso no se lo debemos a nadie.
+diagnosticRouter.post('/diagnostic/recover', formRateLimiter, express.json({ limit: JSON_BODY_LIMIT }), async (req, res) => {
+  const correo = z.string().trim().toLowerCase().email().max(160).safeParse(req.body?.correo);
+  // Un "ok" también cuando el correo viene mal formado sería mentirle a
+  // quien se equivocó escribiendo; eso sí se le puede decir.
+  if (!correo.success) return res.status(400).json({ error: 'Escribe un correo válido.' });
+
+  const respuesta = {
+    ok: true,
+    message: 'Si ese correo tiene un plan de acción pagado, ya va en camino. Revisa también la carpeta de spam.',
+  };
+
+  const admin = getSupabaseAdmin();
+  if (!admin || !emailConfigured()) return res.json(respuesta);
+
+  const { data } = await admin
+    .from('diagnostics')
+    .select('*')
+    .eq('correo', correo.data)
+    .eq('paid', true)
+    .order('paid_at', { ascending: false })
+    .limit(1);
+
+  const row = (data as DiagnosticRow[] | null)?.[0];
+  if (row) await sendReceipt(row);
+  return res.json(respuesta);
 });
 
 // The result behind a reference. Actions come back only if paid.

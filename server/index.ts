@@ -12,6 +12,8 @@ import { researchRouter } from "./research";
 import { diagnosticRouter } from "./diagnostic";
 import { freightRouter } from "./freight";
 import { cspRouter } from "./csp";
+import { accountRouter } from "./account";
+import { seoRouter } from "./seo";
 import { securityHeaders, permissionsPolicy, corsPolicy, methodAllowlist, apiRateLimiter } from "./security";
 import compression from "compression";
 import { validateEnv } from "./env";
@@ -50,6 +52,7 @@ async function startServer() {
   app.use("/api", diagnosticRouter);
   app.use("/api", freightRouter);
   app.use("/api", cspRouter);
+  app.use("/api", accountRouter);
   // Anything under /api that no router claimed is a 404, never the SPA shell.
   app.use("/api", (_req, res) => res.status(404).json({ error: "Not found" }));
 
@@ -71,12 +74,18 @@ async function startServer() {
     res.type("application/json").sendFile(path.join(staticPath, ".well-known", "apple-app-site-association"));
   });
 
-  app.use(express.static(staticPath, { dotfiles: "allow" })); // .well-known/*
+  // robots.txt y sitemap.xml, generados con la URL real de la app.
+  const seo = seoRouter(staticPath);
+  app.use(seo.router);
 
-  // Handle client-side routing - serve index.html for all routes
-  app.get("*", (_req, res) => {
-    res.sendFile(path.join(staticPath, "index.html"));
-  });
+  // `index: false` a propósito: por defecto express.static contesta "/"
+  // con index.html tal cual está en disco, y nuestro handler de abajo
+  // —el que corrige el canonical— no llegaba a ejecutarse nunca.
+  app.use(express.static(staticPath, { dotfiles: "allow", index: false })); // .well-known/*
+
+  // Handle client-side routing - serve index.html for all routes, con el
+  // canonical apuntando a donde la app vive de verdad.
+  app.get("*", (req, res) => seo.sendIndex(req, res));
 
   // Sentry sees the error first (with request context), then we answer.
   attachErrorMonitoring(app);

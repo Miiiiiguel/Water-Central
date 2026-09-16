@@ -98,6 +98,20 @@ services:
       - key: STRIPE_PRICE_DIAGNOSTICO_MADUREZ
         sync: false
 
+      # --- Correo saliente (Resend) -----------------------------------
+      # Sin estas, la app no manda un solo correo: el comprador del
+      # diagnóstico no recibe el enlace para volver a lo que pagó, y un
+      # lead que entra de madrugada se queda sólo en la campanita.
+      # resend.com -> API Keys. El dominio hay que verificarlo allá.
+      - key: RESEND_API_KEY
+        sync: false
+      # Remitente verificado, p. ej. "Easycomex <hola@easycomex.com>"
+      - key: EMAIL_FROM
+        sync: false
+      # A dónde le llegan los leads al equipo.
+      - key: TEAM_EMAIL
+        sync: false
+
       # --- Marco Polo -------------------------------------------------
       # Sin la de Anthropic, el chat sigue respondiendo con su guion
       # básico en vez de con IA.
