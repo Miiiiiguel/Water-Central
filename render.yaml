@@ -13,13 +13,15 @@ services:
   - type: web
     name: easycomex
     runtime: node
-    # `free` no pide tarjeta, pero la app duerme tras 15 minutos sin
-    # tráfico y despertar tarda ~50 segundos. Sirve para probar y para
-    # enseñarle esto a alguien avisado; no para vender.
+    # `starter`: USD 7/mes, siempre despierta. El plan `free` hacía que
+    # la app durmiera tras 15 minutos sin tráfico (~50 segundos para
+    # despertar) y que cada despliegue tumbara el servicio entero, que es
+    # de donde salían los 502 mientras construía.
     #
-    # Cuando salgas a vender, cambia esta línea a `starter` (USD 7/mes,
-    # siempre despierta) y vuelve a desplegar. Es lo único que cambia.
-    plan: free
+    # Ojo: el plan del espacio de trabajo (Professional) y el tipo de
+    # instancia de este servicio son cosas distintas. Pagar el primero no
+    # mueve el segundo — eso lo decide esta línea.
+    plan: starter
     region: oregon
     buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
     startCommand: pnpm start

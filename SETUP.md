@@ -96,6 +96,8 @@ los formularios y Marco Polo.
 
 1. [render.com](https://render.com) → **New** → **Blueprint** → conecta
    este repositorio. Render lee `render.yaml` y arma el servicio solo.
+   El blueprint pide una instancia `starter` (USD 7/mes): el plan `free`
+   duerme tras 15 minutos y se cae en cada despliegue.
 2. Te va a pedir cada variable marcada `sync: false`. **Puedes dejarlas
    casi todas vacías y llenarlas después**; lo mínimo para que la app
    sirva de algo son las tres de Supabase:
