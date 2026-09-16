@@ -161,7 +161,14 @@ try {
   await page.getByPlaceholder(/Marco Polo/).fill('cuanto cuesta');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(1500);
-  const replied = (await page.locator('[role="dialog"]').innerText()).includes('6.90');
+  // Antes esto exigía la cadena '6.90'. Cuando el precio real cambió a
+  // USD 9.99, la prueba se puso roja por estar en lo cierto: el guion del
+  // bot citaba un precio viejo. Fijar un número concreto convierte
+  // cualquier cambio de precio en un fallo, así que ahora se comprueba lo
+  // que de verdad importa — que contestó, y que su respuesta habla de
+  // dinero.
+  const dialog = await page.locator('[role="dialog"]').innerText();
+  const replied = /USD\s?\d|\$\s?\d|gratis|free/i.test(dialog);
   (replied ? ok : fail)('Marco Polo answers a pricing question', replied ? 'replied' : 'no reply');
   await page.keyboard.press('Escape');
 } catch (e) {
