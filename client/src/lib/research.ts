@@ -73,9 +73,20 @@ export type ResearchOutcome =
   | { kind: 'quota_exhausted'; message: string; quota?: ResearchQuota }
   | { kind: 'failed'; message: string };
 
+/**
+ * Cómo se llaman las fuentes DE CARA AL CLIENTE.
+ *
+ * Nunca el nombre del proveedor. Si alguien lee "Kalodata" en la
+ * pantalla, lo siguiente que hace es buscarlo y contratarlo directo — y
+ * ahí se perdió la razón por la que paga esto. Se nombra el dato, no de
+ * dónde sale.
+ *
+ * El equipo sí ve los nombres reales, en el panel de Integraciones del
+ * dashboard, que sólo carga para un vendedor.
+ */
 export const SOURCE_LABEL: Record<ResearchSource, string> = {
-  kalodata: 'Kalodata',
-  sicex: 'Sicex',
+  kalodata: 'TikTok Shop',
+  sicex: 'Comercio exterior',
 };
 
 export const SOURCE_BLURB: Record<ResearchSource, { es: string; en: string }> = {

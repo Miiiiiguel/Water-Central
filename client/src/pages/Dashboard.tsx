@@ -310,7 +310,11 @@ function BillingPortalButton() {
   );
 }
 
-// Marco Polo's research allowance: how many Kalodata/Sicex lookups this
+// La cuota de investigación de Marco Polo. Ojo con los textos de este
+// panel: lo ve el cliente, así que nombran el DATO (TikTok Shop, comercio
+// exterior), nunca al proveedor. Los nombres reales viven en el panel de
+// Integraciones, que sólo carga para un vendedor.
+// Marco Polo's research allowance: how many lookups this
 // account has left today, and whether those sources are connected at all.
 // Every number here comes from the server — the client cannot grant
 // itself lookups, and nothing is shown for a source that is not wired up.
@@ -356,7 +360,7 @@ function ResearchQuotaCard() {
           <div className="min-w-0">
             <p className="font-bold text-primary">{es ? 'Investigación de Marco Polo' : "Marco Polo's research"}</p>
             <p className="text-xs text-muted-foreground">
-              {es ? 'Consultas a Kalodata y Sicex desde el chat' : 'Kalodata and Sicex lookups from the chat'}
+              {es ? 'Consultas de mercado desde el chat' : 'Market lookups from the chat'}
             </p>
           </div>
         </div>
@@ -387,8 +391,8 @@ function ResearchQuotaCard() {
             ? 'Tu plan define cuántas consultas trae cada día. Cuando se acaban, seguís con créditos comprados.'
             : 'Your plan sets how many lookups you get each day. When they run out, purchased credits take over.'
           : es
-            ? 'Kalodata y Sicex todavía no están conectados: hasta que el equipo cargue los accesos, Marco Polo no muestra datos de esas fuentes (y nunca inventa números).'
-            : 'Kalodata and Sicex are not connected yet: until the team loads the access, Marco Polo shows no data from those sources (and never invents numbers).'}
+            ? 'La inteligencia de mercado todavía no está activa en tu cuenta. Hasta entonces Marco Polo no muestra esos datos — y nunca inventa números.'
+            : 'Market intelligence is not active on your account yet. Until then Marco Polo shows no such data — and never invents numbers.'}
       </p>
     </div>
   );
@@ -619,20 +623,30 @@ function IntegrationsPanel() {
   const { language } = useLanguage();
   const { getAccessToken } = useAuth();
   const [health, setHealth] = useState<HealthIntegrations | null | 'error'>(null);
+  // Nombres reales de los proveedores: sólo los manda el servidor a un
+  // vendedor autenticado, así no viajan en el paquete del navegador.
+  const [sources, setSources] = useState<Record<string, string> | null>(null);
 
   useEffect(() => {
     // The server only reveals configuration to a verified vendedor token.
     const token = getAccessToken();
     fetch('/api/health', { headers: token ? { Authorization: `Bearer ${token}` } : {} })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => setHealth(d.integrations ?? 'error'))
+      .then((d) => {
+        setHealth(d.integrations ?? 'error');
+        setSources((d.sources as Record<string, string> | undefined) ?? null);
+      })
       .catch(() => setHealth('error'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const rows: { key: string; name: string; description: { es: string; en: string }; group: 'intel' | 'core' }[] = [
-    { key: 'kalodata', name: 'Kalodata', group: 'intel', description: { es: 'Productos en tendencia, ventas y competidores en TikTok Shop.', en: 'Trending products, sales and competitors on TikTok Shop.' } },
-    { key: 'sicex', name: 'Sicex', group: 'intel', description: { es: 'Datos reales de importación/exportación por país y producto.', en: 'Real import/export data by country and product.' } },
+    // El nombre del proveedor llega del servidor (ver server/health.ts):
+    // escribirlo acá lo metería en el paquete del navegador. Hasta que
+    // llegue se muestra el nombre del dato, que es lo que ve el cliente
+    // en todas partes.
+    { key: 'kalodata', name: sources?.kalodata ?? 'Inteligencia TikTok Shop', group: 'intel', description: { es: 'Productos en tendencia, ventas y competidores en TikTok Shop.', en: 'Trending products, sales and competitors on TikTok Shop.' } },
+    { key: 'sicex', name: sources?.sicex ?? 'Comercio exterior', group: 'intel', description: { es: 'Datos reales de importación/exportación por país y producto.', en: 'Real import/export data by country and product.' } },
     { key: 'supabase', name: 'Supabase', group: 'core', description: { es: 'Login, registro, base de datos, notificaciones.', en: 'Login, sign-up, database, notifications.' } },
     { key: 'stripe', name: 'Stripe', group: 'core', description: { es: 'Cobros con tarjeta.', en: 'Card payments.' } },
     { key: 'stripeWebhook', name: 'Stripe webhook', group: 'core', description: { es: 'Registra cada pago en el dashboard.', en: 'Records each payment in the dashboard.' } },
@@ -709,8 +723,8 @@ function IntegrationsPanel() {
       <div className="px-6 py-4 border-t border-gray-100">
         <p className="text-xs text-muted-foreground">
           {language === 'es'
-            ? 'Cada fila se pone en verde sola al agregar su variable en el hosting (ver README). Kalodata y Sicex no muestran datos hasta tener acceso real — nunca números inventados.'
-            : 'Each row turns green on its own once its variable is added on the host (see README). Kalodata and Sicex show no data until real access exists — never made-up numbers.'}
+            ? 'Cada fila se pone en verde sola al agregar su variable en el hosting (ver README). Las fuentes de mercado no muestran datos hasta tener acceso real — nunca números inventados.'
+            : 'Each row turns green on its own once its variable is added on the host (see README). Market sources show no data until real access exists — never made-up numbers.'}
         </p>
       </div>
     </div>

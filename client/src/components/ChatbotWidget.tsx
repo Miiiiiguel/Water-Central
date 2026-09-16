@@ -37,8 +37,8 @@ function menuQuickReplies(language: string) {
   return [
     { label: language === 'es' ? '¿Cómo empiezo?' : 'How do I start?', value: language === 'es' ? 'como empiezo' : 'how do i start' },
     { label: language === 'es' ? '¿Cuánto cuesta?' : 'How much is it?', value: language === 'es' ? 'cuanto cuesta' : 'how much does it cost' },
-    { label: language === 'es' ? 'Investigar en Kalodata' : 'Research on Kalodata', value: '__research:kalodata__' },
-    { label: language === 'es' ? 'Investigar en Sicex' : 'Research on Sicex', value: '__research:sicex__' },
+    { label: language === 'es' ? 'Tendencias en TikTok Shop' : 'TikTok Shop trends', value: '__research:kalodata__' },
+    { label: language === 'es' ? 'Datos de comercio exterior' : 'Foreign trade data', value: '__research:sicex__' },
     { label: language === 'es' ? 'Calcular un flete' : 'Freight quote', value: language === 'es' ? 'flete' : 'freight' },
     { label: language === 'es' ? 'Hablar con una persona' : 'Talk to a person', value: '__human__' },
   ];

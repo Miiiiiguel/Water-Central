@@ -38,8 +38,8 @@ export const knowledgeBase: KnowledgeEntry[] = [
     id: 'quien-eres',
     keywords: ['quien eres', 'quién eres', 'marco polo', 'que eres', 'eres un bot', 'who are you', 'what are you'],
     answer: {
-      es: 'Soy Marco Polo, el asistente de Easycomex. Respondo sobre mercados, precios, logística y por dónde empezar, y puedo investigar demanda y competencia en Kalodata y Sicex. Lo que no sé, te lo digo y te paso con el equipo.',
-      en: "I'm Marco Polo, Easycomex's assistant. I answer questions about markets, pricing, logistics and where to start, and I can research demand and competition in Kalodata and Sicex. What I do not know, I say so and hand you to the team.",
+      es: 'Soy Marco Polo, el asistente de Easycomex. Respondo sobre mercados, precios, logística y por dónde empezar, y puedo investigar demanda y competencia con datos reales de TikTok Shop y de comercio exterior. Lo que no sé, te lo digo y te paso con el equipo.',
+      en: "I'm Marco Polo, Easycomex's assistant. I answer questions about markets, pricing, logistics and where to start, and I can research demand and competition with real TikTok Shop and foreign-trade data. What I do not know, I say so and hand you to the team.",
     },
   },
   {

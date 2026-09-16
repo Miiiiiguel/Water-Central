@@ -146,7 +146,14 @@ researchRouter.post('/research', researchRateLimiter, requireUser(), express.jso
       error: 'source_not_connected',
       source,
       missing: missingConfig(source),
-      message: `${source === 'kalodata' ? 'Kalodata' : 'Sicex'} todavía no está conectado. Falta configurar ${missingConfig(source).join(' y ')} en el servidor.`,
+      // Al cliente no se le nombra al proveedor ni la variable que falta:
+      // lo primero le regala la fuente, lo segundo es configuración
+      // interna. Lo que sí necesita el equipo está en el panel de
+      // Integraciones del dashboard, que sólo ve un vendedor.
+      message:
+        source === 'kalodata'
+          ? 'La inteligencia de TikTok Shop todavía no está disponible. Escríbenos y la activamos para tu cuenta.'
+          : 'Los datos de comercio exterior todavía no están disponibles. Escríbenos y los activamos para tu cuenta.',
     });
   }
 
@@ -192,5 +199,9 @@ researchRouter.post('/research', researchRateLimiter, requireUser(), express.jso
   }
 
   const quota = await getQuota(auth.user.id);
-  res.json({ source, query, country: country ?? null, billed, result, quota });
+  // `sourceUrl` apunta al endpoint del proveedor. Aunque hoy no se pinte
+  // en pantalla, viaja en el JSON y cualquiera lo ve abriendo las
+  // herramientas del navegador — es regalar de dónde salen los datos.
+  const { sourceUrl: _oculto, ...publico } = result as typeof result & { sourceUrl?: string };
+  res.json({ source, query, country: country ?? null, billed, result: publico, quota });
 });

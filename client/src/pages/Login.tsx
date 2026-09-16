@@ -25,20 +25,27 @@ export default function Login() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const { error } = await signIn(email, password);
-    if (error) {
+    try {
+      const { error } = await signIn(email, password);
+      if (error) {
+        // Same message for wrong email and wrong password: no account enumeration.
+        setError(language === 'es' ? 'Email o contraseña incorrectos.' : 'Incorrect email or password.');
+        return;
+      }
+      // Si la consulta de MFA falla, entrar igual: la sesión ya es válida
+      // y el servidor exige aal2 por su cuenta donde hace falta.
+      const status = await getMfaStatus().catch(() => ({ required: false }));
+      if (status.required) {
+        setMode('mfa');
+        return;
+      }
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('[login] falló sin avisar:', err);
+      setError(language === 'es' ? 'No pudimos entrar. Intenta de nuevo.' : 'We could not sign in. Try again.');
+    } finally {
       setLoading(false);
-      // Same message for wrong email and wrong password: no account enumeration.
-      setError(language === 'es' ? 'Email o contraseña incorrectos.' : 'Incorrect email or password.');
-      return;
     }
-    const status = await getMfaStatus();
-    setLoading(false);
-    if (status.required) {
-      setMode('mfa');
-      return;
-    }
-    navigate('/dashboard');
   };
 
   const handleForgot = async (e: FormEvent) => {

@@ -33,11 +33,21 @@ export default function Register() {
     }
 
     setLoading(true);
-    const { error } = await signUp(email, password, fullName, company);
-    setLoading(false);
+    // `finally` y no una línea suelta: si algo lanza, el botón tiene que
+    // dejar de girar igual. Un "Creando cuenta…" eterno no le dice a
+    // nadie si su cuenta se creó o no.
+    let result: { error: string | null };
+    try {
+      result = await signUp(email, password, fullName, company);
+    } catch (err) {
+      console.error('[registro] falló sin avisar:', err);
+      result = { error: language === 'es' ? 'No pudimos crear la cuenta. Intenta de nuevo.' : 'We could not create the account. Try again.' };
+    } finally {
+      setLoading(false);
+    }
 
-    if (error) {
-      setError(error);
+    if (result.error) {
+      setError(result.error);
       return;
     }
     setSuccess(true);

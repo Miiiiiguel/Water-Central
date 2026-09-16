@@ -149,31 +149,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp: AuthContextType['signUp'] = async (email, password, fullName, company) => {
     if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía (faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' };
-    const { data, error } = await (await getSupabase()).auth.signUp({
-      email: email.trim().toLowerCase(),
-      password,
-      options: { data: { full_name: fullName.trim(), company: company.trim(), referred_by_code: getStoredReferralCode() } },
-    });
-    if (error) return { error: error.message };
-    // The profiles row is created by a DB trigger (see supabase/schema.sql).
-    // As a fallback, upsert it here too in case the trigger isn't installed yet.
-    if (data.user) {
-      await (await getSupabase()).from('profiles').upsert({
-        id: data.user.id,
+    try {
+      const supabase = await getSupabase();
+      const { data, error } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
-        full_name: fullName.trim(),
-        company: company.trim(),
-        role: 'cliente',
+        password,
+        options: { data: { full_name: fullName.trim(), company: company.trim(), referred_by_code: getStoredReferralCode() } },
       });
+      if (error) return { error: error.message };
+
+      // La fila de `profiles` la crea un trigger de la base de datos (ver
+      // supabase/schema.sql). Este upsert es sólo una red por si el
+      // trigger no estuviera instalado — y va SIN await a propósito:
+      //
+      // cuando Supabase pide confirmar el correo, quien acaba de
+      // registrarse todavía no tiene sesión, así que este upsert puede
+      // quedarse esperando contra las políticas RLS. Esperarlo dejaba el
+      // botón "Creando cuenta…" girando para siempre aunque la cuenta ya
+      // estuviera creada.
+      if (data.user) {
+        void supabase
+          .from('profiles')
+          .upsert({
+            id: data.user.id,
+            email: email.trim().toLowerCase(),
+            full_name: fullName.trim(),
+            company: company.trim(),
+            role: 'cliente',
+          })
+          .then(({ error: upsertError }) => {
+            if (upsertError) console.warn('[auth] el trigger de profiles ya hizo su trabajo, o RLS bloqueó el respaldo:', upsertError.message);
+          });
+      }
+
+      trackSignUp({ company });
+      return { error: null };
+    } catch (err) {
+      console.error('[auth] signUp falló:', err);
+      return { error: 'No pudimos crear la cuenta. Revisa tu conexión e intenta de nuevo.' };
     }
-    trackSignUp({ company });
-    return { error: null };
   };
 
   const signIn: AuthContextType['signIn'] = async (email, password) => {
     if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía (faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' };
-    const { error } = await (await getSupabase()).auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
-    return { error: error ? error.message : null };
+    try {
+      const { error } = await (await getSupabase()).auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+      return { error: error ? error.message : null };
+    } catch (err) {
+      console.error('[auth] signIn falló:', err);
+      return { error: 'No pudimos entrar. Revisa tu conexión e intenta de nuevo.' };
+    }
   };
 
   const signInWithGoogle: AuthContextType['signInWithGoogle'] = async () => {

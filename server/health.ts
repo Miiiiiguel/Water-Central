@@ -24,6 +24,12 @@ healthRouter.get('/health', async (req, res) => {
   res.json({
     ok: true,
     env: process.env.NODE_ENV || 'development',
+    // Los nombres de los proveedores de datos se mandan sólo acá, a un
+    // vendedor autenticado. Si vivieran en el código del cliente
+    // viajarían dentro del JavaScript que descarga cualquiera con
+    // sesión, y bastaría abrir las herramientas del navegador para
+    // saber a quién contratar directo.
+    sources: { kalodata: 'Kalodata', sicex: 'Sicex' },
     integrations: {
       supabase: set('VITE_SUPABASE_URL') && set('VITE_SUPABASE_ANON_KEY'),
       supabaseServer: set('SUPABASE_SERVICE_ROLE_KEY'),
