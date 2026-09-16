@@ -1,0 +1,213 @@
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import type { Session, User } from '@supabase/supabase-js';
+import { supabase, isSupabaseConfigured, Profile } from '@/lib/supabase';
+import { trackSignUp } from '@/lib/analytics';
+import { getStoredReferralCode, clearStoredReferralCode } from '@/lib/referral';
+import { getMfaStatus } from '@/lib/mfa';
+
+interface AuthContextType {
+  session: Session | null;
+  user: User | null;
+  profile: Profile | null;
+  loading: boolean;
+  configured: boolean;
+  // The account has 2FA enabled but this session hasn't passed the code yet.
+  mfaRequired: boolean;
+  refreshMfa: () => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, company: string) => Promise<{ error: string | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signInWithGoogle: () => Promise<{ error: string | null }>;
+  resetPassword: (email: string) => Promise<{ error: string | null }>;
+  updatePassword: (password: string) => Promise<{ error: string | null }>;
+  signOut: () => Promise<void>;
+  // Bearer token for calling our own /api routes as the logged-in user.
+  getAccessToken: () => string | null;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [mfaRequired, setMfaRequired] = useState(false);
+
+  const fetchProfile = async (userId: string) => {
+    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
+    setProfile((data as Profile) ?? null);
+  };
+
+  const refreshMfa = async () => {
+    try {
+      const status = await getMfaStatus();
+      setMfaRequired(status.required);
+    } catch {
+      setMfaRequired(false);
+    }
+  };
+
+  // Email sign-ups pass the referral code as auth metadata (resolved by
+  // the DB trigger). Google sign-ins can't, so we apply it here on the
+  // first session — the RPC is a no-op if the user was already referred.
+  const applyPendingReferral = async () => {
+    const code = getStoredReferralCode();
+    if (!code) return;
+    const { data } = await supabase.rpc('apply_referral_code', { p_code: code });
+    if (data === true) clearStoredReferralCode();
+  };
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return;
+    }
+
+    // `loading` tapa el dashboard con un spinner. Si la lectura de la
+    // sesión falla o se queda colgada y nadie apaga esa bandera, la app
+    // gira para siempre sin decir por qué — que es exactamente lo que
+    // pasa con una llave mal puesta: supabase-js rechaza la promesa y un
+    // `.then()` solo nunca se entera. Así que esto se apaga siempre: al
+    // resolver, al fallar, y por tiempo si la red no contesta.
+    let settled = false;
+    const done = () => {
+      if (settled) return;
+      settled = true;
+      setLoading(false);
+    };
+
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        setSession(data.session);
+        if (data.session?.user) {
+          fetchProfile(data.session.user.id);
+          refreshMfa();
+        }
+        done();
+      })
+      .catch((err) => {
+        console.error(
+          '[auth] No se pudo leer la sesión de Supabase. La app sigue, pero sin login. ' +
+            'Casi siempre es VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY mal puestas:',
+          err
+        );
+        done();
+      });
+
+    const timeout = window.setTimeout(() => {
+      if (!settled) {
+        console.error('[auth] Supabase no contestó en 8 segundos. Seguimos sin sesión.');
+        done();
+      }
+    }, 8000);
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, newSession) => {
+      setSession(newSession);
+      if (newSession?.user) {
+        fetchProfile(newSession.user.id);
+        refreshMfa();
+        if (event === 'SIGNED_IN') applyPendingReferral().then(() => fetchProfile(newSession.user.id));
+      } else {
+        setProfile(null);
+        setMfaRequired(false);
+      }
+    });
+
+    return () => {
+      window.clearTimeout(timeout);
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const signUp: AuthContextType['signUp'] = async (email, password, fullName, company) => {
+    if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía (faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' };
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim().toLowerCase(),
+      password,
+      options: { data: { full_name: fullName.trim(), company: company.trim(), referred_by_code: getStoredReferralCode() } },
+    });
+    if (error) return { error: error.message };
+    // The profiles row is created by a DB trigger (see supabase/schema.sql).
+    // As a fallback, upsert it here too in case the trigger isn't installed yet.
+    if (data.user) {
+      await supabase.from('profiles').upsert({
+        id: data.user.id,
+        email: email.trim().toLowerCase(),
+        full_name: fullName.trim(),
+        company: company.trim(),
+        role: 'cliente',
+      });
+    }
+    trackSignUp({ company });
+    return { error: null };
+  };
+
+  const signIn: AuthContextType['signIn'] = async (email, password) => {
+    if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía (faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' };
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+    return { error: error ? error.message : null };
+  };
+
+  const signInWithGoogle: AuthContextType['signInWithGoogle'] = async () => {
+    if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía (faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' };
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+        queryParams: { access_type: 'offline', prompt: 'select_account' },
+      },
+    });
+    return { error: error ? error.message : null };
+  };
+
+  const resetPassword: AuthContextType['resetPassword'] = async (email) => {
+    if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía.' };
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+      redirectTo: `${window.location.origin}/restablecer`,
+    });
+    return { error: error ? error.message : null };
+  };
+
+  const updatePassword: AuthContextType['updatePassword'] = async (password) => {
+    const { error } = await supabase.auth.updateUser({ password });
+    return { error: error ? error.message : null };
+  };
+
+  // Global scope: revokes the refresh token everywhere, not just this tab.
+  const signOut = async () => {
+    await supabase.auth.signOut({ scope: 'global' });
+    setProfile(null);
+    setMfaRequired(false);
+  };
+
+  const getAccessToken = () => session?.access_token ?? null;
+
+  return (
+    <AuthContext.Provider
+      value={{
+        session,
+        user: session?.user ?? null,
+        profile,
+        loading,
+        configured: isSupabaseConfigured,
+        mfaRequired,
+        refreshMfa,
+        signUp,
+        signIn,
+        signInWithGoogle,
+        resetPassword,
+        updatePassword,
+        signOut,
+        getAccessToken,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
+  return ctx;
+}

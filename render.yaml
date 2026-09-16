@@ -1,0 +1,164 @@
+# Despliegue en Render: Dashboard -> New -> Blueprint -> este repo.
+#
+# `sync: false` significa "Render te la pide al crear el servicio, y no
+# queda escrita en ningún archivo". Así es como las llaves llegan al
+# servidor sin pasar nunca por el repo.
+#
+# Casi todas son opcionales: si dejas una en blanco, esa integración se
+# queda apagada y la app sigue funcionando (lo dice el panel de
+# Integraciones del dashboard). Las que NO son opcionales están marcadas
+# abajo. Se pueden llenar después desde Render -> Environment sin volver
+# a desplegar código.
+services:
+  - type: web
+    name: easycomex
+    runtime: node
+    # `starter`: USD 7/mes, siempre despierta. El plan `free` hacía que
+    # la app durmiera tras 15 minutos sin tráfico (~50 segundos para
+    # despertar) y que cada despliegue tumbara el servicio entero, que es
+    # de donde salían los 502 mientras construía.
+    #
+    # Ojo: el plan del espacio de trabajo (Professional) y el tipo de
+    # instancia de este servicio son cosas distintas. Pagar el primero no
+    # mueve el segundo — eso lo decide esta línea.
+    plan: starter
+    region: oregon
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm start
+    # Render reinicia el servicio si esto deja de responder. La ruta no
+    # expone nada a quien no esté autenticado.
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Sin fijarla, Render elige su versión por defecto, que puede ser
+      # más vieja que la que usan el CI y el build local.
+      - key: NODE_VERSION
+        value: 22
+
+      # --- Obligatorias para que la app haga algo útil ----------------
+      # La URL pública del servicio, ya con https. Stripe y Wompi la usan
+      # para devolver al cliente después de pagar, y define qué orígenes
+      # pueden llamar a /api. Sin ella, la app confía en el host de la
+      # petición, que se puede falsificar.
+      - key: PUBLIC_APP_URL
+        sync: false
+      # Supabase -> Project Settings -> API
+      - key: VITE_SUPABASE_URL
+        sync: false
+      # La llave pública: `anon`/`public` en proyectos viejos (empieza
+      # con eyJ...), **Publishable key** (sb_publishable_...) en los
+      # nuevos. Cópiala con el botón de copiar: la tabla la muestra
+      # cortada con "..." y ese carácter rompe todas las peticiones.
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      # La otra: `service_role` en proyectos viejos, **Secret key**
+      # (sb_secret_...) en los nuevos. Salta la seguridad de todas las
+      # tablas: es lo que permite registrar un pago y guardar un
+      # diagnóstico. Solo acá, nunca con prefijo VITE_.
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+      # --- Wompi: el diagnóstico de madurez (SETUP.md §2b) ------------
+      # Sin estas cuatro, el diagnóstico funciona gratis pero nadie puede
+      # comprar el plan de acción.
+      - key: WOMPI_PUBLIC_KEY
+        sync: false
+      - key: WOMPI_PRIVATE_KEY
+        sync: false
+      - key: WOMPI_INTEGRITY_SECRET
+        sync: false
+      - key: WOMPI_EVENTS_SECRET
+        sync: false
+      # `sandbox` mientras pruebas con llaves pub_test_/prv_test_.
+      - key: WOMPI_ENV
+        value: sandbox
+      # Precio del plan de acción, en centavos de peso. 3990000 = $39.900
+      - key: DIAGNOSTIC_PRICE_COP_CENTS
+        value: 3990000
+      - key: DIAGNOSTIC_PRICE_USD_DISPLAY
+        value: "9.99"
+
+      # --- Stripe: el resto de los planes (SETUP.md §2) ---------------
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_ANALISIS_MERCADO
+        sync: false
+      - key: STRIPE_PRICE_ACOMPANAMIENTO
+        sync: false
+      - key: STRIPE_PRICE_CREDITOS_MARCO_POLO
+        sync: false
+      - key: STRIPE_PRICE_REPORTE_DETALLE
+        sync: false
+      - key: STRIPE_PRICE_REPORTE_PRONOSTICO
+        sync: false
+      - key: STRIPE_PRICE_DIAGNOSTICO_MADUREZ
+        sync: false
+
+      # --- Marco Polo -------------------------------------------------
+      # Sin la de Anthropic, el chat sigue respondiendo con su guion
+      # básico en vez de con IA.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # Voz premium. Sin esto usa la del navegador, que es gratis.
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_VOICE_ID
+        sync: false
+      # Ambos tienen valor por defecto en el código; solo se ponen acá
+      # para cambiar de modelo sin tocar el código.
+      - key: ANTHROPIC_MODEL
+        sync: false
+      - key: ELEVENLABS_MODEL_ID
+        sync: false
+
+      # --- Inteligencia de mercado (SETUP.md) -------------------------
+      # Kalodata: con la llave basta, el endpoint ya lo conoce el código.
+      - key: KALODATA_API_KEY
+        sync: false
+      - key: KALODATA_API_URL
+        sync: false
+      - key: KALODATA_AUTH_NAME
+        sync: false
+      # Sicex entrega los datos como una carpeta de Azure con un SAS.
+      # Es una credencial viva y con vencimiento.
+      - key: SICEX_SAS_URL
+        sync: false
+      - key: SICEX_API_KEY
+        sync: false
+      - key: SICEX_API_URL
+        sync: false
+
+      # --- Notificaciones push ----------------------------------------
+      # Sin esto la campanita dentro de la app sigue funcionando; lo que
+      # no llega es la notificación con la app cerrada.
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VITE_VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false
+      - key: PUSH_WEBHOOK_SECRET
+        sync: false
+
+      # --- Monitoreo de errores ---------------------------------------
+      # Sin esto todo va a los logs de Render y nada más.
+      - key: SENTRY_DSN
+        sync: false
+      - key: VITE_SENTRY_DSN
+        sync: false
+
+      # --- Marketing y agenda -----------------------------------------
+      - key: VITE_CALENDLY_URL
+        sync: false
+      - key: VITE_META_PIXEL_ID
+        sync: false
+      - key: VITE_TIKTOK_PIXEL_ID
+        sync: false
+      - key: VITE_GA_MEASUREMENT_ID
+        sync: false
