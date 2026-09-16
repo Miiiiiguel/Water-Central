@@ -33,7 +33,7 @@ export default function Estado() {
   const copy = async () => {
     if (!report) return;
     try {
-      await navigator.clipboard.writeText(report.text);
+      await navigator.clipboard.writeText(`${report.text}\nConstruido: ${__BUILD_TIME__}`);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -94,6 +94,17 @@ export default function Estado() {
                 {roto
                   ? 'Hay algo en rojo: eso es lo que impide entrar. La línea dice exactamente qué cambiar y dónde.'
                   : 'Todo en verde: la app llega al proyecto y el proyecto acepta la llave. Si aun así no podés entrar, el problema está en la cuenta concreta, no en la conexión.'}
+              </div>
+
+              <div className="mt-5 rounded-2xl bg-gray-50 p-4 text-sm leading-relaxed text-muted-foreground">
+                <p>
+                  <span className="font-bold text-foreground">Esta versión se construyó el </span>
+                  {new Date(__BUILD_TIME__).toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' })}.
+                </p>
+                <p className="mt-1">
+                  Si cambiaste una variable después de esa hora, todavía no se aplicó: hay que volver a
+                  desplegar y recargar esta página.
+                </p>
               </div>
 
               <button

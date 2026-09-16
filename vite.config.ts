@@ -5,6 +5,18 @@ import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
+  // Cuándo se construyó ESTO que el navegador está ejecutando.
+  //
+  // Las variables VITE_ se hornean al construir: cambiarlas en el panel
+  // no cambia el JavaScript ya publicado, ni el que el navegador tiene
+  // guardado. Sin una fecha a la vista no hay forma de distinguir "la
+  // variable está mal" de "estás viendo el build de antes de
+  // arreglarla", y las dos se ven exactamente igual desde fuera.
+  //
+  // Se pinta en /estado.
+  define: {
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+  },
   plugins: [
     react(),
     tailwindcss(),
