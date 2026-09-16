@@ -631,6 +631,8 @@ function IntegrationsPanel() {
     { key: 'supabase', name: 'Supabase', group: 'core', description: { es: 'Login, registro, base de datos, notificaciones.', en: 'Login, sign-up, database, notifications.' } },
     { key: 'stripe', name: 'Stripe', group: 'core', description: { es: 'Cobros con tarjeta.', en: 'Card payments.' } },
     { key: 'stripeWebhook', name: 'Stripe webhook', group: 'core', description: { es: 'Registra cada pago en el dashboard.', en: 'Records each payment in the dashboard.' } },
+    { key: 'wompi', name: 'Wompi', group: 'core', description: { es: 'Cobro del plan de acción del diagnóstico (Colombia).', en: 'Charges the diagnostic action plan (Colombia).' } },
+    { key: 'publicAppUrl', name: 'PUBLIC_APP_URL', group: 'core', description: { es: 'A dónde vuelve el cliente tras pagar y qué orígenes pueden llamar a /api.', en: 'Where the customer returns after paying, and which origins may call /api.' } },
     { key: 'push', name: 'Push', group: 'core', description: { es: 'Notificaciones con la app cerrada.', en: 'Notifications with the app closed.' } },
     { key: 'chatAI', name: 'Marco Polo · IA', group: 'core', description: { es: 'Respuestas abiertas con Anthropic (sin esto usa reglas).', en: 'Open answers via Anthropic (rule-based without it).' } },
     { key: 'voicePremium', name: 'Marco Polo · voz premium', group: 'core', description: { es: 'ElevenLabs (sin esto usa la voz del navegador).', en: 'ElevenLabs (browser voice without it).' } },

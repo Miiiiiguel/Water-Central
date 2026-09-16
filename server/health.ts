@@ -1,5 +1,6 @@
 import express from 'express';
 import { getProfileFromRequest } from './supabaseAdmin';
+import { isConfigured as kalodataConfigured } from './kalodata';
 
 // GET /api/health
 //   - Unauthenticated (hosting health checks): { ok: true } only.
@@ -36,8 +37,19 @@ healthRouter.get('/health', async (req, res) => {
       metaPixel: set('VITE_META_PIXEL_ID'),
       tiktokPixel: set('VITE_TIKTOK_PIXEL_ID'),
       googleAnalytics: set('VITE_GA_MEASUREMENT_ID'),
-      kalodata: set('KALODATA_API_KEY') && set('KALODATA_API_URL'),
+      // Kalodata solo necesita la llave: su endpoint ya lo conoce el
+      // código. Pedir también KALODATA_API_URL acá hacía que el panel
+      // dijera "sin conectar" con la integración funcionando.
+      kalodata: kalodataConfigured(),
       sicex: set('SICEX_API_KEY') && set('SICEX_API_URL'),
+      // El diagnóstico de madurez cobra con Wompi: sin estas cuatro, el
+      // cuestionario funciona gratis pero nadie puede comprar el plan.
+      wompi:
+        set('WOMPI_PUBLIC_KEY') &&
+        set('WOMPI_PRIVATE_KEY') &&
+        set('WOMPI_INTEGRITY_SECRET') &&
+        set('WOMPI_EVENTS_SECRET'),
+      publicAppUrl: set('PUBLIC_APP_URL'),
     },
   });
 });
