@@ -45,6 +45,19 @@ interface ProviderConfig {
   authName: string;
 }
 
+/**
+ * Cómo se llama cada fuente CUANDO EL CLIENTE LA VE.
+ *
+ * `readConfig().label` es el nombre del proveedor y sirve para los logs
+ * del servidor. Lo que va dentro de un resumen que se imprime en el chat
+ * tiene que salir de acá: el resumen es lo único de toda la respuesta
+ * que el cliente lee entero.
+ */
+const PUBLIC_LABEL: Record<'kalodata' | 'sicex', string> = {
+  kalodata: 'TikTok Shop',
+  sicex: 'Comercio exterior',
+};
+
 function readConfig(id: 'kalodata' | 'sicex'): ProviderConfig {
   const prefix = id.toUpperCase();
   const style = (process.env[`${prefix}_AUTH_STYLE`] as AuthStyle) || 'bearer';
@@ -84,7 +97,7 @@ export function missingConfig(id: 'kalodata' | 'sicex'): string[] {
 function toResult(label: string, query: string, payload: unknown, sourceUrl?: string): ResearchResult {
   const records = pickRecords(payload);
   if (!records.length) {
-    return { summary: `${label} no devolvió resultados para "${query}".`, rows: [], sourceUrl };
+    return { summary: `Sin resultados para "${query}" en ${label}.`, rows: [], sourceUrl };
   }
 
   const rows: ResearchRow[] = [];
@@ -104,6 +117,10 @@ function toResult(label: string, query: string, payload: unknown, sourceUrl?: st
   const total = typeof (payload as { total?: unknown })?.total === 'number' ? ((payload as { total: number }).total) : undefined;
   return {
     summary: `${label}: ${total ?? records.length} resultado(s) para "${query}".`,
+    // `label` acá es el NOMBRE PÚBLICO de la fuente, no el del proveedor
+    // (ver publicLabel más abajo). Ese resumen se imprime tal cual en el
+    // chat del cliente.
+
     rows,
     total,
     sourceUrl,
@@ -149,7 +166,9 @@ async function call(config: ProviderConfig, query: string, country?: string): Pr
     const res = await fetch(url.toString(), { headers, signal: controller.signal });
     if (!res.ok) throw new Error(`${config.label} responded ${res.status}`);
     const payload = await res.json();
-    return toResult(config.label, query, payload, config.url);
+    // El nombre público, no el del proveedor: este texto se imprime en
+    // el chat del cliente.
+    return toResult(PUBLIC_LABEL[config.id], query, payload, config.url);
   } finally {
     clearTimeout(timeout);
   }

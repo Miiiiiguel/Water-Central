@@ -167,8 +167,14 @@ describe('toResult', () => {
   it('dice claramente cuando no hubo resultados, sin inventar', () => {
     const r = toResult('jeans', 'US', { data: { list: [] } }, url);
     expect(r.rows).toEqual([]);
-    expect(r.summary).toContain('no devolvió resultados');
+    // Antes decía "Kalodata no devolvió resultados para...". Lo que
+    // importa se mantiene —que no hubo nada, para qué búsqueda y en qué
+    // mercado— pero sin nombrar al proveedor, porque este texto se
+    // imprime tal cual en el chat del cliente.
+    expect(r.summary).toMatch(/sin resultados/i);
+    expect(r.summary).toContain('jeans');
     expect(r.summary).toContain('US');
+    expect(r.summary).not.toMatch(/kalodata/i);
   });
 
   it('resume la respuesta real de /video/detail con los campos que importan', () => {

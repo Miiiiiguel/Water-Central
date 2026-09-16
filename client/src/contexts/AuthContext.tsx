@@ -4,6 +4,7 @@ import { getSupabase, hasSessionToRestore, isSupabaseConfigured, Profile } from 
 import { trackSignUp } from '@/lib/analytics';
 import { getStoredReferralCode, clearStoredReferralCode } from '@/lib/referral';
 import { getMfaStatus } from '@/lib/mfa';
+import { authErrorLog, authErrorMessage, classifyAuthError } from '@/lib/authErrors';
 
 interface AuthContextType {
   session: Session | null;
@@ -25,6 +26,13 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+/**
+ * El idioma sale del atributo `lang` del documento, que el selector de
+ * idioma ya mantiene al día. Este contexto está por encima del de
+ * idioma, así que no puede pedírselo.
+ */
+const enEspanol = () => (typeof document === 'undefined' ? true : document.documentElement.lang !== 'en');
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -182,11 +190,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
       }
 
-      trackSignUp({ company });
+      // Los píxeles NO deciden si una cuenta se creó.
+      //
+      // Esta línea estaba dentro del try, sin protección. Si el píxel de
+      // Meta, el de TikTok o el de Google lanzaban —un bloqueador que
+      // deja un objeto a medias, un script que la CSP frenó— la
+      // excepción caía en el catch de abajo y a quien acababa de crear
+      // su cuenta le decíamos que no se había creado. Al reintentar le
+      // salía "ya existe ese correo", que parece un segundo error
+      // distinto. Analítica rota, registro perdido.
+      try {
+        trackSignUp({ company });
+      } catch (err) {
+        console.warn('[auth] el píxel de registro falló; la cuenta sí se creó:', err);
+      }
+
       return { error: null };
     } catch (err) {
-      console.error('[auth] signUp falló:', err);
-      return { error: 'No pudimos crear la cuenta. Revisa tu conexión e intenta de nuevo.' };
+      const failure = classifyAuthError(err);
+      console.error(...authErrorLog('signUp', failure, err));
+      return { error: authErrorMessage(failure, enEspanol()) };
     }
   };
 
@@ -196,21 +219,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { error } = await (await getSupabase()).auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
       return { error: error ? error.message : null };
     } catch (err) {
-      console.error('[auth] signIn falló:', err);
-      return { error: 'No pudimos entrar. Revisa tu conexión e intenta de nuevo.' };
+      const failure = classifyAuthError(err);
+      console.error(...authErrorLog('signIn', failure, err));
+      return { error: authErrorMessage(failure, enEspanol()) };
     }
   };
 
   const signInWithGoogle: AuthContextType['signInWithGoogle'] = async () => {
     if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía (faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' };
-    const { error } = await (await getSupabase()).auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-        queryParams: { access_type: 'offline', prompt: 'select_account' },
-      },
-    });
-    return { error: error ? error.message : null };
+    // Sin este try, una excepción acá dejaba el botón de Google girando
+    // para siempre y sin una palabra de por qué.
+    try {
+      const { error } = await (await getSupabase()).auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+          queryParams: { access_type: 'offline', prompt: 'select_account' },
+        },
+      });
+      return { error: error ? error.message : null };
+    } catch (err) {
+      const failure = classifyAuthError(err);
+      console.error(...authErrorLog('signInWithGoogle', failure, err));
+      return { error: authErrorMessage(failure, enEspanol()) };
+    }
   };
 
   const resetPassword: AuthContextType['resetPassword'] = async (email) => {

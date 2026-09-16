@@ -252,12 +252,16 @@ function describe(record: Record<string, unknown>, currency = ''): ResearchRow {
 export function toResult(query: string, market: Market, payload: unknown, sourceUrl: string, currency = ''): ResearchResult {
   const records = pickRecords(payload);
   if (!records.length) {
-    return { summary: `Kalodata no devolvió resultados para "${query}" en ${market}.`, rows: [], sourceUrl };
+    return { summary: `Sin resultados para "${query}" en TikTok Shop ${market}.`, rows: [], sourceUrl };
   }
   const totalRaw = (payload as { total?: unknown; data?: { total?: unknown } })?.total ?? (payload as { data?: { total?: unknown } })?.data?.total;
   const total = typeof totalRaw === 'number' ? totalRaw : undefined;
   return {
-    summary: `Kalodata · TikTok Shop ${market}: ${total ?? records.length} resultado(s) para "${query}".`,
+    // El resumen es lo ÚNICO de todo esto que el cliente lee entero, así
+    // que es el peor lugar posible para nombrar al proveedor — y es
+    // justo donde estaba: "Kalodata · TikTok Shop US: 40 resultado(s)".
+    // Se nombra el dato y el mercado; de dónde sale, no.
+    summary: `TikTok Shop ${market}: ${total ?? records.length} resultado(s) para "${query}".`,
     rows: records.slice(0, 5).map((r) => describe(r, currency)),
     total,
     sourceUrl,
