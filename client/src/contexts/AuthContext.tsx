@@ -62,14 +62,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      if (data.session?.user) {
-        fetchProfile(data.session.user.id);
-        refreshMfa();
-      }
+    // `loading` tapa el dashboard con un spinner. Si la lectura de la
+    // sesión falla o se queda colgada y nadie apaga esa bandera, la app
+    // gira para siempre sin decir por qué — que es exactamente lo que
+    // pasa con una llave mal puesta: supabase-js rechaza la promesa y un
+    // `.then()` solo nunca se entera. Así que esto se apaga siempre: al
+    // resolver, al fallar, y por tiempo si la red no contesta.
+    let settled = false;
+    const done = () => {
+      if (settled) return;
+      settled = true;
       setLoading(false);
-    });
+    };
+
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        setSession(data.session);
+        if (data.session?.user) {
+          fetchProfile(data.session.user.id);
+          refreshMfa();
+        }
+        done();
+      })
+      .catch((err) => {
+        console.error(
+          '[auth] No se pudo leer la sesión de Supabase. La app sigue, pero sin login. ' +
+            'Casi siempre es VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY mal puestas:',
+          err
+        );
+        done();
+      });
+
+    const timeout = window.setTimeout(() => {
+      if (!settled) {
+        console.error('[auth] Supabase no contestó en 8 segundos. Seguimos sin sesión.');
+        done();
+      }
+    }, 8000);
 
     const { data: listener } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession(newSession);
@@ -83,7 +113,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    return () => listener.subscription.unsubscribe();
+    return () => {
+      window.clearTimeout(timeout);
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   const signUp: AuthContextType['signUp'] = async (email, password, fullName, company) => {

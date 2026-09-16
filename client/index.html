@@ -132,6 +132,36 @@
       @keyframes app-splash-spin {
         to { transform: rotate(360deg); }
       }
+      /* Red de seguridad. Si el JavaScript de la app no llega a
+         ejecutarse —build a medias, servidor caído, una extensión que lo
+         bloquea— este splash se quedaría girando para siempre y el
+         visitante no sabría si esperar o irse. Nadie merece eso.
+
+         Esto no puede ser JavaScript: si el JavaScript funcionara, no
+         estaríamos acá. Y la CSP prohíbe los scripts en línea. Así que
+         es una animación de CSS con 12 segundos de retraso: si la app
+         monta antes, el splash desaparece y el mensaje nunca se ve. */
+      .app-splash-stuck {
+        max-width: 22rem;
+        padding: 0 1.5rem;
+        text-align: center;
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 0.9375rem;
+        line-height: 1.5;
+        color: #6b6a80;
+        opacity: 0;
+        animation: app-splash-stuck-in 0.4s ease 12s both;
+      }
+      .app-splash-stuck strong { color: #1B1A45; }
+      @keyframes app-splash-stuck-in {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .app-splash-logo, .app-splash-stuck { animation-duration: 0.01ms; }
+        .app-splash-stuck { animation-delay: 12s; }
+        .app-splash-spinner { animation-duration: 1.6s; }
+      }
     </style>
   </head>
 
@@ -139,6 +169,11 @@
     <div id="app-splash" aria-hidden="true">
       <span class="app-splash-logo"><span class="easy">easy</span><span class="comex">comex</span></span>
       <span class="app-splash-spinner"></span>
+      <p class="app-splash-stuck">
+        <strong>Esto está tardando más de lo normal.</strong><br />
+        Si no carga en unos segundos, recarga la página. Si sigue igual,
+        el servidor no está respondiendo — no es tu conexión.
+      </p>
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
