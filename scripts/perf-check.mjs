@@ -410,6 +410,50 @@ try {
   sinPendientes.length ? sinPendientes.join(' · ') : 'ninguno'
 );
 
+// ---- 3b. Que la app se pueda usar sin ver la pantalla -----------------
+//
+// Un campo sin nombre accesible es un campo que un lector de pantalla
+// anuncia como "cuadro de texto" y nada más: quien no ve la etiqueta no
+// sabe qué escribir. En un formulario de contacto eso es un cliente que
+// no nos escribe.
+try {
+  const problemas = [];
+  for (const route of ['/', '/roi', '/diagnostico', '/login', '/registro']) {
+    await page.goto(base + route, { waitUntil: 'load' });
+    await page.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 400) window.scrollTo(0, y); });
+    await page.waitForTimeout(700);
+    const encontrados = await page.evaluate(() => {
+      const malos = [];
+      // Lo que está oculto a las ayudas técnicas (las trampas para bots)
+      // no cuenta: nadie se lo encuentra.
+      const oculto = (el) => el.closest('[aria-hidden="true"]') !== null;
+      const nombrado = (el) =>
+        el.getAttribute('aria-label') ||
+        el.getAttribute('aria-labelledby') ||
+        el.getAttribute('title') ||
+        el.getAttribute('placeholder') ||
+        (el.id && document.querySelector(`label[for="${CSS.escape(el.id)}"]`)) ||
+        el.closest('label');
+      for (const el of document.querySelectorAll('input:not([type=hidden]), select, textarea'))
+        if (!oculto(el) && !nombrado(el)) malos.push('campo ' + (el.name || el.id || el.tagName));
+      for (const el of document.querySelectorAll('button, a[href]'))
+        if (!oculto(el) && !(el.textContent || '').trim() && !nombrado(el)) malos.push('botón sin nombre');
+      for (const el of document.querySelectorAll('img'))
+        if (el.getAttribute('alt') === null) malos.push('imagen sin alt');
+      const h1 = document.querySelectorAll('h1').length;
+      if (h1 !== 1) malos.push(`${h1} encabezados h1`);
+      return malos;
+    });
+    for (const p of encontrados) problemas.push(`${route}: ${p}`);
+  }
+  (problemas.length === 0 ? ok : fail)(
+    'Every control has a name a screen reader can read',
+    problemas.length ? problemas.slice(0, 5).join(' · ') : '5 rutas revisadas, todo nombrado'
+  );
+} catch (e) {
+  fail('Accessible names', String(e).slice(0, 120));
+}
+
 // ---- 4. Offline: the installed app must not show a blank screen -------
 // The service worker precaches the shell, so a reload with no network
 // should still paint something instead of the browser's error page.

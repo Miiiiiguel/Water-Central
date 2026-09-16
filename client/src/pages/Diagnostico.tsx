@@ -228,7 +228,18 @@ function IntroScreen({ lead, onChange, onStart, es }: { lead: Lead; onChange: (l
             <span className="mt-1 block text-xs text-muted-foreground">{es ? 'Define la moneda y los medios de pago.' : 'Sets the currency and payment methods.'}</span>
           </label>
           {/* Honeypot: invisible to people, irresistible to bots. */}
-          <input type="text" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} className="hidden" aria-hidden="true" />
+          {/* Trampa para bots: fuera de la pantalla, no oculta con
+              `display:none`. Un bot rellena todo lo que encuentra en el
+              DOM, pero muchos saltan lo que está en display:none — que
+              es lo que este campo usaba, así que no atrapaba a nadie.
+              Fuera de pantalla sí lo ven y caen. `aria-hidden` y
+              `tabIndex={-1}` lo esconden de quien navega con lector de
+              pantalla o con el teclado, que es a quien no queremos
+              rechazar por error. */}
+          <div className="absolute -left-[9999px] top-0 h-0 w-0 overflow-hidden" aria-hidden="true">
+            <label htmlFor="diagnostic-website">Website</label>
+            <input id="diagnostic-website" type="text" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+          </div>
         </div>
 
         {error && <p className="mt-4 text-sm font-semibold text-red-600">{error}</p>}
