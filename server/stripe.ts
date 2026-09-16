@@ -14,7 +14,9 @@ import { CREDIT_PACK } from './research';
 //   STRIPE_WEBHOOK_SECRET              whsec_... (from the Stripe CLI or
 //                                       the webhook endpoint you create in
 //                                       the Stripe dashboard)
-//   STRIPE_PRICE_DIAGNOSTICO_MADUREZ   price_... for the USD 6.90 plan
+//   STRIPE_PRICE_DIAGNOSTICO_MADUREZ   price_... del diagnóstico si se
+//                                      cobrara por Stripe. Hoy va por
+//                                      Wompi (USD 9.99 / $39.900 COP).
 //   STRIPE_PRICE_ANALISIS_MERCADO      price_... for the USD 499 plan
 //   STRIPE_PRICE_ACOMPANAMIENTO        price_... optional recurring plan
 //   PUBLIC_APP_URL                     e.g. https://easycomex.com (used to

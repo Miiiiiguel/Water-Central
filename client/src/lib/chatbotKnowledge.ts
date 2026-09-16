@@ -76,8 +76,8 @@ export const knowledgeBase: KnowledgeEntry[] = [
     id: 'precio',
     keywords: ['precio', 'cuesta', 'cuanto', 'cuánto', 'costo', 'tarifa', 'price', 'cost', 'how much', 'pricing'],
     answer: {
-      es: 'El diagnóstico básico es gratis. El diagnóstico de madurez cuesta USD 6.90. El plan de crecimiento es a medida según tu marca. El análisis de mercado y competencia en Amazon/TikTok Shop cuesta USD 499 e incluye 2 horas de asesoría 1 a 1.',
-      en: 'The basic diagnosis is free. The maturity diagnosis costs USD 6.90. The growth plan is custom-priced for your brand. The market & competitor analysis on Amazon/TikTok Shop costs USD 499 and includes 2 hours of 1-on-1 advisory.',
+      es: 'El diagnóstico básico es gratis. El plan de acción del diagnóstico de madurez cuesta USD 9.99 (unos $39.900 COP). El plan de crecimiento es a medida según tu marca. El análisis de mercado y competencia en Amazon/TikTok Shop cuesta USD 499 e incluye 2 horas de asesoría 1 a 1.',
+      en: 'The basic diagnosis is free. The maturity diagnosis action plan costs USD 9.99 (about $39,900 COP). The growth plan is custom-priced for your brand. The market & competitor analysis on Amazon/TikTok Shop costs USD 499 and includes 2 hours of 1-on-1 advisory.',
     },
     action: 'planes',
   },
