@@ -1,11 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, Send, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle, Search, Sparkles } from 'lucide-react';
+import { X, Send, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle, Search, Sparkles, Settings2, Play } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { matchKnowledge, MARCO_POLO, type SectionAction } from '@/lib/chatbotKnowledge';
 import { whatsappUrl } from '@/lib/contact';
 import { hapticTap, isNative, openExternal } from '@/lib/native';
-import { isSTTSupported, isTTSSupported, speak, stopSpeaking, startListening } from '@/lib/voice';
+import {
+  isSTTSupported,
+  isTTSSupported,
+  speak,
+  stopSpeaking,
+  startListening,
+  listVoices,
+  previewVoice,
+  getVoicePreference,
+  setVoicePreference,
+  type VoiceOption,
+} from '@/lib/voice';
 import MarcoPoloAvatar from './MarcoPoloAvatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchQuota, runResearch, formatResult, consumePendingResearch, SOURCE_LABEL, SOURCE_BLURB, RESEARCH_EVENT, type ResearchQuota, type ResearchRequest, type ResearchSource } from '@/lib/research';
@@ -68,6 +79,11 @@ export default function ChatbotWidget() {
       return false;
     }
   });
+  // Elegir voz. Las voces instaladas cambian de un equipo a otro, así
+  // que la lista se pide al navegador cuando se abre el panel, no antes.
+  const [voicePanel, setVoicePanel] = useState(false);
+  const [voices, setVoices] = useState<VoiceOption[] | null>(null);
+  const [voiceURI, setVoiceURI] = useState<string | null>(() => getVoicePreference());
   // Research desk: which source Marco Polo is waiting for a term for,
   // and how many lookups this account has left (server-owned numbers).
   const [researchMode, setResearchMode] = useState<ResearchSource | null>(null);
@@ -368,6 +384,20 @@ export default function ChatbotWidget() {
     }
   };
 
+  const openVoicePanel = async () => {
+    const next = !voicePanel;
+    setVoicePanel(next);
+    if (next && voices === null) setVoices(await listVoices(language));
+  };
+
+  const chooseVoiceOption = (uri: string | null) => {
+    setVoiceURI(uri);
+    setVoicePreference(uri);
+    // Escucharla de una: elegir de una lista de nombres a ciegas
+    // ("Microsoft Sabina Desktop") no le dice nada a nadie.
+    if (uri) previewVoice(uri, language, { onStart: () => setSpeaking(true), onEnd: () => setSpeaking(false) });
+  };
+
   const toggleListening = () => {
     if (listening) {
       stopListeningRef.current();
@@ -469,6 +499,17 @@ export default function ChatbotWidget() {
                   {voiceOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
                 </button>
               )}
+              {isTTSSupported && (
+                <button
+                  onClick={openVoicePanel}
+                  className={`tap-scale-sm relative p-2 rounded-full transition-colors border-0 cursor-pointer ${voicePanel ? 'bg-accent text-white' : 'bg-white/10 hover:bg-white/20 text-white'}`}
+                  aria-label={language === 'es' ? 'Elegir voz' : 'Choose voice'}
+                  title={language === 'es' ? 'Elegir voz' : 'Choose voice'}
+                  aria-expanded={voicePanel}
+                >
+                  <Settings2 size={16} />
+                </button>
+              )}
               <button
                 onClick={clearChat}
                 className="tap-scale-sm relative p-2 rounded-full bg-white/10 hover:bg-white/20 text-white border-0 cursor-pointer"
@@ -478,6 +519,46 @@ export default function ChatbotWidget() {
                 <Trash2 size={16} />
               </button>
             </div>
+
+            {/* Elegir voz. La lista es la del equipo de quien mira: en un
+                iPhone salen unas y en Windows otras, y por eso no se
+                puede fijar una en el código. */}
+            {voicePanel && (
+              <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 flex-shrink-0 max-h-56 overflow-y-auto">
+                <p className="text-[11px] font-bold text-primary mb-2">
+                  {language === 'es' ? 'Voz de Marco Polo' : "Marco Polo's voice"}
+                </p>
+                {voices === null ? (
+                  <p className="text-xs text-muted-foreground">{language === 'es' ? 'Buscando voces…' : 'Looking for voices…'}</p>
+                ) : voices.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">
+                    {language === 'es'
+                      ? 'Este equipo no tiene ninguna voz en español instalada. Prueba con Chrome, o instala un paquete de voz del sistema.'
+                      : 'This device has no English voice installed. Try Chrome, or install a system voice pack.'}
+                  </p>
+                ) : (
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => chooseVoiceOption(null)}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs border cursor-pointer transition-colors ${voiceURI === null ? 'bg-white border-accent text-primary font-semibold' : 'bg-white/60 border-transparent hover:bg-white text-muted-foreground'}`}
+                    >
+                      {language === 'es' ? 'Automática (la mejor del equipo)' : 'Automatic (best on this device)'}
+                    </button>
+                    {voices.map((v) => (
+                      <button
+                        key={v.uri}
+                        onClick={() => chooseVoiceOption(v.uri)}
+                        className={`w-full flex items-center gap-2 text-left px-3 py-2 rounded-xl text-xs border cursor-pointer transition-colors ${voiceURI === v.uri ? 'bg-white border-accent text-primary font-semibold' : 'bg-white/60 border-transparent hover:bg-white text-muted-foreground'}`}
+                      >
+                        <Play size={11} className="text-accent flex-shrink-0" />
+                        <span className="truncate flex-1">{v.name}</span>
+                        <span className="text-[10px] uppercase tracking-wide flex-shrink-0 opacity-60">{v.lang}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Research quota — only for a signed-in account, and only
                 with numbers the server gave us. */}
