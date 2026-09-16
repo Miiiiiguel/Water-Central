@@ -3,6 +3,7 @@ import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
 import { stripeRouter } from "./stripe";
+import { checkoutRouter } from "./checkout";
 import { chatRouter } from "./chat";
 import { pushRouter } from "./push";
 import { ttsRouter } from "./tts";
@@ -43,6 +44,7 @@ async function startServer() {
   app.use("/api", corsPolicy);
   app.use("/api", apiRateLimiter);
   app.use("/api", stripeRouter);
+  app.use("/api", checkoutRouter);
   app.use("/api", chatRouter);
   app.use("/api", pushRouter);
   app.use("/api", ttsRouter);

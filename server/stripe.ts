@@ -6,6 +6,7 @@ import { getSupabaseAdmin, getUserFromRequest } from './supabaseAdmin';
 import { requireUser } from './auth';
 import { logSecurityEvent } from './log';
 import { CREDIT_PACK } from './research';
+import { CATALOG, PLAN_IDS, type PlanId } from './catalog';
 
 // Server-side Stripe integration.
 //
@@ -37,19 +38,15 @@ import { CREDIT_PACK } from './research';
 //      service-role key. Those rows are what the dashboard reads — never
 //      the success redirect, which anyone can type into a URL bar.
 
-export const PLANS = {
-  diagnostico_madurez: { priceEnv: 'STRIPE_PRICE_DIAGNOSTICO_MADUREZ', label: 'Diagnóstico de madurez' },
-  analisis_mercado: { priceEnv: 'STRIPE_PRICE_ANALISIS_MERCADO', label: 'Análisis de mercado y competencia' },
-  acompanamiento: { priceEnv: 'STRIPE_PRICE_ACOMPANAMIENTO', label: 'Acompañamiento mensual' },
-  // Pack of extra Marco Polo research lookups (Kalodata / Sicex).
-  creditos_marco_polo: { priceEnv: 'STRIPE_PRICE_CREDITOS_MARCO_POLO', label: `${CREDIT_PACK.credits} consultas de Marco Polo` },
-  // ROI calculator reports (see client/src/pages/RoiCalculator.tsx).
-  reporte_detalle: { priceEnv: 'STRIPE_PRICE_REPORTE_DETALLE', label: 'Desglose de costos mes a mes' },
-  reporte_pronostico: { priceEnv: 'STRIPE_PRICE_REPORTE_PRONOSTICO', label: 'Pronóstico completo a 2 años' },
-} as const;
+// Los planes y sus precios viven en server/catalog.ts — una sola lista
+// para Stripe, para Wompi y para lo que Marco Polo dice de viva voz.
+// Acá sólo queda la parte de Stripe: qué variable guarda cada price ID.
+export { CATALOG as PLANS } from './catalog';
 
-type PlanId = keyof typeof PLANS;
-const PLAN_IDS = Object.keys(PLANS) as [PlanId, ...PlanId[]];
+/** ¿Puede Stripe cobrar este plan hoy, con las llaves que hay puestas? */
+export function stripeConfiguredFor(plan: PlanId): boolean {
+  return Boolean(process.env.STRIPE_SECRET_KEY && process.env[CATALOG[plan].stripePriceEnv]);
+}
 
 function getStripeClient(): Stripe | null {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -136,21 +133,80 @@ stripeRouter.get('/plans', apiRateLimiter, async (_req, res) => {
   if (!stripe) return res.json({ configured: false, plans: [] });
 
   const plans = await Promise.all(
-    (Object.keys(PLANS) as PlanId[]).map(async (id) => {
-      const priceId = process.env[PLANS[id].priceEnv];
+    (Object.keys(CATALOG) as PlanId[]).map(async (id) => {
+      const priceId = process.env[CATALOG[id].stripePriceEnv];
       if (!priceId) return null;
       const info = await getPriceInfo(stripe, priceId);
       if (!info) return null;
-      return { id, label: PLANS[id].label, amountCents: info.amountCents, currency: info.currency, interval: info.interval };
+      return { id, label: CATALOG[id].label, amountCents: info.amountCents, currency: info.currency, interval: info.interval };
     })
   );
 
   res.json({ configured: true, plans: plans.filter(Boolean) });
 });
 
-stripeRouter.post('/create-checkout-session', checkoutRateLimiter, express.json({ limit: JSON_BODY_LIMIT }), async (req, res) => {
+/**
+ * Crea la sesión de Checkout y devuelve su URL, o null si Stripe no
+ * puede cobrar este plan. Vive aparte de la ruta porque /api/checkout
+ * (server/checkout.ts) la usa para elegir pasarela: Stripe si está
+ * configurado, Wompi si no.
+ */
+export async function stripeCheckoutUrl(
+  req: express.Request,
+  plan: PlanId,
+  native: boolean,
+  appUrl: string
+): Promise<string | null> {
   const stripe = getStripeClient();
-  if (!stripe) {
+  const priceId = process.env[CATALOG[plan].stripePriceEnv];
+  if (!stripe || !priceId) return null;
+
+  const user = await getUserFromRequest(req);
+  const nativeFlag = native ? '&native=1' : '';
+
+  // A recurring price must be checked out in 'subscription' mode and a
+  // one-off price in 'payment' mode. Deriving it from the price means
+  // you can switch a plan to monthly in the Stripe dashboard without
+  // touching this code.
+  const info = await getPriceInfo(stripe, priceId);
+  const mode: Stripe.Checkout.SessionCreateParams.Mode = info?.recurring ? 'subscription' : 'payment';
+
+  // Reuse the buyer's Stripe customer when we know who they are, so
+  // their invoices and subscriptions live under one record.
+  const customerId = user ? await getOrCreateCustomerId(stripe, user.id, user.email ?? null, (user.user_metadata as any)?.full_name ?? null) : null;
+
+  const metadata = { plan, user_id: user?.id ?? '' };
+
+  const session = await stripe.checkout.sessions.create(
+    {
+      mode,
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${appUrl}/pago/exito?session_id={CHECKOUT_SESSION_ID}${nativeFlag}`,
+      cancel_url: `${appUrl}/pago/cancelado?x=1${nativeFlag}`,
+      ...(customerId ? { customer: customerId } : user?.email ? { customer_email: user.email } : { customer_creation: 'always' as const }),
+      ...(user ? { client_reference_id: user.id } : {}),
+      metadata,
+      // Carry the same metadata onto the object the webhook sees for
+      // refunds (payment) and renewals (subscription).
+      ...(mode === 'payment' ? { payment_intent_data: { metadata } } : { subscription_data: { metadata } }),
+      // Checkout page in the buyer's language; Apple Pay / Google Pay
+      // appear automatically once enabled in the Stripe dashboard.
+      locale: 'auto',
+      allow_promotion_codes: true,
+      billing_address_collection: 'auto',
+    },
+    {
+      // A double-tap on a slow phone must not create two sessions (and
+      // two chances to be charged). Same user + plan within the same
+      // minute returns the session already created.
+      idempotencyKey: `co:${user?.id ?? req.ip}:${plan}:${Math.floor(Date.now() / 60000)}`,
+    }
+  );
+  return session.url;
+}
+
+stripeRouter.post('/create-checkout-session', checkoutRateLimiter, express.json({ limit: JSON_BODY_LIMIT }), async (req, res) => {
+  if (!getStripeClient()) {
     return res.status(503).json({ error: 'Stripe no está configurado en el servidor (falta STRIPE_SECRET_KEY).' });
   }
 
@@ -161,55 +217,14 @@ stripeRouter.post('/create-checkout-session', checkoutRateLimiter, express.json(
   }
   const plan = parsed.data.plan as PlanId;
 
-  const priceId = process.env[PLANS[plan].priceEnv];
-  if (!priceId) {
+  if (!process.env[CATALOG[plan].stripePriceEnv]) {
     return res.status(400).json({ error: `Plan sin price ID configurado: ${plan}` });
   }
 
   const appUrl = process.env.PUBLIC_APP_URL || `${req.protocol}://${req.get('host')}`;
-  const user = await getUserFromRequest(req);
-  const native = parsed.data.platform === 'native' ? '&native=1' : '';
-
   try {
-    // A recurring price must be checked out in 'subscription' mode and a
-    // one-off price in 'payment' mode. Deriving it from the price means
-    // you can switch a plan to monthly in the Stripe dashboard without
-    // touching this code.
-    const info = await getPriceInfo(stripe, priceId);
-    const mode: Stripe.Checkout.SessionCreateParams.Mode = info?.recurring ? 'subscription' : 'payment';
-
-    // Reuse the buyer's Stripe customer when we know who they are, so
-    // their invoices and subscriptions live under one record.
-    const customerId = user ? await getOrCreateCustomerId(stripe, user.id, user.email ?? null, (user.user_metadata as any)?.full_name ?? null) : null;
-
-    const metadata = { plan, user_id: user?.id ?? '' };
-
-    const session = await stripe.checkout.sessions.create(
-      {
-        mode,
-        line_items: [{ price: priceId, quantity: 1 }],
-        success_url: `${appUrl}/pago/exito?session_id={CHECKOUT_SESSION_ID}${native}`,
-        cancel_url: `${appUrl}/pago/cancelado?x=1${native}`,
-        ...(customerId ? { customer: customerId } : user?.email ? { customer_email: user.email } : { customer_creation: 'always' as const }),
-        ...(user ? { client_reference_id: user.id } : {}),
-        metadata,
-        // Carry the same metadata onto the object the webhook sees for
-        // refunds (payment) and renewals (subscription).
-        ...(mode === 'payment' ? { payment_intent_data: { metadata } } : { subscription_data: { metadata } }),
-        // Checkout page in the buyer's language; Apple Pay / Google Pay
-        // appear automatically once enabled in the Stripe dashboard.
-        locale: 'auto',
-        allow_promotion_codes: true,
-        billing_address_collection: 'auto',
-      },
-      {
-        // A double-tap on a slow phone must not create two sessions (and
-        // two chances to be charged). Same user + plan within the same
-        // minute returns the session already created.
-        idempotencyKey: `co:${user?.id ?? req.ip}:${plan}:${Math.floor(Date.now() / 60000)}`,
-      }
-    );
-    res.json({ url: session.url, mode });
+    const url = await stripeCheckoutUrl(req, plan, parsed.data.platform === 'native', appUrl);
+    res.json({ url });
   } catch (err) {
     console.error('Stripe checkout session error:', err);
     res.status(500).json({ error: 'No se pudo crear la sesión de pago.' });
@@ -242,7 +257,7 @@ stripeRouter.get('/checkout-session/:id', apiRateLimiter, async (req, res) => {
       status: session.payment_status,
       paid: session.payment_status === 'paid',
       plan,
-      planLabel: plan && plan in PLANS ? PLANS[plan as PlanId].label : null,
+      planLabel: plan && plan in CATALOG ? CATALOG[plan as PlanId].label : null,
       amountCents: session.amount_total ?? null,
       currency: session.currency ?? null,
     });

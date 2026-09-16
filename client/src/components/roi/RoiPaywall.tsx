@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { Lock, Loader2, Flame, Check } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { startCheckout, checkoutMessage, type CheckoutPlan } from '@/lib/checkout';
 import { useAuth } from '@/contexts/AuthContext';
 import { isNative, openExternal } from '@/lib/native';
 import { fmtMoney2 } from '@/lib/roiFormat';
@@ -40,18 +41,11 @@ export default function RoiPaywall({
     setBusy(true);
     setError(null);
     try {
-      const token = getAccessToken();
-      const res = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ plan, platform: isNative ? 'native' : 'web' }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.url) throw new Error(data.error || 'checkout_failed');
-      if (isNative) await openExternal(data.url);
-      else window.location.href = data.url;
-    } catch {
-      setError(es ? 'Los pagos aún no están configurados en este entorno.' : 'Payments are not configured in this environment yet.');
+      const outcome = await startCheckout(plan as CheckoutPlan, getAccessToken());
+      // El servidor dice por qué no se pudo: "todavía no cobramos en
+      // línea" y "se te cayó la conexión" no son el mismo problema, y
+      // hasta ahora los dos decían lo mismo.
+      if (!outcome.ok) setError(checkoutMessage(outcome.reason, es));
     } finally {
       setBusy(false);
     }

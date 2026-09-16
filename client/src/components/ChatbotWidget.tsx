@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { X, Send, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle, Search, Sparkles, Settings2, Play } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { matchKnowledge, MARCO_POLO, type SectionAction } from '@/lib/chatbotKnowledge';
+import { startCheckout, checkoutMessage } from '@/lib/checkout';
 import { whatsappUrl } from '@/lib/contact';
 import { hapticTap, isNative, openExternal } from '@/lib/native';
 import {
@@ -239,23 +240,16 @@ export default function ChatbotWidget() {
   // Sends the user to Stripe to buy a pack of extra lookups.
   const buyCredits = async () => {
     try {
-      const token = getAccessToken();
-      const res = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ plan: 'creditos_marco_polo', platform: isNative ? 'native' : 'web' }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.url) throw new Error('checkout_failed');
-      if (isNative) await openExternal(data.url);
-      else window.location.href = data.url;
+      const outcome = await startCheckout('creditos_marco_polo', getAccessToken());
+      if (!outcome.ok) {
+        pushBot(checkoutMessage(outcome.reason, language === 'es'), {
+          quickReplies: [{ label: 'WhatsApp', value: '__human__' }],
+        });
+      }
     } catch {
-      pushBot(
-        language === 'es'
-          ? 'No pude abrir el pago. Escribinos por WhatsApp y lo resolvemos.'
-          : 'I could not open checkout. Message us on WhatsApp and we will sort it.',
-        { quickReplies: [{ label: language === 'es' ? 'WhatsApp' : 'WhatsApp', value: '__human__' }] }
-      );
+      pushBot(checkoutMessage('red', language === 'es'), {
+        quickReplies: [{ label: 'WhatsApp', value: '__human__' }],
+      });
     }
   };
 

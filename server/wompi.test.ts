@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { eventChecksum, integritySignature, transactionPaysFor, verifyEventChecksum, wompiApiBase } from './wompi';
+import { eventChecksum, integritySignature, transactionPaysFor, verifyEventChecksum, wompiApiBase, checkoutUrl } from './wompi';
 
 // Worked example from Wompi's own docs (widget-checkout-web → firma de
 // integridad): reference "sk8-438k4-xmxm392-sn2m", 2490000 COP, secret
@@ -75,5 +75,44 @@ describe('wompiApiBase', () => {
   it('points at sandbox unless told production', () => {
     expect(wompiApiBase('sandbox')).toContain('sandbox.wompi.co');
     expect(wompiApiBase('production')).toContain('production.wompi.co');
+  });
+});
+
+// ---------------------------------------------------------------------
+// La URL del Web Checkout: es literalmente lo que abre el comprador.
+// ---------------------------------------------------------------------
+describe('la URL del checkout', () => {
+  const base = {
+    publicKey: 'pub_test_ejemplo',
+    reference: 'ecp_0123456789abcdef0123456789abcdef',
+    amountInCents: 3_990_000,
+    currency: 'COP',
+    signature: integritySignature('ecp_0123456789abcdef0123456789abcdef', 3_990_000, 'COP', 'secreto'),
+    redirectUrl: 'https://easycomex.com/pago/exito',
+  };
+
+  it('lleva los parámetros con los nombres que Wompi espera', () => {
+    const url = new URL(checkoutUrl(base));
+    expect(url.origin + url.pathname).toBe('https://checkout.wompi.co/p/');
+    expect(url.searchParams.get('public-key')).toBe('pub_test_ejemplo');
+    expect(url.searchParams.get('currency')).toBe('COP');
+    expect(url.searchParams.get('amount-in-cents')).toBe('3990000');
+    expect(url.searchParams.get('reference')).toBe(base.reference);
+    expect(url.searchParams.get('redirect-url')).toBe('https://easycomex.com/pago/exito');
+  });
+
+  it('firma exactamente el monto que cobra', () => {
+    // Si estos dos se separan, Wompi rechaza el checkout — y peor, si
+    // alguien pudiera cambiar el monto sin cambiar la firma, cobraría de
+    // menos. Por eso la firma se calcula sobre los mismos números.
+    const url = new URL(checkoutUrl(base));
+    expect(url.searchParams.get('signature:integrity')).toBe(
+      integritySignature(url.searchParams.get('reference')!, Number(url.searchParams.get('amount-in-cents')), url.searchParams.get('currency')!, 'secreto')
+    );
+  });
+
+  it('no manda el correo si no hay correo', () => {
+    expect(new URL(checkoutUrl(base)).searchParams.has('customer-data:email')).toBe(false);
+    expect(new URL(checkoutUrl({ ...base, email: 'a@b.co' })).searchParams.get('customer-data:email')).toBe('a@b.co');
   });
 });

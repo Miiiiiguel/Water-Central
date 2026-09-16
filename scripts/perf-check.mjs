@@ -175,6 +175,57 @@ try {
   fail('Marco Polo flow', String(e).slice(0, 120));
 }
 
+// ---- El botón de pago: que cobre, o que diga por qué no ---------------
+//
+// La queja fue literal: "los botones de pago no funcionan". Y no era que
+// fallaran: es que no había ninguna pasarela configurada y el botón se
+// quedaba girando o moría en un mensaje genérico. Un botón de cobro
+// tiene exactamente dos finales aceptables — abre un pago, o explica por
+// qué no puede. Quedarse pensando no es uno de ellos.
+try {
+  const catalog = await page.evaluate(async () => {
+    const res = await fetch('/api/checkout/catalog');
+    return res.ok ? res.json() : null;
+  });
+  const items = catalog?.items ?? [];
+  const custom = items.find((i) => i.plan === 'acompanamiento');
+  const priced = items.filter((i) => i.amountInCents > 0);
+  const allCop = priced.every((i) => i.currency === 'COP');
+  (items.length >= 5 && custom && custom.payable === false && allCop ? ok : fail)(
+    'Checkout catalog is honest about what it can charge',
+    items.length ? `${priced.length} con precio, ${items.filter((i) => i.payable).length} cobrables, a medida no cobrable` : 'sin catálogo'
+  );
+} catch (e) {
+  fail('Checkout catalog', String(e).slice(0, 120));
+}
+
+try {
+  await page.evaluate(() => document.getElementById('planes')?.scrollIntoView());
+  await page.waitForTimeout(600);
+  // El "Empezar" del análisis de mercado: la última tarjeta de planes, y
+  // la única con cobro en línea.
+  await page.locator('#planes').getByRole('button', { name: /^(Empezar|Get started)$/ }).last().click();
+  await page.waitForTimeout(700);
+  const payBtn = page.getByRole('button', { name: /Pagar de forma segura|Pay securely/ }).first();
+  if (await payBtn.count()) {
+    await payBtn.click();
+    // Sin pasarela configurada tiene que aparecer un motivo en texto, y
+    // el botón tiene que dejar de girar. Con pasarela, se va a Wompi o a
+    // Stripe y esta página deja de existir.
+    await page.waitForTimeout(3000);
+    const left = page.url();
+    const gone = /wompi\.co|stripe\.com/.test(left);
+    const body = gone ? '' : await page.locator('body').innerText();
+    const explained = gone || /WhatsApp|no está habilitado|not enabled|conexión|connection|cuenta antes de comprar|sign in/i.test(body);
+    (explained ? ok : fail)('Pay button either charges or says why not', gone ? 'redirigió a la pasarela' : explained ? 'explicó el motivo' : 'se quedó sin decir nada');
+    if (!gone) await page.keyboard.press('Escape');
+  } else {
+    ok('Pay button either charges or says why not', 'sin botón de pago en esta vista');
+  }
+} catch (e) {
+  fail('Pay button flow', String(e).slice(0, 120));
+}
+
 try {
   await page.evaluate(() => document.getElementById('calculadora')?.scrollIntoView());
   await page.waitForTimeout(500);
@@ -203,19 +254,26 @@ try {
   fail('Language toggle', String(e).slice(0, 120));
 }
 
-// Order summary before Stripe: opens, shows what is being bought, and
-// closes with the Android back button instead of leaving the app.
+// El resumen antes de pagar: se abre, dice qué se compra y quién cobra,
+// y se cierra con el botón atrás de Android en vez de salirse de la app.
 try {
   await page.evaluate(() => document.getElementById('planes')?.scrollIntoView());
   await page.waitForTimeout(400);
-  // Step 3 (market analysis) is the Stripe-priced card; step 1 now links
-  // to the free diagnosis and step 2 is custom-quoted.
+  // La tercera tarjeta (análisis de mercado) es la única con cobro en
+  // línea: la primera lleva al diagnóstico gratis y la segunda es a
+  // medida.
   await page.getByRole('button', { name: /^(Empezar|Get started)$/ }).nth(2).click();
   await page.waitForTimeout(600);
   const sheet = page.locator('[role="dialog"]').filter({ hasText: /Resumen|summary/i }).first();
   const text = await sheet.innerText();
-  const complete = /Stripe/.test(text) && /(fuera de la app|outside the app)/.test(text);
-  (complete ? ok : fail)('Checkout summary shows price, service and Stripe', complete ? 'complete' : text.slice(0, 80));
+  // Antes esto exigía la palabra "Stripe". Con el cobro yendo por Wompi,
+  // exigirla era exigir una mentira: la hoja ahora nombra a quien de
+  // verdad va a cobrar, y si no hay ninguna configurada no nombra a
+  // nadie. Lo que no puede faltar nunca es la advertencia de que el
+  // servicio se presta fuera de la app (regla 3.1.3(e) de Apple).
+  const namesGateway = /Stripe|Wompi|pasarela certificada|certified payment provider/.test(text);
+  const complete = namesGateway && /(fuera de la app|outside the app)/.test(text);
+  (complete ? ok : fail)('Checkout summary names who charges and where the service happens', complete ? 'complete' : text.slice(0, 80));
   await page.goBack();
   // Wait for the close animation instead of a fixed delay: with the CPU
   // throttled 4x the exit spring can take well over half a second.

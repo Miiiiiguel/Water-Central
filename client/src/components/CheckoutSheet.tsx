@@ -2,27 +2,33 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Loader2, Lock, ShieldCheck, X, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { fetchCatalog } from '@/lib/checkout';
 import { Button } from '@/components/ui/button';
 
 export interface CheckoutItem {
   plan: string;
   title: string;
   features: string[];
-  /** Fallback price copy used until Stripe is connected. */
+  /** El texto de precio de la web, por si el servidor no da uno. */
   priceLabel: string;
 }
 
 /**
- * Order summary shown before handing off to Stripe Checkout.
+ * El resumen de la compra, antes de mandar a la pasarela.
  *
- * Three reasons it exists:
- *  - the buyer sees exactly what they get and what it costs before a
- *    payment page opens (fewer abandoned checkouts, fewer chargebacks);
- *  - the amount comes from Stripe itself (`GET /api/plans`), so the page
- *    can never advertise a price different from the one charged;
- *  - it states, in the purchase flow, that the service is delivered by
- *    the team outside the app — which is exactly what Apple guideline
- *    3.1.3(e) and Google's services policy ask you to make clear.
+ * Tres razones para que exista:
+ *  - quien compra ve exactamente qué se lleva y cuánto cuesta antes de
+ *    que se abra una página de pago (menos carritos abandonados, menos
+ *    contracargos);
+ *  - el monto lo da el servidor (`GET /api/checkout/catalog`), así que la
+ *    página no puede anunciar un precio distinto del que se cobra;
+ *  - dice, dentro del flujo de compra, que el servicio lo presta el
+ *    equipo fuera de la app — que es justo lo que piden la regla 3.1.3(e)
+ *    de Apple y la política de servicios de Google.
+ *
+ * Y dice quién cobra, de verdad. Antes decía "Pago procesado por Stripe"
+ * pasara lo que pasara; con el cobro yendo por Wompi, eso era
+ * sencillamente falso en la única pantalla donde no se puede mentir.
  */
 export default function CheckoutSheet({
   item,
@@ -42,22 +48,24 @@ export default function CheckoutSheet({
   const { language } = useLanguage();
   const es = language === 'es';
   const [livePrice, setLivePrice] = useState<string | null>(null);
+  const [gateway, setGateway] = useState<'stripe' | 'wompi' | null>(null);
 
-  // Real price from Stripe. Silent no-op until the keys are connected.
+  // El precio y la pasarela, dichos por el servidor. Si no contesta, se
+  // queda el texto de la web y no se nombra a nadie.
   useEffect(() => {
     if (!open || !item) return;
     let cancelled = false;
-    fetch('/api/plans')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (cancelled || !data?.configured) return;
-        const match = (data.plans ?? []).find((p: { id: string }) => p.id === item.plan);
-        if (match?.amountCents != null) {
-          const formatted = new Intl.NumberFormat(es ? 'es-CO' : 'en-US', {
-            style: 'currency',
-            currency: (match.currency ?? 'usd').toUpperCase(),
-          }).format(match.amountCents / 100);
-          setLivePrice(match.interval ? `${formatted} / ${es ? 'mes' : 'month'}` : formatted);
+    fetchCatalog()
+      .then((items) => {
+        if (cancelled) return;
+        const match = items.find((i) => i.plan === item.plan);
+        if (!match) return;
+        setGateway(match.gateway);
+        // En pesos se muestra el monto en pesos; el dólar queda como
+        // referencia, que es lo que de verdad ve el extracto de un
+        // comprador de afuera.
+        if (match.displayCop) {
+          setLivePrice(match.displayUsd && match.gateway === 'wompi' ? `${match.displayCop} · ${match.displayUsd}` : match.displayCop);
         }
       })
       .catch(() => {});
@@ -156,8 +164,8 @@ export default function CheckoutSheet({
                 <p className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Lock size={14} className="text-accent flex-shrink-0" />
                   {es
-                    ? 'Pago procesado por Stripe. Easycomex nunca ve ni guarda tu tarjeta.'
-                    : 'Payment processed by Stripe. Easycomex never sees or stores your card.'}
+                    ? `Pago procesado por ${gateway === 'wompi' ? 'Wompi' : gateway === 'stripe' ? 'Stripe' : 'una pasarela certificada'}. Easycomex nunca ve ni guarda tu tarjeta.`
+                    : `Payment processed by ${gateway === 'wompi' ? 'Wompi' : gateway === 'stripe' ? 'Stripe' : 'a certified payment provider'}. Easycomex never sees or stores your card.`}
                 </p>
               </div>
 

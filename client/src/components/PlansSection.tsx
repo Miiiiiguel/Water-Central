@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Check, Sparkles, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { trackInitiateCheckout } from '@/lib/analytics';
+import { startCheckout as openCheckout, checkoutMessage, type CheckoutPlan } from '@/lib/checkout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSpotlight } from '@/lib/useSpotlight';
 import { isNative, openExternal } from '@/lib/native';
@@ -80,27 +81,19 @@ export default function PlansSection() {
     try {
       // When logged in, the server verifies this token itself and ties
       // the payment to the account — the client never sends a user id.
-      const token = getAccessToken();
-      const res = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ plan: checkoutPlan, platform: isNative ? 'native' : 'web' }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.url) throw new Error(data.error || 'checkout_failed');
-      if (isNative) {
-        // Stripe Checkout must run in the system browser, not the WebView
-        // (Apple/Google policy and Stripe's own requirement). The app
-        // refreshes payments when it comes back to the foreground.
-        await openExternal(data.url);
+      const outcome = await openCheckout(checkoutPlan as CheckoutPlan, getAccessToken());
+      if (!outcome.ok) {
+        setCheckoutError(checkoutMessage(outcome.reason, language === 'es'));
         setCheckingOut(null);
-        setSheetItem(null);
         return;
       }
-      window.location.href = data.url;
+      if (isNative) {
+        // En la app el pago salió al navegador del sistema; la hoja se
+        // cierra y el dashboard se refresca al volver al frente.
+        setCheckingOut(null);
+        setSheetItem(null);
+      }
+      return;
     } catch {
       setCheckoutError(
         language === 'es'

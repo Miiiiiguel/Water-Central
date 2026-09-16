@@ -6,6 +6,7 @@ import {
   BarChart3, Plug, Receipt, RefreshCw, Search, Sparkles,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { startCheckout } from '@/lib/checkout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getSupabase, FreightQuote, Profile, ContactLead, Payment, Subscription } from '@/lib/supabase';
 import { buildReferralLink } from '@/lib/referral';
@@ -241,8 +242,47 @@ const planLabel: Record<string, { es: string; en: string }> = {
   diagnostico_madurez: { es: 'Diagnóstico de madurez', en: 'Maturity diagnosis' },
   analisis_mercado: { es: 'Análisis de mercado', en: 'Market analysis' },
   acompanamiento: { es: 'Acompañamiento mensual', en: 'Monthly retainer' },
+  creditos_marco_polo: { es: 'Consultas de Marco Polo', en: 'Marco Polo lookups' },
+  reporte_detalle: { es: 'Desglose de costos mes a mes', en: 'Month-by-month cost breakdown' },
+  reporte_pronostico: { es: 'Pronóstico completo a 2 años', en: 'Full 2-year forecast' },
   suscripcion: { es: 'Suscripción', en: 'Subscription' },
 };
+
+/**
+ * El monto, en la moneda en que se cobró.
+ *
+ * Los cobros de Wompi son en pesos y los de Stripe en dólares, en la
+ * misma tabla. "39900.00 COP" es técnicamente cierto y visualmente un
+ * error: el peso no se escribe con decimales.
+ */
+const money = (cents: number, currency: string, es: boolean) => {
+  const code = (currency || 'usd').toUpperCase();
+  try {
+    return new Intl.NumberFormat(es ? 'es-CO' : 'en-US', {
+      style: 'currency',
+      currency: code,
+      maximumFractionDigits: code === 'COP' ? 0 : 2,
+    }).format(cents / 100);
+  } catch {
+    return `${(cents / 100).toFixed(2)} ${code}`;
+  }
+};
+
+/**
+ * Una orden queda en `pending` desde que alguien toca "pagar". Si cierra
+ * la pasarela sin pagar, esa fila se queda ahí para siempre — y el
+ * historial acabaría lleno de compras que nunca ocurrieron.
+ *
+ * Un PSE de verdad se acredita en minutos, así que a las dos horas lo
+ * que sigue pendiente es un carrito abandonado. Se esconde, no se borra:
+ * si el banco la acredita tarde, el webhook la pasa a pagada y vuelve a
+ * aparecer sola.
+ */
+const ABANDONADA_MS = 2 * 60 * 60 * 1000;
+function visiblePayments(rows: Payment[]): Payment[] {
+  const now = Date.now();
+  return rows.filter((p) => p.status !== 'pending' || now - new Date(p.created_at).getTime() < ABANDONADA_MS);
+}
 
 const paymentStatusStyle: Record<string, { badge: string; icon: string }> = {
   paid: { badge: 'text-green-700 bg-green-50', icon: 'bg-green-50 text-green-600' },
@@ -334,14 +374,7 @@ function ResearchQuotaCard() {
   const buy = async () => {
     setBusy(true);
     try {
-      const token = getAccessToken();
-      const res = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ plan: 'creditos_marco_polo', platform: 'web' }),
-      });
-      const data = await res.json();
-      if (data.url) await openExternal(data.url);
+      await startCheckout('creditos_marco_polo', getAccessToken());
     } finally {
       setBusy(false);
     }
@@ -457,7 +490,7 @@ function ClienteDashboard() {
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
-          .then(({ data }) => setPayments((data as Payment[]) ?? [])));
+          .then(({ data }) => setPayments(visiblePayments((data as Payment[]) ?? []))));
       // Empty unless a plan is configured as recurring in Stripe.
       void getSupabase().then((sb) =>
         sb
@@ -577,7 +610,7 @@ function ClienteDashboard() {
                       {planLabel[p.plan]?.[language === 'es' ? 'es' : 'en'] ?? p.plan}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(p.created_at).toLocaleDateString()} · {(p.amount_cents / 100).toFixed(2)} {p.currency.toUpperCase()}
+                      {new Date(p.created_at).toLocaleDateString()} · {money(p.amount_cents, p.currency, language === 'es')}
                     </p>
                   </div>
                 </div>

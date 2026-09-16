@@ -109,3 +109,35 @@ export async function fetchTransaction(id: string, env: WompiEnv = wompiEnv()): 
   const body = (await res.json()) as { data?: WompiTransaction };
   return body.data ?? null;
 }
+
+/**
+ * La URL del Web Checkout de Wompi.
+ *
+ * Se usa esta y no el widget de JavaScript por tres razones: el pago
+ * queda siendo un redirect normal (funciona igual en el navegador del
+ * sistema de la app nativa), no hay que cargar un script de terceros en
+ * la página, y el servidor devuelve una URL — exactamente la misma forma
+ * que Stripe, así que el navegador no tiene que saber quién cobra.
+ *
+ * Los nombres de los parámetros son los de Wompi, con dos puntos y todo
+ * (`signature:integrity`): no son un estilo nuestro, son su contrato.
+ */
+export function checkoutUrl(o: {
+  publicKey: string;
+  reference: string;
+  amountInCents: number;
+  currency: string;
+  signature: string;
+  redirectUrl: string;
+  email?: string | null;
+}): string {
+  const url = new URL('https://checkout.wompi.co/p/');
+  url.searchParams.set('public-key', o.publicKey);
+  url.searchParams.set('currency', o.currency);
+  url.searchParams.set('amount-in-cents', String(o.amountInCents));
+  url.searchParams.set('reference', o.reference);
+  url.searchParams.set('signature:integrity', o.signature);
+  url.searchParams.set('redirect-url', o.redirectUrl);
+  if (o.email) url.searchParams.set('customer-data:email', o.email);
+  return url.toString();
+}

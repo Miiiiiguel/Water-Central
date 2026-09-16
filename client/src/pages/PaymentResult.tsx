@@ -12,12 +12,17 @@ type Verification =
   | { state: 'processing' }
   | { state: 'unknown' };
 
-// Landing pages Stripe redirects back to.
+// La página a la que vuelve quien acaba de pagar — por Stripe o por
+// Wompi.
 //
-// The success page asks the server to confirm the Checkout session with
-// Stripe before it claims anything, so a hand-typed URL says "we could
-// not confirm a payment" instead of "thank you". Access is still granted
-// only by the webhook writing public.payments — never by this page.
+// Antes de decir "gracias", le pregunta al servidor si ese pago existe:
+// Stripe devuelve ?session_id=cs_…, Wompi devuelve ?id=<transacción>, y
+// el servidor va a preguntarle a la pasarela. Una URL escrita a mano
+// contesta "no pudimos confirmar", no "gracias".
+//
+// Y confirmar no es desbloquear: lo que da acceso es la fila en
+// public.payments que escribe el webhook (o esta confirmación ya
+// verificada contra la pasarela), nunca esta pantalla.
 export default function PaymentResult({ status }: { status: 'success' | 'cancelled' }) {
   const { language } = useLanguage();
   const { user } = useAuth();
@@ -28,27 +33,38 @@ export default function PaymentResult({ status }: { status: 'success' | 'cancell
   const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
   const fromApp = params.get('native') === '1';
   const sessionId = params.get('session_id');
+  // Wompi vuelve con el id de la transacción; Stripe con el de la sesión.
+  const wompiTx = params.get('id');
 
-  const [verification, setVerification] = useState<Verification>({ state: ok && sessionId ? 'checking' : 'idle' });
+  const [verification, setVerification] = useState<Verification>({ state: ok && (sessionId || wompiTx) ? 'checking' : 'idle' });
 
   useEffect(() => {
-    if (!ok || !sessionId) return;
+    if (!ok || (!sessionId && !wompiTx)) return;
     let cancelled = false;
     let attempt = 0;
+
+    const ask = async (): Promise<Response> =>
+      sessionId
+        ? fetch(`/api/checkout-session/${encodeURIComponent(sessionId)}`)
+        : fetch('/api/checkout/confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ transactionId: wompiTx }),
+          });
 
     const check = async () => {
       attempt += 1;
       try {
-        const res = await fetch(`/api/checkout-session/${encodeURIComponent(sessionId)}`);
+        const res = await ask();
         if (cancelled) return;
-        if (res.status === 503) return setVerification({ state: 'idle' }); // Stripe not configured here
+        if (res.status === 503) return setVerification({ state: 'idle' }); // la pasarela no está configurada acá
         if (!res.ok) return setVerification({ state: 'unknown' });
         const data = await res.json();
         if (data.paid) {
           setVerification({ state: 'paid', plan: data.planLabel ?? data.plan ?? null, amountCents: data.amountCents ?? null, currency: data.currency ?? null });
         } else if (attempt < 3) {
-          // Card payments are instant, but vouchers and bank debits take
-          // a moment to flip to 'paid'. Give it two more tries.
+          // Tarjeta es instantáneo; PSE, Nequi y los vouchers tardan un
+          // momento en pasar a pagado. Dos intentos más.
           setVerification({ state: 'checking' });
           window.setTimeout(check, 2500);
         } else {
@@ -61,7 +77,7 @@ export default function PaymentResult({ status }: { status: 'success' | 'cancell
 
     check();
     return () => { cancelled = true; };
-  }, [ok, sessionId]);
+  }, [ok, sessionId, wompiTx]);
 
   const money =
     verification.state === 'paid' && verification.amountCents != null
@@ -88,15 +104,15 @@ export default function PaymentResult({ status }: { status: 'success' | 'cancell
       ? 'No se realizó ningún cobro. Si tuviste algún problema o querés hablar antes de decidir, escribinos.'
       : 'You were not charged. If something went wrong or you want to talk before deciding, message us.'
     : checking
-      ? es ? 'Estamos verificando la transacción con Stripe. Toma unos segundos.' : 'We are verifying the transaction with Stripe. This takes a few seconds.'
+      ? es ? 'Estamos verificando la transacción con la pasarela. Toma unos segundos.' : 'We are verifying the transaction with the payment provider. This takes a few seconds.'
       : processing
         ? es
           ? 'Tu medio de pago necesita unos minutos para acreditarse. Apenas se confirme te llega el email y el plan aparece en tu dashboard, sin que tengas que hacer nada.'
           : 'Your payment method needs a few minutes to clear. As soon as it confirms you get an email and the plan appears in your dashboard — nothing else to do.'
         : unknown
           ? es
-            ? 'Si acabás de pagar, revisá tu email: Stripe envía el recibo al confirmar. Si no, escribinos y lo verificamos con vos.'
-            : 'If you just paid, check your email: Stripe sends the receipt on confirmation. Otherwise message us and we will check it with you.'
+            ? 'Si acabás de pagar, revisá tu email: la pasarela envía el recibo al confirmar. Si no, escribinos y lo verificamos con vos.'
+            : 'If you just paid, check your email: the payment provider sends the receipt on confirmation. Otherwise message us and we will check it with you.'
           : es
             ? 'Gracias. Te enviamos la confirmación a tu email y nuestro equipo te contacta en menos de 24 horas para arrancar.'
             : 'Thank you. We sent a confirmation to your email and our team will reach out within 24 hours to get started.';

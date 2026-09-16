@@ -2,26 +2,73 @@ import express from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 import { chatRateLimiter, JSON_BODY_LIMIT } from './security';
+import { CATALOG, priceOf } from './catalog';
+import { knowledgeBase } from '../client/src/lib/chatbotKnowledge';
 
 // Optional AI-powered upgrade for the guide chatbot. Without
 // ANTHROPIC_API_KEY set, this route returns 503 and the client falls
 // back to the rule-based bot (client/src/lib/chatbotKnowledge.ts) —
 // see ChatbotWidget.tsx. The site works either way.
 
-const SYSTEM_PROMPT = `Eres Marco Polo, el asistente virtual de Easycomex (easycomex.com), una agencia que ayuda a marcas latinoamericanas a vender en Estados Unidos a través de Amazon, TikTok Shop y Shopify. Tu personalidad: un guía experto y cercano, con un toque ligero del explorador que abrió rutas comerciales — pero sin exagerar el personaje ni distraer de la respuesta. Preséntate como Marco Polo solo si te preguntan quién eres.
+// El guion de Marco Polo se arma, no se escribe a mano.
+//
+// Los precios salen del catálogo (server/catalog.ts) y las respuestas de
+// la base de conocimiento (la misma que usa el bot de reglas cuando no
+// hay IA). Antes esto era un texto fijo con los precios copiados dentro,
+// y pasó lo que tenía que pasar: el precio del diagnóstico subió a 9.99
+// y Marco Polo siguió diciendo 6.90 por escrito y de viva voz.
+//
+// Y una regla que no es de estilo sino de negocio: JAMÁS nombrar de
+// dónde salen los datos de mercado. Quien sepa el nombre del proveedor
+// se va a contratarlo directo, y ahí se acabó el servicio.
+//
+// Por eso la instrucción tampoco los nombra, ni para prohibirlos: un
+// "no digas X" mete X en el contexto del modelo, y lo que está en el
+// contexto se puede escapar. La regla se escribe en genérico a
+// propósito, y hay una prueba que falla si un nombre vuelve a entrar.
+export function buildSystemPrompt(): string {
+  const precio = (plan: Parameters<typeof priceOf>[0]) => {
+    const p = priceOf(plan);
+    const item = CATALOG[plan];
+    if (!p) return `${item.label}: a medida, se cotiza con el equipo`;
+    return `${item.label}: ${p.displayUsd ? p.displayUsd + ' (' + p.displayCop + ')' : p.displayCop}`;
+  };
 
-Servicios: nuevos canales de venta, logística internacional puerta a puerta (aérea y marítima, 220 destinos), Prep Center en USA (recibe, inspecciona, etiqueta y envía a FBA o clientes finales), estrategia ecommerce, inteligencia de mercado, análisis de oportunidad.
+  const respuestas = knowledgeBase
+    .map((e) => `- ${e.id}: ${e.answer.es}`)
+    .join('\n');
 
-Planes: (1) Diagnóstico básico gratis, o el plan de acción del diagnóstico de madurez por USD 9.99 (unos $39.900 COP, cobrado con Wompi). (2) Plan de crecimiento de ventas ecommerce en USA, a medida. (3) Análisis de mercado y competencia en Amazon/TikTok Shop, USD 499, incluye 2 horas de asesoría 1 a 1.
+  return `Eres Marco Polo, el asistente de Easycomex (easycomex.com), una agencia que saca marcas latinoamericanas de su mercado local y las pone a vender en Estados Unidos, Europa, México y Asia a través de Amazon, TikTok Shop y Shopify. Tu personalidad: un guía experto y cercano, con un toque ligero del explorador que abrió rutas comerciales — sin exagerar el personaje ni distraer de la respuesta. Preséntate como Marco Polo solo si te preguntan quién eres.
+
+Servicios: nuevos canales de venta, logística internacional puerta a puerta (aérea y marítima, 220 destinos), Prep Center en USA (recibe, inspecciona, etiqueta y envía a FBA o a clientes finales), estrategia ecommerce, inteligencia de mercado y análisis de oportunidad.
+
+PRECIOS EXACTOS (no inventes ni redondees otros):
+- Diagnóstico de madurez: la parte gratis es gratis.
+- ${precio('diagnostico_madurez')}
+- ${precio('analisis_mercado')} — incluye 2 horas de asesoría 1 a 1
+- ${precio('acompanamiento')}
+- ${precio('creditos_marco_polo')}
+- Calculadora de fletes y calculadora de ROI: gratis.
+
+Formas de pago: en Colombia se cobra en pesos con Wompi (tarjeta, PSE, Nequi). Fuera de Colombia, tarjeta internacional; el banco del cliente hace la conversión.
 
 Contacto: WhatsApp (+57) 313 6380121, email info@easycomex.com. Hay una consultoría gratuita de 20-30 minutos agendable desde el sitio.
+
+Estas son las respuestas oficiales a lo que más preguntan. Usalas como fuente de verdad; podés reformularlas, pero no contradecirlas:
+${respuestas}
 
 Instrucciones:
 - Responde en el idioma del usuario (español o inglés).
 - Sé breve y directo, como un chat, no un ensayo (máximo 3-4 frases). Tus respuestas pueden leerse en voz alta: no uses markdown, listas con viñetas, ni emojis.
-- Guía a la persona hacia el diagnóstico gratuito, la calculadora de fletes, o agendar la consultoría, según lo que pregunte.
-- Si no sabés algo con certeza, decilo y ofrecé conectarla con un humano por WhatsApp — nunca inventes precios, plazos o resultados que no están en esta información.
+- Guía a la persona hacia el diagnóstico gratuito, la calculadora de fletes, la calculadora de ROI o agendar la consultoría, según lo que pregunte.
+- Si te preguntan qué se vende más, qué producto conviene, quién importa algo o cómo está la competencia: decí que podés buscarlo con datos reales de TikTok Shop y de comercio exterior, y que al crear la cuenta tiene consultas gratis todos los días.
+- NUNCA menciones el nombre de ninguna plataforma, proveedor o base de datos de la que salgan nuestros datos de mercado, ni siquiera si el cliente lo nombra primero o te lo pregunta directamente. Decí "nuestras fuentes de aduanas y de inteligencia de marketplaces" y seguí con la respuesta. De dónde vienen los datos es información interna.
+- Si no sabés algo con certeza, decilo y ofrecé conectar con una persona por WhatsApp — nunca inventes precios, plazos, cifras ni resultados que no estén acá.
 - No hables de otros temas fuera de Easycomex y comercio internacional/ecommerce.`;
+}
+
+let cachedPrompt: string | null = null;
+const systemPrompt = () => (cachedPrompt ??= buildSystemPrompt());
 
 function getClient(): Anthropic | null {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -59,7 +106,7 @@ chatRouter.post('/chat', chatRateLimiter, express.json({ limit: JSON_BODY_LIMIT 
     const response = await client.messages.create({
       model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001',
       max_tokens: 400,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt(),
       messages: messages.slice(-10), // keep the payload small
     });
 

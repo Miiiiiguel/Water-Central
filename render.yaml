@@ -67,9 +67,14 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
 
-      # --- Wompi: el diagnóstico de madurez (SETUP.md §2b) ------------
-      # Sin estas cuatro, el diagnóstico funciona gratis pero nadie puede
-      # comprar el plan de acción.
+      # --- Wompi: TODOS los cobros (SETUP.md §2b) ---------------------
+      # Sin estas cuatro no se puede cobrar nada: ni el plan de acción
+      # del diagnóstico, ni el análisis de mercado, ni los reportes de
+      # ROI, ni las consultas de Marco Polo. Stripe es opcional; Wompi,
+      # para un negocio que cobra en Colombia, no lo es.
+      #
+      # La URL de eventos que va en el panel de Wompi es una sola:
+      #   https://TU-DOMINIO/api/wompi-events
       - key: WOMPI_PUBLIC_KEY
         sync: false
       - key: WOMPI_PRIVATE_KEY
@@ -87,7 +92,31 @@ services:
       - key: DIAGNOSTIC_PRICE_USD_DISPLAY
         value: "9.99"
 
-      # --- Stripe: el resto de los planes (SETUP.md §2) ---------------
+      # --- Precios del resto del catálogo (server/catalog.ts) ---------
+      # Todo se cobra en pesos. El dólar es sólo la etiqueta que ve quien
+      # no está en Colombia; su banco convierte.
+      #
+      # USD_COP_RATE es la tasa con la que se pasan los precios
+      # publicados en dólares a pesos. En 4000, USD 9.99 da exactamente
+      # los $39.900 que ya dice la web. Súbela o bájala cuando se mueva
+      # el dólar — es un solo número.
+      - key: USD_COP_RATE
+        value: 4000
+      # Y si querés un precio en pesos redondo, fijalo acá (en PESOS, no
+      # en centavos) y manda sobre la conversión. Descomentá el que uses.
+      # - key: PRICE_ANALISIS_MERCADO_COP
+      #   value: 2000000
+      # - key: PRICE_CREDITOS_MARCO_POLO_COP
+      #   value: 76000
+      # - key: PRICE_REPORTE_DETALLE_COP
+      #   value: 159600
+      # - key: PRICE_REPORTE_PRONOSTICO_COP
+      #   value: 399600
+
+      # --- Stripe: opcional, para cobrar en dólares (SETUP.md §2) -----
+      # Si estas están puestas, el plan que tenga su price ID se cobra
+      # por Stripe; lo demás sigue yendo por Wompi. Si no están, todo va
+      # por Wompi y no falta nada.
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET

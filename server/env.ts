@@ -17,7 +17,7 @@ function isSet(name: string) {
 // of a group are set, that's almost always a mistake.
 const GROUPS: { label: string; vars: string[] }[] = [
   { label: 'Stripe', vars: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'STRIPE_PRICE_DIAGNOSTICO_MADUREZ', 'STRIPE_PRICE_ANALISIS_MERCADO'] },
-  { label: 'Wompi (diagnóstico de madurez)', vars: ['WOMPI_PUBLIC_KEY', 'WOMPI_INTEGRITY_SECRET', 'WOMPI_EVENTS_SECRET', 'SUPABASE_SERVICE_ROLE_KEY'] },
+  { label: 'Wompi (todos los cobros)', vars: ['WOMPI_PUBLIC_KEY', 'WOMPI_INTEGRITY_SECRET', 'WOMPI_EVENTS_SECRET', 'SUPABASE_SERVICE_ROLE_KEY'] },
   { label: 'Push notifications', vars: ['VAPID_PUBLIC_KEY', 'VAPID_PRIVATE_KEY', 'VAPID_SUBJECT', 'SUPABASE_SERVICE_ROLE_KEY', 'PUSH_WEBHOOK_SECRET'] },
   { label: 'Supabase (client)', vars: ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'] },
   { label: 'Marco Polo premium voice', vars: ['ELEVENLABS_API_KEY', 'ELEVENLABS_VOICE_ID'] },
@@ -48,6 +48,17 @@ export function validateEnv() {
 
   if (isSet('WOMPI_PUBLIC_KEY') && process.env.WOMPI_PUBLIC_KEY!.startsWith('pub_prod_') && process.env.WOMPI_ENV !== 'production') {
     warn('WOMPI_PUBLIC_KEY is a production key but WOMPI_ENV is not "production" — transactions will be checked against the sandbox and never confirm.');
+  }
+
+  // Lo más caro que puede pasar en producción: la web abierta, los
+  // botones puestos, y ninguna pasarela detrás. Nadie puede pagar y en
+  // los logs no aparece nada, porque no falla — simplemente no cobra.
+  const stripeListo = isSet('STRIPE_SECRET_KEY');
+  const wompiListo = isSet('WOMPI_PUBLIC_KEY') && isSet('WOMPI_INTEGRITY_SECRET');
+  if (!stripeListo && !wompiListo) {
+    warn('Ninguna pasarela de pago configurada: nadie puede pagar nada. Poné las llaves de Wompi (WOMPI_PUBLIC_KEY, WOMPI_INTEGRITY_SECRET, WOMPI_EVENTS_SECRET, WOMPI_PRIVATE_KEY) o las de Stripe.');
+  } else if (wompiListo && !isSet('SUPABASE_SERVICE_ROLE_KEY')) {
+    warn('Wompi está configurado pero falta SUPABASE_SERVICE_ROLE_KEY: sin eso no se puede registrar ninguna compra, y el checkout se niega a cobrar.');
   }
 
   if (isProduction) {

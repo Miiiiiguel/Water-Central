@@ -237,11 +237,17 @@ La página `/diagnostico` es el cuestionario del equipo: 17 preguntas en
 todo gratis. Lo que se paga es el **plan de acción** (qué hacer con cada
 brecha): **USD 9.99 / $39.900 COP**, pago único, con **Wompi**.
 
-Por qué Wompi y no Stripe acá: es la pasarela colombiana (PSE, Nequi,
+Por qué Wompi y no Stripe: es la pasarela colombiana (PSE, Nequi,
 Daviplata, tarjetas) y liquida en pesos. Un comprador de fuera de
 Colombia también paga con tarjeta, pero ve el cargo en COP y su banco
-convierte. Si algún día quieres cobrarle USD reales, Stripe ya está
-construido y es cambiar una línea.
+convierte.
+
+**Wompi cobra TODO, no solo el diagnóstico.** El análisis de mercado, los
+reportes de la calculadora de ROI y los paquetes de consultas de Marco
+Polo salen por la misma puerta (`/api/checkout`). Stripe quedó como
+opcional: si un plan tiene su `STRIPE_PRICE_…` puesto, ese se cobra por
+Stripe y el resto sigue por Wompi. Si no hay una sola variable
+`STRIPE_*` —que es el caso normal— no falta nada.
 
 1. En [comercios.wompi.co](https://comercios.wompi.co) → **Desarrolladores**
    copia las cuatro llaves en `.env`: `WOMPI_PUBLIC_KEY`,
@@ -249,12 +255,39 @@ construido y es cambiar una línea.
    Mientras pruebas usa las `pub_test_` / `prv_test_` y deja
    `WOMPI_ENV=sandbox`; en producción, las `pub_prod_` y
    `WOMPI_ENV=production`.
-2. En **Eventos** registra la URL `https://tu-dominio.com/api/diagnostic/wompi-events`.
-   Es la vía autoritativa a "pagado" aunque el cliente cierre la pestaña.
-3. `SUPABASE_SERVICE_ROLE_KEY` tiene que estar (la tabla `diagnostics`
-   no tiene políticas RLS a propósito: solo el servidor la toca).
-4. Precio: `DIAGNOSTIC_PRICE_COP_CENTS` (por defecto 3990000) y
-   `DIAGNOSTIC_PRICE_USD_DISPLAY` (por defecto 9.99).
+2. En **Eventos** registra **una sola** URL:
+   `https://tu-dominio.com/api/wompi-events`.
+
+   Wompi solo admite una por comercio, así que esa entrada reparte
+   sola según la referencia: `ecx_…` es un diagnóstico, `ecp_…` es
+   cualquier otra compra. (Las rutas viejas
+   `/api/diagnostic/wompi-events` y `/api/checkout/wompi-events` siguen
+   respondiendo lo mismo, para no tener que tocar el panel si ya hay una
+   escrita.) Es la vía autoritativa a "pagado" aunque el cliente cierre
+   la pestaña.
+3. `SUPABASE_SERVICE_ROLE_KEY` tiene que estar. Sin ella el checkout se
+   **niega a cobrar**: cobrar sin poder registrar quién pagó qué es peor
+   que no cobrar.
+4. Precios. Todos viven en `server/catalog.ts` y todos se cobran en
+   pesos:
+   - `USD_COP_RATE` (por defecto `4000`) convierte los precios
+     publicados en dólares a pesos. Con 4000, USD 9.99 da exactamente
+     los $39.900 que dice la web. Cuando se mueva el dólar, es este
+     número el que se cambia.
+   - `PRICE_ANALISIS_MERCADO_COP`, `PRICE_CREDITOS_MARCO_POLO_COP`,
+     `PRICE_REPORTE_DETALLE_COP`, `PRICE_REPORTE_PRONOSTICO_COP`: un
+     precio fijo **en pesos** que manda sobre la conversión.
+   - `DIAGNOSTIC_PRICE_COP_CENTS` (en centavos) sigue mandando sobre
+     todo para el diagnóstico, por compatibilidad.
+
+   El precio del paquete de 50 consultas de Marco Polo (USD 19) es el
+   único que no estaba publicado en ninguna parte: lo puse como punto de
+   partida. Cámbialo con `PRICE_CREDITOS_MARCO_POLO_COP` cuando decidas
+   el tuyo.
+
+**Qué se puede cobrar hoy:** `GET /api/checkout/catalog` lo dice, plan por
+plan, con la pasarela que le toca. Es lo que mira la web para no mostrar
+un botón de pago que no puede cobrar.
 
 **Cómo fluye:** el navegador pide una firma a `/api/diagnostic/wompi-init`
 (el servidor decide el monto y firma con el secreto de integridad, que

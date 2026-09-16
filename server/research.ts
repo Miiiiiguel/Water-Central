@@ -5,6 +5,7 @@ import { requireUser } from './auth';
 import { getSupabaseAdmin } from './supabaseAdmin';
 import { logSecurityEvent } from './log';
 import { runKalodata, runSicex, isConfigured, missingConfig, type ResearchResult } from './connectors';
+import { CATALOG } from './catalog';
 
 // Marco Polo's research desk.
 //
@@ -32,9 +33,11 @@ export const DAILY_QUOTA: Record<string, number> = {
   acompanamiento: 100,
 };
 
+// Cuántas consultas trae el paquete lo decide el catálogo, que es
+// también quien le pone precio y quien se lo dice a Marco Polo.
 export const CREDIT_PACK = {
-  plan: 'creditos_marco_polo',
-  credits: 50,
+  plan: 'creditos_marco_polo' as const,
+  credits: CATALOG.creditos_marco_polo.grants!.researchCredits,
 };
 
 const bodySchema = z.object({

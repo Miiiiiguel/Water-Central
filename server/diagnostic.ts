@@ -7,10 +7,11 @@ import { logSecurityEvent } from './log';
 import { captureException } from './monitoring';
 import { ACTIONS } from './diagnosticActions';
 import {
-  fetchTransaction, integritySignature, transactionPaysFor, verifyEventChecksum, wompiConfigured, wompiEnv, type WompiEvent,
+  fetchTransaction, integritySignature, transactionPaysFor, wompiConfigured, wompiEnv,
 } from './wompi';
 import { FLAT, TOTAL_QUESTIONS, gapsIn, scorePct, tierFor, type Answer } from '../client/src/lib/diagnosticContent';
 import { appUrl, diagnosticReceipt, emailConfigured, sendEmail } from './email';
+import { priceOf } from './catalog';
 
 // Diagnóstico de madurez.
 //
@@ -29,7 +30,11 @@ import { appUrl, diagnosticReceipt, emailConfigured, sendEmail } from './email';
 // display for a non-Colombian buyer is "USD 9.99" with the peso amount
 // underneath — their bank converts. Override both with env vars.
 
-const PRICE_COP_CENTS = Number(process.env.DIAGNOSTIC_PRICE_COP_CENTS) || 3990000; // $39.900
+// El precio sale del catálogo (server/catalog.ts). La variable vieja
+// sigue mandando si está puesta, para no cambiarle el precio a nadie
+// que ya la tenga configurada en su panel.
+const PRICE_COP_CENTS =
+  Number(process.env.DIAGNOSTIC_PRICE_COP_CENTS) || priceOf('diagnostico_madurez')?.amountInCents || 3990000; // $39.900
 const PRICE_USD_DISPLAY = process.env.DIAGNOSTIC_PRICE_USD_DISPLAY || '9.99';
 const CURRENCY = 'COP';
 
@@ -280,35 +285,32 @@ diagnosticRouter.post('/diagnostic/confirm', checkoutRateLimiter, express.json({
   return res.json(publicView(row));
 });
 
-// Wompi's server-to-server event. Signed with the events secret; the
-// authoritative path to "paid" even if the buyer closes the tab.
-diagnosticRouter.post('/diagnostic/wompi-events', express.json({ limit: '64kb' }), async (req, res) => {
-  const secret = process.env.WOMPI_EVENTS_SECRET;
-  if (!secret) return res.status(503).json({ error: 'not_configured' });
-  const event = req.body as WompiEvent;
-  if (!event?.signature?.checksum || !Array.isArray(event.signature.properties) || !event.data) {
-    return res.status(400).json({ error: 'bad_event' });
-  }
-  if (!verifyEventChecksum(event, secret)) {
-    logSecurityEvent('webhook_signature_failed', req, { source: 'wompi' });
-    return res.status(401).json({ error: 'bad_signature' });
-  }
-
-  const tx = event.data.transaction;
+/**
+ * Un evento de Wompi que trae una referencia de diagnóstico (ecx_…):
+ * marcarlo pagado si de verdad lo paga.
+ *
+ * La ruta del webhook ya no vive acá. Wompi acepta UNA sola URL de
+ * eventos por comercio, y con dos rutas —una para el diagnóstico y otra
+ * para el resto— la que no estuviera configurada en su panel nunca se
+ * enteraría de un pago. Ahora entra una sola (server/checkout.ts) y
+ * reparte según el prefijo de la referencia.
+ */
+export async function settleDiagnosticTransaction(
+  tx: Partial<{ reference: string; id: string; amount_in_cents: number; currency: string; status: string }>,
+  _req: express.Request
+): Promise<boolean> {
   const ref = refSchema.safeParse(tx?.reference);
-  // Always 200 once the signature checks out: Wompi retries anything else
-  // and there is nothing to retry for a reference that isn't ours.
-  if (event.event !== 'transaction.updated' || !ref.success) return res.json({ received: true });
+  if (!ref.success) return false;
 
   const row = await loadRow(ref.data);
-  if (row && !row.paid) {
-    const price = priceFor(row.pais ?? 'OT');
-    if (transactionPaysFor(tx, { reference: row.ref, amountInCents: price.amountInCents, currency: price.currency })) {
-      await markPaid(row.ref, tx!);
-    }
-  }
-  return res.json({ received: true });
-});
+  if (!row || row.paid) return false;
+
+  const price = priceFor(row.pais ?? 'OT');
+  if (!transactionPaysFor(tx, { reference: row.ref, amountInCents: price.amountInCents, currency: price.currency })) return false;
+
+  await markPaid(row.ref, tx);
+  return true;
+}
 
 // "Perdí mi diagnóstico": se lo reenviamos al correo con el que pagó.
 //
