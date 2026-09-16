@@ -1,10 +1,11 @@
-import { useState, FormEvent } from 'react';
+import { useEffect, useState, FormEvent } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Mail, Lock, User, Building2, AlertTriangle, ArrowRight, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import GoogleButton from '@/components/GoogleButton';
+import { takeOAuthError } from '@/lib/oauthReturn';
 
 export default function Register() {
   const { language } = useLanguage();
@@ -16,6 +17,13 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  // Si venimos rebotados de Google con un error, acá es donde se lee.
+  useEffect(() => {
+    const guardado = takeOAuthError();
+    if (guardado) setError(guardado);
+  }, []);
+
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 

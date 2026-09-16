@@ -1,10 +1,11 @@
-import { useState, FormEvent } from 'react';
+import { useEffect, useState, FormEvent } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Mail, Lock, AlertTriangle, ArrowRight, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import GoogleButton from '@/components/GoogleButton';
+import { takeOAuthError } from '@/lib/oauthReturn';
 import MfaChallenge from '@/components/MfaChallenge';
 import { getMfaStatus } from '@/lib/mfa';
 
@@ -18,6 +19,13 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  // Si venimos rebotados de Google con un error, acá es donde se lee.
+  useEffect(() => {
+    const guardado = takeOAuthError();
+    if (guardado) setError(guardado);
+  }, []);
+
   const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 

@@ -476,6 +476,29 @@ try {
   fail('Accessible names', String(e).slice(0, 120));
 }
 
+// ---- 3c. Volver de Google con un error tiene que decirse ---------------
+//
+// "No carga inicio de sesión con Google" era esto: el proveedor devuelve
+// el motivo escrito en la URL, la app no lo leía, y la página se pintaba
+// igual —sin mensaje y sin sesión—. Desde fuera, eso es exactamente "no
+// carga".
+try {
+  // El hash literal que devuelve Supabase cuando el proveedor está apagado.
+  await page.goto(base + '/dashboard#error=server_error&error_description=Unsupported+provider%3A+provider+is+not+enabled', { waitUntil: 'load' });
+  await page.waitForTimeout(2000);
+  const texto = await page.locator('#root').innerText();
+  const loDice = /Providers|no está habilitado|not enabled/i.test(texto);
+  // Y la URL tiene que quedar limpia: si el error se queda en la barra,
+  // recargar lo repite para siempre.
+  const limpia = !page.url().includes('error=');
+  (loDice && limpia ? ok : fail)(
+    'A failed Google sign-in says why, and does not stick in the URL',
+    loDice && limpia ? 'lo explica y limpia la URL' : loDice ? 'lo explica pero el error sigue en la URL' : 'no dijo nada'
+  );
+} catch (e) {
+  fail('Google error return', String(e).slice(0, 120));
+}
+
 // ---- 4. Offline: the installed app must not show a blank screen -------
 // The service worker precaches the shell, so a reload with no network
 // should still paint something instead of the browser's error page.

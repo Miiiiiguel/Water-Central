@@ -6,6 +6,7 @@ import { getStoredReferralCode, clearStoredReferralCode } from '@/lib/referral';
 import { getMfaStatus } from '@/lib/mfa';
 import { authErrorLog, authErrorMessage, classifyAuthError, errorDetail } from '@/lib/authErrors';
 import { hostOf, probeAccountsHost, probeMessage } from '@/lib/accountsProbe';
+import { captureOAuthError } from '@/lib/oauthReturn';
 
 interface AuthContextType {
   session: Session | null;
@@ -81,6 +82,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data } = await (await getSupabase()).rpc('apply_referral_code', { p_code: code });
     if (data === true) clearStoredReferralCode();
   };
+
+  // Volver de Google con un error tiene que DECIRSE.
+  //
+  // El proveedor devuelve el motivo en la URL y la app no lo leía: la
+  // página se pintaba igual, sin mensaje y sin sesión. Se guarda
+  // traducido, se limpia la URL —si el error se queda en la barra,
+  // recargar lo repite para siempre— y se manda a la pantalla de
+  // entrar, que es donde se puede leer y volver a intentar.
+  useEffect(() => {
+    if (!captureOAuthError(enEspanol())) return;
+    const donde = window.location.pathname;
+    if (donde !== '/login' && donde !== '/registro') window.location.replace('/login');
+  }, []);
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
