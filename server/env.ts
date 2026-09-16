@@ -50,6 +50,28 @@ export function validateEnv() {
     warn('WOMPI_PUBLIC_KEY is a production key but WOMPI_ENV is not "production" — transactions will be checked against the sandbox and never confirm.');
   }
 
+  // Una credencial dentro de CUALQUIER variable VITE_.
+  //
+  // Todo lo que empieza por VITE_ se hornea dentro del JavaScript que
+  // recibe cada visitante. Pasó de verdad: VITE_SUPABASE_URL tenía la
+  // cadena de conexión de la base de datos, contraseña incluida, y esa
+  // contraseña quedó publicada en el paquete que baja todo el mundo.
+  //
+  // El aviso pide ROTAR, no corregir: el valor se corrige en un minuto,
+  // lo que ya se publicó no se despublica.
+  for (const [name, value] of Object.entries(process.env)) {
+    if (!name.startsWith('VITE_') || !value) continue;
+    const esCadenaDeConexion = /^postgres(ql)?:\/\//i.test(value.trim());
+    const llevaUsuarioYClave = /^[a-z][a-z0-9+.-]*:\/\/[^/@\s]+:[^/@\s]+@/i.test(value.trim());
+    if (esCadenaDeConexion || llevaUsuarioYClave) {
+      warn(
+        `${name} contiene una credencial (usuario y contraseña dentro de una URL). Todo lo que empieza por VITE_ ` +
+          'se entrega dentro del JavaScript a cada visitante, así que esa contraseña está publicada. ' +
+          'ROTALA ahora y poné en su lugar el valor que corresponde, sin credenciales.'
+      );
+    }
+  }
+
   // Una URL de Supabase mal escrita no falla al arrancar: falla en el
   // navegador de quien intenta registrarse, y con un error genérico.
   // `easycomex.supabase.co` sin el https:// delante es el caso típico, y
@@ -65,8 +87,14 @@ export function validateEnv() {
       ok = false;
     }
     if (!ok) {
+      // El valor se enseña para poder verlo de un vistazo... salvo
+      // cuando lleva una credencial dentro. Escribir una contraseña en
+      // el log para avisar de que una contraseña está expuesta es
+      // dejarla en un sitio más.
+      const llevaCredencial = /^[a-z][a-z0-9+.-]*:\/\/[^/@\s]+:[^/@\s]+@/i.test(supabaseUrl.trim());
+      const mostrado = llevaCredencial ? '(oculto: contiene una credencial)' : `"${supabaseUrl}"`;
       warn(
-        `VITE_SUPABASE_URL no es una URL válida: "${supabaseUrl}". NADIE va a poder registrarse ni entrar. ` +
+        `VITE_SUPABASE_URL no es una URL válida: ${mostrado}. NADIE va a poder registrarse ni entrar. ` +
           'Tiene que ser la dirección completa con https:// y sin barra final (https://<proyecto>.supabase.co), ' +
           'la que aparece en Supabase -> Settings -> API como "Project URL".'
       );

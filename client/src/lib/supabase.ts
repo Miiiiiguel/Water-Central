@@ -102,8 +102,42 @@ export function validSupabaseUrl(value: string | undefined): boolean {
   return url.protocol === 'http:' && (url.hostname === 'localhost' || url.hostname === '127.0.0.1');
 }
 
+/**
+ * ¿Le metieron una credencial a la URL?
+ *
+ * Pasó de verdad: en VITE_SUPABASE_URL había una cadena de conexión de
+ * la base de datos, `postgresql://postgres:CONTRASEÑA@db.xxx.supabase.co:5432/postgres`.
+ * Está al lado de la URL buena en el panel de Supabase y se copia por
+ * error con toda facilidad.
+ *
+ * Esto no es sólo un valor mal puesto. Todo lo que empieza por `VITE_`
+ * se HORNEA dentro del JavaScript que recibe cada visitante: esa
+ * contraseña quedó publicada, legible para cualquiera que abriera el
+ * archivo. Por eso el aviso no dice "corregí el valor" sino "rotá la
+ * contraseña": el valor se corrige en un minuto, lo que ya se publicó
+ * no se despublica.
+ */
+export function hasEmbeddedCredential(value: string): boolean {
+  if (/^postgres(ql)?:\/\//i.test(value.trim())) return true;
+  // `usuario:algo@host` — la parte de credenciales de cualquier URL.
+  return /^[a-z][a-z0-9+.-]*:\/\/[^/@\s]+:[^/@\s]+@/i.test(value.trim());
+}
+
 function requireUrl(value: string | undefined): string | undefined {
   if (!value || validSupabaseUrl(value)) return value;
+
+  if (hasEmbeddedCredential(value)) {
+    console.error(
+      '[supabase] VITE_SUPABASE_URL trae una CONTRASEÑA dentro: parece la cadena de conexión de la base de datos, ' +
+        'no la dirección del proyecto. Dos cosas, en este orden: ' +
+        '1) ROTÁ esa contraseña en Supabase (Settings -> Database -> Reset database password). Todo lo que empieza por ' +
+        'VITE_ se hornea dentro del JavaScript que recibe cada visitante, así que esa contraseña estuvo publicada. ' +
+        '2) Poné en su lugar la "Project URL" de Settings -> API: https://<proyecto>.supabase.co, sin usuario, sin ' +
+        'contraseña y sin barra final.'
+    );
+    return undefined;
+  }
+
   console.error(
     `[supabase] VITE_SUPABASE_URL no es una URL válida: "${value}". ` +
       'Tiene que ser la dirección completa del proyecto, con https:// adelante y sin barra final — ' +
@@ -129,6 +163,11 @@ export function supabaseConfigProblem(): string | null {
   const url = cleanEnv(import.meta.env.VITE_SUPABASE_URL as string | undefined, 'VITE_SUPABASE_URL');
   const key = cleanEnv(import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined, 'VITE_SUPABASE_ANON_KEY');
   if (!url) return 'Falta la dirección del proyecto de Supabase (VITE_SUPABASE_URL).';
+  // Sin repetir el valor: lleva una contraseña dentro y este texto se
+  // muestra en pantalla.
+  if (hasEmbeddedCredential(url)) {
+    return 'La dirección de Supabase configurada es la cadena de conexión de la base de datos, con contraseña incluida. Hay que rotar esa contraseña y poner la "Project URL" del proyecto.';
+  }
   if (!validSupabaseUrl(url)) return `La dirección de Supabase está mal escrita: "${url}". Tiene que empezar con https://`;
   if (!key) return 'Falta la llave pública de Supabase (VITE_SUPABASE_ANON_KEY).';
   if (isServerKey(key)) return 'La llave de Supabase configurada es la PRIVADA del servidor. Hay que poner la pública (Publishable / anon).';
