@@ -226,6 +226,28 @@ try {
   fail('Pay button flow', String(e).slice(0, 120));
 }
 
+// La queja exacta del cliente: "pregunto y aún no responde". Escribir
+// la pregunta tiene que llevar a los datos, no a un párrafo explicando
+// que podríamos buscarlos.
+try {
+  await page.getByRole('button', { name: /Marco Polo/ }).first().click();
+  await page.waitForTimeout(400);
+  await page.getByPlaceholder(/Marco Polo/).fill('cuales son los 3 jeans mas vendidos');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(2000);
+  const panel = await page.locator('[role="dialog"]').innerText();
+  // Sin sesión, la respuesta correcta es pedirla — no explicar. Con
+  // sesión y fuente conectada, sería el dato.
+  const fueALosDatos = /crea(r)? (tu )?cuenta|create your account|consultas|lookups|TikTok Shop/i.test(panel);
+  (fueALosDatos ? ok : fail)(
+    'A data question goes to the research desk, not to a paragraph',
+    fueALosDatos ? 'llevó a la consulta' : panel.slice(-120).replace(/\s+/g, ' ')
+  );
+  await page.keyboard.press('Escape');
+} catch (e) {
+  fail('Data question flow', String(e).slice(0, 120));
+}
+
 try {
   await page.evaluate(() => document.getElementById('calculadora')?.scrollIntoView());
   await page.waitForTimeout(500);

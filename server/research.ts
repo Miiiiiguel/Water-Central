@@ -73,7 +73,11 @@ export const CREDIT_PACK = {
 
 const bodySchema = z.object({
   source: z.enum(['tiktok', 'aduanas', 'kalodata', 'sicex']),
-  query: z.string().trim().min(2).max(160),
+  // Vacío es válido a propósito: "qué se vende más en TikTok Shop" no
+  // tiene término de búsqueda, es el ranking de arriba, y las fuentes
+  // aceptan una consulta sin palabra clave. Lo que se rechaza es una
+  // sola letra, que nunca es una búsqueda de verdad.
+  query: z.string().trim().max(160).refine((v) => v.length !== 1, 'consulta muy corta'),
   country: z.string().trim().max(60).optional(),
 });
 

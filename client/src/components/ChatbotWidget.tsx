@@ -5,6 +5,7 @@ import { X, Send, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle, Search, 
 import { useLanguage } from '@/contexts/LanguageContext';
 import { matchKnowledge, followUpsFor, MARCO_POLO, type SectionAction } from '@/lib/chatbotKnowledge';
 import { startCheckout, checkoutMessage } from '@/lib/checkout';
+import { detectResearch } from '@/lib/researchIntent';
 import { whatsappUrl } from '@/lib/contact';
 import { hapticTap, isNative, openExternal } from '@/lib/native';
 import {
@@ -391,6 +392,23 @@ export default function ChatbotWidget() {
 
     if (researchMode) {
       doResearch(researchMode, trimmed);
+      return;
+    }
+
+    // Una pregunta que pide un DATO va a la mesa de consultas, no al
+    // guion.
+    //
+    // Antes había que tocar primero "Tendencias en TikTok Shop" para
+    // llegar a los datos. Quien escribía su pregunta —o sea, todo el
+    // mundo— recibía un párrafo diciendo que podemos buscarlo, en lugar
+    // del dato. "Pregunto y no responde" fue literalmente la queja.
+    //
+    // `detectResearch` sólo dispara cuando la pregunta pide un dato: las
+    // consultas se cobran, y buscar porque alguien dijo "amazon" sería
+    // cobrar por nada y contestar otra cosa.
+    const intent = detectResearch(trimmed);
+    if (intent) {
+      doResearch(intent.source, intent.term);
       return;
     }
 

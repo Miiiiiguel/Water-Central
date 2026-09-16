@@ -252,7 +252,8 @@ function describe(record: Record<string, unknown>, currency = ''): ResearchRow {
 export function toResult(query: string, market: Market, payload: unknown, sourceUrl: string, currency = ''): ResearchResult {
   const records = pickRecords(payload);
   if (!records.length) {
-    return { summary: `Sin resultados para "${query}" en TikTok Shop ${market}.`, rows: [], sourceUrl };
+    const loQueSeBusco = query.trim() ? `para "${query}"` : 'en el ranking general';
+    return { summary: `Sin resultados ${loQueSeBusco} en TikTok Shop ${market}.`, rows: [], sourceUrl };
   }
   const totalRaw = (payload as { total?: unknown; data?: { total?: unknown } })?.total ?? (payload as { data?: { total?: unknown } })?.data?.total;
   const total = typeof totalRaw === 'number' ? totalRaw : undefined;
@@ -261,7 +262,11 @@ export function toResult(query: string, market: Market, payload: unknown, source
     // que es el peor lugar posible para nombrar al proveedor — y es
     // justo donde estaba: "Kalodata · TikTok Shop US: 40 resultado(s)".
     // Se nombra el dato y el mercado; de dónde sale, no.
-    summary: `TikTok Shop ${market}: ${total ?? records.length} resultado(s) para "${query}".`,
+    // Sin término se pidió el ranking general; decir 'para ""' ahí
+    // parece un error de la app.
+    summary: query.trim()
+      ? `TikTok Shop ${market}: ${total ?? records.length} resultado(s) para "${query}".`
+      : `TikTok Shop ${market}: lo más vendido ahora mismo (${total ?? records.length} resultado(s)).`,
     rows: records.slice(0, 5).map((r) => describe(r, currency)),
     total,
     sourceUrl,
