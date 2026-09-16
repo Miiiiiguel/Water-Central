@@ -62,8 +62,18 @@ export default function Terms() {
             <h2 className="text-xl font-bold text-primary mb-3">{language === 'es' ? '4. Pagos y reembolsos' : '4. Payments and refunds'}</h2>
             <p className="text-muted-foreground leading-relaxed">
               {language === 'es'
-                ? 'Los pagos se procesan a través de Stripe. Los precios se muestran en dólares (USD) salvo que se indique lo contrario. [Completa aquí tu política real de reembolsos antes de publicar.]'
-                : 'Payments are processed through Stripe. Prices are shown in US dollars unless otherwise stated. [Fill in your real refund policy here before publishing.]'}
+                ? 'Los pagos se procesan a través de Wompi (tarjeta, PSE, Nequi) y se cobran en pesos colombianos. Algunos planes pueden cobrarse en dólares a través de Stripe; en ese caso se indica antes de pagar. Easycomex no almacena números de tarjeta.'
+                : 'Payments are processed through Wompi (card, PSE, Nequi) and charged in Colombian pesos. Some plans may be charged in US dollars through Stripe; when that is the case it is shown before you pay. Easycomex does not store card numbers.'}
+            </p>
+            <p className="text-muted-foreground leading-relaxed mt-3">
+              {language === 'es'
+                ? 'Retracto: en las compras hechas a distancia, la ley colombiana (Ley 1480 de 2011, artículo 47) te permite retractarte dentro de los cinco días hábiles siguientes a la compra y recibir la devolución del dinero. Para ejercerlo, escríbenos a info@easycomex.com desde el correo con el que compraste.'
+                : 'Right of withdrawal: for distance purchases, Colombian law (Ley 1480 of 2011, article 47) lets you withdraw within five business days of the purchase and receive a refund. To exercise it, write to info@easycomex.com from the email you purchased with.'}
+            </p>
+            <p className="text-muted-foreground leading-relaxed mt-3">
+              {language === 'es'
+                ? 'Pasado ese plazo, los servicios ya prestados (una asesoría realizada, un análisis entregado) no son reembolsables. Si algo no salió como esperabas, escríbenos: lo revisamos caso por caso antes que perder un cliente.'
+                : 'After that window, services already delivered (an advisory session held, an analysis delivered) are not refundable. If something did not go as expected, write to us: we look at it case by case rather than lose a customer.'}
             </p>
           </section>
 

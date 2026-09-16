@@ -119,8 +119,8 @@ export default function PlansSection() {
     } catch {
       setCheckoutError(
         language === 'es'
-          ? 'Los pagos con Stripe aún no están configurados en este entorno.'
-          : 'Stripe payments are not configured in this environment yet.'
+          ? checkoutMessage('red', true)
+          : checkoutMessage('red', false)
       );
       setCheckingOut(null);
     }

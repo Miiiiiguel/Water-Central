@@ -45,7 +45,7 @@ export default function PrivacyPolicy() {
             <ul className="list-disc pl-5 text-muted-foreground leading-relaxed space-y-1">
               <li>{language === 'es' ? 'Datos de contacto: nombre, email, teléfono, empresa, país, cuando completas el formulario de contacto o la calculadora de fletes.' : 'Contact details: name, email, phone, company, country, when you fill out the contact form or freight calculator.'}</li>
               <li>{language === 'es' ? 'Datos de cuenta: email y contraseña (gestionada de forma segura por Supabase, nunca la vemos en texto plano) si te registras.' : 'Account data: email and password (securely managed by Supabase, we never see it in plain text) if you register.'}</li>
-              <li>{language === 'es' ? 'Datos de pago: si compras un plan, el pago lo procesa Stripe directamente — no almacenamos números de tarjeta en nuestros servidores.' : 'Payment data: if you purchase a plan, Stripe processes the payment directly — we do not store card numbers on our servers.'}</li>
+              <li>{language === 'es' ? 'Datos de pago: si compras un plan, el pago lo procesa Wompi (o Stripe, según el plan) directamente — no almacenamos números de tarjeta en nuestros servidores.' : 'Payment data: if you purchase a plan, Wompi (or Stripe, depending on the plan) processes it directly — we do not store card numbers on our servers.'}</li>
               <li>{language === 'es' ? 'Datos de uso y publicidad: si tenemos píxeles de Meta, TikTok o Google Analytics activos, estos recopilan datos de navegación según sus propias políticas.' : 'Usage and advertising data: if we have Meta, TikTok, or Google Analytics pixels active, they collect browsing data per their own policies.'}</li>
               <li>{language === 'es' ? 'Conversaciones con el chatbot: si usas el asistente virtual, tus mensajes pueden procesarse por un proveedor de inteligencia artificial (Anthropic) para generar respuestas.' : "Chatbot conversations: if you use the virtual assistant, your messages may be processed by an AI provider (Anthropic) to generate responses."}</li>
             </ul>
@@ -67,7 +67,8 @@ export default function PrivacyPolicy() {
             </p>
             <ul className="list-disc pl-5 text-muted-foreground leading-relaxed space-y-1 mt-2">
               <li>Supabase ({language === 'es' ? 'base de datos y autenticación' : 'database and authentication'})</li>
-              <li>Stripe ({language === 'es' ? 'procesamiento de pagos' : 'payment processing'})</li>
+              <li>Wompi ({language === 'es' ? 'procesamiento de pagos en Colombia' : 'payment processing in Colombia'})</li>
+              <li>Stripe ({language === 'es' ? 'procesamiento de pagos internacionales' : 'international payment processing'})</li>
               <li>Anthropic ({language === 'es' ? 'chatbot con inteligencia artificial, opcional' : 'AI chatbot, optional'})</li>
               <li>Meta, TikTok, Google ({language === 'es' ? 'medición de campañas publicitarias, opcional' : 'ad campaign measurement, optional'})</li>
               <li>Calendly / Cal.com ({language === 'es' ? 'agendamiento de consultorías, opcional' : 'consultation scheduling, optional'})</li>

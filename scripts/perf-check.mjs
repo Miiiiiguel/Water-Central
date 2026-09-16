@@ -369,12 +369,22 @@ try {
 }
 
 // ---- 3. Every route renders without JS errors -------------------------
+//
+// Y sin notas para nosotros mismos. La página de Términos estuvo
+// publicada diciendo "[Completa aquí tu política real de reembolsos
+// antes de publicar]": un recordatorio interno leyéndose en la página
+// legal, que es justo donde un cliente mira para decidir si confía.
+const PENDIENTE = /\[(completa|complete|fill|todo|pendiente|reemplaza|replace)\b|lorem ipsum|xxx+/i;
+const sinPendientes = [];
+
 for (const route of ['/login', '/registro', '/dashboard', '/roi', '/diagnostico', '/restablecer', '/privacidad', '/terminos', '/pago/exito', '/pago/cancelado', '/no-existe-404']) {
   const before = errors.length;
   try {
     await page.goto(base + route, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(700);
     const text = (await page.locator('#root').innerText()).trim();
+    const marcador = text.match(PENDIENTE);
+    if (marcador) sinPendientes.push(`${route}: "${marcador[0]}"`);
     if (!text) fail(`Route ${route}`, 'rendered empty');
     else if (errors.length > before) fail(`Route ${route}`, errors.slice(before).join(' | ').slice(0, 160));
     else ok(`Route ${route}`, `${text.length} chars`);
@@ -382,6 +392,23 @@ for (const route of ['/login', '/registro', '/dashboard', '/roi', '/diagnostico'
     fail(`Route ${route}`, String(e).slice(0, 120));
   }
 }
+
+// La home entera también, secciones diferidas incluidas.
+try {
+  await page.goto(base + '/', { waitUntil: 'load' });
+  await page.evaluate(async () => {
+    for (let y = 0; y < document.body.scrollHeight; y += 400) window.scrollTo(0, y);
+  });
+  await page.waitForTimeout(1200);
+  const home = await page.locator('#root').innerText();
+  const marcador = home.match(PENDIENTE);
+  if (marcador) sinPendientes.push(`/: "${marcador[0]}"`);
+} catch { /* la home ya se midió arriba */ }
+
+(sinPendientes.length === 0 ? ok : fail)(
+  'No internal placeholders are visible to a visitor',
+  sinPendientes.length ? sinPendientes.join(' · ') : 'ninguno'
+);
 
 // ---- 4. Offline: the installed app must not show a blank screen -------
 // The service worker precaches the shell, so a reload with no network

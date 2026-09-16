@@ -43,15 +43,85 @@ export function sitemapXml(base: string, lastmod = new Date().toISOString().slic
 }
 
 /**
- * Reescribe las URLs absolutas del `<head>` para que apunten a donde la
- * app está viviendo de verdad. Sin base no se toca nada: dejar el
- * canonical original es menos malo que dejar uno a medio construir.
+ * Título y descripción de cada página pública.
+ *
+ * Todas servían el mismo `<title>` y la misma descripción que la home, y
+ * el mismo canonical: `https://dominio/`. Eso último no es un descuido
+ * cosmético, es pedirle a Google que NO indexe /roi ni /diagnostico —
+ * "la página buena es la otra". Dos herramientas gratuitas que la gente
+ * busca por su nombre ("calculadora de fletes", "calculadora de ROI"),
+ * invisibles por una línea de HTML.
  */
-export function rewriteHead(html: string, base: string): string {
-  if (!base) return html;
-  return html
-    .replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${base}/$2`)
-    .replace(/(<meta property="og:url" content=")[^"]*(")/, `$1${base}/$2`);
+export const PAGE_META: Record<string, { title: string; description: string }> = {
+  '/': {
+    title: 'Easycomex | Vende tu marca en todo el mundo',
+    description:
+      'Sacamos marcas latinoamericanas de su mercado local y las ponemos a vender en Amazon, TikTok Shop y Shopify. Logística puerta a puerta a 220 destinos y Prep Center en Estados Unidos.',
+  },
+  '/roi': {
+    title: 'Calculadora de ROI para vender en Estados Unidos | Easycomex',
+    description:
+      'Calculá gratis cuánto deja tu producto vendiendo afuera: utilidad, margen, cuándo recuperás la inversión y el flujo de caja mes a mes de dos años.',
+  },
+  '/diagnostico': {
+    title: 'Diagnóstico de madurez exportadora, gratis | Easycomex',
+    description:
+      '17 preguntas, 3 minutos. Tu nivel de madurez para vender en el exterior, de 0 a 100, con un comentario por cada punto. Gratis y sin llamada de ventas.',
+  },
+  '/privacidad': {
+    title: 'Política de privacidad | Easycomex',
+    description: 'Qué datos guardamos, para qué, con quién se comparten y cómo pedir que los borremos.',
+  },
+  '/terminos': {
+    title: 'Términos y condiciones | Easycomex',
+    description: 'Condiciones de uso, pagos, reembolsos y derecho de retracto de los servicios de Easycomex.',
+  },
+};
+
+const escapeAttr = (s: string) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
+/**
+ * Reescribe el `<head>` para esta página concreta: su canonical, su
+ * título y su descripción. Sin base no se tocan las URLs —dejar el
+ * canonical original es menos malo que dejar uno a medio construir—
+ * pero el título y la descripción sí se ponen igual: no dependen de
+ * saber en qué dominio vive la app.
+ */
+export function rewriteHead(html: string, base: string, route = '/'): string {
+  const meta = PAGE_META[route];
+  let out = html;
+
+  if (base) {
+    const url = escapeAttr(`${base}${route === '/' ? '/' : route}`);
+    out = out
+      .replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${url}$2`)
+      .replace(/(<meta property="og:url" content=")[^"]*(")/, `$1${url}$2`);
+  }
+
+  // Lo que no vale la pena indexar, se dice en la página y no sólo en
+  // robots.txt: un Disallow impide rastrear, pero no impide que una URL
+  // enlazada desde fuera aparezca igual en los resultados, vacía y con
+  // el título de otra página. `noindex` sí la saca.
+  //
+  // `follow` a propósito: que no la indexe no significa que no deba
+  // seguir los enlaces que salen de ella.
+  if (!meta && !/<meta name="robots"/.test(out)) {
+    out = out.replace('</head>', '  <meta name="robots" content="noindex, follow" />\n  </head>');
+  }
+
+  if (meta) {
+    const title = escapeAttr(meta.title);
+    const description = escapeAttr(meta.description);
+    out = out
+      .replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`)
+      .replace(/(<meta name="description" content=")[^"]*(")/, `$1${description}$2`)
+      .replace(/(<meta property="og:title" content=")[^"]*(")/, `$1${title}$2`)
+      .replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${description}$2`)
+      .replace(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${title}$2`)
+      .replace(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${description}$2`);
+  }
+
+  return out;
 }
 
 export function seoRouter(staticPath: string) {
@@ -82,7 +152,10 @@ export function seoRouter(staticPath: string) {
     router,
     sendIndex(req: express.Request, res: express.Response) {
       try {
-        res.type('html').send(rewriteHead(indexHtml(), baseFor(req)));
+        // `req.path` es la ruta que pidió el navegador; para cualquiera
+        // que no esté en la tabla se sirve el `<head>` de la home, que es
+        // lo que había antes para todas.
+        res.type('html').send(rewriteHead(indexHtml(), baseFor(req), req.path));
       } catch {
         // Si no se puede leer, que lo sirva express como archivo: peor
         // sería devolver un error por un canonical.
