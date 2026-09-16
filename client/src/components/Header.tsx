@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { scrollToAnchor } from '@/lib/scrollToAnchor';
 import { Link, useLocation } from 'wouter';
 import { Menu, X, Calculator, FileSearch, TrendingUp, MessageCircle, UserCircle2, Globe2, Ship } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -54,18 +55,12 @@ export default function Header() {
       navigate(href);
       return;
     }
-    setTimeout(() => {
-      const el = document.querySelector(href);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+    scrollToAnchor(href);
   };
 
   const handleCtaClick = () => {
     setIsOpen(false);
-    setTimeout(() => {
-      const contactEl = document.getElementById('contacto');
-      if (contactEl) contactEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+    scrollToAnchor('#contacto');
   };
 
   return (

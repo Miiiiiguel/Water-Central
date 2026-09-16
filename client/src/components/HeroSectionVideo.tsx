@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { scrollToAnchor } from '@/lib/scrollToAnchor';
 import { Button } from '@/components/ui/button';
 import { PenLine, PlayCircle, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -33,10 +34,7 @@ function RevealWords({ text, className = '', wordClassName = '', delay = 0 }: { 
 export default function HeroSectionVideo() {
   const { t } = useLanguage();
 
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  const scrollTo = (id: string) => scrollToAnchor(`#${id}`);
 
   return (
     <section className="relative w-full overflow-hidden bg-primary text-white -mt-16 md:-mt-20 pt-36 pb-36 md:pt-48 md:pb-48">

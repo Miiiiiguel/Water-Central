@@ -1,4 +1,5 @@
 import { ShoppingCart, Ship, TrendingUp, Warehouse, BarChart3, Target } from 'lucide-react';
+import { scrollToAnchor } from '@/lib/scrollToAnchor';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -71,8 +72,7 @@ export default function ServicesSection() {
           <Button
             className="rounded-full bg-accent hover:bg-accent/90 text-white px-8 py-6 text-base font-bold border-0 app-shadow transition-all duration-300 hover:scale-105"
             onClick={() => {
-              const el = document.getElementById('contacto');
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
+              scrollToAnchor('#contacto');
             }}
           >
             {t('services.explore_all')}

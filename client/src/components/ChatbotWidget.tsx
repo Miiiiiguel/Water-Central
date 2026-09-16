@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { scrollToAnchor } from '@/lib/scrollToAnchor';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, Send, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle, Search, Sparkles, Settings2, Play } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -54,8 +55,7 @@ function load<T>(key: string, fallback: T): T {
 
 function scrollToSection(action: SectionAction) {
   if (window.location.pathname !== '/') return;
-  const el = document.getElementById(action);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  scrollToAnchor(`#${action}`);
 }
 
 function timeLabel(at: number) {

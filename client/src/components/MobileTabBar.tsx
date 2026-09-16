@@ -1,4 +1,5 @@
 import { useLocation } from 'wouter';
+import { scrollToAnchor } from '@/lib/scrollToAnchor';
 import { Home, FileSearch, UserCircle2, MessageCircle, Globe2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,8 +19,7 @@ export default function MobileTabBar() {
   ];
 
   function scrollTo(href: string) {
-    const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    scrollToAnchor(href);
   }
 
   return (

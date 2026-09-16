@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy } from 'react';
 import Header from '@/components/Header';
 import HeroSectionVideo from '@/components/HeroSectionVideo';
 import MarqueeLogos from '@/components/MarqueeLogos';
@@ -7,7 +7,7 @@ import ServicesSection from '@/components/ServicesSection';
 import BenefitsSection from '@/components/BenefitsSection';
 import FloatingButtons from '@/components/FloatingButtons';
 import MobileTabBar from '@/components/MobileTabBar';
-import { useIdleMount } from '@/lib/useIdleMount';
+import Deferred from '@/components/Deferred';
 
 const MarketIntelSection = lazy(() => import('@/components/MarketIntelSection'));
 const GlobalReachSection = lazy(() => import('@/components/GlobalReachSection'));
@@ -19,15 +19,6 @@ const ImpactSection = lazy(() => import('@/components/ImpactSection'));
 const HomeLowerSections = lazy(() => import('@/components/HomeLowerSections'));
 
 export default function Home() {
-  // Everything below the fold waits for the browser to be idle (or for
-  // the first scroll/tap) before it hydrates, staggered so the three
-  // heavy sections never mount inside the same frame. Each placeholder
-  // reserves the section's height so nothing jumps when it appears.
-  const intelReady = useIdleMount(1500, 0);
-  const globeReady = useIdleMount(2000, 120);
-  const chartsReady = useIdleMount(2000, 260);
-  const lowerReady = useIdleMount(2000, 420);
-
   return (
     <div className="min-h-screen bg-primary pb-20 md:pb-0">
       <Header />
@@ -39,21 +30,26 @@ export default function Home() {
       <div id="servicios">
         <ServicesSection />
       </div>
-      <Suspense fallback={<div id="inteligencia" className="min-h-[46rem] bg-white" />}>
-        {intelReady ? <MarketIntelSection /> : <div id="inteligencia" className="min-h-[46rem] bg-white" />}
-      </Suspense>
-      <Suspense fallback={<div className="h-96 bg-primary" />}>
-        {globeReady ? <GlobalReachSection /> : <div className="h-96 bg-primary" />}
-      </Suspense>
+      {/* Todo lo de acá abajo se descarga cuando se está por ver. Quien
+          lee el encabezado y se va a cotizar no se baja el globo 3D ni
+          las gráficas: es más de un megabyte que nunca iba a mirar.
+          Cada placeholder reserva el alto de su sección para que la
+          página no salte cuando aparece. */}
+      <Deferred id="inteligencia" placeholderClassName="min-h-[46rem] bg-white">
+        <MarketIntelSection />
+      </Deferred>
+      <Deferred placeholderClassName="h-96 bg-primary">
+        <GlobalReachSection />
+      </Deferred>
       <div id="beneficios">
         <BenefitsSection />
       </div>
-      <Suspense fallback={<div className="h-96 bg-white" />}>
-        {chartsReady ? <ImpactSection /> : <div className="h-96 bg-white" />}
-      </Suspense>
-      <Suspense fallback={<div className="min-h-screen bg-white" />}>
-        {lowerReady ? <HomeLowerSections /> : <div className="min-h-screen bg-white" />}
-      </Suspense>
+      <Deferred placeholderClassName="h-96 bg-white">
+        <ImpactSection />
+      </Deferred>
+      <Deferred placeholderClassName="min-h-screen bg-white">
+        <HomeLowerSections />
+      </Deferred>
       <FloatingButtons />
       <MobileTabBar />
     </div>

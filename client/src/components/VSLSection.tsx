@@ -1,4 +1,5 @@
 import { useLanguage } from '@/contexts/LanguageContext';
+import { scrollToAnchor } from '@/lib/scrollToAnchor';
 import { Button } from '@/components/ui/button';
 import { Search, BarChart2, Lightbulb, ListChecks, ArrowRight, CalendarClock } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -69,8 +70,7 @@ export default function VSLSection() {
             onClick={async () => {
               const opened = await openCalendlyPopup();
               if (!opened) {
-                const el = document.getElementById('contacto');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                scrollToAnchor('#contacto');
               }
             }}
           >

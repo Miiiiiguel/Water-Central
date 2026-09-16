@@ -1,4 +1,5 @@
 import { Link } from 'wouter';
+import { scrollToAnchor } from '@/lib/scrollToAnchor';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Check, Sparkles, Loader2 } from 'lucide-react';
@@ -117,8 +118,7 @@ export default function PlansSection() {
       return;
     }
     if (!plan.checkoutPlan) {
-      const el = document.getElementById('contacto');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      scrollToAnchor('#contacto');
       return;
     }
     openSheet({
