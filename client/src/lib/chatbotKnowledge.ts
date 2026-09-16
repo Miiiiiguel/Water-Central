@@ -83,15 +83,18 @@ export const knowledgeBase: KnowledgeEntry[] = [
   },
   {
     id: 'pago',
-    keywords: ['pagar', 'pago', 'tarjeta', 'stripe', 'metodo de pago', 'método de pago', 'pay', 'payment', 'card'],
+    keywords: [
+      'pagar', 'pago', 'pagos', 'tarjeta', 'stripe', 'wompi', 'pse', 'nequi', 'metodo de pago', 'método de pago',
+      'como pago', 'cómo pago', 'formas de pago', 'pay', 'payment', 'card', 'how do i pay',
+    ],
     answer: {
-      es: 'Los pagos se hacen con tarjeta a través de Stripe, en dólares, en una página segura. Apenas se confirma el pago, tu plan aparece en tu dashboard y el equipo te contacta en menos de 24 horas.',
-      en: 'Payments are made by card through Stripe, in US dollars, on a secure page. As soon as it clears, your plan shows up in your dashboard and the team reaches out within 24 hours.',
+      es: 'El plan de acción del diagnóstico se paga en pesos con Wompi: tarjeta, PSE o Nequi, en una página segura. Los planes en dólares se pagan con tarjeta por Stripe. Apenas se confirma el pago, tu plan aparece en tu dashboard y el equipo te contacta en menos de 24 horas.',
+      en: 'The diagnosis action plan is paid in Colombian pesos through Wompi: card, PSE or Nequi, on a secure page. The US-dollar plans are paid by card through Stripe. As soon as it clears, your plan shows up in your dashboard and the team reaches out within 24 hours.',
     },
   },
   {
     id: 'amazon-tiktok',
-    keywords: ['amazon', 'tiktok', 'shopify', 'canal', 'canales', 'vender en', 'channel', 'marketplace', 'fba'],
+    keywords: ['amazon', 'tiktok', 'tik tok', 'shopify', 'canal', 'canales', 'vender en', 'channel', 'marketplace', 'fba'],
     answer: {
       es: 'Sí: Amazon (con FBA vía nuestro Prep Center en USA), TikTok Shop y Shopify, en el país que te sirva. Con estrategia de contenido y pauta para cada canal.',
       en: 'Yes: Amazon (with FBA through our US Prep Center), TikTok Shop and Shopify, in whichever country fits you. With content and ad strategy per channel.',
@@ -111,6 +114,14 @@ export const knowledgeBase: KnowledgeEntry[] = [
       'inteligencia de mercado', 'inteligencia', 'datos', 'aduana', 'aduanas', 'importadores', 'importa', 'exporta',
       'competencia', 'quien importa', 'quien compra', 'mas vendidos', 'más vendidos', 'tendencia', 'tendencias',
       'kalodata', 'sicex', 'market intelligence', 'customs', 'who imports', 'best selling', 'competitors', 'trends',
+      // Cómo se pregunta esto de verdad, no cómo lo llamamos nosotros:
+      // nadie escribe "inteligencia de mercado", escribe "qué se vende
+      // más en tik tok". Estas frases llevan esa pregunta acá.
+      'mejores productos', 'mejor producto', 'mejores articulos', 'que vender', 'que producto',
+      'productos ganadores', 'producto ganador', 'top productos', 'que se vende', 'que se venden',
+      'mas vendido', 'más vendido', 'mas se vende', 'más se vende', 'nicho', 'nichos', 'demanda',
+      'oportunidad', 'oportunidades', 'tiktok', 'tik tok',
+      'best products', 'what to sell', 'what sells', 'selling best', 'sells best', 'winning products', 'top selling', 'demand', 'niche',
     ],
     answer: {
       es: 'Tenemos fuentes de aduanas oficiales y de inteligencia de marketplaces de los principales países del mundo. Puedo buscarte cosas como qué empresas importan un producto, o cuáles son los más vendidos en TikTok Shop. Tenés consultas gratis todos los días al crear tu cuenta — mirá los ejemplos acá abajo.',
@@ -120,7 +131,16 @@ export const knowledgeBase: KnowledgeEntry[] = [
   },
   {
     id: 'logistica',
-    keywords: ['logistica', 'logística', 'envio', 'envío', 'flete', 'aduana', 'shipping', 'freight', 'customs', 'importar', 'exportar'],
+    keywords: [
+      'logistica', 'logística', 'envio', 'envío', 'flete', 'fletes', 'aduana', 'importar', 'exportar',
+      // "Precio" y "cuánto cuesta" también viven en la entrada de planes.
+      // Estas frases son las que separan "cuánto cuesta el flete" de
+      // "cuánto cuesta el servicio": ganan por ser más largas, no por
+      // ningún desempate escondido.
+      'cuanto cuesta el flete', 'cuanto vale el flete', 'cuanto cuesta enviar', 'cuanto cuesta mandar',
+      'precio del flete', 'costo de envio', 'costo del envio', 'tarifa de envio', 'cotizar', 'cotizacion', 'cotización',
+      'shipping', 'freight', 'customs', 'shipping cost', 'how much to ship',
+    ],
     answer: {
       es: 'Puerta a puerta, aérea y marítima, a 220 destinos en el mundo. Te llevo a la calculadora para una tarifa estimada.',
       en: 'We offer door-to-door international logistics, air and ocean, to 220 destinations. Let me take you to the freight calculator for an estimated rate.',
@@ -180,14 +200,96 @@ export const knowledgeBase: KnowledgeEntry[] = [
 ];
 
 const normalize = (s: string) =>
-  s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-export function matchKnowledge(query: string): KnowledgeEntry | null {
-  const q = normalize(query);
-  let best: { entry: KnowledgeEntry; score: number } | null = null;
-  for (const entry of knowledgeBase) {
-    const score = entry.keywords.filter((k) => q.includes(normalize(k))).length;
-    if (score > 0 && (!best || score > best.score)) best = { entry, score };
+/** Palabras sueltas, sin acentos, sin signos: "¿Cuánto cuesta?" -> ['cuanto','cuesta']. */
+const tokenize = (s: string) =>
+  normalize(s)
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .split(' ')
+    .filter(Boolean);
+
+const tokenCache = new Map<string, string[]>();
+const keywordTokens = (keyword: string) => {
+  let tokens = tokenCache.get(keyword);
+  if (!tokens) {
+    tokens = tokenize(keyword);
+    tokenCache.set(keyword, tokens);
   }
+  return tokens;
+};
+
+// Con menos de esto, un prefijo no dice nada: "ok" sería el principio de
+// "okupa" y de "okey". Desde cinco letras sí: "precio" y "precios",
+// "tendencia" y "tendencias", "exporta" y "exportar".
+const MIN_PREFIX = 5;
+
+const tokenMatches = (keywordToken: string, queryToken: string) => {
+  if (keywordToken === queryToken) return true;
+  if (keywordToken.length < MIN_PREFIX || queryToken.length < MIN_PREFIX) return false;
+  return queryToken.startsWith(keywordToken) || keywordToken.startsWith(queryToken);
+};
+
+/** ¿Aparece la palabra (o la frase completa, seguida) dentro de la consulta? */
+const keywordHits = (keyword: string[], query: string[]) => {
+  if (keyword.length === 0 || keyword.length > query.length) return false;
+  for (let i = 0; i <= query.length - keyword.length; i++) {
+    let all = true;
+    for (let j = 0; j < keyword.length; j++) {
+      if (!tokenMatches(keyword[j], query[i + j])) {
+        all = false;
+        break;
+      }
+    }
+    if (all) return true;
+  }
+  return false;
+};
+
+/**
+ * Elige la entrada que mejor responde a la pregunta.
+ *
+ * Compara PALABRAS, no subcadenas. La versión anterior preguntaba
+ * `q.includes(keyword)`, y con eso la palabra clave "ok" —de la respuesta
+ * "de nada"— coincidía dentro de "tik tok": a quien escribía "mejores
+ * productos que se vendan en tik tok" le contestaba "De nada. Cuando
+ * quieras seguimos trazando la ruta." Pasó de verdad, con un cliente
+ * mirando.
+ *
+ * Gana quien coincide en más palabras, así que una frase ("mas vendidos")
+ * pesa más que una palabra suelta. A igualdad de palabras gana la
+ * coincidencia más larga —la más específica—, y si aun así empatan, la
+ * entrada que va primero en la lista.
+ */
+export function matchKnowledge(query: string): KnowledgeEntry | null {
+  const q = tokenize(query);
+  if (q.length === 0) return null;
+
+  let best: { entry: KnowledgeEntry; words: number; chars: number } | null = null;
+
+  for (const entry of knowledgeBase) {
+    let words = 0;
+    let chars = 0;
+    // Sin acentos, "cuánto" y "cuanto" son la misma clave: contarla dos
+    // veces inflaría la entrada frente a las demás.
+    const counted = new Set<string>();
+
+    for (const keyword of entry.keywords) {
+      const tokens = keywordTokens(keyword);
+      const key = tokens.join(' ');
+      if (counted.has(key)) continue;
+      if (!keywordHits(tokens, q)) continue;
+      counted.add(key);
+      words += tokens.length;
+      chars += key.length;
+    }
+
+    if (words === 0) continue;
+    if (!best || words > best.words || (words === best.words && chars > best.chars)) {
+      best = { entry, words, chars };
+    }
+  }
+
   return best?.entry ?? null;
 }

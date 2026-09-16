@@ -211,8 +211,17 @@ export default function ChatbotWidget() {
           return;
         }
       }
-    } catch {
-      // fall through to rule-based
+      // Si la IA falla, el cliente no se entera: Marco Polo sigue con su
+      // guion de reglas y contesta igual. Pero nosotros sí tenemos que
+      // enterarnos, o el bot lleva semanas respondiendo de memoria y nadie
+      // lo nota. El motivo real queda en el log del servidor (server/chat.ts);
+      // acá sólo el código, que se ve abriendo la consola del navegador.
+      console.warn(
+        `[chat] la IA no contestó (HTTP ${res.status}); Marco Polo responde con su guion de reglas. ` +
+          'El motivo está en el log del servidor, línea [chat].'
+      );
+    } catch (err) {
+      console.warn('[chat] no se pudo llamar a /api/chat; Marco Polo responde con su guion de reglas:', err);
     }
 
     const match = matchKnowledge(query);
