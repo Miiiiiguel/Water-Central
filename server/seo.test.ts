@@ -100,6 +100,9 @@ describe('el head de cada página', () => {
     '<html><head>',
     '<title>Easycomex | Vende tu marca en todo el mundo</title>',
     '<meta name="description" content="lo de la home" />',
+    // El index.html real trae esta etiqueta. Sin ella en el ejemplo, la
+    // prueba del noindex pasaba sin que el noindex funcionara.
+    '<meta name="robots" content="index, follow, max-image-preview:large" />',
     '<link rel="canonical" href="https://easycomex.com/" />',
     '<meta property="og:url" content="https://easycomex.com/" />',
     '<meta property="og:title" content="home" />',
@@ -155,8 +158,11 @@ describe('el head de cada página', () => {
     // /login y /registro quedaban indexables con el título de la home:
     // páginas vacías compitiendo en los resultados contra la buena.
     for (const route of ['/login', '/registro', '/no-existe']) {
-      expect(rewriteHead(html, 'https://easycomex.com', route), route)
-        .toContain('<meta name="robots" content="noindex, follow"');
+      const out = rewriteHead(html, 'https://easycomex.com', route);
+      expect(out, route).toContain('<meta name="robots" content="noindex, follow"');
+      // Y la etiqueta original tiene que haber DESAPARECIDO: dos
+      // etiquetas robots contradiciéndose no sirven de nada.
+      expect(out, route).not.toContain('index, follow, max-image-preview');
     }
   });
 

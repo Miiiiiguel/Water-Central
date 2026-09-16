@@ -158,6 +158,14 @@ export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 export const accountsUrl = supabaseUrl;
 
 /**
+ * La llave pública, para que la página de estado pueda preguntarle al
+ * proyecto si la acepta. Es la llave PÚBLICA: viaja en cada petición
+ * desde el navegador y está pensada para verse. La privada nunca llega
+ * hasta acá — `rejectServerKey` la descarta antes.
+ */
+export const accountsKey = supabaseAnonKey;
+
+/**
  * Qué falta exactamente, para poder decirlo en pantalla en vez de
  * "faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY", que es verdad a
  * medias cuando el problema es que una de las dos está MAL, no ausente.

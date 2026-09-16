@@ -19,6 +19,7 @@ const PaymentResult = lazy(() => import("./pages/PaymentResult"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const RoiCalculator = lazy(() => import("./pages/RoiCalculator"));
 const Diagnostico = lazy(() => import("./pages/Diagnostico"));
+const Estado = lazy(() => import("./pages/Estado"));
 const ChatbotWidget = lazy(() => import("./components/ChatbotWidget"));
 import ScrollProgress from "./components/ScrollProgress";
 import { useIdleMount } from "./lib/useIdleMount";
@@ -106,6 +107,11 @@ function Router() {
           <Route path={"/pago/cancelado"}>
             <Suspense fallback={<PageFallback />}>
               <PaymentResult status="cancelled" />
+            </Suspense>
+          </Route>
+          <Route path={"/estado"}>
+            <Suspense fallback={<PageFallback />}>
+              <Estado />
             </Suspense>
           </Route>
           <Route path={"/404"} component={NotFound} />

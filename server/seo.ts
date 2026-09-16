@@ -23,7 +23,7 @@ export const PUBLIC_ROUTES = ['/', '/roi', '/diagnostico', '/privacidad', '/term
  * restablecer lleva un token de un solo uso, y las de pago son el
  * regreso de la pasarela.
  */
-export const PRIVATE_ROUTES = ['/dashboard', '/restablecer', '/pago/', '/api/'] as const;
+export const PRIVATE_ROUTES = ['/dashboard', '/restablecer', '/pago/', '/estado', '/api/'] as const;
 
 export function robotsTxt(base: string): string {
   const lines = ['User-agent: *', ...PRIVATE_ROUTES.map((r) => `Disallow: ${r}`), 'Allow: /'];
@@ -105,8 +105,19 @@ export function rewriteHead(html: string, base: string, route = '/'): string {
   //
   // `follow` a propósito: que no la indexe no significa que no deba
   // seguir los enlaces que salen de ella.
-  if (!meta && !/<meta name="robots"/.test(out)) {
-    out = out.replace('</head>', '  <meta name="robots" content="noindex, follow" />\n  </head>');
+  if (!meta) {
+    const etiqueta = '<meta name="robots" content="noindex, follow" />';
+    // REEMPLAZAR, no sólo insertar si falta.
+    //
+    // index.html ya trae su propia etiqueta `robots` con "index, follow".
+    // La versión anterior sólo añadía la suya cuando no había ninguna,
+    // así que nunca hacía nada: la del archivo ganaba y /login,
+    // /registro y el 404 se servían como indexables igual. La prueba lo
+    // daba por bueno porque su HTML de ejemplo no llevaba esa etiqueta —
+    // un fixture que no se parecía al archivo real.
+    out = /<meta name="robots"[^>]*>/i.test(out)
+      ? out.replace(/<meta name="robots"[^>]*>/i, etiqueta)
+      : out.replace('</head>', `  ${etiqueta}\n  </head>`);
   }
 
   if (meta) {
