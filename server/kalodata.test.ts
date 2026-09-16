@@ -86,7 +86,7 @@ describe('buildRequest', () => {
       date_range: 'last30Day',
       keyword: 'jeans',
       page: 1,
-      page_size: 10,
+      page_size: 50,
     });
   });
 
@@ -107,8 +107,12 @@ describe('buildRequest', () => {
     expect(buildRequest({ query: '   ' })).not.toHaveProperty('keyword');
   });
 
-  it('limita el tamaño de página: cada resultado de más cuesta', () => {
-    expect(buildRequest({ pageSize: 500 }).page_size).toBe(20);
+  it('pide un bloque entero: hasta 100 filas cuestan lo mismo que una', () => {
+    // El cobro es 0.1 × techo(filas/100). Pedir 20 en vez de 100 no
+    // ahorra nada y pierde datos; pedir 101 cuesta el doble.
+    expect(buildRequest({}).page_size).toBe(50);
+    expect(buildRequest({ pageSize: 100 }).page_size).toBe(100);
+    expect(buildRequest({ pageSize: 500 }).page_size).toBe(100);
     expect(buildRequest({ pageSize: 0 }).page_size).toBe(1);
   });
 });

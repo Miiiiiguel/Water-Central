@@ -500,11 +500,32 @@ La forma de la API (confirmada por su soporte) ya está en
   BR. Un país fuera de esa lista cae a US en vez de gastar un crédito en
   una consulta que iba a fallar.
 
-**Costos.** Kalodata cobra por llamada: **1 crédito ≈ 0.1 USD**. Por eso
-la cuota vive en el servidor y `page_size` está topado en 20. Antes de
-abrir esto al público, revisa la tabla de arriba contra el costo real por
-módulo — con un saldo de USD 16, dos consultas diarias gratis por usuario
-registrado se lo comen rápido.
+**Costos** (tabla de precios de Kalodata, 1 crédito ≈ 0.1 USD):
+
+| | Crédito por llamada | En dólares |
+|---|---|---|
+| Ranking (categoría, tienda, creador, producto, vídeo, live) | 0.1 × techo(filas / 100) | **USD 0.01** |
+| Detalle (los mismos seis módulos) | 0.1 | **USD 0.01** |
+
+Lo que no se ve a primera vista: **pedir 1 fila cuesta lo mismo que pedir
+100**, porque el cobro va por bloques de cien. Bajar `page_size` no
+ahorra nada y solo pierde datos; por eso pedimos 50 y el tope es 100 (a
+las 101 filas el precio se duplica). Lo único que ahorra es no hacer la
+llamada.
+
+A un centavo por consulta, las cuotas de arriba cuestan, si un usuario
+las agota todos los días del mes:
+
+| Plan | Consultas/día | Costo mensual por usuario |
+|---|---|---|
+| Cuenta registrada, sin plan | 2 | USD 0.60 |
+| Diagnóstico de madurez | 5 | USD 1.50 |
+| Análisis de mercado | 25 | USD 7.50 |
+| Acompañamiento | 100 | USD 30.00 |
+
+El reembolso por volumen de Kalodata empieza pasando 30.000 llamadas al
+mes (USD 300/mes): 0.02 créditos por llamada entre 30k y 300k, 0.05 por
+encima. Está muy lejos; no hay nada que optimizar por ahí todavía.
 
 **Verificar la conexión:** `pnpm kalodata:check`. Prueba los nombres de
 encabezado habituales y **para en cuanto uno funciona** (los fallidos no

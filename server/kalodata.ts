@@ -17,9 +17,20 @@ import type { ResearchResult, ResearchRow } from './connectors';
 //   https://www.kalodata.com/openapi/v1/tiktok/{módulo}/{acción}
 // con acciones `rank` (ranking filtrado) y `detail` (una entidad).
 //
-// Cada llamada gasta créditos (1 crédito ≈ 0.1 USD), así que esto vive en
-// el servidor detrás de la cuota de server/research.ts — nunca se llama
-// desde el navegador, y nunca se reintenta en silencio.
+// Precios (tabla de Kalodata, 1 crédito ≈ 0.1 USD):
+//   ranking  0.1 × techo(filas / 100) créditos
+//   detalle  0.1 créditos
+// O sea: una consulta cuesta USD 0.01, y **pedir 1 fila cuesta lo mismo
+// que pedir 100** — el cobro va por bloques de cien. Bajar `page_size`
+// no ahorra un centavo; lo único que ahorra llamadas es no hacerlas.
+// Por eso pedimos un bloque entero y mostramos lo que quepa.
+//
+// El reembolso por volumen solo empieza pasando 30.000 llamadas al mes
+// (USD 300/mes); hasta ahí no hay nada que optimizar.
+//
+// Aun así esto vive en el servidor, detrás de la cuota de
+// server/research.ts: nunca se llama desde el navegador y nunca se
+// reintenta en silencio.
 
 const MODULES_RAW = ['product', 'shop', 'creator', 'video', 'livestream', 'category'];
 
@@ -126,7 +137,10 @@ export function buildRequest(opts: { query?: string; country?: string | null; la
     // Si algún módulo los rechaza, el error de Kalodata lo dirá literal.
     ...(opts.query?.trim() ? { keyword: opts.query.trim() } : {}),
     page: 1,
-    page_size: Math.min(20, Math.max(1, opts.pageSize ?? 10)),
+    // El tope es 100 porque ahí está el borde del bloque de cobro: pedir
+    // 101 filas cuesta el doble que pedir 100. Por debajo de 100 el
+    // precio es plano, así que pedir de a poco solo pierde datos.
+    page_size: Math.min(100, Math.max(1, opts.pageSize ?? 50)),
   };
 }
 
