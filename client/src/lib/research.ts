@@ -76,7 +76,16 @@ export interface ResearchOk {
 
 export type ResearchOutcome =
   | ResearchOk
+  /** No hay sesión: nadie ha entrado todavía. */
   | { kind: 'unauthenticated' }
+  /** Había sesión, pero el servidor la rechazó: hay que volver a entrar. */
+  | { kind: 'session_expired'; message: string }
+  /**
+   * La sesión está bien y la app no: falta una llave o falta preparar la
+   * base. Se separa de 'failed' porque no se arregla reintentando, y
+   * porque a quien lo ve hay que decirle que no es culpa suya.
+   */
+  | { kind: 'app_misconfigured'; message: string }
   | { kind: 'not_connected'; source: ResearchSource; message: string }
   | { kind: 'quota_exhausted'; message: string; quota?: ResearchQuota }
   | { kind: 'failed'; message: string };
@@ -102,6 +111,14 @@ export const SOURCE_BLURB: Record<ResearchSource, { es: string; en: string }> = 
     en: 'real import and export records by country and product',
   },
 };
+
+/** Fallas que son configuración nuestra, no de quien pregunta. */
+const APP_MAL_PUESTA = new Set([
+  'servidor_sin_llaves',
+  'base_sin_preparar',
+  'sin_perfil',
+  'database_not_configured',
+]);
 
 export async function fetchQuota(token: string | null): Promise<ResearchQuota | null> {
   if (!token) return null;
@@ -130,9 +147,20 @@ export async function runResearch(
     });
     const data = await res.json().catch(() => ({}));
 
-    if (res.status === 401) return { kind: 'unauthenticated' };
+    // El servidor dice POR QUÉ no reconoce a quien llama. Sin eso, una
+    // llave que falta y una cuenta sin crear se leían igual: "necesito
+    // saber quién sos", a alguien que acababa de entrar con Google.
+    if (res.status === 401) {
+      if (data.reason === 'token_invalido') {
+        return { kind: 'session_expired', message: data.message ?? '' };
+      }
+      return { kind: 'unauthenticated' };
+    }
     if (res.status === 503 && data.error === 'source_not_connected') {
       return { kind: 'not_connected', source, message: data.message ?? '' };
+    }
+    if (res.status === 503 && APP_MAL_PUESTA.has(String(data.error))) {
+      return { kind: 'app_misconfigured', message: data.message ?? '' };
     }
     if (res.status === 402) {
       return { kind: 'quota_exhausted', message: data.message ?? '', quota: data.quota };

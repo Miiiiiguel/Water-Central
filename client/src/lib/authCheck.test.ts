@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { explainProviders, explainSettings, keyKind } from './authCheck';
+import { explainProviders, explainSettings, explainSources, explainTable, keyKind } from './authCheck';
 
 // La página /estado existe para cerrar la discusión, así que lo que dice
 // tiene que ser exacto. Y hay una cosa que no puede fallar nunca: la
@@ -51,5 +51,47 @@ describe('qué formas de entrar están encendidas', () => {
   it('no inventa nada si no pudo leer la respuesta', () => {
     expect(explainProviders(null)[0].state).toBe('warn');
     expect(explainProviders({})[0].state).toBe('warn');
+  });
+});
+
+describe('si la base de datos está preparada', () => {
+  // Este es el fallo que dejó a la app contestando "no sé quién sos" a
+  // alguien que acababa de entrar con Google: proyecto nuevo, sesión
+  // perfecta, y ni una tabla donde guardar la cuenta.
+  it('una tabla protegida por permisos SÍ existe', () => {
+    expect(explainTable(200, null).state).toBe('ok');
+    expect(explainTable(401, null).state).toBe('ok');
+    expect(explainTable(403, null).state).toBe('ok');
+  });
+
+  it('cuando la tabla no está, dice qué hay que correr y dónde', () => {
+    const r = explainTable(404, { code: 'PGRST205', message: "Could not find the table 'public.profiles' in the schema cache" });
+    expect(r.state).toBe('fail');
+    expect(r.detail).toMatch(/schema\.sql/);
+    expect(r.detail).toMatch(/SQL Editor/);
+  });
+
+  it('reconoce también el código de Postgres', () => {
+    expect(explainTable(400, { code: '42P01', message: 'relation "public.profiles" does not exist' }).state).toBe('fail');
+  });
+
+  it('sin respuesta no afirma nada', () => {
+    expect(explainTable(null, null).state).toBe('warn');
+  });
+});
+
+describe('si las fuentes de datos están conectadas', () => {
+  it('dice cuál falta, sin nombrar al proveedor', () => {
+    const lines = explainSources({ tiktok: true, aduanas: false });
+    expect(lines.find((l) => l.label.includes('TikTok'))!.state).toBe('ok');
+    const aduanas = lines.find((l) => l.label.includes('comercio exterior'))!;
+    expect(aduanas.state).toBe('fail');
+    expect(aduanas.detail).toMatch(/NO conectada/);
+    // El nombre del proveedor no sale de la app.
+    expect(lines.map((l) => `${l.label} ${l.detail}`).join(' ')).not.toMatch(/kalodata|sicex/i);
+  });
+
+  it('si el servidor no contesta, no afirma que estén conectadas', () => {
+    expect(explainSources(null)[0].state).toBe('warn');
   });
 });

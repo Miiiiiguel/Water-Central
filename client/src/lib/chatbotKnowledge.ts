@@ -331,6 +331,18 @@ const CHIPS: Record<string, { es: QuickReply; en: QuickReply }> = {
     es: { label: '¿Qué se vende más?', value: 'que se vende mas' },
     en: { label: 'What sells best?', value: 'what sells best' },
   },
+  // Estos dos no preguntan: BUSCAN. La respuesta sobre inteligencia de
+  // mercado terminaba ofreciendo "crear cuenta" y "consultoría", o sea
+  // más conversación, y quien preguntaba se quedaba sin el dato. Estos
+  // valores los entiende el chat como una orden de consultar.
+  buscar_tiktok: {
+    es: { label: 'Buscar en TikTok Shop', value: '__research:tiktok__' },
+    en: { label: 'Search TikTok Shop', value: '__research:tiktok__' },
+  },
+  buscar_aduanas: {
+    es: { label: 'Buscar en aduanas', value: '__research:aduanas__' },
+    en: { label: 'Search customs data', value: '__research:aduanas__' },
+  },
   canales: {
     es: { label: '¿Amazon o TikTok Shop?', value: 'amazon tiktok shop canales' },
     en: { label: 'Amazon or TikTok Shop?', value: 'amazon tiktok shop channels' },
@@ -357,9 +369,9 @@ const AFTER: Record<string, string[]> = {
   roi: ['logistica', 'precio'],
   precio: ['empezar', 'consultoria'],
   pago: ['empezar', 'humano'],
-  'amazon-tiktok': ['inteligencia', 'empezar'],
+  'amazon-tiktok': ['buscar_tiktok', 'inteligencia'],
   'prep-center': ['logistica', 'precio'],
-  inteligencia: ['cuenta', 'consultoria'],
+  inteligencia: ['buscar_tiktok', 'buscar_aduanas'],
   logistica: ['roi', 'precio'],
   tiempo: ['empezar', 'consultoria'],
   consultoria: ['precio', 'inteligencia'],

@@ -64,9 +64,41 @@ function timeLabel(at: number) {
   return new Date(at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
+/** Una consulta que se quedó esperando a que alguien entre. */
+interface PendingResearch {
+  source: ResearchSource;
+  term: string;
+  at: number;
+}
+
+const PENDING_KEY = 'easycomex:marcopolo:pendiente';
+/** Media hora: más que eso ya no es la misma conversación. */
+const PENDING_TTL = 30 * 60 * 1000;
+
+function leerPendiente(): PendingResearch | null {
+  try {
+    const raw = sessionStorage.getItem(PENDING_KEY);
+    if (!raw) return null;
+    const v = JSON.parse(raw) as PendingResearch;
+    if (!v || typeof v.term !== 'string' || Date.now() - v.at > PENDING_TTL) return null;
+    return v;
+  } catch {
+    return null;
+  }
+}
+
+function guardarPendiente(v: PendingResearch | null) {
+  try {
+    if (v) sessionStorage.setItem(PENDING_KEY, JSON.stringify(v));
+    else sessionStorage.removeItem(PENDING_KEY);
+  } catch {
+    // almacenamiento bloqueado: se pierde el pendiente, no la app
+  }
+}
+
 export default function ChatbotWidget() {
   const { language } = useLanguage();
-  const { getAccessToken } = useAuth();
+  const { getAccessToken, user } = useAuth();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>(() => load<ChatMessage[]>(STORAGE_KEY, []));
   const [input, setInput] = useState('');
@@ -89,6 +121,11 @@ export default function ChatbotWidget() {
   // Research desk: which source Marco Polo is waiting for a term for,
   // and how many lookups this account has left (server-owned numbers).
   const [researchMode, setResearchMode] = useState<ResearchSource | null>(null);
+  // La consulta que quedó a medias por no haber sesión. Se guarda en el
+  // navegador porque el camino natural es irse a /registro y volver: sin
+  // esto, la persona crea la cuenta, vuelve, dice "ya la creé" y Marco
+  // Polo no tiene idea de qué estaba preguntando. Pasó tal cual.
+  const [pendiente, setPendiente] = useState<PendingResearch | null>(() => leerPendiente());
   const [quota, setQuota] = useState<ResearchQuota | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const stopListeningRef = useRef<() => void>(() => {});
@@ -248,8 +285,14 @@ export default function ChatbotWidget() {
       if (match.route) window.setTimeout(() => { window.location.href = match.route!; }, 900);
       else if (match.action) window.setTimeout(() => scrollToSection(match.action!), 600);
     } else {
+      // No saber la respuesta no puede ser un callejón sin salida: lo
+      // que sí sabemos hacer es buscar el dato, así que se ofrece.
       pushBot(MARCO_POLO.fallback[language], {
-        quickReplies: [{ label: language === 'es' ? 'Hablar con una persona' : 'Talk to a person', value: '__human__' }],
+        quickReplies: [
+          { label: language === 'es' ? 'Buscar en TikTok Shop' : 'Search TikTok Shop', value: '__research:tiktok__' },
+          { label: language === 'es' ? 'Buscar en aduanas' : 'Search customs data', value: '__research:aduanas__' },
+          { label: language === 'es' ? 'Hablar con una persona' : 'Talk to a person', value: '__human__' },
+        ],
       });
     }
   };
@@ -270,6 +313,11 @@ export default function ChatbotWidget() {
     }
   };
 
+  const recordarPendiente = (v: PendingResearch | null) => {
+    setPendiente(v);
+    guardarPendiente(v);
+  };
+
   // Runs one lookup and reports exactly what happened — including the
   // cases where there is nothing to show.
   const doResearch = async (source: ResearchSource, term: string) => {
@@ -280,6 +328,7 @@ export default function ChatbotWidget() {
 
     if (outcome.kind === 'ok') {
       setQuota(outcome.quota);
+      recordarPendiente(null);
       pushBot(formatResult(outcome, language), {
         quickReplies: [
           { label: language === 'es' ? 'Otra consulta' : 'Another lookup', value: `__research:${source}__` },
@@ -289,12 +338,44 @@ export default function ChatbotWidget() {
       return;
     }
 
+    // Nadie ha entrado: se guarda la pregunta para retomarla sola apenas
+    // haya sesión, en vez de hacerla escribir otra vez.
     if (outcome.kind === 'unauthenticated') {
+      recordarPendiente({ source, term, at: Date.now() });
       pushBot(
         language === 'es'
-          ? 'Esta búsqueda va contra fuentes de pago, así que necesito saber quién sos. Creá tu cuenta en 30 segundos (es gratis) y arrancás con 2 consultas por día incluidas — más si tenés un plan.'
-          : 'This search hits paid sources, so I need to know who you are. Create your account in 30 seconds (it is free) and you start with 2 lookups a day included — more with a plan.',
-        { quickReplies: [{ label: language === 'es' ? 'Crear cuenta' : 'Create account', value: '__register__' }] }
+          ? 'Esta búsqueda va contra fuentes de pago, así que necesito saber quién sos. Creá tu cuenta en 30 segundos (es gratis) y arrancás con 2 consultas por día incluidas — más si tenés un plan. Me guardo tu pregunta y la corro apenas entres.'
+          : 'This search hits paid sources, so I need to know who you are. Create your account in 30 seconds (it is free) and you start with 2 lookups a day included — more with a plan. I will keep your question and run it the moment you are in.',
+        { quickReplies: [
+          { label: language === 'es' ? 'Crear cuenta' : 'Create account', value: '__register__' },
+          { label: language === 'es' ? 'Ya tengo cuenta' : 'I already have an account', value: '__login__' },
+        ] }
+      );
+      return;
+    }
+
+    // Había sesión y el servidor la rechazó. Decirle "creá tu cuenta" a
+    // alguien que acaba de entrar es lo que lo dejaba dando vueltas.
+    if (outcome.kind === 'session_expired') {
+      recordarPendiente({ source, term, at: Date.now() });
+      pushBot(
+        language === 'es'
+          ? `${outcome.message || 'Tu sesión ya no vale.'} Me guardo la pregunta y la retomo cuando vuelvas a entrar.`
+          : `${outcome.message || 'Your session is no longer valid.'} I will keep the question and pick it up when you sign in again.`,
+        { quickReplies: [{ label: language === 'es' ? 'Entrar de nuevo' : 'Sign in again', value: '__login__' }] }
+      );
+      return;
+    }
+
+    // Ni la sesión ni la pregunta tienen la culpa: falta configuración
+    // nuestra. Se dice así, con el motivo que manda el servidor.
+    if (outcome.kind === 'app_misconfigured') {
+      recordarPendiente({ source, term, at: Date.now() });
+      pushBot(
+        language === 'es'
+          ? `${outcome.message} No es tu cuenta ni tu conexión, y tampoco te descontamos nada.`
+          : `${outcome.message} It is not your account or your connection, and nothing was charged.`,
+        { quickReplies: [{ label: language === 'es' ? 'Avisar al equipo' : 'Tell the team', value: '__human__' }] }
       );
       return;
     }
@@ -373,6 +454,11 @@ export default function ChatbotWidget() {
       return;
     }
 
+    if (trimmed === '__login__') {
+      window.location.href = '/login';
+      return;
+    }
+
     if (trimmed === '__human__') {
       setMessages((prev) => [...prev, { role: 'user', content: language === 'es' ? 'Quiero hablar con una persona' : 'I want to talk to a person', at: Date.now() }]);
       openExternal(whatsappUrl(language === 'es' ? 'Hola, vengo del sitio de Easycomex y quiero hablar con alguien del equipo.' : 'Hi, I came from the Easycomex site and want to talk to someone on the team.'));
@@ -414,6 +500,25 @@ export default function ChatbotWidget() {
 
     respond(trimmed).finally(() => setTyping(false));
   };
+
+  // Ya hay sesión y había una pregunta esperando: se corre sola. Este es
+  // el final que faltaba del camino "no sé quién sos" → crear cuenta →
+  // volver: antes quedaba en "ya la creé" y una respuesta que no venía.
+  const retomando = useRef(false);
+  useEffect(() => {
+    if (!user || !pendiente || retomando.current) return;
+    retomando.current = true;
+    const { source, term } = pendiente;
+    recordarPendiente(null);
+    setOpen(true);
+    pushBot(
+      language === 'es'
+        ? `Listo, ya sé quién sos. Retomo lo que me preguntaste${term ? ` sobre ${term}` : ''}.`
+        : `Great, I know who you are now. Picking up your question${term ? ` about ${term}` : ''}.`
+    );
+    doResearch(source, term);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, pendiente]);
 
   const toggleVoice = () => {
     const next = !voiceOn;

@@ -84,6 +84,77 @@ export function explainProviders(settings: unknown): CheckLine[] {
   ];
 }
 
+/**
+ * ¿Existe esa tabla en el proyecto?
+ *
+ * Existe esta comprobación porque el fallo más caro de todos no se veía:
+ * un proyecto de Supabase recién creado entra con Google perfecto y no
+ * tiene ni una tabla, así que cada petición con sesión válida contestaba
+ * "no sé quién sos". La cuenta estaba bien; lo que faltaba era correr
+ * supabase/schema.sql una vez.
+ */
+export function explainTable(status: number | null, body: unknown): { state: CheckState; detail: string } {
+  if (status === null) return { state: 'warn', detail: 'no hubo respuesta' };
+  // 401/403 es la respuesta correcta para quien no ha entrado: la tabla
+  // está y sus permisos la protegen.
+  if (status === 200 || status === 206 || status === 401 || status === 403) {
+    return { state: 'ok', detail: 'existe en el proyecto' };
+  }
+  const code = (body as { code?: string } | null)?.code;
+  const message = (body as { message?: string } | null)?.message ?? '';
+  if (status === 404 || code === 'PGRST205' || code === '42P01' || /does not exist|schema cache/i.test(message)) {
+    return {
+      state: 'fail',
+      detail: 'NO existe. Falta correr supabase/schema.sql una vez en Supabase -> SQL Editor',
+    };
+  }
+  return { state: 'fail', detail: `respuesta inesperada (HTTP ${status})` };
+}
+
+async function checkTable(url: string, anonKey: string | undefined, table: string): Promise<{ state: CheckState; detail: string }> {
+  try {
+    const res = await fetch(`${url.replace(/\/$/, '')}/rest/v1/${table}?select=*&limit=1`, {
+      headers: anonKey ? { apikey: anonKey, Authorization: `Bearer ${anonKey}` } : {},
+      signal: AbortSignal.timeout(8000),
+    });
+    const body = res.ok ? null : await res.json().catch(() => null);
+    return explainTable(res.status, body);
+  } catch {
+    return explainTable(null, null);
+  }
+}
+
+/**
+ * Las fuentes de datos, vistas desde el servidor de la app.
+ *
+ * "Pregunto y no responde" tenía dos causas posibles que se veían igual:
+ * la sesión no llegaba, o la fuente no estaba conectada. Esto separa la
+ * segunda sin que haya que entrar como vendedor a mirar un panel.
+ */
+export function explainSources(sources: unknown): CheckLine[] {
+  const s = sources as { tiktok?: boolean; aduanas?: boolean } | null;
+  if (!s || typeof s !== 'object') {
+    return [{ label: 'Fuentes de datos', state: 'warn', detail: 'el servidor no contestó' }];
+  }
+  const linea = (label: string, on: boolean | undefined): CheckLine => ({
+    label,
+    state: on ? 'ok' : 'fail',
+    detail: on ? 'conectada' : 'NO conectada: falta cargar su acceso en el servidor',
+  });
+  return [linea('Datos de TikTok Shop', s.tiktok), linea('Datos de comercio exterior', s.aduanas)];
+}
+
+async function checkSources(): Promise<CheckLine[]> {
+  try {
+    const res = await fetch('/api/research/status', { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) return explainSources(null);
+    const body = (await res.json()) as { sources?: unknown };
+    return explainSources(body.sources);
+  } catch {
+    return explainSources(null);
+  }
+}
+
 export interface CheckReport {
   lines: CheckLine[];
   /** Texto plano, para copiar y pegar de un toque. */
@@ -128,8 +199,20 @@ export async function runAuthCheck(anonKey: string | undefined): Promise<CheckRe
       }
       lines.push({ label: 'El proyecto acepta la llave', ...explainSettings(status) });
       if (settings) lines.push(...explainProviders(settings));
+
+      // Entrar es la mitad: sin estas tablas la sesión es válida y la app
+      // igual no reconoce a nadie.
+      const tablas: Array<[string, string]> = [
+        ['Tabla de cuentas (profiles)', 'profiles'],
+        ['Tabla de consultas (research_usage)', 'research_usage'],
+      ];
+      for (const [label, table] of tablas) {
+        lines.push({ label, ...(await checkTable(accountsUrl, anonKey, table)) });
+      }
     }
   }
+
+  lines.push(...(await checkSources()));
 
   const icono = (s: CheckState) => (s === 'ok' ? 'OK  ' : s === 'warn' ? '??  ' : 'MAL ');
   const text = lines.map((l) => `${icono(l.state)}${l.label}: ${l.detail}`).join('\n');

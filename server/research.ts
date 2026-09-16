@@ -163,6 +163,25 @@ async function getQuota(userId: string): Promise<QuotaView> {
   };
 }
 
+/**
+ * Qué fuentes están conectadas. Sin sesión, y sin nombrar a nadie.
+ *
+ * Existe para que la página /estado pueda contestar sola la pregunta
+ * "pregunto y no responde": si la fuente no está conectada, eso se ve en
+ * un renglón en vez de terminar en un mensaje genérico dentro del chat.
+ * Lo que sale es un sí/no por fuente pública —los nombres de proveedor y
+ * las variables que faltan siguen siendo cosa del panel del equipo.
+ */
+researchRouter.get('/research/status', apiRateLimiter, (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({
+    sources: {
+      tiktok: isConfigured('kalodata'),
+      aduanas: isConfigured('sicex'),
+    },
+  });
+});
+
 // How many lookups are left today, and what the account is entitled to.
 researchRouter.get('/research/quota', apiRateLimiter, requireUser(), async (_req, res) => {
   const auth = res.locals.auth!;
