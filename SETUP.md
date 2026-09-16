@@ -19,7 +19,32 @@ repo.
      de seguridad (RLS) de cada tabla
 3. Ve a **Project Settings -> API** y copia:
    - `Project URL` -> pégalo en `VITE_SUPABASE_URL`
-   - `anon public` key -> pégalo en `VITE_SUPABASE_ANON_KEY`
+   - la llave pública -> pégala en `VITE_SUPABASE_ANON_KEY`
+
+   Supabase cambió los nombres a mitad de camino, así que vas a ver uno
+   de estos dos y los dos sirven igual:
+
+   | Proyecto viejo | Proyecto nuevo | Va en |
+   |---|---|---|
+   | `anon` / `public` (empieza con `eyJ…`) | **Publishable key** (`sb_publishable_…`) | `VITE_SUPABASE_ANON_KEY` |
+   | `service_role` (empieza con `eyJ…`) | **Secret key** (`sb_secret_…`) | `SUPABASE_SERVICE_ROLE_KEY` |
+
+   La de la izquierda de cada fila puede ir al navegador porque las
+   políticas RLS del paso 2 la contienen. La de la derecha se salta la
+   seguridad de todas las tablas: solo en el servidor, nunca con prefijo
+   `VITE_`.
+
+   **Cópiala con el botón de copiar, no seleccionándola con el ratón.**
+   La tabla de Supabase muestra la llave cortada con `…`, y si arrastras
+   el ratón te llevas ese carácter. Un `…` dentro de la llave rompe
+   *todas* las peticiones del navegador con este error, que no menciona
+   las variables de entorno por ningún lado:
+
+   > Failed to read the 'headers' property from 'RequestInit': String
+   > contains non ISO-8859-1 code point.
+
+   (La app ahora detecta esto sola y lo dice claro en la consola, pero
+   más vale no llegar ahí.)
 4. Todo el que se registre desde `/registro` entra con rol `cliente`. No
    hay forma pública de crear un `vendedor` (por seguridad) — para dar
    acceso de equipo interno a alguien, corre en el SQL Editor:
@@ -77,6 +102,7 @@ los formularios y Marco Polo.
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY` ← Project Settings → API → `service_role`
+     (en proyectos nuevos se llama **Secret key**, `sb_secret_…`)
 3. **Create**. El primer build tarda unos minutos.
 4. Cuando termine, copia la URL que te da Render (algo como
    `https://easycomex.onrender.com`) y ponla en `PUBLIC_APP_URL`. Esto
@@ -302,8 +328,9 @@ cerrada, como cualquier notificación de celular. Necesita 3 pasos:
    - `VAPID_SUBJECT` — un `mailto:tu-email@easycomex.com` (o tu URL).
 2. **Dale al servidor acceso completo a Supabase.** En tu proyecto de
    Supabase, ve a **Project Settings -> API** y copia la key
-   **`service_role`** (distinta de la `anon` que ya usás) en
-   `SUPABASE_SERVICE_ROLE_KEY`. Esta key se salta las políticas RLS a
+   **`service_role`** —en proyectos nuevos se llama **Secret key** y
+   empieza con `sb_secret_`— en `SUPABASE_SERVICE_ROLE_KEY`. Es la otra,
+   la distinta de la pública que ya usás. Esta key se salta las políticas RLS a
    propósito — solo la usa el servidor para leer a quién mandarle el
    push, nunca llega al navegador.
 3. **Conecta el webhook de Supabase.** En tu proyecto, ve a

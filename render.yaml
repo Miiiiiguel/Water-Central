@@ -45,11 +45,16 @@ services:
       # Supabase -> Project Settings -> API
       - key: VITE_SUPABASE_URL
         sync: false
+      # La llave pública: `anon`/`public` en proyectos viejos (empieza
+      # con eyJ...), **Publishable key** (sb_publishable_...) en los
+      # nuevos. Cópiala con el botón de copiar: la tabla la muestra
+      # cortada con "..." y ese carácter rompe todas las peticiones.
       - key: VITE_SUPABASE_ANON_KEY
         sync: false
-      # La `service_role`. Salta la seguridad de todas las tablas: es lo
-      # que permite registrar un pago y guardar un diagnóstico. Solo acá,
-      # nunca con prefijo VITE_.
+      # La otra: `service_role` en proyectos viejos, **Secret key**
+      # (sb_secret_...) en los nuevos. Salta la seguridad de todas las
+      # tablas: es lo que permite registrar un pago y guardar un
+      # diagnóstico. Solo acá, nunca con prefijo VITE_.
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
 

@@ -33,8 +33,54 @@ function cleanEnv(value: string | undefined, name: string): string | undefined {
   return trimmed;
 }
 
+/**
+ * Lee el campo `role` de un JWT de Supabase sin verificar la firma: acá
+ * no nos interesa si es auténtico, solo QUÉ llave nos dieron. Cualquier
+ * cosa que no se deje leer devuelve null y sigue su camino.
+ */
+export function jwtRole(value: string): string | null {
+  const payload = value.split('.')[1];
+  if (!payload) return null;
+  try {
+    const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    const role = (JSON.parse(json) as { role?: unknown }).role;
+    return typeof role === 'string' ? role : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Supabase le cambió el nombre a sus llaves: lo que antes eran `anon` y
+ * `service_role` (dos JWT que empiezan con `eyJ`) hoy se llaman
+ * Publishable (`sb_publishable_…`) y Secret (`sb_secret_…`). Están una
+ * al lado de la otra en el panel, y confundirlas acá no da ningún error
+ * visible: la app funcionaría perfecto mientras le entrega a cualquier
+ * visitante una llave que se salta la seguridad de TODAS las tablas.
+ *
+ * Por eso esto no avisa y sigue: rechaza la llave. Preferimos una app
+ * que dice "no configurado" a una app que funciona y está abierta.
+ */
+export function isServerKey(value: string): boolean {
+  return value.startsWith('sb_secret_') || jwtRole(value) === 'service_role';
+}
+
+function rejectServerKey(value: string | undefined): string | undefined {
+  if (!value || !isServerKey(value)) return value;
+  console.error(
+    '[supabase] VITE_SUPABASE_ANON_KEY tiene la llave PRIVADA del servidor ' +
+      '(la "Secret key" / `service_role`). Esa llave se salta la seguridad de ' +
+      'todas las tablas y acá la vería cualquiera que abra la página. ' +
+      'La app se queda sin conexión a propósito. Cámbiala por la llave pública ' +
+      '("Publishable key" o `anon`) y rota la privada en Supabase: ya estuvo expuesta.'
+  );
+  return undefined;
+}
+
 const supabaseUrl = cleanEnv(import.meta.env.VITE_SUPABASE_URL as string | undefined, 'VITE_SUPABASE_URL');
-const supabaseAnonKey = cleanEnv(import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined, 'VITE_SUPABASE_ANON_KEY');
+const supabaseAnonKey = rejectServerKey(
+  cleanEnv(import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined, 'VITE_SUPABASE_ANON_KEY')
+);
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
