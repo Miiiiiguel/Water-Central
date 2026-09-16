@@ -36,6 +36,13 @@ services:
       # más vieja que la que usan el CI y el build local.
       - key: NODE_VERSION
         value: 22
+      # Playwright trae un postinstall que se baja Chromium: unos 150 MB
+      # que en el servidor no se usan nunca —las pruebas de navegador
+      # corren en CI y en tu máquina, no en producción— y que alargan
+      # cada despliegue. Con el caché de dependencias caliente no se
+      # notaba; al cambiar el lockfile se nota mucho.
+      - key: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
+        value: 1
 
       # --- Obligatorias para que la app haga algo útil ----------------
       # La URL pública del servicio, ya con https. Stripe y Wompi la usan
