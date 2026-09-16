@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { getSupabase } from './supabase';
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
 
@@ -36,7 +36,7 @@ export async function subscribeToPush(userId: string): Promise<{ error: string |
   });
 
   const json = subscription.toJSON();
-  const { error } = await supabase.from('push_subscriptions').upsert(
+  const { error } = await (await getSupabase()).from('push_subscriptions').upsert(
     {
       user_id: userId,
       endpoint: json.endpoint!,
@@ -58,6 +58,6 @@ export async function unsubscribeFromPush(): Promise<{ error: string | null }> {
 
   const endpoint = subscription.endpoint;
   await subscription.unsubscribe();
-  const { error } = await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint);
+  const { error } = await (await getSupabase()).from('push_subscriptions').delete().eq('endpoint', endpoint);
   return { error: error ? error.message : null };
 }

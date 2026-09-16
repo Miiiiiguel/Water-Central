@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { ArrowLeft, MessageCircle, Phone, Sparkles, TrendingUp } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase, type Payment } from '@/lib/supabase';
+import { getSupabase, type Payment } from '@/lib/supabase';
 import { whatsappUrl } from '@/lib/contact';
 import { openExternal } from '@/lib/native';
 import {
@@ -125,12 +125,13 @@ export default function RoiCalculator() {
   // webhook, read here through RLS as the user themselves.
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from('payments')
-      .select('plan,status')
-      .eq('user_id', user.id)
-      .eq('status', 'paid')
-      .then(({ data }) => setUnlocked(new Set(((data as Payment[]) ?? []).map((p) => p.plan))));
+    void getSupabase().then((sb) =>
+      sb
+        .from('payments')
+        .select('plan,status')
+        .eq('user_id', user.id)
+        .eq('status', 'paid')
+        .then(({ data }) => setUnlocked(new Set(((data as Payment[]) ?? []).map((p) => p.plan)))));
   }, [user]);
 
   const set = <K extends keyof RoiInputs>(key: K, value: RoiInputs[K]) =>

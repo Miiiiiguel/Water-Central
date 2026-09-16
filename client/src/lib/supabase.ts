@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * La llave anónima viaja en un encabezado HTTP en cada petición, y los
@@ -84,14 +84,64 @@ const supabaseAnonKey = rejectServerKey(
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
-// During local/dev setup before the real project keys are added, we fall back
-// to a placeholder client so the app doesn't crash on import. Every call will
-// simply fail until VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY are set — see
-// SETUP.md for setup steps.
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-anon-key'
-);
+/**
+ * supabase-js pesa 56 KB comprimidos — la cuarta parte del paquete
+ * principal — y hasta ahora se lo bajaba todo el que abría la página,
+ * incluido quien nunca va a iniciar sesión. En un sitio que sobre todo
+ * recibe visitantes, eso es peso puro en el camino crítico.
+ *
+ * Así que se carga cuando de verdad hace falta. El cliente se construye
+ * una sola vez y se comparte: dos clientes distintos sobre el mismo
+ * proyecto se pelean por la sesión guardada.
+ */
+let clientPromise: Promise<SupabaseClient> | null = null;
+
+export function getSupabase(): Promise<SupabaseClient> {
+  if (!clientPromise) {
+    clientPromise = import('@supabase/supabase-js').then(({ createClient }) =>
+      // Con las llaves sin poner se construye igual, contra un host que
+      // no existe: cada llamada falla, pero la app no se cae al importar.
+      // Quién puede llamar está gobernado por isSupabaseConfigured.
+      createClient(supabaseUrl || 'https://placeholder.supabase.co', supabaseAnonKey || 'placeholder-anon-key')
+    );
+  }
+  return clientPromise;
+}
+
+/**
+ * ¿Hay que cargar supabase-js de una, antes de que nadie toque nada?
+ *
+ * Tres casos, y el tercero es el que muerde si se olvida:
+ *   1. Hay una sesión guardada: la persona ya entró, hay que reconocerla.
+ *   2. Volvemos de un OAuth por hash (`#access_token=...`): supabase-js
+ *      tiene que leer ese hash antes de que el navegador lo descarte.
+ *   3. Volvemos de un OAuth por PKCE (`?code=...`): igual.
+ *
+ * Si se saltara el 2 o el 3, entrar con Google llevaría de vuelta a la
+ * página sin sesión y sin ningún error visible.
+ *
+ * Es una función pura sobre el almacenamiento y la URL para poder
+ * probarla: equivocarse acá sólo se nota con una cuenta real.
+ */
+export function needsSessionOnLoad(storageKeys: string[], hash: string, search: string): boolean {
+  if (storageKeys.some((k) => /^sb-.+-auth-token$/.test(k))) return true;
+  if (/[#&](access_token|error_description)=/.test(hash)) return true;
+  if (/[?&]code=/.test(search)) return true;
+  return false;
+}
+
+/** Lo mismo, leyendo del navegador de verdad. */
+export function hasSessionToRestore(): boolean {
+  if (typeof window === 'undefined') return false;
+  let keys: string[] = [];
+  try {
+    keys = Object.keys(localStorage);
+  } catch {
+    // Ventana privada o almacenamiento bloqueado: no hay sesión guardada
+    // que restaurar, pero un OAuth de vuelta sigue siendo posible.
+  }
+  return needsSessionOnLoad(keys, window.location.hash, window.location.search);
+}
 
 export type UserRole = 'cliente' | 'vendedor';
 

@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, CheckCheck, Inbox } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase, AppNotification } from '@/lib/supabase';
+import { getSupabase, AppNotification } from '@/lib/supabase';
 
 function timeAgo(iso: string, language: string) {
   const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
@@ -28,24 +28,46 @@ export default function NotificationBell() {
   useEffect(() => {
     if (!user) return;
 
-    supabase
-      .from('notifications')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(20)
-      .then(({ data }) => setNotifications((data as AppNotification[]) ?? []));
+    // supabase-js llega por import dinámico, así que el canal se abre
+    // más tarde que el efecto. `cancelled` cubre la carrera real: cambiar
+    // de ruta antes de que el import resuelva dejaría una suscripción
+    // abierta para siempre.
+    let cancelled = false;
+    let cleanup: (() => void) | null = null;
 
-    const channel = supabase
-      .channel(`notifications:${user.id}`)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
-        (payload) => setNotifications((prev) => [payload.new as AppNotification, ...prev])
-      )
-      .subscribe();
+    void (async () => {
+      const supabase = await getSupabase();
+      if (cancelled) return;
+
+      const { data } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (cancelled) return;
+      setNotifications((data as AppNotification[]) ?? []);
+
+      const channel = supabase
+        .channel(`notifications:${user.id}`)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+          (payload: { new: unknown }) => setNotifications((prev) => [payload.new as AppNotification, ...prev])
+        )
+        .subscribe();
+
+      if (cancelled) {
+        void supabase.removeChannel(channel);
+        return;
+      }
+      cleanup = () => {
+        void supabase.removeChannel(channel);
+      };
+    })();
 
     return () => {
-      supabase.removeChannel(channel);
+      cancelled = true;
+      cleanup?.();
     };
   }, [user]);
 
@@ -63,14 +85,14 @@ export default function NotificationBell() {
 
   const markAsRead = async (id: string) => {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
-    await supabase.from('notifications').update({ read: true }).eq('id', id);
+    await (await getSupabase()).from('notifications').update({ read: true }).eq('id', id);
   };
 
   const markAllAsRead = async () => {
     const unreadIds = notifications.filter((n) => !n.read).map((n) => n.id);
     if (unreadIds.length === 0) return;
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    await supabase.from('notifications').update({ read: true }).in('id', unreadIds);
+    await (await getSupabase()).from('notifications').update({ read: true }).in('id', unreadIds);
   };
 
   const handleClick = (n: AppNotification) => {

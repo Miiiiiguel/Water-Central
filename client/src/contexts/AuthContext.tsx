@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
-import { supabase, isSupabaseConfigured, Profile } from '@/lib/supabase';
+import { getSupabase, hasSessionToRestore, isSupabaseConfigured, Profile } from '@/lib/supabase';
 import { trackSignUp } from '@/lib/analytics';
 import { getStoredReferralCode, clearStoredReferralCode } from '@/lib/referral';
 import { getMfaStatus } from '@/lib/mfa';
@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [mfaRequired, setMfaRequired] = useState(false);
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
+    const { data } = await (await getSupabase()).from('profiles').select('*').eq('id', userId).single();
     setProfile((data as Profile) ?? null);
   };
 
@@ -52,12 +52,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const applyPendingReferral = async () => {
     const code = getStoredReferralCode();
     if (!code) return;
-    const { data } = await supabase.rpc('apply_referral_code', { p_code: code });
+    const { data } = await (await getSupabase()).rpc('apply_referral_code', { p_code: code });
     if (data === true) clearStoredReferralCode();
   };
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
+      setLoading(false);
+      return;
+    }
+
+    // supabase-js son 56 KB comprimidos. Quien nunca ha entrado no tiene
+    // nada que restaurar, así que no hay por qué hacérselos bajar: la
+    // librería llega cuando toque el botón de entrar.
+    //
+    // hasSessionToRestore() también reconoce la vuelta de un OAuth — si
+    // eso se saltara, entrar con Google devolvería a la página sin sesión
+    // y sin ningún error a la vista.
+    if (!hasSessionToRestore()) {
       setLoading(false);
       return;
     }
@@ -75,7 +87,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     };
 
-    supabase.auth
+    let unsubscribe: (() => void) | null = null;
+    let cancelled = false;
+
+    getSupabase().then((supabase) => {
+      if (cancelled) return;
+
+      supabase.auth
       .getSession()
       .then(({ data }) => {
         setSession(data.session);
@@ -94,6 +112,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         done();
       });
 
+      const { data: listener } = supabase.auth.onAuthStateChange((event, newSession) => {
+        setSession(newSession);
+        if (newSession?.user) {
+          fetchProfile(newSession.user.id);
+          refreshMfa();
+          if (event === 'SIGNED_IN') applyPendingReferral().then(() => fetchProfile(newSession.user.id));
+        } else {
+          setProfile(null);
+          setMfaRequired(false);
+        }
+      });
+
+      if (cancelled) listener.subscription.unsubscribe();
+      else unsubscribe = () => listener.subscription.unsubscribe();
+    }).catch((err) => {
+      console.error('[auth] No se pudo cargar supabase-js:', err);
+      done();
+    });
+
+    // El tope de tiempo cuenta desde acá, no desde que llega la librería:
+    // si el trozo de JavaScript nunca baja, el spinner también se apaga.
     const timeout = window.setTimeout(() => {
       if (!settled) {
         console.error('[auth] Supabase no contestó en 8 segundos. Seguimos sin sesión.');
@@ -101,27 +140,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }, 8000);
 
-    const { data: listener } = supabase.auth.onAuthStateChange((event, newSession) => {
-      setSession(newSession);
-      if (newSession?.user) {
-        fetchProfile(newSession.user.id);
-        refreshMfa();
-        if (event === 'SIGNED_IN') applyPendingReferral().then(() => fetchProfile(newSession.user.id));
-      } else {
-        setProfile(null);
-        setMfaRequired(false);
-      }
-    });
-
     return () => {
+      cancelled = true;
       window.clearTimeout(timeout);
-      listener.subscription.unsubscribe();
+      unsubscribe?.();
     };
   }, []);
 
   const signUp: AuthContextType['signUp'] = async (email, password, fullName, company) => {
     if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía (faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' };
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await (await getSupabase()).auth.signUp({
       email: email.trim().toLowerCase(),
       password,
       options: { data: { full_name: fullName.trim(), company: company.trim(), referred_by_code: getStoredReferralCode() } },
@@ -130,7 +158,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // The profiles row is created by a DB trigger (see supabase/schema.sql).
     // As a fallback, upsert it here too in case the trigger isn't installed yet.
     if (data.user) {
-      await supabase.from('profiles').upsert({
+      await (await getSupabase()).from('profiles').upsert({
         id: data.user.id,
         email: email.trim().toLowerCase(),
         full_name: fullName.trim(),
@@ -144,13 +172,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn: AuthContextType['signIn'] = async (email, password) => {
     if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía (faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' };
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+    const { error } = await (await getSupabase()).auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
     return { error: error ? error.message : null };
   };
 
   const signInWithGoogle: AuthContextType['signInWithGoogle'] = async () => {
     if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía (faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' };
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await (await getSupabase()).auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/dashboard`,
@@ -162,20 +190,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const resetPassword: AuthContextType['resetPassword'] = async (email) => {
     if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía.' };
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+    const { error } = await (await getSupabase()).auth.resetPasswordForEmail(email.trim().toLowerCase(), {
       redirectTo: `${window.location.origin}/restablecer`,
     });
     return { error: error ? error.message : null };
   };
 
   const updatePassword: AuthContextType['updatePassword'] = async (password) => {
-    const { error } = await supabase.auth.updateUser({ password });
+    const { error } = await (await getSupabase()).auth.updateUser({ password });
     return { error: error ? error.message : null };
   };
 
   // Global scope: revokes the refresh token everywhere, not just this tab.
   const signOut = async () => {
-    await supabase.auth.signOut({ scope: 'global' });
+    await (await getSupabase()).auth.signOut({ scope: 'global' });
     setProfile(null);
     setMfaRequired(false);
   };

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase, FreightQuote, Profile, ContactLead, Payment, Subscription } from '@/lib/supabase';
+import { getSupabase, FreightQuote, Profile, ContactLead, Payment, Subscription } from '@/lib/supabase';
 import { buildReferralLink } from '@/lib/referral';
 import { downloadCSV } from '@/lib/csv';
 import { isPushConfigured, getPushStatus, subscribeToPush, unsubscribeFromPush, PushStatus } from '@/lib/push';
@@ -187,11 +187,12 @@ function ReferralCard() {
 
   useEffect(() => {
     if (!profile) return;
-    supabase
-      .from('profiles')
-      .select('id', { count: 'exact', head: true })
-      .eq('referred_by', profile.id)
-      .then(({ count }) => setCount(count ?? 0));
+    void getSupabase().then((sb) =>
+      sb
+        .from('profiles')
+        .select('id', { count: 'exact', head: true })
+        .eq('referred_by', profile.id)
+        .then(({ count }) => setCount(count ?? 0)));
   }, [profile]);
 
   if (!profile) return null;
@@ -433,32 +434,35 @@ function ClienteDashboard() {
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from('freight_quotes')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .then(({ data }) => setQuotes((data as FreightQuote[]) ?? []));
+    void getSupabase().then((sb) =>
+      sb
+        .from('freight_quotes')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .then(({ data }) => setQuotes((data as FreightQuote[]) ?? [])));
 
     // Written only by the Stripe webhook on the server — a client can
     // read its own rows here but never create one (see schema.sql).
     const loadPayments = () => {
       // Every status, not just 'paid': a voucher payment still clearing
       // ('pending') or a refund must be visible to the buyer too.
-      supabase
-        .from('payments')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .then(({ data }) => setPayments((data as Payment[]) ?? []));
+      void getSupabase().then((sb) =>
+        sb
+          .from('payments')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .then(({ data }) => setPayments((data as Payment[]) ?? [])));
       // Empty unless a plan is configured as recurring in Stripe.
-      supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .then(({ data }) => setSubscription(((data as Subscription[]) ?? [])[0] ?? null));
+      void getSupabase().then((sb) =>
+        sb
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .then(({ data }) => setSubscription(((data as Subscription[]) ?? [])[0] ?? null)));
     };
     loadPayments();
 
@@ -720,24 +724,27 @@ function VendedorDashboard() {
   const [leads, setLeads] = useState<ContactLead[] | null>(null);
 
   useEffect(() => {
-    supabase
-      .from('profiles')
-      .select('*')
-      .eq('role', 'cliente')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => setClients((data as Profile[]) ?? []));
+    void getSupabase().then((sb) =>
+      sb
+        .from('profiles')
+        .select('*')
+        .eq('role', 'cliente')
+        .order('created_at', { ascending: false })
+        .then(({ data }) => setClients((data as Profile[]) ?? [])));
 
-    supabase
-      .from('freight_quotes')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => setQuotes((data as FreightQuote[]) ?? []));
+    void getSupabase().then((sb) =>
+      sb
+        .from('freight_quotes')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .then(({ data }) => setQuotes((data as FreightQuote[]) ?? [])));
 
-    supabase
-      .from('contact_leads')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => setLeads((data as ContactLead[]) ?? []));
+    void getSupabase().then((sb) =>
+      sb
+        .from('contact_leads')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .then(({ data }) => setLeads((data as ContactLead[]) ?? [])));
   }, []);
 
   const pendingQuotes = quotes?.filter((q) => q.status === 'pending').length ?? null;
