@@ -77,12 +77,63 @@ function rejectServerKey(value: string | undefined): string | undefined {
   return undefined;
 }
 
-const supabaseUrl = cleanEnv(import.meta.env.VITE_SUPABASE_URL as string | undefined, 'VITE_SUPABASE_URL');
+/**
+ * ¿Es esto una URL de verdad?
+ *
+ * `isSupabaseConfigured` sólo miraba que la variable no estuviera
+ * vacía. Con eso, un valor como `easycomex.supabase.co` —sin el
+ * https://— pasaba el filtro, y el error salía mucho después: al
+ * construir el cliente, supabase-js hace `new URL(...)` y lanza
+ * "Invalid URL". Esa excepción llegaba al registro como "algo falló y
+ * no fue tu conexión", que no le sirve a nadie. El valor estaba mal
+ * desde el primer segundo y la app se enteraba en el peor momento.
+ *
+ * Se acepta http:// sólo en local, donde vive el Supabase de desarrollo.
+ */
+export function validSupabaseUrl(value: string | undefined): boolean {
+  if (!value) return false;
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return false;
+  }
+  if (url.protocol === 'https:') return true;
+  return url.protocol === 'http:' && (url.hostname === 'localhost' || url.hostname === '127.0.0.1');
+}
+
+function requireUrl(value: string | undefined): string | undefined {
+  if (!value || validSupabaseUrl(value)) return value;
+  console.error(
+    `[supabase] VITE_SUPABASE_URL no es una URL válida: "${value}". ` +
+      'Tiene que ser la dirección completa del proyecto, con https:// adelante y sin barra final — ' +
+      'algo como https://abcdefghijklm.supabase.co. La encontrás en Supabase, en Settings -> API, ' +
+      'como "Project URL". No es la cadena de conexión de la base de datos ni el identificador del proyecto solo.'
+  );
+  return undefined;
+}
+
+const supabaseUrl = requireUrl(cleanEnv(import.meta.env.VITE_SUPABASE_URL as string | undefined, 'VITE_SUPABASE_URL'));
 const supabaseAnonKey = rejectServerKey(
   cleanEnv(import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined, 'VITE_SUPABASE_ANON_KEY')
 );
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+
+/**
+ * Qué falta exactamente, para poder decirlo en pantalla en vez de
+ * "faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY", que es verdad a
+ * medias cuando el problema es que una de las dos está MAL, no ausente.
+ */
+export function supabaseConfigProblem(): string | null {
+  const url = cleanEnv(import.meta.env.VITE_SUPABASE_URL as string | undefined, 'VITE_SUPABASE_URL');
+  const key = cleanEnv(import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined, 'VITE_SUPABASE_ANON_KEY');
+  if (!url) return 'Falta la dirección del proyecto de Supabase (VITE_SUPABASE_URL).';
+  if (!validSupabaseUrl(url)) return `La dirección de Supabase está mal escrita: "${url}". Tiene que empezar con https://`;
+  if (!key) return 'Falta la llave pública de Supabase (VITE_SUPABASE_ANON_KEY).';
+  if (isServerKey(key)) return 'La llave de Supabase configurada es la PRIVADA del servidor. Hay que poner la pública (Publishable / anon).';
+  return null;
+}
 
 /**
  * supabase-js pesa 56 KB comprimidos — la cuarta parte del paquete

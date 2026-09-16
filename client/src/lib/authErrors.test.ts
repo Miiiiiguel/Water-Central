@@ -25,6 +25,23 @@ describe('por qué falló el registro', () => {
     }
   });
 
+  it('reconoce la configuración mal puesta — el error literal de la librería', () => {
+    // Capturado ejecutando supabase-js de verdad con una URL mal
+    // escrita. Es lo que le pasó a un cliente: "easycomex.supabase.co"
+    // sin el https:// delante pasa como configuración válida, y la
+    // librería sólo se queja al construir el cliente, ya dentro del
+    // registro.
+    expect(classifyAuthError(new Error('Invalid supabaseUrl: Must be a valid HTTP or HTTPS URL.'))).toBe('mal_configurado');
+    expect(classifyAuthError(new Error('supabaseUrl is required.'))).toBe('mal_configurado');
+    expect(classifyAuthError(new Error('supabaseKey is required.'))).toBe('mal_configurado');
+  });
+
+  it('no le echa la culpa al cliente de una configuración nuestra', () => {
+    const msg = authErrorMessage('mal_configurado', true);
+    expect(msg).toMatch(/de nuestro lado|no es nada tuyo/i);
+    expect(msg).toMatch(/no se creó ninguna cuenta/i);
+  });
+
   it('lo que no reconoce no lo disfraza de problema de conexión', () => {
     expect(classifyAuthError(new Error('x.y is not a function'))).toBe('inesperado');
     expect(classifyAuthError('algo raro')).toBe('inesperado');
@@ -38,8 +55,15 @@ describe('por qué falló el registro', () => {
     expect(authErrorMessage('sin_respuesta', true)).toMatch(/problema es nuestro/i);
   });
 
-  it('los tres mensajes existen en los dos idiomas', () => {
-    for (const f of ['app_actualizada', 'sin_respuesta', 'inesperado'] as const) {
+  it('el caso que no se supo clasificar enseña el detalle, para no tener que pedir la consola', () => {
+    const conDetalle = authErrorMessage('inesperado', true, 'TypeError: x is not a function');
+    expect(conDetalle).toContain('TypeError: x is not a function');
+    // Y sin detalle no deja una frase colgando.
+    expect(authErrorMessage('inesperado', true)).not.toMatch(/:\s*$/);
+  });
+
+  it('los cuatro mensajes existen en los dos idiomas', () => {
+    for (const f of ['app_actualizada', 'sin_respuesta', 'mal_configurado', 'inesperado'] as const) {
       expect(authErrorMessage(f, true).length, f).toBeGreaterThan(40);
       expect(authErrorMessage(f, false).length, f).toBeGreaterThan(40);
     }

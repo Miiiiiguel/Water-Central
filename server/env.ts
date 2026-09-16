@@ -50,6 +50,29 @@ export function validateEnv() {
     warn('WOMPI_PUBLIC_KEY is a production key but WOMPI_ENV is not "production" — transactions will be checked against the sandbox and never confirm.');
   }
 
+  // Una URL de Supabase mal escrita no falla al arrancar: falla en el
+  // navegador de quien intenta registrarse, y con un error genérico.
+  // `easycomex.supabase.co` sin el https:// delante es el caso típico, y
+  // supabase-js sólo se queja al construir el cliente — ya dentro del
+  // registro, con la persona esperando.
+  const supabaseUrl = process.env.VITE_SUPABASE_URL;
+  if (supabaseUrl) {
+    let ok = false;
+    try {
+      const parsed = new URL(supabaseUrl);
+      ok = parsed.protocol === 'https:' || ((parsed.protocol === 'http:') && ['localhost', '127.0.0.1'].includes(parsed.hostname));
+    } catch {
+      ok = false;
+    }
+    if (!ok) {
+      warn(
+        `VITE_SUPABASE_URL no es una URL válida: "${supabaseUrl}". NADIE va a poder registrarse ni entrar. ` +
+          'Tiene que ser la dirección completa con https:// y sin barra final (https://<proyecto>.supabase.co), ' +
+          'la que aparece en Supabase -> Settings -> API como "Project URL".'
+      );
+    }
+  }
+
   // Lo más caro que puede pasar en producción: la web abierta, los
   // botones puestos, y ninguna pasarela detrás. Nadie puede pagar y en
   // los logs no aparece nada, porque no falla — simplemente no cobra.

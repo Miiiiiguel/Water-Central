@@ -1,10 +1,10 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
-import { getSupabase, hasSessionToRestore, isSupabaseConfigured, Profile } from '@/lib/supabase';
+import { getSupabase, hasSessionToRestore, isSupabaseConfigured, supabaseConfigProblem, Profile } from '@/lib/supabase';
 import { trackSignUp } from '@/lib/analytics';
 import { getStoredReferralCode, clearStoredReferralCode } from '@/lib/referral';
 import { getMfaStatus } from '@/lib/mfa';
-import { authErrorLog, authErrorMessage, classifyAuthError } from '@/lib/authErrors';
+import { authErrorLog, authErrorMessage, classifyAuthError, errorDetail } from '@/lib/authErrors';
 
 interface AuthContextType {
   session: Session | null;
@@ -156,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp: AuthContextType['signUp'] = async (email, password, fullName, company) => {
-    if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía (faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' };
+    if (!isSupabaseConfigured) return { error: supabaseConfigProblem() ?? 'La conexión con el sistema de cuentas no está configurada.' };
     try {
       const supabase = await getSupabase();
       const { data, error } = await supabase.auth.signUp({
@@ -209,24 +209,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       const failure = classifyAuthError(err);
       console.error(...authErrorLog('signUp', failure, err));
-      return { error: authErrorMessage(failure, enEspanol()) };
+      return { error: authErrorMessage(failure, enEspanol(), errorDetail(err)) };
     }
   };
 
   const signIn: AuthContextType['signIn'] = async (email, password) => {
-    if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía (faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' };
+    if (!isSupabaseConfigured) return { error: supabaseConfigProblem() ?? 'La conexión con el sistema de cuentas no está configurada.' };
     try {
       const { error } = await (await getSupabase()).auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
       return { error: error ? error.message : null };
     } catch (err) {
       const failure = classifyAuthError(err);
       console.error(...authErrorLog('signIn', failure, err));
-      return { error: authErrorMessage(failure, enEspanol()) };
+      return { error: authErrorMessage(failure, enEspanol(), errorDetail(err)) };
     }
   };
 
   const signInWithGoogle: AuthContextType['signInWithGoogle'] = async () => {
-    if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía (faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).' };
+    if (!isSupabaseConfigured) return { error: supabaseConfigProblem() ?? 'La conexión con el sistema de cuentas no está configurada.' };
     // Sin este try, una excepción acá dejaba el botón de Google girando
     // para siempre y sin una palabra de por qué.
     try {
@@ -241,12 +241,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       const failure = classifyAuthError(err);
       console.error(...authErrorLog('signInWithGoogle', failure, err));
-      return { error: authErrorMessage(failure, enEspanol()) };
+      return { error: authErrorMessage(failure, enEspanol(), errorDetail(err)) };
     }
   };
 
   const resetPassword: AuthContextType['resetPassword'] = async (email) => {
-    if (!isSupabaseConfigured) return { error: 'Supabase no está configurado todavía.' };
+    if (!isSupabaseConfigured) return { error: supabaseConfigProblem() ?? 'La conexión con el sistema de cuentas no está configurada.' };
     const { error } = await (await getSupabase()).auth.resetPasswordForEmail(email.trim().toLowerCase(), {
       redirectTo: `${window.location.origin}/restablecer`,
     });
