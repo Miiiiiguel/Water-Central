@@ -3,7 +3,7 @@ import { scrollToAnchor } from '@/lib/scrollToAnchor';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, Send, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle, Search, Sparkles, Settings2, Play } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { matchKnowledge, MARCO_POLO, type SectionAction } from '@/lib/chatbotKnowledge';
+import { matchKnowledge, followUpsFor, MARCO_POLO, type SectionAction } from '@/lib/chatbotKnowledge';
 import { startCheckout, checkoutMessage } from '@/lib/checkout';
 import { whatsappUrl } from '@/lib/contact';
 import { hapticTap, isNative, openExternal } from '@/lib/native';
@@ -38,8 +38,8 @@ function menuQuickReplies(language: string) {
   return [
     { label: language === 'es' ? '¿Cómo empiezo?' : 'How do I start?', value: language === 'es' ? 'como empiezo' : 'how do i start' },
     { label: language === 'es' ? '¿Cuánto cuesta?' : 'How much is it?', value: language === 'es' ? 'cuanto cuesta' : 'how much does it cost' },
-    { label: language === 'es' ? 'Tendencias en TikTok Shop' : 'TikTok Shop trends', value: '__research:kalodata__' },
-    { label: language === 'es' ? 'Datos de comercio exterior' : 'Foreign trade data', value: '__research:sicex__' },
+    { label: language === 'es' ? 'Tendencias en TikTok Shop' : 'TikTok Shop trends', value: '__research:tiktok__' },
+    { label: language === 'es' ? 'Datos de comercio exterior' : 'Foreign trade data', value: '__research:aduanas__' },
     { label: language === 'es' ? 'Calcular un flete' : 'Freight quote', value: language === 'es' ? 'flete' : 'freight' },
     { label: language === 'es' ? 'Hablar con una persona' : 'Talk to a person', value: '__human__' },
   ];
@@ -196,6 +196,14 @@ export default function ChatbotWidget() {
 
   const respond = async (query: string) => {
     setTyping(true);
+
+    // La pregunta pasa por la base de conocimiento aunque conteste la IA.
+    // De ahí salen dos cosas que la IA no trae: a qué sección llevar a la
+    // persona, y qué ofrecerle después.
+    const match = matchKnowledge(query);
+    const follow = match ? followUpsFor(match.id, language) : [];
+    const withFollow = follow.length ? { quickReplies: follow } : {};
+
     try {
       const history = [...messages, { role: 'user' as const, content: query, at: Date.now() }]
         .slice(-12)
@@ -208,7 +216,16 @@ export default function ChatbotWidget() {
       if (res.ok) {
         const data = await res.json();
         if (data.reply) {
-          pushBot(data.reply);
+          pushBot(data.reply, withFollow);
+          // Con la IA encendida, Marco Polo seguía contestando pero
+          // dejaba de HACER: decía "te llevo a la calculadora" y no
+          // llevaba a nadie, porque sólo el guion de reglas movía la
+          // página. Ahora también mueve con IA.
+          //
+          // Desplazar sí; cambiar de página, no. Sacar a alguien de
+          // donde está por una frase que no escribió es pasarse de
+          // listo, y la ruta (`match.route`) hace justo eso.
+          if (match?.action) window.setTimeout(() => scrollToSection(match.action!), 600);
           return;
         }
       }
@@ -225,9 +242,8 @@ export default function ChatbotWidget() {
       console.warn('[chat] no se pudo llamar a /api/chat; Marco Polo responde con su guion de reglas:', err);
     }
 
-    const match = matchKnowledge(query);
     if (match) {
-      pushBot(match.answer[language]);
+      pushBot(match.answer[language], withFollow);
       if (match.route) window.setTimeout(() => { window.location.href = match.route!; }, 900);
       else if (match.action) window.setTimeout(() => scrollToSection(match.action!), 600);
     } else {
@@ -322,13 +338,18 @@ export default function ChatbotWidget() {
     doResearch(req.source, req.query);
   };
 
+  const MAX_CHARS = 1000;
+
   const sendMessage = (text: string) => {
-    const trimmed = text.trim().slice(0, 500);
+    const full = text.trim();
+    // Cortar a mitad de palabra y mandarlo igual es peor que decirlo: la
+    // respuesta sale de una pregunta que la persona no hizo.
+    const trimmed = full.slice(0, MAX_CHARS);
     if (!trimmed || typing) return;
     hapticTap();
 
     // Start a research flow: ask for the term, then the next message runs it.
-    const research = /^__research:(kalodata|sicex)__$/.exec(trimmed);
+    const research = /^__research:(tiktok|aduanas)__$/.exec(trimmed);
     if (research) {
       const source = research[1] as ResearchSource;
       setResearchMode(source);
@@ -359,6 +380,14 @@ export default function ChatbotWidget() {
 
     setMessages((prev) => [...prev, { role: 'user', content: trimmed, at: Date.now() }]);
     setInput('');
+
+    if (full.length > MAX_CHARS) {
+      pushBot(
+        language === 'es'
+          ? `Tu mensaje es muy largo, así que leí los primeros ${MAX_CHARS} caracteres. Si quedó algo afuera, mandámelo en otro mensaje.`
+          : `Your message is long, so I read the first ${MAX_CHARS} characters. If something got cut, send it in another message.`
+      );
+    }
 
     if (researchMode) {
       doResearch(researchMode, trimmed);
@@ -666,7 +695,7 @@ export default function ChatbotWidget() {
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                maxLength={500}
+                maxLength={MAX_CHARS}
                 placeholder={
                   listening
                     ? (language === 'es' ? 'Te escucho…' : 'Listening…')

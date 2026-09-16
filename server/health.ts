@@ -29,7 +29,9 @@ healthRouter.get('/health', async (req, res) => {
     // viajarían dentro del JavaScript que descarga cualquiera con
     // sesión, y bastaría abrir las herramientas del navegador para
     // saber a quién contratar directo.
-    sources: { kalodata: 'Kalodata', sicex: 'Sicex' },
+    // Las claves son las públicas (server/research.ts); el nombre real
+    // del proveedor sólo viaja en este valor, y sólo hacia un vendedor.
+    sources: { tiktok: 'Kalodata', aduanas: 'Sicex' },
     integrations: {
       supabase: set('VITE_SUPABASE_URL') && set('VITE_SUPABASE_ANON_KEY'),
       supabaseServer: set('SUPABASE_SERVICE_ROLE_KEY'),
@@ -46,8 +48,8 @@ healthRouter.get('/health', async (req, res) => {
       // Kalodata solo necesita la llave: su endpoint ya lo conoce el
       // código. Pedir también KALODATA_API_URL acá hacía que el panel
       // dijera "sin conectar" con la integración funcionando.
-      kalodata: kalodataConfigured(),
-      sicex: set('SICEX_API_KEY') && set('SICEX_API_URL'),
+      tiktok: kalodataConfigured(),
+      aduanas: set('SICEX_API_KEY') && set('SICEX_API_URL'),
       // El diagnóstico de madurez cobra con Wompi: sin estas cuatro, el
       // cuestionario funciona gratis pero nadie puede comprar el plan.
       wompi:

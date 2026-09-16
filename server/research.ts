@@ -4,7 +4,7 @@ import { apiRateLimiter, makeLimiter, JSON_BODY_LIMIT } from './security';
 import { requireUser } from './auth';
 import { getSupabaseAdmin } from './supabaseAdmin';
 import { logSecurityEvent } from './log';
-import { runKalodata, runSicex, isConfigured, missingConfig, type ResearchResult } from './connectors';
+import { runKalodata, runSicex, isConfigured, type ResearchResult } from './connectors';
 import { CATALOG } from './catalog';
 
 // Marco Polo's research desk.
@@ -21,8 +21,39 @@ import { CATALOG } from './catalog';
 //      refused and NO quota is consumed — we never invent numbers to
 //      look like the integration works.
 
+/** Los proveedores reales. Este nombre no sale del servidor. */
 export const RESEARCH_SOURCES = ['kalodata', 'sicex'] as const;
 export type ResearchSource = (typeof RESEARCH_SOURCES)[number];
+
+/**
+ * Cómo se llaman esas fuentes en la API pública.
+ *
+ * El navegador pide `{"source":"tiktok"}`, no `{"source":"kalodata"}`.
+ * No es cosmética: quien abra la pestaña de red del navegador y lea el
+ * nombre del proveedor tiene a un clic el contratarlo directo, y ahí se
+ * acabó la razón por la que nos paga. El nombre del proveedor no cruza
+ * la frontera del servidor — ni en la petición, ni en la respuesta, ni
+ * en un mensaje de error.
+ */
+export const PUBLIC_SOURCES = ['tiktok', 'aduanas'] as const;
+export type PublicSource = (typeof PUBLIC_SOURCES)[number];
+
+const PROVIDER_OF: Record<PublicSource, ResearchSource> = {
+  tiktok: 'kalodata',
+  aduanas: 'sicex',
+};
+
+/**
+ * Normaliza lo que llegue. Acepta también los ids viejos: una pestaña
+ * abierta desde antes del cambio sigue funcionando en vez de romperse
+ * con un 400 que nadie sabría explicar.
+ */
+export function toPublicSource(value: string): PublicSource | null {
+  if (value === 'tiktok' || value === 'aduanas') return value;
+  if (value === 'kalodata') return 'tiktok';
+  if (value === 'sicex') return 'aduanas';
+  return null;
+}
 
 // Free lookups per day, by the plan the user has actually paid for.
 // 'free' is any registered user without a paid plan.
@@ -41,7 +72,7 @@ export const CREDIT_PACK = {
 };
 
 const bodySchema = z.object({
-  source: z.enum(RESEARCH_SOURCES),
+  source: z.enum(['tiktok', 'aduanas', 'kalodata', 'sicex']),
   query: z.string().trim().min(2).max(160),
   country: z.string().trim().max(60).optional(),
 });
@@ -88,7 +119,7 @@ type QuotaView = {
   freeRemaining: number;
   credits: number;
   canQuery: boolean;
-  sources: Record<ResearchSource, boolean>;
+  sources: Record<PublicSource, boolean>;
 };
 
 async function getQuota(userId: string): Promise<QuotaView> {
@@ -122,8 +153,8 @@ async function getQuota(userId: string): Promise<QuotaView> {
     credits,
     canQuery: freeRemaining > 0 || credits > 0,
     sources: {
-      kalodata: isConfigured('kalodata'),
-      sicex: isConfigured('sicex'),
+      tiktok: isConfigured('kalodata'),
+      aduanas: isConfigured('sicex'),
     },
   };
 }
@@ -141,20 +172,21 @@ researchRouter.post('/research', researchRateLimiter, requireUser(), express.jso
     logSecurityEvent('invalid_input', req, { form: 'research' });
     return res.status(400).json({ error: 'invalid_query' });
   }
-  const { source, query, country } = parsed.data;
+  const { query, country } = parsed.data;
+  const source = toPublicSource(parsed.data.source)!;
+  const provider = PROVIDER_OF[source];
 
   // Refuse before charging anything if the provider is not connected.
-  if (!isConfigured(source)) {
+  if (!isConfigured(provider)) {
     return res.status(503).json({
       error: 'source_not_connected',
       source,
-      missing: missingConfig(source),
       // Al cliente no se le nombra al proveedor ni la variable que falta:
       // lo primero le regala la fuente, lo segundo es configuración
       // interna. Lo que sí necesita el equipo está en el panel de
       // Integraciones del dashboard, que sólo ve un vendedor.
       message:
-        source === 'kalodata'
+        source === 'tiktok'
           ? 'La inteligencia de TikTok Shop todavía no está disponible. Escríbenos y la activamos para tu cuenta.'
           : 'Los datos de comercio exterior todavía no están disponibles. Escríbenos y los activamos para tu cuenta.',
     });
@@ -171,7 +203,7 @@ researchRouter.post('/research', researchRateLimiter, requireUser(), express.jso
   const { data: spend, error: spendError } = await admin.rpc('spend_research_quota', {
     p_user_id: auth.user.id,
     p_daily_limit: dailyLimit,
-    p_source: source,
+    p_source: provider,
     p_query: query.slice(0, 160),
   });
 
@@ -193,11 +225,12 @@ researchRouter.post('/research', researchRateLimiter, requireUser(), express.jso
 
   let result: ResearchResult;
   try {
-    result = source === 'kalodata' ? await runKalodata(query, country) : await runSicex(query, country);
+    result = provider === 'kalodata' ? await runKalodata(query, country) : await runSicex(query, country);
   } catch (err) {
     // The lookup failed through no fault of the user: give the query back.
     await admin.rpc('refund_research_quota', { p_user_id: auth.user.id, p_billed: billed });
-    console.error(`${source} lookup failed:`, (err as Error).message);
+    // En el log del servidor sí va el nombre real: es quien falló.
+    console.error(`${provider} lookup failed:`, (err as Error).message);
     return res.status(502).json({ error: 'source_failed', source, message: 'La fuente no respondió. No te descontamos la consulta.' });
   }
 

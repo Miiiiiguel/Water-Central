@@ -1,7 +1,7 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Lock, Loader2, Flame, Check } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { startCheckout, checkoutMessage, type CheckoutPlan } from '@/lib/checkout';
+import { startCheckout, checkoutMessage, fetchCatalog, type CheckoutPlan } from '@/lib/checkout';
 import { useAuth } from '@/contexts/AuthContext';
 import { isNative, openExternal } from '@/lib/native';
 import { fmtMoney2 } from '@/lib/roiFormat';
@@ -36,6 +36,24 @@ export default function RoiPaywall({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const es = language === 'es';
+
+  // El precio que de verdad se va a cobrar, dicho por el servidor.
+  //
+  // Los números de acá abajo eran la última copia suelta de un precio en
+  // el navegador. Una página que anuncia una cifra y cobra otra es un
+  // contracargo esperando a pasar, así que manda el catálogo; si el
+  // servidor no contesta, se queda lo de siempre.
+  const [live, setLive] = useState<{ cop: string; usd: string | null } | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetchCatalog()
+      .then((items) => {
+        const match = items.find((i) => i.plan === plan);
+        if (!cancelled && match?.displayCop) setLive({ cop: match.displayCop, usd: match.displayUsd });
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [plan]);
 
   const buy = async () => {
     setBusy(true);
@@ -86,16 +104,36 @@ export default function RoiPaywall({
           {es ? 'Oferta de lanzamiento' : 'Launch offer'}
         </span>
 
-        <div className="mt-3 flex flex-wrap items-baseline justify-center gap-2.5">
-          <span className="text-lg font-bold text-muted-foreground line-through decoration-accent">{fmtMoney2(oldPriceCents / 100)}</span>
-          <span className="font-heading text-3xl font-black text-accent">
-            {fmtMoney2(priceCents / 100)}
-            <span className="ml-1 text-sm font-semibold text-muted-foreground">{es ? '/ reporte' : '/ report'}</span>
-          </span>
-        </div>
-        <span className="mt-2 rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700">
-          {es ? `Ahorras $${saving.toFixed(0)} — precio por tiempo limitado` : `Save $${saving.toFixed(0)} — limited-time price`}
-        </span>
+        {live ? (
+          // Con precio del servidor se muestra lo que se cobra, en la
+          // moneda en que se cobra, y el dólar como referencia. No se
+          // tacha un precio anterior: está en otra moneda, y un "antes"
+          // que no se puede comparar es un descuento inventado.
+          <div className="mt-3 flex flex-col items-center gap-1">
+            <span className="font-heading text-3xl font-black text-accent">
+              {live.cop}
+              <span className="ml-1 text-sm font-semibold text-muted-foreground">{es ? '/ reporte' : '/ report'}</span>
+            </span>
+            {live.usd && (
+              <span className="text-xs font-semibold text-muted-foreground">
+                {es ? `Aproximadamente ${live.usd} · tu banco convierte` : `About ${live.usd} · your bank converts`}
+              </span>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="mt-3 flex flex-wrap items-baseline justify-center gap-2.5">
+              <span className="text-lg font-bold text-muted-foreground line-through decoration-accent">{fmtMoney2(oldPriceCents / 100)}</span>
+              <span className="font-heading text-3xl font-black text-accent">
+                {fmtMoney2(priceCents / 100)}
+                <span className="ml-1 text-sm font-semibold text-muted-foreground">{es ? '/ reporte' : '/ report'}</span>
+              </span>
+            </div>
+            <span className="mt-2 rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700">
+              {es ? `Ahorras $${saving.toFixed(0)} — precio por tiempo limitado` : `Save $${saving.toFixed(0)} — limited-time price`}
+            </span>
+          </>
+        )}
 
         <button
           onClick={buy}

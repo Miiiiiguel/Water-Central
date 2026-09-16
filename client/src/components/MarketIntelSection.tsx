@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Landmark, LineChart, ArrowRight, Sparkles, Search } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSpotlight } from '@/lib/useSpotlight';
-import { requestResearch, type ResearchRequest } from '@/lib/research';
+import { requestResearch, type ResearchRequest, type ResearchSource } from '@/lib/research';
 
 // "Inteligencia de mercado": the section that sells what Marco Polo can
 // actually look up, and lets a visitor try it with one click.
@@ -13,7 +13,7 @@ import { requestResearch, type ResearchRequest } from '@/lib/research';
 // the live source, and if a source is not connected Marco Polo says so.
 
 interface Example {
-  source: 'sicex' | 'kalodata';
+  source: ResearchSource;
   question: { es: string; en: string };
   /** The term actually sent to the provider (a question is not a query). */
   query: string;
@@ -21,7 +21,7 @@ interface Example {
 
 const examples: Example[] = [
   {
-    source: 'sicex',
+    source: 'aduanas',
     question: {
       es: '¿Qué empresas colombianas importan zapatos?',
       en: 'Which Colombian companies import shoes?',
@@ -29,7 +29,7 @@ const examples: Example[] = [
     query: 'zapatos',
   },
   {
-    source: 'kalodata',
+    source: 'tiktok',
     question: {
       es: 'Los jeans más vendidos en TikTok Shop Estados Unidos',
       en: 'Best-selling jeans on TikTok Shop United States',
@@ -37,7 +37,7 @@ const examples: Example[] = [
     query: 'jeans',
   },
   {
-    source: 'sicex',
+    source: 'aduanas',
     question: {
       es: '¿Cuánto café se exporta a Estados Unidos y quién lo compra?',
       en: 'How much coffee is exported to the US, and who buys it?',
@@ -45,7 +45,7 @@ const examples: Example[] = [
     query: 'cafe',
   },
   {
-    source: 'kalodata',
+    source: 'tiktok',
     question: {
       es: '¿Qué marcas de cosmética natural están creciendo?',
       en: 'Which natural cosmetics brands are growing?',
@@ -56,7 +56,7 @@ const examples: Example[] = [
 
 const sources = [
   {
-    id: 'sicex' as const,
+    id: 'aduanas' as const,
     icon: Landmark,
     name: { es: 'Aduanas oficiales', en: 'Official customs' },
     body: {
@@ -65,7 +65,7 @@ const sources = [
     },
   },
   {
-    id: 'kalodata' as const,
+    id: 'tiktok' as const,
     icon: LineChart,
     name: { es: 'Inteligencia de marketplaces', en: 'Marketplace intelligence' },
     body: {
@@ -175,14 +175,14 @@ export default function MarketIntelSection() {
                 className="tap-scale group text-left rounded-2xl border border-gray-200 hover:border-accent bg-white p-4 cursor-pointer transition-colors flex items-start gap-3"
               >
                 <span className="mt-0.5 flex-shrink-0 w-8 h-8 rounded-xl bg-secondary text-accent flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-colors">
-                  {example.source === 'sicex' ? <Landmark size={15} /> : <LineChart size={15} />}
+                  {example.source === 'aduanas' ? <Landmark size={15} /> : <LineChart size={15} />}
                 </span>
                 <span className="min-w-0">
                   <span className="block text-sm font-semibold text-foreground leading-snug">
                     {es ? example.question.es : example.question.en}
                   </span>
                   <span className="block text-[11px] font-bold uppercase tracking-wide text-muted-foreground mt-1">
-                    {example.source === 'sicex'
+                    {example.source === 'aduanas'
                       ? (es ? 'Aduanas' : 'Customs')
                       : (es ? 'Marketplaces' : 'Marketplaces')}
                   </span>

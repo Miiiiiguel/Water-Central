@@ -5,7 +5,15 @@
 // truth — "not connected yet", "out of lookups", "the source failed" —
 // instead of showing invented numbers.
 
-export type ResearchSource = 'kalodata' | 'sicex';
+/**
+ * Las fuentes, con el nombre que se usa de cara al cliente.
+ *
+ * Nunca el del proveedor. Antes el navegador pedía la fuente por su
+ * nombre comercial, y ese nombre se leía abriendo la pestaña de red:
+ * quien lo leyera tenía a un clic el contratarlo directo. El servidor
+ * traduce estos ids a sus proveedores y no los devuelve nunca.
+ */
+export type ResearchSource = 'tiktok' | 'aduanas';
 
 /**
  * Any part of the site can ask Marco Polo to run a lookup by dispatching
@@ -74,27 +82,22 @@ export type ResearchOutcome =
   | { kind: 'failed'; message: string };
 
 /**
- * Cómo se llaman las fuentes DE CARA AL CLIENTE.
- *
- * Nunca el nombre del proveedor. Si alguien lee "Kalodata" en la
- * pantalla, lo siguiente que hace es buscarlo y contratarlo directo — y
- * ahí se perdió la razón por la que paga esto. Se nombra el dato, no de
- * dónde sale.
+ * El nombre que se pinta en pantalla: el dato, no de dónde sale.
  *
  * El equipo sí ve los nombres reales, en el panel de Integraciones del
  * dashboard, que sólo carga para un vendedor.
  */
 export const SOURCE_LABEL: Record<ResearchSource, string> = {
-  kalodata: 'TikTok Shop',
-  sicex: 'Comercio exterior',
+  tiktok: 'TikTok Shop',
+  aduanas: 'Comercio exterior',
 };
 
 export const SOURCE_BLURB: Record<ResearchSource, { es: string; en: string }> = {
-  kalodata: {
+  tiktok: {
     es: 'productos, ventas y competencia en TikTok Shop',
     en: 'products, sales and competition on TikTok Shop',
   },
-  sicex: {
+  aduanas: {
     es: 'importaciones y exportaciones reales por país y producto',
     en: 'real import and export records by country and product',
   },

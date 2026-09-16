@@ -380,7 +380,7 @@ function ResearchQuotaCard() {
     }
   };
 
-  const connected = quota.sources.kalodata || quota.sources.sicex;
+  const connected = quota.sources.tiktok || quota.sources.aduanas;
   const pct = quota.dailyLimit > 0 ? Math.round((quota.freeRemaining / quota.dailyLimit) * 100) : 0;
 
   return (
@@ -648,8 +648,13 @@ function ExportButton({ label, onClick, disabled }: { label: string; onClick: ()
 
 // Live status of every integration, read from GET /api/health (booleans
 // only — the server never sends key values). This is the "what's left
-// to connect" checklist for the team; Kalodata/Sicex live here too, and
-// stay honest: no data is shown until real API access exists.
+// to connect" checklist for the team; the market-data sources live here
+// too, and stay honest: no data is shown until real API access exists.
+//
+// El nombre comercial de esas fuentes no se escribe en este archivo, ni
+// en un comentario: el repositorio se lee, y este archivo baja al
+// navegador de todo el que entre a su cuenta. Lo manda el servidor, y
+// sólo a un vendedor (ver `sources` más abajo).
 type HealthIntegrations = Record<string, boolean>;
 
 function IntegrationsPanel() {
@@ -678,14 +683,14 @@ function IntegrationsPanel() {
     // escribirlo acá lo metería en el paquete del navegador. Hasta que
     // llegue se muestra el nombre del dato, que es lo que ve el cliente
     // en todas partes.
-    { key: 'kalodata', name: sources?.kalodata ?? 'Inteligencia TikTok Shop', group: 'intel', description: { es: 'Productos en tendencia, ventas y competidores en TikTok Shop.', en: 'Trending products, sales and competitors on TikTok Shop.' } },
-    { key: 'sicex', name: sources?.sicex ?? 'Comercio exterior', group: 'intel', description: { es: 'Datos reales de importación/exportación por país y producto.', en: 'Real import/export data by country and product.' } },
+    { key: 'tiktok', name: sources?.tiktok ?? 'Inteligencia TikTok Shop', group: 'intel', description: { es: 'Productos en tendencia, ventas y competidores en TikTok Shop.', en: 'Trending products, sales and competitors on TikTok Shop.' } },
+    { key: 'aduanas', name: sources?.aduanas ?? 'Comercio exterior', group: 'intel', description: { es: 'Datos reales de importación/exportación por país y producto.', en: 'Real import/export data by country and product.' } },
     { key: 'supabase', name: 'Supabase', group: 'core', description: { es: 'Login, registro, base de datos, notificaciones.', en: 'Login, sign-up, database, notifications.' } },
-    { key: 'stripe', name: 'Stripe', group: 'core', description: { es: 'Cobros con tarjeta.', en: 'Card payments.' } },
+    { key: 'stripe', name: 'Stripe', group: 'core', description: { es: 'Opcional: cobros en dólares. Sin esto, todo se cobra por Wompi.', en: 'Optional: charges in US dollars. Without it, everything goes through Wompi.' } },
     { key: 'stripeWebhook', name: 'Stripe webhook', group: 'core', description: { es: 'Registra cada pago en el dashboard.', en: 'Records each payment in the dashboard.' } },
     { key: 'email', name: 'Correo (Resend)', group: 'core', description: { es: 'Recibo al comprador y aviso de cada lead. Sin esto, nada sale por correo.', en: 'Buyer receipt and lead alerts. Without it, no email goes out.' } },
     { key: 'emailTeamInbox', name: 'Bandeja del equipo', group: 'core', description: { es: 'A qué correo llegan los leads (TEAM_EMAIL).', en: 'Where lead alerts land (TEAM_EMAIL).' } },
-    { key: 'wompi', name: 'Wompi', group: 'core', description: { es: 'Cobro del plan de acción del diagnóstico (Colombia).', en: 'Charges the diagnostic action plan (Colombia).' } },
+    { key: 'wompi', name: 'Wompi', group: 'core', description: { es: 'Cobra todo en pesos: planes, reportes y consultas. Sin esto no se puede pagar nada.', en: 'Charges everything in pesos: plans, reports and lookups. Without it nothing can be paid.' } },
     { key: 'publicAppUrl', name: 'PUBLIC_APP_URL', group: 'core', description: { es: 'A dónde vuelve el cliente tras pagar y qué orígenes pueden llamar a /api.', en: 'Where the customer returns after paying, and which origins may call /api.' } },
     { key: 'push', name: 'Push', group: 'core', description: { es: 'Notificaciones con la app cerrada.', en: 'Notifications with the app closed.' } },
     { key: 'chatAI', name: 'Marco Polo · IA', group: 'core', description: { es: 'Respuestas abiertas con Anthropic (sin esto usa reglas).', en: 'Open answers via Anthropic (rule-based without it).' } },

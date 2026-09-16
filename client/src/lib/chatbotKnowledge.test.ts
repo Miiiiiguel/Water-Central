@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { knowledgeBase, matchKnowledge } from './chatbotKnowledge';
+import { followUpsFor, knowledgeBase, matchKnowledge } from './chatbotKnowledge';
 
 // Las preguntas de abajo no son inventadas: salieron de una conversación
 // real con un cliente, copiada tal cual — con las erratas incluidas. Es la
@@ -19,16 +19,19 @@ describe('la conversación que salió mal', () => {
     expect(idFor('cuales son los 3 jeans mas vendidos')).toBe('inteligencia');
   });
 
-  it('sigue reconociendo el nombre de la fuente si el cliente lo escribe', () => {
-    expect(idFor('kalodata')).toBe('inteligencia');
+  it('el nombre del proveedor no existe en nada que baje al navegador', () => {
+    // Antes estaba como palabra clave, para poder contestarle a quien lo
+    // escribiera. Pero una palabra clave viaja dentro del JavaScript que
+    // recibe cada visitante: cualquiera que busque dentro del paquete
+    // encontraba el nombre, y con él a quién contratar en vez de a
+    // nosotros. Se prefiere perder esa coincidencia a regalar la fuente.
+    const todo = JSON.stringify(knowledgeBase).toLowerCase();
+    expect(todo).not.toContain('kalodata');
+    expect(todo).not.toContain('sicex');
   });
 
-  it('nunca nombra a los proveedores de datos en la respuesta', () => {
-    const intel = knowledgeBase.find((e) => e.id === 'inteligencia')!;
-    for (const texto of [intel.answer.es, intel.answer.en]) {
-      expect(texto.toLowerCase()).not.toContain('kalodata');
-      expect(texto.toLowerCase()).not.toContain('sicex');
-    }
+  it('aun así entiende la pregunta de fondo', () => {
+    expect(idFor('donde sacan esos datos de tiktok shop')).toBe('inteligencia');
   });
 });
 
@@ -89,5 +92,44 @@ describe('la base en sí', () => {
       expect(entry.answer.es.length, entry.id).toBeGreaterThan(20);
       expect(entry.answer.en.length, entry.id).toBeGreaterThan(20);
     }
+  });
+});
+
+describe('la conversación no se muere', () => {
+  // Un chat que contesta y se calla obliga a inventar la siguiente
+  // pregunta. Casi nadie la inventa: se va.
+  it('cada respuesta deja al menos dos caminos abiertos', () => {
+    for (const entry of knowledgeBase) {
+      for (const lang of ['es', 'en'] as const) {
+        const chips = followUpsFor(entry.id, lang);
+        expect(chips.length, `${entry.id} (${lang})`).toBeGreaterThanOrEqual(2);
+        for (const chip of chips) {
+          expect(chip.label.length, entry.id).toBeGreaterThan(2);
+          expect(chip.value.length, entry.id).toBeGreaterThan(2);
+        }
+      }
+    }
+  });
+
+  it('cada sugerencia lleva a algún lado: o es un comando, o el bot la entiende', () => {
+    for (const entry of knowledgeBase) {
+      for (const chip of followUpsFor(entry.id, 'es')) {
+        if (chip.value.startsWith('__')) continue; // __human__, __register__
+        expect(matchKnowledge(chip.value), `${entry.id} -> "${chip.value}"`).not.toBeNull();
+      }
+    }
+  });
+
+  it('no se sugiere a sí misma', () => {
+    for (const entry of knowledgeBase) {
+      for (const chip of followUpsFor(entry.id, 'es')) {
+        if (chip.value.startsWith('__')) continue;
+        expect(matchKnowledge(chip.value)?.id, entry.id).not.toBe(entry.id);
+      }
+    }
+  });
+
+  it('una pregunta desconocida no devuelve sugerencias inventadas', () => {
+    expect(followUpsFor('no-existe', 'es')).toEqual([]);
   });
 });

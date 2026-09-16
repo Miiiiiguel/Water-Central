@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Check, Sparkles, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { trackInitiateCheckout } from '@/lib/analytics';
-import { startCheckout as openCheckout, checkoutMessage, type CheckoutPlan } from '@/lib/checkout';
+import { startCheckout as openCheckout, checkoutMessage, fetchCatalog, type CheckoutPlan } from '@/lib/checkout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSpotlight } from '@/lib/useSpotlight';
 import { isNative, openExternal } from '@/lib/native';
@@ -66,6 +66,28 @@ export default function PlansSection() {
   const [isVisible, setIsVisible] = useState(false);
   const [checkingOut, setCheckingOut] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  // El precio que se va a cobrar, dicho por el servidor. El texto escrito
+  // en la tarjeta es el respaldo: si el catálogo contesta, manda él, y la
+  // página no puede anunciar una cifra distinta de la que cobra.
+  const [prices, setPrices] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchCatalog()
+      .then((items) => {
+        if (cancelled) return;
+        const next: Record<string, string> = {};
+        for (const item of items) {
+          if (item.displayCop) next[item.plan] = item.displayUsd ? `${item.displayCop} · ${item.displayUsd}` : item.displayCop;
+        }
+        setPrices(next);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  const priceOf = (plan: Plan) =>
+    (plan.checkoutPlan && prices[plan.checkoutPlan]) || (language === 'es' ? plan.price.es : plan.price.en);
   // The order summary shown before Stripe opens (see CheckoutSheet).
   const [sheetItem, setSheetItem] = useState<CheckoutItem | null>(null);
 
@@ -118,7 +140,7 @@ export default function PlansSection() {
       plan: plan.checkoutPlan,
       title: language === 'es' ? plan.title.es : plan.title.en,
       features: language === 'es' ? plan.features.es : plan.features.en,
-      priceLabel: language === 'es' ? plan.price.es : plan.price.en,
+      priceLabel: priceOf(plan),
     });
   };
 
@@ -190,7 +212,7 @@ export default function PlansSection() {
                 {language === 'es' ? plan.title.es : plan.title.en}
               </h3>
               <p className={`text-2xl font-bold mb-6 ${plan.highlighted ? 'text-orange-200' : 'text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-orange-600'}`}>
-                {language === 'es' ? plan.price.es : plan.price.en}
+                {priceOf(plan)}
               </p>
               <ul className="space-y-3 mb-8 flex-1">
                 {(language === 'es' ? plan.features.es : plan.features.en).map((feature, i) => (

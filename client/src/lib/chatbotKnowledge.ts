@@ -113,7 +113,7 @@ export const knowledgeBase: KnowledgeEntry[] = [
     keywords: [
       'inteligencia de mercado', 'inteligencia', 'datos', 'aduana', 'aduanas', 'importadores', 'importa', 'exporta',
       'competencia', 'quien importa', 'quien compra', 'mas vendidos', 'más vendidos', 'tendencia', 'tendencias',
-      'kalodata', 'sicex', 'market intelligence', 'customs', 'who imports', 'best selling', 'competitors', 'trends',
+      'market intelligence', 'customs', 'who imports', 'best selling', 'competitors', 'trends',
       // Cómo se pregunta esto de verdad, no cómo lo llamamos nosotros:
       // nadie escribe "inteligencia de mercado", escribe "qué se vende
       // más en tik tok". Estas frases llevan esa pregunta acá.
@@ -292,4 +292,83 @@ export function matchKnowledge(query: string): KnowledgeEntry | null {
   }
 
   return best?.entry ?? null;
+}
+
+// ---------------------------------------------------------------------
+// Qué ofrecer después de cada respuesta.
+//
+// Un chat que contesta y se calla obliga a la persona a inventar la
+// siguiente pregunta, y casi nadie la inventa: se va. Cada respuesta
+// deja dos caminos abiertos, elegidos a mano según lo que de verdad
+// viene después — quien pregunta por fletes está pensando en números, no
+// en el programa de referidos.
+// ---------------------------------------------------------------------
+
+export interface QuickReply {
+  label: string;
+  /** Lo que se "escribe" al tocarlo. Un `__comando__` o una pregunta. */
+  value: string;
+}
+
+const CHIPS: Record<string, { es: QuickReply; en: QuickReply }> = {
+  empezar: {
+    es: { label: '¿Cómo empiezo?', value: 'como empiezo' },
+    en: { label: 'How do I start?', value: 'how do i start' },
+  },
+  precio: {
+    es: { label: '¿Cuánto cuesta?', value: 'cuanto cuesta' },
+    en: { label: 'How much is it?', value: 'how much does it cost' },
+  },
+  roi: {
+    es: { label: 'Calcular mi ROI', value: 'calculadora roi' },
+    en: { label: 'Work out my ROI', value: 'roi calculator' },
+  },
+  logistica: {
+    es: { label: 'Cotizar un flete', value: 'cuanto cuesta el flete' },
+    en: { label: 'Quote a shipment', value: 'shipping cost' },
+  },
+  inteligencia: {
+    es: { label: '¿Qué se vende más?', value: 'que se vende mas' },
+    en: { label: 'What sells best?', value: 'what sells best' },
+  },
+  canales: {
+    es: { label: '¿Amazon o TikTok Shop?', value: 'amazon tiktok shop canales' },
+    en: { label: 'Amazon or TikTok Shop?', value: 'amazon tiktok shop channels' },
+  },
+  consultoria: {
+    es: { label: 'Agendar una llamada', value: 'agendar llamada' },
+    en: { label: 'Book a call', value: 'book a call' },
+  },
+  cuenta: {
+    es: { label: 'Crear mi cuenta', value: '__register__' },
+    en: { label: 'Create my account', value: '__register__' },
+  },
+  humano: {
+    es: { label: 'Hablar con una persona', value: '__human__' },
+    en: { label: 'Talk to a person', value: '__human__' },
+  },
+};
+
+/** Dos sugerencias por respuesta: más es un menú, y un menú no se lee. */
+const AFTER: Record<string, string[]> = {
+  'quien-eres': ['inteligencia', 'empezar'],
+  servicios: ['precio', 'empezar'],
+  empezar: ['precio', 'consultoria'],
+  roi: ['logistica', 'precio'],
+  precio: ['empezar', 'consultoria'],
+  pago: ['empezar', 'humano'],
+  'amazon-tiktok': ['inteligencia', 'empezar'],
+  'prep-center': ['logistica', 'precio'],
+  inteligencia: ['cuenta', 'consultoria'],
+  logistica: ['roi', 'precio'],
+  tiempo: ['empezar', 'consultoria'],
+  consultoria: ['precio', 'inteligencia'],
+  referidos: ['cuenta', 'humano'],
+  cuenta: ['inteligencia', 'empezar'],
+  contacto: ['consultoria', 'empezar'],
+  gracias: ['empezar', 'inteligencia'],
+};
+
+export function followUpsFor(entryId: string, language: 'es' | 'en'): QuickReply[] {
+  return (AFTER[entryId] ?? []).map((chip) => CHIPS[chip][language]).filter(Boolean);
 }
