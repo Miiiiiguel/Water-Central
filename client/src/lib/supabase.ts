@@ -154,6 +154,9 @@ const supabaseAnonKey = rejectServerKey(
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
+/** La dirección del servidor de cuentas, para poder nombrarla al fallar. */
+export const accountsUrl = supabaseUrl;
+
 /**
  * Qué falta exactamente, para poder decirlo en pantalla en vez de
  * "faltan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY", que es verdad a

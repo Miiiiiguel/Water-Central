@@ -1,10 +1,11 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
-import { getSupabase, hasSessionToRestore, isSupabaseConfigured, supabaseConfigProblem, Profile } from '@/lib/supabase';
+import { accountsUrl, getSupabase, hasSessionToRestore, isSupabaseConfigured, supabaseConfigProblem, Profile } from '@/lib/supabase';
 import { trackSignUp } from '@/lib/analytics';
 import { getStoredReferralCode, clearStoredReferralCode } from '@/lib/referral';
 import { getMfaStatus } from '@/lib/mfa';
 import { authErrorLog, authErrorMessage, classifyAuthError, errorDetail } from '@/lib/authErrors';
+import { hostOf, probeAccountsHost, probeMessage } from '@/lib/accountsProbe';
 
 interface AuthContextType {
   session: Session | null;
@@ -33,6 +34,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
  * idioma, así que no puede pedírselo.
  */
 const enEspanol = () => (typeof document === 'undefined' ? true : document.documentElement.lang !== 'en');
+
+/**
+ * El mensaje final de un fallo de autenticación.
+ *
+ * Cuando la petición no llegó a ninguna parte, "Failed to fetch" tapa
+ * tres cosas distintas: el host no existe, no hay red, o la política de
+ * seguridad de nuestra propia página bloqueó la conexión. En vez de
+ * decir "no hubo respuesta" y dejar a todo el mundo adivinando, se toca
+ * el host y se dice cuál de las tres fue.
+ */
+async function explainAuthFailure(err: unknown): Promise<string> {
+  const failure = classifyAuthError(err);
+  const es = enEspanol();
+  if (failure !== 'sin_respuesta') return authErrorMessage(failure, es, errorDetail(err));
+  const result = await probeAccountsHost(accountsUrl);
+  return probeMessage(result, hostOf(accountsUrl), es);
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -207,9 +225,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       return { error: null };
     } catch (err) {
-      const failure = classifyAuthError(err);
-      console.error(...authErrorLog('signUp', failure, err));
-      return { error: authErrorMessage(failure, enEspanol(), errorDetail(err)) };
+      console.error(...authErrorLog('signUp', classifyAuthError(err), err));
+      return { error: await explainAuthFailure(err) };
     }
   };
 
@@ -219,9 +236,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { error } = await (await getSupabase()).auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
       return { error: error ? error.message : null };
     } catch (err) {
-      const failure = classifyAuthError(err);
-      console.error(...authErrorLog('signIn', failure, err));
-      return { error: authErrorMessage(failure, enEspanol(), errorDetail(err)) };
+      console.error(...authErrorLog('signIn', classifyAuthError(err), err));
+      return { error: await explainAuthFailure(err) };
     }
   };
 
@@ -239,9 +255,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       return { error: error ? error.message : null };
     } catch (err) {
-      const failure = classifyAuthError(err);
-      console.error(...authErrorLog('signInWithGoogle', failure, err));
-      return { error: authErrorMessage(failure, enEspanol(), errorDetail(err)) };
+      console.error(...authErrorLog('signInWithGoogle', classifyAuthError(err), err));
+      return { error: await explainAuthFailure(err) };
     }
   };
 

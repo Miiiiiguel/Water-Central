@@ -10,6 +10,32 @@ import { logSecurityEvent } from './log';
 // Supabase, YouTube embed for the VSL section, Sentry ingest). If you
 // add a new integration later, its domain needs to be added here too or
 // the browser will silently block it — and report it to /api/csp-report.
+/**
+ * El origen de Supabase que esta instalación usa de verdad.
+ *
+ * La lista de `connect-src` tenía `https://*.supabase.co` escrito a
+ * mano. Mientras el proyecto viva en ese dominio, perfecto. Si vive en
+ * otro —otra región, un dominio propio— el navegador BLOQUEA la
+ * petición y reporta "Failed to fetch": el mismo texto que da una caída
+ * de red, y sin nada que lo distinga. La app quedaría rota por su
+ * propia política de seguridad, que es la peor forma de estar rota:
+ * todo está bien configurado y nada funciona.
+ *
+ * Así que se deriva de la variable, y el comodín se queda como red por
+ * si la variable no está puesta.
+ */
+function supabaseOrigins(): string[] {
+  const raw = process.env.VITE_SUPABASE_URL?.trim();
+  if (!raw) return [];
+  try {
+    const { origin, host } = new URL(raw);
+    if (!origin.startsWith('https://') && !origin.startsWith('http://')) return [];
+    return [origin, `wss://${host}`];
+  } catch {
+    return [];
+  }
+}
+
 export const securityHeaders = helmet({
   contentSecurityPolicy: {
     directives: {
@@ -32,6 +58,7 @@ export const securityHeaders = helmet({
       mediaSrc: ["'self'", 'blob:'],
       connectSrc: [
         "'self'",
+        ...supabaseOrigins(),
         'https://*.supabase.co',
         'wss://*.supabase.co',
         'https://www.google-analytics.com',
