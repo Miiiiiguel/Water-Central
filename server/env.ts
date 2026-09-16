@@ -46,8 +46,32 @@ export function validateEnv() {
     warn('STRIPE_SECRET_KEY is a LIVE key but NODE_ENV is not "production". Use sk_test_ locally.');
   }
 
-  if (isSet('WOMPI_PUBLIC_KEY') && process.env.WOMPI_PUBLIC_KEY!.startsWith('pub_prod_') && process.env.WOMPI_ENV !== 'production') {
+  // Wompi: el entorno y las llaves tienen que ir juntos, y descuadrarlos
+  // falla de dos formas distintas.
+  const wompiPublica = process.env.WOMPI_PUBLIC_KEY ?? '';
+  const wompiPrivada = process.env.WOMPI_PRIVATE_KEY ?? '';
+  const wompiProduccion = process.env.WOMPI_ENV === 'production';
+
+  if (wompiPublica.startsWith('pub_prod_') && !wompiProduccion) {
     warn('WOMPI_PUBLIC_KEY is a production key but WOMPI_ENV is not "production" — transactions will be checked against the sandbox and never confirm.');
+  }
+
+  // El caso contrario es el que muerde el día del lanzamiento: se cambia
+  // WOMPI_ENV a production, se olvidan las llaves, y TODOS los cobros
+  // fallan contra la API de producción con una llave de prueba. Son
+  // ventas reales perdiéndose, y sin este aviso no hay forma de saberlo
+  // hasta que alguien intenta pagar.
+  if (wompiProduccion) {
+    const deprueba = [
+      wompiPublica.startsWith('pub_test_') ? 'WOMPI_PUBLIC_KEY' : null,
+      wompiPrivada.startsWith('prv_test_') ? 'WOMPI_PRIVATE_KEY' : null,
+    ].filter(Boolean);
+    if (deprueba.length) {
+      warn(
+        `WOMPI_ENV es "production" pero ${deprueba.join(' y ')} ${deprueba.length > 1 ? 'son llaves' : 'es una llave'} de PRUEBA (test). ` +
+          'Nadie va a poder pagar: cambialas por las de producción (pub_prod_ / prv_prod_) en el panel de Wompi.'
+      );
+    }
   }
 
   // Una credencial dentro de CUALQUIER variable VITE_.
