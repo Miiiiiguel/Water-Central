@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { chatRateLimiter, JSON_BODY_LIMIT } from './security';
 import { CATALOG, priceOf } from './catalog';
 import { knowledgeBase } from '../client/src/lib/chatbotKnowledge';
+import { diagnosticarIA } from './anthropicError';
 
 // Optional AI-powered upgrade for the guide chatbot. Without
 // ANTHROPIC_API_KEY set, this route returns 503 and the client falls
@@ -122,28 +123,15 @@ chatRouter.post('/chat', chatRateLimiter, express.json({ limit: JSON_BODY_LIMIT 
     // tapa por igual una llave inválida, una cuenta sin saldo y un corte
     // de red — y desde fuera se ven idénticos: Marco Polo simplemente
     // vuelve a contestar con su guion. Eso cuesta horas de buscar a
-    // ciegas. Acá se nombra la causa, en el log del servidor, que nadie
-    // más que el equipo puede leer.
-    const e = err as { status?: number; error?: { error?: { type?: string; message?: string } }; message?: string };
-    const status = e.status;
-    const tipo = e.error?.error?.type;
-    const causa =
-      status === 401
-        ? 'la llave ANTHROPIC_API_KEY no es válida o fue revocada'
-        : status === 403
-          ? 'la llave no tiene permiso para este modelo'
-          : status === 429
-            ? 'límite de peticiones alcanzado en Anthropic'
-            : status === 400 && /credit|balance/i.test(e.error?.error?.message ?? '')
-              ? 'la cuenta de Anthropic no tiene saldo'
-              : status === 404
-                ? `el modelo "${process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001'}" no existe o no está disponible para esta cuenta`
-                : 'error inesperado';
+    // ciegas. El diagnóstico es el mismo que usa el lector de etiquetas
+    // (server/anthropicError.ts): una sola tabla de causas para los dos.
+    const modelo = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
+    const fallo = diagnosticarIA(err, modelo);
+    console.error(`[chat] la IA falló: ${fallo.detalle}. Marco Polo sigue con su guion de reglas.`);
 
-    console.error(`[chat] Anthropic falló (${status ?? 'sin status'}${tipo ? ', ' + tipo : ''}): ${causa}. Marco Polo sigue con su guion de reglas.`);
-    console.error('[chat] detalle:', e.error?.error?.message ?? e.message ?? err);
-
-    // Al navegador se le sigue diciendo lo mínimo: el detalle es interno.
+    // Al navegador se le sigue diciendo lo mínimo: acá, a diferencia del
+    // lector de etiquetas, la falla no se nota —el guion de reglas
+    // contesta igual—, así que no hay nada que explicarle a nadie.
     res.status(500).json({ error: 'No se pudo generar una respuesta.' });
   }
 });

@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { modeloDeOcr } from '../anthropicError';
 
 // Leer el texto de una foto de etiqueta. Fase 1.
 //
@@ -32,14 +33,21 @@ export const MIMES_ACEPTADOS = ['image/jpeg', 'image/png', 'image/webp'];
 /** 6 MB de imagen ya decodificada: una foto de teléfono reducida entra de sobra. */
 export const MAXIMO_BYTES = 6 * 1024 * 1024;
 
+// La instrucción no dice de qué producto es la etiqueta, y eso importa:
+// mientras decía "etiqueta de prenda", una lata de atún o la placa de
+// un electrodoméstico entraban en "la imagen no es una etiqueta" y
+// volvían como SIN_TEXTO. El arancel tiene 98 capítulos.
 const INSTRUCCION = [
-  'Transcribe literalmente todo el texto visible en esta etiqueta de prenda.',
+  'Transcribe literalmente todo el texto visible en esta imagen.',
+  'Puede ser la etiqueta de cualquier producto: ropa, alimentos, bebidas,',
+  'cosméticos, calzado, juguetes, o la placa de datos de un aparato.',
   'Reglas:',
   '- Copia el texto tal como aparece, línea por línea, respetando el idioma original.',
   '- No traduzcas, no corrijas, no completes, no ordenes.',
+  '- Incluye números, porcentajes, unidades, códigos y símbolos tal cual.',
   '- Si una parte no se lee con seguridad, escribe [ilegible] en su lugar.',
-  '- Si la imagen no es una etiqueta o no se lee nada, responde exactamente: SIN_TEXTO',
-  'No agregues explicaciones ni comentarios: sólo el texto de la etiqueta.',
+  '- Si en la imagen no hay NINGÚN texto legible, responde exactamente: SIN_TEXTO',
+  'No agregues explicaciones ni comentarios: sólo el texto que ves.',
 ].join('\n');
 
 /**
@@ -56,7 +64,7 @@ export const proveedorAnthropic: ProveedorOcr = {
     const respuesta = await cliente.messages.create({
       // El OCR necesita más capacidad que el chat: la etiqueta está
       // impresa en letra diminuta sobre tela arrugada.
-      model: process.env.ANTHROPIC_OCR_MODEL || 'claude-sonnet-5',
+      model: modeloDeOcr(),
       max_tokens: 1200,
       temperature: 0,
       messages: [

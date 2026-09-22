@@ -5,6 +5,7 @@ import { requireUser } from '../auth';
 import { logSecurityEvent } from '../log';
 import { EXPLICACION, proveedorActivo, queFaltaParaOcr, revisarImagen, MIMES_ACEPTADOS } from './ocr';
 import { analizar } from './analisis';
+import { diagnosticarIA, modeloDeOcr } from '../anthropicError';
 
 // La mesa de análisis de producto: foto -> texto -> datos.
 //
@@ -51,6 +52,10 @@ etiquetaRouter.get('/etiqueta/estado', (_req, res) => {
     ocr: Boolean(proveedor),
     // El nombre del proveedor no sale de acá; sí lo que falta poner.
     falta: proveedor ? null : queFaltaParaOcr(),
+    // El modelo configurado. No es un secreto y es la causa más común
+    // de que una foto perfecta vuelva con error: un identificador que
+    // esa cuenta no tiene habilitado. Verlo acá ahorra abrir los logs.
+    modelo: modeloDeOcr(),
     formatos: MIMES_ACEPTADOS,
   });
 });
@@ -89,11 +94,17 @@ etiquetaRouter.post(
     try {
       transcripcion = await proveedor.leer(datos, tipoMime);
     } catch (err) {
-      // El detalle técnico va al log, no a la pantalla.
-      console.error('[etiqueta] el OCR falló:', (err as Error).message);
+      // Antes esto decía "no pudimos leer la foto" para cinco fallas
+      // distintas, y cuatro de ellas no tenían NADA que ver con la
+      // foto. Quien tomaba una foto perfecta volvía a intentarlo tres
+      // veces antes de escribirnos. Ahora se nombra la causa.
+      const fallo = diagnosticarIA(err, modeloDeOcr());
+      console.error(`[etiqueta] el OCR falló: ${fallo.detalle}`);
       return res.status(502).json({
         error: 'ocr_fallo',
-        message: 'No pudimos leer la foto. Probá de nuevo; si sigue igual, escribí la composición a mano.',
+        causa: fallo.causa,
+        nuestro: fallo.nuestro,
+        message: fallo.publico,
       });
     }
 
