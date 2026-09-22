@@ -34,20 +34,61 @@ export interface Prenda {
   faltante: string[];
 }
 
+export interface Cantidad {
+  valor: number;
+  unidad: string;
+  base: { valor: number; unidad: 'kg' | 'L' | 'u' } | null;
+}
+
+/** Lo que trae cualquier etiqueta, sea una camiseta o una lata de atún. */
+export interface DatosGenericos {
+  origen: string | null;
+  marca: string | null;
+  modelo: string | null;
+  contenidoNeto: Cantidad | null;
+  codigoDeBarras: string | null;
+  lote: string | null;
+  vencimiento: string | null;
+  materiales: string[];
+  electrico: { voltaje: string | null; potencia: string | null; frecuencia: string | null } | null;
+}
+
 export interface Pregunta {
   campo: string;
   pregunta: string;
+  decisiva: boolean;
   opciones?: { valor: string; etiqueta: string }[];
+}
+
+export interface AtributoLeido {
+  id: string;
+  pregunta: string;
+  decisivo: boolean;
+  valor: string | null;
+  etiqueta: string | null;
+  /** `supuesto` es el que hay que marcar: no estaba escrito, se dedujo. */
+  origen: 'etiqueta' | 'supuesto' | 'respuesta' | null;
 }
 
 export interface Analisis {
   texto: string;
-  etiqueta: Etiqueta;
-  prenda: Prenda;
-  preguntas: Pregunta[];
   legible: boolean;
+  generico: DatosGenericos;
+  familia: { id: string; nombre: string; capitulos: string[] } | null;
+  candidatas: { id: string; nombre: string }[];
+  atributos: AtributoLeido[];
+  /** Sólo para ropa: capas, porcentajes y cuidados. Null en todo lo demás. */
+  textil: { etiqueta: Etiqueta; prenda: Prenda } | null;
+  preguntas: Pregunta[];
+  terminos: string;
   consejo?: string;
 }
+
+/** Con qué campo se contesta "¿qué producto es?". Lo define el servidor. */
+export const CAMPO_FAMILIA = 'familia';
+
+/** Lo que la persona ya contestó: campo -> valor. */
+export type Respuestas = Record<string, string>;
 
 export type Resultado =
   | { estado: 'ok'; analisis: Analisis }
@@ -144,15 +185,11 @@ async function pedir(ruta: string, token: string | null, cuerpo: unknown): Promi
 }
 
 /** Manda la foto a leer. Cuesta una llamada al proveedor de visión. */
-export function analizarFoto(
-  token: string | null,
-  foto: FotoLista,
-  pistas?: { genero?: Genero; tejido?: Tejido }
-): Promise<Resultado> {
+export function analizarFoto(token: string | null, foto: FotoLista, respuestas?: Respuestas): Promise<Resultado> {
   return pedir('/api/etiqueta/analizar', token, {
     imagen: foto.base64,
     tipoMime: foto.tipoMime,
-    ...(pistas ? { pistas } : {}),
+    ...(respuestas && Object.keys(respuestas).length ? { respuestas } : {}),
   });
 }
 
@@ -160,12 +197,11 @@ export function analizarFoto(
  * Vuelve a interpretar el texto ya leído con lo que la persona
  * contestó. No gasta otra foto.
  */
-export function reinterpretar(
-  token: string | null,
-  texto: string,
-  pistas?: { genero?: Genero; tejido?: Tejido }
-): Promise<Resultado> {
-  return pedir('/api/etiqueta/interpretar', token, { texto, ...(pistas ? { pistas } : {}) });
+export function reinterpretar(token: string | null, texto: string, respuestas?: Respuestas): Promise<Resultado> {
+  return pedir('/api/etiqueta/interpretar', token, {
+    texto,
+    ...(respuestas && Object.keys(respuestas).length ? { respuestas } : {}),
+  });
 }
 
 /** Cómo se nombra cada fibra en pantalla. */

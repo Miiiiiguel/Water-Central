@@ -440,7 +440,8 @@ try {
 // no nos escribe.
 try {
   const problemas = [];
-  for (const route of ['/', '/roi', '/diagnostico', '/login', '/registro']) {
+  const rutas = ['/', '/roi', '/diagnostico', '/login', '/registro', '/analizar'];
+  for (const route of rutas) {
     await page.goto(base + route, { waitUntil: 'load' });
     await page.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 400) window.scrollTo(0, y); });
     await page.waitForTimeout(700);
@@ -470,7 +471,7 @@ try {
   }
   (problemas.length === 0 ? ok : fail)(
     'Every control has a name a screen reader can read',
-    problemas.length ? problemas.slice(0, 5).join(' · ') : '5 rutas revisadas, todo nombrado'
+    problemas.length ? problemas.slice(0, 5).join(' · ') : `${rutas.length} rutas revisadas, todo nombrado`
   );
 } catch (e) {
   fail('Accessible names', String(e).slice(0, 120));

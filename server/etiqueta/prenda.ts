@@ -166,6 +166,16 @@ export function leerPrenda(texto: string, pistas: Partial<Pick<Prenda, 'genero' 
   };
 }
 
+/**
+ * Cómo nombra el arancel a una prenda, a partir de su tipo interno.
+ * Si el tipo no está en la tabla devuelve null: no se inventa un
+ * término de búsqueda para algo que no sabemos qué es.
+ */
+export function terminosDePrenda(tipo: string): string | null {
+  const p = PRENDAS.find((x) => x.tipo === tipo);
+  return p ? p.terminos.join(' ') : null;
+}
+
 export const PREGUNTA_PRENDA: Record<FaltaPrenda, string> = {
   tipo: '¿Qué prenda es? (camiseta, pantalón, vestido, chaqueta…)',
   genero: '¿Para quién es? Hombre, mujer, niño o bebé. En el arancel de EE. UU. cada uno tiene su propia partida.',

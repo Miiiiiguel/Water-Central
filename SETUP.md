@@ -337,9 +337,11 @@ tarifas ni tus descuentos.
 
 ## 2d. Analizar producto: leer la etiqueta y clasificarla (`/analizar`)
 
-Tomás una foto de la etiqueta de composición y la app lee la tela, la
-prenda y lo que haga falta para clasificarla en el arancel de Estados
-Unidos.
+Tomás una foto de la etiqueta y la app lee lo que dice, reconoce de qué
+tipo de producto se trata y saca los datos que su partida del arancel de
+Estados Unidos necesita. Sirve para ropa, alimentos, calzado, aparatos,
+cosméticos, muebles, juguetes: el arancel tiene 98 capítulos y los
+textiles son menos del 9% de las partidas.
 
 Está construido por fases para poder validar cada una por separado. Lo
 que hay hoy:
@@ -347,8 +349,8 @@ que hay hoy:
 | Fase | Qué hace | Estado |
 |---|---|---|
 | 1 | Cámara, validación de la imagen y OCR | Hecha |
-| 2 | Del texto a composición estructurada | Hecha |
-| 3 | Tipo de prenda, género, punto o plano | Hecha |
+| 2 | Del texto a datos estructurados | Hecha |
+| 3 | Familia de producto y sus datos decisivos | Hecha |
 | 4 | Arancel HTS cargado y consultable | Hecha (datos) |
 | 5 | Motor de clasificación HTS | Pendiente |
 | 6 | Cálculo del arancel | Pendiente |
@@ -412,19 +414,44 @@ número.
 
 ### Lo que la app pregunta sola
 
-El arancel de textiles se decide por tres datos que la etiqueta casi
-nunca trae completos:
+Cada producto se clasifica por datos distintos, así que lo primero que
+se resuelve es **qué es**. Hasta que eso esté claro no se pregunta nada
+más: preguntarle el tejido a una lata de atún no es una molestia, es
+haber supuesto de qué se estaba hablando. Si el texto no alcanza para
+decidirlo, la pantalla lo pregunta y ofrece la lista de familias.
 
-- **De punto o plana.** Capítulo 61 contra 62: son partidas distintas y
-  pagan distinto. Cuando la prenda casi siempre es de un tejido (una
-  camiseta es de punto) se supone y se marca como supuesto; cuando no
-  —una camisa puede ser cualquiera de las dos— se pregunta.
-- **Para quién es.** Hombre, mujer, niño o bebé, cada uno con su partida.
-- **Qué fibra pesa más en la tela exterior.** No la del forro: una
-  chaqueta con exterior de poliéster y forro de algodón no es de algodón.
+Con la familia ya resuelta se piden sus datos decisivos. Algunos
+ejemplos de lo que decide una partida:
 
-Si la etiqueta trae capas ("SHELL / LINING"), se guardan por separado y
-clasifica la exterior.
+| Familia | Capítulos | Lo que hay que saber |
+|---|---|---|
+| Ropa y textiles | 61, 62, 63 | de punto o plana, para quién, qué prenda, qué fibra pesa más |
+| Calzado | 64 | material del corte, material de la suela |
+| Alimentos | 04–21 | presentación (fresco, congelado, conserva…), ingrediente principal |
+| Bebidas | 22 | tipo y grado alcohólico |
+| Aparatos eléctricos | 84, 85 | qué hace y cómo se alimenta |
+| Marroquinería | 42 | qué artículo y de qué es la superficie exterior |
+| Joyería | 71 | oro, plata o bisutería — son partidas muy distintas |
+
+La lista completa vive en `server/etiqueta/familias.ts`, y vive ahí como
+**dato, no como código**: una familia declara qué palabras la delatan, en
+qué capítulos vive y qué atributos deciden su partida. Agregar una
+familia nueva es agregar una entrada a esa lista — no se toca ni el OCR,
+ni el lector genérico, ni la ruta, ni la pantalla.
+
+De cualquier etiqueta, sea de lo que sea, se leen además origen, marca,
+modelo, contenido neto (normalizado a kg/L/unidades), código de barras,
+lote, vencimiento, materiales y datos de placa eléctricos. Eso está en
+`server/etiqueta/generico.ts`.
+
+**Lo que se supone queda marcado.** Una camiseta es de punto salvo
+rarezas, así que se asume; pero la pantalla lo muestra como "supuesto" y
+se corrige de un toque. Lo que la persona contesta siempre manda sobre lo
+leído: quien tiene el producto en la mano es ella.
+
+Si una etiqueta de ropa trae capas ("SHELL / LINING"), se guardan por
+separado y clasifica la exterior: una chaqueta con exterior de poliéster
+y forro de algodón no es de algodón.
 
 ### Cuando el OCR no lee
 
