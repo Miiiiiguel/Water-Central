@@ -109,6 +109,21 @@ export const knowledgeBase: KnowledgeEntry[] = [
     },
   },
   {
+    id: 'clasificar',
+    keywords: [
+      'clasificar', 'clasificacion', 'clasificación', 'arancel', 'aranceles', 'partida', 'partida arancelaria',
+      'hts', 'codigo arancelario', 'código arancelario', 'nandina', 'etiqueta', 'composicion', 'composición',
+      'cuanto paga de arancel', 'cuánto paga de arancel', 'impuesto de importacion', 'impuesto de importación',
+      'analizar producto', 'analizar mi producto', 'escanear', 'foto del producto',
+      'classify', 'classification', 'tariff', 'tariff code', 'duty', 'customs code', 'hs code',
+      'analyze product', 'scan product', 'label',
+    ],
+    answer: {
+      es: 'Puedo leerte la etiqueta del producto con una foto y sacar lo que hace falta para clasificarlo en el arancel de Estados Unidos: qué tipo de producto es, de qué está hecho, de dónde viene. Sirve para ropa, alimentos, calzado, aparatos, lo que sea. Tocá el botón de la cámara acá abajo y tomale una foto a la etiqueta.',
+      en: 'I can read the product label from a photo and pull what is needed to classify it under the US tariff schedule: what kind of product it is, what it is made of, where it comes from. Works for clothing, food, footwear, appliances, anything. Tap the camera button below and take a photo of the label.',
+    },
+  },
+  {
     id: 'inteligencia',
     keywords: [
       'inteligencia de mercado', 'inteligencia', 'datos', 'aduana', 'aduanas', 'importadores', 'importa', 'exporta',
@@ -343,6 +358,11 @@ const CHIPS: Record<string, { es: QuickReply; en: QuickReply }> = {
     es: { label: 'Buscar en aduanas', value: '__research:aduanas__' },
     en: { label: 'Search customs data', value: '__research:aduanas__' },
   },
+  // Como los de búsqueda, este tampoco pregunta: abre la cámara.
+  analizar: {
+    es: { label: 'Analizar producto', value: '__analizar__' },
+    en: { label: 'Analyze a product', value: '__analizar__' },
+  },
   canales: {
     es: { label: '¿Amazon o TikTok Shop?', value: 'amazon tiktok shop canales' },
     en: { label: 'Amazon or TikTok Shop?', value: 'amazon tiktok shop channels' },
@@ -370,9 +390,10 @@ const AFTER: Record<string, string[]> = {
   precio: ['empezar', 'consultoria'],
   pago: ['empezar', 'humano'],
   'amazon-tiktok': ['buscar_tiktok', 'inteligencia'],
-  'prep-center': ['logistica', 'precio'],
+  'prep-center': ['analizar', 'logistica'],
+  clasificar: ['analizar', 'logistica'],
   inteligencia: ['buscar_tiktok', 'buscar_aduanas'],
-  logistica: ['roi', 'precio'],
+  logistica: ['analizar', 'roi'],
   tiempo: ['empezar', 'consultoria'],
   consultoria: ['precio', 'inteligencia'],
   referidos: ['cuenta', 'humano'],

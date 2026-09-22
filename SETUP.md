@@ -335,7 +335,26 @@ tarifas ni tus descuentos.
   `freight_quotes` con `zone` y `quote_cop`, visible en el panel y en
   el CSV del equipo.
 
-## 2d. Analizar producto: leer la etiqueta y clasificarla (`/analizar`)
+## 2d. Analizar producto: leer la etiqueta y clasificarla
+
+**Se usa dentro de Marco Polo.** En el chat hay un botón de cámara al
+lado del micrófono, y un atajo "Analizar producto" en el menú de
+sugerencias. Se toca, se toma la foto, y Marco Polo va preguntando lo
+que falta de a un dato por vez — que es como funciona una conversación;
+la pantalla podía mostrar cinco preguntas juntas, un chat no.
+
+También responde a la pregunta escrita: "quiero clasificar mi producto",
+"¿qué partida le corresponde?", "leeme la etiqueta".
+
+> Una que costaba plata: "analizá mi producto" tiene la forma exacta de
+> una consulta de mercado (verbo de búsqueda + "producto"), así que se
+> iba a la mesa de consultas —que se cobra un crédito— y contestaba otra
+> cosa. Ahora las preguntas de clasificación están vetadas ahí
+> (`esClasificacion` en `client/src/lib/researchIntent.ts`) y van al
+> lector de etiquetas, que es de la casa y no cuesta nada.
+
+La ruta `/analizar` sigue existiendo con la misma lógica, para quien
+prefiera una pantalla completa en vez del chat.
 
 Tomás una foto de la etiqueta y la app lee lo que dice, reconoce de qué
 tipo de producto se trata y saca los datos que su partida del arancel de

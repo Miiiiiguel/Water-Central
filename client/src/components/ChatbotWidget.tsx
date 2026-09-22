@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { scrollToAnchor } from '@/lib/scrollToAnchor';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, Send, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle, Search, Sparkles, Settings2, Play } from 'lucide-react';
+import { X, Send, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle, Search, Sparkles, Settings2, Play, Camera } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { matchKnowledge, followUpsFor, MARCO_POLO, type SectionAction } from '@/lib/chatbotKnowledge';
 import { startCheckout, checkoutMessage } from '@/lib/checkout';
@@ -23,6 +23,8 @@ import {
 import MarcoPoloAvatar from './MarcoPoloAvatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchQuota, runResearch, formatResult, consumePendingResearch, SOURCE_LABEL, SOURCE_BLURB, RESEARCH_EVENT, type ResearchQuota, type ResearchRequest, type ResearchSource } from '@/lib/research';
+import { analizarFoto, estadoDelLector, prepararFoto, reinterpretar, type Respuestas } from '@/lib/etiqueta';
+import { leerChip, turnoDe, type Turno } from '@/lib/etiquetaChat';
 
 interface ChatMessage {
   role: 'user' | 'bot';
@@ -41,6 +43,7 @@ function menuQuickReplies(language: string) {
     { label: language === 'es' ? '¿Cuánto cuesta?' : 'How much is it?', value: language === 'es' ? 'cuanto cuesta' : 'how much does it cost' },
     { label: language === 'es' ? 'Tendencias en TikTok Shop' : 'TikTok Shop trends', value: '__research:tiktok__' },
     { label: language === 'es' ? 'Datos de comercio exterior' : 'Foreign trade data', value: '__research:aduanas__' },
+    { label: language === 'es' ? 'Analizar producto' : 'Analyze a product', value: '__analizar__' },
     { label: language === 'es' ? 'Calcular un flete' : 'Freight quote', value: language === 'es' ? 'flete' : 'freight' },
     { label: language === 'es' ? 'Hablar con una persona' : 'Talk to a person', value: '__human__' },
   ];
@@ -127,9 +130,17 @@ export default function ChatbotWidget() {
   // Polo no tiene idea de qué estaba preguntando. Pasó tal cual.
   const [pendiente, setPendiente] = useState<PendingResearch | null>(() => leerPendiente());
   const [quota, setQuota] = useState<ResearchQuota | null>(null);
+  // Analizar producto, dentro del chat. Lo que hay que recordar entre
+  // turnos es poco: el texto que devolvió el OCR (para no volver a
+  // gastar una foto cada vez que se contesta algo), lo contestado
+  // hasta ahora, y qué pregunta está esperando una respuesta escrita.
+  const [etiquetaTexto, setEtiquetaTexto] = useState<string | null>(null);
+  const [etiquetaRespuestas, setEtiquetaRespuestas] = useState<Respuestas>({});
+  const [etiquetaCampo, setEtiquetaCampo] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const stopListeningRef = useRef<() => void>(() => {});
   const inputRef = useRef<HTMLInputElement>(null);
+  const camaraRef = useRef<HTMLInputElement>(null);
 
   // Persist the conversation for the session (survives navigation, not a new tab).
   useEffect(() => {
@@ -420,6 +431,142 @@ export default function ChatbotWidget() {
     doResearch(req.source, req.query);
   };
 
+  // ---- Analizar producto -------------------------------------------
+  //
+  // El camino entero desde el chat: tocar el botón, tomar la foto, y
+  // Marco Polo va preguntando lo que falta de a uno. La pantalla
+  // /analizar sigue existiendo para quien la quiera; acá se hace sin
+  // salir de la conversación.
+
+  /** Muestra el turno que armó `turnoDe` y deja lista la respuesta. */
+  const decirTurno = (turno: Turno) => {
+    setEtiquetaCampo(turno.pregunta && !turno.opciones.length ? turno.pregunta.campo : null);
+    pushBot(turno.texto, turno.opciones.length ? { quickReplies: turno.opciones } : undefined);
+    if (turno.pregunta && !turno.opciones.length) {
+      window.setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  };
+
+  /** Lo que sale mal antes de llegar al análisis, dicho con su motivo. */
+  const problemaDeEtiqueta = (estado: 'sin_sesion' | 'no_configurado' | 'error', mensaje?: string) => {
+    if (estado === 'sin_sesion') {
+      pushBot(
+        language === 'es'
+          ? 'Para leer etiquetas necesito saber quién sos: cada foto pasa por un servicio que se paga. Creá tu cuenta (es gratis) y volvé a tomarla.'
+          : 'To read labels I need to know who you are: every photo goes through a paid service. Create your account (it is free) and take the photo again.',
+        { quickReplies: [
+          { label: language === 'es' ? 'Crear cuenta' : 'Create account', value: '__register__' },
+          { label: language === 'es' ? 'Ya tengo cuenta' : 'I already have an account', value: '__login__' },
+        ] }
+      );
+      return;
+    }
+    pushBot(
+      mensaje ||
+        (language === 'es'
+          ? 'No pude leer esa foto.'
+          : 'I could not read that photo.'),
+      { quickReplies: [
+        { label: language === 'es' ? 'Probar otra foto' : 'Try another photo', value: '__analizar__' },
+        { label: language === 'es' ? 'Avisar al equipo' : 'Tell the team', value: '__human__' },
+      ] }
+    );
+  };
+
+  /** Abre la cámara, después de confirmar que el servidor puede leer. */
+  const pedirFoto = async () => {
+    setEtiquetaTexto(null);
+    setEtiquetaRespuestas({});
+    setEtiquetaCampo(null);
+
+    const estado = await estadoDelLector();
+    if (!estado.ocr) {
+      pushBot(
+        language === 'es'
+          ? 'La lectura de fotos todavía no está activada en el servidor. Es configuración nuestra, no tuya: avisale al equipo y lo prendemos.'
+          : 'Photo reading is not enabled on the server yet. That is our setup, not yours: tell the team and we will turn it on.',
+        { quickReplies: [{ label: language === 'es' ? 'Avisar al equipo' : 'Tell the team', value: '__human__' }] }
+      );
+      return;
+    }
+    if (!getAccessToken()) {
+      problemaDeEtiqueta('sin_sesion');
+      return;
+    }
+
+    pushBot(
+      language === 'es'
+        ? 'Dale. Tomale una foto a la etiqueta: que se lea la letra chica, plana y con buena luz. Sirve cualquier producto, no sólo ropa.'
+        : 'Sure. Take a photo of the label: small print readable, flat and well lit. Any product works, not just clothing.'
+    );
+    camaraRef.current?.click();
+  };
+
+  /** La foto ya elegida: se reduce, se manda y se cuenta lo que dijo. */
+  const analizarLaFoto = async (archivo: File | undefined) => {
+    if (!archivo) return;
+    setMessages((prev) => [
+      ...prev,
+      { role: 'user', content: language === 'es' ? 'Foto de la etiqueta' : 'Photo of the label', at: Date.now() },
+    ]);
+
+    let foto;
+    try {
+      foto = await prepararFoto(archivo);
+    } catch {
+      problemaDeEtiqueta('error', language === 'es' ? 'No pude abrir esa imagen.' : 'I could not open that image.');
+      return;
+    }
+    if (foto.demasiadoChica) {
+      problemaDeEtiqueta(
+        'error',
+        language === 'es'
+          ? 'Esa imagen es muy chica y la letra de la etiqueta no se va a leer. Acercate y tomala de nuevo.'
+          : 'That image is too small and the label text will not be readable. Get closer and take it again.'
+      );
+      return;
+    }
+
+    setTyping(true);
+    const r = await analizarFoto(getAccessToken(), foto);
+    setTyping(false);
+
+    if (r.estado !== 'ok') {
+      problemaDeEtiqueta(r.estado === 'sin_sesion' ? 'sin_sesion' : r.estado === 'no_configurado' ? 'no_configurado' : 'error', 'mensaje' in r ? r.mensaje : undefined);
+      return;
+    }
+    setEtiquetaTexto(r.analisis.texto);
+    setEtiquetaRespuestas({});
+    decirTurno(turnoDe(r.analisis, language === 'es' ? 'es' : 'en'));
+  };
+
+  /** Cómo se llamaba el botón que se tocó, para escribirlo en el chat. */
+  const etiquetaDelChip = (valor: string): string | null => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const encontrado = messages[i].quickReplies?.find((q) => q.value === valor);
+      if (encontrado) return encontrado.label;
+    }
+    return null;
+  };
+
+  /** Una respuesta: se recalcula todo sin volver a gastar una foto. */
+  const contestarEtiqueta = async (campo: string, valor: string) => {
+    if (!etiquetaTexto) return;
+    // Elegir otra familia borra lo contestado antes: esas respuestas
+    // eran de otro producto y acá no significan nada.
+    const nuevas: Respuestas = campo === 'familia' ? { familia: valor } : { ...etiquetaRespuestas, [campo]: valor };
+    setEtiquetaRespuestas(nuevas);
+    setEtiquetaCampo(null);
+    setTyping(true);
+    const r = await reinterpretar(getAccessToken(), etiquetaTexto, nuevas);
+    setTyping(false);
+    if (r.estado !== 'ok') {
+      problemaDeEtiqueta(r.estado === 'sin_sesion' ? 'sin_sesion' : r.estado === 'no_configurado' ? 'no_configurado' : 'error', 'mensaje' in r ? r.mensaje : undefined);
+      return;
+    }
+    decirTurno(turnoDe(r.analisis, language === 'es' ? 'es' : 'en'));
+  };
+
   const MAX_CHARS = 1000;
 
   const sendMessage = (text: string) => {
@@ -441,6 +588,25 @@ export default function ChatbotWidget() {
           : `Sure. In ${SOURCE_LABEL[source]} I can see ${SOURCE_BLURB[source].en}. Type the product or category (for example: "soy candles" or "shapewear").`
       );
       window.setTimeout(() => inputRef.current?.focus(), 100);
+      return;
+    }
+
+    if (trimmed === '__analizar__') {
+      setResearchMode(null);
+      pedirFoto();
+      return;
+    }
+
+    // Una respuesta a lo que Marco Polo preguntó sobre la etiqueta.
+    const deEtiqueta = leerChip(trimmed);
+    if (deEtiqueta) {
+      // En la conversación queda lo que dice el botón ("Cuero"), no el
+      // valor interno con el que viaja.
+      setMessages((prev) => [
+        ...prev,
+        { role: 'user', content: etiquetaDelChip(trimmed) ?? deEtiqueta.valor, at: Date.now() },
+      ]);
+      contestarEtiqueta(deEtiqueta.campo, deEtiqueta.valor);
       return;
     }
 
@@ -474,6 +640,12 @@ export default function ChatbotWidget() {
           ? `Tu mensaje es muy largo, así que leí los primeros ${MAX_CHARS} caracteres. Si quedó algo afuera, mandámelo en otro mensaje.`
           : `Your message is long, so I read the first ${MAX_CHARS} characters. If something got cut, send it in another message.`
       );
+    }
+
+    // Una pregunta de la etiqueta que se contesta escribiendo.
+    if (etiquetaCampo) {
+      contestarEtiqueta(etiquetaCampo, trimmed);
+      return;
     }
 
     if (researchMode) {
@@ -784,6 +956,20 @@ export default function ChatbotWidget() {
             </div>
 
             {/* Composer */}
+            {etiquetaTexto && (
+              <div className="flex items-center justify-between gap-2 px-4 py-1.5 bg-primary text-white text-[11px] font-semibold flex-shrink-0">
+                <span className="flex items-center gap-1.5">
+                  <Camera size={12} />
+                  {language === 'es' ? 'Analizando un producto' : 'Analyzing a product'}
+                </span>
+                <button
+                  onClick={() => { setEtiquetaTexto(null); setEtiquetaRespuestas({}); setEtiquetaCampo(null); }}
+                  className="tap-scale-sm text-white/80 hover:text-white bg-transparent border-0 cursor-pointer"
+                >
+                  {language === 'es' ? 'Terminar' : 'Done'}
+                </button>
+              </div>
+            )}
             {researchMode && (
               <div className="flex items-center justify-between gap-2 px-4 py-1.5 bg-primary text-white text-[11px] font-semibold flex-shrink-0">
                 <span className="flex items-center gap-1.5">
@@ -798,6 +984,15 @@ export default function ChatbotWidget() {
                 </button>
               </div>
             )}
+            <input
+              ref={camaraRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="sr-only"
+              aria-label={language === 'es' ? 'Foto de la etiqueta del producto' : 'Photo of the product label'}
+              onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; analizarLaFoto(f); }}
+            />
             <form
               onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
               className="flex items-center gap-2 p-3 border-t border-gray-100 flex-shrink-0 bg-white"
@@ -814,6 +1009,16 @@ export default function ChatbotWidget() {
                   {listening ? <MicOff size={16} /> : <Mic size={16} />}
                 </button>
               )}
+              <button
+                type="button"
+                onClick={() => sendMessage('__analizar__')}
+                disabled={typing}
+                className="tap-scale-sm w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border-0 cursor-pointer bg-secondary text-accent hover:bg-orange-100 disabled:opacity-40 transition-colors"
+                aria-label={language === 'es' ? 'Analizar producto con una foto' : 'Analyze a product from a photo'}
+                title={language === 'es' ? 'Analizar producto' : 'Analyze a product'}
+              >
+                <Camera size={16} />
+              </button>
               <input
                 ref={inputRef}
                 value={input}
@@ -822,9 +1027,11 @@ export default function ChatbotWidget() {
                 placeholder={
                   listening
                     ? (language === 'es' ? 'Te escucho…' : 'Listening…')
-                    : researchMode
-                      ? (language === 'es' ? `Producto a buscar en ${SOURCE_LABEL[researchMode]}…` : `Product to look up in ${SOURCE_LABEL[researchMode]}…`)
-                      : (language === 'es' ? 'Pregúntale a Marco Polo…' : 'Ask Marco Polo…')
+                    : etiquetaCampo
+                      ? (language === 'es' ? 'Escribí la respuesta…' : 'Type your answer…')
+                      : researchMode
+                        ? (language === 'es' ? `Producto a buscar en ${SOURCE_LABEL[researchMode]}…` : `Product to look up in ${SOURCE_LABEL[researchMode]}…`)
+                        : (language === 'es' ? 'Pregúntale a Marco Polo…' : 'Ask Marco Polo…')
                 }
                 className="flex-1 min-w-0 px-3.5 py-2.5 rounded-full border border-gray-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none text-sm transition-all"
               />

@@ -248,6 +248,48 @@ try {
   fail('Data question flow', String(e).slice(0, 120));
 }
 
+// Analizar un producto vive dentro de Marco Polo: un botón de cámara en
+// el chat, no una pantalla aparte. Y "analizá mi producto" NO puede
+// gastar una consulta de mercado: tiene la forma de una búsqueda y es
+// otra cosa, que además es gratis.
+try {
+  await page.getByRole('button', { name: /Marco Polo/ }).first().click();
+  await page.waitForTimeout(400);
+
+  const camara = page.locator('button[aria-label*="from a photo" i], button[aria-label*="con una foto" i]');
+  const hayCamara = await camara.isVisible();
+
+  await page.getByPlaceholder(/Marco Polo/).fill('quiero clasificar mi producto');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(1800);
+  let panel = await page.locator('[role="dialog"]').innerText();
+  const apunta = /cámara|camera/i.test(panel);
+  // Si hubiera ido a la mesa de consultas, estaría pidiendo el término.
+  const noCobro = !/Escribime el producto o categoría|Type the product or category/i.test(panel);
+
+  (hayCamara && apunta && noCobro ? ok : fail)(
+    'Analyzing a product lives inside Marco Polo, and costs no lookup',
+    hayCamara && apunta && noCobro
+      ? 'botón de cámara presente, la pregunta va al lector de etiquetas'
+      : `cámara:${hayCamara} apunta:${apunta} sin-cobro:${noCobro}`
+  );
+
+  // Sin llave de visión, tocar la cámara tiene que DECIRLO, no fallar.
+  if (hayCamara) {
+    await camara.click();
+    await page.waitForTimeout(1800);
+    panel = await page.locator('[role="dialog"]').innerText();
+    const honesto = /todavía no está activada|not enabled|foto a la etiqueta|photo of the label|crear? (tu )?cuenta|create your account/i.test(panel);
+    (honesto ? ok : fail)(
+      'The camera button says what it can do, or why it cannot',
+      honesto ? 'dijo qué pasa' : panel.slice(-140).replace(/\s+/g, ' ')
+    );
+  }
+  await page.keyboard.press('Escape');
+} catch (e) {
+  fail('Product analysis flow', String(e).slice(0, 120));
+}
+
 try {
   await page.evaluate(() => document.getElementById('calculadora')?.scrollIntoView());
   await page.waitForTimeout(500);

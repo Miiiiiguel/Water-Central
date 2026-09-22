@@ -57,6 +57,19 @@ const CONTEXTO_MERCADO =
 const NO_ES_BUSQUEDA =
   /\b(flete|fletes|envio|envios|cotiza|cotizar|cotizacion|como empiezo|empezar|agendar|reunion|llamada|consultoria|prep center|quien eres|contacto|whatsapp|telefono|reembolso|factura|suscripcion|cancelar)\b/;
 
+/**
+ * Clasificar un producto tampoco es una consulta de mercado, y tiene
+ * exactamente la forma de una: "analizá mi producto" lleva el verbo
+ * ("analiza") y el contexto ("producto"), así que se iba derecho a la
+ * mesa de consultas —que se cobra— y contestaba otra cosa.
+ *
+ * Esto va aparte de NO_ES_BUSQUEDA porque no sólo frena la consulta:
+ * marca que la pregunta es para el lector de etiquetas, que es de la
+ * casa y no cuesta un crédito.
+ */
+const ES_CLASIFICAR =
+  /\b(clasificar|clasificacion|clasifico|arancelaria|hts|nandina|etiqueta|etiquetas|composicion|escanear|escaneo|analizar (mi |el |este )?producto|analiza (mi |el |este )?producto|foto (de|del|a la)|classify|classification|tariff code|hs code|customs code|scan|label)\b/;
+
 /** A qué fuente va. */
 const SENAL_ADUANAS = [
   /\bimporta/, /\bexporta/, /\baduana/, /\barancel/, /\bpartida\b/, /\bproveedor/,
@@ -69,6 +82,11 @@ const SENAL_TIKTOK = [
 ];
 
 const hit = (patterns: RegExp[], q: string) => patterns.some((p) => p.test(q));
+
+/** ¿Esto es para el lector de etiquetas y no para la mesa de consultas? */
+export function esClasificacion(pregunta: string): boolean {
+  return ES_CLASIFICAR.test(normalize(pregunta));
+}
 
 /**
  * Palabras que nunca son el producto que se busca: preguntas, verbos,
@@ -120,7 +138,7 @@ export function detectResearch(text: string): ResearchIntent | null {
 
   // El veto va primero: hay preguntas con forma de búsqueda que no lo
   // son, y buscar ahí cuesta dinero y contesta otra cosa.
-  if (NO_ES_BUSQUEDA.test(q)) return null;
+  if (NO_ES_BUSQUEDA.test(q) || ES_CLASIFICAR.test(q)) return null;
 
   const term = extractTerm(text);
   const datos = hit(PIDE_DATOS, q);
