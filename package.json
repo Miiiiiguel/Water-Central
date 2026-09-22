@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && node scripts/copy-hts.mjs",
     "start": "NODE_ENV=production node dist/index.js",
     "preview": "vite preview --host",
     "check": "tsc --noEmit",
@@ -19,6 +19,7 @@
     "backup:db": "bash scripts/backup-db.sh",
     "test": "vitest run",
     "test:watch": "vitest",
+    "hts:ingest": "node scripts/hts-ingest.mjs",
     "sicex:explore": "tsx scripts/sicex-explore.ts",
     "kalodata:check": "tsx scripts/kalodata-check.ts"
   },

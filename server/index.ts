@@ -15,6 +15,7 @@ import { freightRouter } from "./freight";
 import { cspRouter } from "./csp";
 import { accountRouter } from "./account";
 import { seoRouter } from "./seo";
+import { etiquetaRouter } from "./etiqueta/route";
 import { securityHeaders, permissionsPolicy, corsPolicy, methodAllowlist, apiRateLimiter } from "./security";
 import compression from "compression";
 import { validateEnv } from "./env";
@@ -55,6 +56,7 @@ async function startServer() {
   app.use("/api", freightRouter);
   app.use("/api", cspRouter);
   app.use("/api", accountRouter);
+  app.use("/api", etiquetaRouter);
   // Anything under /api that no router claimed is a 404, never the SPA shell.
   app.use("/api", (_req, res) => res.status(404).json({ error: "Not found" }));
 

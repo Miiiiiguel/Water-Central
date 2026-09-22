@@ -1,0 +1,8 @@
+{
+  "fuente": "USITC Harmonized Tariff Schedule (export oficial)",
+  "archivo": "htsdata.csv",
+  "filas": 35804,
+  "conNumeroHts": 29860,
+  "sha256DelCsv": "993abbe4e54c926c4e2fb9043a45d195fea7788589aa83b2a1ddc85d71a9c86d",
+  "cargadoEl": "2026-09-22"
+}

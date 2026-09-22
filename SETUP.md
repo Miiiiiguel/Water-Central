@@ -335,6 +335,104 @@ tarifas ni tus descuentos.
   `freight_quotes` con `zone` y `quote_cop`, visible en el panel y en
   el CSV del equipo.
 
+## 2d. Analizar producto: leer la etiqueta y clasificarla (`/analizar`)
+
+Tomás una foto de la etiqueta de composición y la app lee la tela, la
+prenda y lo que haga falta para clasificarla en el arancel de Estados
+Unidos.
+
+Está construido por fases para poder validar cada una por separado. Lo
+que hay hoy:
+
+| Fase | Qué hace | Estado |
+|---|---|---|
+| 1 | Cámara, validación de la imagen y OCR | Hecha |
+| 2 | Del texto a composición estructurada | Hecha |
+| 3 | Tipo de prenda, género, punto o plano | Hecha |
+| 4 | Arancel HTS cargado y consultable | Hecha (datos) |
+| 5 | Motor de clasificación HTS | Pendiente |
+| 6 | Cálculo del arancel | Pendiente |
+| 7 | Datos de comercio exterior (servicio aparte) | Pendiente |
+| 8 | Todo dentro del chat de Marco Polo | Pendiente |
+
+### Qué hay que configurar
+
+Sólo el modelo de visión, y usa la llave que ya tenés para el chat:
+
+```
+ANTHROPIC_API_KEY=...            # la misma del chat
+ANTHROPIC_OCR_MODEL=claude-sonnet-5
+```
+
+Sin la llave la pantalla lo dice y no ofrece el botón, en vez de fallar
+al tocarlo. Podés comprobarlo sin entrar a la app:
+
+```
+curl https://tu-dominio/api/etiqueta/estado
+{"ocr":true,"falta":null,"formatos":["image/jpeg","image/png","image/webp"]}
+```
+
+### El arancel (HTS)
+
+El archivo cargado es el export oficial de la USITC: 35.804 filas,
+29.860 con número de partida, tal como vienen. Vive comprimido en
+`server/hts/hts.ndjson.gz` (574 KB) con su ficha de procedencia en
+`hts.meta.json`.
+
+Para cargar una revisión nueva, sin perder nada de la anterior:
+
+```
+# 1. Bajá el export de hts.usitc.gov (Export -> CSV; si es Excel, guardalo como CSV)
+# 2. Cargalo
+pnpm hts:ingest htsdata.csv
+# 3. Las pruebas avisan si la tarifa conocida de una partida cambió
+pnpm test server/hts
+```
+
+El script no interpreta ni corrige: copia las nueve columnas y para todo
+si el encabezado no es el oficial. Lo derivado —el padre de cada
+partida, la descripción completa, qué arancel manda— se calcula al leer
+el archivo, nunca se escribe encima del original.
+
+**El detalle que cambia el resultado:** una partida de diez dígitos casi
+nunca publica tarifa. En el export, 6101.20.00.10 tiene la columna del
+arancel vacía y el 15,9% está en su padre, 6101.20.00. Quien lea la fila
+sola concluye que la prenda entra libre de arancel. Por eso `arancelDe()`
+sube por el árbol hasta encontrar la tarifa que manda y dice de qué
+partida la sacó.
+
+### La regla que no se negocia
+
+Un código HTS no se inventa. La única puerta por la que puede salir una
+partida es una búsqueda sobre el archivo cargado (`buscar()` en
+`server/hts/store.ts`); si el código no existe en ese archivo, `existe()`
+devuelve falso y no se usa. Cuando el motor de clasificación entre
+(fase 5), va a elegir entre resultados de esa búsqueda, no a escribir un
+número.
+
+### Lo que la app pregunta sola
+
+El arancel de textiles se decide por tres datos que la etiqueta casi
+nunca trae completos:
+
+- **De punto o plana.** Capítulo 61 contra 62: son partidas distintas y
+  pagan distinto. Cuando la prenda casi siempre es de un tejido (una
+  camiseta es de punto) se supone y se marca como supuesto; cuando no
+  —una camisa puede ser cualquiera de las dos— se pregunta.
+- **Para quién es.** Hombre, mujer, niño o bebé, cada uno con su partida.
+- **Qué fibra pesa más en la tela exterior.** No la del forro: una
+  chaqueta con exterior de poliéster y forro de algodón no es de algodón.
+
+Si la etiqueta trae capas ("SHELL / LINING"), se guardan por separado y
+clasifica la exterior.
+
+### Cuando el OCR no lee
+
+Se dice. Una foto borrosa devuelve "no se leyó nada" con el consejo de
+acercar la cámara, no un texto plausible: una composición inventada acá
+se convierte después en una partida equivocada y en un problema en
+aduana.
+
 ## 3. Calendario (Calendly o Cal.com)
 
 1. Crea tu página de agenda en [calendly.com](https://calendly.com) o

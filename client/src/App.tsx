@@ -20,6 +20,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const RoiCalculator = lazy(() => import("./pages/RoiCalculator"));
 const Diagnostico = lazy(() => import("./pages/Diagnostico"));
 const Estado = lazy(() => import("./pages/Estado"));
+const AnalizarProducto = lazy(() => import("./pages/AnalizarProducto"));
 const ChatbotWidget = lazy(() => import("./components/ChatbotWidget"));
 import ScrollProgress from "./components/ScrollProgress";
 import { useIdleMount } from "./lib/useIdleMount";
@@ -92,6 +93,11 @@ function Router() {
           <Route path={"/diagnostico"}>
             <Suspense fallback={<PageFallback />}>
               <Diagnostico />
+            </Suspense>
+          </Route>
+          <Route path={"/analizar"}>
+            <Suspense fallback={<PageFallback />}>
+              <AnalizarProducto />
             </Suspense>
           </Route>
           <Route path={"/restablecer"}>
