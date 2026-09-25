@@ -145,8 +145,19 @@ export async function prepararFoto(archivo: File): Promise<FotoLista> {
   };
 }
 
-function cargarImagen(archivo: File): Promise<ImageBitmap | HTMLImageElement> {
-  if ('createImageBitmap' in window) return createImageBitmap(archivo);
+async function cargarImagen(archivo: File): Promise<ImageBitmap | HTMLImageElement> {
+  // Una foto vertical de teléfono viene guardada acostada, con una marca
+  // EXIF que dice cómo girarla. Se pide explícito que la respete: la
+  // etiqueta tiene que llegar derecha al lector.
+  if ('createImageBitmap' in window) {
+    try {
+      return await createImageBitmap(archivo, { imageOrientation: 'from-image' });
+    } catch {
+      // Un navegador que no conoce la opción, o un formato que
+      // createImageBitmap no abre: se prueba con <img>, que también
+      // respeta la orientación.
+    }
+  }
   return new Promise((resolver, rechazar) => {
     const img = new Image();
     img.onload = () => resolver(img);

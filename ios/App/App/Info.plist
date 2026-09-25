@@ -43,6 +43,10 @@
       </array>
     </dict>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Easycomex usa la cámara para fotografiar la etiqueta de tu producto y analizarla.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Easycomex abre tus fotos solo para que elijas la imagen de la etiqueta que quieres analizar.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

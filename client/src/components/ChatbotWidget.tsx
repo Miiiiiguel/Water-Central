@@ -496,14 +496,27 @@ export default function ChatbotWidget() {
     );
   };
 
-  /** Abre la cámara, después de confirmar que el servidor puede leer. */
-  const pedirFoto = async () => {
+  // Si el servidor puede leer fotos se pregunta al abrir el chat, no al
+  // tocar la cámara. Abrir la cámara DESPUÉS de esperar una respuesta de
+  // red rompe en Safari de iPhone: el navegador sólo deja abrir el
+  // selector de archivos dentro del toque mismo, y tras un `await` ese
+  // permiso ya se venció. El botón no hacía nada, sin ningún error.
+  const [lectorListo, setLectorListo] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!open || lectorListo !== null) return;
+    estadoDelLector().then((e) => setLectorListo(e.ocr));
+  }, [open, lectorListo]);
+
+  /** Abre la cámara en el mismo toque: nada de esperar a la red antes. */
+  const pedirFoto = () => {
     setEtiquetaTexto(null);
     setEtiquetaRespuestas({});
     setEtiquetaCampo(null);
 
-    const estado = await estadoDelLector();
-    if (!estado.ocr) {
+    // Sólo se frena si ya se sabe que no hay lector. Si todavía no se
+    // sabe, se abre igual: el servidor contesta 503 con el motivo y eso
+    // ya se muestra (problemaDeEtiqueta 'no_configurado').
+    if (lectorListo === false) {
       pushBot(
         language === 'es'
           ? 'La lectura de fotos todavía no está activada en el servidor. Es configuración nuestra, no tuya: avisale al equipo y lo prendemos.'
