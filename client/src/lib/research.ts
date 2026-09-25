@@ -131,11 +131,15 @@ export async function fetchQuota(token: string | null): Promise<ResearchQuota | 
   }
 }
 
+/** Qué se pregunta dentro de la fuente: productos, creadores, tiendas… */
+export type ResearchKind = 'product' | 'creator' | 'shop' | 'video' | 'livestream';
+
 export async function runResearch(
   token: string | null,
   source: ResearchSource,
   query: string,
-  country?: string
+  country?: string,
+  kind?: ResearchKind
 ): Promise<ResearchOutcome> {
   if (!token) return { kind: 'unauthenticated' };
 
@@ -143,7 +147,7 @@ export async function runResearch(
     const res = await fetch('/api/research', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ source, query, ...(country ? { country } : {}) }),
+      body: JSON.stringify({ source, query, ...(country ? { country } : {}), ...(kind && kind !== 'product' ? { kind } : {}) }),
     });
     const data = await res.json().catch(() => ({}));
 

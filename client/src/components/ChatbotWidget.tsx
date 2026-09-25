@@ -5,7 +5,7 @@ import { X, Send, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle, Search, 
 import { useLanguage } from '@/contexts/LanguageContext';
 import { matchKnowledge, followUpsFor, MARCO_POLO, type SectionAction } from '@/lib/chatbotKnowledge';
 import { startCheckout, checkoutMessage } from '@/lib/checkout';
-import { detectResearch } from '@/lib/researchIntent';
+import { aConsulta, detectResearch } from '@/lib/researchIntent';
 import { whatsappUrl } from '@/lib/contact';
 import { hapticTap, isNative, openExternal } from '@/lib/native';
 import {
@@ -22,7 +22,7 @@ import {
 } from '@/lib/voice';
 import MarcoPoloAvatar from './MarcoPoloAvatar';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchQuota, runResearch, formatResult, consumePendingResearch, SOURCE_LABEL, SOURCE_BLURB, RESEARCH_EVENT, type ResearchQuota, type ResearchRequest, type ResearchSource } from '@/lib/research';
+import { fetchQuota, runResearch, formatResult, consumePendingResearch, SOURCE_LABEL, SOURCE_BLURB, RESEARCH_EVENT, type ResearchKind, type ResearchQuota, type ResearchRequest, type ResearchSource } from '@/lib/research';
 import { analizarFoto, estadoDelLector, pedirPartidas, prepararFoto, reinterpretar, type Analisis, type Respuestas } from '@/lib/etiqueta';
 import { leerChip, textoDePartidas, turnoDe, type Turno } from '@/lib/etiquetaChat';
 
@@ -71,7 +71,15 @@ function timeLabel(at: number) {
 interface PendingResearch {
   source: ResearchSource;
   term: string;
+  kind?: ResearchKind;
+  country?: string;
   at: number;
+}
+
+/** Lo que precisa una consulta además de la fuente y el término. */
+interface Detalle {
+  kind?: ResearchKind;
+  country?: string;
 }
 
 const PENDING_KEY = 'easycomex:marcopolo:pendiente';
@@ -331,9 +339,9 @@ export default function ChatbotWidget() {
 
   // Runs one lookup and reports exactly what happened — including the
   // cases where there is nothing to show.
-  const doResearch = async (source: ResearchSource, term: string) => {
+  const doResearch = async (source: ResearchSource, term: string, detalle: Detalle = {}) => {
     setTyping(true);
-    const outcome = await runResearch(getAccessToken(), source, term);
+    const outcome = await runResearch(getAccessToken(), source, term, detalle.country, detalle.kind);
     setTyping(false);
     setResearchMode(null);
 
@@ -352,7 +360,7 @@ export default function ChatbotWidget() {
     // Nadie ha entrado: se guarda la pregunta para retomarla sola apenas
     // haya sesión, en vez de hacerla escribir otra vez.
     if (outcome.kind === 'unauthenticated') {
-      recordarPendiente({ source, term, at: Date.now() });
+      recordarPendiente({ source, term, ...detalle, at: Date.now() });
       pushBot(
         language === 'es'
           ? 'Esta búsqueda va contra fuentes de pago, así que necesito saber quién sos. Creá tu cuenta en 30 segundos (es gratis) y arrancás con 2 consultas por día incluidas — más si tenés un plan. Me guardo tu pregunta y la corro apenas entres.'
@@ -368,7 +376,7 @@ export default function ChatbotWidget() {
     // Había sesión y el servidor la rechazó. Decirle "creá tu cuenta" a
     // alguien que acaba de entrar es lo que lo dejaba dando vueltas.
     if (outcome.kind === 'session_expired') {
-      recordarPendiente({ source, term, at: Date.now() });
+      recordarPendiente({ source, term, ...detalle, at: Date.now() });
       pushBot(
         language === 'es'
           ? `${outcome.message || 'Tu sesión ya no vale.'} Me guardo la pregunta y la retomo cuando vuelvas a entrar.`
@@ -381,7 +389,7 @@ export default function ChatbotWidget() {
     // Ni la sesión ni la pregunta tienen la culpa: falta configuración
     // nuestra. Se dice así, con el motivo que manda el servidor.
     if (outcome.kind === 'app_misconfigured') {
-      recordarPendiente({ source, term, at: Date.now() });
+      recordarPendiente({ source, term, ...detalle, at: Date.now() });
       pushBot(
         language === 'es'
           ? `${outcome.message} No es tu cuenta ni tu conexión, y tampoco te descontamos nada.`
@@ -666,8 +674,13 @@ export default function ChatbotWidget() {
       return;
     }
 
+    // Después de "Buscar en TikTok Shop" la gente escribe la pregunta
+    // entera, no una palabra clave. Se mandaba la frase completa
+    // ("quienes son los creadores que mas venden shampoo...") como
+    // palabra clave, y así no hay nada que coincida.
     if (researchMode) {
-      doResearch(researchMode, trimmed);
+      const c = aConsulta(researchMode, trimmed);
+      doResearch(researchMode, c.term, { kind: c.kind, country: c.country });
       return;
     }
 
@@ -684,7 +697,7 @@ export default function ChatbotWidget() {
     // cobrar por nada y contestar otra cosa.
     const intent = detectResearch(trimmed);
     if (intent) {
-      doResearch(intent.source, intent.term);
+      doResearch(intent.source, intent.term, { kind: intent.kind, country: intent.country });
       return;
     }
 
@@ -698,15 +711,19 @@ export default function ChatbotWidget() {
   useEffect(() => {
     if (!user || !pendiente || retomando.current) return;
     retomando.current = true;
-    const { source, term } = pendiente;
+    const { source } = pendiente;
+    // Una pregunta guardada por una versión anterior puede traer la
+    // frase entera como término: se limpia igual que una recién escrita.
+    const c = pendiente.kind ? { term: pendiente.term, kind: pendiente.kind, country: pendiente.country } : aConsulta(source, pendiente.term);
+    const pregunta = pendiente.term;
     recordarPendiente(null);
     setOpen(true);
     pushBot(
       language === 'es'
-        ? `Listo, ya sé quién sos. Retomo lo que me preguntaste${term ? ` sobre ${term}` : ''}.`
-        : `Great, I know who you are now. Picking up your question${term ? ` about ${term}` : ''}.`
+        ? `Listo, ya sé quién sos. Retomo lo que me preguntaste${pregunta ? `: "${pregunta}"` : ''}.`
+        : `Great, I know who you are now. Picking up your question${pregunta ? `: "${pregunta}"` : ''}.`
     );
-    doResearch(source, term);
+    doResearch(source, c.term, { kind: c.kind, country: c.country });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, pendiente]);
 

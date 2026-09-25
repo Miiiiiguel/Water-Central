@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { MARKETS, NAMED_RANGES, baseFrom, buildRequest, dateRangeFor, endpointFor, envelopeError, languageFor, marketFor, pickRecords, toResult, wasCached } from './kalodata';
+import { afterEach, describe, expect, it } from 'vitest';
+import { MARKETS, NAMED_RANGES, baseFrom, buildRequest, creatorsFromVideos, dateRangeFor, endpointFor, envelopeError, languageFor, marketFor, moduleFor, pickRecords, runKalodata, termsToTry, toResult, wasCached } from './kalodata';
 
 // Kalodata cobra por llamada (1 crédito ≈ 0.1 USD), así que el cuerpo de
 // la petición tiene que salir bien a la primera. Estas pruebas fijan lo
@@ -229,5 +229,96 @@ describe('toResult', () => {
   it('nunca devuelve más de cinco filas a la conversación', () => {
     const list = Array.from({ length: 40 }, (_, i) => ({ product_name: `p${i}`, revenue: i }));
     expect(toResult('jeans', 'US', { data: { list } }, url).rows).toHaveLength(5);
+  });
+});
+
+describe('preguntas que no son de productos', () => {
+  it('los creadores que venden algo salen de los videos de ese algo', () => {
+    expect(moduleFor('creator', 'shampoo')).toBe('video');
+    expect(moduleFor('creator', '')).toBe('creator');
+    expect(moduleFor('shop', 'jeans')).toBe('shop');
+    expect(moduleFor(undefined, 'jeans')).toBe('product');
+  });
+
+  it('prueba de la palabra clave más precisa a la más amplia, tres como mucho', () => {
+    expect(termsToTry('shampoo natural sant')).toEqual(['shampoo natural sant', 'shampoo natural', 'shampoo']);
+    expect(termsToTry('a b c d e')).toHaveLength(3);
+    expect(termsToTry('')).toEqual(['']);
+  });
+
+  it('suma los videos por creador y ordena por lo que vendieron', () => {
+    const c = creatorsFromVideos([
+      { belonged_creator_handle: 'ana', revenue: 100, sales_volumn: 4 },
+      { belonged_creator_handle: 'beto', revenue: 900, sales_volumn: 30 },
+      { belonged_creator_handle: '@Ana', revenue: 50, sales_volumn: 1 },
+      { video_title: 'sin creador', revenue: 10_000 },
+    ]);
+    expect(c).toEqual([
+      { handle: 'beto', revenue: 900, sales: 30, videos: 1 },
+      { handle: 'ana', revenue: 150, sales: 5, videos: 2 },
+    ]);
+  });
+});
+
+describe('runKalodata contra un servidor falso', () => {
+  const original = globalThis.fetch;
+  const llaveAntes = process.env.KALODATA_API_KEY;
+  afterEach(() => {
+    globalThis.fetch = original;
+    if (llaveAntes === undefined) delete process.env.KALODATA_API_KEY;
+    else process.env.KALODATA_API_KEY = llaveAntes;
+  });
+
+  function falso(respuestas: unknown[]) {
+    const pedidos: { url: string; body: Record<string, unknown> }[] = [];
+    globalThis.fetch = (async (url: string, init: RequestInit) => {
+      pedidos.push({ url, body: JSON.parse(String(init.body)) });
+      return new Response(JSON.stringify(respuestas.shift()), { status: 200 });
+    }) as unknown as typeof fetch;
+    return pedidos;
+  }
+
+  it('la pregunta de los creadores de shampoo: recorta la errata y agrupa por creador', async () => {
+    process.env.KALODATA_API_KEY = 'k';
+    const pedidos = falso([
+      { success: true, data: { list: [] } },
+      { success: true, data: { list: [] } },
+      {
+        success: true,
+        data: {
+          list: [
+            { video_title: 'mi rutina', belonged_creator_handle: 'rizos.naturales', revenue: 12500, sales_volumn: 800 },
+            { video_title: 'shampoo sin sal', belonged_creator_handle: 'glowconmaria', revenue: 3100, sales_volumn: 150 },
+            { video_title: 'parte 2', belonged_creator_handle: 'rizos.naturales', revenue: 2500, sales_volumn: 90 },
+          ],
+        },
+      },
+    ]);
+    const r = await runKalodata('shampoo natural sant', 'US', { kind: 'creator' });
+
+    expect(pedidos.map((p) => p.body.keyword)).toEqual(['shampoo natural sant', 'shampoo natural', 'shampoo']);
+    expect(pedidos.every((p) => p.url.endsWith('/video/rank'))).toBe(true);
+    expect(r.summary).toContain('Con "shampoo natural sant" no hubo resultados, así que busqué "shampoo"');
+    expect(r.summary).toContain('creadores que más venden "shampoo"');
+    expect(r.summary).not.toMatch(/kalodata/i);
+    expect(r.rows[0]).toEqual({ label: '@rizos.naturales', value: 'ingresos: 15.0K USD · ventas: 890 · 2 videos' });
+    expect(r.rows[1].label).toBe('@glowconmaria');
+  });
+
+  it('corta en el primer intento que trae algo: no gasta llamadas de más', async () => {
+    process.env.KALODATA_API_KEY = 'k';
+    const pedidos = falso([{ success: true, data: { list: [{ product_name: 'Jeans', revenue: 10 }] } }]);
+    await runKalodata('jeans rotos', 'US');
+    expect(pedidos).toHaveLength(1);
+    expect(pedidos[0].url.endsWith('/product/rank')).toBe(true);
+  });
+
+  it('si nada coincide, lo dice con lo que la persona preguntó', async () => {
+    process.env.KALODATA_API_KEY = 'k';
+    falso([{ success: true, data: { list: [] } }, { success: true, data: { list: [] } }]);
+    const r = await runKalodata('xyz abc', 'US');
+    expect(r.summary).toMatch(/sin resultados/i);
+    expect(r.summary).toContain('"xyz abc"');
+    expect(r.rows).toEqual([]);
   });
 });

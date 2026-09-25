@@ -18,7 +18,7 @@
 //                      el conector genérico de abajo, para cuando Sicex
 //                      exponga una API HTTP directa.
 
-import { isConfigured as kalodataConfigured, missingConfig as kalodataMissing, runKalodata as kalodataQuery } from './kalodata';
+import { isConfigured as kalodataConfigured, missingConfig as kalodataMissing, runKalodata as kalodataQuery, type Kind } from './kalodata';
 
 export interface ResearchRow {
   label: string;
@@ -177,8 +177,8 @@ async function call(config: ProviderConfig, query: string, country?: string): Pr
 // Kalodata no encaja en el conector genérico: es POST + JSON con la
 // llave en un encabezado, y su cuerpo lleva region / language /
 // currency / date_range. Vive en su propio módulo, con pruebas.
-export function runKalodata(query: string, country?: string): Promise<ResearchResult> {
-  return kalodataQuery(query, country);
+export function runKalodata(query: string, country?: string, kind?: Kind): Promise<ResearchResult> {
+  return kalodataQuery(query, country, { kind });
 }
 
 export function runSicex(query: string, country?: string): Promise<ResearchResult> {

@@ -79,6 +79,9 @@ const bodySchema = z.object({
   // sola letra, que nunca es una búsqueda de verdad.
   query: z.string().trim().max(160).refine((v) => v.length !== 1, 'consulta muy corta'),
   country: z.string().trim().max(60).optional(),
+  // Qué se pregunta dentro de TikTok Shop. Sin esto, "los creadores que
+  // más venden shampoo" se contestaba con el ranking de productos.
+  kind: z.enum(['product', 'creator', 'shop', 'video', 'livestream']).optional(),
 });
 
 // Tighter than the general API limit: each call hits a paid third-party
@@ -195,7 +198,7 @@ researchRouter.post('/research', researchRateLimiter, requireUser(), express.jso
     logSecurityEvent('invalid_input', req, { form: 'research' });
     return res.status(400).json({ error: 'invalid_query' });
   }
-  const { query, country } = parsed.data;
+  const { query, country, kind } = parsed.data;
   const source = toPublicSource(parsed.data.source)!;
   const provider = PROVIDER_OF[source];
 
@@ -248,7 +251,7 @@ researchRouter.post('/research', researchRateLimiter, requireUser(), express.jso
 
   let result: ResearchResult;
   try {
-    result = provider === 'kalodata' ? await runKalodata(query, country) : await runSicex(query, country);
+    result = provider === 'kalodata' ? await runKalodata(query, country, kind) : await runSicex(query, country);
   } catch (err) {
     // The lookup failed through no fault of the user: give the query back.
     await admin.rpc('refund_research_quota', { p_user_id: auth.user.id, p_billed: billed });

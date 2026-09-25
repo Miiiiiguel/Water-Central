@@ -819,6 +819,28 @@ El reembolso por volumen de Kalodata empieza pasando 30.000 llamadas al
 mes (USD 300/mes): 0.02 créditos por llamada entre 30k y 300k, 0.05 por
 encima. Está muy lejos; no hay nada que optimizar por ahí todavía.
 
+**Qué ranking contesta cada pregunta.** El chat lee de qué se pregunta y
+en qué mercado, y manda una palabra clave corta, nunca la frase entera:
+
+| La pregunta | Ranking | Cómo se arma |
+|---|---|---|
+| "los jeans más vendidos" | producto | palabra clave `jeans` |
+| "creadores que más venden shampoo en USA" | **vídeo**, mercado US | los vídeos de `shampoo`, sumados por creador (`belonged_creator_handle`) |
+| "los mejores creadores" (sin producto) | creador | ranking general |
+| "tiendas que más venden jeans" | tienda | palabra clave `jeans` |
+| "vídeos" / "en vivo" | vídeo / livestream | palabra clave |
+
+Los creadores de un producto salen de los vídeos porque en el ranking de
+creadores la palabra clave busca por el nombre del creador. Si la
+palabra clave no trae nada, se prueba recortándola ("shampoo natural
+sant" → "shampoo natural" → "shampoo"), tres intentos como mucho, y se
+le dice a la persona qué se buscó al final. Cada intento es una llamada
+(USD 0.01), pero la cuota del cliente se descuenta una sola vez.
+
+Si el cliente pregunta y la respuesta es "La fuente no respondió", el
+motivo real está en los logs de Render, en la línea `kalodata lookup
+failed:` (ahí sí aparece el código de error de Kalodata).
+
 **Verificar la conexión:** `pnpm kalodata:check`. Prueba los nombres de
 encabezado habituales y **para en cuanto uno funciona** (los fallidos no
 cuestan; el que acierta sí, y con una vez basta).

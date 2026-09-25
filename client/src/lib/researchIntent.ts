@@ -1,4 +1,4 @@
-import type { ResearchSource } from '@/lib/research';
+import type { ResearchKind, ResearchSource } from '@/lib/research';
 
 // ¿Esta pregunta se contesta con datos, o con palabras?
 //
@@ -14,8 +14,18 @@ import type { ResearchSource } from '@/lib/research';
 // de soya" caían todas en la respuesta genérica. Por eso ahora suma
 // señales en vez de exigir una sola.
 
+/**
+ * Qué se está preguntando dentro de TikTok Shop. "Los creadores que más
+ * venden shampoo" no se contesta con el ranking de productos: se iba a
+ * productos igual, con la frase entera de palabra clave, y volvía vacío.
+ */
+export type { ResearchKind };
+
 export interface ResearchIntent {
   source: ResearchSource;
+  kind: ResearchKind;
+  /** Mercado de TikTok Shop (ISO), cuando la pregunta lo nombra. */
+  country?: string;
   /**
    * El término que se manda a la fuente. Puede ir VACÍO a propósito:
    * "qué se vende más en TikTok Shop" no tiene término, es el ranking
@@ -30,7 +40,7 @@ const normalize = (s: string) =>
 /** Señales de que la pregunta pide un DATO. */
 const PIDE_DATOS = [
   /\bmas vendid/, /\bmejor(es)? (producto|articulo|venta|vendido)/, /\bque se vende/, /\bque se venden/,
-  /\bse vende mas/, /\bcuanto se vende/, /\btop\b/, /\branking\b/, /\btendencia/, /\bde moda\b/,
+  /\bse vende mas/, /\bcuanto se vende/, /\bmas vend/, /\bvenden mas\b/, /\bmas venta/, /\btop\b/, /\branking\b/, /\btendencia/, /\bde moda\b/,
   /\bque vender\b/, /\bproductos? ganador/, /\bmercado de\b/, /\bque hay de nuevo/, /\binteligencia\b/,
   /\bquien (importa|exporta|compra|vende)/, /\bque empresas/, /\bcuanto se (importa|exporta)/,
   /\bcompetencia\b/, /\bcompetidor/, /\bdemanda\b/, /\bnicho/, /\boportunidad/, /\bestadistica/,
@@ -114,6 +124,10 @@ const VACIAS = new Set([
   'busca', 'buscame', 'buscar', 'busque', 'muestra', 'muestrame', 'mostrar', 'dame', 'damelo', 'ver', 'veamos',
   'analiza', 'analizar', 'analisis', 'consulta', 'consultar', 'investiga', 'investigar', 'revisa', 'revisame',
   'averigua', 'averiguame', 'mira', 'mirame',
+  // Qué se pregunta (creadores, tiendas, videos), no de qué producto.
+  'creador', 'creadores', 'creadora', 'creadoras', 'contenido', 'influencer', 'influencers', 'afiliado', 'afiliados',
+  'tienda', 'tiendas', 'vendedor', 'vendedores', 'video', 'videos', 'vivo', 'vivos', 'live', 'lives', 'transmision',
+  'transmisiones', 'creator', 'creators', 'shops', 'sellers', 'seller', 'livestream', 'livestreams',
   'what', 'which', 'who', 'where', 'how', 'best', 'selling', 'sells', 'sell', 'trending', 'trends', 'products',
   'product', 'companies', 'company', 'imports', 'import', 'exports', 'export', 'customs', 'the', 'an', 'in', 'on',
   'of', 'for', 'and', 'or', 'is', 'are', 'most', 'sold', 'suppliers', 'supplier', 'demand', 'search', 'find', 'show',
@@ -124,12 +138,76 @@ const VACIAS = new Set([
  * lo que es pregunta. Máximo tres palabras — las fuentes buscan por
  * palabra clave, no por frase.
  */
-export function extractTerm(text: string): string {
-  const palabras = normalize(text)
-    .replace(/[^a-z0-9ñ\s]/g, ' ')
+export function extractTerm(text: string, opts: { sinMercado?: boolean } = {}): string {
+  let limpio = normalize(text).replace(/[^a-z0-9ñ\s]/g, ' ');
+  // En TikTok Shop el país es el mercado, no parte del producto:
+  // "shampoo en USA" busca "shampoo" en el mercado US. En aduanas no se
+  // toca, porque ahí el país sí puede ser lo que se pregunta.
+  if (opts.sinMercado) for (const [, patron] of MERCADOS) limpio = limpio.replace(patron, ' ');
+  const palabras = limpio
     .split(/\s+/)
     .filter((w) => w.length > 2 && !VACIAS.has(w) && !/^\d+$/.test(w));
   return palabras.slice(0, 3).join(' ');
+}
+
+/**
+ * Los mercados de TikTok Shop, como los escribe la gente. Sólo los que
+ * la fuente cubre: nombrar otro país no cambia el mercado.
+ */
+const MERCADOS: Array<[string, RegExp]> = [
+  ['US', /\b(usa|eeuu|ee uu|estados unidos|united states|norteamerica|gringolandia)\b/g],
+  ['MX', /\b(mexico)\b/g],
+  ['BR', /\b(brasil|brazil)\b/g],
+  ['ES', /\b(espana|spain)\b/g],
+  ['GB', /\b(reino unido|inglaterra|united kingdom|uk)\b/g],
+  ['DE', /\b(alemania|germany)\b/g],
+  ['FR', /\b(francia|france)\b/g],
+  ['IT', /\b(italia|italy)\b/g],
+  ['JP', /\b(japon|japan)\b/g],
+  ['ID', /\b(indonesia)\b/g],
+  ['TH', /\b(tailandia|thailand)\b/g],
+  ['VN', /\b(vietnam|viet nam)\b/g],
+  ['PH', /\b(filipinas|philippines)\b/g],
+  ['MY', /\b(malasia|malaysia)\b/g],
+  ['SG', /\b(singapur|singapore)\b/g],
+];
+
+/** El mercado que nombra la pregunta, o nada (la fuente usa US). */
+export function detectMarket(text: string): string | undefined {
+  const q = normalize(text).replace(/[^a-z0-9ñ\s]/g, ' ');
+  for (const [codigo, patron] of MERCADOS) {
+    patron.lastIndex = 0;
+    if (patron.test(q)) return codigo;
+  }
+  return undefined;
+}
+
+/** De qué habla la pregunta: productos (lo normal), creadores, tiendas… */
+export function detectKind(text: string): ResearchKind {
+  const q = normalize(text);
+  if (/\b(creador|creadora|influencer|creator|afiliad)/.test(q)) return 'creator';
+  if (/\b(en vivo|lives?|livestreams?|transmision)/.test(q)) return 'livestream';
+  if (/\bvideos?\b/.test(q)) return 'video';
+  // "tiktok shop" lleva "shop": sólo cuentan las formas que nombran a
+  // quien vende, no a la plataforma.
+  if (/\b(tiendas?|vendedores|sellers|shops)\b/.test(q)) return 'shop';
+  return 'product';
+}
+
+/**
+ * Lo que se manda a la fuente cuando la persona escribió una frase
+ * entera en lugar de una palabra clave (después del botón "Buscar en
+ * TikTok Shop", o una pregunta guardada mientras entraba). Una palabra
+ * clave corta se respeta tal cual.
+ */
+export function aConsulta(source: ResearchSource, texto: string): { term: string; kind: ResearchKind; country?: string } {
+  const tiktok = source === 'tiktok';
+  const larga = texto.trim().split(/\s+/).length > 3;
+  return {
+    term: larga ? extractTerm(texto, { sinMercado: tiktok }) : texto.trim(),
+    kind: tiktok ? detectKind(texto) : 'product',
+    country: tiktok ? detectMarket(texto) : undefined,
+  };
 }
 
 export function detectResearch(text: string): ResearchIntent | null {
@@ -156,5 +234,7 @@ export function detectResearch(text: string): ResearchIntent | null {
   // Las dos señales a la vez, o ninguna: manda aduanas sólo si es la
   // única, porque es la más específica. Sin ninguna, el ranking de
   // marketplace es la respuesta útil por defecto.
-  return { source: aduanas && !tiktok ? 'aduanas' : 'tiktok', term };
+  const source: ResearchSource = aduanas && !tiktok ? 'aduanas' : 'tiktok';
+  if (source === 'aduanas') return { source, kind: 'product', term };
+  return { source, kind: detectKind(text), country: detectMarket(text), term: extractTerm(text, { sinMercado: true }) };
 }

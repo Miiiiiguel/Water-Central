@@ -274,16 +274,97 @@ export function toResult(query: string, market: Market, payload: unknown, source
 }
 
 /**
- * Una consulta real. Lanza si no está configurado o si Kalodata responde
- * mal — el llamador devuelve la cuota en ese caso, porque no hubo dato.
+ * Qué se pregunta. Llega del chat: "los creadores que más venden X" no
+ * es lo mismo que "los productos más vendidos de X".
  */
-export async function runKalodata(query: string, country?: string, opts: { module?: Module; language?: string } = {}): Promise<ResearchResult> {
-  const key = process.env.KALODATA_API_KEY;
-  if (!key) throw new Error('Kalodata is not configured (KALODATA_API_KEY)');
+export type Kind = 'product' | 'creator' | 'shop' | 'video' | 'livestream';
 
-  const module = opts.module ?? 'product';
+/**
+ * Qué ranking contesta cada pregunta.
+ *
+ * "Los creadores que más venden shampoo" no se contesta con el ranking de
+ * creadores: ahí la palabra clave busca por el nombre del creador, y
+ * nadie se llama shampoo. Se contesta con los videos que más venden
+ * shampoo, agrupados por quién los hizo (cada video trae
+ * `belonged_creator_handle`). Sin producto, sí va el ranking de
+ * creadores.
+ */
+export function moduleFor(kind: Kind = 'product', query = ''): Module {
+  if (kind === 'creator') return query.trim() ? 'video' : 'creator';
+  if (kind === 'shop' || kind === 'video' || kind === 'livestream') return kind;
+  return 'product';
+}
+
+/**
+ * Las palabras clave que se prueban, de la más precisa a la más amplia.
+ * "shampoo natural sant" (con la errata) no coincide con nada;
+ * "shampoo" sí. Cada intento es otra llamada (USD 0.01 cada una), así
+ * que son tres como mucho, y se corta en el primero que trae algo.
+ */
+export function termsToTry(query: string): string[] {
+  const palabras = query.trim().split(/\s+/).filter(Boolean);
+  const intentos: string[] = [];
+  for (let n = palabras.length; n >= 1 && intentos.length < 3; n--) intentos.push(palabras.slice(0, n).join(' '));
+  return intentos.length ? intentos : [''];
+}
+
+export interface CreadorAgrupado {
+  handle: string;
+  revenue: number;
+  sales: number;
+  videos: number;
+}
+
+/** Los videos, sumados por creador y ordenados por lo que vendieron. */
+export function creatorsFromVideos(records: Record<string, unknown>[]): CreadorAgrupado[] {
+  const porCreador: Record<string, CreadorAgrupado> = {};
+  const orden: string[] = [];
+  for (const r of records) {
+    const handle = [r.belonged_creator_handle, r.creator_handle].find((v) => typeof v === 'string' && v.trim()) as string | undefined;
+    if (!handle) continue;
+    // "@Ana" y "ana" son la misma cuenta: TikTok no distingue mayúsculas.
+    const clave = handle.trim().replace(/^@/, '').toLowerCase();
+    if (!porCreador[clave]) {
+      porCreador[clave] = { handle: handle.trim().replace(/^@/, ''), revenue: 0, sales: 0, videos: 0 };
+      orden.push(clave);
+    }
+    const c = porCreador[clave];
+    if (typeof r.revenue === 'number') c.revenue += r.revenue;
+    const ventas = typeof r.sales_volumn === 'number' ? r.sales_volumn : r.sales_volume;
+    if (typeof ventas === 'number') c.sales += ventas;
+    c.videos += 1;
+  }
+  return orden.map((k) => porCreador[k]).sort((a, b) => b.revenue - a.revenue || b.sales - a.sales);
+}
+
+const QUE: Record<Kind, string> = {
+  product: 'productos',
+  creator: 'creadores',
+  shop: 'tiendas',
+  video: 'videos',
+  livestream: 'transmisiones en vivo',
+};
+
+/** El resultado de "los creadores que más venden X", armado de sus videos. */
+export function toCreatorResult(query: string, market: Market, creadores: CreadorAgrupado[], currency = ''): ResearchResult {
+  const dinero = (n: number) => (currency ? `${compact(n)} ${currency}` : compact(n));
+  return {
+    summary: `TikTok Shop ${market}: los creadores que más venden "${query}", según sus videos de los últimos 30 días.`,
+    rows: creadores.slice(0, 5).map((c) => ({
+      label: `@${c.handle}`,
+      value: [
+        c.revenue ? `ingresos: ${dinero(c.revenue)}` : '',
+        c.sales ? `ventas: ${compact(c.sales)}` : '',
+        `${c.videos} video${c.videos === 1 ? '' : 's'}`,
+      ].filter(Boolean).join(' · '),
+    })),
+    total: creadores.length,
+  };
+}
+
+async function pedirRanking(module: Module, query: string, country: string | undefined, language: string | undefined, key: string) {
   const url = endpointFor(module, 'rank');
-  const body = buildRequest({ query, country, language: opts.language });
+  const body = buildRequest({ query, country, language });
 
   const res = await fetch(url, {
     method: 'POST',
@@ -294,14 +375,57 @@ export async function runKalodata(query: string, country?: string, opts: { modul
 
   if (!res.ok) {
     const detail = (await res.text().catch(() => '')).slice(0, 160).replace(/\s+/g, ' ');
-    throw new Error(`Kalodata responded ${res.status}${detail ? `: ${detail}` : ''}`);
+    throw new Error(`Kalodata ${module}/rank responded ${res.status}${detail ? `: ${detail}` : ''}`);
   }
 
   const payload = await res.json();
   // 200 con success:false es un fallo suyo: hay que tratarlo como tal,
   // no mostrar una respuesta vacía como si fuera un resultado.
   const failure = envelopeError(payload);
-  if (failure) throw new Error(`Kalodata: ${failure}`);
+  if (failure) throw new Error(`Kalodata ${module}/rank: ${failure}`);
+  return { url, body, payload };
+}
 
-  return toResult(query, body.region, payload, url, body.currency);
+/**
+ * Una consulta real. Lanza si no está configurado o si Kalodata responde
+ * mal — el llamador devuelve la cuota en ese caso, porque no hubo dato.
+ */
+export async function runKalodata(
+  query: string,
+  country?: string,
+  opts: { module?: Module; kind?: Kind; language?: string } = {}
+): Promise<ResearchResult> {
+  const key = process.env.KALODATA_API_KEY;
+  if (!key) throw new Error('Kalodata is not configured (KALODATA_API_KEY)');
+
+  const kind = opts.kind ?? 'product';
+  const module = opts.module ?? moduleFor(kind, query);
+
+  let usado = '';
+  let r: Awaited<ReturnType<typeof pedirRanking>> | null = null;
+  for (const intento of termsToTry(query)) {
+    usado = intento;
+    r = await pedirRanking(module, intento, country, opts.language, key);
+    if (pickRecords(r.payload).length) break;
+  }
+  const { url, body, payload } = r!;
+  const records = pickRecords(payload);
+  // Si ni la palabra más amplia trajo nada, se informa lo que la persona
+  // preguntó, no el último recorte.
+  const buscado = records.length ? usado : query;
+  const aviso = records.length && usado !== query.trim() ? `Con "${query.trim()}" no hubo resultados, así que busqué "${usado}". ` : '';
+
+  let result: ResearchResult;
+  const creadores = kind === 'creator' && module === 'video' ? creatorsFromVideos(records) : [];
+  if (creadores.length) {
+    result = toCreatorResult(buscado, body.region, creadores, body.currency);
+  } else {
+    result = toResult(buscado, body.region, payload, url, body.currency);
+    if (records.length && kind !== 'product') {
+      result.summary = result.summary.replace('resultado(s)', QUE[module === 'video' && kind === 'creator' ? 'video' : kind]);
+    }
+  }
+  result.summary = aviso + result.summary;
+  result.sourceUrl = url;
+  return result;
 }
