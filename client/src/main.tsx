@@ -3,6 +3,7 @@ import App from "./App";
 import { initAnalytics } from "./lib/analytics";
 import { captureReferralCode } from "./lib/referral";
 import { initNative, isNative } from "./lib/native";
+import { baseDelServidor, instalarServidor } from "./lib/apiBase";
 import "./index.css";
 
 // Webfonts: the <link> in index.html is a preload so it never blocks first
@@ -12,6 +13,10 @@ if (webfonts) {
   webfonts.rel = "stylesheet";
   webfonts.removeAttribute("as");
 }
+
+// En la app nativa, /api tiene que ir al servidor de verdad (ver
+// lib/apiBase.ts). Va primero: antes de cualquier pedido.
+instalarServidor(baseDelServidor(isNative, import.meta.env.VITE_API_URL as string | undefined));
 
 initAnalytics();
 captureReferralCode();

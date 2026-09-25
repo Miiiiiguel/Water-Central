@@ -109,7 +109,9 @@ export const corsPolicy: RequestHandler = (req, res, next) => {
       logSecurityEvent('cors_rejected', req);
       callback(new Error('Origin not allowed'));
     },
-    methods: ['GET', 'POST'],
+    // DELETE: borrar la cuenta desde la app nativa, que llama desde otro
+    // origen y necesita que el preflight lo permita.
+    methods: ['GET', 'POST', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     maxAge: 600,
   })(req, res, next);
