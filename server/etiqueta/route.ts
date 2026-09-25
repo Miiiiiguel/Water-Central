@@ -6,6 +6,8 @@ import { logSecurityEvent } from '../log';
 import { EXPLICACION, proveedorActivo, queFaltaParaOcr, revisarImagen, MIMES_ACEPTADOS } from './ocr';
 import { analizar } from './analisis';
 import { diagnosticarIA, modeloDeOcr } from '../anthropicError';
+import { configurado as partidasConectadas, FalloFedex } from '../fedex/cliente';
+import { sugerirPartidas } from '../fedex/partidas';
 
 // La mesa de análisis de producto: foto -> texto -> datos.
 //
@@ -20,6 +22,8 @@ export const etiquetaRouter = express.Router();
 // Una foto por vez, y no más de veinte por cuarto de hora: cada una
 // cuesta dinero de verdad.
 const limiteAnalisis = makeLimiter('etiqueta', 20);
+// Las partidas sugeridas salen de un servicio externo con cuota propia.
+const limitePartidas = makeLimiter('partidas', 30);
 /** La foto ya reducida viaja en base64, que abulta un tercio más. */
 const LIMITE_CUERPO = '9mb';
 
@@ -57,6 +61,8 @@ etiquetaRouter.get('/etiqueta/estado', (_req, res) => {
     // esa cuenta no tiene habilitado. Verlo acá ahorra abrir los logs.
     modelo: modeloDeOcr(),
     formatos: MIMES_ACEPTADOS,
+    // Si hay partidas sugeridas. Sin decir de dónde salen.
+    partidas: partidasConectadas(),
   });
 });
 
@@ -133,5 +139,48 @@ etiquetaRouter.post(
     const parsed = cuerpoInterpretar.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: 'texto_invalido' });
     res.json(analizar(parsed.data.texto, parsed.data.respuestas));
+  }
+);
+
+/**
+ * Partidas sugeridas para un producto ya analizado. Sale a un servicio
+ * externo, así que pide sesión, tiene su propio límite y sólo devuelve
+ * códigos que existen en el arancel cargado (ver server/fedex/).
+ */
+etiquetaRouter.post(
+  '/etiqueta/partidas',
+  limitePartidas,
+  requireUser(),
+  express.json({ limit: '32kb' }),
+  async (req, res) => {
+    const parsed = cuerpoInterpretar.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'texto_invalido' });
+    const { texto, respuestas: contestadas = {} } = parsed.data;
+
+    const analisis = analizar(texto, contestadas);
+    if (!analisis.familia) return res.json({ partidas: [], sugeridas: 0 });
+
+    try {
+      const r = await sugerirPartidas(analisis, contestadas);
+      // Lo que el proveedor sugirió y no existe en el arancel no llega
+      // a la pantalla, pero se anota: si se repite, es señal de que el
+      // arancel cargado quedó viejo.
+      if (r.descartadas.length) {
+        console.warn(`[partidas] ${r.descartadas.length} de ${r.sugeridas} no existen en el arancel cargado: ${r.descartadas.join(', ')}`);
+      }
+      res.json({ partidas: r.partidas, sugeridas: r.sugeridas });
+    } catch (err) {
+      if (!(err instanceof FalloFedex)) {
+        console.error('[partidas] falla inesperada', err);
+        return res.status(502).json({ error: 'partidas_fallo', message: 'No pudimos traer las partidas sugeridas.' });
+      }
+      if (err.causa !== 'no_configurado') console.error(`[partidas] ${err.detalle}`);
+      res.status(err.causa === 'no_configurado' ? 503 : 502).json({
+        error: `partidas_${err.causa}`,
+        causa: err.causa,
+        nuestro: err.nuestro,
+        message: err.publico,
+      });
+    }
   }
 );

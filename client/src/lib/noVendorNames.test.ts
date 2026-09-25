@@ -15,7 +15,7 @@ import { describe, expect, it } from 'vitest';
 // el equipo los ve en el panel de Integraciones, que se los pide al
 // servidor con un token de vendedor. Acá, no.
 
-const PROHIBIDOS = ['kalodata', 'sicex'];
+const PROHIBIDOS = ['kalodata', 'sicex', 'fedex'];
 const RAIZ = new URL('../', import.meta.url).pathname; // client/src/
 
 function archivos(dir: string): string[] {

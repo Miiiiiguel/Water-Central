@@ -209,6 +209,45 @@ export function reinterpretar(token: string | null, texto: string, respuestas?: 
   });
 }
 
+/** Una partida sugerida que existe en el arancel cargado. */
+export interface Partida {
+  codigo: string;
+  /** La del arancel, en inglés como lo publica la USITC. */
+  descripcion: string;
+  tarifa: string | null;
+  tarifaSegun: string | null;
+  alterna: boolean;
+}
+
+export type ResultadoPartidas =
+  | { estado: 'ok'; partidas: Partida[]; sugeridas: number }
+  | { estado: 'no_configurado' }
+  | { estado: 'sin_sesion' }
+  | { estado: 'error'; mensaje: string };
+
+/**
+ * Pide las partidas sugeridas para un producto ya analizado. Sale a un
+ * servicio externo; el servidor sólo devuelve las que existen en el
+ * arancel cargado.
+ */
+export async function pedirPartidas(token: string | null, texto: string, respuestas?: Respuestas): Promise<ResultadoPartidas> {
+  if (!token) return { estado: 'sin_sesion' };
+  try {
+    const res = await fetch('/api/etiqueta/partidas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ texto, ...(respuestas && Object.keys(respuestas).length ? { respuestas } : {}) }),
+    });
+    const datos = await res.json().catch(() => ({}));
+    if (res.status === 401) return { estado: 'sin_sesion' };
+    if (res.status === 503) return { estado: 'no_configurado' };
+    if (!res.ok) return { estado: 'error', mensaje: datos.message ?? 'No pudimos traer las partidas sugeridas.' };
+    return { estado: 'ok', partidas: (datos.partidas ?? []) as Partida[], sugeridas: Number(datos.sugeridas) || 0 };
+  } catch {
+    return { estado: 'error', mensaje: 'No hubo conexión con el servidor.' };
+  }
+}
+
 /** Cómo se nombra cada fibra en pantalla. */
 export const NOMBRE_FIBRA: Record<string, string> = {
   algodon: 'Algodón',

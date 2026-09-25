@@ -437,7 +437,18 @@ Cada producto se clasifica por datos distintos, así que lo primero que
 se resuelve es **qué es**. Hasta que eso esté claro no se pregunta nada
 más: preguntarle el tejido a una lata de atún no es una molestia, es
 haber supuesto de qué se estaba hablando. Si el texto no alcanza para
-decidirlo, la pantalla lo pregunta y ofrece la lista de familias.
+decidirlo, la pantalla lo pregunta, y nunca se queda sin salida:
+
+1. ofrece las dos o tres familias que el texto sugiere, más "Otro producto";
+2. con "Otro", pide que la persona cuente qué es con sus palabras;
+3. si eso tampoco se reconoce, muestra los 21 grupos del arancel y después
+   los capítulos del grupo elegido. Todo producto cae en alguno.
+
+Los 96 capítulos de producto (01 a 97, sin el 77) están en
+`server/etiqueta/capitulos.ts` con las palabras que los delatan en español
+e inglés. Además de transcribir, el lector de fotos dice qué producto ve
+(`PRODUCTO_VISTO:`): eso sirve para elegir la familia y nunca se muestra
+como dato leído de la etiqueta.
 
 Con la familia ya resuelta se piden sus datos decisivos. Algunos
 ejemplos de lo que decide una partida:
@@ -446,7 +457,7 @@ ejemplos de lo que decide una partida:
 |---|---|---|
 | Ropa y textiles | 61, 62, 63 | de punto o plana, para quién, qué prenda, qué fibra pesa más |
 | Calzado | 64 | material del corte, material de la suela |
-| Alimentos | 04–21 | presentación (fresco, congelado, conserva…), ingrediente principal |
+| Alimentos | 02–21 (menos 05, 06, 13, 14) | presentación (fresco, congelado, conserva…), ingrediente principal |
 | Bebidas | 22 | tipo y grado alcohólico |
 | Aparatos eléctricos | 84, 85 | qué hace y cómo se alimenta |
 | Marroquinería | 42 | qué artículo y de qué es la superficie exterior |
@@ -471,6 +482,45 @@ leído: quien tiene el producto en la mano es ella.
 Si una etiqueta de ropa trae capas ("SHELL / LINING"), se guardan por
 separado y clasifica la exterior: una chaqueta con exterior de poliéster
 y forro de algodón no es de algodón.
+
+### Partidas sugeridas (FedEx)
+
+Cuando ya no falta ningún dato, Marco Polo pide partidas sugeridas a la
+API de código armonizado de FedEx y muestra **sólo las que existen en el
+arancel cargado**, con la descripción y la tarifa general de ese arancel
+(no las de FedEx). Lo que FedEx sugiere y no existe se descarta y queda en
+el log del servidor (`[partidas] … no existen en el arancel cargado`): si
+se repite, el HTS cargado quedó viejo.
+
+FedEx avisa que su búsqueda funciona con inteligencia artificial y que
+son sugerencias; por eso pasan por el arancel, y por eso el chat las dice
+como sugerencias que confirma el agente de aduana. El cliente nunca ve de
+dónde salen: el nombre del proveedor sólo aparece en tu panel.
+
+Qué hay que poner en Render:
+
+| Variable | Qué es |
+|---|---|
+| `FEDEX_CLIENT_ID` | La *API Key* del proyecto en developer.fedex.com |
+| `FEDEX_CLIENT_SECRET` | La *Secret Key* del mismo proyecto |
+| `FEDEX_ENV` | Vacío = sandbox. `production` (así, completo) = producción |
+
+Para conseguirlas: en developer.fedex.com creá un proyecto, agregale la
+**Harmonized Code Lookup API** (o *Global Trade*, según cómo la nombren
+en tu país) y copiá las dos llaves de sandbox. Probá con sandbox; cuando
+FedEx apruebe el proyecto para producción, cambiá las llaves por las de
+producción y poné `FEDEX_ENV=production`.
+
+Sin estas variables no pasa nada malo: la etiqueta se analiza igual y
+Marco Polo dice que la partida exacta todavía no la calcula. Con las
+variables puestas pero mal, lo dice con su motivo ("no aceptó nuestras
+credenciales", "no tiene habilitada esta consulta") y el detalle queda en
+el log.
+
+Ojo con lo que se comparte: a FedEx viaja la descripción del producto
+(lo leído, lo que contó la persona y lo que se vio en la foto), el país
+de origen, el material y el código de barras si lo hay. Nunca el nombre
+ni los datos del cliente.
 
 ### Cuando el OCR no lee
 

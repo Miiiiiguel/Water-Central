@@ -1,6 +1,7 @@
 import express from 'express';
 import { getProfileFromRequest } from './supabaseAdmin';
 import { isConfigured as kalodataConfigured } from './kalodata';
+import { configurado as fedexConfigurado } from './fedex/cliente';
 
 // GET /api/health
 //   - Unauthenticated (hosting health checks): { ok: true } only.
@@ -31,7 +32,7 @@ healthRouter.get('/health', async (req, res) => {
     // saber a quién contratar directo.
     // Las claves son las públicas (server/research.ts); el nombre real
     // del proveedor sólo viaja en este valor, y sólo hacia un vendedor.
-    sources: { tiktok: 'Kalodata', aduanas: 'Sicex' },
+    sources: { tiktok: 'Kalodata', aduanas: 'Sicex', clasificacion: 'FedEx' },
     integrations: {
       supabase: set('VITE_SUPABASE_URL') && set('VITE_SUPABASE_ANON_KEY'),
       supabaseServer: set('SUPABASE_SERVICE_ROLE_KEY'),
@@ -50,6 +51,8 @@ healthRouter.get('/health', async (req, res) => {
       // dijera "sin conectar" con la integración funcionando.
       tiktok: kalodataConfigured(),
       aduanas: set('SICEX_API_KEY') && set('SICEX_API_URL'),
+      // Partidas sugeridas al terminar de leer una etiqueta.
+      clasificacion: fedexConfigurado(),
       // El diagnóstico de madurez cobra con Wompi: sin estas cuatro, el
       // cuestionario funciona gratis pero nadie puede comprar el plan.
       wompi:

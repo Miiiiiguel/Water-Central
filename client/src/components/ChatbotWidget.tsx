@@ -23,8 +23,8 @@ import {
 import MarcoPoloAvatar from './MarcoPoloAvatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchQuota, runResearch, formatResult, consumePendingResearch, SOURCE_LABEL, SOURCE_BLURB, RESEARCH_EVENT, type ResearchQuota, type ResearchRequest, type ResearchSource } from '@/lib/research';
-import { analizarFoto, estadoDelLector, prepararFoto, reinterpretar, type Respuestas } from '@/lib/etiqueta';
-import { leerChip, turnoDe, type Turno } from '@/lib/etiquetaChat';
+import { analizarFoto, estadoDelLector, pedirPartidas, prepararFoto, reinterpretar, type Analisis, type Respuestas } from '@/lib/etiqueta';
+import { leerChip, textoDePartidas, turnoDe, type Turno } from '@/lib/etiquetaChat';
 
 interface ChatMessage {
   role: 'user' | 'bot';
@@ -447,6 +447,21 @@ export default function ChatbotWidget() {
     }
   };
 
+  /**
+   * El turno, y si ya no falta nada, las partidas sugeridas. Se piden
+   * una sola vez, al final: cada consulta sale a un servicio externo.
+   */
+  const mostrarAnalisis = async (analisis: Analisis, respuestas: Respuestas) => {
+    const idioma = language === 'es' ? 'es' : 'en';
+    const turno = turnoDe(analisis, idioma);
+    decirTurno(turno);
+    if (turno.pregunta || !analisis.familia) return;
+    setTyping(true);
+    const r = await pedirPartidas(getAccessToken(), analisis.texto, respuestas);
+    setTyping(false);
+    pushBot(textoDePartidas(r, idioma));
+  };
+
   /** Lo que sale mal antes de llegar al análisis, dicho con su motivo. */
   const problemaDeEtiqueta = (estado: 'sin_sesion' | 'no_configurado' | 'error', mensaje?: string) => {
     if (estado === 'sin_sesion') {
@@ -537,7 +552,7 @@ export default function ChatbotWidget() {
     }
     setEtiquetaTexto(r.analisis.texto);
     setEtiquetaRespuestas({});
-    decirTurno(turnoDe(r.analisis, language === 'es' ? 'es' : 'en'));
+    await mostrarAnalisis(r.analisis, {});
   };
 
   /** Cómo se llamaba el botón que se tocó, para escribirlo en el chat. */
@@ -564,7 +579,7 @@ export default function ChatbotWidget() {
       problemaDeEtiqueta(r.estado === 'sin_sesion' ? 'sin_sesion' : r.estado === 'no_configurado' ? 'no_configurado' : 'error', 'mensaje' in r ? r.mensaje : undefined);
       return;
     }
-    decirTurno(turnoDe(r.analisis, language === 'es' ? 'es' : 'en'));
+    await mostrarAnalisis(r.analisis, nuevas);
   };
 
   const MAX_CHARS = 1000;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { leerChip, nombrarCapitulos, respuestaChip, turnoDe } from './etiquetaChat';
+import { leerChip, nombrarCapitulos, respuestaChip, textoDePartidas, turnoDe } from './etiquetaChat';
 import type { Analisis } from './etiqueta';
 
 // Lo que Marco Polo dice después de una foto. Un chat pregunta de a
@@ -137,5 +137,46 @@ describe('cómo se nombran los capítulos', () => {
     expect(nombrarCapitulos(['61', '62', '63'], 'es')).toBe('capítulos 61, 62 y 63');
     // El alimento ocupa dieciséis capítulos: leídos uno por uno no se entienden.
     expect(nombrarCapitulos(['04', '02', '21', '10', '03'], 'es')).toBe('entre los capítulos 02 y 21');
+  });
+});
+
+describe('las partidas sugeridas', () => {
+  const ok = {
+    estado: 'ok' as const,
+    sugeridas: 3,
+    partidas: [
+      { codigo: '9102.11.10.00', descripcion: 'Having no jewels › Other', tarifa: '6.4%', tarifaSegun: '9102.11.10', alterna: false },
+      { codigo: '9102.19', descripcion: 'Other', tarifa: null, tarifaSegun: null, alterna: true },
+    ],
+  };
+
+  it('se dicen con su código, su descripción y su tarifa, y como sugerencias', () => {
+    const t = textoDePartidas(ok, 'es');
+    expect(t).toContain('9102.11.10.00: Having no jewels › Other. Tarifa general: 6.4%.');
+    expect(t).toContain('9102.19: Other.');
+    expect(t).toMatch(/verificadas contra el arancel/);
+    expect(t).toMatch(/agente de aduana/);
+    expect(t).toMatch(/no incluye sobretasas/);
+  });
+
+  it('nunca nombran de dónde salen', () => {
+    for (const r of [ok, { estado: 'no_configurado' as const }, { estado: 'ok' as const, partidas: [], sugeridas: 2 }]) {
+      expect(textoDePartidas(r, 'es')).not.toMatch(/fedex/i);
+      expect(textoDePartidas(r, 'en')).not.toMatch(/fedex/i);
+    }
+  });
+
+  it('si ninguna existe en el arancel, lo dice y no inventa una', () => {
+    const t = textoDePartidas({ estado: 'ok', partidas: [], sugeridas: 4 }, 'es');
+    expect(t).toMatch(/no te doy ninguna/);
+    expect(t).not.toMatch(/\d{4}\.\d{2}/);
+  });
+
+  it('sin el servicio conectado, dice lo mismo que decía antes', () => {
+    expect(textoDePartidas({ estado: 'no_configurado' }, 'es')).toMatch(/lo próximo que entra/);
+  });
+
+  it('una falla se dice con su motivo', () => {
+    expect(textoDePartidas({ estado: 'error', mensaje: 'El servicio de partidas no respondió.' }, 'es')).toBe('El servicio de partidas no respondió.');
   });
 });

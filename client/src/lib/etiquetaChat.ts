@@ -1,4 +1,4 @@
-import type { Analisis, Pregunta } from './etiqueta';
+import type { Analisis, Pregunta, ResultadoPartidas } from './etiqueta';
 
 // El análisis de etiqueta, dicho como lo diría Marco Polo.
 //
@@ -127,8 +127,8 @@ export function turnoDe(a: Analisis, idioma: Idioma): Turno {
   if (!pregunta) {
     lineas.push(
       es
-        ? 'Con esto ya tengo lo que hace falta para clasificarlo. La partida y el arancel son lo próximo que entra.'
-        : 'That is everything needed to classify it. The tariff line and the duty are what comes next.'
+        ? 'Con esto ya tengo lo que hace falta para clasificarlo.'
+        : 'That is everything needed to classify it.'
     );
     return {
       texto: lineas.join('\n'),
@@ -155,4 +155,41 @@ export function turnoDe(a: Analisis, idioma: Idioma): Turno {
       value: respuestaChip(pregunta.campo, o.valor),
     })),
   };
+}
+
+/**
+ * Las partidas sugeridas, dichas como las diría Marco Polo. Nunca se
+ * nombra de dónde salen, y siempre se dice lo que son: sugerencias ya
+ * verificadas contra el arancel, que confirma un agente de aduana.
+ */
+export function textoDePartidas(r: ResultadoPartidas, idioma: Idioma): string {
+  const es = idioma === 'es';
+  if (r.estado === 'no_configurado' || r.estado === 'sin_sesion') {
+    return es
+      ? 'La partida exacta todavía no la calculo acá: eso es lo próximo que entra.'
+      : 'I do not work out the exact tariff line here yet: that is what comes next.';
+  }
+  if (r.estado === 'error') return r.mensaje;
+  if (!r.partidas.length) {
+    return es
+      ? 'No encontré ninguna partida sugerida que exista en el arancel de Estados Unidos, así que no te doy ninguna: prefiero eso a inventarla.'
+      : 'I found no suggested tariff line that exists in the US schedule, so I will not give you one: better that than making one up.';
+  }
+  const lineas = [
+    es
+      ? 'Partidas posibles, todas verificadas contra el arancel de Estados Unidos:'
+      : 'Possible tariff lines, all checked against the US schedule:',
+  ];
+  for (const p of r.partidas) {
+    const tarifa = p.tarifa
+      ? es ? ` Tarifa general: ${p.tarifa}.` : ` General rate: ${p.tarifa}.`
+      : '';
+    lineas.push(`${p.codigo}: ${p.descripcion}.${tarifa}`);
+  }
+  lineas.push(
+    es
+      ? 'Son sugerencias para orientarte: la clasificación final la confirma tu agente de aduana. La tarifa general no incluye sobretasas.'
+      : 'These are suggestions to guide you: your customs broker confirms the final classification. The general rate does not include surcharges.'
+  );
+  return lineas.join('\n');
 }

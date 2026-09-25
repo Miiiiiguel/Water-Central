@@ -684,6 +684,7 @@ function IntegrationsPanel() {
     // llegue se muestra el nombre del dato, que es lo que ve el cliente
     // en todas partes.
     { key: 'tiktok', name: sources?.tiktok ?? 'Inteligencia TikTok Shop', group: 'intel', description: { es: 'Productos en tendencia, ventas y competidores en TikTok Shop.', en: 'Trending products, sales and competitors on TikTok Shop.' } },
+    { key: 'clasificacion', name: sources?.clasificacion ?? 'Partidas sugeridas', group: 'intel', description: { es: 'Partidas posibles al leer una etiqueta, siempre verificadas contra el arancel cargado.', en: 'Possible tariff lines after reading a label, always checked against the loaded schedule.' } },
     { key: 'aduanas', name: sources?.aduanas ?? 'Comercio exterior', group: 'intel', description: { es: 'Datos reales de importación/exportación por país y producto.', en: 'Real import/export data by country and product.' } },
     { key: 'supabase', name: 'Supabase', group: 'core', description: { es: 'Login, registro, base de datos, notificaciones.', en: 'Login, sign-up, database, notifications.' } },
     { key: 'stripe', name: 'Stripe', group: 'core', description: { es: 'Opcional: cobros en dólares. Sin esto, todo se cobra por Wompi.', en: 'Optional: charges in US dollars. Without it, everything goes through Wompi.' } },

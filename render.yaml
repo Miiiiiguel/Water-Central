@@ -165,6 +165,16 @@ services:
       - key: ELEVENLABS_MODEL_ID
         sync: false
 
+      # --- Partidas sugeridas (SETUP §2d) -----------------------------
+      # Las dos llaves del proyecto en developer.fedex.com. FEDEX_ENV
+      # vacío es sandbox; `production` apunta a producción.
+      - key: FEDEX_CLIENT_ID
+        sync: false
+      - key: FEDEX_CLIENT_SECRET
+        sync: false
+      - key: FEDEX_ENV
+        sync: false
+
       # --- Inteligencia de mercado (SETUP.md) -------------------------
       # Kalodata: con la llave basta, el endpoint ya lo conoce el código.
       - key: KALODATA_API_KEY
