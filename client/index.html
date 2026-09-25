@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Primary SEO Meta Tags -->
+    <title>Easycomex | Vende tu marca en todo el mundo</title>
+    <meta name="description" content="Easycomex saca tu marca de su mercado local y la pone a vender en Amazon, TikTok Shop y Shopify en Estados Unidos, Europa, México y Asia: canales de venta, logística internacional a 220 destinos, Prep Center en USA, estrategia e inteligencia de mercado." />
+    <meta name="keywords" content="vender en Amazon internacional, TikTok Shop, Shopify, prep center USA, logistica internacional, comercio exterior, exportar ecommerce, FBA, expansion internacional marcas, vender en Europa, vender en Mexico" />
+    <meta name="author" content="Easycomex" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href="https://easycomex.com/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://easycomex.com/" />
+    <meta property="og:title" content="Easycomex | Vende tu marca en todo el mundo" />
+    <meta property="og:description" content="Canales de venta, logística internacional a 220 destinos, Prep Center en USA e inteligencia de mercado para marcas que quieren vender fuera de su país." />
+    <meta property="og:site_name" content="Easycomex" />
+    <meta property="og:locale" content="es_LA" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Easycomex | Vende tu marca en todo el mundo" />
+    <meta name="twitter:description" content="Te decimos cuánto cuesta entrar, cuánto vuelve y en cuánto tiempo. Con números, no con promesas." />
+
+    <!-- Additional SEO -->
+    <meta name="theme-color" content="#1B1A45" />
+    <meta name="format-detection" content="telephone=yes" />
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png" />
+
+    <!-- Structured Data / Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Easycomex",
+      "description": "Agencia de crecimiento ecommerce que ayuda a marcas a vender fuera de su país a través de Amazon, TikTok Shop y Shopify, con logística internacional a 220 destinos y Prep Center en USA.",
+      "url": "https://easycomex.com",
+      "email": "info@easycomex.com",
+      "sameAs": []
+    }
+    </script>
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "¿A qué marcas ayuda Easycomex?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Marcas que ya venden y quieren salir de su mercado local: Estados Unidos, Europa, México o Medio Oriente, a través de Amazon, TikTok Shop y Shopify."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Cómo empiezo?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Diagnóstico gratis. Si hay oportunidad te armamos el plan con números; si no la hay, te lo decimos."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Manejan la logística de mis envíos?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sí. Logística internacional puerta a puerta (aérea y marítima) a 220 destinos, y un Prep Center propio en USA que recibe, inspecciona, etiqueta y despacha a FBA o a tus clientes finales."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Preloaded (high priority) but NOT render-blocking: main.tsx flips it
+         to a stylesheet once the app script runs. Text renders immediately in
+         the system font and swaps when the webfont arrives; a slow or offline
+         font CDN can no longer hold the whole page white. -->
+    <link id="webfonts" rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" />
+
+    <!-- Splash screen styles (removed by client/src/main.tsx once the app mounts) -->
+    <style>
+      #app-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        background: radial-gradient(circle at 50% 40%, #fff6f0 0%, #ffffff 70%);
+        transition: opacity 0.35s ease;
+      }
+      #app-splash.app-splash-hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .app-splash-logo {
+        font-family: 'Baloo 2', 'Inter', sans-serif;
+        font-weight: 800;
+        font-size: 2.25rem;
+        letter-spacing: -0.02em;
+        animation: app-splash-pop 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+      @keyframes app-splash-pop {
+        from { opacity: 0; transform: scale(0.86) translateY(6px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+      }
+      .app-splash-logo .easy { color: #FF5A36; }
+      .app-splash-logo .comex { color: #1B1A45; }
+      .app-splash-spinner {
+        width: 28px;
+        height: 28px;
+        border-radius: 9999px;
+        border: 3px solid #FFF1EA;
+        border-top-color: #FF5A36;
+        animation: app-splash-spin 0.8s linear infinite;
+      }
+      @keyframes app-splash-spin {
+        to { transform: rotate(360deg); }
+      }
+      /* Red de seguridad. Si el JavaScript de la app no llega a
+         ejecutarse —build a medias, servidor caído, una extensión que lo
+         bloquea— este splash se quedaría girando para siempre y el
+         visitante no sabría si esperar o irse. Nadie merece eso.
+
+         Esto no puede ser JavaScript: si el JavaScript funcionara, no
+         estaríamos acá. Y la CSP prohíbe los scripts en línea. Así que
+         es una animación de CSS con 12 segundos de retraso: si la app
+         monta antes, el splash desaparece y el mensaje nunca se ve. */
+      .app-splash-stuck {
+        max-width: 22rem;
+        padding: 0 1.5rem;
+        text-align: center;
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 0.9375rem;
+        line-height: 1.5;
+        color: #6b6a80;
+        opacity: 0;
+        animation: app-splash-stuck-in 0.4s ease 12s both;
+      }
+      .app-splash-stuck strong { color: #1B1A45; }
+      @keyframes app-splash-stuck-in {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .app-splash-logo, .app-splash-stuck { animation-duration: 0.01ms; }
+        .app-splash-stuck { animation-delay: 12s; }
+        .app-splash-spinner { animation-duration: 1.6s; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app-splash" aria-hidden="true">
+      <span class="app-splash-logo"><span class="easy">easy</span><span class="comex">comex</span></span>
+      <span class="app-splash-spinner"></span>
+      <p class="app-splash-stuck">
+        <strong>Esto está tardando más de lo normal.</strong><br />
+        Si no carga en unos segundos, recarga la página. Si sigue igual,
+        el servidor no está respondiendo — no es tu conexión.
+      </p>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+
+</html>
