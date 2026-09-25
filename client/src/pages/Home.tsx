@@ -1,4 +1,5 @@
-import { lazy } from 'react';
+import { lazy, useEffect } from 'react';
+import { scrollToAnchor } from '@/lib/scrollToAnchor';
 import Header from '@/components/Header';
 import HeroSectionVideo from '@/components/HeroSectionVideo';
 import MarqueeLogos from '@/components/MarqueeLogos';
@@ -19,6 +20,38 @@ const ImpactSection = lazy(() => import('@/components/ImpactSection'));
 const HomeLowerSections = lazy(() => import('@/components/HomeLowerSections'));
 
 export default function Home() {
+  // Llegar con "/#contacto" desde otro sitio (el plugin de WordPress
+  // manda así las páginas viejas) tiene que bajar a esa sección. El
+  // navegador solo no lo hace: las secciones de abajo todavía no
+  // existen cuando carga la página. Sólo anclas simples: el regreso del
+  // login con Google también trae un "#", con el token adentro.
+  //
+  // Bajar una vez no alcanza: mientras terminan de cargar las secciones
+  // de arriba (gráficos, imágenes) la página crece y la sección se corre
+  // para abajo. Se vuelve a alinear un par de veces, salvo que la
+  // persona ya se haya puesto a mover la página por su cuenta.
+  useEffect(() => {
+    const ancla = window.location.hash;
+    if (!/^#[a-z][a-z0-9-]*$/.test(ancla)) return;
+    scrollToAnchor(ancla, 5000);
+
+    let tocada = false;
+    const soltar = () => { tocada = true; };
+    const eventos = ['wheel', 'touchstart', 'keydown', 'mousedown'] as const;
+    eventos.forEach((e) => window.addEventListener(e, soltar, { passive: true }));
+    const relojes = [1500, 3000, 4500].map((ms) =>
+      window.setTimeout(() => {
+        if (tocada) return;
+        const el = document.querySelector(ancla);
+        if (el && Math.abs(el.getBoundingClientRect().top) > 80) el.scrollIntoView({ block: 'start' });
+      }, ms)
+    );
+    return () => {
+      relojes.forEach((t) => window.clearTimeout(t));
+      eventos.forEach((e) => window.removeEventListener(e, soltar));
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-primary pb-20 md:pb-0">
       <Header />
