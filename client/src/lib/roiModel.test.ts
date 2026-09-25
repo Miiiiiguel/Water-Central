@@ -6,12 +6,14 @@ import {
   computeYear1,
   computeYear2,
   costBreakdown,
+  dutyPerUnit,
   findMonth,
   project,
   totalFreightFor,
   WAREHOUSING,
   type RoiInputs,
 } from './roiModel';
+import { parseTasa } from './tasaArancel';
 
 // The expected values below are derived by hand from the model's stated
 // rules, never read back out of the code — otherwise the test would only
@@ -161,5 +163,44 @@ describe('project', () => {
     const p = project(lean);
     expect(Number.isFinite(p.cons1.utilidad)).toBe(true);
     expect(Number.isFinite(p.investment.total)).toBe(true);
+  });
+});
+
+describe('arancel real del HTS', () => {
+  const base: RoiInputs = { ...DEFAULT_INPUTS, cost: 12, weightG: 500 };
+
+  it('sin partida elegida se mantiene el supuesto del equipo', () => {
+    expect(dutyPerUnit(base)).toBeCloseTo(0.96, 6);
+    expect(dutyPerUnit({ ...base, meetsAgreement: true })).toBe(0);
+  });
+
+  it('con partida: su tarifa sobre el costo', () => {
+    const conPartida = { ...base, hts: { codigo: '6109.10.00.12', tasa: parseTasa('16.5%') } };
+    expect(dutyPerUnit(conPartida)).toBeCloseTo(1.98, 6);
+    expect(costBreakdown(100, conPartida, 3.5, 100).tradeTariff).toBeCloseTo(1.98, 6);
+  });
+
+  it('libre por acuerdo: cero', () => {
+    expect(dutyPerUnit({ ...base, hts: { codigo: '6109.10.00.12', tasa: parseTasa('Free') } })).toBe(0);
+  });
+
+  it('centavos por kilo usan el peso del producto', () => {
+    const cafe = { ...base, hts: { codigo: '0901.90.20.00', tasa: parseTasa('1.5¢/kg') } };
+    expect(dutyPerUnit(cafe)).toBeCloseTo(0.0075, 6);
+  });
+
+  it('por litro usa el contenido que se indique', () => {
+    const vino = { ...base, litersPerUnit: 0.75, hts: { codigo: '2204.21.50', tasa: parseTasa('6.3¢/liter') } };
+    expect(dutyPerUnit(vino)).toBeCloseTo(0.04725, 6);
+  });
+
+  it('la sobretasa recíproca se puede ajustar', () => {
+    expect(costBreakdown(100, { ...base, reciprocalPct: 0.1 }, 3.5, 100).reciprocalTariff).toBeCloseTo(1.2, 6);
+  });
+
+  it('una partida con arancel más alto baja la utilidad del año', () => {
+    const libre = project({ ...base, hts: { codigo: 'x', tasa: parseTasa('Free') } });
+    const caro = project({ ...base, hts: { codigo: 'x', tasa: parseTasa('32%') } });
+    expect(caro.cons1.utilidad).toBeLessThan(libre.cons1.utilidad);
   });
 });

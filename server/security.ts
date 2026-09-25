@@ -163,7 +163,9 @@ export function makeLimiter(
  * Exponerlo sin límite es seguro: a quien no está autenticado le
  * contesta `{ ok: true }` y nada más.
  */
-export const apiRateLimiter = makeLimiter('api', 100, 15 * 60 * 1000, (req) => req.path === '/health');
+// El arancel (/hts/*) tiene su propio límite: se consulta mientras se
+// escribe, y con el general una búsqueda de diez letras gastaba diez.
+export const apiRateLimiter = makeLimiter('api', 100, 15 * 60 * 1000, (req) => req.path === '/health' || req.path.startsWith('/hts/'));
 export const chatRateLimiter = makeLimiter('chat', 30);       // paid LLM API
 export const checkoutRateLimiter = makeLimiter('checkout', 20);
 export const ttsRateLimiter = makeLimiter('tts', 40);         // paid voice API

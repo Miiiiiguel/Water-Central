@@ -11,6 +11,9 @@ import {
 } from '@/lib/roiModel';
 import { MONTH_LABELS, MONTH_LABELS_EN, fmtInt, fmtMoney, pctOf, setRoiLocale, xOf } from '@/lib/roiFormat';
 import RoiTable, { type RoiRow } from '@/components/roi/RoiTable';
+import PartidaArancel from '@/components/roi/PartidaArancel';
+import type { DetallePartida } from '@/lib/hts';
+import { derechoPorUnidad, parseTasa } from '@/lib/tasaArancel';
 import RoiPaywall from '@/components/roi/RoiPaywall';
 import CashChart from '@/components/roi/CashChart';
 
@@ -137,7 +140,31 @@ export default function RoiCalculator() {
   const set = <K extends keyof RoiInputs>(key: K, value: RoiInputs[K]) =>
     setInputs((prev) => ({ ...prev, [key]: value }));
 
-  const p = useMemo(() => project(inputs), [inputs]);
+  // La partida del HTS y el país de origen. El arancel que entra al
+  // cálculo es el preferencial sólo si el país tiene acuerdo, el código
+  // lo lista y el producto cumple las reglas de origen; si no, el general.
+  const [partida, setPartida] = useState<DetallePartida | null>(null);
+  const [pais, setPais] = useState('CO');
+  const preferencial = partida ? partida.preferencial[pais] : undefined;
+  const aplicada = partida
+    ? inputs.meetsAgreement && preferencial
+      ? { tasa: preferencial.tasa, preferencial: true }
+      : { tasa: partida.general?.tasa ?? parseTasa(''), preferencial: false }
+    : null;
+  const efectivos: RoiInputs = useMemo(
+    () => ({ ...inputs, hts: partida && aplicada ? { codigo: partida.codigo, tasa: aplicada.tasa } : null }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [inputs, partida, pais]
+  );
+  const derecho = aplicada
+    ? (() => {
+        const d = derechoPorUnidad(aplicada.tasa, { valor: inputs.cost, pesoKg: inputs.weightG / 1000, litros: inputs.litersPerUnit });
+        return { usd: d.usd, calculable: d.calculable, texto: aplicada.tasa.texto || '—', preferencial: aplicada.preferencial, falta: d.falta };
+      })()
+    : null;
+  const pideLitros = Boolean(aplicada?.tasa.necesita.includes('volumen'));
+
+  const p = useMemo(() => project(efectivos), [efectivos]);
   const hero: YearOne = heroScenario === 'optimista' ? p.opt1 : p.cons1;
   const detail1: YearOne = detailScenario === 'optimista' ? p.opt1 : p.cons1;
   const detail2: YearTwo = detailScenario === 'optimista' ? p.opt2 : p.cons2;
@@ -165,10 +192,16 @@ export default function RoiCalculator() {
     return [
       { label: es ? 'Precio de venta en USA' : 'US selling price', values: pick('price'), fmt: 'currency2' },
       { label: es ? 'Costo del producto en Latinoamérica' : 'Production cost in Latin America', values: pick('product'), fmt: 'currency2' },
-      { label: es ? 'Arancel recíproco' : 'Reciprocal tariff', values: pick('reciprocalTariff'), fmt: 'currency2' },
+      { label: es ? 'Sobretasa recíproca' : 'Reciprocal surcharge', values: pick('reciprocalTariff'), fmt: 'currency2' },
       { label: es ? 'Flete internacional por unidad' : 'International freight per unit', values: pick('freight'), fmt: 'currency2' },
       { label: es ? 'Flete doméstico USA' : 'US domestic shipping', values: pick('domesticShip'), fmt: 'currency2' },
-      { label: es ? 'Arancel de acuerdo comercial' : 'Trade-agreement tariff', values: pick('tradeTariff'), fmt: 'currency2' },
+      {
+        label: partida
+          ? `${es ? 'Arancel HTS' : 'HTS duty'} ${partida.codigo}`
+          : es ? 'Arancel (supuesto, sin partida)' : 'Duty (assumption, no code)',
+        values: pick('tradeTariff'),
+        fmt: 'currency2',
+      },
       { label: es ? 'Devoluciones' : 'Returns', values: pick('returns'), fmt: 'currency2' },
       { label: es ? 'Comisión plataformas' : 'Marketplace commission', values: pick('platform'), fmt: 'currency2' },
       { label: es ? 'Administración de inventario y alistamiento' : 'Inventory handling and prep', values: pick('warehousing'), fmt: 'currency2' },
@@ -248,12 +281,22 @@ export default function RoiCalculator() {
             <NumberField id="in_lot" label={es ? 'Inventario inicial (unidades)' : 'Initial inventory (units)'} value={inputs.lot} onChange={(v) => set('lot', v)} step={50} min={1} />
           </FieldGroup>
 
+          <PartidaArancel
+            es={es}
+            detalle={partida}
+            onDetalle={setPartida}
+            pais={pais}
+            onPais={setPais}
+            cumple={inputs.meetsAgreement}
+            derecho={derecho}
+          />
+
           <FieldGroup title={es ? 'Operación y aranceles' : 'Operations and tariffs'}>
             <NumberField id="in_returns" label={es ? 'Devoluciones' : 'Returns'} value={inputs.returnsPct * 100} onChange={(v) => set('returnsPct', v / 100)} suffix="%" step={0.5} />
             <NumberField id="in_ugc" label={es ? 'Comisión red comercial' : 'Sales-network commission'} value={inputs.ugcPct * 100} onChange={(v) => set('ugcPct', v / 100)} suffix="%" step={1} />
             <div>
               <p className="mb-1.5 text-sm font-semibold text-muted-foreground">
-                {es ? '¿Tu producto cumple acuerdo comercial?' : 'Does your product qualify under a trade agreement?'}
+                {es ? '¿Cumple las reglas de origen de un acuerdo comercial?' : 'Does it meet a trade agreement’s rules of origin?'}
               </p>
               <div className="flex gap-2">
                 {[
@@ -277,6 +320,24 @@ export default function RoiCalculator() {
                 })}
               </div>
             </div>
+            <NumberField
+              id="in_reciprocal"
+              label={es ? 'Sobretasa recíproca' : 'Reciprocal surcharge'}
+              value={Math.round(inputs.reciprocalPct * 1000) / 10}
+              onChange={(v) => set('reciprocalPct', v / 100)}
+              suffix="%"
+              step={0.5}
+            />
+            {pideLitros && (
+              <NumberField
+                id="in_liters"
+                label={es ? 'Contenido por unidad' : 'Content per unit'}
+                value={Math.round(inputs.litersPerUnit * 1000)}
+                onChange={(v) => set('litersPerUnit', v / 1000)}
+                suffix="ml"
+                step={50}
+              />
+            )}
           </FieldGroup>
 
           <FieldGroup title={es ? 'Marketing y operación (presupuesto mensual)' : 'Marketing and operations (monthly budget)'}>
@@ -288,8 +349,8 @@ export default function RoiCalculator() {
           <p className="mt-5 rounded-xl border border-gray-100 bg-secondary/60 p-4 text-sm leading-relaxed text-muted-foreground">
             <b className="text-foreground">{es ? 'Supuestos fijos de Easycomex' : 'Easycomex fixed assumptions'}</b>{' '}
             {es
-              ? '(no editables aquí): flete internacional · arancel recíproco (siempre aplica) · envío doméstico por pedido si el precio supera el mínimo. Ajustables internamente en el modelo financiero completo.'
-              : '(not editable here): international freight · reciprocal tariff (always applies) · domestic shipping per order when the price is above the threshold. Adjustable internally in the full financial model.'}
+              ? '(no editables aquí): flete internacional · envío doméstico por pedido si el precio supera el mínimo. La sobretasa recíproca arranca en el 12,5 % del modelo del equipo: ajústala según el país y la fecha de tu importación.'
+              : '(not editable here): international freight · domestic shipping per order when the price is above the threshold. The reciprocal surcharge starts at the team model’s 12.5%: adjust it for your country and import date.'}
           </p>
         </section>
 
@@ -575,8 +636,8 @@ export default function RoiCalculator() {
         <p className="rounded-2xl border border-gray-100 bg-secondary/60 p-5 text-sm leading-relaxed text-muted-foreground">
           <strong className="text-foreground">{es ? 'Nota metodológica.' : 'Method note.'}</strong>{' '}
           {es
-            ? 'Cifras en USD, antes de impuestos. El arancel recíproco siempre aplica sobre el costo de producción; el arancel de acuerdo comercial es opcional y solo se suma si lo activas arriba. El Año 2 asume un incremento de precio y de costo frente al Año 1 (madurado desde el mes 7), más una inversión adicional en ADS sobre ventas. El incremento de ADS en el Año 1 (desde el mes 4) y los imprevistos mensuales usan los mismos supuestos del modelo financiero completo. Es una proyección, no una promesa de resultados.'
-            : 'Figures in USD, before taxes. The reciprocal tariff always applies to the production cost; the trade-agreement tariff is optional and only added when you switch it on above. Year 2 assumes a price and cost increase over year 1 (matured from month 7), plus additional ad spend as a share of sales. The year-1 ad increment (from month 4) and the monthly contingency use the same assumptions as the full financial model. This is a projection, not a promise of results.'}
+            ? 'Cifras en USD, antes de impuestos. El arancel sale de la partida del HTS de EE. UU. que elegiste (general, o preferencial si tu país tiene acuerdo y el producto cumple origen) y se calcula sobre el costo de producción; la sobretasa recíproca se suma aparte. Sin partida elegida se usa el supuesto del equipo (8 % si no cumple acuerdo). La partida definitiva la confirma tu agente de aduanas. El Año 2 asume un incremento de precio y de costo frente al Año 1 (madurado desde el mes 7), más una inversión adicional en ADS sobre ventas. El incremento de ADS en el Año 1 (desde el mes 4) y los imprevistos mensuales usan los mismos supuestos del modelo financiero completo. Es una proyección, no una promesa de resultados.'
+            : 'Figures in USD, before taxes. The duty comes from the US HTS code you picked (general, or preferential when your country has an agreement and the product meets origin rules) applied to the production cost; the reciprocal surcharge is added separately. With no code picked, the team assumption applies (8% when not qualifying). Your customs broker confirms the final code. Year 2 assumes a price and cost increase over year 1 (matured from month 7), plus additional ad spend as a share of sales. The year-1 ad increment (from month 4) and the monthly contingency use the same assumptions as the full financial model. This is a projection, not a promise of results.'}
         </p>
 
         {/* CTA */}

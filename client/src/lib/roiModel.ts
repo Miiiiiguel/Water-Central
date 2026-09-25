@@ -8,6 +8,14 @@
 //
 // Everything is pure: no DOM, no fetch, no formatting. That is what lets
 // client/src/lib/roiModel.test.ts check the money math.
+//
+// Tariffs: when the client picks their HTS code, the duty is the real
+// rate of that code in the loaded US tariff schedule (lib/tasaArancel.ts
+// turns it into dollars per unit). Without a code, the team's original
+// assumption (8% unless the product qualifies) still applies, so the
+// default projection is unchanged.
+
+import { derechoPorUnidad, type Tasa } from './tasaArancel';
 
 // ---------------------------------------------------------------------
 // Fixed assumptions (Easycomex's model, not user-editable in the UI)
@@ -29,7 +37,7 @@ export const FREIGHT_USD_KG = 6.9;
 export const FREE_SHIP_THRESHOLD = 35;
 export const DOMESTIC_SHIP = 7;
 
-/** Always applies, on the production cost. */
+/** Default reciprocal / additional surcharge on the production cost. Editable in the UI. */
 export const RECIPROCAL_TARIFF = 0.125;
 /** Only charged when the product does NOT qualify under a trade agreement. */
 export const TRADE_AGREEMENT_TARIFF = 0.08;
@@ -67,6 +75,16 @@ export interface RoiInputs {
   ugcPct: number;
   /** True when the product qualifies under a trade agreement (no extra tariff). */
   meetsAgreement: boolean;
+  /** Reciprocal / additional surcharge on the production cost, as a fraction. */
+  reciprocalPct: number;
+  /**
+   * The HTS code the client picked and the rate that applies to it (the
+   * general one, or the preferential one when the product qualifies).
+   * Null: the team's 8% assumption is used instead.
+   */
+  hts: { codigo: string; tasa: Tasa } | null;
+  /** Liters per unit, for rates charged per liter. */
+  litersPerUnit: number;
   /** Monthly budgets, USD. */
   adsBudget: number;
   contentBudget: number;
@@ -82,6 +100,9 @@ export const DEFAULT_INPUTS: RoiInputs = {
   platformPct: 0.07,
   ugcPct: 0.15,
   meetsAgreement: false,
+  reciprocalPct: RECIPROCAL_TARIFF,
+  hts: null,
+  litersPerUnit: 0,
   adsBudget: 999,
   contentBudget: 600,
   channelBudget: 999,
@@ -118,12 +139,12 @@ export interface CostBreakdown {
 export function costBreakdown(units: number, inp: RoiInputs, warehousing: number, totalFreight: number): CostBreakdown {
   const freightPerUnit = totalFreight / inp.lot;
   const domesticShip = inp.price >= FREE_SHIP_THRESHOLD ? DOMESTIC_SHIP : 0;
-  const tradeAgreement = inp.meetsAgreement ? 0 : inp.cost * TRADE_AGREEMENT_TARIFF;
+  const tradeAgreement = dutyPerUnit(inp);
 
   const b: CostBreakdown = {
     price: inp.price,
     product: inp.cost,
-    reciprocalTariff: inp.cost * RECIPROCAL_TARIFF,
+    reciprocalTariff: inp.cost * inp.reciprocalPct,
     freight: freightPerUnit,
     domesticShip,
     tradeTariff: tradeAgreement,
@@ -142,6 +163,21 @@ export function costBreakdown(units: number, inp: RoiInputs, warehousing: number
     b.returns + b.platform + b.warehousing + b.channel + b.ads + b.content + b.ugc;
 
   return b;
+}
+
+/**
+ * Import duty per unit. With an HTS code: that code's rate on the
+ * production cost (and weight or volume for specific rates). A rate that
+ * cannot be computed from one price (garment ensembles, watches priced
+ * per part) contributes 0 here and the page says it must be confirmed.
+ */
+export function dutyPerUnit(inp: RoiInputs): number {
+  if (!inp.hts) return inp.meetsAgreement ? 0 : inp.cost * TRADE_AGREEMENT_TARIFF;
+  return derechoPorUnidad(inp.hts.tasa, {
+    valor: inp.cost,
+    pesoKg: inp.weightG / 1000,
+    litros: inp.litersPerUnit,
+  }).usd;
 }
 
 export function costPerUnit(units: number, inp: RoiInputs, warehousing: number, totalFreight: number): number {

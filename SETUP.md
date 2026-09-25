@@ -939,6 +939,40 @@ por ROI / rentabilidad / cuánto gano.
 - **`client/src/pages/RoiCalculator.tsx`** — solo entradas, layout y los
   dos reportes de pago.
 
+### El arancel sale del HTS de EE. UU. (todas las partidas)
+
+La calculadora ya no usa sólo el 8 % fijo. El cliente elige su partida
+entre **todas** las del arancel cargado (`server/hts/`), y el cálculo usa
+la tarifa real de ese código:
+
+- **Buscar** en español ("camiseta de algodón", "atún en lata"), en
+  inglés o por código ("6109"). El español se pasa al inglés del arancel
+  con `server/hts/glosario.ts` y el detector de capítulos del lector de
+  etiquetas; si una palabra no se encuentra, se agrega al glosario.
+- **Explorar por capítulo**: capítulo → partida → subpartida → línea de
+  10 dígitos. Garantiza que cualquier código se alcanza aunque la
+  búsqueda no lo encuentre.
+- **País de origen**: si el país tiene acuerdo (TPA Colombia, T-MEC,
+  Perú, Chile, Panamá, CAFTA-DR) y esa partida lo lista en la columna
+  *Special*, y el cliente marca que **cumple reglas de origen**, se usa
+  la tarifa preferencial (casi siempre "Free"). Si no, la general. El SGP
+  ("A") venció en 2020 y nunca se aplica.
+- **Formatos**: porcentaje, "Free", ¢/kg (usa el peso del producto), por
+  litro (pide el contenido en ml), por unidad, par, docena, gruesa y
+  barril. `server/hts/tasas.test.ts` recorre el arancel entero: el 97,25 %
+  de las partidas se calcula. El resto (conjuntos de ropa, relojes por
+  pieza, tarifas condicionadas) se muestra con su texto y la leyenda
+  "confírmala con tu agente de aduanas" — nunca como un 0 silencioso.
+- **No se incluyen** las sobretasas 232 (acero, aluminio, cobre: se
+  avisan en la partida) ni la 301. La **sobretasa recíproca** es un campo
+  editable que arranca en el 12,5 % del modelo del equipo.
+- Sin partida elegida, el cálculo es el de siempre (8 % si no cumple).
+
+API pública (el arancel es público): `GET /api/hts/buscar?q=`,
+`/api/hts/capitulos`, `/api/hts/arbol?capitulo=|linea=`,
+`/api/hts/partida/:codigo` (404 si el código no existe en el arancel
+cargado). Límite propio de 600 consultas cada 15 min por IP.
+
 ### Supuestos fijos (en `roiModel.ts`, arriba del todo)
 
 Flete USD 6.90/kg · arancel recíproco 12.5% (siempre) · arancel de

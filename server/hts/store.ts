@@ -246,6 +246,26 @@ function tokens(texto: string): string[] {
     .filter((t) => t.length > 2 && !VACIAS.has(t));
 }
 
+// Las palabras de cada fila se sacan una sola vez. Antes se volvían a
+// sacar de las 35.000 filas en cada búsqueda: tres cuartos de segundo
+// por letra escrita en la calculadora.
+const tokensCache = new WeakMap<Indice, Array<{ heno: string[]; conjunto: Set<string>; final: Set<string> }>>();
+
+function tokensDe(r: HtsRegistro, idx: Indice) {
+  let lista = tokensCache.get(idx);
+  if (!lista) {
+    lista = [];
+    tokensCache.set(idx, lista);
+  }
+  let t = lista[r.linea];
+  if (!t) {
+    const heno = tokens(r.rutaDescripcion.join(' '));
+    t = { heno, conjunto: new Set(heno), final: new Set(tokens(r.fila.description)) };
+    lista[r.linea] = t;
+  }
+  return t;
+}
+
 /**
  * Busca partidas por palabras, sobre la descripción completa (la ruta),
  * no sólo sobre la última línea. Es la única puerta por la que puede
@@ -268,9 +288,8 @@ export function buscar(
     if (capitulo && !r.digitos.startsWith(capitulo)) continue;
     if (opciones.soloEstadisticas && r.digitos.length !== 10) continue;
 
-    const heno = tokens(r.rutaDescripcion.join(' '));
+    const { heno, conjunto, final } = tokensDe(r, idx);
     if (!heno.length) continue;
-    const conjunto = new Set(heno);
 
     let aciertos = 0;
     for (const p of palabras) {
@@ -282,7 +301,6 @@ export function buscar(
     // Una partida específica vale más que una genérica con las mismas
     // palabras, y la coincidencia en la línea final más que en el título
     // del capítulo.
-    const final = new Set(tokens(r.fila.description));
     const enHoja = palabras.filter((p) => final.has(p)).length;
     resultados.push({ registro: r, puntaje: aciertos * 10 + enHoja * 3 + r.digitos.length });
   }
