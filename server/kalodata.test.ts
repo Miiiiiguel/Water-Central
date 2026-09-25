@@ -305,6 +305,40 @@ describe('runKalodata contra un servidor falso', () => {
     expect(r.rows[1].label).toBe('@glowconmaria');
   });
 
+  it('"product not found" es una búsqueda vacía, no una falla: sigue con la palabra más corta', async () => {
+    // Lo que contestó Kalodata en producción, tal cual quedó en el log.
+    process.env.KALODATA_API_KEY = 'k';
+    const pedidos = falso([
+      { success: false, message: 'product not found' },
+      { success: true, data: { list: [{ video_title: 'rutina', belonged_creator_handle: 'rizos', revenue: 10 }] } },
+    ]);
+    const r = await runKalodata('shampoo natural', 'US', { kind: 'creator' });
+    expect(pedidos.map((p) => p.body.keyword)).toEqual(['shampoo natural', 'shampoo']);
+    expect(r.rows[0].label).toBe('@rizos');
+  });
+
+  it('una pestaña con la versión anterior manda la frase entera y sin tipo: el servidor la entiende igual', async () => {
+    process.env.KALODATA_API_KEY = 'k';
+    const pedidos = falso([{ success: true, data: { list: [{ belonged_creator_handle: 'rizos', revenue: 10 }] } }]);
+    await runKalodata('¿Quiénes son los creadores que más venden shampoo en USA?');
+    expect(pedidos[0].url.endsWith('/video/rank')).toBe(true);
+    expect(pedidos[0].body.keyword).toBe('shampoo');
+    expect(pedidos[0].body.region).toBe('US');
+  });
+
+  it('sin resultados en ningún intento, se dice "sin resultados", no "la fuente no respondió"', async () => {
+    process.env.KALODATA_API_KEY = 'k';
+    falso([{ success: false, message: 'product not found' }]);
+    const r = await runKalodata('shampoo', 'US');
+    expect(r.summary).toMatch(/sin resultados/i);
+  });
+
+  it('un success:false que no es "no encontrado" sigue siendo una falla', async () => {
+    process.env.KALODATA_API_KEY = 'k';
+    falso([{ success: false, message: 'invalid secret-key' }]);
+    await expect(runKalodata('shampoo', 'US')).rejects.toThrow(/invalid secret-key/);
+  });
+
   it('corta en el primer intento que trae algo: no gasta llamadas de más', async () => {
     process.env.KALODATA_API_KEY = 'k';
     const pedidos = falso([{ success: true, data: { list: [{ product_name: 'Jeans', revenue: 10 }] } }]);

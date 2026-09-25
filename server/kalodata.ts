@@ -1,4 +1,5 @@
 import type { ResearchResult, ResearchRow } from './connectors';
+import { aConsulta } from '../client/src/lib/researchIntent';
 
 // Kalodata Open API — TikTok Shop (productos, tiendas, creadores, vídeos,
 // transmisiones en vivo, categorías).
@@ -171,6 +172,20 @@ export function envelopeError(payload: unknown): string | null {
   const env = payload as KalodataEnvelope;
   if (env.success === false) return env.message?.trim() || env.code || 'Kalodata respondió success: false';
   return null;
+}
+
+/**
+ * "No hay resultados", dicho a la manera de Kalodata: HTTP 200 con
+ * `success: false` y `message: "product not found"`. No es una falla —
+ * es una búsqueda vacía — y tratarla como falla cortaba la búsqueda en
+ * el primer intento y le decía al cliente "la fuente no respondió".
+ * Pasó tal cual en producción.
+ */
+export function esNoEncontrado(payload: unknown): boolean {
+  if (!payload || typeof payload !== 'object') return false;
+  const env = payload as KalodataEnvelope;
+  if (env.success !== false) return false;
+  return /not.?found|no.?data|no.?result|empty/i.test(`${env.message ?? ''} ${env.code ?? ''}`);
 }
 
 /** True cuando Kalodata sirvió de su caché (no debería costar créditos). */
@@ -381,9 +396,10 @@ async function pedirRanking(module: Module, query: string, country: string | und
   const payload = await res.json();
   // 200 con success:false es un fallo suyo: hay que tratarlo como tal,
   // no mostrar una respuesta vacía como si fuera un resultado.
+  // Salvo "no encontrado", que es una búsqueda vacía y se devuelve como tal.
   const failure = envelopeError(payload);
-  if (failure) throw new Error(`Kalodata ${module}/rank: ${failure}`);
-  return { url, body, payload };
+  if (failure && !esNoEncontrado(payload)) throw new Error(`Kalodata ${module}/rank: ${failure}`);
+  return { url, body, payload: failure ? { data: { list: [] } } : payload };
 }
 
 /**
@@ -398,22 +414,29 @@ export async function runKalodata(
   const key = process.env.KALODATA_API_KEY;
   if (!key) throw new Error('Kalodata is not configured (KALODATA_API_KEY)');
 
-  const kind = opts.kind ?? 'product';
-  const module = opts.module ?? moduleFor(kind, query);
+  // La pregunta se limpia también acá, no sólo en el navegador. Una
+  // pestaña con la versión anterior de la app (el service worker la
+  // cambia recién en la segunda recarga) seguía mandando la frase entera
+  // y sin decir que preguntaba por creadores.
+  const limpia = aConsulta('tiktok', query);
+  const term = limpia.term;
+  const kind = opts.kind && opts.kind !== 'product' ? opts.kind : limpia.kind;
+  const pais = country || limpia.country;
+  const module = opts.module ?? moduleFor(kind, term);
 
   let usado = '';
   let r: Awaited<ReturnType<typeof pedirRanking>> | null = null;
-  for (const intento of termsToTry(query)) {
+  for (const intento of termsToTry(term)) {
     usado = intento;
-    r = await pedirRanking(module, intento, country, opts.language, key);
+    r = await pedirRanking(module, intento, pais, opts.language, key);
     if (pickRecords(r.payload).length) break;
   }
   const { url, body, payload } = r!;
   const records = pickRecords(payload);
   // Si ni la palabra más amplia trajo nada, se informa lo que la persona
   // preguntó, no el último recorte.
-  const buscado = records.length ? usado : query;
-  const aviso = records.length && usado !== query.trim() ? `Con "${query.trim()}" no hubo resultados, así que busqué "${usado}". ` : '';
+  const buscado = records.length ? usado : term;
+  const aviso = records.length && usado !== term ? `Con "${term}" no hubo resultados, así que busqué "${usado}". ` : '';
 
   let result: ResearchResult;
   const creadores = kind === 'creator' && module === 'video' ? creatorsFromVideos(records) : [];
