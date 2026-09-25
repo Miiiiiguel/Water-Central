@@ -642,9 +642,12 @@ export default function ChatbotWidget() {
       );
     }
 
-    // Una pregunta de la etiqueta que se contesta escribiendo.
+    // Una pregunta de la etiqueta que se contesta escribiendo. El
+    // servidor acepta hasta 160 caracteres por respuesta; más largo que
+    // eso sería rechazado entero, y "contame qué producto es" invita a
+    // escribir de más.
     if (etiquetaCampo) {
-      contestarEtiqueta(etiquetaCampo, trimmed);
+      contestarEtiqueta(etiquetaCampo, trimmed.slice(0, 160));
       return;
     }
 

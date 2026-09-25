@@ -1,6 +1,7 @@
 import type { DatosGenericos } from './generico';
 import { leerEtiqueta } from './composicion';
 import { leerPrenda, terminosDePrenda, FIBRA_EN_INGLES } from './prenda';
+import { CAPITULOS, capitulo } from './capitulos';
 
 // Qué información hace falta para clasificar ESTE producto.
 //
@@ -67,13 +68,22 @@ export interface Familia {
   /** Términos que siempre van a la búsqueda del arancel. */
   terminosBase: string[];
   atributos: Atributo[];
+  /**
+   * Cuánto vale cada señal. Las familias hechas a mano valen 2. Las de
+   * un solo capítulo valen 4, lo que dos de las otras: sus palabras
+   * nombran el producto mismo ("reloj", "paraguas"), mientras que muchas
+   * de las otras nombran de qué está hecho ("algodón", "cuero"). Una
+   * palabra que dice qué es el producto alcanza sola; una gorra que
+   * además dice "100% algodón" queda empatada, y se pregunta.
+   */
+  peso?: number;
 }
 
 const opcion = (valor: string, etiqueta: string, sinonimos: string[], termino?: string): OpcionAtributo => ({
   valor, etiqueta, sinonimos, termino,
 });
 
-export const FAMILIAS: Familia[] = [
+const HECHAS_A_MANO: Familia[] = [
   {
     id: 'textil',
     nombre: 'Ropa y textiles',
@@ -176,7 +186,7 @@ export const FAMILIAS: Familia[] = [
   {
     id: 'alimento',
     nombre: 'Alimentos',
-    capitulos: ['04', '07', '08', '09', '11', '15', '16', '17', '18', '19', '20', '21'],
+    capitulos: ['02', '03', '04', '07', '08', '09', '10', '11', '12', '15', '16', '17', '18', '19', '20', '21'],
     senales: ['ingredientes', 'ingredients', 'informacion nutricional', 'nutrition facts', 'valor nutricional',
       'consumir antes', 'conservar', 'refrigerar', 'calorias', 'proteina', 'azucares', 'sodio', 'alimento',
       'contenido neto', 'gluten', 'alergenos', 'pasteurizado'],
@@ -513,6 +523,47 @@ export const FAMILIAS: Familia[] = [
   },
 ];
 
+function unicos<T>(lista: T[]): T[] {
+  return lista.filter((x, i) => lista.indexOf(x) === i);
+}
+
+const CUBIERTOS = new Set(HECHAS_A_MANO.flatMap((f) => f.capitulos));
+
+/**
+ * Todas las familias: las catorce hechas a mano, cada una con las
+ * palabras de sus capítulos sumadas a las propias, y una familia por
+ * cada capítulo que ninguna de ellas cubría. El resultado cubre los 96
+ * capítulos de producto del arancel; ninguna etiqueta se queda sin
+ * lugar donde caer.
+ */
+export const FAMILIAS: Familia[] = [
+  ...HECHAS_A_MANO.map((f): Familia => {
+    const suyos = f.capitulos.map((cod) => capitulo(cod)).filter((x): x is NonNullable<typeof x> => Boolean(x));
+    return {
+      ...f,
+      senales: unicos([...f.senales, ...suyos.flatMap((cap) => cap.senales)]),
+      senalesRegex: [...(f.senalesRegex ?? []), ...suyos.flatMap((cap) => cap.senalesRegex ?? [])],
+    };
+  }),
+  ...CAPITULOS.filter((cap) => !CUBIERTOS.has(cap.codigo)).map((cap): Familia => ({
+    id: `cap${cap.codigo}`,
+    nombre: cap.nombre,
+    capitulos: [cap.codigo],
+    senales: cap.senales,
+    senalesRegex: cap.senalesRegex,
+    terminosBase: cap.terminos,
+    // El capítulo ya es la decisión. Lo que sigue lo resuelve la
+    // búsqueda en el arancel, dentro de ese capítulo.
+    atributos: [],
+    peso: 4,
+  })),
+];
+
+/** La familia que clasifica un capítulo, sea hecha a mano o propia. */
+export function familiaDelCapitulo(codigo: string): Familia | null {
+  return FAMILIAS.find((f) => f.capitulos.indexOf(codigo) !== -1) ?? null;
+}
+
 /** El primer ingrediente de la lista: en alimentos define la partida. */
 function primerIngrediente(texto: string): string | null {
   const m = /ingredientes?\s*:?\s*([^\n.]{3,80})/i.exec(texto);
@@ -530,26 +581,43 @@ function normalizar(texto: string): string {
   return ' ' + texto.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9%+\s-]/g, ' ').replace(/\s+/g, ' ') + ' ';
 }
 
+/** Todas las señales de todas las familias, de la más larga a la más corta. */
+const SENALES_POR_LARGO = FAMILIAS
+  .flatMap((familia) => familia.senales.map((senal) => ({ senal, familia })))
+  .sort((x, y) => y.senal.length - x.senal.length);
+
 /**
  * Qué familia de producto es. Devuelve las candidatas ordenadas: si la
  * primera no le saca ventaja clara a la segunda, hay que preguntar en
  * vez de elegir.
  */
 export function detectarFamilias(texto: string): Deteccion[] {
-  const heno = normalizar(texto || '');
-  const encontradas: Deteccion[] = [];
-  for (const familia of FAMILIAS) {
-    let puntaje = 0;
-    for (const senal of familia.senales) {
-      if (heno.includes(' ' + senal + ' ') || heno.includes(' ' + senal + 's ')) puntaje += 2;
-      else if (senal.includes(' ') && heno.includes(senal)) puntaje += 2;
-    }
-    for (const patron of familia.senalesRegex ?? []) {
-      if (patron.test(texto || '')) puntaje += 2;
-    }
-    if (puntaje) encontradas.push({ familia, puntaje });
+  let heno = normalizar(texto || '');
+  const puntajes = new Map<Familia, number>();
+  const sumar = (familia: Familia) => puntajes.set(familia, (puntajes.get(familia) ?? 0) + (familia.peso ?? 2));
+
+  // Las frases largas primero, y lo que una frase ya usó no vuelve a
+  // contar. "Alimento para perros" es una sola cosa: no puede sumar
+  // además "alimento" para la comida de personas. "Cuerdas para
+  // guitarra" no suma "cuerdas" para las sogas, y "cuerdas" no suma dos
+  // veces por estar en la lista en singular y en plural.
+  for (const { senal, familia } of SENALES_POR_LARGO) {
+    const formas = [' ' + senal + ' ', ' ' + senal + 's '];
+    if (senal.includes(' ')) formas.push(senal);
+    const presentes = formas.filter((f) => heno.includes(f));
+    if (!presentes.length) continue;
+    for (const f of presentes) heno = heno.split(f).join(' | ');
+    sumar(familia);
   }
-  encontradas.sort((a, b) => b.puntaje - a.puntaje);
+  for (const familia of FAMILIAS) {
+    for (const patron of familia.senalesRegex ?? []) {
+      if (patron.test(texto || '')) sumar(familia);
+    }
+  }
+
+  const encontradas: Deteccion[] = [];
+  puntajes.forEach((puntaje, familia) => encontradas.push({ familia, puntaje }));
+  encontradas.sort((x, y) => y.puntaje - x.puntaje);
   return encontradas;
 }
 

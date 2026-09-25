@@ -36,6 +36,25 @@ export function leerChip(valor: string): { campo: string; valor: string } | null
   return m ? { campo: m[1], valor: m[2] } : null;
 }
 
+/**
+ * Cómo se dicen los capítulos de una familia. Uno se nombra; hasta tres
+ * se enumeran; más, como rango. "Los capítulos 02, 03, 04, 07, 08…"
+ * leído en voz alta no le sirve a nadie.
+ */
+export function nombrarCapitulos(capitulos: string[], idioma: Idioma): string {
+  const es = idioma === 'es';
+  if (capitulos.length === 1) return es ? `capítulo ${capitulos[0]}` : `chapter ${capitulos[0]}`;
+  if (capitulos.length <= 3) {
+    const y = es ? ' y ' : ' and ';
+    const lista = capitulos.slice(0, -1).join(', ') + y + capitulos[capitulos.length - 1];
+    return es ? `capítulos ${lista}` : `chapters ${lista}`;
+  }
+  const orden = capitulos.slice().sort();
+  return es
+    ? `entre los capítulos ${orden[0]} y ${orden[orden.length - 1]}`
+    : `between chapters ${orden[0]} and ${orden[orden.length - 1]}`;
+}
+
 /** El resumen de lo que se leyó, en una frase por dato y sin adornos. */
 function loQueSeLeyo(a: Analisis, idioma: Idioma): string[] {
   const es = idioma === 'es';
@@ -43,15 +62,18 @@ function loQueSeLeyo(a: Analisis, idioma: Idioma): string[] {
   const g = a.generico;
 
   if (a.familia) {
+    const donde = nombrarCapitulos(a.familia.capitulos, idioma);
     lineas.push(
       es
-        ? `Es ${a.familia.nombre.toLowerCase()}. En el arancel eso vive en ${
-            a.familia.capitulos.length === 1 ? 'el capítulo' : 'los capítulos'
-          } ${a.familia.capitulos.join(', ')}.`
-        : `It is ${a.familia.nombre.toLowerCase()}. In the tariff schedule that lives in ${
-            a.familia.capitulos.length === 1 ? 'chapter' : 'chapters'
-          } ${a.familia.capitulos.join(', ')}.`
+        ? `Lo ubico en ${a.familia.nombre.toLowerCase()}: ${donde} del arancel.`
+        : `I place it under ${a.familia.nombre.toLowerCase()}: ${donde} of the tariff schedule.`
     );
+  }
+
+  // Lo que se vio en la foto se dice aparte y como visto, no como leído:
+  // la etiqueta no lo decía.
+  if (a.pista) {
+    lineas.push(es ? `En la foto veo: ${a.pista}.` : `In the photo I see: ${a.pista}.`);
   }
 
   const datos: string[] = [];

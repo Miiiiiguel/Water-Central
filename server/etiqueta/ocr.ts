@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { modeloDeOcr } from '../anthropicError';
+import { interpretarSalida } from './pista';
 
 // Leer el texto de una foto de etiqueta. Fase 1.
 //
@@ -36,18 +37,27 @@ export const MAXIMO_BYTES = 6 * 1024 * 1024;
 // La instrucción no dice de qué producto es la etiqueta, y eso importa:
 // mientras decía "etiqueta de prenda", una lata de atún o la placa de
 // un electrodoméstico entraban en "la imagen no es una etiqueta" y
-// volvían como SIN_TEXTO. El arancel tiene 98 capítulos.
+// volvían como SIN_TEXTO. El arancel tiene 97 capítulos de producto.
+//
+// La última línea es la única que no es transcripción: qué producto se
+// ve. Va separada y marcada (ver pista.ts) para que nunca se confunda
+// con algo que la etiqueta dice.
 const INSTRUCCION = [
   'Transcribe literalmente todo el texto visible en esta imagen.',
   'Puede ser la etiqueta de cualquier producto: ropa, alimentos, bebidas,',
-  'cosméticos, calzado, juguetes, o la placa de datos de un aparato.',
+  'cosméticos, calzado, juguetes, herramientas, relojes, instrumentos, repuestos,',
+  'o la placa de datos de un aparato.',
   'Reglas:',
   '- Copia el texto tal como aparece, línea por línea, respetando el idioma original.',
   '- No traduzcas, no corrijas, no completes, no ordenes.',
   '- Incluye números, porcentajes, unidades, códigos y símbolos tal cual.',
   '- Si una parte no se lee con seguridad, escribe [ilegible] en su lugar.',
-  '- Si en la imagen no hay NINGÚN texto legible, responde exactamente: SIN_TEXTO',
-  'No agregues explicaciones ni comentarios: sólo el texto que ves.',
+  '- Si en la imagen no hay NINGÚN texto legible, escribe exactamente: SIN_TEXTO',
+  'Al final, en una línea aparte, escribe PRODUCTO_VISTO: seguido de qué producto es,',
+  'en español y en pocas palabras (por ejemplo: PRODUCTO_VISTO: reloj de pulsera).',
+  'Básate en lo que se ve en la imagen, aunque la etiqueta no lo diga.',
+  'Si no se puede saber, escribe PRODUCTO_VISTO: desconocido.',
+  'Fuera de esa última línea, no agregues explicaciones ni comentarios.',
 ].join('\n');
 
 /**
@@ -78,14 +88,15 @@ export const proveedorAnthropic: ProveedorOcr = {
       ],
     });
 
-    const texto = respuesta.content
+    const crudo = respuesta.content
       .filter((b): b is Anthropic.TextBlock => b.type === 'text')
       .map((b) => b.text)
-      .join('\n')
-      .trim();
+      .join('\n');
 
-    const ilegible = !texto || /^SIN_TEXTO$/i.test(texto.trim());
-    return { texto: ilegible ? '' : texto, proveedor: proveedorAnthropic.nombre, ilegible };
+    // Sin texto pero con un producto reconocible ya no es ilegible: se
+    // sabe qué es, y con eso alcanza para empezar a preguntar.
+    const { texto, ilegible } = interpretarSalida(crudo);
+    return { texto, proveedor: proveedorAnthropic.nombre, ilegible };
   },
 };
 

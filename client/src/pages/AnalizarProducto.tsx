@@ -7,6 +7,7 @@ import {
   CAMPO_FAMILIA, NOMBRE_CAPA, NOMBRE_CUIDADO, NOMBRE_FIBRA,
   type Analisis, type FotoLista, type Pregunta, type Respuestas,
 } from '@/lib/etiqueta';
+import { nombrarCapitulos } from '@/lib/etiquetaChat';
 
 /**
  * /analizar — "Analizar producto".
@@ -224,9 +225,8 @@ function Resultado({
 
         {familia ? (
           <p className="mt-2 text-sm text-muted-foreground">
-            Es <strong className="text-foreground">{familia.nombre.toLowerCase()}</strong>: se clasifica en
-            {familia.capitulos.length === 1 ? ' el capítulo ' : ' los capítulos '}
-            {familia.capitulos.join(', ')} del arancel.
+            Lo ubico en <strong className="text-foreground">{familia.nombre.toLowerCase()}</strong>:{' '}
+            {nombrarCapitulos(familia.capitulos, 'es')} del arancel.
           </p>
         ) : (
           <p className="mt-2 text-sm text-muted-foreground">
@@ -324,7 +324,13 @@ function Resultado({
 
       <details className="rounded-2xl border border-border bg-card p-5">
         <summary className="cursor-pointer text-sm font-medium">Ver el texto leído</summary>
-        <pre className="mt-3 whitespace-pre-wrap break-words text-xs text-muted-foreground">{analisis.texto}</pre>
+        <pre className="mt-3 whitespace-pre-wrap break-words text-xs text-muted-foreground">{analisis.etiqueta || '(la foto no tenía texto)'}</pre>
+        {analisis.pista && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            En la foto se ve: <span className="text-foreground">{analisis.pista}</span>. Eso no estaba escrito: sirvió
+            para saber qué producto es.
+          </p>
+        )}
       </details>
 
       <p className="text-xs text-muted-foreground">

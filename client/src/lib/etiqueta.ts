@@ -71,7 +71,12 @@ export interface AtributoLeido {
 }
 
 export interface Analisis {
+  /** Lo que llegó, entero: se reenvía con cada respuesta. */
   texto: string;
+  /** Sólo lo impreso en la etiqueta. */
+  etiqueta: string;
+  /** Qué producto se ve en la foto. No es un dato leído de la etiqueta. */
+  pista: string | null;
   legible: boolean;
   generico: DatosGenericos;
   familia: { id: string; nombre: string; capitulos: string[] } | null;

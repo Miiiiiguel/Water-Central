@@ -1,8 +1,10 @@
 import { leerGenerico, PREGUNTA_GENERICA, type DatosGenericos, type FaltaGenerica } from './generico';
 import {
-  FAMILIAS, detectarFamilias, familiaSegura, leerAtributos, terminosDeBusqueda,
-  type Familia, type ValorAtributo,
+  FAMILIAS, detectarFamilias, familiaDelCapitulo, familiaSegura, leerAtributos, terminosDeBusqueda,
+  type Deteccion, type Familia, type ValorAtributo,
 } from './familias';
+import { SECCIONES, capitulo, seccion } from './capitulos';
+import { separarPista } from './pista';
 import { leerEtiqueta, type Etiqueta } from './composicion';
 import { leerPrenda, type Genero, type Prenda, type Tejido } from './prenda';
 
@@ -18,6 +20,12 @@ import { leerPrenda, type Genero, type Prenda, type Tejido } from './prenda';
 // Si el paso 2 no queda claro, el 3 no se intenta. Preguntar "¿es de
 // punto o plana?" sobre una lata de atún no es un error de cálculo: es
 // haber supuesto de qué se estaba hablando.
+//
+// Y el paso 2 no tiene callejón sin salida. Si la etiqueta no alcanza,
+// se ofrecen las candidatas; si no es ninguna, se pide que la persona
+// cuente qué es; si eso tampoco se reconoce, se elige de las 21
+// secciones del arancel y después el capítulo. Todo producto que se
+// pueda exportar está en alguna.
 
 /** Lo que se le pregunta a la persona cuando un dato no está en la foto. */
 export interface Pregunta {
@@ -40,7 +48,12 @@ export interface AtributoLeido {
 }
 
 export interface Analisis {
+  /** Lo que llegó, entero: se reenvía con cada respuesta. */
   texto: string;
+  /** Sólo lo impreso en la etiqueta: lo que se muestra como leído. */
+  etiqueta: string;
+  /** Qué producto se ve en la foto. No es un dato de la etiqueta. */
+  pista: string | null;
   legible: boolean;
   generico: DatosGenericos;
   familia: { id: string; nombre: string; capitulos: string[] } | null;
@@ -56,9 +69,23 @@ export interface Analisis {
 
 export const PREGUNTA_FAMILIA =
   '¿Qué tipo de producto es? Cada familia se clasifica con datos distintos, y no quiero preguntarte por el tejido de una camiseta si me trajiste una lata de atún.';
+export const PREGUNTA_DESCRIPCION =
+  '¿Qué producto es? Contámelo en pocas palabras, como se lo dirías a un cliente (por ejemplo: reloj de pulsera, gafas de sol, alimento para perros).';
+export const PREGUNTA_SECCION =
+  'Elegí de la lista el grupo donde entra. Son los 21 grupos del arancel, y entre todos cubren cualquier producto.';
+export const PREGUNTA_CAPITULO = '¿Y dentro de ese grupo, cuál es?';
 
 /** Campo con el que la pantalla contesta de qué producto se trata. */
 export const CAMPO_FAMILIA = 'familia';
+/** Lo que la persona escribe cuando ninguna candidata es. */
+export const CAMPO_DESCRIPCION = 'descripcion';
+export const CAMPO_SECCION = 'seccion';
+export const CAMPO_CAPITULO = 'capitulo';
+
+/** "No es ninguna de esas: te cuento qué es." */
+export const OTRO = 'otro';
+/** "Tampoco: lo busco en la lista." Ya se contó qué era y no alcanzó. */
+export const LISTA = 'lista';
 
 /**
  * El contenido neto sólo se pregunta donde decide algo. En un alimento
@@ -78,11 +105,75 @@ function faltaGenerica(familia: Familia | null, datos: DatosGenericos): FaltaGen
   return falta;
 }
 
-/** Las familias como opciones de respuesta: primero las que el texto sugiere. */
-function opcionesDeFamilia(candidatas: { id: string; nombre: string }[]) {
-  const vistas = candidatas.map((c) => c.id);
-  const resto = FAMILIAS.filter((f) => vistas.indexOf(f.id) === -1).map((f) => ({ id: f.id, nombre: f.nombre }));
-  return candidatas.concat(resto).map((f) => ({ valor: f.id, etiqueta: f.nombre }));
+interface Contexto {
+  candidatas: { id: string; nombre: string }[];
+  hayTexto: boolean;
+  respuestas: Record<string, string>;
+}
+
+/**
+ * Qué preguntar cuando todavía no se sabe qué producto es. Cada paso
+ * deja una salida al siguiente, y el último —secciones y capítulos—
+ * cubre el arancel entero: no hay producto que se quede sin lugar.
+ */
+function preguntaDeUbicacion({ candidatas, respuestas }: Contexto): Pregunta {
+  const dicha = respuestas[CAMPO_FAMILIA];
+  const contada = Boolean((respuestas[CAMPO_DESCRIPCION] || '').trim());
+  const grupo = respuestas[CAMPO_SECCION] ? seccion(respuestas[CAMPO_SECCION]) : null;
+
+  if (grupo) {
+    return {
+      campo: CAMPO_CAPITULO,
+      pregunta: PREGUNTA_CAPITULO,
+      decisiva: true,
+      opciones: grupo.capitulos.map((cod) => ({ valor: cod, etiqueta: capitulo(cod)?.nombre ?? cod })),
+    };
+  }
+
+  const porSecciones: Pregunta = {
+    campo: CAMPO_SECCION,
+    pregunta: PREGUNTA_SECCION,
+    decisiva: true,
+    opciones: SECCIONES.map((s) => ({ valor: s.id, etiqueta: s.nombre })),
+  };
+  const contame: Pregunta = { campo: CAMPO_DESCRIPCION, pregunta: PREGUNTA_DESCRIPCION, decisiva: true };
+
+  if (dicha === LISTA) return porSecciones;
+  if (dicha === OTRO && !contada) return contame;
+  if (candidatas.length) {
+    return {
+      campo: CAMPO_FAMILIA,
+      pregunta: PREGUNTA_FAMILIA,
+      decisiva: true,
+      opciones: [
+        ...candidatas.map((c) => ({ valor: c.id, etiqueta: c.nombre })),
+        // Después de contar qué es, "otro" ya no lleva a contarlo de
+        // nuevo: lleva a la lista. Así no hay vuelta en círculo.
+        contada
+          ? { valor: LISTA, etiqueta: 'Ninguno de estos' }
+          : { valor: OTRO, etiqueta: 'Otro producto' },
+      ],
+    };
+  }
+  return contada ? porSecciones : contame;
+}
+
+/**
+ * De qué familia es. Manda lo que la persona eligió; después, lo que
+ * contó; y recién al final, lo que se leyó.
+ */
+function elegirFamilia(respuestas: Record<string, string>, detecciones: Deteccion[]): Familia | null {
+  const cap = respuestas[CAMPO_CAPITULO];
+  if (cap && capitulo(cap)) return familiaDelCapitulo(cap);
+  const dicha = respuestas[CAMPO_FAMILIA];
+  const nombrada = dicha ? FAMILIAS.find((f) => f.id === dicha) : undefined;
+  if (nombrada) return nombrada;
+  // Una respuesta que no es ninguna familia no se acepta, y tampoco se
+  // reemplaza por una elegida a escondidas: se sigue preguntando. Lo
+  // mismo con quien dijo "ninguno de estos".
+  if (dicha && dicha !== OTRO) return null;
+  if (dicha === OTRO && !(respuestas[CAMPO_DESCRIPCION] || '').trim()) return null;
+  return familiaSegura(detecciones) ? detecciones[0].familia : null;
 }
 
 /**
@@ -91,20 +182,22 @@ function opcionesDeFamilia(candidatas: { id: string; nombre: string }[]) {
  * lo leído, porque quien tiene el producto en la mano es ella.
  */
 export function analizar(texto: string, respuestas: Record<string, string> = {}): Analisis {
-  const limpio = texto || '';
-  const generico = leerGenerico(limpio);
+  // La pista (qué producto se ve en la foto) decide la familia y nada
+  // más: los datos que se muestran como leídos salen sólo de la etiqueta.
+  const { etiqueta, pista } = separarPista(texto || '');
+  const generico = leerGenerico(etiqueta);
   if (respuestas.origen) generico.origen = respuestas.origen;
 
-  const detecciones = detectarFamilias(limpio);
+  // Si la persona contó qué es, se la escucha a ella: la etiqueta ya se
+  // leyó y no alcanzó.
+  const descripcion = (respuestas[CAMPO_DESCRIPCION] || '').trim();
+  const detecciones = detectarFamilias(descripcion || [pista, etiqueta].filter(Boolean).join('\n'));
   const candidatas = detecciones.slice(0, 5).map((d) => ({ id: d.familia.id, nombre: d.familia.nombre }));
 
-  const elegida = respuestas[CAMPO_FAMILIA]
-    ? FAMILIAS.find((f) => f.id === respuestas[CAMPO_FAMILIA]) ?? null
-    : familiaSegura(detecciones)
-      ? detecciones[0].familia
-      : null;
+  const elegida = elegirFamilia(respuestas, detecciones);
+  const hayTexto = Boolean(etiqueta || pista);
 
-  const valores = elegida ? leerAtributos(elegida, limpio, generico, respuestas) : [];
+  const valores = elegida ? leerAtributos(elegida, etiqueta, generico, respuestas) : [];
   const atributos: AtributoLeido[] = valores.map((v) => ({
     id: v.atributo.id,
     pregunta: v.atributo.pregunta,
@@ -114,17 +207,21 @@ export function analizar(texto: string, respuestas: Record<string, string> = {})
     origen: v.origen,
   }));
 
-  const textil = elegida?.id === 'textil' ? detalleTextil(limpio, valores) : null;
+  const textil = elegida?.id === 'textil' ? detalleTextil(etiqueta, valores) : null;
 
   return {
-    texto: limpio,
-    legible: Boolean(limpio.trim()),
+    // Vuelve entero, con la pista: la pantalla lo reenvía con cada
+    // respuesta y el análisis se rehace sin volver a gastar una foto.
+    texto: texto || '',
+    etiqueta,
+    pista,
+    legible: hayTexto,
     generico,
     familia: elegida ? { id: elegida.id, nombre: elegida.nombre, capitulos: elegida.capitulos } : null,
     candidatas: elegida ? [] : candidatas,
     atributos,
     textil,
-    preguntas: preguntasDe(elegida, valores, generico, candidatas, Boolean(limpio.trim())),
+    preguntas: preguntasDe(elegida, valores, generico, { candidatas, hayTexto, respuestas }),
     terminos: elegida ? terminosDeBusqueda(elegida, valores) : '',
   };
 }
@@ -139,19 +236,10 @@ export function preguntasDe(
   familia: Familia | null,
   valores: ValorAtributo[],
   generico: DatosGenericos,
-  candidatas: { id: string; nombre: string }[],
-  hayTexto: boolean
+  contexto: Contexto
 ): Pregunta[] {
-  if (!hayTexto) return [];
-
-  if (!familia) {
-    return [{
-      campo: CAMPO_FAMILIA,
-      pregunta: PREGUNTA_FAMILIA,
-      decisiva: true,
-      opciones: opcionesDeFamilia(candidatas),
-    }];
-  }
+  if (!contexto.hayTexto) return [];
+  if (!familia) return [preguntaDeUbicacion(contexto)];
 
   const preguntas: Pregunta[] = [];
   const delAtributo = (v: ValorAtributo): Pregunta => ({

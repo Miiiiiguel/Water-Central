@@ -163,7 +163,11 @@ describe('el catálogo de familias', () => {
     for (const f of FAMILIAS) {
       expect(f.capitulos.length, f.id).toBeGreaterThan(0);
       expect(f.senales.length, f.id).toBeGreaterThan(0);
-      expect(f.atributos.some((a) => a.decisivo), f.id).toBe(true);
+      // Las familias hechas a mano existen para preguntar lo que decide
+      // la partida. Las de un capítulo (cap91, cap65…) no: el capítulo
+      // ya es la decisión, y lo que sigue lo resuelve la búsqueda en el
+      // arancel, dentro de él.
+      if (!f.id.startsWith('cap')) expect(f.atributos.some((a) => a.decisivo), f.id).toBe(true);
       // Un atributo se contesta con botones o escribiendo, pero se
       // contesta: uno sin opciones ni lector deja la pregunta muda.
       for (const a of f.atributos) {

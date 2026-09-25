@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { leerChip, respuestaChip, turnoDe } from './etiquetaChat';
+import { leerChip, nombrarCapitulos, respuestaChip, turnoDe } from './etiquetaChat';
 import type { Analisis } from './etiqueta';
 
 // Lo que Marco Polo dice después de una foto. Un chat pregunta de a
 // una cosa: la pantalla podía mostrar cinco preguntas juntas, acá no.
 
 const VACIO: Analisis = {
-  texto: '', legible: false,
+  texto: '', etiqueta: '', pista: null, legible: false,
   generico: { origen: null, marca: null, modelo: null, contenidoNeto: null, codigoDeBarras: null,
     lote: null, vencimiento: null, materiales: [], electrico: null },
   familia: null, candidatas: [], atributos: [], textil: null, preguntas: [], terminos: '',
@@ -109,5 +109,33 @@ describe('los chips de respuesta', () => {
 describe('en inglés', () => {
   it('contesta en inglés', () => {
     expect(turnoDe(VACIO, 'en').texto).toMatch(/nothing could be read/i);
+  });
+});
+
+describe('lo que se vio en la foto', () => {
+  const reloj = con({
+    pista: 'reloj de pulsera',
+    familia: { id: 'cap91', nombre: 'Relojes', capitulos: ['91'] },
+    generico: { ...VACIO.generico, origen: 'JAPON' },
+  });
+
+  it('se dice como visto, aparte de lo leído', () => {
+    const t = turnoDe(reloj, 'es').texto;
+    expect(t).toContain('En la foto veo: reloj de pulsera.');
+    const leido = t.split('\n').find((l) => l.startsWith('Leí:')) ?? '';
+    expect(leido).not.toContain('reloj');
+  });
+
+  it('sin pista no se dice nada de la foto', () => {
+    expect(turnoDe(con({}), 'es').texto).not.toContain('En la foto');
+  });
+});
+
+describe('cómo se nombran los capítulos', () => {
+  it('uno se nombra, pocos se enumeran, muchos van como rango', () => {
+    expect(nombrarCapitulos(['91'], 'es')).toBe('capítulo 91');
+    expect(nombrarCapitulos(['61', '62', '63'], 'es')).toBe('capítulos 61, 62 y 63');
+    // El alimento ocupa dieciséis capítulos: leídos uno por uno no se entienden.
+    expect(nombrarCapitulos(['04', '02', '21', '10', '03'], 'es')).toBe('entre los capítulos 02 y 21');
   });
 });
