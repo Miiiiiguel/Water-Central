@@ -147,6 +147,20 @@ describe('las líneas de una subpartida', () => {
     ]);
   });
 
+  it('una línea sin descripción no queda en blanco', () => {
+    const h = {
+      data: { id: '1', type: 'heading', attributes: { goods_nomenclature_item_id: '6203000000', declarable: false } },
+      included: [
+        { id: '20', type: 'commodity', attributes: { goods_nomenclature_item_id: '6203329000', producline_suffix: '80', leaf: true, description: '' } },
+        { id: '21', type: 'commodity', attributes: { goods_nomenclature_item_id: '6203321000', producline_suffix: '80', leaf: true, formatted_description: '<b>Industrial</b> and occupational' } },
+      ],
+    };
+    expect(leerLineas(h, '620332')).toEqual([
+      { codigo: '6203329000', descripcion: 'Otros (resto de la subpartida)' },
+      { codigo: '6203321000', descripcion: 'Industrial and occupational' },
+    ]);
+  });
+
   it('una partida declarable es su propia línea', () => {
     const d = { data: { id: '1', type: 'heading', attributes: { goods_nomenclature_item_id: '0409000000', declarable: true, description: 'Natural honey' } } };
     expect(leerLineas(d, '040900')).toEqual([{ codigo: '0409000000', descripcion: 'Natural honey' }]);
