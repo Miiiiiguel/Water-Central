@@ -1,6 +1,7 @@
 import express from 'express';
 import { getProfileFromRequest } from './supabaseAdmin';
 import { isConfigured as kalodataConfigured } from './kalodata';
+import { isConfigured as amazonConfigured } from './junglescout';
 import { configurado as fedexConfigurado } from './fedex/cliente';
 import { configurado as uspsConfigurado } from './usps/cliente';
 
@@ -33,7 +34,7 @@ healthRouter.get('/health', async (req, res) => {
     // saber a quién contratar directo.
     // Las claves son las públicas (server/research.ts); el nombre real
     // del proveedor sólo viaja en este valor, y sólo hacia un vendedor.
-    sources: { tiktok: 'Kalodata', aduanas: 'Sicex', clasificacion: 'FedEx' },
+    sources: { tiktok: 'Kalodata', aduanas: 'Sicex', clasificacion: 'FedEx', amazon: 'Jungle Scout' },
     integrations: {
       supabase: set('VITE_SUPABASE_URL') && set('VITE_SUPABASE_ANON_KEY'),
       supabaseServer: set('SUPABASE_SERVICE_ROLE_KEY'),
@@ -52,6 +53,8 @@ healthRouter.get('/health', async (req, res) => {
       // dijera "sin conectar" con la integración funcionando.
       tiktok: kalodataConfigured(),
       aduanas: set('SICEX_API_KEY') && set('SICEX_API_URL'),
+      // Ventas estimadas por marca en Amazon.
+      amazon: amazonConfigured(),
       // Partidas sugeridas al terminar de leer una etiqueta.
       clasificacion: fedexConfigurado(),
       // Tarifas reales del envío dentro de EE. UU. en la calculadora ROI.

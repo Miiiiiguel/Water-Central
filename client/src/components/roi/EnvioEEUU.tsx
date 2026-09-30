@@ -124,8 +124,8 @@ export default function EnvioEEUU({ es, pesoG, aplica, fijoUsd, valor, onValor }
           </ul>
           <p className="mt-2 text-xs text-muted-foreground">
             {es
-              ? 'Tarifa comercial (la de quien imprime la guía en línea), hacia cuatro ciudades de zonas distintas. Tu costo real depende de dónde esté cada comprador.'
-              : 'Commercial rate (what you pay printing labels online), to four cities in different zones. Your real cost depends on where each buyer is.'}
+              ? 'Tarifa comercial de USPS: la que pagas imprimiendo la guía en Pirate Ship, Shopify Shipping o tu cuenta de USPS. Hacia cuatro ciudades de zonas distintas; tu costo real depende de dónde esté cada comprador.'
+              : 'USPS commercial rate: what you pay printing the label on Pirate Ship, Shopify Shipping or your USPS account. To four cities in different zones; your real cost depends on where each buyer is.'}
           </p>
         </div>
       ) : (

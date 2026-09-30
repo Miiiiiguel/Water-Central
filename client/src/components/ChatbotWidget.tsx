@@ -41,6 +41,7 @@ function menuQuickReplies(language: string) {
     { label: language === 'es' ? '¿Cómo empiezo?' : 'How do I start?', value: language === 'es' ? 'como empiezo' : 'how do i start' },
     { label: language === 'es' ? '¿Cuánto cuesta?' : 'How much is it?', value: language === 'es' ? 'cuanto cuesta' : 'how much does it cost' },
     { label: language === 'es' ? 'Tendencias en TikTok Shop' : 'TikTok Shop trends', value: '__research:tiktok__' },
+    { label: language === 'es' ? 'Ventas por marca en Amazon' : 'Amazon sales by brand', value: '__research:amazon__' },
     { label: language === 'es' ? 'Datos de comercio exterior' : 'Foreign trade data', value: '__research:aduanas__' },
     { label: language === 'es' ? 'Analizar producto' : 'Analyze a product', value: '__analizar__' },
     { label: language === 'es' ? 'Calcular un flete' : 'Freight quote', value: language === 'es' ? 'flete' : 'freight' },
@@ -308,6 +309,7 @@ export default function ChatbotWidget() {
       pushBot(MARCO_POLO.fallback[language], {
         quickReplies: [
           { label: language === 'es' ? 'Buscar en TikTok Shop' : 'Search TikTok Shop', value: '__research:tiktok__' },
+          { label: language === 'es' ? 'Buscar en Amazon' : 'Search Amazon', value: '__research:amazon__' },
           { label: language === 'es' ? 'Buscar en aduanas' : 'Search customs data', value: '__research:aduanas__' },
           { label: language === 'es' ? 'Hablar con una persona' : 'Talk to a person', value: '__human__' },
         ],
@@ -607,7 +609,7 @@ export default function ChatbotWidget() {
     hapticTap();
 
     // Start a research flow: ask for the term, then the next message runs it.
-    const research = /^__research:(tiktok|aduanas)__$/.exec(trimmed);
+    const research = /^__research:(tiktok|aduanas|amazon)__$/.exec(trimmed);
     if (research) {
       const source = research[1] as ResearchSource;
       setResearchMode(source);

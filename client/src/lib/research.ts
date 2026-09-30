@@ -13,7 +13,7 @@
  * quien lo leyera tenía a un clic el contratarlo directo. El servidor
  * traduce estos ids a sus proveedores y no los devuelve nunca.
  */
-export type ResearchSource = 'tiktok' | 'aduanas';
+export type ResearchSource = 'tiktok' | 'aduanas' | 'amazon';
 
 /**
  * Any part of the site can ask Marco Polo to run a lookup by dispatching
@@ -102,6 +102,7 @@ export type ResearchOutcome =
 export const SOURCE_LABEL: Record<ResearchSource, string> = {
   tiktok: 'TikTok Shop',
   aduanas: 'Comercio exterior',
+  amazon: 'Amazon',
 };
 
 export const SOURCE_BLURB: Record<ResearchSource, { es: string; en: string }> = {
@@ -112,6 +113,10 @@ export const SOURCE_BLURB: Record<ResearchSource, { es: string; en: string }> = 
   aduanas: {
     es: 'importaciones y exportaciones reales por país y producto',
     en: 'real import and export records by country and product',
+  },
+  amazon: {
+    es: 'cuánto vende cada marca y cada producto (estimado, últimos 30 días)',
+    en: 'how much each brand and product sells (estimated, last 30 days)',
   },
 };
 

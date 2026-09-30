@@ -1031,6 +1031,15 @@ el archivo de la TIGIE, igual que el HTS.
 
 ### Envío dentro de EE. UU. (USPS)
 
+> **¿Y Pirate Ship?** No tiene API: su página de ayuda lo dice
+> ("Does Pirate Ship have an API? No"). No hay forma oficial de pedirle
+> tarifas desde la app. Lo que sí se puede: la cotización de acá usa la
+> **tarifa comercial de USPS**, que es la que Pirate Ship cobra en las
+> guías de USPS. Las guías se siguen comprando en Pirate Ship; el ROI
+> estima con esa misma tarifa. Pirate Ship puede salir algo más barato
+> en paquetes chicos y pesados, por su precio Cubic, que acá no se
+> calcula.
+
 Los USD 7 de envío doméstico son un supuesto. Si el cliente escribe el
 código postal (ZIP) de su bodega en EE. UU. y aprieta **Cotizar envío
 real**, la calculadora usa la tarifa de USPS Ground Advantage para su
@@ -1074,6 +1083,45 @@ Sin las variables, el bloque de envío aparece igual y al cotizar dice
 que las tarifas reales todavía no están activadas; el cálculo sigue con
 los USD 7. El panel de integraciones del dashboard muestra si USPS está
 conectado.
+
+### Inteligencia Amazon (Jungle Scout)
+
+Marco Polo contesta "¿cuánto venden las marcas de café en Amazon?" con:
+- el ranking de marcas: ingresos y unidades estimados de los últimos 30
+  días, número de productos y participación;
+- los 3 productos que más venden.
+
+Sale de la API de Jungle Scout (`server/junglescout.ts`). El cliente ve
+"Amazon", nunca el nombre del proveedor.
+
+- **Son estimaciones.** Amazon no publica las ventas de nadie, y la
+  respuesta lo dice siempre.
+- **Idioma de la búsqueda.** En amazon.com la palabra se busca en inglés
+  ("café tostado" → "roasted coffee"). En México y España se deja en
+  español.
+- **Mercados:** EE. UU., Canadá, Reino Unido, Alemania, Francia, Italia,
+  España, México, India y Japón. Si la pregunta nombra el país, se usa;
+  si no, EE. UU.
+- **Cobro:** cada consulta usa 1 token, igual que TikTok Shop. Si la API
+  falla, el token vuelve.
+
+Qué hay que poner en Render:
+
+| Variable | Qué es |
+|---|---|
+| `JUNGLESCOUT_API_KEY_NAME` | El **nombre** que le diste a la llave al crearla en Jungle Scout |
+| `JUNGLESCOUT_API_KEY` | La llave |
+
+Para sacarlas: en Jungle Scout (web) → **Settings** → **API Keys** →
+**Generate API Key**. Dale un nombre (por ejemplo `easycomex`) y copia el
+nombre y la llave; la llave se muestra una sola vez. El plan tiene que
+incluir acceso a la API. Si no ves la opción, tu plan no lo incluye y hay
+que pedírselo a Jungle Scout.
+
+La API no se pudo alcanzar desde donde se construyó esto. El conector
+sigue la forma que documenta Jungle Scout y está probado con respuestas
+armadas; la primera prueba real es una consulta en el chat, en
+producción.
 
 ### Ruta exportadora (`/ruta`)
 

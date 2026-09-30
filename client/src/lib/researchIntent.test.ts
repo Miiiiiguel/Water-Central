@@ -154,3 +154,19 @@ describe('de qué se pregunta y en qué mercado', () => {
     expect(detectResearch('quien exporta cafe a estados unidos')!.term).toBe('cafe estados unidos');
   });
 });
+
+describe('Amazon', () => {
+  it('una pregunta que nombra Amazon va a Amazon, con el mercado y sin las palabras de relleno', () => {
+    const r = detectResearch('¿Cuánto venden las marcas de café en Amazon?');
+    expect(r?.source).toBe('amazon');
+    expect(r?.term).toBe('cafe');
+  });
+
+  it('Amazon México lleva el mercado', () => {
+    expect(detectResearch('¿qué marcas de café venden más en Amazon México?')?.country).toBe('MX');
+  });
+
+  it('si nombra TikTok, manda TikTok', () => {
+    expect(detectResearch('¿qué se vende más en TikTok Shop que en Amazon?')?.source).toBe('tiktok');
+  });
+});

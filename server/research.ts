@@ -4,7 +4,7 @@ import { apiRateLimiter, makeLimiter, JSON_BODY_LIMIT } from './security';
 import { requireUser } from './auth';
 import { getSupabaseAdmin } from './supabaseAdmin';
 import { logSecurityEvent } from './log';
-import { runKalodata, runSicex, isConfigured, type ResearchResult } from './connectors';
+import { runAmazon, runKalodata, runSicex, isConfigured, type ResearchResult } from './connectors';
 import { CATALOG } from './catalog';
 
 // Marco Polo's research desk.
@@ -22,7 +22,7 @@ import { CATALOG } from './catalog';
 //      look like the integration works.
 
 /** Los proveedores reales. Este nombre no sale del servidor. */
-export const RESEARCH_SOURCES = ['kalodata', 'sicex'] as const;
+export const RESEARCH_SOURCES = ['kalodata', 'sicex', 'junglescout'] as const;
 export type ResearchSource = (typeof RESEARCH_SOURCES)[number];
 
 /**
@@ -35,12 +35,13 @@ export type ResearchSource = (typeof RESEARCH_SOURCES)[number];
  * la frontera del servidor — ni en la petición, ni en la respuesta, ni
  * en un mensaje de error.
  */
-export const PUBLIC_SOURCES = ['tiktok', 'aduanas'] as const;
+export const PUBLIC_SOURCES = ['tiktok', 'aduanas', 'amazon'] as const;
 export type PublicSource = (typeof PUBLIC_SOURCES)[number];
 
 const PROVIDER_OF: Record<PublicSource, ResearchSource> = {
   tiktok: 'kalodata',
   aduanas: 'sicex',
+  amazon: 'junglescout',
 };
 
 /**
@@ -49,7 +50,8 @@ const PROVIDER_OF: Record<PublicSource, ResearchSource> = {
  * con un 400 que nadie sabría explicar.
  */
 export function toPublicSource(value: string): PublicSource | null {
-  if (value === 'tiktok' || value === 'aduanas') return value;
+  if (value === 'tiktok' || value === 'aduanas' || value === 'amazon') return value;
+  if (value === 'junglescout') return 'amazon';
   if (value === 'kalodata') return 'tiktok';
   if (value === 'sicex') return 'aduanas';
   return null;
@@ -72,7 +74,7 @@ export const CREDIT_PACK = {
 };
 
 const bodySchema = z.object({
-  source: z.enum(['tiktok', 'aduanas', 'kalodata', 'sicex']),
+  source: z.enum(['tiktok', 'aduanas', 'amazon', 'kalodata', 'sicex', 'junglescout']),
   // Vacío es válido a propósito: "qué se vende más en TikTok Shop" no
   // tiene término de búsqueda, es el ranking de arriba, y las fuentes
   // aceptan una consulta sin palabra clave. Lo que se rechaza es una
@@ -258,6 +260,7 @@ async function getQuota(userId: string): Promise<QuotaView> {
     sources: {
       tiktok: isConfigured('kalodata'),
       aduanas: isConfigured('sicex'),
+      amazon: isConfigured('junglescout'),
     },
   };
 }
@@ -277,6 +280,7 @@ researchRouter.get('/research/status', apiRateLimiter, (_req, res) => {
     sources: {
       tiktok: isConfigured('kalodata'),
       aduanas: isConfigured('sicex'),
+      amazon: isConfigured('junglescout'),
     },
   });
 });
@@ -310,7 +314,9 @@ researchRouter.post('/research', researchRateLimiter, requireUser(), express.jso
       message:
         source === 'tiktok'
           ? 'La inteligencia de TikTok Shop todavía no está disponible. Escríbenos y la activamos para tu cuenta.'
-          : 'Los datos de comercio exterior todavía no están disponibles. Escríbenos y los activamos para tu cuenta.',
+          : source === 'amazon'
+            ? 'La inteligencia de Amazon todavía no está disponible. Escríbenos y la activamos para tu cuenta.'
+            : 'Los datos de comercio exterior todavía no están disponibles. Escríbenos y los activamos para tu cuenta.',
     });
   }
 
@@ -330,7 +336,10 @@ researchRouter.post('/research', researchRateLimiter, requireUser(), express.jso
 
   let result: ResearchResult;
   try {
-    result = provider === 'kalodata' ? await runKalodata(query, country, kind) : await runSicex(query, country);
+    result =
+      provider === 'kalodata' ? await runKalodata(query, country, kind)
+      : provider === 'junglescout' ? await runAmazon(query, country)
+      : await runSicex(query, country);
   } catch (err) {
     // The lookup failed through no fault of the user: give the query back.
     await devolverConsulta(auth.user.id, billed);
