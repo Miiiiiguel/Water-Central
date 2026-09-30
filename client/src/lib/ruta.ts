@@ -41,6 +41,7 @@ export interface Paso {
 const ROI: Herramienta = { tipo: 'ruta', href: '/roi', es: 'Calculadora ROI', en: 'ROI calculator' };
 const FLETE: Herramienta = { tipo: 'ruta', href: '/#calculadora', es: 'Calculadora de fletes', en: 'Freight calculator' };
 const ETIQUETA: Herramienta = { tipo: 'ruta', href: '/analizar', es: 'Leer mi etiqueta', en: 'Read my label' };
+const plantilla = (doc: string, es: string, en: string): Herramienta => ({ tipo: 'ruta', href: `/plantillas?doc=${doc}`, es, en });
 const asesor = (mensaje: string): Herramienta => ({ tipo: 'asesor', mensaje, es: 'Hablar con un asesor', en: 'Talk to an advisor' });
 
 export const PASOS: Paso[] = [
@@ -107,7 +108,7 @@ export const PASOS: Paso[] = [
     },
     tareas: [
       { id: 'acuerdo-bodega', es: 'Acuerdo firmado con tu bodega o Prep Center en EE. UU.', en: 'Signed agreement with your US warehouse or Prep Center', herramienta: asesor('quiero información del Prep Center en EE. UU.') },
-      { id: 'incoterm', es: 'Elegiste el Incoterm y la forma de pago con tu transportista', en: 'You chose the Incoterm and payment terms with your carrier', herramienta: asesor('necesito ayuda para elegir el Incoterm.') },
+      { id: 'incoterm', es: 'Elegiste el Incoterm y la forma de pago con tu transportista', en: 'You chose the Incoterm and payment terms with your carrier', herramienta: plantilla('incoterms', 'Guía de Incoterms', 'Incoterms guide') },
       { id: 'creadores', es: 'Acuerdos con creadores de contenido (comisión, entregables, derechos de uso)', en: 'Agreements with content creators (commission, deliverables, usage rights)' },
     ],
   },
@@ -123,7 +124,8 @@ export const PASOS: Paso[] = [
       { id: 'requisitos', diag: 2, es: 'Identificaste los requisitos legales para exportar tu producto', en: 'You identified the legal requirements to export your product' },
       { id: 'partida', es: 'Tienes la partida arancelaria de tu producto', en: 'You have your product’s tariff code', herramienta: ETIQUETA },
       { id: 'registros', es: 'Registros sanitarios o de seguridad si tu producto los pide (FDA, CPSC)', en: 'Health or safety registrations if your product needs them (FDA, CPSC)', herramienta: asesor('necesito saber si mi producto requiere registro FDA.') },
-      { id: 'origen', es: 'Certificado de origen para usar el acuerdo comercial de tu país', en: 'Certificate of origin to use your country’s trade agreement', herramienta: ROI },
+      { id: 'origen', es: 'Certificado de origen para usar el acuerdo comercial de tu país', en: 'Certificate of origin to use your country’s trade agreement', herramienta: plantilla('origen', 'Plantilla de certificación', 'Certification template') },
+      { id: 'factura', es: 'Factura comercial y lista de empaque de tu primer envío', en: 'Commercial invoice and packing list for your first shipment', herramienta: plantilla('factura', 'Hacer la factura', 'Make the invoice') },
     ],
   },
   {

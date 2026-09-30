@@ -939,3 +939,36 @@ html, body {
   background-size: 400px 100%;
   animation: skeleton-shimmer 1.6s ease-in-out infinite;
 }
+
+/* Plantillas (/plantillas): al imprimir sale sólo el documento. La
+   clase la pone la página mientras está abierta, así no afecta cómo se
+   imprime ninguna otra. */
+@media print {
+  body.imprimir-documento * {
+    visibility: hidden;
+  }
+  body.imprimir-documento #documento,
+  body.imprimir-documento #documento * {
+    visibility: visible;
+  }
+  body.imprimir-documento #documento {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: 0;
+    box-shadow: none;
+  }
+  /* Lo oculto también deja de ocupar lugar: si no, sale una segunda
+     hoja en blanco. Los contenedores del documento quedan, sin relleno. */
+  body.imprimir-documento *:not(:has(#documento)):not(#documento):not(#documento *) {
+    display: none !important;
+  }
+  body.imprimir-documento *:has(#documento) {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+}

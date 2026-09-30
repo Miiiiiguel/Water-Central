@@ -1105,6 +1105,33 @@ están escritos para ecommerce.
 - Se llega desde el resultado del diagnóstico, desde el dashboard
   (tarjeta con el avance) y desde Marco Polo, que la ofrece como gratis.
 
+### Plantillas de exportación (`/plantillas`)
+
+Son gratis y no piden cuenta. Los datos se llenan una vez y de ahí salen
+cuatro documentos, en español con la etiqueta en inglés al lado (los lee
+la aduana de EE. UU.):
+- **Factura comercial:** con los datos que toda factura de importación
+  a EE. UU. debe traer (vendedor, comprador, descripción, partida,
+  cantidad, precio, moneda, país de origen, Incoterm) y la declaración
+  de precio real.
+- **Factura proforma:** una oferta, con fecha de validez.
+- **Lista de empaque:** bultos, pesos neto y bruto, medidas.
+- **Certificación de origen** para TPA Colombia, T-MEC, CAFTA-DR, Perú,
+  Chile y Panamá. Ninguno de esos acuerdos exige un formulario oficial:
+  la certificación trae los datos mínimos (quién certifica, exportador,
+  productor, importador, descripción, partida HTS, criterio de origen,
+  período y firma) y la declaración de responsabilidad.
+
+Además trae la **guía de Incoterms 2020** (los 11), con recomendaciones
+para ecommerce. Por ejemplo, DDP para Amazon FBA, porque Amazon no actúa
+como importador.
+
+- "Imprimir o guardar PDF" saca sólo el documento, en una hoja.
+- Los datos quedan en el navegador de quien los llena.
+- Cada documento dice qué le falta para servir.
+- La ruta exportadora enlaza aquí desde los pasos 4 y 5.
+- La página aclara que la versión final la revisa el agente de aduanas.
+
 ### Tokens (`/tokens`)
 
 Cada cuenta tiene 2 consultas gratis por día. Cuenta como consulta:

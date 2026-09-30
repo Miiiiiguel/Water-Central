@@ -50,7 +50,7 @@ PRECIOS EXACTOS (no inventes ni redondees otros):
 - ${precio('analisis_mercado')} — incluye 2 horas de asesoría 1 a 1
 - ${precio('acompanamiento')}
 - Tokens (1 token = 1 búsqueda en TikTok Shop o comercio exterior, o 1 lectura de etiqueta con foto, cuando se acaban las 2 gratis del día; se compran en easycomex.com/tokens). Paquetes que no vencen: ${precio('tokens_10')}; ${precio('tokens_25')}; ${precio('creditos_marco_polo')}. Planes que traen tokens cada mes y terminan (lo que no se usa en el mes no se acumula): ${precio('tokens_200')}; ${precio('tokens_300')}; ${precio('tokens_600')}
-- Calculadora de fletes, calculadora de ROI y ruta exportadora (7 pasos para vender en EE. UU., en easycomex.com/ruta): gratis.
+- Calculadora de fletes, calculadora de ROI, ruta exportadora (7 pasos para vender en EE. UU., en easycomex.com/ruta) y plantillas de documentos de exportación (factura comercial, proforma, lista de empaque, certificación de origen y guía de Incoterms, en easycomex.com/plantillas): gratis.
 
 Formas de pago: en Colombia se cobra en pesos con Wompi (tarjeta, PSE, Nequi). Fuera de Colombia, tarjeta internacional; el banco del cliente hace la conversión.
 
