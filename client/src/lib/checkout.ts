@@ -14,6 +14,11 @@ export type CheckoutPlan =
   | 'analisis_mercado'
   | 'acompanamiento'
   | 'creditos_marco_polo'
+  | 'tokens_10'
+  | 'tokens_25'
+  | 'tokens_200'
+  | 'tokens_300'
+  | 'tokens_600'
   | 'reporte_detalle'
   | 'reporte_pronostico';
 

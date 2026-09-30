@@ -18,6 +18,11 @@ export type PlanId =
   | 'analisis_mercado'
   | 'acompanamiento'
   | 'creditos_marco_polo'
+  | 'tokens_10'
+  | 'tokens_25'
+  | 'tokens_200'
+  | 'tokens_300'
+  | 'tokens_600'
   | 'reporte_detalle'
   | 'reporte_pronostico';
 
@@ -58,13 +63,58 @@ export const CATALOG: Record<PlanId, CatalogItem> = {
     copEnv: 'PRICE_ACOMPANAMIENTO_COP',
     stripePriceEnv: 'STRIPE_PRICE_ACOMPANAMIENTO',
   },
+  // Los tokens: 1 token = 1 consulta de inteligencia de mercado (TikTok
+  // Shop o comercio exterior) cuando se acaban las gratis del día. Se
+  // venden por paquete, más baratos por token cuanto más grande, y no
+  // vencen. `creditos_marco_polo` es el de 50 y conserva su id porque ya
+  // hay pagos registrados con ese nombre.
+  tokens_10: {
+    label: '10 tokens · Mini',
+    labelEn: '10 tokens · Mini',
+    usdCents: 499,
+    copEnv: 'PRICE_TOKENS_10_COP',
+    stripePriceEnv: 'STRIPE_PRICE_TOKENS_10',
+    grants: { researchCredits: 10 },
+  },
+  tokens_25: {
+    label: '25 tokens · Starter',
+    labelEn: '25 tokens · Starter',
+    usdCents: 999,
+    copEnv: 'PRICE_TOKENS_25_COP',
+    stripePriceEnv: 'STRIPE_PRICE_TOKENS_25',
+    grants: { researchCredits: 25 },
+  },
   creditos_marco_polo: {
-    label: '50 consultas de Marco Polo',
-    labelEn: '50 Marco Polo lookups',
+    label: '50 tokens · Básico',
+    labelEn: '50 tokens · Basic',
     usdCents: 1900,
     copEnv: 'PRICE_CREDITOS_MARCO_POLO_COP',
     stripePriceEnv: 'STRIPE_PRICE_CREDITOS_MARCO_POLO',
     grants: { researchCredits: 50 },
+  },
+  tokens_200: {
+    label: '200 tokens · Pro',
+    labelEn: '200 tokens · Pro',
+    usdCents: 4900,
+    copEnv: 'PRICE_TOKENS_200_COP',
+    stripePriceEnv: 'STRIPE_PRICE_TOKENS_200',
+    grants: { researchCredits: 200 },
+  },
+  tokens_300: {
+    label: '300 tokens · Equipo',
+    labelEn: '300 tokens · Team',
+    usdCents: 6900,
+    copEnv: 'PRICE_TOKENS_300_COP',
+    stripePriceEnv: 'STRIPE_PRICE_TOKENS_300',
+    grants: { researchCredits: 300 },
+  },
+  tokens_600: {
+    label: '600 tokens · Empresa',
+    labelEn: '600 tokens · Business',
+    usdCents: 11900,
+    copEnv: 'PRICE_TOKENS_600_COP',
+    stripePriceEnv: 'STRIPE_PRICE_TOKENS_600',
+    grants: { researchCredits: 600 },
   },
   reporte_detalle: {
     label: 'Desglose de costos mes a mes',

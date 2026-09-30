@@ -1075,6 +1075,32 @@ que las tarifas reales todavía no están activadas; el cálculo sigue con
 los USD 7. El panel de integraciones del dashboard muestra si USPS está
 conectado.
 
+### Tokens (`/tokens`)
+
+Cada cuenta tiene 2 consultas gratis por día de inteligencia de mercado
+(TikTok Shop y comercio exterior). Cuando se acaban, cada consulta usa un
+token. Los tokens se venden por paquete en `/tokens`, con la misma forma
+de cobrar que Aduanapp: una opción gratis y paquetes que abaratan el
+token cuanto más grandes son.
+
+| Paquete | Tokens | USD | COP (tasa 4000) | Por token |
+|---|---|---|---|---|
+| Mini | 10 | 4.99 | $19.900 | 0.50 |
+| Starter | 25 | 9.99 | $39.900 | 0.40 |
+| Básico (`creditos_marco_polo`) | 50 | 19 | $76.000 | 0.38 |
+| Pro | 200 | 49 | $196.000 | 0.24 |
+| Equipo | 300 | 69 | $276.000 | 0.23 |
+| Empresa | 600 | 119 | $476.000 | 0.20 |
+
+- Los precios viven en `server/catalog.ts`. Cada uno se puede fijar en
+  pesos sin tocar código: `PRICE_TOKENS_10_COP`, `PRICE_TOKENS_25_COP`,
+  `PRICE_CREDITOS_MARCO_POLO_COP`, `PRICE_TOKENS_200_COP`,
+  `PRICE_TOKENS_300_COP` y `PRICE_TOKENS_600_COP`.
+- Al aprobarse el pago, el webhook acredita los tokens en
+  `research_credits`. No hace falta ninguna migración: es el mismo
+  mecanismo que ya tenía el paquete de 50.
+- Los tokens no vencen, y una consulta que falla devuelve el token.
+
 ### Los dos reportes de pago
 
 | Reporte | Precio | Antes | Plan en Stripe |

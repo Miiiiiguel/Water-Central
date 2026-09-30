@@ -245,7 +245,7 @@ researchRouter.post('/research', researchRateLimiter, requireUser(), express.jso
       error: 'quota_exhausted',
       quota,
       creditPack: CREDIT_PACK,
-      message: `Se te acabaron las ${dailyLimit} consultas gratis de hoy. Podés comprar un paquete de ${CREDIT_PACK.credits} consultas o esperar a mañana.`,
+      message: `Se te acabaron las ${dailyLimit} consultas gratis de hoy. Cada consulta extra usa un token: los venden en paquetes desde 10 tokens, o podés esperar a mañana.`,
     });
   }
 

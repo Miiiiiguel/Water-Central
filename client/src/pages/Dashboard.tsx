@@ -6,7 +6,6 @@ import {
   BarChart3, Plug, Receipt, RefreshCw, Search, Sparkles,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { startCheckout } from '@/lib/checkout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getSupabase, FreightQuote, Profile, ContactLead, Payment, Subscription } from '@/lib/supabase';
 import { buildReferralLink } from '@/lib/referral';
@@ -242,7 +241,12 @@ const planLabel: Record<string, { es: string; en: string }> = {
   diagnostico_madurez: { es: 'Diagnóstico de madurez', en: 'Maturity diagnosis' },
   analisis_mercado: { es: 'Análisis de mercado', en: 'Market analysis' },
   acompanamiento: { es: 'Acompañamiento mensual', en: 'Monthly retainer' },
-  creditos_marco_polo: { es: 'Consultas de Marco Polo', en: 'Marco Polo lookups' },
+  creditos_marco_polo: { es: '50 tokens', en: '50 tokens' },
+  tokens_10: { es: '10 tokens', en: '10 tokens' },
+  tokens_25: { es: '25 tokens', en: '25 tokens' },
+  tokens_200: { es: '200 tokens', en: '200 tokens' },
+  tokens_300: { es: '300 tokens', en: '300 tokens' },
+  tokens_600: { es: '600 tokens', en: '600 tokens' },
   reporte_detalle: { es: 'Desglose de costos mes a mes', en: 'Month-by-month cost breakdown' },
   reporte_pronostico: { es: 'Pronóstico completo a 2 años', en: 'Full 2-year forecast' },
   suscripcion: { es: 'Suscripción', en: 'Subscription' },
@@ -371,13 +375,10 @@ function ResearchQuotaCard() {
 
   if (!quota) return null;
 
+  // Los paquetes de tokens se eligen en su página.
   const buy = async () => {
     setBusy(true);
-    try {
-      await startCheckout('creditos_marco_polo', getAccessToken());
-    } finally {
-      setBusy(false);
-    }
+    window.location.href = '/tokens';
   };
 
   const connected = quota.sources.tiktok || quota.sources.aduanas;
@@ -403,7 +404,7 @@ function ResearchQuotaCard() {
           className="tap-scale-sm inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent hover:bg-accent/90 text-white text-xs font-bold border-0 cursor-pointer disabled:opacity-50 transition-colors"
         >
           {busy ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-          {es ? 'Comprar consultas' : 'Buy lookups'}
+          {es ? 'Comprar tokens' : 'Buy tokens'}
         </button>
       </div>
 
@@ -411,7 +412,7 @@ function ResearchQuotaCard() {
         <span className="text-3xl font-black text-primary">{quota.freeRemaining}</span>
         <span className="text-sm text-muted-foreground">
           {es ? `de ${quota.dailyLimit} gratis hoy` : `of ${quota.dailyLimit} free today`}
-          {quota.credits > 0 && (es ? ` · ${quota.credits} créditos` : ` · ${quota.credits} credits`)}
+          {quota.credits > 0 && (es ? ` · ${quota.credits} tokens` : ` · ${quota.credits} tokens`)}
         </span>
       </div>
       <div className="h-2 rounded-full bg-gray-100 overflow-hidden mb-3">
@@ -421,8 +422,8 @@ function ResearchQuotaCard() {
       <p className="text-xs text-muted-foreground">
         {connected
           ? es
-            ? 'Tu plan define cuántas consultas trae cada día. Cuando se acaban, seguís con créditos comprados.'
-            : 'Your plan sets how many lookups you get each day. When they run out, purchased credits take over.'
+            ? 'Tu plan define cuántas consultas trae cada día. Cuando se acaban, seguís con tus tokens.'
+            : 'Your plan sets how many lookups you get each day. When they run out, your tokens take over.'
           : es
             ? 'La inteligencia de mercado todavía no está activa en tu cuenta. Hasta entonces Marco Polo no muestra esos datos — y nunca inventa números.'
             : 'Market intelligence is not active on your account yet. Until then Marco Polo shows no such data — and never invents numbers.'}

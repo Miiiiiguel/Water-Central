@@ -57,6 +57,30 @@ describe('el catálogo', () => {
   });
 });
 
+describe('los tokens', () => {
+  const paquetes = PLAN_IDS.filter((p) => CATALOG[p].grants?.researchCredits);
+
+  it('cada paquete promete en la etiqueta los tokens que entrega', () => {
+    for (const p of paquetes) {
+      const n = CATALOG[p].grants!.researchCredits;
+      expect(CATALOG[p].label, p).toContain(`${n} tokens`);
+      expect(CATALOG[p].labelEn, p).toContain(`${n} tokens`);
+    }
+  });
+
+  it('el token sale más barato cuanto más grande es el paquete', () => {
+    const porToken = paquetes
+      .map((p) => ({ n: CATALOG[p].grants!.researchCredits, usd: CATALOG[p].usdCents! / 100 }))
+      .sort((a, b) => a.n - b.n)
+      .map((x) => x.usd / x.n);
+    for (let i = 1; i < porToken.length; i++) expect(porToken[i]).toBeLessThan(porToken[i - 1]);
+  });
+
+  it('el paquete de 50 conserva su id: ya hay pagos registrados con ese nombre', () => {
+    expect(CATALOG.creditos_marco_polo.grants!.researchCredits).toBe(50);
+  });
+});
+
 describe('el guion de Marco Polo', () => {
   const prompt = buildSystemPrompt();
 
@@ -68,6 +92,7 @@ describe('el guion de Marco Polo', () => {
   });
 
   it('lleva los precios del catálogo, no una copia vieja', () => {
+    expect(prompt).toContain('600 tokens');
     expect(prompt).toContain('$39.900 COP');
     expect(prompt).toContain('USD 9.99');
     expect(prompt).toContain('USD 499');

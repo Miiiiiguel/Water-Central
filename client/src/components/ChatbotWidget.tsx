@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { X, Send, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle, Search, Sparkles, Settings2, Play, Camera } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { matchKnowledge, followUpsFor, MARCO_POLO, type SectionAction } from '@/lib/chatbotKnowledge';
-import { startCheckout, checkoutMessage } from '@/lib/checkout';
 import { aConsulta, detectResearch } from '@/lib/researchIntent';
 import { whatsappUrl } from '@/lib/contact';
 import { hapticTap, isNative, openExternal } from '@/lib/native';
@@ -316,20 +315,9 @@ export default function ChatbotWidget() {
     }
   };
 
-  // Sends the user to Stripe to buy a pack of extra lookups.
+  // Los tokens se eligen en su página: hay paquetes de varios tamaños.
   const buyCredits = async () => {
-    try {
-      const outcome = await startCheckout('creditos_marco_polo', getAccessToken());
-      if (!outcome.ok) {
-        pushBot(checkoutMessage(outcome.reason, language === 'es'), {
-          quickReplies: [{ label: 'WhatsApp', value: '__human__' }],
-        });
-      }
-    } catch {
-      pushBot(checkoutMessage('red', language === 'es'), {
-        quickReplies: [{ label: 'WhatsApp', value: '__human__' }],
-      });
-    }
+    window.location.href = '/tokens';
   };
 
   const recordarPendiente = (v: PendingResearch | null) => {
@@ -413,12 +401,11 @@ export default function ChatbotWidget() {
       if (outcome.quota) setQuota(outcome.quota);
       pushBot(
         language === 'es'
-          ? `${outcome.message} También podés subir de plan y tener más consultas incluidas todos los días.`
-          : `${outcome.message} You can also move up a plan and get more lookups included every day.`,
+          ? outcome.message
+          : "You have used today's free lookups. Each extra lookup uses one token: packs start at 10 tokens, or wait until tomorrow.",
         {
           quickReplies: [
-            { label: language === 'es' ? 'Comprar consultas' : 'Buy lookups', value: '__buy_credits__' },
-            { label: language === 'es' ? 'Ver planes' : 'See plans', value: language === 'es' ? 'cuanto cuesta' : 'how much does it cost' },
+            { label: language === 'es' ? 'Ver tokens' : 'See tokens', value: '__buy_credits__' },
           ],
         }
       );

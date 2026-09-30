@@ -252,6 +252,13 @@ export default function PlansSection() {
             </div>
           ))}
         </div>
+
+        <p className="mt-10 text-center text-sm text-muted-foreground">
+          {language === 'es' ? '¿Sólo necesitas datos de mercado? ' : 'Only need market data? '}
+          <Link href="/tokens" className="font-bold text-accent hover:underline">
+            {language === 'es' ? 'Compra tokens desde USD 4.99 →' : 'Buy tokens from USD 4.99 →'}
+          </Link>
+        </p>
       </div>
 
       <CheckoutSheet
