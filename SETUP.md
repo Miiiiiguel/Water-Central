@@ -984,6 +984,52 @@ Año 2: precio +4%, costo +6%, ADS 6% de ventas.
 Cambiar cualquiera de esos es editar una constante con nombre, en un
 solo lugar.
 
+### Envío dentro de EE. UU. (USPS)
+
+Los USD 7 de envío doméstico son un supuesto. Si el cliente escribe el
+código postal (ZIP) de su bodega en EE. UU. y aprieta **Cotizar envío
+real**, la calculadora usa la tarifa de USPS Ground Advantage para su
+peso y su caja. Es el promedio hacia Nueva York, Chicago, Dallas y Los
+Ángeles, que cubren zonas cercanas y lejanas. Se muestra también el
+detalle por ciudad. Es la tarifa comercial, la que se paga imprimiendo
+la guía en línea (Shopify, Pirate Ship, la cuenta de USPS).
+
+Sólo aplica al envío que paga la marca: pedidos de Shopify o TikTok Shop
+que despacha ella misma, con precio ≥ USD 35. En Amazon FBA el envío lo
+hace Amazon.
+
+Qué hay que poner en Render:
+
+| Variable | Qué es |
+|---|---|
+| `USPS_CLIENT_ID` | La *Consumer Key* de tu app en developers.usps.com |
+| `USPS_CLIENT_SECRET` | El *Consumer Secret* de la misma app |
+| `USPS_ENV` | Vacío = producción. `test` = el entorno de prueba de USPS |
+
+Para conseguirlas:
+
+1. Creá la cuenta de empresa en USPS (Business Customer Gateway,
+   gateway.usps.com) si no la tenés.
+2. Entrá a developers.usps.com con esa cuenta → **Apps** → **Add App**.
+   Agregale el producto de precios nacionales (*Domestic Prices*).
+3. Copiá la *Consumer Key* y el *Consumer Secret* a Render. No los
+   pegues en ningún chat ni en el código.
+
+**La cuota.** Una app nueva de USPS arranca con una cuota baja (del orden
+de 60 consultas por hora). Cada cotización nueva gasta hasta 5 (un token
+y 4 ciudades); una cotización repetida (mismo ZIP, peso y caja) sale de
+memoria por 12 horas y no gasta nada. Si se queda corta, pedí más cuota
+desde el portal de USPS. Cuando se agota, la calculadora lo dice y sigue
+con los USD 7.
+
+Nada se compra ni se imprime: sólo se consultan precios. Por eso el
+entorno por defecto es producción, que es donde están los precios reales.
+
+Sin las variables, el bloque de envío aparece igual y al cotizar dice
+que las tarifas reales todavía no están activadas; el cálculo sigue con
+los USD 7. El panel de integraciones del dashboard muestra si USPS está
+conectado.
+
 ### Los dos reportes de pago
 
 | Reporte | Precio | Antes | Plan en Stripe |

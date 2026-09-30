@@ -85,6 +85,11 @@ export interface RoiInputs {
   hts: { codigo: string; tasa: Tasa } | null;
   /** Liters per unit, for rates charged per liter. */
   litersPerUnit: number;
+  /**
+   * Real US domestic shipping per order, USD, quoted from the client's
+   * warehouse ZIP. Null: the team's fixed DOMESTIC_SHIP is used.
+   */
+  domesticShipUsd: number | null;
   /** Monthly budgets, USD. */
   adsBudget: number;
   contentBudget: number;
@@ -103,6 +108,7 @@ export const DEFAULT_INPUTS: RoiInputs = {
   reciprocalPct: RECIPROCAL_TARIFF,
   hts: null,
   litersPerUnit: 0,
+  domesticShipUsd: null,
   adsBudget: 999,
   contentBudget: 600,
   channelBudget: 999,
@@ -138,7 +144,7 @@ export interface CostBreakdown {
  */
 export function costBreakdown(units: number, inp: RoiInputs, warehousing: number, totalFreight: number): CostBreakdown {
   const freightPerUnit = totalFreight / inp.lot;
-  const domesticShip = inp.price >= FREE_SHIP_THRESHOLD ? DOMESTIC_SHIP : 0;
+  const domesticShip = inp.price >= FREE_SHIP_THRESHOLD ? inp.domesticShipUsd ?? DOMESTIC_SHIP : 0;
   const tradeAgreement = dutyPerUnit(inp);
 
   const b: CostBreakdown = {

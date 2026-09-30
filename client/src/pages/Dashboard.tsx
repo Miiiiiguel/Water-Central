@@ -691,6 +691,7 @@ function IntegrationsPanel() {
     { key: 'stripeWebhook', name: 'Stripe webhook', group: 'core', description: { es: 'Registra cada pago en el dashboard.', en: 'Records each payment in the dashboard.' } },
     { key: 'email', name: 'Correo (Resend)', group: 'core', description: { es: 'Recibo al comprador y aviso de cada lead. Sin esto, nada sale por correo.', en: 'Buyer receipt and lead alerts. Without it, no email goes out.' } },
     { key: 'emailTeamInbox', name: 'Bandeja del equipo', group: 'core', description: { es: 'A qué correo llegan los leads (TEAM_EMAIL).', en: 'Where lead alerts land (TEAM_EMAIL).' } },
+    { key: 'enviosEEUU', name: 'USPS', group: 'core', description: { es: 'Tarifa real del envío dentro de EE. UU. en la calculadora ROI. Sin esto usa el valor fijo de USD 7.', en: 'Real US domestic shipping rate in the ROI calculator. Without it, the fixed USD 7 is used.' } },
     { key: 'wompi', name: 'Wompi', group: 'core', description: { es: 'Cobra todo en pesos: planes, reportes y consultas. Sin esto no se puede pagar nada.', en: 'Charges everything in pesos: plans, reports and lookups. Without it nothing can be paid.' } },
     { key: 'publicAppUrl', name: 'PUBLIC_APP_URL', group: 'core', description: { es: 'A dónde vuelve el cliente tras pagar y qué orígenes pueden llamar a /api.', en: 'Where the customer returns after paying, and which origins may call /api.' } },
     { key: 'push', name: 'Push', group: 'core', description: { es: 'Notificaciones con la app cerrada.', en: 'Notifications with the app closed.' } },

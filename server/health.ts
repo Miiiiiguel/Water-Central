@@ -2,6 +2,7 @@ import express from 'express';
 import { getProfileFromRequest } from './supabaseAdmin';
 import { isConfigured as kalodataConfigured } from './kalodata';
 import { configurado as fedexConfigurado } from './fedex/cliente';
+import { configurado as uspsConfigurado } from './usps/cliente';
 
 // GET /api/health
 //   - Unauthenticated (hosting health checks): { ok: true } only.
@@ -53,6 +54,8 @@ healthRouter.get('/health', async (req, res) => {
       aduanas: set('SICEX_API_KEY') && set('SICEX_API_URL'),
       // Partidas sugeridas al terminar de leer una etiqueta.
       clasificacion: fedexConfigurado(),
+      // Tarifas reales del envío dentro de EE. UU. en la calculadora ROI.
+      enviosEEUU: uspsConfigurado(),
       // El diagnóstico de madurez cobra con Wompi: sin estas cuatro, el
       // cuestionario funciona gratis pero nadie puede comprar el plan.
       wompi:

@@ -76,6 +76,15 @@ describe('cost per unit', () => {
     const atThreshold: RoiInputs = { ...inp, price: 35 };
     expect(costBreakdown(500, atThreshold, 3.5, totalFreightFor(atThreshold)).domesticShip).toBe(7);
   });
+
+  it('uses the quoted US shipping rate instead of the fixed 7, and still only above the threshold', () => {
+    const quoted: RoiInputs = { ...inp, domesticShipUsd: 8.8 };
+    const b = costBreakdown(500, quoted, 3.5, freight);
+    expect(b.domesticShip).toBe(8.8);
+    expect(b.total - costBreakdown(500, inp, 3.5, freight).total).toBeCloseTo(1.8, 6);
+    const cheap: RoiInputs = { ...quoted, price: 30 };
+    expect(costBreakdown(500, cheap, 3.5, totalFreightFor(cheap)).domesticShip).toBe(0);
+  });
 });
 
 describe('year 1', () => {

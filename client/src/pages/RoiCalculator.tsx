@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'wouter';
 import { ArrowLeft, MessageCircle, Phone, Sparkles, TrendingUp } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -7,11 +7,12 @@ import { getSupabase, type Payment } from '@/lib/supabase';
 import { whatsappUrl } from '@/lib/contact';
 import { openExternal } from '@/lib/native';
 import {
-  DEFAULT_INPUTS, findMonth, project, type RoiInputs, type Scenario, type YearOne, type YearTwo,
+  DEFAULT_INPUTS, DOMESTIC_SHIP, FREE_SHIP_THRESHOLD, findMonth, project, type RoiInputs, type Scenario, type YearOne, type YearTwo,
 } from '@/lib/roiModel';
 import { MONTH_LABELS, MONTH_LABELS_EN, fmtInt, fmtMoney, pctOf, setRoiLocale, xOf } from '@/lib/roiFormat';
 import RoiTable, { type RoiRow } from '@/components/roi/RoiTable';
 import PartidaArancel from '@/components/roi/PartidaArancel';
+import EnvioEEUU from '@/components/roi/EnvioEEUU';
 import type { DetallePartida } from '@/lib/hts';
 import { derechoPorUnidad, parseTasa } from '@/lib/tasaArancel';
 import RoiPaywall from '@/components/roi/RoiPaywall';
@@ -139,6 +140,7 @@ export default function RoiCalculator() {
 
   const set = <K extends keyof RoiInputs>(key: K, value: RoiInputs[K]) =>
     setInputs((prev) => ({ ...prev, [key]: value }));
+  const setEnvio = useCallback((usd: number | null) => setInputs((prev) => ({ ...prev, domesticShipUsd: usd })), []);
 
   // La partida del HTS y el país de origen. El arancel que entra al
   // cálculo es el preferencial sólo si el país tiene acuerdo, el código
@@ -194,7 +196,13 @@ export default function RoiCalculator() {
       { label: es ? 'Costo del producto en Latinoamérica' : 'Production cost in Latin America', values: pick('product'), fmt: 'currency2' },
       { label: es ? 'Sobretasa recíproca' : 'Reciprocal surcharge', values: pick('reciprocalTariff'), fmt: 'currency2' },
       { label: es ? 'Flete internacional por unidad' : 'International freight per unit', values: pick('freight'), fmt: 'currency2' },
-      { label: es ? 'Flete doméstico USA' : 'US domestic shipping', values: pick('domesticShip'), fmt: 'currency2' },
+      {
+        label: inputs.domesticShipUsd !== null
+          ? es ? 'Envío en EE. UU. (tarifa cotizada)' : 'US shipping (quoted rate)'
+          : es ? 'Flete doméstico USA (supuesto)' : 'US domestic shipping (assumption)',
+        values: pick('domesticShip'),
+        fmt: 'currency2',
+      },
       {
         label: partida
           ? `${es ? 'Arancel HTS' : 'HTS duty'} ${partida.codigo}`
@@ -340,6 +348,15 @@ export default function RoiCalculator() {
             )}
           </FieldGroup>
 
+          <EnvioEEUU
+            es={es}
+            pesoG={inputs.weightG}
+            aplica={inputs.price >= FREE_SHIP_THRESHOLD}
+            fijoUsd={DOMESTIC_SHIP}
+            valor={inputs.domesticShipUsd}
+            onValor={setEnvio}
+          />
+
           <FieldGroup title={es ? 'Marketing y operación (presupuesto mensual)' : 'Marketing and operations (monthly budget)'}>
             <NumberField id="in_ads" label={es ? 'Publicidad (ADS)' : 'Advertising (ads)'} value={inputs.adsBudget} onChange={(v) => set('adsBudget', v)} prefix="$" step={50} />
             <NumberField id="in_content" label={es ? 'Generación de contenido' : 'Content production'} value={inputs.contentBudget} onChange={(v) => set('contentBudget', v)} prefix="$" step={50} />
@@ -349,8 +366,8 @@ export default function RoiCalculator() {
           <p className="mt-5 rounded-xl border border-gray-100 bg-secondary/60 p-4 text-sm leading-relaxed text-muted-foreground">
             <b className="text-foreground">{es ? 'Supuestos fijos de Easycomex' : 'Easycomex fixed assumptions'}</b>{' '}
             {es
-              ? '(no editables aquí): flete internacional · envío doméstico por pedido si el precio supera el mínimo. La sobretasa recíproca arranca en el 12,5 % del modelo del equipo: ajústala según el país y la fecha de tu importación.'
-              : '(not editable here): international freight · domestic shipping per order when the price is above the threshold. The reciprocal surcharge starts at the team model’s 12.5%: adjust it for your country and import date.'}
+              ? '(no editables aquí): flete internacional · envío doméstico por pedido si el precio supera el mínimo (USD 7, o la tarifa real si la cotizas arriba). La sobretasa recíproca arranca en el 12,5 % del modelo del equipo: ajústala según el país y la fecha de tu importación.'
+              : '(not editable here): international freight · domestic shipping per order when the price is above the threshold (USD 7, or the real rate if you quote it above). The reciprocal surcharge starts at the team model’s 12.5%: adjust it for your country and import date.'}
           </p>
         </section>
 
