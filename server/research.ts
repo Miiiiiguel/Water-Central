@@ -91,7 +91,7 @@ const researchRateLimiter = makeLimiter('research', 30);
 export const researchRouter = express.Router();
 
 /** The plan a user currently holds, best first. */
-async function getUserPlan(userId: string): Promise<string> {
+export async function getUserPlan(userId: string): Promise<string> {
   const admin = getSupabaseAdmin();
   if (!admin) return 'free';
 
@@ -119,12 +119,100 @@ async function getUserPlan(userId: string): Promise<string> {
   return best;
 }
 
+/** Suma meses de calendario, como `make_interval(months => n)` en la base. */
+export function sumarMeses(fecha: Date, meses: number): Date {
+  const d = new Date(fecha.getTime());
+  const dia = d.getUTCDate();
+  d.setUTCDate(1);
+  d.setUTCMonth(d.getUTCMonth() + meses);
+  const ultimo = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+  d.setUTCDate(Math.min(dia, ultimo));
+  return d;
+}
+
+/** El mes del plan en curso: desde cuándo cuentan los tokens de este mes. */
+export function inicioDelMes(inicio: Date, ahora: Date): Date {
+  let meses = (ahora.getUTCFullYear() - inicio.getUTCFullYear()) * 12 + (ahora.getUTCMonth() - inicio.getUTCMonth());
+  if (sumarMeses(inicio, meses) > ahora) meses -= 1;
+  return sumarMeses(inicio, Math.max(0, meses));
+}
+
+/**
+ * Lo que queda este mes en los planes activos. Es para mostrarlo: quien
+ * decide de verdad es spend_research_quota, en la base, en una sola
+ * transacción.
+ */
+async function tokensDePlanes(userId: string, ahora = new Date()): Promise<{ restantes: number; terminaEl: string | null }> {
+  const admin = getSupabaseAdmin();
+  if (!admin) return { restantes: 0, terminaEl: null };
+  const { data, error } = await admin
+    .from('token_plans')
+    .select('id, monthly_tokens, starts_at, ends_at')
+    .eq('user_id', userId)
+    .lte('starts_at', ahora.toISOString())
+    .gt('ends_at', ahora.toISOString())
+    .order('ends_at', { ascending: true });
+  // Sin la tabla (falta correr schema.sql) no hay planes: no es un error.
+  if (error || !data?.length) return { restantes: 0, terminaEl: null };
+
+  let restantes = 0;
+  for (const p of data as Array<{ id: string; monthly_tokens: number; starts_at: string; ends_at: string }>) {
+    const desde = inicioDelMes(new Date(p.starts_at), ahora);
+    const { count } = await admin
+      .from('research_usage')
+      .select('id', { count: 'exact', head: true })
+      .eq('plan_id', p.id)
+      .gte('created_at', desde.toISOString());
+    restantes += Math.max(0, p.monthly_tokens - (count ?? 0));
+  }
+  return { restantes, terminaEl: (data[0] as { ends_at: string }).ends_at };
+}
+
+export type Cobro = { ok: true; billed: string } | { ok: false; motivo: 'sin_saldo' | 'sin_base' | 'error'; dailyLimit: number };
+
+/**
+ * Cobra una consulta (búsqueda o lectura de etiqueta): la gratis del día,
+ * un token del plan del mes o un token de paquete, en ese orden. Es una
+ * sola función en la base, así dos pedidos a la vez no gastan el mismo
+ * token.
+ */
+export async function cobrarConsulta(userId: string, fuente: string, texto: string): Promise<Cobro> {
+  const admin = getSupabaseAdmin();
+  const plan = await getUserPlan(userId);
+  const dailyLimit = DAILY_QUOTA[plan] ?? DAILY_QUOTA.free;
+  if (!admin) return { ok: false, motivo: 'sin_base', dailyLimit };
+  const { data, error } = await admin.rpc('spend_research_quota', {
+    p_user_id: userId,
+    p_daily_limit: dailyLimit,
+    p_source: fuente,
+    p_query: texto.slice(0, 160),
+  });
+  if (error) {
+    console.error('spend_research_quota failed:', error.message);
+    return { ok: false, motivo: 'error', dailyLimit };
+  }
+  const billed = (data as string | null) ?? 'blocked';
+  if (billed === 'blocked') return { ok: false, motivo: 'sin_saldo', dailyLimit };
+  return { ok: true, billed };
+}
+
+/** Devuelve lo cobrado cuando la falla no fue de quien pidió. */
+export async function devolverConsulta(userId: string, billed: string): Promise<void> {
+  const admin = getSupabaseAdmin();
+  if (!admin) return;
+  await admin.rpc('refund_research_quota', { p_user_id: userId, p_billed: billed });
+}
+
 type QuotaView = {
   plan: string;
   dailyLimit: number;
   usedToday: number;
   freeRemaining: number;
   credits: number;
+  /** Tokens que le quedan este mes en sus planes activos. */
+  planTokens: number;
+  /** Cuándo termina el plan que vence primero. */
+  planEndsAt: string | null;
   canQuery: boolean;
   sources: Record<PublicSource, boolean>;
 };
@@ -136,6 +224,8 @@ async function getQuota(userId: string): Promise<QuotaView> {
 
   let usedToday = 0;
   let credits = 0;
+  let planTokens = 0;
+  let planEndsAt: string | null = null;
   if (admin) {
     const since = new Date();
     since.setUTCHours(0, 0, 0, 0);
@@ -149,6 +239,10 @@ async function getQuota(userId: string): Promise<QuotaView> {
 
     const { data } = await admin.from('research_credits').select('credits').eq('user_id', userId).maybeSingle();
     credits = (data?.credits as number | undefined) ?? 0;
+
+    const planes = await tokensDePlanes(userId);
+    planTokens = planes.restantes;
+    planEndsAt = planes.terminaEl;
   }
 
   const freeRemaining = Math.max(0, dailyLimit - usedToday);
@@ -158,7 +252,9 @@ async function getQuota(userId: string): Promise<QuotaView> {
     usedToday,
     freeRemaining,
     credits,
-    canQuery: freeRemaining > 0 || credits > 0,
+    planTokens,
+    planEndsAt,
+    canQuery: freeRemaining > 0 || credits > 0 || planTokens > 0,
     sources: {
       tiktok: isConfigured('kalodata'),
       aduanas: isConfigured('sicex'),
@@ -218,43 +314,26 @@ researchRouter.post('/research', researchRateLimiter, requireUser(), express.jso
     });
   }
 
-  const admin = getSupabaseAdmin();
-  if (!admin) return res.status(503).json({ error: 'database_not_configured' });
-
-  const plan = await getUserPlan(auth.user.id);
-  const dailyLimit = DAILY_QUOTA[plan] ?? DAILY_QUOTA.free;
-
-  // One atomic SQL function decides free-vs-credit and records the use,
-  // so two parallel requests can never both take the last free query.
-  const { data: spend, error: spendError } = await admin.rpc('spend_research_quota', {
-    p_user_id: auth.user.id,
-    p_daily_limit: dailyLimit,
-    p_source: provider,
-    p_query: query.slice(0, 160),
-  });
-
-  if (spendError) {
-    console.error('spend_research_quota failed:', spendError.message);
-    return res.status(500).json({ error: 'quota_check_failed' });
-  }
-
-  const billed = (spend as string | null) ?? 'blocked';
-  if (billed === 'blocked') {
+  const cobro = await cobrarConsulta(auth.user.id, provider, query);
+  if (!cobro.ok) {
+    if (cobro.motivo === 'sin_base') return res.status(503).json({ error: 'database_not_configured' });
+    if (cobro.motivo === 'error') return res.status(500).json({ error: 'quota_check_failed' });
     const quota = await getQuota(auth.user.id);
     return res.status(402).json({
       error: 'quota_exhausted',
       quota,
       creditPack: CREDIT_PACK,
-      message: `Se te acabaron las ${dailyLimit} consultas gratis de hoy. Cada consulta extra usa un token: los venden en paquetes desde 10 tokens, o podés esperar a mañana.`,
+      message: `Se te acabaron las ${cobro.dailyLimit} consultas gratis de hoy. Cada consulta extra usa un token: los venden en paquetes desde 10 tokens, o podés esperar a mañana.`,
     });
   }
+  const billed = cobro.billed;
 
   let result: ResearchResult;
   try {
     result = provider === 'kalodata' ? await runKalodata(query, country, kind) : await runSicex(query, country);
   } catch (err) {
     // The lookup failed through no fault of the user: give the query back.
-    await admin.rpc('refund_research_quota', { p_user_id: auth.user.id, p_billed: billed });
+    await devolverConsulta(auth.user.id, billed);
     // En el log del servidor sí va el nombre real: es quien falló.
     console.error(`${provider} lookup failed:`, (err as Error).message);
     return res.status(502).json({ error: 'source_failed', source, message: 'La fuente no respondió. No te descontamos la consulta.' });

@@ -8,12 +8,14 @@ import { analizar } from './analisis';
 import { diagnosticarIA, modeloDeOcr } from '../anthropicError';
 import { configurado as partidasConectadas, FalloFedex } from '../fedex/cliente';
 import { sugerirPartidas } from '../fedex/partidas';
+import { cobrarConsulta, devolverConsulta } from '../research';
 
 // La mesa de análisis de producto: foto -> texto -> datos.
 //
 // Son dos rutas y hacen cosas muy distintas de precio. `analizar` gasta
-// una llamada al proveedor de visión por cada foto, así que pide sesión
-// y tiene su propio límite. `interpretar` sólo vuelve a pasar el texto
+// una llamada al proveedor de visión por cada foto, así que pide sesión,
+// tiene su propio límite y se cobra como una consulta: la gratis del día
+// o un token, igual que una búsqueda de mercado. `interpretar` sólo vuelve a pasar el texto
 // por las funciones puras: es gratis, y es la que se usa cuando la
 // persona contesta lo que faltaba.
 
@@ -96,10 +98,27 @@ etiquetaRouter.post(
       });
     }
 
+    const auth = res.locals.auth!;
+    const cobro = await cobrarConsulta(auth.user.id, 'etiqueta', 'lectura de etiqueta');
+    if (!cobro.ok && cobro.motivo === 'sin_saldo') {
+      return res.status(402).json({
+        error: 'sin_tokens',
+        message: `Ya usaste tus ${cobro.dailyLimit} consultas gratis de hoy. Cada lectura de etiqueta extra usa un token: los venden en paquetes desde 10 tokens, o puedes esperar a mañana.`,
+      });
+    }
+    if (!cobro.ok) {
+      // Sin base de datos no hay cómo cobrar ni contar: se lee igual y
+      // queda en el log. Un cliente no puede quedarse sin su lectura por
+      // una configuración nuestra.
+      console.warn(`[etiqueta] no se pudo cobrar la lectura (${cobro.motivo}); se lee sin cobrar.`);
+    }
+    const devolver = () => (cobro.ok ? devolverConsulta(auth.user.id, cobro.billed) : Promise.resolve());
+
     let transcripcion;
     try {
       transcripcion = await proveedor.leer(datos, tipoMime);
     } catch (err) {
+      await devolver();
       // Antes esto decía "no pudimos leer la foto" para cinco fallas
       // distintas, y cuatro de ellas no tenían NADA que ver con la
       // foto. Quien tomaba una foto perfecta volvía a intentarlo tres
@@ -115,6 +134,8 @@ etiquetaRouter.post(
     }
 
     if (transcripcion.ilegible) {
+      // No se leyó nada: no se cobra una lectura que no entregó nada.
+      await devolver();
       return res.json({
         ...analizar('', contestadas),
         consejo:

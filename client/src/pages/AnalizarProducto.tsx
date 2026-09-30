@@ -71,6 +71,7 @@ export default function AnalizarProducto() {
     setCargando(false);
     if (r.estado === 'ok') { setAnalisis(r.analisis); return; }
     if (r.estado === 'sin_sesion') { setProblema('Entrá a tu cuenta para analizar productos.'); return; }
+    if (r.estado === 'sin_tokens') { setProblema(`${r.mensaje} Compralos en easycomex.com/tokens.`); return; }
     setProblema(r.mensaje);
   };
 

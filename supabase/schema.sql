@@ -526,7 +526,7 @@ create table if not exists public.research_usage (
   user_id uuid not null references public.profiles (id) on delete cascade,
   source text not null,                 -- kalodata | sicex
   query text,
-  billed text not null,                 -- free | credit
+  billed text not null,                 -- free | plan | credit
   created_at timestamptz not null default now()
 );
 
@@ -562,11 +562,43 @@ create policy "research_credits: read own"
 -- No insert/update policy: only the Stripe webhook (service role) grants
 -- credits, so nobody can top themselves up for free.
 
+-- Planes de tokens que vencen (los de /tokens: 200 en 1 mes, 50 por mes
+-- durante 6 meses, 100 por mes durante 6 meses). Cada mes del plan trae
+-- `monthly_tokens`; lo que no se usa en ese mes no pasa al siguiente, y
+-- el plan termina en `ends_at`. Lo escribe sólo el servidor al cobrar
+-- (grant_token_plan), una vez por pago (`payment_ref` es único).
+create table if not exists public.token_plans (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  plan text not null,
+  monthly_tokens integer not null check (monthly_tokens > 0),
+  months integer not null check (months between 1 and 24),
+  starts_at timestamptz not null default now(),
+  ends_at timestamptz not null,
+  payment_ref text not null unique,
+  created_at timestamptz not null default now()
+);
+
+alter table public.token_plans enable row level security;
+
+drop policy if exists "token_plans: read own" on public.token_plans;
+create policy "token_plans: read own"
+  on public.token_plans for select
+  using (auth.uid() = user_id);
+
+create index if not exists token_plans_active_idx on public.token_plans (user_id, ends_at);
+
+-- Qué plan pagó cada consulta cobrada a un plan.
+alter table public.research_usage add column if not exists plan_id uuid references public.token_plans (id) on delete set null;
+create index if not exists research_usage_plan_idx on public.research_usage (plan_id, created_at desc);
+
 -- ---------------------------------------------------------------------
 -- spend_research_quota: decide and record in ONE atomic statement.
 --
--- Returns 'free' (a free daily lookup was used), 'credit' (a purchased
--- credit was spent) or 'blocked' (nothing left). Without this being a
+-- Returns 'free' (a free daily lookup was used), 'plan' (a token of the
+-- current month of an active token plan), 'credit' (a purchased token
+-- that never expires was spent) or 'blocked' (nothing left). That order
+-- spends what expires first. Without this being a
 -- single transaction, two parallel requests could both spend the last
 -- free lookup — the classic double-spend.
 -- ---------------------------------------------------------------------
@@ -584,6 +616,10 @@ as $$
 declare
   v_used integer;
   v_billed text;
+  v_plan_id uuid;
+  v_plan record;
+  v_start timestamptz;
+  v_meses integer;
 begin
   -- Lock this user's credit row (creating it if needed) so the whole
   -- decision for one user is serialized.
@@ -601,6 +637,32 @@ begin
 
   if v_used < p_daily_limit then
     v_billed := 'free';
+  end if;
+
+  -- Un plan activo con tokens en su mes en curso. Primero el que vence
+  -- antes.
+  if v_billed is null then
+    for v_plan in
+      select * from public.token_plans
+      where user_id = p_user_id and starts_at <= now() and ends_at > now()
+      order by ends_at asc
+    loop
+      v_meses := (extract(year from age(now(), v_plan.starts_at)) * 12
+                 + extract(month from age(now(), v_plan.starts_at)))::integer;
+      v_start := v_plan.starts_at + make_interval(months => v_meses);
+      select count(*) into v_used
+      from public.research_usage
+      where plan_id = v_plan.id and created_at >= v_start;
+      if v_used < v_plan.monthly_tokens then
+        v_billed := 'plan';
+        v_plan_id := v_plan.id;
+        exit;
+      end if;
+    end loop;
+  end if;
+
+  if v_billed is not null then
+    null;
   elsif (select credits from public.research_credits where user_id = p_user_id) > 0 then
     update public.research_credits
       set credits = credits - 1, updated_at = now()
@@ -610,8 +672,8 @@ begin
     return 'blocked';
   end if;
 
-  insert into public.research_usage (user_id, source, query, billed)
-  values (p_user_id, p_source, left(coalesce(p_query, ''), 160), v_billed);
+  insert into public.research_usage (user_id, source, query, billed, plan_id)
+  values (p_user_id, p_source, left(coalesce(p_query, ''), 160), v_billed, v_plan_id);
 
   return v_billed;
 end;
@@ -667,6 +729,30 @@ end;
 $$;
 
 revoke all on function public.grant_research_credits(uuid, integer) from public, anon, authenticated;
+
+-- Un plan de tokens pagado. `p_ref` es la referencia del pago: si el
+-- webhook y la vuelta del navegador llegan los dos, el plan se crea una
+-- sola vez.
+create or replace function public.grant_token_plan(
+  p_user_id uuid,
+  p_plan text,
+  p_monthly integer,
+  p_months integer,
+  p_ref text
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.token_plans (user_id, plan, monthly_tokens, months, starts_at, ends_at, payment_ref)
+  values (p_user_id, p_plan, p_monthly, p_months, now(), now() + make_interval(months => p_months), p_ref)
+  on conflict (payment_ref) do nothing;
+end;
+$$;
+
+revoke all on function public.grant_token_plan(uuid, text, integer, integer, text) from public, anon, authenticated;
 
 -- =======================================================================
 -- Diagnóstico de madurez.

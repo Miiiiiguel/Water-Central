@@ -1107,29 +1107,52 @@ están escritos para ecommerce.
 
 ### Tokens (`/tokens`)
 
-Cada cuenta tiene 2 consultas gratis por día de inteligencia de mercado
-(TikTok Shop y comercio exterior). Cuando se acaban, cada consulta usa un
-token. Los tokens se venden por paquete en `/tokens`, con la misma forma
-de cobrar que Aduanapp: una opción gratis y paquetes que abaratan el
-token cuanto más grandes son.
+Cada cuenta tiene 2 consultas gratis por día. Cuenta como consulta:
+- una búsqueda en TikTok Shop;
+- una búsqueda en comercio exterior;
+- una **lectura de etiqueta** con foto.
 
-| Paquete | Tokens | USD | COP (tasa 4000) | Por token |
-|---|---|---|---|---|
-| Mini | 10 | 4.99 | $19.900 | 0.50 |
-| Starter | 25 | 9.99 | $39.900 | 0.40 |
-| Básico (`creditos_marco_polo`) | 50 | 19 | $76.000 | 0.38 |
-| Pro | 200 | 49 | $196.000 | 0.24 |
-| Equipo | 300 | 69 | $276.000 | 0.23 |
-| Empresa | 600 | 119 | $476.000 | 0.20 |
+Cuando se acaban las gratis, cada consulta usa un token. Es la misma
+forma de cobrar que Aduanapp.
 
-- Los precios viven en `server/catalog.ts`. Cada uno se puede fijar en
-  pesos sin tocar código: `PRICE_TOKENS_10_COP`, `PRICE_TOKENS_25_COP`,
+**Paquetes (no vencen)**
+
+| Paquete | Tokens | USD | COP (tasa 4000) |
+|---|---|---|---|
+| Mini (`tokens_10`) | 10 | 4.99 | $19.900 |
+| Starter (`tokens_25`) | 25 | 9.99 | $39.900 |
+| Básico (`creditos_marco_polo`) | 50 | 19 | $76.000 |
+
+**Planes (tokens cada mes, vencen)**
+
+| Plan | Tokens | USD | COP |
+|---|---|---|---|
+| 1 mes (`tokens_200`) | 200 en 1 mes | 49 | $196.000 |
+| 6 meses (`tokens_300`) | 50 por mes (300) | 69 | $276.000 |
+| 6 meses (`tokens_600`) | 100 por mes (600) | 119 | $476.000 |
+
+- **Orden de gasto:** primero las gratis del día, después el plan del
+  mes (el que vence antes) y al final los de paquete. Lo que no se usa
+  en un mes del plan no pasa al siguiente.
+- **Dónde está la lógica:** en la base, en `spend_research_quota`
+  (`supabase/schema.sql`), en una sola transacción.
+  `server/tokens.sql.test.ts` la prueba con el SQL real sobre un
+  Postgres en memoria: el orden, las devoluciones, la renovación del mes,
+  el vencimiento y que un pago repetido no dé dos planes.
+- **Al pagar:** `server/entitlements.ts` entrega los tokens o el plan,
+  tanto con Wompi como con Stripe.
+  - Esto corrige un error de antes: Stripe sólo acreditaba el paquete
+    de 50.
+- **Devoluciones:** una búsqueda que falla o una foto que no se pudo leer
+  devuelve el token.
+- **Precios:** viven en `server/catalog.ts` y cada uno se puede fijar en
+  pesos: `PRICE_TOKENS_10_COP`, `PRICE_TOKENS_25_COP`,
   `PRICE_CREDITOS_MARCO_POLO_COP`, `PRICE_TOKENS_200_COP`,
   `PRICE_TOKENS_300_COP` y `PRICE_TOKENS_600_COP`.
-- Al aprobarse el pago, el webhook acredita los tokens en
-  `research_credits`. No hace falta ninguna migración: es el mismo
-  mecanismo que ya tenía el paquete de 50.
-- Los tokens no vencen, y una consulta que falla devuelve el token.
+- **Hay que correr `supabase/schema.sql`**: crea `token_plans`, agrega
+  `plan_id` a `research_usage` y actualiza las funciones. Mientras no se
+  corra, las compras de plan fallan al activarse (queda en el log) y la
+  base sigue gastando como antes.
 
 ### Los dos reportes de pago
 

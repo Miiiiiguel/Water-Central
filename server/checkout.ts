@@ -6,6 +6,7 @@ import { getSupabaseAdmin, getUserFromRequest } from './supabaseAdmin';
 import { logSecurityEvent } from './log';
 import { captureException } from './monitoring';
 import { CATALOG, PLAN_IDS, priceOf, type PlanId } from './catalog';
+import { entregarCompra } from './entitlements';
 import {
   checkoutUrl, fetchTransaction, integritySignature, transactionPaysFor, verifyEventChecksum,
   wompiConfigured, wompiEnv, type WompiEvent, type WompiTransaction,
@@ -306,12 +307,5 @@ async function settle(tx: Partial<WompiTransaction>, req: express.Request) {
 async function grantEntitlements(order: OrderRow) {
   const admin = getSupabaseAdmin();
   if (!admin) return;
-  const item = order.plan in CATALOG ? CATALOG[order.plan as PlanId] : null;
-  if (!item?.grants?.researchCredits || !order.user_id) return;
-
-  const { error } = await admin.rpc('grant_research_credits', {
-    p_user_id: order.user_id,
-    p_credits: item.grants.researchCredits,
-  });
-  if (error) console.error('[checkout] no se pudieron acreditar las consultas:', error.message);
+  await entregarCompra(admin, { userId: order.user_id, plan: order.plan, ref: `orden:${order.id}` });
 }

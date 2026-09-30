@@ -99,6 +99,7 @@ export type Resultado =
   | { estado: 'ok'; analisis: Analisis }
   | { estado: 'sin_sesion' }
   | { estado: 'no_configurado'; mensaje: string }
+  | { estado: 'sin_tokens'; mensaje: string }
   | { estado: 'error'; mensaje: string };
 
 /** Lado largo al que se reduce la foto antes de subirla. */
@@ -188,6 +189,9 @@ async function pedir(ruta: string, token: string | null, cuerpo: unknown): Promi
     const datos = await res.json().catch(() => ({}));
 
     if (res.status === 401) return { estado: 'sin_sesion' };
+    if (res.status === 402) {
+      return { estado: 'sin_tokens', mensaje: datos.message ?? 'Se acabaron tus consultas gratis de hoy.' };
+    }
     if (res.status === 503) {
       return { estado: 'no_configurado', mensaje: datos.message ?? 'La lectura de etiquetas no está activada.' };
     }

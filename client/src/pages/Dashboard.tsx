@@ -414,6 +414,7 @@ function ResearchQuotaCard() {
         <span className="text-3xl font-black text-primary">{quota.freeRemaining}</span>
         <span className="text-sm text-muted-foreground">
           {es ? `de ${quota.dailyLimit} gratis hoy` : `of ${quota.dailyLimit} free today`}
+          {(quota.planTokens ?? 0) > 0 && (es ? ` · ${quota.planTokens} del plan este mes` : ` · ${quota.planTokens} from your plan this month`)}
           {quota.credits > 0 && (es ? ` · ${quota.credits} tokens` : ` · ${quota.credits} tokens`)}
         </span>
       </div>
@@ -424,8 +425,8 @@ function ResearchQuotaCard() {
       <p className="text-xs text-muted-foreground">
         {connected
           ? es
-            ? 'Tu plan define cuántas consultas trae cada día. Cuando se acaban, seguís con tus tokens.'
-            : 'Your plan sets how many lookups you get each day. When they run out, your tokens take over.'
+            ? `Cada día tienes consultas gratis (búsquedas o lecturas de etiqueta). Cuando se acaban, sigues con los tokens de tu plan del mes y después con los de paquete.${quota.planEndsAt ? ` Tu plan termina el ${new Date(quota.planEndsAt).toLocaleDateString('es-CO')}.` : ''}`
+            : `You get free lookups every day (searches or label reads). When they run out, your plan's monthly tokens take over, then your pack tokens.${quota.planEndsAt ? ` Your plan ends on ${new Date(quota.planEndsAt).toLocaleDateString('en-US')}.` : ''}`
           : es
             ? 'La inteligencia de mercado todavía no está activa en tu cuenta. Hasta entonces Marco Polo no muestra esos datos — y nunca inventa números.'
             : 'Market intelligence is not active on your account yet. Until then Marco Polo shows no such data — and never invents numbers.'}

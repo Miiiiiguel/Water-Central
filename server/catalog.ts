@@ -35,8 +35,12 @@ export interface CatalogItem {
   copEnv: string;
   /** Price ID de Stripe, si algún día se cobra por allá. */
   stripePriceEnv: string;
-  /** Lo que la compra entrega además de la fila en `payments`. */
-  grants?: { researchCredits: number };
+  /**
+   * Lo que la compra entrega además de la fila en `payments`: tokens que
+   * no vencen (`researchCredits`) o un plan que trae `monthlyTokens` cada
+   * mes durante `months` meses y después termina (`tokenPlan`).
+   */
+  grants?: { researchCredits?: number; tokenPlan?: { monthlyTokens: number; months: number } };
 }
 
 export const CATALOG: Record<PlanId, CatalogItem> = {
@@ -64,10 +68,14 @@ export const CATALOG: Record<PlanId, CatalogItem> = {
     stripePriceEnv: 'STRIPE_PRICE_ACOMPANAMIENTO',
   },
   // Los tokens: 1 token = 1 consulta de inteligencia de mercado (TikTok
-  // Shop o comercio exterior) cuando se acaban las gratis del día. Se
-  // venden por paquete, más baratos por token cuanto más grande, y no
-  // vencen. `creditos_marco_polo` es el de 50 y conserva su id porque ya
-  // hay pagos registrados con ese nombre.
+  // Shop o comercio exterior) o 1 lectura de etiqueta, cuando se acaban
+  // las gratis del día. Dos formas, como Aduanapp:
+  //  - Paquetes (10, 25, 50): no vencen.
+  //  - Planes (200 en 1 mes; 50 por mes x 6; 100 por mes x 6): traen
+  //    tokens cada mes, lo que no se usa en el mes no se acumula, y
+  //    terminan. Se gastan antes que los de paquete.
+  // `creditos_marco_polo` es el de 50 y conserva su id porque ya hay
+  // pagos registrados con ese nombre.
   tokens_10: {
     label: '10 tokens · Mini',
     labelEn: '10 tokens · Mini',
@@ -93,28 +101,28 @@ export const CATALOG: Record<PlanId, CatalogItem> = {
     grants: { researchCredits: 50 },
   },
   tokens_200: {
-    label: '200 tokens · Pro',
-    labelEn: '200 tokens · Pro',
+    label: 'Plan de 1 mes · 200 tokens',
+    labelEn: '1-month plan · 200 tokens',
     usdCents: 4900,
     copEnv: 'PRICE_TOKENS_200_COP',
     stripePriceEnv: 'STRIPE_PRICE_TOKENS_200',
-    grants: { researchCredits: 200 },
+    grants: { tokenPlan: { monthlyTokens: 200, months: 1 } },
   },
   tokens_300: {
-    label: '300 tokens · Equipo',
-    labelEn: '300 tokens · Team',
+    label: 'Plan de 6 meses · 50 tokens por mes (300 tokens)',
+    labelEn: '6-month plan · 50 tokens a month (300 tokens)',
     usdCents: 6900,
     copEnv: 'PRICE_TOKENS_300_COP',
     stripePriceEnv: 'STRIPE_PRICE_TOKENS_300',
-    grants: { researchCredits: 300 },
+    grants: { tokenPlan: { monthlyTokens: 50, months: 6 } },
   },
   tokens_600: {
-    label: '600 tokens · Empresa',
-    labelEn: '600 tokens · Business',
+    label: 'Plan de 6 meses · 100 tokens por mes (600 tokens)',
+    labelEn: '6-month plan · 100 tokens a month (600 tokens)',
     usdCents: 11900,
     copEnv: 'PRICE_TOKENS_600_COP',
     stripePriceEnv: 'STRIPE_PRICE_TOKENS_600',
-    grants: { researchCredits: 600 },
+    grants: { tokenPlan: { monthlyTokens: 100, months: 6 } },
   },
   reporte_detalle: {
     label: 'Desglose de costos mes a mes',

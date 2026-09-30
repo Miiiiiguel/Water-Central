@@ -61,6 +61,9 @@ export interface ResearchQuota {
   usedToday: number;
   freeRemaining: number;
   credits: number;
+  /** Tokens que quedan este mes en planes activos (un servidor viejo no lo manda). */
+  planTokens?: number;
+  planEndsAt?: string | null;
   canQuery: boolean;
   sources: Record<ResearchSource, boolean>;
 }

@@ -458,7 +458,13 @@ export default function ChatbotWidget() {
   };
 
   /** Lo que sale mal antes de llegar al análisis, dicho con su motivo. */
-  const problemaDeEtiqueta = (estado: 'sin_sesion' | 'no_configurado' | 'error', mensaje?: string) => {
+  const problemaDeEtiqueta = (estado: 'sin_sesion' | 'no_configurado' | 'sin_tokens' | 'error', mensaje?: string) => {
+    if (estado === 'sin_tokens') {
+      pushBot(mensaje || (language === 'es' ? 'Se acabaron tus consultas gratis de hoy.' : 'You have used today\'s free lookups.'), {
+        quickReplies: [{ label: language === 'es' ? 'Ver tokens' : 'See tokens', value: '__buy_credits__' }],
+      });
+      return;
+    }
     if (estado === 'sin_sesion') {
       pushBot(
         language === 'es'
@@ -555,7 +561,7 @@ export default function ChatbotWidget() {
     setTyping(false);
 
     if (r.estado !== 'ok') {
-      problemaDeEtiqueta(r.estado === 'sin_sesion' ? 'sin_sesion' : r.estado === 'no_configurado' ? 'no_configurado' : 'error', 'mensaje' in r ? r.mensaje : undefined);
+      problemaDeEtiqueta(r.estado === 'sin_sesion' ? 'sin_sesion' : r.estado === 'no_configurado' ? 'no_configurado' : r.estado === 'sin_tokens' ? 'sin_tokens' : 'error', 'mensaje' in r ? r.mensaje : undefined);
       return;
     }
     setEtiquetaTexto(r.analisis.texto);
@@ -584,7 +590,7 @@ export default function ChatbotWidget() {
     const r = await reinterpretar(getAccessToken(), etiquetaTexto, nuevas);
     setTyping(false);
     if (r.estado !== 'ok') {
-      problemaDeEtiqueta(r.estado === 'sin_sesion' ? 'sin_sesion' : r.estado === 'no_configurado' ? 'no_configurado' : 'error', 'mensaje' in r ? r.mensaje : undefined);
+      problemaDeEtiqueta(r.estado === 'sin_sesion' ? 'sin_sesion' : r.estado === 'no_configurado' ? 'no_configurado' : r.estado === 'sin_tokens' ? 'sin_tokens' : 'error', 'mensaje' in r ? r.mensaje : undefined);
       return;
     }
     await mostrarAnalisis(r.analisis, nuevas);

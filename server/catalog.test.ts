@@ -76,6 +76,16 @@ describe('los tokens', () => {
     for (let i = 1; i < porToken.length; i++) expect(porToken[i]).toBeLessThan(porToken[i - 1]);
   });
 
+  it('cada plan dice en la etiqueta cuántos tokens trae en total', () => {
+    const planes = PLAN_IDS.filter((p) => CATALOG[p].grants?.tokenPlan);
+    expect(planes.length).toBe(3);
+    for (const p of planes) {
+      const { monthlyTokens, months } = CATALOG[p].grants!.tokenPlan!;
+      expect(CATALOG[p].label, p).toContain(`${monthlyTokens * months} tokens`);
+      expect(CATALOG[p].labelEn, p).toContain(`${monthlyTokens * months} tokens`);
+    }
+  });
+
   it('el paquete de 50 conserva su id: ya hay pagos registrados con ese nombre', () => {
     expect(CATALOG.creditos_marco_polo.grants!.researchCredits).toBe(50);
   });

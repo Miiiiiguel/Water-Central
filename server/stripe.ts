@@ -5,7 +5,7 @@ import { checkoutRateLimiter, apiRateLimiter, JSON_BODY_LIMIT } from './security
 import { getSupabaseAdmin, getUserFromRequest } from './supabaseAdmin';
 import { requireUser } from './auth';
 import { logSecurityEvent } from './log';
-import { CREDIT_PACK } from './research';
+import { entregarCompra } from './entitlements';
 import { CATALOG, PLAN_IDS, type PlanId } from './catalog';
 
 // Server-side Stripe integration.
@@ -460,9 +460,8 @@ async function recordPayment(stripe: Stripe, session: Stripe.Checkout.Session, s
   // the webhook, so credits only ever appear after Stripe confirms money
   // actually moved — and only once per session id (the upsert above is
   // idempotent, and so is the stripe_events guard around this handler).
-  if (status === 'paid' && plan === CREDIT_PACK.plan && userId) {
-    const { error: creditError } = await admin.rpc('grant_research_credits', { p_user_id: userId, p_credits: CREDIT_PACK.credits });
-    if (creditError) console.error('Failed to grant research credits:', creditError.message);
+  if (status === 'paid' && userId && plan) {
+    await entregarCompra(admin, { userId, plan, ref: `stripe:${session.id}` });
   }
 
   // Keep the customer id on the profile so the billing portal works even
