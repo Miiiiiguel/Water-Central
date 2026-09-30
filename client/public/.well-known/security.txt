@@ -1,0 +1,4 @@
+Contact: mailto:info@easycomex.com
+Preferred-Languages: es, en
+Canonical: https://easycomex.com/.well-known/security.txt
+Policy: https://easycomex.com/privacidad

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Easycomex</string>
+    <string name="title_activity_main">Easycomex</string>
+    <string name="package_name">com.easycomex.app</string>
+    <string name="custom_url_scheme">com.easycomex.app</string>
+</resources>

@@ -1,0 +1,4119 @@
+{
+  "meta": {
+    "source": "JetEngine CCT export (datos reales EasyComex)",
+    "zona_f_fix_applied": true,
+    "notes": "Réplica exacta de EasyComex Calculator v2.2.4. Bandas [min,max): min inclusivo, max exclusivo."
+  },
+  "settings": {
+    "volumetric_divisor": 5000,
+    "weight_aggregation": "sum_max",
+    "min_billable_weight": 0.0,
+    "currency": "COP",
+    "currency_symbol": "$"
+  },
+  "client_types": [
+    {
+      "type": "Normal",
+      "discount_percent": 30.0
+    },
+    {
+      "type": "Multiplicador",
+      "discount_percent": 40.0
+    },
+    {
+      "type": "VIP",
+      "discount_percent": 50.0
+    }
+  ],
+  "zones": [
+    {
+      "id": "1",
+      "country_es": "Afganistán",
+      "country_en": "Afghanistan",
+      "country_code": "AF",
+      "zone": "H"
+    },
+    {
+      "id": "2",
+      "country_es": "Albania",
+      "country_en": "Albania",
+      "country_code": "AL",
+      "zone": "H"
+    },
+    {
+      "id": "3",
+      "country_es": "Argelia",
+      "country_en": "Algeria",
+      "country_code": "DZ",
+      "zone": "H"
+    },
+    {
+      "id": "4",
+      "country_es": "Samoa Americana",
+      "country_en": "American Samoa",
+      "country_code": "AS",
+      "zone": "H"
+    },
+    {
+      "id": "5",
+      "country_es": "Andorra",
+      "country_en": "Andorra",
+      "country_code": "AD",
+      "zone": "F"
+    },
+    {
+      "id": "6",
+      "country_es": "Angola",
+      "country_en": "Angola",
+      "country_code": "AO",
+      "zone": "H"
+    },
+    {
+      "id": "7",
+      "country_es": "Anguila",
+      "country_en": "Anguilla",
+      "country_code": "AI",
+      "zone": "E"
+    },
+    {
+      "id": "8",
+      "country_es": "Antigua y Barbuda",
+      "country_en": "Antigua & Barbuda",
+      "country_code": "AG",
+      "zone": "E"
+    },
+    {
+      "id": "9",
+      "country_es": "Argentina",
+      "country_en": "Argentina",
+      "country_code": "AR",
+      "zone": "C"
+    },
+    {
+      "id": "10",
+      "country_es": "Armenia",
+      "country_en": "Armenia",
+      "country_code": "AM",
+      "zone": "H"
+    },
+    {
+      "id": "11",
+      "country_es": "Aruba",
+      "country_en": "Aruba",
+      "country_code": "AW",
+      "zone": "E"
+    },
+    {
+      "id": "12",
+      "country_es": "Australia",
+      "country_en": "Australia",
+      "country_code": "AU",
+      "zone": "G"
+    },
+    {
+      "id": "13",
+      "country_es": "Austria",
+      "country_en": "Austria",
+      "country_code": "AT",
+      "zone": "F"
+    },
+    {
+      "id": "14",
+      "country_es": "Azerbaiyán",
+      "country_en": "Azerbaijan",
+      "country_code": "AZ",
+      "zone": "H"
+    },
+    {
+      "id": "15",
+      "country_es": "Bahamas",
+      "country_en": "Bahama",
+      "country_code": "BS",
+      "zone": "E"
+    },
+    {
+      "id": "16",
+      "country_es": "Bahréin",
+      "country_en": "Bahrain",
+      "country_code": "BH",
+      "zone": "H"
+    },
+    {
+      "id": "17",
+      "country_es": "Bangladés",
+      "country_en": "Bangladesh",
+      "country_code": "BD",
+      "zone": "H"
+    },
+    {
+      "id": "18",
+      "country_es": "Barbados",
+      "country_en": "Barbados",
+      "country_code": "BB",
+      "zone": "E"
+    },
+    {
+      "id": "19",
+      "country_es": "Bielorrusia",
+      "country_en": "Belarus",
+      "country_code": "BY",
+      "zone": "H"
+    },
+    {
+      "id": "20",
+      "country_es": "Bélgica",
+      "country_en": "Belgium",
+      "country_code": "BE",
+      "zone": "F"
+    },
+    {
+      "id": "21",
+      "country_es": "Belice",
+      "country_en": "Belize",
+      "country_code": "BZ",
+      "zone": "D"
+    },
+    {
+      "id": "22",
+      "country_es": "Benín",
+      "country_en": "Benin",
+      "country_code": "BJ",
+      "zone": "H"
+    },
+    {
+      "id": "23",
+      "country_es": "Bermudas",
+      "country_en": "Bermuda",
+      "country_code": "BM",
+      "zone": "E"
+    },
+    {
+      "id": "24",
+      "country_es": "Bután",
+      "country_en": "Bhutan",
+      "country_code": "BT",
+      "zone": "H"
+    },
+    {
+      "id": "25",
+      "country_es": "Bután",
+      "country_en": "Bhutan",
+      "country_code": "BT",
+      "zone": "H"
+    },
+    {
+      "id": "26",
+      "country_es": "Bolivia",
+      "country_en": "Bolivia",
+      "country_code": "BO",
+      "zone": "C"
+    },
+    {
+      "id": "27",
+      "country_es": "Bonaire San Eustaquio y Saba",
+      "country_en": "Bonaire Sint Eustatius and Saba",
+      "country_code": "BQ",
+      "zone": "E"
+    },
+    {
+      "id": "28",
+      "country_es": "Bosnia y Herzegovina",
+      "country_en": "Bosnia-Herzegovina",
+      "country_code": "BA",
+      "zone": "H"
+    },
+    {
+      "id": "29",
+      "country_es": "Brasil",
+      "country_en": "Brazil",
+      "country_code": "BR",
+      "zone": "C"
+    },
+    {
+      "id": "30",
+      "country_es": "Islas Vírgenes Británicas",
+      "country_en": "British Virgin Islands",
+      "country_code": "VG",
+      "zone": "E"
+    },
+    {
+      "id": "31",
+      "country_es": "Brunéi",
+      "country_en": "Brunei",
+      "country_code": "BN",
+      "zone": "H"
+    },
+    {
+      "id": "32",
+      "country_es": "Bulgaria",
+      "country_en": "Bulgaria",
+      "country_code": "BG",
+      "zone": "H"
+    },
+    {
+      "id": "33",
+      "country_es": "Burkina Faso",
+      "country_en": "Burkina Faso",
+      "country_code": "BF",
+      "zone": "H"
+    },
+    {
+      "id": "34",
+      "country_es": "Burundi",
+      "country_en": "Burundi",
+      "country_code": "BI",
+      "zone": "H"
+    },
+    {
+      "id": "35",
+      "country_es": "Camboya",
+      "country_en": "Cambodia",
+      "country_code": "KH",
+      "zone": "H"
+    },
+    {
+      "id": "36",
+      "country_es": "Camerún",
+      "country_en": "Cameroon",
+      "country_code": "CM",
+      "zone": "H"
+    },
+    {
+      "id": "37",
+      "country_es": "Canadá",
+      "country_en": "Canada",
+      "country_code": "CA",
+      "zone": "B"
+    },
+    {
+      "id": "38",
+      "country_es": "Cabo Verde",
+      "country_en": "Cape Verde",
+      "country_code": "CV",
+      "zone": "H"
+    },
+    {
+      "id": "39",
+      "country_es": "Islas Caimán",
+      "country_en": "Cayman Islands",
+      "country_code": "KY",
+      "zone": "E"
+    },
+    {
+      "id": "40",
+      "country_es": "República Centroafricana",
+      "country_en": "Central African Republic",
+      "country_code": "CF",
+      "zone": "H"
+    },
+    {
+      "id": "41",
+      "country_es": "Chad",
+      "country_en": "Chad",
+      "country_code": "TD",
+      "zone": "H"
+    },
+    {
+      "id": "42",
+      "country_es": "Chile",
+      "country_en": "Chile",
+      "country_code": "CL",
+      "zone": "C"
+    },
+    {
+      "id": "43",
+      "country_es": "China",
+      "country_en": "China",
+      "country_code": "CN",
+      "zone": "G"
+    },
+    {
+      "id": "44",
+      "country_es": "Congo",
+      "country_en": "Congo",
+      "country_code": "CG",
+      "zone": "H"
+    },
+    {
+      "id": "45",
+      "country_es": "Islas Cook",
+      "country_en": "Cook Islands",
+      "country_code": "CK",
+      "zone": "H"
+    },
+    {
+      "id": "46",
+      "country_es": "Costa Rica",
+      "country_en": "Costa Rica",
+      "country_code": "CR",
+      "zone": "A"
+    },
+    {
+      "id": "47",
+      "country_es": "Croacia",
+      "country_en": "Croatia",
+      "country_code": "HR",
+      "zone": "H"
+    },
+    {
+      "id": "48",
+      "country_es": "Curazao",
+      "country_en": "Curacao",
+      "country_code": "CW",
+      "zone": "E"
+    },
+    {
+      "id": "49",
+      "country_es": "Chipre",
+      "country_en": "Cyprus",
+      "country_code": "CY",
+      "zone": "H"
+    },
+    {
+      "id": "50",
+      "country_es": "República Checa",
+      "country_en": "Czech Republic",
+      "country_code": "CZ",
+      "zone": "H"
+    },
+    {
+      "id": "51",
+      "country_es": "Costa de Marfil",
+      "country_en": "Côte D'ivoire (Ivory Coast)",
+      "country_code": "CI",
+      "zone": "H"
+    },
+    {
+      "id": "52",
+      "country_es": "República Democrática del Congo",
+      "country_en": "Democratic Republic of the Congo",
+      "country_code": "CD",
+      "zone": "H"
+    },
+    {
+      "id": "53",
+      "country_es": "Dinamarca",
+      "country_en": "Denmark",
+      "country_code": "DK",
+      "zone": "F"
+    },
+    {
+      "id": "54",
+      "country_es": "Yibuti",
+      "country_en": "Djibouti",
+      "country_code": "DJ",
+      "zone": "H"
+    },
+    {
+      "id": "55",
+      "country_es": "Domínica",
+      "country_en": "Dominica",
+      "country_code": "DM",
+      "zone": "E"
+    },
+    {
+      "id": "56",
+      "country_es": "República Dominicana",
+      "country_en": "Dominican Republic",
+      "country_code": "DO",
+      "zone": "E"
+    },
+    {
+      "id": "57",
+      "country_es": "Timor Oriental",
+      "country_en": "East Timor",
+      "country_code": "TL",
+      "zone": "H"
+    },
+    {
+      "id": "58",
+      "country_es": "Ecuador",
+      "country_en": "Ecuador",
+      "country_code": "EC",
+      "zone": "A"
+    },
+    {
+      "id": "59",
+      "country_es": "Egipto",
+      "country_en": "Egypt",
+      "country_code": "EG",
+      "zone": "H"
+    },
+    {
+      "id": "60",
+      "country_es": "El Salvador",
+      "country_en": "El Salvador",
+      "country_code": "SV",
+      "zone": "D"
+    },
+    {
+      "id": "61",
+      "country_es": "Guinea Ecuatorial",
+      "country_en": "Equatorial Guinea",
+      "country_code": "GQ",
+      "zone": "H"
+    },
+    {
+      "id": "62",
+      "country_es": "Eritrea",
+      "country_en": "Eritrea",
+      "country_code": "ER",
+      "zone": "H"
+    },
+    {
+      "id": "63",
+      "country_es": "Estonia",
+      "country_en": "Estonia",
+      "country_code": "EE",
+      "zone": "H"
+    },
+    {
+      "id": "64",
+      "country_es": "Etiopía",
+      "country_en": "Ethiopia",
+      "country_code": "ET",
+      "zone": "H"
+    },
+    {
+      "id": "65",
+      "country_es": "Islas Feroe",
+      "country_en": "Faeroe Islands",
+      "country_code": "FO",
+      "zone": "H"
+    },
+    {
+      "id": "66",
+      "country_es": "Fiyi",
+      "country_en": "Fiji",
+      "country_code": "FJ",
+      "zone": "H"
+    },
+    {
+      "id": "67",
+      "country_es": "Finlandia",
+      "country_en": "Finland",
+      "country_code": "FI",
+      "zone": "F"
+    },
+    {
+      "id": "68",
+      "country_es": "Francia",
+      "country_en": "France",
+      "country_code": "FR",
+      "zone": "F"
+    },
+    {
+      "id": "69",
+      "country_es": "Guyana Francesa",
+      "country_en": "French Guiana",
+      "country_code": "GF",
+      "zone": "C"
+    },
+    {
+      "id": "70",
+      "country_es": "Polinesia Francesa",
+      "country_en": "French Polynesia",
+      "country_code": "PF",
+      "zone": "H"
+    },
+    {
+      "id": "71",
+      "country_es": "Gabón",
+      "country_en": "Gabon",
+      "country_code": "GA",
+      "zone": "H"
+    },
+    {
+      "id": "72",
+      "country_es": "Gambia",
+      "country_en": "Gambia",
+      "country_code": "GM",
+      "zone": "H"
+    },
+    {
+      "id": "73",
+      "country_es": "Georgia",
+      "country_en": "Georgia",
+      "country_code": "GE",
+      "zone": "H"
+    },
+    {
+      "id": "74",
+      "country_es": "Alemania",
+      "country_en": "Germany",
+      "country_code": "DE",
+      "zone": "F"
+    },
+    {
+      "id": "75",
+      "country_es": "Ghana",
+      "country_en": "Ghana",
+      "country_code": "GH",
+      "zone": "H"
+    },
+    {
+      "id": "76",
+      "country_es": "Gibraltar",
+      "country_en": "Gibraltar",
+      "country_code": "GI",
+      "zone": "H"
+    },
+    {
+      "id": "77",
+      "country_es": "Grecia",
+      "country_en": "Greece",
+      "country_code": "GR",
+      "zone": "H"
+    },
+    {
+      "id": "78",
+      "country_es": "Groenlandia",
+      "country_en": "Greenland",
+      "country_code": "GL",
+      "zone": "H"
+    },
+    {
+      "id": "79",
+      "country_es": "Grenada",
+      "country_en": "Grenada",
+      "country_code": "GD",
+      "zone": "E"
+    },
+    {
+      "id": "80",
+      "country_es": "Guadalupe",
+      "country_en": "Guadeloupe",
+      "country_code": "GP",
+      "zone": "E"
+    },
+    {
+      "id": "81",
+      "country_es": "Guam",
+      "country_en": "Guam",
+      "country_code": "GU",
+      "zone": "G"
+    },
+    {
+      "id": "82",
+      "country_es": "Guatemala",
+      "country_en": "Guatemala",
+      "country_code": "GT",
+      "zone": "D"
+    },
+    {
+      "id": "83",
+      "country_es": "Guinea",
+      "country_en": "Guinea",
+      "country_code": "GN",
+      "zone": "H"
+    },
+    {
+      "id": "84",
+      "country_es": "Guinea-Bisáu",
+      "country_en": "Guinea-Bissau",
+      "country_code": "GW",
+      "zone": "H"
+    },
+    {
+      "id": "85",
+      "country_es": "Guyana",
+      "country_en": "Guyana",
+      "country_code": "GY",
+      "zone": "C"
+    },
+    {
+      "id": "86",
+      "country_es": "Haití",
+      "country_en": "Haiti",
+      "country_code": "HT",
+      "zone": "E"
+    },
+    {
+      "id": "87",
+      "country_es": "Honduras",
+      "country_en": "Honduras",
+      "country_code": "HN",
+      "zone": "D"
+    },
+    {
+      "id": "88",
+      "country_es": "Hong Kong",
+      "country_en": "Hong Kong",
+      "country_code": "HK",
+      "zone": "G"
+    },
+    {
+      "id": "89",
+      "country_es": "Hungría",
+      "country_en": "Hungary",
+      "country_code": "HU",
+      "zone": "H"
+    },
+    {
+      "id": "90",
+      "country_es": "Islandia",
+      "country_en": "Iceland",
+      "country_code": "IS",
+      "zone": "H"
+    },
+    {
+      "id": "91",
+      "country_es": "India",
+      "country_en": "India",
+      "country_code": "IN",
+      "zone": "H"
+    },
+    {
+      "id": "92",
+      "country_es": "Indonesia",
+      "country_en": "Indonesia",
+      "country_code": "ID",
+      "zone": "G"
+    },
+    {
+      "id": "93",
+      "country_es": "Irak",
+      "country_en": "Iraq",
+      "country_code": "IQ",
+      "zone": "H"
+    },
+    {
+      "id": "94",
+      "country_es": "Irlanda",
+      "country_en": "Ireland",
+      "country_code": "IE",
+      "zone": "F"
+    },
+    {
+      "id": "95",
+      "country_es": "Israel",
+      "country_en": "Israel",
+      "country_code": "IL",
+      "zone": "H"
+    },
+    {
+      "id": "96",
+      "country_es": "Italia",
+      "country_en": "Italy",
+      "country_code": "IT",
+      "zone": "F"
+    },
+    {
+      "id": "97",
+      "country_es": "Jamaica",
+      "country_en": "Jamaica",
+      "country_code": "JM",
+      "zone": "E"
+    },
+    {
+      "id": "98",
+      "country_es": "Japón",
+      "country_en": "Japan",
+      "country_code": "JP",
+      "zone": "G"
+    },
+    {
+      "id": "99",
+      "country_es": "Jordania",
+      "country_en": "Jordan",
+      "country_code": "JO",
+      "zone": "H"
+    },
+    {
+      "id": "100",
+      "country_es": "Kazajistán",
+      "country_en": "Kazakhstan",
+      "country_code": "KZ",
+      "zone": "H"
+    },
+    {
+      "id": "101",
+      "country_es": "Kenia",
+      "country_en": "Kenya",
+      "country_code": "KE",
+      "zone": "H"
+    },
+    {
+      "id": "102",
+      "country_es": "Kuwait",
+      "country_en": "Kuwait",
+      "country_code": "KW",
+      "zone": "H"
+    },
+    {
+      "id": "103",
+      "country_es": "Kirguistán",
+      "country_en": "Kyrgyzstan",
+      "country_code": "KG",
+      "zone": "H"
+    },
+    {
+      "id": "104",
+      "country_es": "Laos",
+      "country_en": "Laos",
+      "country_code": "LA",
+      "zone": "H"
+    },
+    {
+      "id": "105",
+      "country_es": "Letonia",
+      "country_en": "Latvia",
+      "country_code": "LV",
+      "zone": "H"
+    },
+    {
+      "id": "106",
+      "country_es": "Líbano",
+      "country_en": "Lebanon",
+      "country_code": "LB",
+      "zone": "H"
+    },
+    {
+      "id": "107",
+      "country_es": "Lesoto",
+      "country_en": "Lesotho",
+      "country_code": "LS",
+      "zone": "H"
+    },
+    {
+      "id": "108",
+      "country_es": "Liberia",
+      "country_en": "Liberia",
+      "country_code": "LR",
+      "zone": "H"
+    },
+    {
+      "id": "109",
+      "country_es": "Libia",
+      "country_en": "Libya",
+      "country_code": "LY",
+      "zone": "H"
+    },
+    {
+      "id": "110",
+      "country_es": "Liechtenstein",
+      "country_en": "Liechtenstein",
+      "country_code": "LI",
+      "zone": "F"
+    },
+    {
+      "id": "111",
+      "country_es": "Lituania",
+      "country_en": "Lithuania",
+      "country_code": "LT",
+      "zone": "H"
+    },
+    {
+      "id": "112",
+      "country_es": "Luxemburgo",
+      "country_en": "Luxembourg",
+      "country_code": "LU",
+      "zone": "F"
+    },
+    {
+      "id": "113",
+      "country_es": "Macao",
+      "country_en": "Macao",
+      "country_code": "MO",
+      "zone": "G"
+    },
+    {
+      "id": "114",
+      "country_es": "Macedonia del Norte",
+      "country_en": "Macedonia",
+      "country_code": "MK",
+      "zone": "H"
+    },
+    {
+      "id": "115",
+      "country_es": "Madagascar",
+      "country_en": "Madagascar",
+      "country_code": "MG",
+      "zone": "H"
+    },
+    {
+      "id": "116",
+      "country_es": "Malaui",
+      "country_en": "Malawi",
+      "country_code": "MW",
+      "zone": "H"
+    },
+    {
+      "id": "117",
+      "country_es": "Malasia",
+      "country_en": "Malaysia",
+      "country_code": "MY",
+      "zone": "G"
+    },
+    {
+      "id": "118",
+      "country_es": "Maldivas",
+      "country_en": "Maldives",
+      "country_code": "MV",
+      "zone": "H"
+    },
+    {
+      "id": "119",
+      "country_es": "Malí",
+      "country_en": "Mali",
+      "country_code": "ML",
+      "zone": "H"
+    },
+    {
+      "id": "120",
+      "country_es": "Malta",
+      "country_en": "Malta",
+      "country_code": "MT",
+      "zone": "H"
+    },
+    {
+      "id": "121",
+      "country_es": "Islas Marshall",
+      "country_en": "Marshall Islands",
+      "country_code": "MH",
+      "zone": "H"
+    },
+    {
+      "id": "122",
+      "country_es": "Martinica",
+      "country_en": "Martinique",
+      "country_code": "MQ",
+      "zone": "E"
+    },
+    {
+      "id": "123",
+      "country_es": "Mauritania",
+      "country_en": "Mauritania",
+      "country_code": "MR",
+      "zone": "H"
+    },
+    {
+      "id": "124",
+      "country_es": "Mauricio",
+      "country_en": "Mauritius",
+      "country_code": "MU",
+      "zone": "H"
+    },
+    {
+      "id": "125",
+      "country_es": "México",
+      "country_en": "Mexico",
+      "country_code": "MX",
+      "zone": "B"
+    },
+    {
+      "id": "126",
+      "country_es": "Micronesia",
+      "country_en": "Micronesia",
+      "country_code": "FM",
+      "zone": "H"
+    },
+    {
+      "id": "127",
+      "country_es": "Mónaco",
+      "country_en": "Monaco",
+      "country_code": "MC",
+      "zone": "F"
+    },
+    {
+      "id": "128",
+      "country_es": "Mongolia",
+      "country_en": "Mongolia",
+      "country_code": "MN",
+      "zone": "H"
+    },
+    {
+      "id": "129",
+      "country_es": "Montserrat",
+      "country_en": "Monserrat",
+      "country_code": "MS",
+      "zone": "E"
+    },
+    {
+      "id": "130",
+      "country_es": "Montenegro",
+      "country_en": "Montenegro",
+      "country_code": "ME",
+      "zone": "H"
+    },
+    {
+      "id": "131",
+      "country_es": "Marruecos",
+      "country_en": "Morocco",
+      "country_code": "MA",
+      "zone": "H"
+    },
+    {
+      "id": "132",
+      "country_es": "Mozambique",
+      "country_en": "Mozambique",
+      "country_code": "MZ",
+      "zone": "H"
+    },
+    {
+      "id": "133",
+      "country_es": "Myanmar",
+      "country_en": "Myanmar",
+      "country_code": "MM",
+      "zone": "H"
+    },
+    {
+      "id": "134",
+      "country_es": "Namibia",
+      "country_en": "Namibia",
+      "country_code": "NA",
+      "zone": "H"
+    },
+    {
+      "id": "135",
+      "country_es": "Nepal",
+      "country_en": "Nepal",
+      "country_code": "NP",
+      "zone": "H"
+    },
+    {
+      "id": "136",
+      "country_es": "Países Bajos",
+      "country_en": "Netherlands",
+      "country_code": "NL",
+      "zone": "F"
+    },
+    {
+      "id": "137",
+      "country_es": "Antillas Neerlandesas",
+      "country_en": "Netherlands Antilles",
+      "country_code": "AN",
+      "zone": "E"
+    },
+    {
+      "id": "138",
+      "country_es": "Nueva Caledonia",
+      "country_en": "New Caledonia",
+      "country_code": "NC",
+      "zone": "H"
+    },
+    {
+      "id": "139",
+      "country_es": "Nueva Zelanda",
+      "country_en": "New Zealand",
+      "country_code": "NZ",
+      "zone": "G"
+    },
+    {
+      "id": "140",
+      "country_es": "Nicaragua",
+      "country_en": "Nicaragua",
+      "country_code": "NI",
+      "zone": "D"
+    },
+    {
+      "id": "141",
+      "country_es": "Níger",
+      "country_en": "Niger",
+      "country_code": "NE",
+      "zone": "H"
+    },
+    {
+      "id": "142",
+      "country_es": "Nigeria",
+      "country_en": "Nigeria",
+      "country_code": "NG",
+      "zone": "H"
+    },
+    {
+      "id": "143",
+      "country_es": "Islas Marianas del Norte",
+      "country_en": "Northern Mariana Islands",
+      "country_code": "MP",
+      "zone": "H"
+    },
+    {
+      "id": "144",
+      "country_es": "Noruega",
+      "country_en": "Norway",
+      "country_code": "NO",
+      "zone": "F"
+    },
+    {
+      "id": "145",
+      "country_es": "Omán",
+      "country_en": "Oman",
+      "country_code": "OM",
+      "zone": "H"
+    },
+    {
+      "id": "146",
+      "country_es": "Pakistán",
+      "country_en": "Pakistan",
+      "country_code": "PK",
+      "zone": "H"
+    },
+    {
+      "id": "147",
+      "country_es": "Palau",
+      "country_en": "Palau",
+      "country_code": "PW",
+      "zone": "H"
+    },
+    {
+      "id": "148",
+      "country_es": "Territorio Palestino",
+      "country_en": "Palestinian Territory",
+      "country_code": "PS",
+      "zone": "H"
+    },
+    {
+      "id": "149",
+      "country_es": "Panamá",
+      "country_en": "Panama",
+      "country_code": "PA",
+      "zone": "A"
+    },
+    {
+      "id": "150",
+      "country_es": "Papúa Nueva Guinea",
+      "country_en": "Papua New Guinea",
+      "country_code": "PG",
+      "zone": "H"
+    },
+    {
+      "id": "151",
+      "country_es": "Paraguay",
+      "country_en": "Paraguay",
+      "country_code": "PY",
+      "zone": "C"
+    },
+    {
+      "id": "152",
+      "country_es": "Perú",
+      "country_en": "Peru",
+      "country_code": "PE",
+      "zone": "A"
+    },
+    {
+      "id": "153",
+      "country_es": "Filipinas",
+      "country_en": "Philippines",
+      "country_code": "PH",
+      "zone": "G"
+    },
+    {
+      "id": "154",
+      "country_es": "Polonia",
+      "country_en": "Poland",
+      "country_code": "PL",
+      "zone": "H"
+    },
+    {
+      "id": "155",
+      "country_es": "Portugal",
+      "country_en": "Portugal",
+      "country_code": "PT",
+      "zone": "F"
+    },
+    {
+      "id": "156",
+      "country_es": "Catar",
+      "country_en": "Qatar",
+      "country_code": "QA",
+      "zone": "H"
+    },
+    {
+      "id": "157",
+      "country_es": "Moldavia",
+      "country_en": "Republic of Moldova",
+      "country_code": "MD",
+      "zone": "H"
+    },
+    {
+      "id": "158",
+      "country_es": "Rumania",
+      "country_en": "Romania",
+      "country_code": "RO",
+      "zone": "H"
+    },
+    {
+      "id": "159",
+      "country_es": "Rusia",
+      "country_en": "Russian Federation",
+      "country_code": "RU",
+      "zone": "H"
+    },
+    {
+      "id": "160",
+      "country_es": "Ruanda",
+      "country_en": "Rwanda",
+      "country_code": "RW",
+      "zone": "H"
+    },
+    {
+      "id": "161",
+      "country_es": "Reunión",
+      "country_en": "Réunion",
+      "country_code": "RE",
+      "zone": "H"
+    },
+    {
+      "id": "162",
+      "country_es": "Santa Lucía",
+      "country_en": "Saint Lucia",
+      "country_code": "LC",
+      "zone": "E"
+    },
+    {
+      "id": "163",
+      "country_es": "Samoa",
+      "country_en": "Samoa",
+      "country_code": "WS",
+      "zone": "H"
+    },
+    {
+      "id": "164",
+      "country_es": "Arabia Saudita",
+      "country_en": "Saudi Arabia",
+      "country_code": "SA",
+      "zone": "H"
+    },
+    {
+      "id": "165",
+      "country_es": "Senegal",
+      "country_en": "Senegal",
+      "country_code": "SN",
+      "zone": "H"
+    },
+    {
+      "id": "166",
+      "country_es": "Serbia",
+      "country_en": "Serbia",
+      "country_code": "RS",
+      "zone": "H"
+    },
+    {
+      "id": "167",
+      "country_es": "Seychelles",
+      "country_en": "Seychelles",
+      "country_code": "SC",
+      "zone": "H"
+    },
+    {
+      "id": "168",
+      "country_es": "Sierra Leona",
+      "country_en": "Sierra Leone",
+      "country_code": "SL",
+      "zone": "H"
+    },
+    {
+      "id": "169",
+      "country_es": "Singapur",
+      "country_en": "Singapore",
+      "country_code": "SG",
+      "zone": "G"
+    },
+    {
+      "id": "170",
+      "country_es": "Eslovaquia",
+      "country_en": "Slovakia",
+      "country_code": "SK",
+      "zone": "H"
+    },
+    {
+      "id": "171",
+      "country_es": "Eslovenia",
+      "country_en": "Slovenia",
+      "country_code": "SI",
+      "zone": "H"
+    },
+    {
+      "id": "172",
+      "country_es": "Somalia",
+      "country_en": "Somalia",
+      "country_code": "SO",
+      "zone": "H"
+    },
+    {
+      "id": "173",
+      "country_es": "Sudáfrica",
+      "country_en": "South Africa",
+      "country_code": "ZA",
+      "zone": "H"
+    },
+    {
+      "id": "174",
+      "country_es": "Corea del Sur",
+      "country_en": "South Korea",
+      "country_code": "KR",
+      "zone": "G"
+    },
+    {
+      "id": "175",
+      "country_es": "España",
+      "country_en": "Spain",
+      "country_code": "ES",
+      "zone": "F"
+    },
+    {
+      "id": "176",
+      "country_es": "Sri Lanka",
+      "country_en": "Sri Lanka",
+      "country_code": "LK",
+      "zone": "H"
+    },
+    {
+      "id": "177",
+      "country_es": "Saint Kitts y Nevis",
+      "country_en": "St. Kitts and Nevis",
+      "country_code": "KN",
+      "zone": "E"
+    },
+    {
+      "id": "178",
+      "country_es": "San Martín (parte neerlandesa)",
+      "country_en": "St. Maarten",
+      "country_code": "SX",
+      "zone": "E"
+    },
+    {
+      "id": "179",
+      "country_es": "San Martín (parte francesa)",
+      "country_en": "St. Martin",
+      "country_code": "MF",
+      "zone": "E"
+    },
+    {
+      "id": "180",
+      "country_es": "San Vicente y las Granadinas",
+      "country_en": "St. Vincent & the Grenadines",
+      "country_code": "VC",
+      "zone": "E"
+    },
+    {
+      "id": "181",
+      "country_es": "Sudán",
+      "country_en": "Sudan",
+      "country_code": "SD",
+      "zone": "H"
+    },
+    {
+      "id": "182",
+      "country_es": "Surinam",
+      "country_en": "Suriname",
+      "country_code": "SR",
+      "zone": "C"
+    },
+    {
+      "id": "183",
+      "country_es": "Suazilandia",
+      "country_en": "Swaziland",
+      "country_code": "SZ",
+      "zone": "H"
+    },
+    {
+      "id": "184",
+      "country_es": "Suecia",
+      "country_en": "Sweden",
+      "country_code": "SE",
+      "zone": "F"
+    },
+    {
+      "id": "185",
+      "country_es": "Suiza",
+      "country_en": "Switzerland",
+      "country_code": "CH",
+      "zone": "F"
+    },
+    {
+      "id": "186",
+      "country_es": "Siria",
+      "country_en": "Syrian Arab Republic",
+      "country_code": "SY",
+      "zone": "H"
+    },
+    {
+      "id": "187",
+      "country_es": "Taiwán",
+      "country_en": "Taiwan",
+      "country_code": "TW",
+      "zone": "G"
+    },
+    {
+      "id": "188",
+      "country_es": "Tailandia",
+      "country_en": "Thailand",
+      "country_code": "TH",
+      "zone": "G"
+    },
+    {
+      "id": "189",
+      "country_es": "Togo",
+      "country_en": "Togo",
+      "country_code": "TG",
+      "zone": "H"
+    },
+    {
+      "id": "190",
+      "country_es": "Trinidad y Tobago",
+      "country_en": "Trinidad & Tobago",
+      "country_code": "TT",
+      "zone": "E"
+    },
+    {
+      "id": "191",
+      "country_es": "Túnez",
+      "country_en": "Tunisia",
+      "country_code": "TN",
+      "zone": "H"
+    },
+    {
+      "id": "192",
+      "country_es": "Turquía",
+      "country_en": "Turkey",
+      "country_code": "TR",
+      "zone": "H"
+    },
+    {
+      "id": "193",
+      "country_es": "Turkmenistán",
+      "country_en": "Turkmenistan",
+      "country_code": "TM",
+      "zone": "H"
+    },
+    {
+      "id": "194",
+      "country_es": "Islas Turcas y Caicos",
+      "country_en": "Turks & Caicos Islands",
+      "country_code": "TC",
+      "zone": "E"
+    },
+    {
+      "id": "195",
+      "country_es": "Islas Vírgenes de EE. UU.",
+      "country_en": "U.S. Virgin Islands",
+      "country_code": "VI",
+      "zone": "E"
+    },
+    {
+      "id": "196",
+      "country_es": "Estados Unidos (Excepto Miami)",
+      "country_en": "United States (Except Miami)",
+      "country_code": "US",
+      "zone": "B"
+    },
+    {
+      "id": "197",
+      "country_es": "Estados Unidos - Miami",
+      "country_en": "United States - Miami",
+      "country_code": "US",
+      "zone": "I"
+    },
+    {
+      "id": "198",
+      "country_es": "Uganda",
+      "country_en": "Uganda",
+      "country_code": "UG",
+      "zone": "H"
+    },
+    {
+      "id": "199",
+      "country_es": "Ucrania",
+      "country_en": "Ukraine",
+      "country_code": "UA",
+      "zone": "H"
+    },
+    {
+      "id": "200",
+      "country_es": "Emiratos Árabes Unidos",
+      "country_en": "United Arab Emirates",
+      "country_code": "AE",
+      "zone": "H"
+    },
+    {
+      "id": "201",
+      "country_es": "Reino Unido",
+      "country_en": "United Kingdom (Great Britain)",
+      "country_code": "GB",
+      "zone": "F"
+    },
+    {
+      "id": "202",
+      "country_es": "Tanzania",
+      "country_en": "United Republic of Tanzania",
+      "country_code": "TZ",
+      "zone": "H"
+    },
+    {
+      "id": "203",
+      "country_es": "Uruguay",
+      "country_en": "Uruguay",
+      "country_code": "UY",
+      "zone": "C"
+    },
+    {
+      "id": "204",
+      "country_es": "Uzbekistán",
+      "country_en": "Uzbekistan",
+      "country_code": "UZ",
+      "zone": "H"
+    },
+    {
+      "id": "205",
+      "country_es": "Vanuatu",
+      "country_en": "Vanuatu",
+      "country_code": "VU",
+      "zone": "H"
+    },
+    {
+      "id": "206",
+      "country_es": "Venezuela",
+      "country_en": "Venezuela",
+      "country_code": "VE",
+      "zone": "A"
+    },
+    {
+      "id": "207",
+      "country_es": "Vietnam",
+      "country_en": "Vietnam",
+      "country_code": "VN",
+      "zone": "G"
+    },
+    {
+      "id": "208",
+      "country_es": "Wallis y Futuna",
+      "country_en": "Wallis & Futuna",
+      "country_code": "WF",
+      "zone": "H"
+    },
+    {
+      "id": "209",
+      "country_es": "Yemen",
+      "country_en": "Yemen",
+      "country_code": "YE",
+      "zone": "H"
+    },
+    {
+      "id": "210",
+      "country_es": "Zambia",
+      "country_en": "Zambia",
+      "country_code": "ZM",
+      "zone": "H"
+    },
+    {
+      "id": "211",
+      "country_es": "Zimbabue",
+      "country_en": "Zimbabwe",
+      "country_code": "ZW",
+      "zone": "H"
+    }
+  ],
+  "tariffs": {
+    "A": [
+      {
+        "min": 0.0,
+        "max": 1.0,
+        "price": 263074.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.0,
+        "max": 1.5,
+        "price": 313633.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.5,
+        "max": 2.0,
+        "price": 364087.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.0,
+        "max": 2.5,
+        "price": 414646.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.5,
+        "max": 3.0,
+        "price": 465205.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.0,
+        "max": 3.5,
+        "price": 504435.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.5,
+        "max": 4.0,
+        "price": 543665.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.0,
+        "max": 4.5,
+        "price": 582896.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.5,
+        "max": 5.0,
+        "price": 622126.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.0,
+        "max": 5.5,
+        "price": 661357.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.5,
+        "max": 6.0,
+        "price": 686321.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.0,
+        "max": 6.5,
+        "price": 711286.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.5,
+        "max": 7.0,
+        "price": 736146.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.0,
+        "max": 7.5,
+        "price": 761006.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.5,
+        "max": 8.0,
+        "price": 785971.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.0,
+        "max": 8.5,
+        "price": 810936.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.5,
+        "max": 9.0,
+        "price": 835900.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.0,
+        "max": 9.5,
+        "price": 860760.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.5,
+        "max": 10.0,
+        "price": 885620.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.0,
+        "max": 10.5,
+        "price": 910585.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.5,
+        "max": 11.0,
+        "price": 1014535.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.0,
+        "max": 11.5,
+        "price": 1035724.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.5,
+        "max": 12.0,
+        "price": 1056807.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.0,
+        "max": 12.5,
+        "price": 1077996.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.5,
+        "max": 13.0,
+        "price": 1099080.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.0,
+        "max": 13.5,
+        "price": 1120268.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.5,
+        "max": 14.0,
+        "price": 1141457.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.0,
+        "max": 14.5,
+        "price": 1162541.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.5,
+        "max": 15.0,
+        "price": 1183729.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.0,
+        "max": 15.5,
+        "price": 1204813.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.5,
+        "max": 16.0,
+        "price": 1226001.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.0,
+        "max": 16.5,
+        "price": 1247190.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.5,
+        "max": 17.0,
+        "price": 1268274.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.0,
+        "max": 17.5,
+        "price": 1289462.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.5,
+        "max": 18.0,
+        "price": 1310546.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.0,
+        "max": 18.5,
+        "price": 1331735.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.5,
+        "max": 19.0,
+        "price": 1352923.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.0,
+        "max": 19.5,
+        "price": 1374007.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.5,
+        "max": 20.0,
+        "price": 1379776.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.0,
+        "max": 20.5,
+        "price": 1379776.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.5,
+        "max": 21.0,
+        "price": 1379776.0,
+        "multiplier": false
+      },
+      {
+        "min": 21.0,
+        "max": 45.0,
+        "price": 65663.0,
+        "multiplier": true
+      },
+      {
+        "min": 45.0,
+        "max": 71.0,
+        "price": 59684.0,
+        "multiplier": true
+      },
+      {
+        "min": 71.0,
+        "max": 100.0,
+        "price": 57167.0,
+        "multiplier": true
+      },
+      {
+        "min": 100.0,
+        "max": 300.0,
+        "price": 56852.0,
+        "multiplier": true
+      },
+      {
+        "min": 300.0,
+        "max": 500.0,
+        "price": 56852.0,
+        "multiplier": true
+      },
+      {
+        "min": 500.0,
+        "max": 1000.0,
+        "price": 56852.0,
+        "multiplier": true
+      },
+      {
+        "min": 1000.0,
+        "max": 10000.0,
+        "price": 56852.0,
+        "multiplier": true
+      }
+    ],
+    "B": [
+      {
+        "min": 0.0,
+        "max": 1.0,
+        "price": 225500.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.0,
+        "max": 1.5,
+        "price": 249800.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.5,
+        "max": 2.0,
+        "price": 291450.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.0,
+        "max": 2.5,
+        "price": 312500.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.5,
+        "max": 3.0,
+        "price": 337234.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.0,
+        "max": 3.5,
+        "price": 372059.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.5,
+        "max": 4.0,
+        "price": 406779.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.0,
+        "max": 4.5,
+        "price": 441604.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.5,
+        "max": 5.0,
+        "price": 476533.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.0,
+        "max": 5.5,
+        "price": 511253.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.5,
+        "max": 6.0,
+        "price": 535694.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.0,
+        "max": 6.5,
+        "price": 560239.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.5,
+        "max": 7.0,
+        "price": 584679.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.0,
+        "max": 7.5,
+        "price": 609014.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.5,
+        "max": 8.0,
+        "price": 633455.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.0,
+        "max": 8.5,
+        "price": 657895.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.5,
+        "max": 9.0,
+        "price": 682440.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.0,
+        "max": 9.5,
+        "price": 706881.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.5,
+        "max": 10.0,
+        "price": 731321.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.0,
+        "max": 10.5,
+        "price": 755761.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.5,
+        "max": 11.0,
+        "price": 738664.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.0,
+        "max": 11.5,
+        "price": 757545.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.5,
+        "max": 12.0,
+        "price": 776425.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.0,
+        "max": 12.5,
+        "price": 795306.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.5,
+        "max": 13.0,
+        "price": 814187.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.0,
+        "max": 13.5,
+        "price": 833068.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.5,
+        "max": 14.0,
+        "price": 851949.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.0,
+        "max": 14.5,
+        "price": 870830.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.5,
+        "max": 15.0,
+        "price": 889711.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.0,
+        "max": 15.5,
+        "price": 908592.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.5,
+        "max": 16.0,
+        "price": 927473.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.0,
+        "max": 16.5,
+        "price": 946354.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.5,
+        "max": 17.0,
+        "price": 965235.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.0,
+        "max": 17.5,
+        "price": 984116.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.5,
+        "max": 18.0,
+        "price": 1002997.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.0,
+        "max": 18.5,
+        "price": 1021878.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.5,
+        "max": 19.0,
+        "price": 1039710.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.0,
+        "max": 19.5,
+        "price": 1039710.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.5,
+        "max": 20.0,
+        "price": 1039710.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.0,
+        "max": 20.5,
+        "price": 1039710.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.5,
+        "max": 21.0,
+        "price": 1039710.0,
+        "multiplier": false
+      },
+      {
+        "min": 21.0,
+        "max": 45.0,
+        "price": 49510.0,
+        "multiplier": true
+      },
+      {
+        "min": 45.0,
+        "max": 71.0,
+        "price": 44265.0,
+        "multiplier": true
+      },
+      {
+        "min": 71.0,
+        "max": 100.0,
+        "price": 41747.0,
+        "multiplier": true
+      },
+      {
+        "min": 100.0,
+        "max": 300.0,
+        "price": 41747.0,
+        "multiplier": true
+      },
+      {
+        "min": 300.0,
+        "max": 500.0,
+        "price": 41747.0,
+        "multiplier": true
+      },
+      {
+        "min": 500.0,
+        "max": 1000.0,
+        "price": 41747.0,
+        "multiplier": true
+      },
+      {
+        "min": 1000.0,
+        "max": 10000.0,
+        "price": 41747.0,
+        "multiplier": true
+      }
+    ],
+    "C": [
+      {
+        "min": 0.0,
+        "max": 1.0,
+        "price": 263074.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.0,
+        "max": 1.5,
+        "price": 313633.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.5,
+        "max": 2.0,
+        "price": 364087.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.0,
+        "max": 2.5,
+        "price": 414646.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.5,
+        "max": 3.0,
+        "price": 465205.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.0,
+        "max": 3.5,
+        "price": 504435.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.5,
+        "max": 4.0,
+        "price": 543665.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.0,
+        "max": 4.5,
+        "price": 582896.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.5,
+        "max": 5.0,
+        "price": 622126.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.0,
+        "max": 5.5,
+        "price": 661357.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.5,
+        "max": 6.0,
+        "price": 686321.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.0,
+        "max": 6.5,
+        "price": 711157.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.5,
+        "max": 7.0,
+        "price": 741863.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.0,
+        "max": 7.5,
+        "price": 772678.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.5,
+        "max": 8.0,
+        "price": 803493.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.0,
+        "max": 8.5,
+        "price": 83430.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.5,
+        "max": 9.0,
+        "price": 865013.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.0,
+        "max": 9.5,
+        "price": 895938.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.5,
+        "max": 10.0,
+        "price": 926643.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.0,
+        "max": 10.5,
+        "price": 957458.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.5,
+        "max": 11.0,
+        "price": 1146625.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.0,
+        "max": 11.5,
+        "price": 1176015.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.5,
+        "max": 12.0,
+        "price": 1205404.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.0,
+        "max": 12.5,
+        "price": 1235013.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.5,
+        "max": 13.0,
+        "price": 1264402.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.0,
+        "max": 13.5,
+        "price": 1294011.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.5,
+        "max": 14.0,
+        "price": 1323400.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.0,
+        "max": 14.5,
+        "price": 1352790.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.5,
+        "max": 15.0,
+        "price": 1382399.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.0,
+        "max": 15.5,
+        "price": 1411788.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.5,
+        "max": 16.0,
+        "price": 1441397.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.0,
+        "max": 16.5,
+        "price": 1470786.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.5,
+        "max": 17.0,
+        "price": 1500175.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.0,
+        "max": 17.5,
+        "price": 1529784.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.5,
+        "max": 18.0,
+        "price": 1559174.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.0,
+        "max": 18.5,
+        "price": 1588782.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.5,
+        "max": 19.0,
+        "price": 1618172.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.0,
+        "max": 19.5,
+        "price": 1647561.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.5,
+        "max": 20.0,
+        "price": 1677170.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.0,
+        "max": 20.5,
+        "price": 1706559.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.5,
+        "max": 21.0,
+        "price": 1736168.0,
+        "multiplier": false
+      },
+      {
+        "min": 21.0,
+        "max": 45.0,
+        "price": 82904.0,
+        "multiplier": true
+      },
+      {
+        "min": 45.0,
+        "max": 71.0,
+        "price": 69745.0,
+        "multiplier": true
+      },
+      {
+        "min": 71.0,
+        "max": 100.0,
+        "price": 63274.0,
+        "multiplier": true
+      },
+      {
+        "min": 100.0,
+        "max": 300.0,
+        "price": 62945.0,
+        "multiplier": true
+      },
+      {
+        "min": 300.0,
+        "max": 500.0,
+        "price": 62945.0,
+        "multiplier": true
+      },
+      {
+        "min": 500.0,
+        "max": 1000.0,
+        "price": 62945.0,
+        "multiplier": true
+      },
+      {
+        "min": 1000.0,
+        "max": 10000.0,
+        "price": 62945.0,
+        "multiplier": true
+      }
+    ],
+    "D": [
+      {
+        "min": 0.0,
+        "max": 1.0,
+        "price": 279800.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.0,
+        "max": 1.5,
+        "price": 332500.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.5,
+        "max": 2.0,
+        "price": 364087.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.0,
+        "max": 2.5,
+        "price": 414646.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.5,
+        "max": 3.0,
+        "price": 465205.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.0,
+        "max": 3.5,
+        "price": 504435.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.5,
+        "max": 4.0,
+        "price": 543665.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.0,
+        "max": 4.5,
+        "price": 582896.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.5,
+        "max": 5.0,
+        "price": 622126.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.0,
+        "max": 5.5,
+        "price": 661357.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.5,
+        "max": 6.0,
+        "price": 686321.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.0,
+        "max": 6.5,
+        "price": 711286.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.5,
+        "max": 7.0,
+        "price": 736146.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.0,
+        "max": 7.5,
+        "price": 761006.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.5,
+        "max": 8.0,
+        "price": 785971.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.0,
+        "max": 8.5,
+        "price": 810936.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.5,
+        "max": 9.0,
+        "price": 835900.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.0,
+        "max": 9.5,
+        "price": 860760.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.5,
+        "max": 10.0,
+        "price": 885620.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.0,
+        "max": 10.5,
+        "price": 910585.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.5,
+        "max": 11.0,
+        "price": 1014535.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.0,
+        "max": 11.5,
+        "price": 1035724.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.5,
+        "max": 12.0,
+        "price": 1056807.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.0,
+        "max": 12.5,
+        "price": 1077996.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.5,
+        "max": 13.0,
+        "price": 1099080.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.0,
+        "max": 13.5,
+        "price": 1120268.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.5,
+        "max": 14.0,
+        "price": 1141457.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.0,
+        "max": 14.5,
+        "price": 1162541.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.5,
+        "max": 15.0,
+        "price": 1183729.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.0,
+        "max": 15.5,
+        "price": 1204813.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.5,
+        "max": 16.0,
+        "price": 1226001.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.0,
+        "max": 16.5,
+        "price": 1247190.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.5,
+        "max": 17.0,
+        "price": 1268274.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.0,
+        "max": 17.5,
+        "price": 1289462.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.5,
+        "max": 18.0,
+        "price": 1310546.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.0,
+        "max": 18.5,
+        "price": 1331735.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.5,
+        "max": 19.0,
+        "price": 1352923.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.0,
+        "max": 19.5,
+        "price": 1374007.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.5,
+        "max": 20.0,
+        "price": 1379776.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.0,
+        "max": 20.5,
+        "price": 1379776.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.5,
+        "max": 21.0,
+        "price": 1379776.0,
+        "multiplier": false
+      },
+      {
+        "min": 21.0,
+        "max": 45.0,
+        "price": 65663.0,
+        "multiplier": true
+      },
+      {
+        "min": 45.0,
+        "max": 71.0,
+        "price": 59684.0,
+        "multiplier": true
+      },
+      {
+        "min": 71.0,
+        "max": 100.0,
+        "price": 57167.0,
+        "multiplier": true
+      },
+      {
+        "min": 100.0,
+        "max": 300.0,
+        "price": 56852.0,
+        "multiplier": true
+      },
+      {
+        "min": 300.0,
+        "max": 500.0,
+        "price": 56852.0,
+        "multiplier": true
+      },
+      {
+        "min": 500.0,
+        "max": 1000.0,
+        "price": 56852.0,
+        "multiplier": true
+      },
+      {
+        "min": 1000.0,
+        "max": 10000.0,
+        "price": 56852.0,
+        "multiplier": true
+      }
+    ],
+    "E": [
+      {
+        "min": 0.0,
+        "max": 1.0,
+        "price": 227202.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.0,
+        "max": 1.5,
+        "price": 273694.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.5,
+        "max": 2.0,
+        "price": 320069.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.0,
+        "max": 2.5,
+        "price": 366561.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.5,
+        "max": 3.0,
+        "price": 412936.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.0,
+        "max": 3.5,
+        "price": 457676.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.5,
+        "max": 4.0,
+        "price": 502299.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.0,
+        "max": 4.5,
+        "price": 547039.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.5,
+        "max": 5.0,
+        "price": 591662.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.0,
+        "max": 5.5,
+        "price": 636401.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.5,
+        "max": 6.0,
+        "price": 657895.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.0,
+        "max": 6.5,
+        "price": 679506.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.5,
+        "max": 7.0,
+        "price": 701116.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.0,
+        "max": 7.5,
+        "price": 722610.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.5,
+        "max": 8.0,
+        "price": 744104.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.0,
+        "max": 8.5,
+        "price": 765714.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.5,
+        "max": 9.0,
+        "price": 787325.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.0,
+        "max": 9.5,
+        "price": 808819.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.5,
+        "max": 10.0,
+        "price": 830312.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.0,
+        "max": 10.5,
+        "price": 851923.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.5,
+        "max": 11.0,
+        "price": 1331794.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.0,
+        "max": 11.5,
+        "price": 1357377.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.5,
+        "max": 12.0,
+        "price": 1382842.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.0,
+        "max": 12.5,
+        "price": 1408424.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.5,
+        "max": 13.0,
+        "price": 1433890.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.0,
+        "max": 13.5,
+        "price": 1459472.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.5,
+        "max": 14.0,
+        "price": 1484937.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.0,
+        "max": 14.5,
+        "price": 1510519.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.5,
+        "max": 15.0,
+        "price": 1535985.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.0,
+        "max": 15.5,
+        "price": 1561567.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.5,
+        "max": 16.0,
+        "price": 1587033.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.0,
+        "max": 16.5,
+        "price": 1612615.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.5,
+        "max": 17.0,
+        "price": 1638080.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.0,
+        "max": 17.5,
+        "price": 1663662.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.5,
+        "max": 18.0,
+        "price": 1689128.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.0,
+        "max": 18.5,
+        "price": 1714710.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.5,
+        "max": 19.0,
+        "price": 1740176.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.0,
+        "max": 19.5,
+        "price": 1765758.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.5,
+        "max": 20.0,
+        "price": 1771715.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.0,
+        "max": 20.5,
+        "price": 1771715.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.5,
+        "max": 21.0,
+        "price": 1771715.0,
+        "multiplier": false
+      },
+      {
+        "min": 21.0,
+        "max": 45.0,
+        "price": 84339.0,
+        "multiplier": true
+      },
+      {
+        "min": 45.0,
+        "max": 71.0,
+        "price": 75461.0,
+        "multiplier": true
+      },
+      {
+        "min": 71.0,
+        "max": 100.0,
+        "price": 70438.0,
+        "multiplier": true
+      },
+      {
+        "min": 100.0,
+        "max": 300.0,
+        "price": 69854.0,
+        "multiplier": true
+      },
+      {
+        "min": 300.0,
+        "max": 500.0,
+        "price": 69854.0,
+        "multiplier": true
+      },
+      {
+        "min": 500.0,
+        "max": 1000.0,
+        "price": 69854.0,
+        "multiplier": true
+      },
+      {
+        "min": 1000.0,
+        "max": 10000.0,
+        "price": 69854.0,
+        "multiplier": true
+      }
+    ],
+    "F": [
+      {
+        "min": 0.0,
+        "max": 1.0,
+        "price": 322132.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.0,
+        "max": 1.5,
+        "price": 401908.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.5,
+        "max": 2.0,
+        "price": 481797.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.0,
+        "max": 2.5,
+        "price": 561574.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.5,
+        "max": 3.0,
+        "price": 641463.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.0,
+        "max": 3.5,
+        "price": 714404.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.5,
+        "max": 4.0,
+        "price": 787458.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.0,
+        "max": 4.5,
+        "price": 860512.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.5,
+        "max": 5.0,
+        "price": 933454.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.0,
+        "max": 5.5,
+        "price": 1006508.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.5,
+        "max": 6.0,
+        "price": 1031382.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.0,
+        "max": 6.5,
+        "price": 1056369.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.5,
+        "max": 7.0,
+        "price": 1081243.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.0,
+        "max": 7.5,
+        "price": 1106117.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.5,
+        "max": 8.0,
+        "price": 1131103.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.0,
+        "max": 8.5,
+        "price": 1155978.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.5,
+        "max": 9.0,
+        "price": 1180852.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.0,
+        "max": 9.5,
+        "price": 1205838.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.5,
+        "max": 10.0,
+        "price": 1230712.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.0,
+        "max": 10.5,
+        "price": 1255586.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.5,
+        "max": 11.0,
+        "price": 1754079.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.0,
+        "max": 11.5,
+        "price": 1754079.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.5,
+        "max": 12.0,
+        "price": 1825676.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.0,
+        "max": 12.5,
+        "price": 1861531.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.5,
+        "max": 13.0,
+        "price": 1897386.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.0,
+        "max": 13.5,
+        "price": 1933128.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.5,
+        "max": 14.0,
+        "price": 1968983.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.0,
+        "max": 14.5,
+        "price": 2004838.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.5,
+        "max": 15.0,
+        "price": 2040580.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.0,
+        "max": 15.5,
+        "price": 2076547.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.5,
+        "max": 16.0,
+        "price": 2112402.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.0,
+        "max": 16.5,
+        "price": 2148256.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.5,
+        "max": 17.0,
+        "price": 2183999.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.0,
+        "max": 17.5,
+        "price": 2219854.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.5,
+        "max": 18.0,
+        "price": 2232851.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.0,
+        "max": 18.5,
+        "price": 2232851.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.5,
+        "max": 19.0,
+        "price": 2232851.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.0,
+        "max": 19.5,
+        "price": 2232851.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.5,
+        "max": 20.0,
+        "price": 2232851.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.0,
+        "max": 20.5,
+        "price": 2232851.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.5,
+        "max": 21.0,
+        "price": 2232851.0,
+        "multiplier": false
+      },
+      {
+        "min": 21.0,
+        "max": 45.0,
+        "price": 106331.0,
+        "multiplier": true
+      },
+      {
+        "min": 45.0,
+        "max": 71.0,
+        "price": 95014.0,
+        "multiplier": true
+      },
+      {
+        "min": 71.0,
+        "max": 100.0,
+        "price": 87395.0,
+        "multiplier": true
+      },
+      {
+        "min": 100.0,
+        "max": 300.0,
+        "price": 87059.0,
+        "multiplier": true
+      },
+      {
+        "min": 300.0,
+        "max": 500.0,
+        "price": 87059.0,
+        "multiplier": true
+      },
+      {
+        "min": 500.0,
+        "max": 1000.0,
+        "price": 87059.0,
+        "multiplier": true
+      },
+      {
+        "min": 1000.0,
+        "max": 10000.0,
+        "price": 87059.0,
+        "multiplier": true
+      }
+    ],
+    "G": [
+      {
+        "min": 0.0,
+        "max": 1.0,
+        "price": 302000.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.0,
+        "max": 1.5,
+        "price": 375000.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.5,
+        "max": 2.0,
+        "price": 451044.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.0,
+        "max": 2.5,
+        "price": 525729.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.5,
+        "max": 3.0,
+        "price": 600518.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.0,
+        "max": 3.5,
+        "price": 668804.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.5,
+        "max": 4.0,
+        "price": 737195.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.0,
+        "max": 4.5,
+        "price": 805586.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.5,
+        "max": 5.0,
+        "price": 873872.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.0,
+        "max": 5.5,
+        "price": 942263.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.5,
+        "max": 6.0,
+        "price": 965549.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.0,
+        "max": 6.5,
+        "price": 988941.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.5,
+        "max": 7.0,
+        "price": 1012227.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.0,
+        "max": 7.5,
+        "price": 1035514.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.5,
+        "max": 8.0,
+        "price": 1058905.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.0,
+        "max": 8.5,
+        "price": 1082192.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.5,
+        "max": 9.0,
+        "price": 1105478.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.0,
+        "max": 9.5,
+        "price": 1128870.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.5,
+        "max": 10.0,
+        "price": 1152156.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.0,
+        "max": 10.5,
+        "price": 1175443.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.5,
+        "max": 11.0,
+        "price": 1642116.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.0,
+        "max": 11.5,
+        "price": 1675682.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.5,
+        "max": 12.0,
+        "price": 1709144.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.0,
+        "max": 12.5,
+        "price": 1742710.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.5,
+        "max": 13.0,
+        "price": 1776276.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.0,
+        "max": 13.5,
+        "price": 1809737.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.5,
+        "max": 14.0,
+        "price": 1843303.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.0,
+        "max": 14.5,
+        "price": 1876869.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.5,
+        "max": 15.0,
+        "price": 1910330.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.0,
+        "max": 15.5,
+        "price": 1944001.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.5,
+        "max": 16.0,
+        "price": 1977567.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.0,
+        "max": 16.5,
+        "price": 2011134.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.5,
+        "max": 17.0,
+        "price": 2011134.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.0,
+        "max": 17.5,
+        "price": 2078161.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.5,
+        "max": 18.0,
+        "price": 2090329.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.0,
+        "max": 18.5,
+        "price": 2090329.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.5,
+        "max": 19.0,
+        "price": 2090329.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.0,
+        "max": 19.5,
+        "price": 2090329.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.5,
+        "max": 20.0,
+        "price": 2090329.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.0,
+        "max": 20.5,
+        "price": 2090329.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.5,
+        "max": 21.0,
+        "price": 2090329.0,
+        "multiplier": false
+      },
+      {
+        "min": 21.0,
+        "max": 45.0,
+        "price": 99544.0,
+        "multiplier": true
+      },
+      {
+        "min": 45.0,
+        "max": 71.0,
+        "price": 88950.0,
+        "multiplier": true
+      },
+      {
+        "min": 71.0,
+        "max": 100.0,
+        "price": 81817.0,
+        "multiplier": true
+      },
+      {
+        "min": 100.0,
+        "max": 300.0,
+        "price": 81502.0,
+        "multiplier": true
+      },
+      {
+        "min": 300.0,
+        "max": 500.0,
+        "price": 81502.0,
+        "multiplier": true
+      },
+      {
+        "min": 500.0,
+        "max": 1000.0,
+        "price": 81502.0,
+        "multiplier": true
+      },
+      {
+        "min": 1000.0,
+        "max": 10000.0,
+        "price": 81502.0,
+        "multiplier": true
+      }
+    ],
+    "H": [
+      {
+        "min": 0.0,
+        "max": 1.0,
+        "price": 337800.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.0,
+        "max": 1.5,
+        "price": 438128.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.5,
+        "max": 2.0,
+        "price": 542176.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.0,
+        "max": 2.5,
+        "price": 646428.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.5,
+        "max": 3.0,
+        "price": 750579.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.0,
+        "max": 3.5,
+        "price": 848373.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.5,
+        "max": 4.0,
+        "price": 946065.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.0,
+        "max": 4.5,
+        "price": 1043963.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.5,
+        "max": 5.0,
+        "price": 1141757.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.0,
+        "max": 5.5,
+        "price": 1239552.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.5,
+        "max": 6.0,
+        "price": 1284656.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.0,
+        "max": 6.5,
+        "price": 1329761.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.5,
+        "max": 7.0,
+        "price": 1374865.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.0,
+        "max": 7.5,
+        "price": 1419970.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.5,
+        "max": 8.0,
+        "price": 1465074.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.0,
+        "max": 8.5,
+        "price": 1510179.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.5,
+        "max": 9.0,
+        "price": 1555283.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.0,
+        "max": 9.5,
+        "price": 1600387.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.5,
+        "max": 10.0,
+        "price": 1645492.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.0,
+        "max": 10.5,
+        "price": 1690596.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.5,
+        "max": 11.0,
+        "price": 1902177.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.0,
+        "max": 11.5,
+        "price": 1944924.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.5,
+        "max": 12.0,
+        "price": 1987568.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.0,
+        "max": 12.5,
+        "price": 2030212.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.5,
+        "max": 13.0,
+        "price": 2072754.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.0,
+        "max": 13.5,
+        "price": 2115398.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.5,
+        "max": 14.0,
+        "price": 2158043.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.0,
+        "max": 14.5,
+        "price": 2200584.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.5,
+        "max": 15.0,
+        "price": 2243228.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.0,
+        "max": 15.5,
+        "price": 2285873.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.5,
+        "max": 16.0,
+        "price": 2328414.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.0,
+        "max": 16.5,
+        "price": 2371161.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.5,
+        "max": 17.0,
+        "price": 2413805.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.0,
+        "max": 17.5,
+        "price": 2456449.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.5,
+        "max": 18.0,
+        "price": 2457987.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.0,
+        "max": 18.5,
+        "price": 2457987.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.5,
+        "max": 19.0,
+        "price": 2457987.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.0,
+        "max": 19.5,
+        "price": 2457987.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.5,
+        "max": 20.0,
+        "price": 2457987.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.0,
+        "max": 20.5,
+        "price": 2457987.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.5,
+        "max": 21.0,
+        "price": 2457987.0,
+        "multiplier": false
+      },
+      {
+        "min": 21.0,
+        "max": 45.0,
+        "price": 117066.0,
+        "multiplier": true
+      },
+      {
+        "min": 45.0,
+        "max": 71.0,
+        "price": 106713.0,
+        "multiplier": true
+      },
+      {
+        "min": 71.0,
+        "max": 100.0,
+        "price": 102612.0,
+        "multiplier": true
+      },
+      {
+        "min": 100.0,
+        "max": 300.0,
+        "price": 102612.0,
+        "multiplier": true
+      },
+      {
+        "min": 300.0,
+        "max": 500.0,
+        "price": 102407.0,
+        "multiplier": true
+      },
+      {
+        "min": 500.0,
+        "max": 1000.0,
+        "price": 102407.0,
+        "multiplier": true
+      },
+      {
+        "min": 1000.0,
+        "max": 10000.0,
+        "price": 102407.0,
+        "multiplier": true
+      }
+    ],
+    "I": [
+      {
+        "min": 0.0,
+        "max": 1.0,
+        "price": 198700.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.0,
+        "max": 1.5,
+        "price": 248500.0,
+        "multiplier": false
+      },
+      {
+        "min": 1.5,
+        "max": 2.0,
+        "price": 254120.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.0,
+        "max": 2.5,
+        "price": 268700.0,
+        "multiplier": false
+      },
+      {
+        "min": 2.5,
+        "max": 3.0,
+        "price": 286990.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.0,
+        "max": 3.5,
+        "price": 316970.0,
+        "multiplier": false
+      },
+      {
+        "min": 3.5,
+        "max": 4.0,
+        "price": 354296.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.0,
+        "max": 4.5,
+        "price": 384901.0,
+        "multiplier": false
+      },
+      {
+        "min": 4.5,
+        "max": 5.0,
+        "price": 415623.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.0,
+        "max": 5.5,
+        "price": 446228.0,
+        "multiplier": false
+      },
+      {
+        "min": 5.5,
+        "max": 6.0,
+        "price": 467722.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.0,
+        "max": 6.5,
+        "price": 489333.0,
+        "multiplier": false
+      },
+      {
+        "min": 6.5,
+        "max": 7.0,
+        "price": 511060.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.0,
+        "max": 7.5,
+        "price": 532554.0,
+        "multiplier": false
+      },
+      {
+        "min": 7.5,
+        "max": 8.0,
+        "price": 554164.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.0,
+        "max": 8.5,
+        "price": 575658.0,
+        "multiplier": false
+      },
+      {
+        "min": 8.5,
+        "max": 9.0,
+        "price": 597269.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.0,
+        "max": 9.5,
+        "price": 618996.0,
+        "multiplier": false
+      },
+      {
+        "min": 9.5,
+        "max": 10.0,
+        "price": 640490.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.0,
+        "max": 10.5,
+        "price": 662100.0,
+        "multiplier": false
+      },
+      {
+        "min": 10.5,
+        "max": 11.0,
+        "price": 614324.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.0,
+        "max": 11.5,
+        "price": 629626.0,
+        "multiplier": false
+      },
+      {
+        "min": 11.5,
+        "max": 12.0,
+        "price": 644929.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.0,
+        "max": 12.5,
+        "price": 660231.0,
+        "multiplier": false
+      },
+      {
+        "min": 12.5,
+        "max": 13.0,
+        "price": 675651.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.0,
+        "max": 13.5,
+        "price": 690953.0,
+        "multiplier": false
+      },
+      {
+        "min": 13.5,
+        "max": 14.0,
+        "price": 706256.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.0,
+        "max": 14.5,
+        "price": 721559.0,
+        "multiplier": false
+      },
+      {
+        "min": 14.5,
+        "max": 15.0,
+        "price": 736861.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.0,
+        "max": 15.5,
+        "price": 752164.0,
+        "multiplier": false
+      },
+      {
+        "min": 15.5,
+        "max": 16.0,
+        "price": 767467.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.0,
+        "max": 16.5,
+        "price": 782769.0,
+        "multiplier": false
+      },
+      {
+        "min": 16.5,
+        "max": 17.0,
+        "price": 798072.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.0,
+        "max": 17.5,
+        "price": 813374.0,
+        "multiplier": false
+      },
+      {
+        "min": 17.5,
+        "max": 18.0,
+        "price": 828794.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.0,
+        "max": 18.5,
+        "price": 844096.0,
+        "multiplier": false
+      },
+      {
+        "min": 18.5,
+        "max": 19.0,
+        "price": 859399.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.0,
+        "max": 19.5,
+        "price": 874702.0,
+        "multiplier": false
+      },
+      {
+        "min": 19.5,
+        "max": 20.0,
+        "price": 880893.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.0,
+        "max": 20.5,
+        "price": 880893.0,
+        "multiplier": false
+      },
+      {
+        "min": 20.5,
+        "max": 21.0,
+        "price": 880893.0,
+        "multiplier": false
+      },
+      {
+        "min": 21.0,
+        "max": 45.0,
+        "price": 41936.0,
+        "multiplier": true
+      },
+      {
+        "min": 45.0,
+        "max": 71.0,
+        "price": 36679.0,
+        "multiplier": true
+      },
+      {
+        "min": 71.0,
+        "max": 100.0,
+        "price": 34810.0,
+        "multiplier": true
+      },
+      {
+        "min": 100.0,
+        "max": 300.0,
+        "price": 34576.0,
+        "multiplier": true
+      },
+      {
+        "min": 300.0,
+        "max": 500.0,
+        "price": 34576.0,
+        "multiplier": true
+      },
+      {
+        "min": 500.0,
+        "max": 1000.0,
+        "price": 34576.0,
+        "multiplier": true
+      },
+      {
+        "min": 1000.0,
+        "max": 10000.0,
+        "price": 34576.0,
+        "multiplier": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TEAMID.com.easycomex.app",
+        "paths": ["/pago/*", "/dashboard", "/restablecer"]
+      }
+    ]
+  }
+}

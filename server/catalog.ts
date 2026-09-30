@@ -1,0 +1,192 @@
+// El catálogo: qué se vende, a qué precio, y qué entrega cada compra.
+//
+// Existe por una razón concreta. Los precios estaban repartidos entre el
+// texto de la web (USD 499), la calculadora de ROI (39.90 y 99.90), el
+// diagnóstico (9.99) y el prompt de Marco Polo — cuatro copias que podían
+// contradecirse, y de hecho se contradijeron: Marco Polo estuvo diciendo
+// 6.90 después de que el precio subiera. Acá hay una sola.
+//
+// Dos monedas, un solo cobro. Wompi liquida en pesos, así que el monto
+// que se cobra siempre es COP; el dólar es la etiqueta que ve quien no
+// está en Colombia, y su banco convierte. La tasa es una variable de
+// entorno, no un número escondido en el código.
+
+export const USD_COP_RATE = () => Number(process.env.USD_COP_RATE) || 4000;
+
+export type PlanId =
+  | 'diagnostico_madurez'
+  | 'analisis_mercado'
+  | 'acompanamiento'
+  | 'creditos_marco_polo'
+  | 'tokens_10'
+  | 'tokens_25'
+  | 'tokens_200'
+  | 'tokens_300'
+  | 'tokens_600'
+  | 'reporte_detalle'
+  | 'reporte_pronostico';
+
+export interface CatalogItem {
+  label: string;
+  labelEn: string;
+  /** Precio publicado, en centavos de dólar. null = a medida, no se cobra en línea. */
+  usdCents: number | null;
+  /** Variable de entorno para fijar el precio en PESOS enteros, si se quiere otro. */
+  copEnv: string;
+  /** Price ID de Stripe, si algún día se cobra por allá. */
+  stripePriceEnv: string;
+  /**
+   * Lo que la compra entrega además de la fila en `payments`: tokens que
+   * no vencen (`researchCredits`) o un plan que trae `monthlyTokens` cada
+   * mes durante `months` meses y después termina (`tokenPlan`).
+   */
+  grants?: { researchCredits?: number; tokenPlan?: { monthlyTokens: number; months: number } };
+}
+
+export const CATALOG: Record<PlanId, CatalogItem> = {
+  diagnostico_madurez: {
+    label: 'Plan de acción del diagnóstico de madurez',
+    labelEn: 'Maturity diagnosis action plan',
+    usdCents: 999,
+    copEnv: 'PRICE_DIAGNOSTICO_MADUREZ_COP',
+    stripePriceEnv: 'STRIPE_PRICE_DIAGNOSTICO_MADUREZ',
+  },
+  analisis_mercado: {
+    label: 'Análisis de mercado y competencia',
+    labelEn: 'Market & competitor analysis',
+    usdCents: 49900,
+    copEnv: 'PRICE_ANALISIS_MERCADO_COP',
+    stripePriceEnv: 'STRIPE_PRICE_ANALISIS_MERCADO',
+  },
+  acompanamiento: {
+    // A medida: nadie puede comprarlo de un botón, y el botón no finge
+    // que sí. Lleva a hablar con el equipo.
+    label: 'Plan de crecimiento a medida',
+    labelEn: 'Custom growth plan',
+    usdCents: null,
+    copEnv: 'PRICE_ACOMPANAMIENTO_COP',
+    stripePriceEnv: 'STRIPE_PRICE_ACOMPANAMIENTO',
+  },
+  // Los tokens: 1 token = 1 consulta de inteligencia de mercado (TikTok
+  // Shop o comercio exterior) o 1 lectura de etiqueta, cuando se acaban
+  // las gratis del día. Dos formas, como Aduanapp:
+  //  - Paquetes (10, 25, 50): no vencen.
+  //  - Planes (200 en 1 mes; 50 por mes x 6; 100 por mes x 6): traen
+  //    tokens cada mes, lo que no se usa en el mes no se acumula, y
+  //    terminan. Se gastan antes que los de paquete.
+  // `creditos_marco_polo` es el de 50 y conserva su id porque ya hay
+  // pagos registrados con ese nombre.
+  tokens_10: {
+    label: '10 tokens · Mini',
+    labelEn: '10 tokens · Mini',
+    usdCents: 499,
+    copEnv: 'PRICE_TOKENS_10_COP',
+    stripePriceEnv: 'STRIPE_PRICE_TOKENS_10',
+    grants: { researchCredits: 10 },
+  },
+  tokens_25: {
+    label: '25 tokens · Starter',
+    labelEn: '25 tokens · Starter',
+    usdCents: 999,
+    copEnv: 'PRICE_TOKENS_25_COP',
+    stripePriceEnv: 'STRIPE_PRICE_TOKENS_25',
+    grants: { researchCredits: 25 },
+  },
+  creditos_marco_polo: {
+    label: '50 tokens · Básico',
+    labelEn: '50 tokens · Basic',
+    usdCents: 1900,
+    copEnv: 'PRICE_CREDITOS_MARCO_POLO_COP',
+    stripePriceEnv: 'STRIPE_PRICE_CREDITOS_MARCO_POLO',
+    grants: { researchCredits: 50 },
+  },
+  tokens_200: {
+    label: 'Plan de 1 mes · 200 tokens',
+    labelEn: '1-month plan · 200 tokens',
+    usdCents: 4900,
+    copEnv: 'PRICE_TOKENS_200_COP',
+    stripePriceEnv: 'STRIPE_PRICE_TOKENS_200',
+    grants: { tokenPlan: { monthlyTokens: 200, months: 1 } },
+  },
+  tokens_300: {
+    label: 'Plan de 6 meses · 50 tokens por mes (300 tokens)',
+    labelEn: '6-month plan · 50 tokens a month (300 tokens)',
+    usdCents: 6900,
+    copEnv: 'PRICE_TOKENS_300_COP',
+    stripePriceEnv: 'STRIPE_PRICE_TOKENS_300',
+    grants: { tokenPlan: { monthlyTokens: 50, months: 6 } },
+  },
+  tokens_600: {
+    label: 'Plan de 6 meses · 100 tokens por mes (600 tokens)',
+    labelEn: '6-month plan · 100 tokens a month (600 tokens)',
+    usdCents: 11900,
+    copEnv: 'PRICE_TOKENS_600_COP',
+    stripePriceEnv: 'STRIPE_PRICE_TOKENS_600',
+    grants: { tokenPlan: { monthlyTokens: 100, months: 6 } },
+  },
+  reporte_detalle: {
+    label: 'Desglose de costos mes a mes',
+    labelEn: 'Month-by-month cost breakdown',
+    usdCents: 3990,
+    copEnv: 'PRICE_REPORTE_DETALLE_COP',
+    stripePriceEnv: 'STRIPE_PRICE_REPORTE_DETALLE',
+  },
+  reporte_pronostico: {
+    label: 'Pronóstico completo a 2 años',
+    labelEn: 'Full 2-year forecast',
+    usdCents: 9990,
+    copEnv: 'PRICE_REPORTE_PRONOSTICO_COP',
+    stripePriceEnv: 'STRIPE_PRICE_REPORTE_PRONOSTICO',
+  },
+};
+
+export const PLAN_IDS = Object.keys(CATALOG) as [PlanId, ...PlanId[]];
+
+export const isPlanId = (v: unknown): v is PlanId => typeof v === 'string' && v in CATALOG;
+
+/**
+ * Dólares a pesos, redondeando HACIA ABAJO a la centena.
+ *
+ * Lo de la centena no es estética: es lo que hace que 9.99 dólares den
+ * exactamente los $39.900 que ya están publicados en la web y en el
+ * diagnóstico. Si el redondeo fuera al alza, el mismo diagnóstico
+ * costaría $40.000 en un lado y $39.900 en el otro.
+ */
+export function usdCentsToCopCents(usdCents: number, rate = USD_COP_RATE()): number {
+  const pesos = Math.floor(((usdCents / 100) * rate) / 100) * 100;
+  return pesos * 100;
+}
+
+export interface Price {
+  /** Lo que de verdad se cobra, en centavos de peso. */
+  amountInCents: number;
+  currency: 'COP';
+  /** Lo que se muestra: pesos para Colombia, dólares para el resto. */
+  displayCop: string;
+  displayUsd: string | null;
+}
+
+export function copDisplay(copCents: number): string {
+  return `$${(copCents / 100).toLocaleString('es-CO', { maximumFractionDigits: 0 })} COP`;
+}
+
+/** El precio de un plan, o null si es a medida / sin precio configurado. */
+export function priceOf(plan: PlanId, env: NodeJS.ProcessEnv = process.env): Price | null {
+  const item = CATALOG[plan];
+
+  const override = Number(env[item.copEnv]);
+  const copCents = Number.isFinite(override) && override > 0
+    ? Math.round(override) * 100
+    : item.usdCents === null
+      ? 0
+      : usdCentsToCopCents(item.usdCents, Number(env.USD_COP_RATE) || 4000);
+
+  if (copCents <= 0) return null;
+
+  return {
+    amountInCents: copCents,
+    currency: 'COP',
+    displayCop: copDisplay(copCents),
+    displayUsd: item.usdCents === null ? null : `USD ${(item.usdCents / 100).toFixed(2).replace(/\.00$/, '')}`,
+  };
+}
