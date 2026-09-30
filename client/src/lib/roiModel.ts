@@ -90,6 +90,11 @@ export interface RoiInputs {
    * warehouse ZIP. Null: the team's fixed DOMESTIC_SHIP is used.
    */
   domesticShipUsd: number | null;
+  /**
+   * What the duty is charged on in the destination: 'fob' (the US: the
+   * product's value) or 'cif' (UK, EU: product + international freight).
+   */
+  dutyBase: 'fob' | 'cif';
   /** Monthly budgets, USD. */
   adsBudget: number;
   contentBudget: number;
@@ -109,6 +114,7 @@ export const DEFAULT_INPUTS: RoiInputs = {
   hts: null,
   litersPerUnit: 0,
   domesticShipUsd: null,
+  dutyBase: 'fob',
   adsBudget: 999,
   contentBudget: 600,
   channelBudget: 999,
@@ -176,11 +182,14 @@ export function costBreakdown(units: number, inp: RoiInputs, warehousing: number
  * production cost (and weight or volume for specific rates). A rate that
  * cannot be computed from one price (garment ensembles, watches priced
  * per part) contributes 0 here and the page says it must be confirmed.
+ * In a CIF destination (UK, EU) the rate applies to the product plus the
+ * international freight per unit, which is how those customs value goods.
  */
 export function dutyPerUnit(inp: RoiInputs): number {
   if (!inp.hts) return inp.meetsAgreement ? 0 : inp.cost * TRADE_AGREEMENT_TARIFF;
+  const freightPerUnit = inp.dutyBase === 'cif' ? totalFreightFor(inp) / inp.lot : 0;
   return derechoPorUnidad(inp.hts.tasa, {
-    valor: inp.cost,
+    valor: inp.cost + freightPerUnit,
     pesoKg: inp.weightG / 1000,
     litros: inp.litersPerUnit,
   }).usd;

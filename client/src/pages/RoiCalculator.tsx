@@ -7,12 +7,14 @@ import { getSupabase, type Payment } from '@/lib/supabase';
 import { whatsappUrl } from '@/lib/contact';
 import { openExternal } from '@/lib/native';
 import {
-  DEFAULT_INPUTS, DOMESTIC_SHIP, FREE_SHIP_THRESHOLD, findMonth, project, type RoiInputs, type Scenario, type YearOne, type YearTwo,
+  DEFAULT_INPUTS, DOMESTIC_SHIP, FREE_SHIP_THRESHOLD, RECIPROCAL_TARIFF, findMonth, totalFreightFor, project, type RoiInputs, type Scenario, type YearOne, type YearTwo,
 } from '@/lib/roiModel';
 import { MONTH_LABELS, MONTH_LABELS_EN, fmtInt, fmtMoney, pctOf, setRoiLocale, xOf } from '@/lib/roiFormat';
 import RoiTable, { type RoiRow } from '@/components/roi/RoiTable';
 import PartidaArancel from '@/components/roi/PartidaArancel';
 import EnvioEEUU from '@/components/roi/EnvioEEUU';
+import LineaDestino from '@/components/roi/LineaDestino';
+import { DESTINOS, destino as destinoDe, type ArancelDestino } from '@/lib/destinos';
 import type { DetallePartida } from '@/lib/hts';
 import { derechoPorUnidad, parseTasa } from '@/lib/tasaArancel';
 import RoiPaywall from '@/components/roi/RoiPaywall';
@@ -142,28 +144,57 @@ export default function RoiCalculator() {
     setInputs((prev) => ({ ...prev, [key]: value }));
   const setEnvio = useCallback((usd: number | null) => setInputs((prev) => ({ ...prev, domesticShipUsd: usd })), []);
 
-  // La partida del HTS y el país de origen. El arancel que entra al
-  // cálculo es el preferencial sólo si el país tiene acuerdo, el código
-  // lo lista y el producto cumple las reglas de origen; si no, el general.
+  // El destino, la partida y el país de origen. En EE. UU. el arancel sale
+  // del HTS cargado; en otro destino, de la línea de su arancel oficial
+  // (la partida del HTS sólo sirve para llegar a la subpartida de 6
+  // dígitos, que es igual en todo el mundo). En los dos casos, la tarifa
+  // preferencial entra sólo si el acuerdo existe, la línea lo lista y el
+  // producto cumple las reglas de origen; si no, la general.
+  const [destinoIso, setDestinoIso] = useState('US');
+  const dest = destinoDe(destinoIso) ?? DESTINOS[0];
+  const esUS = dest.fuente === 'hts';
   const [partida, setPartida] = useState<DetallePartida | null>(null);
   const [pais, setPais] = useState('CO');
+  const [arancelDestino, setArancelDestino] = useState<ArancelDestino | null>(null);
   const preferencial = partida ? partida.preferencial[pais] : undefined;
-  const aplicada = partida
-    ? inputs.meetsAgreement && preferencial
-      ? { tasa: preferencial.tasa, preferencial: true }
-      : { tasa: partida.general?.tasa ?? parseTasa(''), preferencial: false }
-    : null;
+  const aplicada = esUS
+    ? partida
+      ? inputs.meetsAgreement && preferencial
+        ? { tasa: preferencial.tasa, preferencial: true }
+        : { tasa: partida.general?.tasa ?? parseTasa(''), preferencial: false }
+      : null
+    : arancelDestino
+      ? inputs.meetsAgreement && arancelDestino.preferencial
+        ? { tasa: arancelDestino.preferencial.tasa, preferencial: true }
+        : { tasa: arancelDestino.general ?? parseTasa(''), preferencial: false }
+      : null;
+  const codigoAplicado = esUS ? partida?.codigo : arancelDestino?.codigo;
   const efectivos: RoiInputs = useMemo(
-    () => ({ ...inputs, hts: partida && aplicada ? { codigo: partida.codigo, tasa: aplicada.tasa } : null }),
+    () => ({
+      ...inputs,
+      dutyBase: dest.base,
+      // La tarifa cotizada es de un envío dentro de EE. UU.
+      domesticShipUsd: esUS ? inputs.domesticShipUsd : null,
+      hts: aplicada && codigoAplicado ? { codigo: codigoAplicado, tasa: aplicada.tasa } : null,
+    }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [inputs, partida, pais]
+    [inputs, partida, pais, arancelDestino, destinoIso]
   );
   const derecho = aplicada
     ? (() => {
-        const d = derechoPorUnidad(aplicada.tasa, { valor: inputs.cost, pesoKg: inputs.weightG / 1000, litros: inputs.litersPerUnit });
+        const flete = dest.base === 'cif' ? totalFreightFor(inputs) / inputs.lot : 0;
+        const d = derechoPorUnidad(aplicada.tasa, { valor: inputs.cost + flete, pesoKg: inputs.weightG / 1000, litros: inputs.litersPerUnit });
         return { usd: d.usd, calculable: d.calculable, texto: aplicada.tasa.texto || '—', preferencial: aplicada.preferencial, falta: d.falta };
       })()
     : null;
+  const cambiarDestino = (iso: string) => {
+    const nuevo = destinoDe(iso);
+    if (!nuevo) return;
+    setDestinoIso(iso);
+    setArancelDestino(null);
+    // La sobretasa recíproca es una medida de EE. UU.
+    set('reciprocalPct', nuevo.fuente === 'hts' ? RECIPROCAL_TARIFF : 0);
+  };
   const pideLitros = Boolean(aplicada?.tasa.necesita.includes('volumen'));
 
   const p = useMemo(() => project(efectivos), [efectivos]);
@@ -204,8 +235,10 @@ export default function RoiCalculator() {
         fmt: 'currency2',
       },
       {
-        label: partida
-          ? `${es ? 'Arancel HTS' : 'HTS duty'} ${partida.codigo}`
+        label: codigoAplicado
+          ? esUS
+            ? `${es ? 'Arancel HTS' : 'HTS duty'} ${codigoAplicado}`
+            : `${es ? 'Arancel' : 'Duty'} ${es ? dest.nombre : dest.nombreEn} ${codigoAplicado}`
           : es ? 'Arancel (supuesto, sin partida)' : 'Duty (assumption, no code)',
         values: pick('tradeTariff'),
         fmt: 'currency2',
@@ -289,15 +322,44 @@ export default function RoiCalculator() {
             <NumberField id="in_lot" label={es ? 'Inventario inicial (unidades)' : 'Initial inventory (units)'} value={inputs.lot} onChange={(v) => set('lot', v)} step={50} min={1} />
           </FieldGroup>
 
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <label className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+              <span className="whitespace-nowrap">{es ? 'País de destino' : 'Destination country'}</span>
+              <select
+                value={destinoIso}
+                onChange={(e) => cambiarDestino(e.target.value)}
+                className="w-48 max-w-full rounded-lg border-[1.5px] border-gray-200 bg-white px-2 py-1.5 text-sm font-bold text-primary outline-none focus:border-accent"
+              >
+                {DESTINOS.map((d) => (
+                  <option key={d.iso} value={d.iso}>{es ? d.nombre : d.nombreEn}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
           <PartidaArancel
+            soloSubpartida={!esUS}
             es={es}
             detalle={partida}
             onDetalle={setPartida}
             pais={pais}
             onPais={setPais}
             cumple={inputs.meetsAgreement}
-            derecho={derecho}
+            derecho={esUS ? derecho : null}
           />
+
+          {!esUS && partida && (
+            <LineaDestino
+              es={es}
+              destino={dest}
+              hs6={partida.digitos.slice(0, 6)}
+              origen={pais}
+              cumple={inputs.meetsAgreement}
+              arancel={arancelDestino}
+              onArancel={setArancelDestino}
+              derecho={derecho}
+            />
+          )}
 
           <FieldGroup title={es ? 'Operación y aranceles' : 'Operations and tariffs'}>
             <NumberField id="in_returns" label={es ? 'Devoluciones' : 'Returns'} value={inputs.returnsPct * 100} onChange={(v) => set('returnsPct', v / 100)} suffix="%" step={0.5} />
@@ -328,14 +390,14 @@ export default function RoiCalculator() {
                 })}
               </div>
             </div>
-            <NumberField
+            {esUS && <NumberField
               id="in_reciprocal"
               label={es ? 'Sobretasa recíproca' : 'Reciprocal surcharge'}
               value={Math.round(inputs.reciprocalPct * 1000) / 10}
               onChange={(v) => set('reciprocalPct', v / 100)}
               suffix="%"
               step={0.5}
-            />
+            />}
             {pideLitros && (
               <NumberField
                 id="in_liters"
@@ -348,14 +410,14 @@ export default function RoiCalculator() {
             )}
           </FieldGroup>
 
-          <EnvioEEUU
+          {esUS && <EnvioEEUU
             es={es}
             pesoG={inputs.weightG}
             aplica={inputs.price >= FREE_SHIP_THRESHOLD}
             fijoUsd={DOMESTIC_SHIP}
             valor={inputs.domesticShipUsd}
             onValor={setEnvio}
-          />
+          />}
 
           <FieldGroup title={es ? 'Marketing y operación (presupuesto mensual)' : 'Marketing and operations (monthly budget)'}>
             <NumberField id="in_ads" label={es ? 'Publicidad (ADS)' : 'Advertising (ads)'} value={inputs.adsBudget} onChange={(v) => set('adsBudget', v)} prefix="$" step={50} />
@@ -653,8 +715,8 @@ export default function RoiCalculator() {
         <p className="rounded-2xl border border-gray-100 bg-secondary/60 p-5 text-sm leading-relaxed text-muted-foreground">
           <strong className="text-foreground">{es ? 'Nota metodológica.' : 'Method note.'}</strong>{' '}
           {es
-            ? 'Cifras en USD, antes de impuestos. El arancel sale de la partida del HTS de EE. UU. que elegiste (general, o preferencial si tu país tiene acuerdo y el producto cumple origen) y se calcula sobre el costo de producción; la sobretasa recíproca se suma aparte. Sin partida elegida se usa el supuesto del equipo (8 % si no cumple acuerdo). La partida definitiva la confirma tu agente de aduanas. El Año 2 asume un incremento de precio y de costo frente al Año 1 (madurado desde el mes 7), más una inversión adicional en ADS sobre ventas. El incremento de ADS en el Año 1 (desde el mes 4) y los imprevistos mensuales usan los mismos supuestos del modelo financiero completo. Es una proyección, no una promesa de resultados.'
-            : 'Figures in USD, before taxes. The duty comes from the US HTS code you picked (general, or preferential when your country has an agreement and the product meets origin rules) applied to the production cost; the reciprocal surcharge is added separately. With no code picked, the team assumption applies (8% when not qualifying). Your customs broker confirms the final code. Year 2 assumes a price and cost increase over year 1 (matured from month 7), plus additional ad spend as a share of sales. The year-1 ad increment (from month 4) and the monthly contingency use the same assumptions as the full financial model. This is a projection, not a promise of results.'}
+            ? 'Cifras en USD, antes de impuestos. El arancel sale de la partida del HTS de EE. UU. que elegiste (general, o preferencial si tu país tiene acuerdo y el producto cumple origen) y se calcula sobre el costo de producción; la sobretasa recíproca se suma aparte. Sin partida elegida se usa el supuesto del equipo (8 % si no cumple acuerdo). En el Reino Unido y la UE el arancel sale de la línea de su arancel oficial, consultado en vivo, y se aplica sobre producto + flete (valor CIF); no incluye el IVA de importación. La partida definitiva la confirma tu agente de aduanas. El Año 2 asume un incremento de precio y de costo frente al Año 1 (madurado desde el mes 7), más una inversión adicional en ADS sobre ventas. El incremento de ADS en el Año 1 (desde el mes 4) y los imprevistos mensuales usan los mismos supuestos del modelo financiero completo. Es una proyección, no una promesa de resultados.'
+            : 'Figures in USD, before taxes. The duty comes from the US HTS code you picked (general, or preferential when your country has an agreement and the product meets origin rules) applied to the production cost; the reciprocal surcharge is added separately. With no code picked, the team assumption applies (8% when not qualifying). In the UK and the EU the duty comes from that destination’s official tariff line, queried live, applied to product + freight (CIF value); import VAT is not included. Your customs broker confirms the final code. Year 2 assumes a price and cost increase over year 1 (matured from month 7), plus additional ad spend as a share of sales. The year-1 ad increment (from month 4) and the monthly contingency use the same assumptions as the full financial model. This is a projection, not a promise of results.'}
         </p>
 
         {/* CTA */}

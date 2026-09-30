@@ -984,6 +984,51 @@ Año 2: precio +4%, costo +6%, ADS 6% de ventas.
 Cambiar cualquiera de esos es editar una constante con nombre, en un
 solo lugar.
 
+### Países de destino (Reino Unido y UE)
+
+La calculadora tiene un selector de **país de destino**: Estados Unidos,
+Reino Unido, Alemania, Francia, Italia y España. Los cuatro de la UE
+comparten el mismo arancel, así que dan lo mismo.
+
+- **Estados Unidos**: todo igual que antes. El arancel sale del HTS
+  cargado y se suma la sobretasa recíproca.
+- **Reino Unido / UE**: la persona busca su producto igual que antes. Del
+  código de EE. UU. sólo se usan los primeros 6 dígitos, que son del
+  Sistema Armonizado y valen en todo el mundo. Después elige la línea de
+  10 dígitos del destino. El arancel, general y preferencial para su país
+  de origen, sale en vivo del **Trade Tariff del gobierno británico**
+  (www.trade-tariff.service.gov.uk):
+  - `/api/v2`: el arancel del Reino Unido.
+  - `/xi/api/v2`: el arancel común de la UE (TARIC), el que aplica
+    Irlanda del Norte.
+
+  No lleva llaves ni cuenta. Las respuestas se guardan 12 horas.
+
+Reglas del cálculo fuera de EE. UU.:
+
+- El arancel se cobra sobre **producto + flete internacional** (valor
+  CIF), que es como valoran la mercancía allá.
+- No hay sobretasa recíproca (es una medida de EE. UU.) ni cotización de
+  USPS.
+- El IVA de importación no entra: se avisa, porque lo recupera un
+  importador registrado.
+- Una tarifa con partes en libras o euros por kilo, o con varias tarifas
+  según condiciones, no se calcula: se muestra tal cual y se pide
+  confirmarla.
+- Si hay antidumping para ese origen, se avisa.
+
+**Verificarlo en producción.** Desde el entorno donde se construyó, la
+API británica no era alcanzable, así que el lector se probó contra la
+forma documentada de sus respuestas, no contra respuestas grabadas. En
+el dashboard, en Integraciones → *Aranceles de destino* → **Probar**, se
+hace una consulta real (camisetas de algodón desde Colombia) y se ve si
+la fuente respondió y qué leyó. Si dice "falló", el detalle queda en el
+log de Render como `[destinos] …`.
+
+Otros destinos (México, Japón, Brasil, Asia) no están porque no tienen
+una fuente oficial consultable en línea. México se puede sumar cargando
+el archivo de la TIGIE, igual que el HTS.
+
 ### Envío dentro de EE. UU. (USPS)
 
 Los USD 7 de envío doméstico son un supuesto. Si el cliente escribe el

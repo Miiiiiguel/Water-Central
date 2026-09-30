@@ -18,11 +18,16 @@ interface Props {
   cumple: boolean;
   /** Arancel por unidad que resulta, para mostrarlo junto a la partida. */
   derecho: { usd: number; texto: string; calculable: boolean; preferencial: boolean } | null;
+  /**
+   * El destino no es EE. UU.: el código sólo sirve para llegar a la
+   * subpartida de 6 dígitos, y las tarifas de EE. UU. no se muestran.
+   */
+  soloSubpartida?: boolean;
 }
 
 const fmt = (n: number) => (n === 0 ? '$0' : `$${n.toFixed(n < 1 ? 3 : 2)}`);
 
-export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, cumple, derecho }: Props) {
+export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, cumple, derecho, soloSubpartida = false }: Props) {
   const [modo, setModo] = useState<'buscar' | 'explorar'>('buscar');
   const [q, setQ] = useState('');
   const [resultados, setResultados] = useState<ItemPartida[] | null>(null);
@@ -67,7 +72,7 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
     <div className="mb-6 rounded-2xl border border-gray-100 bg-secondary/40 p-4 md:p-5">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
         <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-          {es ? 'Partida arancelaria (HTS de EE. UU.)' : 'Tariff code (US HTS)'}
+          {soloSubpartida ? (es ? 'Tu producto (búscalo aquí)' : 'Your product (find it here)') : es ? 'Partida arancelaria (HTS de EE. UU.)' : 'Tariff code (US HTS)'}
         </p>
         <label className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
           <span className="whitespace-nowrap">{es ? 'País de origen' : 'Country of origin'}</span>
@@ -104,6 +109,14 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
             </button>
           </div>
 
+          {soloSubpartida ? (
+            <p className="mt-3 text-sm text-muted-foreground">
+              {es
+                ? `La subpartida ${detalle.digitos.slice(0, 4)}.${detalle.digitos.slice(4, 6)} es la misma en todo el mundo. El arancel sale de la línea del destino que elijas abajo.`
+                : `Subheading ${detalle.digitos.slice(0, 4)}.${detalle.digitos.slice(4, 6)} is the same worldwide. The duty comes from the destination line you pick below.`}
+            </p>
+          ) : (
+            <>
           <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
             <div className="rounded-lg bg-secondary/60 p-3">
               <dt className="text-xs font-semibold text-muted-foreground">{es ? 'Arancel general' : 'General rate'}</dt>
@@ -153,6 +166,8 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
               ? 'No incluye sobretasas especiales (232, 301) ni el arancel recíproco, que va aparte abajo.'
               : 'Special surcharges (232, 301) are not included; the reciprocal tariff is set separately below.'}
           </p>
+            </>
+          )}
         </div>
       ) : (
         <>

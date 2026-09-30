@@ -213,3 +213,14 @@ describe('arancel real del HTS', () => {
     expect(caro.cons1.utilidad).toBeLessThan(libre.cons1.utilidad);
   });
 });
+
+describe('duty base by destination', () => {
+  it('a CIF destination charges the rate on product + international freight per unit', () => {
+    const tasa = parseTasa('12%');
+    const fob: RoiInputs = { ...DEFAULT_INPUTS, hts: { codigo: '6109100010', tasa } };
+    const cif: RoiInputs = { ...fob, dutyBase: 'cif' };
+    // cost 12, freight per unit 2.415 (350 g x 6.9 USD/kg)
+    expect(dutyPerUnit(fob)).toBeCloseTo(1.44, 6);
+    expect(dutyPerUnit(cif)).toBeCloseTo(0.12 * (12 + 2.415), 6);
+  });
+});

@@ -657,6 +657,52 @@ function ExportButton({ label, onClick, disabled }: { label: string; onClick: ()
 // sólo a un vendedor (ver `sources` más abajo).
 type HealthIntegrations = Record<string, boolean>;
 
+// Los aranceles del Reino Unido y la UE se consultan en vivo a la fuente
+// oficial y no llevan llaves: no hay nada que poner en verde. Este botón
+// hace una consulta real (camisetas de algodón desde Colombia) y dice si
+// la fuente respondió y qué leyó.
+function ProbarAranceles({ es, token }: { es: boolean; token: string | null }) {
+  const [estado, setEstado] = useState<'idle' | 'cargando' | Record<string, { ok: boolean; general?: string | null; preferencialCO?: string | null; codigo?: string; error?: string }>>('idle');
+  const probar = () => {
+    setEstado('cargando');
+    fetch('/api/destinos/diagnostico', { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((d) => setEstado(d))
+      .catch((e: Error) => setEstado({ uk: { ok: false, error: e.message }, xi: { ok: false, error: e.message } }));
+  };
+  const nombre: Record<string, string> = { uk: es ? 'Reino Unido' : 'United Kingdom', xi: es ? 'Unión Europea' : 'European Union' };
+  return (
+    <div className="px-6 py-4 border-t border-gray-100">
+      <div className="flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <p className="font-semibold text-foreground text-sm">{es ? 'Aranceles de destino (Reino Unido y UE)' : 'Destination tariffs (UK and EU)'}</p>
+          <p className="text-xs text-muted-foreground">{es ? 'Fuente oficial, consultada en vivo. Sin llaves.' : 'Official source, queried live. No keys.'}</p>
+        </div>
+        <button
+          type="button"
+          onClick={probar}
+          disabled={estado === 'cargando'}
+          className="tap-scale-sm flex-none cursor-pointer rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-bold text-primary hover:border-gray-300 disabled:opacity-50"
+        >
+          {estado === 'cargando' ? (es ? 'Probando…' : 'Testing…') : es ? 'Probar' : 'Test'}
+        </button>
+      </div>
+      {typeof estado === 'object' && (
+        <ul className="mt-2 space-y-1 text-xs">
+          {Object.entries(estado).map(([k, v]) => (
+            <li key={k} className={v.ok ? 'text-green-700' : 'text-accent'}>
+              {nombre[k] ?? k}:{' '}
+              {v.ok
+                ? `${v.codigo} · ${es ? 'general' : 'general'} ${v.general}${v.preferencialCO ? ` · ${es ? 'desde Colombia' : 'from Colombia'} ${v.preferencialCO}` : ''}`
+                : `${es ? 'falló' : 'failed'} (${v.error ?? (es ? 'sin tarifa general' : 'no general rate')})`}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function IntegrationsPanel() {
   const { language } = useLanguage();
   const { getAccessToken } = useAuth();
@@ -760,6 +806,7 @@ function IntegrationsPanel() {
           </li>
         ))}
       </ul>
+      <ProbarAranceles es={language === 'es'} token={getAccessToken()} />
       <div className="px-6 py-4 border-t border-gray-100">
         <p className="text-xs text-muted-foreground">
           {language === 'es'
