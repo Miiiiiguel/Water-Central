@@ -1075,6 +1075,36 @@ que las tarifas reales todavía no están activadas; el cálculo sigue con
 los USD 7. El panel de integraciones del dashboard muestra si USPS está
 conectado.
 
+### Ruta exportadora (`/ruta`)
+
+Los 7 pasos para vender en EE. UU. por ecommerce:
+1. Elegir mercado.
+2. Precio y canal.
+3. Operación.
+4. Acuerdos.
+5. Papeles.
+6. Entrega.
+7. Medir y crecer.
+
+Tiene 24 tareas en total, y cada una muestra la herramienta de
+Easycomex que la resuelve: calculadora ROI, fletes, lector de
+etiquetas, búsquedas de Marco Polo o un asesor por WhatsApp. La idea
+viene del Trade Navigator de ICC One Click; los textos son propios y
+están escritos para ecommerce.
+
+- **Punto de partida:** las respuestas "Sí" del diagnóstico de madurez
+  hecho en ese navegador marcan las tareas que ya están resueltas. El
+  mapeo está en `client/src/lib/ruta.ts` (campo `diag`), y una prueba
+  falla si el cuestionario cambia de orden.
+- **Se usa sin cuenta.** El avance queda en el navegador. Con cuenta se
+  guarda en la tabla `export_route`: cada usuario lee y escribe sólo su
+  propia fila. Al entrar se juntan los dos, así que nada se pierde.
+- **Hay que correr `supabase/schema.sql`** para crear `export_route`.
+  Mientras no exista, la ruta sigue funcionando y guarda en el
+  navegador.
+- Se llega desde el resultado del diagnóstico, desde el dashboard
+  (tarjeta con el avance) y desde Marco Polo, que la ofrece como gratis.
+
 ### Tokens (`/tokens`)
 
 Cada cuenta tiene 2 consultas gratis por día de inteligencia de mercado

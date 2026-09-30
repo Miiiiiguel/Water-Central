@@ -3,7 +3,7 @@ import { Link, useLocation } from 'wouter';
 import {
   LogOut, Package, FileText, CalendarClock, Users, TrendingUp,
   Inbox, ArrowRight, Loader2, Copy, Check, Gift, MapPin, Bell, BellOff, Download,
-  BarChart3, Plug, Receipt, RefreshCw, Search, Sparkles,
+  BarChart3, Compass, Plug, Receipt, RefreshCw, Search, Sparkles,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -19,6 +19,8 @@ import DeleteAccount from '@/components/DeleteAccount';
 import MfaChallenge from '@/components/MfaChallenge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { fetchQuota, type ResearchQuota } from '@/lib/research';
+import { estadoDe, type EstadoRuta } from '@/lib/ruta';
+import { cargarAvance } from '@/lib/rutaProgreso';
 
 function ListSkeleton({ rows = 3, avatar = true, trailing = 'badge' }: { rows?: number; avatar?: boolean; trailing?: 'badge' | 'date' | 'none' }) {
   return (
@@ -463,6 +465,50 @@ function SubscriptionCard({ sub }: { sub: Subscription }) {
   );
 }
 
+// La ruta exportadora, resumida: el avance y el paso en que está. El
+// detalle vive en /ruta.
+function RutaCard() {
+  const { language } = useLanguage();
+  const { user } = useAuth();
+  const es = language === 'es';
+  const [estado, setEstado] = useState<EstadoRuta | null>(null);
+
+  useEffect(() => {
+    let vivo = true;
+    void cargarAvance(user?.id ?? null).then((r) => {
+      if (vivo) setEstado(estadoDe(r.hechas));
+    });
+    return () => {
+      vivo = false;
+    };
+  }, [user?.id]);
+
+  if (!estado) return null;
+  return (
+    <Link href="/ruta" className="tap-scale-sm block rounded-3xl border border-gray-100 bg-white p-6 app-shadow hover:border-accent/40">
+      <div className="mb-3 flex items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-primary text-white">
+            <Compass size={20} />
+          </span>
+          <div className="min-w-0">
+            <h2 className="font-bold text-primary">{es ? 'Tu ruta exportadora' : 'Your export roadmap'}</h2>
+            <p className="text-xs text-muted-foreground">
+              {estado.actual
+                ? `${es ? 'Paso' : 'Step'} ${estado.actual.n} ${es ? 'de' : 'of'} 7: ${es ? estado.actual.titulo.es : estado.actual.titulo.en}`
+                : es ? 'Ruta completa' : 'Roadmap complete'}
+            </p>
+          </div>
+        </div>
+        <span className="text-2xl font-black text-primary">{estado.pct}%</span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+        <div className="h-full rounded-full bg-gradient-to-r from-orange-500 to-orange-600" style={{ width: `${estado.pct}%` }} />
+      </div>
+    </Link>
+  );
+}
+
 function ClienteDashboard() {
   const { language } = useLanguage();
   const { user } = useAuth();
@@ -531,6 +577,8 @@ function ClienteDashboard() {
       </div>
 
       {subscription && <SubscriptionCard sub={subscription} />}
+
+      <RutaCard />
 
       <ResearchQuotaCard />
 

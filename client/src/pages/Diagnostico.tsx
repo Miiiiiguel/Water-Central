@@ -728,6 +728,19 @@ function ResultScreen({
         </div>
       </section>
 
+      <Link
+        href="/ruta"
+        className="tap-scale-sm mt-10 flex items-center justify-between gap-4 rounded-2xl bg-gradient-to-br from-[#130B2E] via-primary to-[#1F2E73] p-5 text-white"
+      >
+        <span>
+          <span className="block font-bold">{es ? 'Sigue tu ruta exportadora' : 'Follow your export roadmap'}</span>
+          <span className="block text-sm text-indigo-200">
+            {es ? '7 pasos para vender en EE. UU. Lo que respondiste "Sí" ya viene marcado.' : '7 steps to sell in the US. What you answered "Yes" is already ticked.'}
+          </span>
+        </span>
+        <span aria-hidden className="text-2xl text-orange-400">→</span>
+      </Link>
+
       <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-6 text-sm text-muted-foreground">
         <span>
           {result?.ref ? (es ? 'Referencia: ' : 'Reference: ') : ''}

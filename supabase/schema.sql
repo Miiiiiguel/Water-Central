@@ -735,3 +735,32 @@ create trigger on_diagnostic_created
 -- ---------------------------------------------------------------------
 alter table public.freight_quotes add column if not exists zone text;
 alter table public.freight_quotes add column if not exists quote_cop integer;
+
+-- ---------------------------------------------------------------------
+-- Ruta exportadora: qué tareas de los 7 pasos ya marcó cada cliente.
+-- Los ids son los de client/src/lib/ruta.ts. Es del propio usuario: lo
+-- lee y lo escribe él mismo, nadie más.
+-- ---------------------------------------------------------------------
+create table if not exists public.export_route (
+  user_id uuid primary key references public.profiles (id) on delete cascade,
+  done text[] not null default '{}',
+  updated_at timestamptz not null default now()
+);
+
+alter table public.export_route enable row level security;
+
+drop policy if exists "export_route: read own" on public.export_route;
+create policy "export_route: read own"
+  on public.export_route for select
+  using (auth.uid() = user_id);
+
+drop policy if exists "export_route: insert own" on public.export_route;
+create policy "export_route: insert own"
+  on public.export_route for insert
+  with check (auth.uid() = user_id);
+
+drop policy if exists "export_route: update own" on public.export_route;
+create policy "export_route: update own"
+  on public.export_route for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
