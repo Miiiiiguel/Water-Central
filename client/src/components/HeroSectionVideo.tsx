@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { scrollToAnchor } from '@/lib/scrollToAnchor';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'wouter';
-import { PenLine, PlayCircle, ArrowRight, Calculator, Ship, Globe2, FileSearch } from 'lucide-react';
+import { PenLine, PlayCircle, ArrowRight, Calculator, Ship, Globe2, Compass } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 // Title lines reveal word by word — one of the cheapest ways a page
@@ -62,10 +62,10 @@ const HERRAMIENTAS: Herramienta[] = [
     href: '#inteligencia',
   },
   {
-    icon: FileSearch,
-    titulo: { es: 'Diagnóstico exportador', en: 'Export diagnosis' },
-    texto: { es: '17 preguntas, 3 minutos, gratis', en: '17 questions, 3 minutes, free' },
-    href: '/diagnostico',
+    icon: Compass,
+    titulo: { es: 'Ruta exportadora', en: 'Export roadmap' },
+    texto: { es: 'Tu diagnóstico y los 7 pasos para vender en EE. UU.', en: 'Your diagnosis and the 7 steps to sell in the US' },
+    href: '/ruta',
   },
 ];
 

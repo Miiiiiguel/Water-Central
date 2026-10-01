@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { scrollToAnchor } from '@/lib/scrollToAnchor';
 import { Link, useLocation } from 'wouter';
-import { Menu, X, Calculator, FileSearch, TrendingUp, MessageCircle, UserCircle2, Globe2, Ship } from 'lucide-react';
+import { Menu, X, Calculator, Compass, TrendingUp, MessageCircle, UserCircle2, Globe2, Ship } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -36,7 +36,9 @@ export default function Header() {
     { label: t('header.inteligencia'), href: '#inteligencia', icon: Globe2 },
     { label: t('header.roi'), href: '/roi', icon: Calculator },
     { label: t('header.calculadora'), href: '#calculadora', icon: Ship },
-    { label: t('header.diagnostico'), href: '/diagnostico', icon: FileSearch },
+    // La ruta exportadora empieza con el diagnóstico: un solo botón para
+    // las dos cosas en vez de dos que parecían lo mismo.
+    { label: t('header.ruta'), href: '/ruta', icon: Compass },
     { label: t('header.pronostico'), href: '#pronostico', icon: TrendingUp },
   ];
 
