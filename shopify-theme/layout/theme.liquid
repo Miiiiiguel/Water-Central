@@ -49,6 +49,7 @@
 
   
     {{ content_for_header }}
+    <script>window.sudafinBaseCurrency = {{ shop.currency | json }};</script>
     {{ 'critical.css' | asset_url | stylesheet_tag }}
     {{ 'sudafin-fixes.css' | asset_url | stylesheet_tag }}
     {% if settings.scroll_animation != 'none' %}

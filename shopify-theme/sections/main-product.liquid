@@ -1109,7 +1109,7 @@ Pick the source:
   if(!root) return;
 
   var DISPLAY_CURRENCY = {{ s.price_currency | default: 'shop' | json }};
-  var CURRENCY_CODE = (DISPLAY_CURRENCY === 'shop') ? {{ shop.currency | json }} : DISPLAY_CURRENCY;
+  var CURRENCY_CODE = (DISPLAY_CURRENCY === 'shop') ? {{ cart.currency.iso_code | json }} : DISPLAY_CURRENCY;
   var RATE = (DISPLAY_CURRENCY === 'shop') ? 1 : ({{ s.currency_rate | default: 1.0 }});
 
   function formatMoneyFromCents(cents){

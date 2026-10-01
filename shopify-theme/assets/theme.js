@@ -168,6 +168,19 @@ Shopify.formatMoney = function (cents, format) {
   if (typeof cents == 'string') {
     cents = cents.replace('.', '');
   }
+  // Mercados: si la moneda activa no es la moneda base de la tienda (COP),
+  // dar formato con la moneda activa y no con el formato de la tienda.
+  try {
+    var activeCurrency = window.Shopify && Shopify.currency && Shopify.currency.active;
+    var baseCurrency = window.sudafinBaseCurrency;
+    if (activeCurrency && baseCurrency && activeCurrency !== baseCurrency) {
+      var intlLocale = activeCurrency === 'USD' ? 'en-US' : document.documentElement.lang || 'en-US';
+      return new Intl.NumberFormat(intlLocale, {
+        style: 'currency',
+        currency: activeCurrency,
+      }).format(Number(cents) / 100);
+    }
+  } catch (e) {}
   var value = '';
   var placeholderRegex = /\{\{\s*(\w+)\s*\}\}/;
   var formatString = format || this.money_format;
