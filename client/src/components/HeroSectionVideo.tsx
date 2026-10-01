@@ -52,7 +52,7 @@ const HERRAMIENTAS: Herramienta[] = [
   {
     icon: Ship,
     titulo: { es: 'Fletes express', en: 'Express freight' },
-    texto: { es: 'Hasta 45 % menos que la tarifa pública', en: 'Up to 45% off the public rate' },
+    texto: { es: 'Hasta 25 % menos que la tarifa pública', en: 'Up to 25% off the public rate' },
     href: '#calculadora',
   },
   {

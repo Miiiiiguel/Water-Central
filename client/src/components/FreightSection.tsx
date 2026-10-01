@@ -198,7 +198,7 @@ export default function FreightSection() {
                   ? `Tarifa express puerta a puerta desde Colombia a ${destinations ? destinations.length : 'más de 200'} destinos`
                   : `Express door-to-door rates from Colombia to ${destinations ? destinations.length : 'over 200'} destinations`,
                 es ? 'Peso real vs. volumétrico, como lo cobra la aerolínea' : 'Real vs. volumetric weight, the way the airline charges it',
-                es ? 'Hasta 45 % menos que la tarifa pública, según qué tanto envías con nosotros' : 'Up to 45% off the public rate, depending on how much you ship with us',
+                es ? 'Hasta 25 % menos que la tarifa pública, según qué tanto envías con nosotros' : 'Up to 25% off the public rate, depending on how much you ship with us',
               ].map((item) => (
                 <div key={item} className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-orange-500 flex-shrink-0" />

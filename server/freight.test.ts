@@ -9,7 +9,7 @@ import { CLIENT_TYPES, DISCOUNTS, RATES, ZONES, aggregateWeights, listPrice, pre
 describe('the data', () => {
   it('has the two client types with their discounts', () => {
     expect(CLIENT_TYPES).toEqual(['Normal', 'VIP']);
-    expect(DISCOUNTS).toEqual({ normal: 25, vip: 45 });
+    expect(DISCOUNTS).toEqual({ normal: 10, vip: 25 });
   });
 
   it('has every destination in one of the seven zones, with no duplicate id', () => {
@@ -163,26 +163,26 @@ describe('promedioCombustible', () => {
 });
 
 describe('quote', () => {
-  it('12 kg to Miami, Normal: list price minus 25%', () => {
+  it('12 kg to Miami, Normal: list price minus 10%', () => {
     const q = quote({ customerType: 'Normal', destination: '197', packages: [{ weight: 12, length: 40, width: 30, height: 25, quantity: 1 }] }, HOY, []);
     expect(q.zone).toBe('2');
     expect(q.weights.billable).toBe(12);
-    expect(q.pricing).toEqual({ list_price: 383.8, discount_percent: 25, discount_amount: 95.95, fuel_percent: null, fuel_amount: 0, final_price: 287.85 });
+    expect(q.pricing).toEqual({ list_price: 383.8, discount_percent: 10, discount_amount: 38.38, fuel_percent: null, fuel_amount: 0, final_price: 345.42 });
     expect(q.fuel).toBeNull();
     expect(q.currency).toBe('USD');
   });
 
-  it('5 kg to the rest of the US, VIP: list price minus 45% (case-insensitive type)', () => {
+  it('5 kg to the rest of the US, VIP: list price minus 25% (case-insensitive type)', () => {
     const q = quote({ customerType: 'vip', destination: '196', packages: [{ weight: 5 }] }, HOY, []);
     expect(q.zone).toBe('3');
-    expect(q.pricing).toEqual({ list_price: 240.24, discount_percent: 45, discount_amount: 108.11, fuel_percent: null, fuel_amount: 0, final_price: 132.13 });
+    expect(q.pricing).toEqual({ list_price: 240.24, discount_percent: 25, discount_amount: 60.06, fuel_percent: null, fuel_amount: 0, final_price: 180.18 });
   });
 
   it('adds the 12-month average fuel surcharge on top of the discounted price', () => {
     const historial = [{ from: '2025-10-02', to: '2026-10-01', export_pct: 30 }];
     const q = quote({ customerType: 'Normal', destination: '197', packages: [{ weight: 12 }] }, HOY, historial);
-    // 287.85 × 30 % = 86.355 → 86.36
-    expect(q.pricing).toEqual({ list_price: 383.8, discount_percent: 25, discount_amount: 95.95, fuel_percent: 30, fuel_amount: 86.36, final_price: 374.21 });
+    // 345.42 × 30 % = 103.626 → 103.63
+    expect(q.pricing).toEqual({ list_price: 383.8, discount_percent: 10, discount_amount: 38.38, fuel_percent: 30, fuel_amount: 103.63, final_price: 449.05 });
     expect(q.fuel).toEqual({ desde: '2025-10-02', hasta: '2026-10-01' });
   });
 

@@ -317,7 +317,7 @@ cálculo ocurre en el servidor (`server/freight.ts`) y la tabla
 (`server/freightData.json`) nunca llega al navegador: el cliente ve
 destinos y su precio, no tus descuentos.
 
-- **Tipos de cliente:** Normal 25 % y VIP 45 % de descuento sobre el
+- **Tipos de cliente:** Normal 10 % y VIP 25 % de descuento sobre el
   precio de lista. (El tipo "Multiplicador" ya no existe.)
 - **Zonas:** 7, como las publica la guía. 232 destinos. Estados Unidos
   son dos filas: Miami (zona 2) y el resto del país (zona 3); el

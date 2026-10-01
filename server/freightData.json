@@ -14,11 +14,11 @@
  "client_types": [
   {
    "type": "Normal",
-   "discount_percent": 25.0
+   "discount_percent": 10.0
   },
   {
    "type": "VIP",
-   "discount_percent": 45.0
+   "discount_percent": 25.0
   }
  ],
  "zones": [
