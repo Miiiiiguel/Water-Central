@@ -38,7 +38,10 @@ interface Herramienta {
 
 // Las herramientas que de verdad tiene la plataforma, a un toque desde el
 // banner. Reemplazan a las tarjetas flotantes que se ponían encima del
-// contenido: esto es parte del diseño, no una ventana que tapa.
+// contenido: esto es parte del diseño, no una ventana que tapa. Sólo en
+// pantallas grandes: en el teléfono quedaba debajo de los botones,
+// aparecía después de cargar y empujaba la página (CLS), y la barra
+// inferior ya lleva a esas herramientas.
 const HERRAMIENTAS: Herramienta[] = [
   {
     icon: Calculator,
@@ -163,7 +166,7 @@ export default function HeroSectionVideo() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="relative"
+            className="relative hidden lg:block"
           >
             <div className="absolute -inset-6 rounded-[2.5rem] bg-accent/20 blur-3xl" aria-hidden="true" />
             <div className="relative rounded-[1.75rem] border border-white/12 bg-white/[0.07] p-3 shadow-2xl backdrop-blur-xl">
