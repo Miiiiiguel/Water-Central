@@ -3132,5 +3132,10 @@
     }
    ]
   }
+ },
+ "fuel_surcharge": {
+  "notes": "Recargo por combustible de exportación publicado para Colombia. Un período por fila (mensual hasta abril de 2026, semanal desde entonces), con su porcentaje. La cotización usa el promedio de los últimos 12 meses, ponderado por días.",
+  "window_months": 12,
+  "history": []
  }
 }

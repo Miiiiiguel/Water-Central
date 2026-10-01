@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CLIENT_TYPES, DISCOUNTS, RATES, ZONES, aggregateWeights, listPrice, precioEnTabla, quote, redondearFacturable, resolveZone } from './freight';
+import { CLIENT_TYPES, DISCOUNTS, RATES, ZONES, aggregateWeights, listPrice, precioEnTabla, promedioCombustible, quote, redondearFacturable, resolveZone } from './freight';
 
 // These pin the engine to the published 2026 export rate table (express
 // worldwide service, packages, from Colombia), so a bad edit to
@@ -129,19 +129,61 @@ describe('weights', () => {
   });
 });
 
+const HOY = new Date('2026-10-01T15:00:00Z');
+
+describe('promedioCombustible', () => {
+  it('weights each published percentage by the days it was in force', () => {
+    // 30 days at 20 % and 10 days at 30 % → (600 + 300) / 40 = 22.5 %
+    const p = promedioCombustible(
+      [
+        { from: '2026-08-01', to: '2026-08-30', export_pct: 20 },
+        { from: '2026-08-31', to: '2026-09-09', export_pct: 30 },
+      ],
+      HOY
+    );
+    expect(p).toEqual({ pct: 22.5, desde: '2025-10-02', hasta: '2026-10-01', dias: 40 });
+  });
+
+  it('only counts the last 12 months, and the part of a period inside them', () => {
+    const p = promedioCombustible(
+      [
+        { from: '2024-01-01', to: '2025-09-30', export_pct: 99 }, // entirely before the window
+        { from: '2025-10-01', to: '2025-10-02', export_pct: 10 }, // only Oct 2 counts
+        { from: '2025-10-03', to: '2025-10-03', export_pct: 40 },
+        { from: '2026-10-02', to: '2026-10-08', export_pct: 99 }, // published ahead: not yet in force
+      ],
+      HOY
+    );
+    expect(p).toMatchObject({ pct: 25, dias: 2 });
+  });
+
+  it('is null with no history, so the quote goes out without the surcharge', () => {
+    expect(promedioCombustible([], HOY)).toBeNull();
+  });
+});
+
 describe('quote', () => {
   it('12 kg to Miami, Normal: list price minus 25%', () => {
-    const q = quote({ customerType: 'Normal', destination: '197', packages: [{ weight: 12, length: 40, width: 30, height: 25, quantity: 1 }] });
+    const q = quote({ customerType: 'Normal', destination: '197', packages: [{ weight: 12, length: 40, width: 30, height: 25, quantity: 1 }] }, HOY, []);
     expect(q.zone).toBe('2');
     expect(q.weights.billable).toBe(12);
-    expect(q.pricing).toEqual({ list_price: 383.8, discount_percent: 25, discount_amount: 95.95, final_price: 287.85 });
+    expect(q.pricing).toEqual({ list_price: 383.8, discount_percent: 25, discount_amount: 95.95, fuel_percent: null, fuel_amount: 0, final_price: 287.85 });
+    expect(q.fuel).toBeNull();
     expect(q.currency).toBe('USD');
   });
 
   it('5 kg to the rest of the US, VIP: list price minus 45% (case-insensitive type)', () => {
-    const q = quote({ customerType: 'vip', destination: '196', packages: [{ weight: 5 }] });
+    const q = quote({ customerType: 'vip', destination: '196', packages: [{ weight: 5 }] }, HOY, []);
     expect(q.zone).toBe('3');
-    expect(q.pricing).toEqual({ list_price: 240.24, discount_percent: 45, discount_amount: 108.11, final_price: 132.13 });
+    expect(q.pricing).toEqual({ list_price: 240.24, discount_percent: 45, discount_amount: 108.11, fuel_percent: null, fuel_amount: 0, final_price: 132.13 });
+  });
+
+  it('adds the 12-month average fuel surcharge on top of the discounted price', () => {
+    const historial = [{ from: '2025-10-02', to: '2026-10-01', export_pct: 30 }];
+    const q = quote({ customerType: 'Normal', destination: '197', packages: [{ weight: 12 }] }, HOY, historial);
+    // 287.85 × 30 % = 86.355 → 86.36
+    expect(q.pricing).toEqual({ list_price: 383.8, discount_percent: 25, discount_amount: 95.95, fuel_percent: 30, fuel_amount: 86.36, final_price: 374.21 });
+    expect(q.fuel).toEqual({ desde: '2025-10-02', hasta: '2026-10-01' });
   });
 
   it('refuses what it cannot price', () => {

@@ -330,9 +330,20 @@ destinos y su precio, no tus descuentos.
   la tabla no publica (10,5 kg, 31 kg, 85 kg…) se suma el cargo "por
   cada medio kilo / kilo adicional" del tramo, desde el último peso
   publicado. Más de 3 000 kg se cotiza aparte.
-- **No incluye** impuestos, aranceles, liberación aduanal ni los cargos
-  adicionales del transportista (recargo por combustible, temporada
-  alta, zona remota). La calculadora lo dice debajo del precio.
+- **Recargo por combustible:** se suma sobre el precio con descuento,
+  con el **promedio de los últimos 12 meses** del porcentaje de
+  exportación publicado para Colombia, ponderado por los días que rigió
+  cada uno (hasta abril de 2026 era mensual; desde entonces es semanal).
+  El historial va en `fuel_surcharge.history` de
+  `server/freightData.json`, una fila por período:
+  `{ "from": "2026-09-28", "to": "2026-10-04", "export_pct": 31.5 }`.
+  Se saca de mydhl.express.dhl → Colombia → Envíos → Recargos →
+  Recargo por combustible. Mientras el historial esté vacío, la
+  cotización sale sin recargo y la calculadora lo advierte. Agrega cada
+  semana nueva al historial; el promedio se corre solo con la fecha.
+- **No incluye** impuestos, aranceles, liberación aduanal ni los otros
+  cargos del transportista (temporada alta, zona remota). La calculadora
+  lo dice debajo del precio.
 - **Pruebas:** `server/freight.test.ts` fija precios copiados de la
   tabla impresa y comprueba que cada peso publicado de 10 a 70 kg sea el
   anterior más los cargos por kilo — así se validó la transcripción.

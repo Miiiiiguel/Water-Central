@@ -24,7 +24,11 @@ import data from './freightData.json';
 //                        la tabla no trae (10,5 kg, 31 kg, 85 kg…) se suma
 //                        el cargo "por cada medio kilo / kilo adicional"
 //                        del tramo, desde el último peso publicado
-//   final              = lista − descuento del tipo de cliente
+//   neto               = lista − descuento del tipo de cliente
+//   combustible        = neto × promedio del recargo por combustible
+//                        publicado en los últimos 12 meses (ponderado
+//                        por días), si hay historial cargado
+//   final              = neto + combustible
 // Más de 3 000 kg no se acepta en la red: se cotiza aparte.
 
 export interface ZoneRow {
@@ -68,6 +72,14 @@ interface Bundle {
   client_types: { type: string; discount_percent: number }[];
   zones: ZoneRow[];
   rates: Record<string, Tarifa>;
+  fuel_surcharge?: { window_months: number; history: PeriodoCombustible[] };
+}
+
+/** Un período publicado del recargo por combustible (fechas inclusive). */
+export interface PeriodoCombustible {
+  from: string;
+  to: string;
+  export_pct: number;
 }
 
 const bundle = data as unknown as Bundle;
@@ -92,6 +104,9 @@ export const RATES: Record<string, Tarifa> = Object.fromEntries(
 );
 
 export const MAX_KG = SETTINGS.max_billable_weight;
+
+export const FUEL_HISTORY: PeriodoCombustible[] = bundle.fuel_surcharge?.history ?? [];
+const FUEL_WINDOW_MONTHS = bundle.fuel_surcharge?.window_months ?? 12;
 
 export class CalculationError extends Error {}
 
@@ -173,6 +188,43 @@ export function listPrice(zone: string, kg: number): number {
   return precioEnTabla(tarifa, kg);
 }
 
+const DIA = 86_400_000;
+const fecha = (iso: string) => Date.parse(`${iso}T00:00:00Z`);
+
+export interface PromedioCombustible {
+  pct: number;
+  desde: string;
+  hasta: string;
+  /** Días de la ventana con un porcentaje publicado. */
+  dias: number;
+}
+
+/**
+ * Promedio del recargo publicado en los `meses` que terminan `hoy`,
+ * ponderado por los días que rigió cada porcentaje: una semana pesa una
+ * semana y un mes pesa un mes. Sin historial en la ventana, null — y la
+ * cotización sale sin recargo y lo dice.
+ */
+export function promedioCombustible(historial: PeriodoCombustible[], hoy: Date, meses = FUEL_WINDOW_MONTHS): PromedioCombustible | null {
+  const fin = Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth(), hoy.getUTCDate());
+  const inicioFecha = new Date(fin);
+  inicioFecha.setUTCMonth(inicioFecha.getUTCMonth() - meses);
+  const inicio = inicioFecha.getTime() + DIA; // ventana (inicio, fin], inclusive en días
+  let suma = 0;
+  let dias = 0;
+  for (const p of historial) {
+    const desde = Math.max(fecha(p.from), inicio);
+    const hasta = Math.min(fecha(p.to), fin);
+    if (!Number.isFinite(desde) || !Number.isFinite(hasta) || hasta < desde || !Number.isFinite(p.export_pct)) continue;
+    const n = Math.round((hasta - desde) / DIA) + 1;
+    suma += p.export_pct * n;
+    dias += n;
+  }
+  if (!dias) return null;
+  const iso = (t: number) => new Date(t).toISOString().slice(0, 10);
+  return { pct: round(suma / dias, 2), desde: iso(inicio), hasta: iso(fin), dias };
+}
+
 export function isValidPackage(p: Package): boolean {
   const w = Number(p.weight) || 0;
   return w > 0 || ((Number(p.length) || 0) > 0 && (Number(p.width) || 0) > 0 && (Number(p.height) || 0) > 0);
@@ -190,13 +242,21 @@ export interface Quote {
     list_price: number;
     discount_percent: number;
     discount_amount: number;
+    /** Promedio de 12 meses aplicado; null si no hay historial cargado. */
+    fuel_percent: number | null;
+    fuel_amount: number;
     final_price: number;
   };
+  fuel: { desde: string; hasta: string } | null;
   currency: string;
   currency_symbol: string;
 }
 
-export function quote(input: { customerType: string; destination: string; packages: Package[]; lang?: 'es' | 'en' }): Quote {
+export function quote(
+  input: { customerType: string; destination: string; packages: Package[]; lang?: 'es' | 'en' },
+  hoy: Date = new Date(),
+  historial: PeriodoCombustible[] = FUEL_HISTORY
+): Quote {
   if (!isValidType(input.customerType)) throw new CalculationError('El tipo de cliente no es válido.');
   const valid = (input.packages || []).filter(isValidPackage);
   if (valid.length === 0) throw new CalculationError('Agrega al menos un paquete con peso o medidas válidas.');
@@ -207,6 +267,9 @@ export function quote(input: { customerType: string; destination: string; packag
   const lista = listPrice(zone, weights.billable);
   const discountPercent = discountFor(input.customerType);
   const discountAmount = round(lista * (discountPercent / 100), 2);
+  const neto = round(Math.max(0, lista - discountAmount), 2);
+  const combustible = promedioCombustible(historial, hoy);
+  const fuelAmount = combustible ? round(neto * (combustible.pct / 100), 2) : 0;
 
   return {
     customer_type: input.customerType,
@@ -218,8 +281,11 @@ export function quote(input: { customerType: string; destination: string; packag
       list_price: lista,
       discount_percent: round(discountPercent, 2),
       discount_amount: discountAmount,
-      final_price: round(Math.max(0, lista - discountAmount), 2),
+      fuel_percent: combustible ? combustible.pct : null,
+      fuel_amount: fuelAmount,
+      final_price: round(neto + fuelAmount, 2),
     },
+    fuel: combustible ? { desde: combustible.desde, hasta: combustible.hasta } : null,
     currency: SETTINGS.currency,
     currency_symbol: SETTINGS.currency_symbol,
   };

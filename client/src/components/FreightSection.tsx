@@ -37,6 +37,9 @@ interface Quote {
     list_price: number;
     discount_percent: number;
     discount_amount: number;
+    /** 12-month average fuel surcharge; null while no history is loaded. */
+    fuel_percent: number | null;
+    fuel_amount: number;
     final_price: number;
   };
   currency: string;
@@ -246,6 +249,17 @@ export default function FreightSection() {
                     </span>
                     <span className="font-black text-green-700">−{usd(quote.pricing.discount_amount)}</span>
                   </div>
+                  {quote.pricing.fuel_percent !== null && (
+                    <div className="col-span-2 flex items-center justify-between rounded-2xl bg-secondary/50 px-4 py-3">
+                      <span className="text-sm font-semibold text-foreground">
+                        {es ? 'Recargo por combustible' : 'Fuel surcharge'} · {quote.pricing.fuel_percent}%
+                        <span className="block text-xs font-normal text-muted-foreground">
+                          {es ? 'promedio de los últimos 12 meses' : 'average of the last 12 months'}
+                        </span>
+                      </span>
+                      <span className="font-black text-primary">+{usd(quote.pricing.fuel_amount)}</span>
+                    </div>
+                  )}
                 </dl>
 
                 <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -273,9 +287,16 @@ export default function FreightSection() {
                   </button>
                 </div>
                 <p className="mt-4 text-xs text-muted-foreground">
+                  {quote.pricing.fuel_percent !== null
+                    ? es
+                      ? 'Precio válido para carga general. El recargo por combustible usa el promedio publicado de los últimos 12 meses; el de la semana de tu envío puede ser mayor o menor. No incluye otros cargos del transportista (temporada alta, zona remota). '
+                      : 'Valid for general cargo. The fuel surcharge uses the published average of the last 12 months; the one for your shipping week may be higher or lower. Other carrier charges (peak season, remote area) are not included. '
+                    : es
+                      ? 'Precio válido para carga general. No incluye el recargo por combustible ni otros cargos del transportista (temporada alta, zona remota), que cambian cada semana. '
+                      : 'Valid for general cargo. Does not include the fuel surcharge or other carrier charges (peak season, remote area), which change weekly. '}
                   {es
-                    ? 'Precio válido para carga general. No incluye el recargo por combustible ni otros cargos del transportista (temporada alta, zona remota), que cambian cada mes. Mercancía peligrosa, perecederos, valores declarados altos o más de 3.000 kg se cotizan aparte.'
-                    : 'Valid for general cargo. Does not include the fuel surcharge or other carrier charges (peak season, remote area), which change monthly. Dangerous goods, perishables, high declared values or over 3,000 kg are quoted separately.'}
+                    ? 'Mercancía peligrosa, perecederos, valores declarados altos o más de 3.000 kg se cotizan aparte.'
+                    : 'Dangerous goods, perishables, high declared values or over 3,000 kg are quoted separately.'}
                 </p>
               </div>
             ) : (
