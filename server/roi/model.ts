@@ -42,7 +42,7 @@ export const FREIGHT_USD_KG = 6.9;
 export const FREE_SHIP_THRESHOLD = 35;
 export const DOMESTIC_SHIP = 7;
 
-/** Reciprocal / additional surcharge on the production cost (US only, waived under a trade agreement; set in server/roi/route.ts). */
+/** Additional US surcharge on the production cost for a Colombian product. The real one, by origin, is set in server/roi/recargos.ts. */
 export const RECIPROCAL_TARIFF = 0.125;
 /** Only charged when the product does NOT qualify under a trade agreement. */
 export const TRADE_AGREEMENT_TARIFF = 0.08;

@@ -1007,9 +1007,9 @@ por ROI / rentabilidad / cuánto gano.
 - **`server/roi/model.test.ts`** — las pruebas que fijan esa matemática
   con valores calculados a mano (`pnpm test`).
 - **`server/roi/route.ts`** — `POST /api/roi/proyeccion`: recibe los
-  números del cliente y devuelve sólo resultados. La sobretasa recíproca
-  la pone el servidor (no se ve ni se edita) y en el desglose va sumada a
-  los aranceles. El desglose y el pronóstico a 2 años sólo viajan a quien
+  números del cliente y devuelve sólo resultados. Los recargos por país
+  de origen los pone el servidor (`server/roi/recargos.ts`, no se ven ni
+  se editan) y en el desglose van sumados a los aranceles. El desglose y el pronóstico a 2 años sólo viajan a quien
   compró ese reporte (o a una cuenta maestra); al resto le llega la tabla
   vacía y la página muestra relleno desenfocado.
 - **`client/src/pages/RoiCalculator.tsx`** — solo entradas, layout y los
@@ -1028,20 +1028,49 @@ la tarifa real de ese código:
 - **Explorar por capítulo**: capítulo → partida → subpartida → línea de
   10 dígitos. Garantiza que cualquier código se alcanza aunque la
   búsqueda no lo encuentre.
-- **País de origen**: si el país tiene acuerdo (TPA Colombia, T-MEC,
-  Perú, Chile, Panamá, CAFTA-DR) y esa partida lo lista en la columna
-  *Special*, y el cliente marca que **cumple reglas de origen**, se usa
-  la tarifa preferencial (casi siempre "Free"). Si no, la general. El SGP
-  ("A") venció en 2020 y nunca se aplica.
+- **País de origen**: Latinoamérica y **China**. Si el país tiene acuerdo
+  (TPA Colombia, T-MEC, Perú, Chile, Panamá, CAFTA-DR) y esa partida lo
+  lista en la columna *Special*, y el producto **cumple las reglas de
+  origen** (ver abajo), se usa la tarifa preferencial (casi siempre
+  "Free"). Si no, la general. China no tiene acuerdo: siempre la general.
+  El SGP ("A") venció en 2020 y nunca se aplica.
+- **Reglas de origen** (`client/src/lib/reglasOrigen.ts`, con pruebas):
+  reemplazan el viejo "¿cumple? Sí / No". Se pregunta según el producto:
+  - Ropa y textiles (capítulos 50 a 63): la **composición de la tela**
+    (% de cada fibra, como en la etiqueta), de dónde viene el hilo o la
+    tela de cada fibra y si se corta y cose en el país. Califica si lo
+    de fuera del acuerdo es ≤ 10 % del peso (de minimis); con EE. UU. el
+    elastano tiene que ser de la región aunque sea poco. Si la partida es
+    de ropa (61/62) y nombra otra fibra que la que más pesa, avisa.
+  - Lo demás: si se fabrica o transforma en el país y qué % del costo
+    son insumos de fuera del acuerdo. ≤ 10 %: califica; hasta 55 % (EE.
+    UU.) o 50 % (UE/Reino Unido): "probablemente califica"; más: no.
+  - "Ya tengo certificación de origen" salta las preguntas.
+  Es una estimación con las reglas generales; la regla exacta es por
+  partida y la confirma el certificado de origen.
 - **Formatos**: porcentaje, "Free", ¢/kg (usa el peso del producto), por
   litro (pide el contenido en ml), por unidad, par, docena, gruesa y
   barril. `server/hts/tasas.test.ts` recorre el arancel entero: el 97,25 %
   de las partidas se calcula. El resto (conjuntos de ropa, relojes por
   pieza, tarifas condicionadas) se muestra con su texto y la leyenda
   "confírmala con tu agente de aduanas" — nunca como un 0 silencioso.
-- **No se incluyen** las sobretasas 232 (acero, aluminio, cobre: se
-  avisan en la partida) ni la 301. La **sobretasa recíproca** la aplica
-  el servidor con el valor del modelo (abajo); el cliente no la ve.
+- **Recargos por origen** (`server/roi/recargos.ts`, con pruebas), sobre
+  el valor del producto, encima del arancel de la partida:
+  - **Sección 301 por trabajo forzoso** (desde el 24-jul-2026): 12,5 %
+    Colombia, Perú, Chile, Brasil, Costa Rica, R. Dominicana, Nicaragua,
+    Uruguay, Venezuela y China; 10 % México, Ecuador, Argentina, El
+    Salvador, Guatemala y Honduras; 0 % Panamá, Paraguay y Bolivia. **Un
+    TLC no lo exime**, salvo T-MEC (México) y textiles de CAFTA-DR que
+    califican. Excluidos para todos: café, cacao, banano y frutas,
+    pescados, petróleo, gas, carbón, oro, cobre y minerales críticos,
+    fármacos y aeronaves civiles (los anexos oficiales tienen además
+    subpartidas sueltas que no están: ahí el cálculo cobra de más).
+  - **China**, además, su Sección 301 de siempre: 7,5 % ropa y calzado
+    (lista 4A), 0 % juguetes, portátiles, celulares y consolas (lista 4B
+    suspendida), 50 % semiconductores y celdas solares, 100 % vehículos
+    eléctricos, 25 % lo demás.
+  Cuando USTR cambie algo, se actualizan esas tablas y sus pruebas. Las
+  232 (acero, aluminio, cobre) no se suman: se avisan en la partida.
 - Sin partida elegida, el cálculo es el de siempre (8 % si no cumple).
 
 API pública (el arancel es público): `GET /api/hts/buscar?q=`,
@@ -1051,7 +1080,7 @@ cargado). Límite propio de 600 consultas cada 15 min por IP.
 
 ### Supuestos fijos (en `server/roi/model.ts`, arriba del todo)
 
-Flete USD 6.90/kg · arancel recíproco 12.5% (siempre) · arancel de
+Flete USD 6.90/kg · recargos por país de origen (arriba) · arancel de
 acuerdo comercial 8% (solo si el producto **no** califica) · envío
 doméstico USD 7 cuando el precio ≥ USD 35 · alistamiento USD 3.50
 (conservador) / USD 3.00 (optimista) · ADS extra 8% desde el mes 4 ·
@@ -1067,7 +1096,7 @@ Reino Unido, Alemania, Francia, Italia y España. Los cuatro de la UE
 comparten el mismo arancel, así que dan lo mismo.
 
 - **Estados Unidos**: todo igual que antes. El arancel sale del HTS
-  cargado y se suma la sobretasa recíproca.
+  cargado y se suman los recargos por país de origen.
 - **Reino Unido / UE**: la persona busca su producto igual que antes. Del
   código de EE. UU. sólo se usan los primeros 6 dígitos, que son del
   Sistema Armonizado y valen en todo el mundo. Después elige la línea de
@@ -1084,7 +1113,7 @@ Reglas del cálculo fuera de EE. UU.:
 
 - El arancel se cobra sobre **producto + flete internacional** (valor
   CIF), que es como valoran la mercancía allá.
-- No hay sobretasa recíproca (es una medida de EE. UU.) ni cotización de
+- No hay recargos por origen (son medidas de EE. UU.) ni cotización de
   USPS.
 - El IVA de importación no entra: se avisa, porque lo recupera un
   importador registrado.

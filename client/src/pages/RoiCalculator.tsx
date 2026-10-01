@@ -16,7 +16,11 @@ import EnvioEEUU from '@/components/roi/EnvioEEUU';
 import LineaDestino from '@/components/roi/LineaDestino';
 import { DESTINOS, destino as destinoDe, type ArancelDestino } from '@/lib/destinos';
 import type { DetallePartida } from '@/lib/hts';
-import { parseTasa } from '@/lib/tasaArancel';
+import { paisDeOrigen, parseTasa } from '@/lib/tasaArancel';
+import ReglasOrigen from '@/components/roi/ReglasOrigen';
+import {
+  RESPUESTAS_INICIALES, aplicaAcuerdo, capituloDe, choqueConPartida, evaluarOrigen, regionDelAcuerdo, type RespuestasOrigen,
+} from '@/lib/reglasOrigen';
 import RoiPaywall from '@/components/roi/RoiPaywall';
 import CashChart from '@/components/roi/CashChart';
 
@@ -25,7 +29,7 @@ import CashChart from '@/components/roi/CashChart';
 //
 // The arithmetic runs on the server (server/roi): this page sends the
 // client's numbers and draws what comes back. The model's assumptions —
-// sales ramps, fixed costs, the reciprocal surcharge — never reach the
+// sales ramps, fixed costs, the surcharges by origin — never reach the
 // browser, and the two paid reports only arrive for whoever bought them.
 
 const REPORTS = {
@@ -240,14 +244,33 @@ export default function RoiCalculator() {
   const [pais, setPais] = useState('CO');
   const [arancelDestino, setArancelDestino] = useState<ArancelDestino | null>(null);
   const preferencial = partida ? partida.preferencial[pais] : undefined;
+
+  // ¿Califica para el acuerdo? Lo estiman las preguntas de reglas de
+  // origen (composición de la tela en ropa, insumos importados en lo
+  // demás). Sin acuerdo entre el origen y el destino, no se pregunta.
+  const [respOrigen, setRespOrigen] = useState<RespuestasOrigen>(RESPUESTAS_INICIALES);
+  const origenInfo = paisDeOrigen(pais);
+  const acuerdoNombre = esUS ? origenInfo?.acuerdo ?? null : arancelDestino?.preferencial?.acuerdo ?? null;
+  // En EE. UU., con la partida elegida, preguntar sólo si cambia algo: la
+  // tarifa preferencial de la línea o, en México y CAFTA-DR, el recargo.
+  const preguntarOrigen = Boolean(
+    acuerdoNombre && (!esUS || !partida || preferencial || pais === 'MX' || ['CR', 'DO', 'SV', 'GT', 'HN', 'NI'].includes(pais))
+  );
+  const capitulo = partida ? capituloDe(partida.codigo) : null;
+  const veredicto = evaluarOrigen(respOrigen, { destinoUS: esUS, capitulo });
+  const cumple = preguntarOrigen && aplicaAcuerdo(veredicto);
+  const destinoRegion = dest.iso === 'GB' ? (es ? 'el Reino Unido' : 'the UK') : es ? 'la Unión Europea' : 'the EU';
+  const region = regionDelAcuerdo(pais, origenInfo?.nombre ?? pais, esUS, es, destinoRegion);
+  const choque = partida ? choqueConPartida(respOrigen.fibras, { capitulo, descripcion: partida.descripcion }) : null;
+
   const aplicada = esUS
     ? partida
-      ? inputs.meetsAgreement && preferencial
+      ? cumple && preferencial
         ? { tasa: preferencial.tasa, preferencial: true }
         : { tasa: partida.general?.tasa ?? parseTasa(''), preferencial: false }
       : null
     : arancelDestino
-      ? inputs.meetsAgreement && arancelDestino.preferencial
+      ? cumple && arancelDestino.preferencial
         ? { tasa: arancelDestino.preferencial.tasa, preferencial: true }
         : { tasa: arancelDestino.general ?? parseTasa(''), preferencial: false }
       : null;
@@ -259,7 +282,7 @@ export default function RoiCalculator() {
   // nueva (se cancela).
   const [proy, setProy] = useState<Proyeccion | null>(null);
   const [sinRespuesta, setSinRespuesta] = useState(false);
-  const pedido = JSON.stringify({ ...inputs, destino: destinoIso, hts });
+  const pedido = JSON.stringify({ ...inputs, meetsAgreement: cumple, destino: destinoIso, origen: pais, hts });
   useEffect(() => {
     const control = new AbortController();
     const reloj = window.setTimeout(() => {
@@ -442,7 +465,7 @@ export default function RoiCalculator() {
                 onDetalle={setPartida}
                 pais={pais}
                 onPais={setPais}
-                cumple={inputs.meetsAgreement}
+                cumple={cumple}
                 derecho={esUS ? derecho : null}
               />
 
@@ -452,40 +475,28 @@ export default function RoiCalculator() {
                   destino={dest}
                   hs6={partida.digitos.slice(0, 6)}
                   origen={pais}
-                  cumple={inputs.meetsAgreement}
+                  cumple={cumple}
                   arancel={arancelDestino}
                   onArancel={setArancelDestino}
                   derecho={derecho}
                 />
               )}
 
+              {preguntarOrigen && acuerdoNombre && (
+                <ReglasOrigen
+                  es={es}
+                  acuerdo={acuerdoNombre}
+                  paisNombre={origenInfo?.nombre ?? pais}
+                  region={region}
+                  capitulo={capitulo}
+                  valor={respOrigen}
+                  onChange={setRespOrigen}
+                  veredicto={veredicto}
+                  choque={choque}
+                />
+              )}
+
               <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                <div>
-                  <p className="mb-1.5 text-sm font-semibold text-muted-foreground">
-                    {es ? '¿Cumple las reglas de origen de un acuerdo comercial?' : 'Does it meet a trade agreement’s rules of origin?'}
-                  </p>
-                  <div className="flex gap-2">
-                    {[
-                      { value: false, label: 'No' },
-                      { value: true, label: es ? 'Sí' : 'Yes' },
-                    ].map((opt) => {
-                      const active = inputs.meetsAgreement === opt.value;
-                      return (
-                        <button
-                          key={opt.label}
-                          type="button"
-                          aria-pressed={active}
-                          onClick={() => set('meetsAgreement', opt.value)}
-                          className={`tap-scale-sm flex-1 cursor-pointer rounded-xl border-[1.5px] px-3 py-2.5 text-sm font-bold transition-colors ${
-                            active ? 'border-primary bg-primary text-white' : 'border-gray-200 bg-secondary/60 text-muted-foreground hover:border-gray-300'
-                          }`}
-                        >
-                          {opt.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
                 {pideLitros && (
                   <NumberField
                     id="in_liters"

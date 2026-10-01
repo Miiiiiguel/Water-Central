@@ -155,6 +155,14 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
             </p>
           )}
 
+          {!soloSubpartida && pais === 'CN' && (
+            <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+              {es
+                ? 'Los productos de China pagan además aranceles adicionales de EE. UU. (Sección 301). Ya están incluidos en el resultado.'
+                : 'Products from China also pay additional US duties (Section 301). They are already included in the result.'}
+            </p>
+          )}
+
           {detalle.avisos.length > 0 && (
             <ul className="mt-3 space-y-1 text-xs text-amber-800">
               {detalle.avisos.map((a) => <li key={a}>⚠ {a}</li>)}

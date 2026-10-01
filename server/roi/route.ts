@@ -8,7 +8,6 @@ import { derechoPorUnidad, type Tasa } from '../../client/src/lib/tasaArancel';
 import {
   DEFAULT_INPUTS,
   FREE_SHIP_THRESHOLD,
-  RECIPROCAL_TARIFF,
   project,
   totalFreightFor,
   type CostBreakdown,
@@ -16,6 +15,7 @@ import {
   type YearOne,
   type YearTwo,
 } from './model';
+import { recargoAdicional } from './recargos';
 
 // La calculadora ROI, del lado del servidor.
 //
@@ -67,6 +67,8 @@ export const entradaSchema = z.object({
   contentBudget: num(100_000_000),
   channelBudget: num(100_000_000),
   destino: z.enum(DESTINOS_ROI),
+  // País de origen (ISO). Las páginas viejas no lo mandan: era Colombia.
+  origen: z.string().regex(/^[A-Z]{2}$/).default('CO'),
   hts: z.object({ codigo: z.string().max(20), tasa: tasaSchema }).nullable(),
 });
 
@@ -90,11 +92,11 @@ export function aInputs(e: EntradaRoi): RoiInputs {
     adsBudget: e.adsBudget,
     contentBudget: e.contentBudget,
     channelBudget: e.channelBudget,
-    // La sobretasa recíproca es una medida de EE. UU. y la fija el equipo:
-    // el cliente no la ve ni la cambia. Un producto que cumple las reglas
-    // de origen de un acuerdo comercial no la paga (antes el equipo la
-    // ponía en 0 a mano cuando el producto calificaba).
-    reciprocalPct: esUS && !e.meetsAgreement ? RECIPROCAL_TARIFF : 0,
+    // Los recargos de EE. UU. por país de origen (Sección 301 por trabajo
+    // forzoso y, para China, su Sección 301 de siempre) salen de
+    // ./recargos: el cliente no los ve ni los cambia. Un TLC no los
+    // exime, salvo T-MEC y textiles de CAFTA-DR que califican.
+    reciprocalPct: recargoAdicional({ destino: e.destino, origen: e.origen, codigo: e.hts?.codigo ?? null, califica: e.meetsAgreement }),
     // EE. UU. cobra el arancel sobre el valor del producto (FOB); el
     // Reino Unido y la UE, sobre producto + flete (CIF).
     dutyBase: esUS ? 'fob' : 'cif',

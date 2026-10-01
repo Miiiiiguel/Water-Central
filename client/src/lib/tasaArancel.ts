@@ -211,6 +211,7 @@ export const PAISES_DE_ORIGEN: PaisDeOrigen[] = [
   { iso: 'PY', nombre: 'Paraguay', acuerdo: null, programas: [] },
   { iso: 'BO', nombre: 'Bolivia', acuerdo: null, programas: [] },
   { iso: 'VE', nombre: 'Venezuela', acuerdo: null, programas: [] },
+  { iso: 'CN', nombre: 'China', acuerdo: null, programas: [] },
 ];
 
 export function paisDeOrigen(iso: string): PaisDeOrigen | null {

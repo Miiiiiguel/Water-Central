@@ -17,15 +17,21 @@ const BASE: EntradaRoi = {
   contentBudget: 600,
   channelBudget: 999,
   destino: 'US',
+  origen: 'CO',
   hts: null,
 };
 
 describe('lo que decide el servidor', () => {
-  it('applies the reciprocal surcharge only to the US, whatever the browser sends', () => {
+  it('applies the origin surcharge only to the US, whatever the browser sends', () => {
     expect(aInputs(BASE).reciprocalPct).toBe(RECIPROCAL_TARIFF);
     expect(aInputs({ ...BASE, destino: 'ES' }).reciprocalPct).toBe(0);
-    // Under a trade agreement the product does not pay it.
-    expect(aInputs({ ...BASE, meetsAgreement: true }).reciprocalPct).toBe(0);
+    // The Colombia TPA does not waive it.
+    expect(aInputs({ ...BASE, meetsAgreement: true }).reciprocalPct).toBe(RECIPROCAL_TARIFF);
+    // China adds its own Section 301 on top.
+    expect(aInputs({ ...BASE, origen: 'CN' }).reciprocalPct).toBeCloseTo(0.125 + 0.25, 9);
+    // A body without origin (an old page) is Colombia.
+    const { origen: _o, ...sinOrigen } = BASE;
+    expect(entradaSchema.parse(sinOrigen).origen).toBe('CO');
     // A reciprocalPct in the body is not part of the schema: it is dropped.
     const conTrampa = entradaSchema.parse({ ...BASE, reciprocalPct: 0 });
     expect('reciprocalPct' in conTrampa).toBe(false);
