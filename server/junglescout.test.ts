@@ -100,7 +100,8 @@ describe('la llamada', () => {
     expect(visto!.url).toContain('marketplace=us');
     const h = visto!.init.headers as Record<string, string>;
     expect(h.Authorization).toBe('easycomex:secreto');
-    expect(h['X_API_Type']).toBe('junglescout');
+    expect(h['X-API-Type']).toBe('junglescout');
+    expect(h['X_API_Type']).toBeUndefined();
     expect(JSON.parse(visto!.init.body as string).data.attributes.include_keywords).toEqual(['coffee']);
   });
 

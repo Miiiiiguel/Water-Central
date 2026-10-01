@@ -363,7 +363,11 @@ researchRouter.post('/research', researchRateLimiter, requireUser(), express.jso
     await devolverConsulta(auth.user.id, billed);
     // En el log del servidor sí va el nombre real: es quien falló.
     console.error(`${provider} lookup failed:`, (err as Error).message);
-    return res.status(502).json({ error: 'source_failed', source, message: 'La fuente no respondió. No te descontamos la consulta.' });
+    // A una cuenta maestra (los dueños) se le dice por qué falló, para
+    // poder arreglarlo sin entrar a los logs de Render. A un cliente no:
+    // el detalle nombra al proveedor.
+    const detalle = maestra ? ` Detalle para el equipo: ${(err as Error).message.slice(0, 240)}` : '';
+    return res.status(502).json({ error: 'source_failed', source, message: `La fuente no respondió. No te descontamos la consulta.${detalle}` });
   }
 
   const quota = await getQuota(auth.user.id, maestra);

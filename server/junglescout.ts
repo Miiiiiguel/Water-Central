@@ -18,7 +18,10 @@ import { aIngles } from './hts/glosario';
 //
 // Autenticación, como la documenta Jungle Scout:
 //   Authorization: <nombre de la llave>:<llave>
-//   X_API_Type: junglescout
+//   X-API-Type: junglescout
+// Con guion, no con guion bajo: la primera versión mandaba X_API_Type y
+// los servidores que descartan encabezados con guion bajo (la mayoría de
+// los proxys) la dejaban sin el tipo de API, así que no devolvía nada.
 
 const BASE = 'https://developer.junglescout.com/api';
 const ESPERA_MS = 15_000;
@@ -177,7 +180,7 @@ export async function runJungleScout(consulta: string, pais?: string, hacer: Fet
       method: 'POST',
       headers: {
         Authorization: `${config.nombre}:${config.llave}`,
-        'X_API_Type': 'junglescout',
+        'X-API-Type': 'junglescout',
         Accept: 'application/vnd.junglescout.v1+json',
         'Content-Type': 'application/vnd.api+json',
       },
