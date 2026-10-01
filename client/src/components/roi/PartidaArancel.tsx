@@ -163,8 +163,8 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
           <p className="mt-3 text-[11px] text-muted-foreground">
             {es ? 'Fuente' : 'Source'}: {detalle.fuente.nombre} · {es ? 'cargado el' : 'loaded on'} {detalle.fuente.cargadoEl}.{' '}
             {es
-              ? 'No incluye sobretasas especiales (232, 301) ni el arancel recíproco, que va aparte abajo.'
-              : 'Special surcharges (232, 301) are not included; the reciprocal tariff is set separately below.'}
+              ? 'Es la tarifa publicada en el arancel. Tu proyección le suma las sobretasas que contempla el modelo de Easycomex; las especiales (232, 301) las confirma tu agente de aduanas.'
+              : 'This is the published tariff rate. Your projection adds the surcharges Easycomex’s model accounts for; special ones (232, 301) are confirmed by your customs broker.'}
           </p>
             </>
           )}

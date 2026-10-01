@@ -998,13 +998,20 @@ por ROI / rentabilidad / cuánto gano.
 
 ### Cómo está armada
 
-- **`client/src/lib/roiModel.ts`** — toda la matemática, pura y sin DOM:
+- **`server/roi/model.ts`** — toda la matemática, pura y sin DOM:
   rampas de unidades, aranceles, fletes, crecimiento de Año 2, inversión
   inicial. Es tu modelo, portado tal cual; **no lo "mejores" sin querer**,
   porque estos son los números que el equipo defiende en una reunión.
-- **`client/src/lib/roiModel.test.ts`** — 18 pruebas que fijan esa
-  matemática con valores calculados a mano (`pnpm test`). Si alguien
-  cambia una fórmula sin querer, el build falla.
+  Vive en el servidor a propósito: ni el cliente ni la competencia ven
+  los supuestos, ni siquiera abriendo las herramientas del navegador.
+- **`server/roi/model.test.ts`** — las pruebas que fijan esa matemática
+  con valores calculados a mano (`pnpm test`).
+- **`server/roi/route.ts`** — `POST /api/roi/proyeccion`: recibe los
+  números del cliente y devuelve sólo resultados. La sobretasa recíproca
+  la pone el servidor (no se ve ni se edita) y en el desglose va sumada a
+  los aranceles. El desglose y el pronóstico a 2 años sólo viajan a quien
+  compró ese reporte (o a una cuenta maestra); al resto le llega la tabla
+  vacía y la página muestra relleno desenfocado.
 - **`client/src/pages/RoiCalculator.tsx`** — solo entradas, layout y los
   dos reportes de pago.
 
@@ -1033,8 +1040,8 @@ la tarifa real de ese código:
   pieza, tarifas condicionadas) se muestra con su texto y la leyenda
   "confírmala con tu agente de aduanas" — nunca como un 0 silencioso.
 - **No se incluyen** las sobretasas 232 (acero, aluminio, cobre: se
-  avisan en la partida) ni la 301. La **sobretasa recíproca** es un campo
-  editable que arranca en el 12,5 % del modelo del equipo.
+  avisan en la partida) ni la 301. La **sobretasa recíproca** la aplica
+  el servidor con el valor del modelo (abajo); el cliente no la ve.
 - Sin partida elegida, el cálculo es el de siempre (8 % si no cumple).
 
 API pública (el arancel es público): `GET /api/hts/buscar?q=`,
@@ -1042,7 +1049,7 @@ API pública (el arancel es público): `GET /api/hts/buscar?q=`,
 `/api/hts/partida/:codigo` (404 si el código no existe en el arancel
 cargado). Límite propio de 600 consultas cada 15 min por IP.
 
-### Supuestos fijos (en `roiModel.ts`, arriba del todo)
+### Supuestos fijos (en `server/roi/model.ts`, arriba del todo)
 
 Flete USD 6.90/kg · arancel recíproco 12.5% (siempre) · arancel de
 acuerdo comercial 8% (solo si el producto **no** califica) · envío

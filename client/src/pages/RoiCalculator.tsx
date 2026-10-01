@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { ArrowLeft, MessageCircle, Phone, Sparkles, TrendingUp } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { getSupabase, type Payment } from '@/lib/supabase';
 import { whatsappUrl } from '@/lib/contact';
 import { openExternal } from '@/lib/native';
 import {
-  DEFAULT_INPUTS, DOMESTIC_SHIP, FREE_SHIP_THRESHOLD, RECIPROCAL_TARIFF, findMonth, totalFreightFor, project, type RoiInputs, type Scenario, type YearOne, type YearTwo,
-} from '@/lib/roiModel';
+  ENTRADA_INICIAL, mesEnQue, pedirProyeccion, relleno,
+  type AnioUnoResumen, type FilaDesglose, type Pronostico, type Proyeccion, type RoiEntrada, type Scenario,
+} from '@/lib/roi';
 import { MONTH_LABELS, MONTH_LABELS_EN, fmtInt, fmtMoney, pctOf, setRoiLocale, xOf } from '@/lib/roiFormat';
 import RoiTable, { type RoiRow } from '@/components/roi/RoiTable';
 import PartidaArancel from '@/components/roi/PartidaArancel';
@@ -16,15 +16,17 @@ import EnvioEEUU from '@/components/roi/EnvioEEUU';
 import LineaDestino from '@/components/roi/LineaDestino';
 import { DESTINOS, destino as destinoDe, type ArancelDestino } from '@/lib/destinos';
 import type { DetallePartida } from '@/lib/hts';
-import { derechoPorUnidad, parseTasa } from '@/lib/tasaArancel';
+import { parseTasa } from '@/lib/tasaArancel';
 import RoiPaywall from '@/components/roi/RoiPaywall';
 import CashChart from '@/components/roi/CashChart';
 
 // The ROI calculator: the client types their own numbers and sees the
 // same month-by-month model the team uses in a real engagement.
 //
-// The arithmetic lives in lib/roiModel.ts (pure, unit-tested). This file
-// is only inputs, layout and the two paid reports.
+// The arithmetic runs on the server (server/roi): this page sends the
+// client's numbers and draws what comes back. The model's assumptions —
+// sales ramps, fixed costs, the reciprocal surcharge — never reach the
+// browser, and the two paid reports only arrive for whoever bought them.
 
 const REPORTS = {
   detalle: { plan: 'reporte_detalle', priceCents: 3990, oldPriceCents: 6990 },
@@ -115,32 +117,18 @@ function SectionHead({ kicker, title, body }: { kicker: string; title: string; b
 
 export default function RoiCalculator() {
   const { language } = useLanguage();
-  const { user } = useAuth();
+  const { user, getAccessToken } = useAuth();
   const es = language === 'es';
   const months = es ? MONTH_LABELS : MONTH_LABELS_EN;
   // Thousands separators differ between the two languages; set it before
   // anything below formats a figure.
   setRoiLocale(language);
 
-  const [inputs, setInputs] = useState<RoiInputs>(DEFAULT_INPUTS);
+  const [inputs, setInputs] = useState<RoiEntrada>(ENTRADA_INICIAL);
   const [heroScenario, setHeroScenario] = useState<Scenario>('conservador');
   const [detailScenario, setDetailScenario] = useState<Scenario>('conservador');
-  const [unlocked, setUnlocked] = useState<Set<string>>(new Set());
 
-  // What this account has already paid for. Written only by the Stripe
-  // webhook, read here through RLS as the user themselves.
-  useEffect(() => {
-    if (!user) return;
-    void getSupabase().then((sb) =>
-      sb
-        .from('payments')
-        .select('plan,status')
-        .eq('user_id', user.id)
-        .eq('status', 'paid')
-        .then(({ data }) => setUnlocked(new Set(((data as Payment[]) ?? []).map((p) => p.plan)))));
-  }, [user]);
-
-  const set = <K extends keyof RoiInputs>(key: K, value: RoiInputs[K]) =>
+  const set = <K extends keyof RoiEntrada>(key: K, value: RoiEntrada[K]) =>
     setInputs((prev) => ({ ...prev, [key]: value }));
   const setEnvio = useCallback((usd: number | null) => setInputs((prev) => ({ ...prev, domesticShipUsd: usd })), []);
 
@@ -169,104 +157,118 @@ export default function RoiCalculator() {
         : { tasa: arancelDestino.general ?? parseTasa(''), preferencial: false }
       : null;
   const codigoAplicado = esUS ? partida?.codigo : arancelDestino?.codigo;
-  const efectivos: RoiInputs = useMemo(
-    () => ({
-      ...inputs,
-      dutyBase: dest.base,
-      // La tarifa cotizada es de un envío dentro de EE. UU.
-      domesticShipUsd: esUS ? inputs.domesticShipUsd : null,
-      hts: aplicada && codigoAplicado ? { codigo: codigoAplicado, tasa: aplicada.tasa } : null,
-    }),
+  const hts = aplicada && codigoAplicado ? { codigo: codigoAplicado, tasa: aplicada.tasa } : null;
+
+  // La proyección la calcula el servidor. Se pide con una pausa corta
+  // después de la última tecla, y una respuesta vieja nunca pisa a una
+  // nueva (se cancela).
+  const [proy, setProy] = useState<Proyeccion | null>(null);
+  const [sinRespuesta, setSinRespuesta] = useState(false);
+  const pedido = JSON.stringify({ ...inputs, destino: destinoIso, hts });
+  useEffect(() => {
+    const control = new AbortController();
+    const reloj = window.setTimeout(() => {
+      void pedirProyeccion(JSON.parse(pedido), getAccessToken(), control.signal).then((r) => {
+        if (control.signal.aborted) return;
+        if (r) setProy(r);
+        setSinRespuesta(!r);
+      });
+    }, 250);
+    return () => {
+      window.clearTimeout(reloj);
+      control.abort();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [inputs, partida, pais, arancelDestino, destinoIso]
-  );
-  const derecho = aplicada
-    ? (() => {
-        const flete = dest.base === 'cif' ? totalFreightFor(inputs) / inputs.lot : 0;
-        const d = derechoPorUnidad(aplicada.tasa, { valor: inputs.cost + flete, pesoKg: inputs.weightG / 1000, litros: inputs.litersPerUnit });
-        return { usd: d.usd, calculable: d.calculable, texto: aplicada.tasa.texto || '—', preferencial: aplicada.preferencial, falta: d.falta };
-      })()
+  }, [pedido, user?.id]);
+
+  const derecho = aplicada && proy?.derecho
+    ? { ...proy.derecho, texto: aplicada.tasa.texto || '—', preferencial: aplicada.preferencial }
     : null;
   const cambiarDestino = (iso: string) => {
     const nuevo = destinoDe(iso);
     if (!nuevo) return;
     setDestinoIso(iso);
     setArancelDestino(null);
-    // La sobretasa recíproca es una medida de EE. UU.
-    set('reciprocalPct', nuevo.fuente === 'hts' ? RECIPROCAL_TARIFF : 0);
   };
   const pideLitros = Boolean(aplicada?.tasa.necesita.includes('volumen'));
 
-  const p = useMemo(() => project(efectivos), [efectivos]);
-  const hero: YearOne = heroScenario === 'optimista' ? p.opt1 : p.cons1;
-  const detail1: YearOne = detailScenario === 'optimista' ? p.opt1 : p.cons1;
-  const detail2: YearTwo = detailScenario === 'optimista' ? p.opt2 : p.cons2;
+  const r = proy?.resumen;
+  const hero: AnioUnoResumen | null = r ? (heroScenario === 'optimista' ? r.opt1 : r.cons1) : null;
+  const detail1: AnioUnoResumen | null = r ? (detailScenario === 'optimista' ? r.opt1 : r.cons1) : null;
+  const inversion = proy?.inversion;
 
-  const breakevenMonth = findMonth(hero.saldo, 0);
-  const paybackMonth = findMonth(hero.saldo, p.investment.total);
-  const consBreak = findMonth(p.cons1.saldo, 0);
-  const optBreak = findMonth(p.opt1.saldo, 0);
+  const breakevenMonth = hero ? mesEnQue(hero.saldo, 0) : null;
+  const paybackMonth = hero && inversion ? mesEnQue(hero.saldo, inversion.total) : null;
+  const consBreak = r ? mesEnQue(r.cons1.saldo, 0) : null;
+  const optBreak = r ? mesEnQue(r.opt1.saldo, 0) : null;
 
   const scenarioLabels = {
     conservador: es ? 'Conservador' : 'Conservative',
     optimista: es ? 'Optimista' : 'Optimistic',
   };
 
-  const freeRows = (d: YearOne): RoiRow[] => [
-    { label: es ? 'Unidades vendidas' : 'Units sold', values: d.units, fmt: 'int' },
+  const freeRows = (d: AnioUnoResumen): RoiRow[] => [
     { label: es ? 'Costo total por unidad vendida' : 'Total cost per unit sold', values: d.costUnit, fmt: 'currency2' },
     { label: es ? 'Utilidad o pérdida antes de impuestos por unidad' : 'Pre-tax profit or loss per unit', values: d.profitUnit, fmt: 'currency2', colorize: true },
     { label: es ? 'Utilidad o pérdida del mes' : 'Profit or loss for the month', values: d.profitMonth, fmt: 'currency1', colorize: true },
     { label: es ? 'Retorno por unidad antes de impuestos' : 'Pre-tax return per unit', values: d.roiUnit, fmt: 'pct', colorize: true },
   ];
 
-  const breakdownRows = (d: YearOne): RoiRow[] => {
-    const pick = (key: keyof (typeof d.breakdown)[number]) => d.breakdown.map((bd) => bd[key] as number);
+  // Sin el reporte comprado no llegan datos: detrás del desenfoque van
+  // números de relleno con la forma de la tabla.
+  const breakdownRows = (filas: FilaDesglose[] | null): RoiRow[] => {
+    const pick = (key: keyof FilaDesglose, base: number, paso: number) => (filas ? filas.map((f) => f[key]) : relleno(12, base, paso));
     return [
-      { label: es ? 'Precio de venta en USA' : 'US selling price', values: pick('price'), fmt: 'currency2' },
-      { label: es ? 'Costo del producto en Latinoamérica' : 'Production cost in Latin America', values: pick('product'), fmt: 'currency2' },
-      { label: es ? 'Sobretasa recíproca' : 'Reciprocal surcharge', values: pick('reciprocalTariff'), fmt: 'currency2' },
-      { label: es ? 'Flete internacional por unidad' : 'International freight per unit', values: pick('freight'), fmt: 'currency2' },
+      { label: es ? 'Precio de venta en USA' : 'US selling price', values: pick('price', 50, 0), fmt: 'currency2' },
+      { label: es ? 'Costo del producto en Latinoamérica' : 'Production cost in Latin America', values: pick('product', 12, 0), fmt: 'currency2' },
+      { label: es ? 'Flete internacional por unidad' : 'International freight per unit', values: pick('freight', 2, 0.1), fmt: 'currency2' },
       {
         label: inputs.domesticShipUsd !== null
           ? es ? 'Envío en EE. UU. (tarifa cotizada)' : 'US shipping (quoted rate)'
-          : es ? 'Flete doméstico USA (supuesto)' : 'US domestic shipping (assumption)',
-        values: pick('domesticShip'),
+          : es ? 'Envío de cada pedido en EE. UU.' : 'Shipping each order in the US',
+        values: pick('domesticShip', 6, 0.2),
         fmt: 'currency2',
       },
       {
         label: codigoAplicado
           ? esUS
-            ? `${es ? 'Arancel HTS' : 'HTS duty'} ${codigoAplicado}`
-            : `${es ? 'Arancel' : 'Duty'} ${es ? dest.nombre : dest.nombreEn} ${codigoAplicado}`
-          : es ? 'Arancel (supuesto, sin partida)' : 'Duty (assumption, no code)',
-        values: pick('tradeTariff'),
+            ? `${es ? 'Aranceles de importación' : 'Import duties'} · ${codigoAplicado}`
+            : `${es ? 'Aranceles' : 'Duties'} ${es ? dest.nombre : dest.nombreEn} · ${codigoAplicado}`
+          : es ? 'Aranceles de importación' : 'Import duties',
+        values: pick('aranceles', 2, 0.1),
         fmt: 'currency2',
       },
-      { label: es ? 'Devoluciones' : 'Returns', values: pick('returns'), fmt: 'currency2' },
-      { label: es ? 'Comisión plataformas' : 'Marketplace commission', values: pick('platform'), fmt: 'currency2' },
-      { label: es ? 'Administración de inventario y alistamiento' : 'Inventory handling and prep', values: pick('warehousing'), fmt: 'currency2' },
-      { label: es ? 'Administración de canal por unidad' : 'Channel management per unit', values: pick('channel'), fmt: 'currency2' },
-      { label: es ? 'Publicidad (ADS) por unidad' : 'Advertising per unit', values: pick('ads'), fmt: 'currency2' },
-      { label: es ? 'Generación de contenido propio' : 'Own content production', values: pick('content'), fmt: 'currency2' },
-      { label: es ? 'Comisión red comercial por unidad' : 'Sales-network commission per unit', values: pick('ugc'), fmt: 'currency2' },
-      { label: es ? 'Costo total por unidad vendida' : 'Total cost per unit sold', values: d.costUnit, fmt: 'currency2', bold: true },
+      { label: es ? 'Devoluciones' : 'Returns', values: pick('returns', 1, 0), fmt: 'currency2' },
+      { label: es ? 'Comisión plataformas' : 'Marketplace commission', values: pick('platform', 4, 0), fmt: 'currency2' },
+      { label: es ? 'Administración de inventario y alistamiento' : 'Inventory handling and prep', values: pick('warehousing', 3, 0), fmt: 'currency2' },
+      { label: es ? 'Administración de canal por unidad' : 'Channel management per unit', values: pick('channel', 5, 1.5), fmt: 'currency2' },
+      { label: es ? 'Publicidad (ADS) por unidad' : 'Advertising per unit', values: pick('ads', 5, 1.5), fmt: 'currency2' },
+      { label: es ? 'Generación de contenido propio' : 'Own content production', values: pick('content', 3, 1), fmt: 'currency2' },
+      { label: es ? 'Comisión red comercial por unidad' : 'Sales-network commission per unit', values: pick('ugc', 8, 0), fmt: 'currency2' },
+      { label: es ? 'Costo total por unidad vendida' : 'Total cost per unit sold', values: pick('total', 40, 4), fmt: 'currency2', bold: true },
     ];
   };
 
-  const forecastRows = (d: YearOne | YearTwo): RoiRow[] => [
-    { label: es ? 'Total ventas canal digital' : 'Total digital-channel sales', values: d.revenueArr, fmt: 'currency' },
-    { label: es ? 'Unidades vendidas' : 'Units sold', values: d.units, fmt: 'int' },
-    { label: es ? 'Ticket promedio' : 'Average ticket', values: d.ticket, fmt: 'currency2' },
-    { label: es ? 'Costo de producto' : 'Product cost', values: d.cogsArr, fmt: 'currency' },
-    { label: es ? 'Incremento en ADS' : 'Additional ad spend', values: d.adsIncrArr, fmt: 'currency' },
-    { label: es ? 'Imprevistos' : 'Contingency', values: d.imprevArr, fmt: 'currency' },
-    { label: es ? 'Total egresos' : 'Total outflows', values: d.egresosArr, fmt: 'currency', bold: true },
-    { label: es ? 'Utilidad / pérdida' : 'Profit / loss', values: d.profitMonth, fmt: 'currency', colorize: true, bold: true },
-    { label: es ? 'Saldo acumulado' : 'Cumulative balance', values: d.saldo, fmt: 'currency', colorize: true, bold: true },
-  ];
+  const forecastRows = (d: Pronostico | null): RoiRow[] => {
+    const v = (key: keyof Pronostico, base: number, paso: number) => (d ? d[key] : relleno(12, base, paso));
+    return [
+      { label: es ? 'Total ventas canal digital' : 'Total digital-channel sales', values: v('revenueArr', 40000, 9000), fmt: 'currency' },
+      { label: es ? 'Unidades vendidas' : 'Units sold', values: v('units', 800, 150), fmt: 'int' },
+      { label: es ? 'Ticket promedio' : 'Average ticket', values: v('ticket', 55, 0), fmt: 'currency2' },
+      { label: es ? 'Costo de producto' : 'Product cost', values: v('cogsArr', 25000, 6000), fmt: 'currency' },
+      { label: es ? 'Incremento en ADS' : 'Additional ad spend', values: v('adsIncrArr', 2500, 600), fmt: 'currency' },
+      { label: es ? 'Imprevistos' : 'Contingency', values: v('imprevArr', 600, 0), fmt: 'currency' },
+      { label: es ? 'Total egresos' : 'Total outflows', values: v('egresosArr', 28000, 6000), fmt: 'currency', bold: true },
+      { label: es ? 'Utilidad / pérdida' : 'Profit / loss', values: v('profitMonth', 9000, 3000), fmt: 'currency', colorize: true, bold: true },
+      { label: es ? 'Saldo acumulado' : 'Cumulative balance', values: v('saldo', 30000, 12000), fmt: 'currency', colorize: true, bold: true },
+    ];
+  };
 
-  const invPct = (part: number) => (p.investment.total > 0 ? (part / p.investment.total) * 100 : 0);
+  const desglose = proy?.desglose ? (detailScenario === 'optimista' ? proy.desglose.opt : proy.desglose.cons) : null;
+  const pron1 = proy?.pronostico ? (detailScenario === 'optimista' ? proy.pronostico.opt1 : proy.pronostico.cons1) : null;
+  const pron2 = proy?.pronostico ? (detailScenario === 'optimista' ? proy.pronostico.opt2 : proy.pronostico.cons2) : null;
+
+  const invPct = (part: number) => (inversion && inversion.total > 0 ? (part / inversion.total) * 100 : 0);
 
   return (
     <div className="min-h-screen bg-white pb-24 md:pb-0">
@@ -390,14 +392,6 @@ export default function RoiCalculator() {
                 })}
               </div>
             </div>
-            {esUS && <NumberField
-              id="in_reciprocal"
-              label={es ? 'Sobretasa recíproca' : 'Reciprocal surcharge'}
-              value={Math.round(inputs.reciprocalPct * 1000) / 10}
-              onChange={(v) => set('reciprocalPct', v / 100)}
-              suffix="%"
-              step={0.5}
-            />}
             {pideLitros && (
               <NumberField
                 id="in_liters"
@@ -413,8 +407,7 @@ export default function RoiCalculator() {
           {esUS && <EnvioEEUU
             es={es}
             pesoG={inputs.weightG}
-            aplica={inputs.price >= FREE_SHIP_THRESHOLD}
-            fijoUsd={DOMESTIC_SHIP}
+            aplica={proy?.envioAplica ?? false}
             valor={inputs.domesticShipUsd}
             onValor={setEnvio}
           />}
@@ -424,15 +417,17 @@ export default function RoiCalculator() {
             <NumberField id="in_content" label={es ? 'Generación de contenido' : 'Content production'} value={inputs.contentBudget} onChange={(v) => set('contentBudget', v)} prefix="$" step={50} />
             <NumberField id="in_channel" label={es ? 'Administración de canal' : 'Channel management'} value={inputs.channelBudget} onChange={(v) => set('channelBudget', v)} prefix="$" step={50} />
           </FieldGroup>
-
-          <p className="mt-5 rounded-xl border border-gray-100 bg-secondary/60 p-4 text-sm leading-relaxed text-muted-foreground">
-            <b className="text-foreground">{es ? 'Supuestos fijos de Easycomex' : 'Easycomex fixed assumptions'}</b>{' '}
-            {es
-              ? '(no editables aquí): flete internacional · envío doméstico por pedido si el precio supera el mínimo (USD 7, o la tarifa real si la cotizas arriba). La sobretasa recíproca arranca en el 12,5 % del modelo del equipo: ajústala según el país y la fecha de tu importación.'
-              : '(not editable here): international freight · domestic shipping per order when the price is above the threshold (USD 7, or the real rate if you quote it above). The reciprocal surcharge starts at the team model’s 12.5%: adjust it for your country and import date.'}
-          </p>
         </section>
 
+        {!proy && (
+          <section className="my-9 flex min-h-[200px] items-center justify-center rounded-3xl border border-gray-100 bg-secondary/40 p-8 text-center text-muted-foreground">
+            {sinRespuesta
+              ? es ? 'No pudimos calcular tu proyección. Revisa tu conexión e intenta de nuevo.' : 'We could not run your projection. Check your connection and try again.'
+              : es ? 'Calculando tu proyección…' : 'Running your projection…'}
+          </section>
+        )}
+
+        {proy && r && hero && detail1 && inversion && (<>
         {/* Headline stats */}
         <section className="my-9 rounded-3xl bg-gradient-to-br from-[#130B2E] via-primary to-[#1F2E73] p-8 md:p-10">
           <div className="grid grid-cols-1 gap-7 md:grid-cols-3">
@@ -441,11 +436,11 @@ export default function RoiCalculator() {
                 {es ? 'RETORNO SOBRE LA INVERSIÓN · AÑO 1' : 'RETURN ON INVESTMENT · YEAR 1'}
               </p>
               <p className="text-4xl font-black text-white md:text-5xl">
-                {(p.investment.total > 0 ? hero.utilidad / p.investment.total : 0).toFixed(1)}
+                {(inversion.total > 0 ? hero.utilidad / inversion.total : 0).toFixed(1)}
                 <span className="text-accent">x</span>
               </p>
               <p className="mt-1.5 text-sm text-indigo-300">
-                {es ? 'Sobre inversión inicial de ' : 'On an initial investment of '}{fmtMoney(p.investment.total)}
+                {es ? 'Sobre inversión inicial de ' : 'On an initial investment of '}{fmtMoney(inversion.total)}
               </p>
             </div>
             <div>
@@ -482,14 +477,14 @@ export default function RoiCalculator() {
             kicker={es ? 'Comparativo' : 'Comparison'}
             title={es ? 'Conservador vs. optimista, con tus propios números' : 'Conservative vs. optimistic, with your own numbers'}
             body={es
-              ? 'Misma estructura de costos que escribiste arriba — la diferencia entre columnas es solo el ritmo de crecimiento en ventas: de 100 a 1,200 unidades/mes en el conservador, hasta 3,000 unidades/mes en el optimista.'
-              : 'The same cost structure you typed above — the only difference between columns is the sales ramp: 100 to 1,200 units/month in the conservative case, up to 3,000 units/month in the optimistic one.'}
+              ? 'Misma estructura de costos que escribiste arriba — la diferencia entre columnas es solo el ritmo de crecimiento en ventas.'
+              : 'The same cost structure you typed above — the only difference between columns is the sales ramp.'}
           />
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             {[
-              { key: 'cons' as const, y1: p.cons1, y2: p.cons2, accent: 'bg-accent', pill: 'bg-orange-50 text-accent', range: '100 → 1,200 u./mes', name: scenarioLabels.conservador, sub: es ? 'Crecimiento lineal y sostenido durante el año 1' : 'Linear, sustained growth through year 1' },
-              { key: 'opt' as const, y1: p.opt1, y2: p.opt2, accent: 'bg-[#4A63D6]', pill: 'bg-indigo-50 text-[#1F2E73]', range: '100 → 3,000 u./mes', name: scenarioLabels.optimista, sub: es ? 'Picos de campaña (Black Friday, temporada alta) en el segundo semestre' : 'Campaign peaks (Black Friday, high season) in the second half' },
+              { key: 'cons' as const, y1: r.cons1, y2: r.cons2, accent: 'bg-accent', pill: 'bg-orange-50 text-accent', range: es ? 'Sostenido' : 'Steady', name: scenarioLabels.conservador, sub: es ? 'Crecimiento sostenido durante el año 1' : 'Sustained growth through year 1' },
+              { key: 'opt' as const, y1: r.opt1, y2: r.opt2, accent: 'bg-[#4A63D6]', pill: 'bg-indigo-50 text-[#1F2E73]', range: es ? 'Con campañas' : 'With campaigns', name: scenarioLabels.optimista, sub: es ? 'Picos de campaña (Black Friday, temporada alta) en el segundo semestre' : 'Campaign peaks (Black Friday, high season) in the second half' },
             ].map((card) => (
               <div key={card.key} className="relative overflow-hidden rounded-3xl border border-gray-100 bg-white p-6 app-shadow md:p-7">
                 <span className={`absolute inset-y-0 left-0 w-1.5 ${card.accent}`} />
@@ -524,7 +519,7 @@ export default function RoiCalculator() {
                 <div className="mt-5 flex items-center justify-between border-t border-gray-100 pt-4">
                   <span className="text-sm text-muted-foreground">{es ? 'ROI acumulado a 2 años' : 'Cumulative 2-year ROI'}</span>
                   <span className={`font-heading text-2xl font-bold ${card.key === 'cons' ? 'text-accent' : 'text-[#1F2E73]'}`}>
-                    {xOf(card.y1.utilidad + card.y2.utilidad, p.investment.total)}
+                    {xOf(card.y1.utilidad + card.y2.utilidad, inversion.total)}
                   </span>
                 </div>
               </div>
@@ -538,8 +533,8 @@ export default function RoiCalculator() {
             kicker={es ? 'Detalle mensual · Gratis' : 'Monthly detail · Free'}
             title={es ? 'Mes a mes, unidad por unidad' : 'Month by month, unit by unit'}
             body={es
-              ? 'Unidades, costo total, utilidad antes de impuestos y retorno por unidad — los 12 meses del Año 1, calculados con tus números de arriba.'
-              : 'Units, total cost, pre-tax profit and return per unit — all 12 months of year 1, from the numbers you typed above.'}
+              ? 'Costo total, utilidad antes de impuestos y retorno por unidad — los 12 meses del Año 1, calculados con tus números de arriba.'
+              : 'Total cost, pre-tax profit and return per unit — all 12 months of year 1, from the numbers you typed above.'}
           />
 
           <div className="mb-6 flex justify-center">
@@ -569,7 +564,7 @@ export default function RoiCalculator() {
           />
           <RoiPaywall
             plan={REPORTS.detalle.plan}
-            unlocked={unlocked.has(REPORTS.detalle.plan)}
+            unlocked={proy.desbloqueado.detalle}
             title={es ? 'Desglose de costos mes a mes' : 'Month-by-month cost breakdown'}
             blurb={es
               ? `Cada componente del costo, mes a mes, para tu escenario ${scenarioLabels[detailScenario].toLowerCase()} — con estos mismos números que ya escribiste arriba.`
@@ -577,7 +572,7 @@ export default function RoiCalculator() {
             priceCents={REPORTS.detalle.priceCents}
             oldPriceCents={REPORTS.detalle.oldPriceCents}
           >
-            <RoiTable months={months} rows={breakdownRows(detail1)} />
+            <RoiTable months={months} rows={breakdownRows(desglose)} />
           </RoiPaywall>
         </section>
 
@@ -589,7 +584,7 @@ export default function RoiCalculator() {
           />
           <RoiPaywall
             plan={REPORTS.pronostico.plan}
-            unlocked={unlocked.has(REPORTS.pronostico.plan)}
+            unlocked={proy.desbloqueado.pronostico}
             title={es ? 'Pronóstico completo a 2 años' : 'Full 2-year forecast'}
             blurb={es
               ? 'Flujo de caja mes a mes de los dos años, más el desglose completo de costos — todo para el escenario que elijas.'
@@ -601,11 +596,11 @@ export default function RoiCalculator() {
               <p className="px-4 pb-1 pt-4 text-sm font-bold text-primary">
                 {es ? `Año 1 — ${scenarioLabels[detailScenario]}` : `Year 1 — ${scenarioLabels[detailScenario]}`}
               </p>
-              <RoiTable months={months} rows={forecastRows(detail1)} />
+              <RoiTable months={months} rows={forecastRows(pron1)} />
               <p className="px-4 pb-1 pt-5 text-sm font-bold text-primary">
                 {es ? `Año 2 — ${scenarioLabels[detailScenario]}` : `Year 2 — ${scenarioLabels[detailScenario]}`}
               </p>
-              <RoiTable months={months} rows={forecastRows(detail2)} />
+              <RoiTable months={months} rows={forecastRows(pron2)} />
             </div>
           </RoiPaywall>
         </section>
@@ -651,8 +646,8 @@ export default function RoiCalculator() {
               : `The conservative case ${consBreak ? `breaks even in month ${consBreak}` : 'does not break even within 12 months'}; the optimistic one ${optBreak ? `gets there in month ${optBreak}` : 'does not break even within 12 months'}.`}
           />
           <CashChart
-            conservative={p.cons1.saldo}
-            optimistic={p.opt1.saldo}
+            conservative={r.cons1.saldo}
+            optimistic={r.opt1.saldo}
             labels={{
               conservative: scenarioLabels.conservador,
               optimistic: scenarioLabels.optimista,
@@ -683,22 +678,22 @@ export default function RoiCalculator() {
               <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 {es ? 'Total recomendado' : 'Recommended total'}
               </p>
-              <p className="mt-1.5 font-heading text-4xl font-black text-primary md:text-5xl">{fmtMoney(p.investment.total)}</p>
+              <p className="mt-1.5 font-heading text-4xl font-black text-primary md:text-5xl">{fmtMoney(inversion.total)}</p>
               <p className="mt-2.5 text-sm text-muted-foreground">
                 {fmtInt(inputs.lot)} {es ? 'unidades iniciales + logística de salida + 3 meses de marketing y operación del canal digital.' : 'initial units + outbound logistics + 3 months of digital-channel marketing and operations.'}
               </p>
             </div>
             <div>
               <div className="flex h-4 w-full overflow-hidden rounded-full bg-secondary">
-                <span className="h-full bg-accent transition-all duration-200" style={{ width: `${invPct(p.investment.productCost)}%` }} />
-                <span className="h-full bg-[#4A63D6] transition-all duration-200" style={{ width: `${invPct(p.investment.logistics)}%` }} />
-                <span className="h-full bg-primary transition-all duration-200" style={{ width: `${invPct(p.investment.marketing3)}%` }} />
+                <span className="h-full bg-accent transition-all duration-200" style={{ width: `${invPct(inversion.productCost)}%` }} />
+                <span className="h-full bg-[#4A63D6] transition-all duration-200" style={{ width: `${invPct(inversion.logistics)}%` }} />
+                <span className="h-full bg-primary transition-all duration-200" style={{ width: `${invPct(inversion.marketing3)}%` }} />
               </div>
               <div className="mt-4 flex flex-col gap-2.5">
                 {[
-                  { color: 'bg-accent', label: es ? 'Inventario inicial' : 'Initial inventory', value: p.investment.productCost },
-                  { color: 'bg-[#4A63D6]', label: es ? 'Logística de salida' : 'Outbound logistics', value: p.investment.logistics },
-                  { color: 'bg-primary', label: es ? 'Marketing y operación (3 meses)' : 'Marketing and operations (3 months)', value: p.investment.marketing3 },
+                  { color: 'bg-accent', label: es ? 'Inventario inicial' : 'Initial inventory', value: inversion.productCost },
+                  { color: 'bg-[#4A63D6]', label: es ? 'Logística de salida' : 'Outbound logistics', value: inversion.logistics },
+                  { color: 'bg-primary', label: es ? 'Marketing y operación (3 meses)' : 'Marketing and operations (3 months)', value: inversion.marketing3 },
                 ].map((row) => (
                   <div key={row.label} className="flex items-center gap-2.5 text-sm">
                     <span className={`h-2.5 w-2.5 flex-none rounded ${row.color}`} />
@@ -711,12 +706,14 @@ export default function RoiCalculator() {
           </div>
         </section>
 
+        </>)}
+
         {/* Method note */}
         <p className="rounded-2xl border border-gray-100 bg-secondary/60 p-5 text-sm leading-relaxed text-muted-foreground">
-          <strong className="text-foreground">{es ? 'Nota metodológica.' : 'Method note.'}</strong>{' '}
+          <strong className="text-foreground">{es ? 'Nota.' : 'Note.'}</strong>{' '}
           {es
-            ? 'Cifras en USD, antes de impuestos. El arancel sale de la partida del HTS de EE. UU. que elegiste (general, o preferencial si tu país tiene acuerdo y el producto cumple origen) y se calcula sobre el costo de producción; la sobretasa recíproca se suma aparte. Sin partida elegida se usa el supuesto del equipo (8 % si no cumple acuerdo). En el Reino Unido y la UE el arancel sale de la línea de su arancel oficial, consultado en vivo, y se aplica sobre producto + flete (valor CIF); no incluye el IVA de importación. La partida definitiva la confirma tu agente de aduanas. El Año 2 asume un incremento de precio y de costo frente al Año 1 (madurado desde el mes 7), más una inversión adicional en ADS sobre ventas. El incremento de ADS en el Año 1 (desde el mes 4) y los imprevistos mensuales usan los mismos supuestos del modelo financiero completo. Es una proyección, no una promesa de resultados.'
-            : 'Figures in USD, before taxes. The duty comes from the US HTS code you picked (general, or preferential when your country has an agreement and the product meets origin rules) applied to the production cost; the reciprocal surcharge is added separately. With no code picked, the team assumption applies (8% when not qualifying). In the UK and the EU the duty comes from that destination’s official tariff line, queried live, applied to product + freight (CIF value); import VAT is not included. Your customs broker confirms the final code. Year 2 assumes a price and cost increase over year 1 (matured from month 7), plus additional ad spend as a share of sales. The year-1 ad increment (from month 4) and the monthly contingency use the same assumptions as the full financial model. This is a projection, not a promise of results.'}
+            ? 'Cifras en USD, antes de impuestos, calculadas con el modelo financiero de Easycomex a partir de tus números. Los aranceles salen de la partida que elegiste en el arancel oficial del país de destino; la partida definitiva la confirma tu agente de aduanas. Es una proyección, no una promesa de resultados.'
+            : 'Figures in USD, before taxes, computed with Easycomex’s financial model from your numbers. Duties come from the code you picked in the destination’s official tariff; your customs broker confirms the final code. This is a projection, not a promise of results.'}
         </p>
 
         {/* CTA */}

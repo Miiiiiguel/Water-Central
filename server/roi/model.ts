@@ -7,7 +7,12 @@
 // meeting, so a "small improvement" to a formula is a bug.
 //
 // Everything is pure: no DOM, no fetch, no formatting. That is what lets
-// client/src/lib/roiModel.test.ts check the money math.
+// server/roi/model.test.ts check the money math.
+//
+// It lives on the server on purpose: the ramps, the fixed costs and the
+// reciprocal surcharge are Easycomex's know-how. The browser sends the
+// client's numbers to /api/roi/proyeccion (server/roi/route.ts) and gets
+// back results, never these assumptions.
 //
 // Tariffs: when the client picks their HTS code, the duty is the real
 // rate of that code in the loaded US tariff schedule (lib/tasaArancel.ts
@@ -15,7 +20,7 @@
 // assumption (8% unless the product qualifies) still applies, so the
 // default projection is unchanged.
 
-import { derechoPorUnidad, type Tasa } from './tasaArancel';
+import { derechoPorUnidad, type Tasa } from '../../client/src/lib/tasaArancel';
 
 // ---------------------------------------------------------------------
 // Fixed assumptions (Easycomex's model, not user-editable in the UI)
