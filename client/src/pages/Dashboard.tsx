@@ -401,14 +401,14 @@ function ResearchQuotaCard() {
             </p>
           </div>
         </div>
-        <button
+        {!quota.unlimited && <button
           onClick={buy}
           disabled={busy}
           className="tap-scale-sm inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent hover:bg-accent/90 text-white text-xs font-bold border-0 cursor-pointer disabled:opacity-50 transition-colors"
         >
           {busy ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
           {es ? 'Comprar tokens' : 'Buy tokens'}
-        </button>
+        </button>}
       </div>
 
       {quota.unlimited ? (
