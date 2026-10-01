@@ -1,0 +1,1298 @@
+{% capture html_id %} 
+	{% if section.settings.html_id != blank %}
+		id= "{{ section.settings.html_id | handleize }}"
+	{% endif %}
+{% endcapture %}
+
+{% stylesheet %}
+	.loudz-newsletter-2 * {
+		margin: 0;
+		padding: 0;
+	}
+
+	.loudz-newsletter-2 a {
+		color: inherit;
+	}
+
+	.loudz-newsletter-2 .loudz__popup {
+		opacity: 0;
+		visibility: hidden;
+		align-items: center;
+		justify-content: center;
+		height: 100vh;
+		position: fixed;
+		inset: 0;
+		transition: all 0.3s ease-in-out;
+	}
+
+	.loudz-newsletter-2 .loudz__popup.active {
+		visibility: visible;
+		pointer-events: all;
+		opacity: 1;
+		z-index: 999;
+	}
+
+	.loudz-newsletter-2 .loudz__popup:after {
+    content: "";
+  position: fixed;       /* fixes it to the viewport */
+  top: 0;                /* anchor to top */
+  left: 0;               /* anchor to left */
+  width: 100%;           /* span entire width */
+  height: 100%;          /* span entire height */
+  background-color: var(--loudz-overlay-color, #000000);
+  opacity: var(--loudz-overlay-opacity, 0.5);
+  z-index: -1;
+	}
+	
+	.loudz-newsletter-2 .loudz__container {
+		position: relative;
+		padding-block: var(--loudz-padding-top, 0px) var(--loudz-padding-bottom, 0px);
+		background: var(--loudz-section-background, #FFFFFF);
+		max-width: var(--loudz-section-width, 790px);
+		flex-direction: var(--loudz-image-position, row);
+		gap: var(--loudz-horizontal-gap, 50px);
+		margin-inline: auto;
+		padding-inline: 20px;
+		width: calc(100% - 40px);
+		justify-content: center;
+		align-items: center;
+		max-height: 90vh;
+		overflow: scroll;
+		border-radius: var(--loudz-popup-border-radius, 0px);
+	}
+
+	.loudz-newsletter-2 .loudz__container::-webkit-scrollbar {
+  	display: none;	
+	}	
+
+	.loudz-newsletter-2 .loudz__container.active {
+		opacity: 1;
+		visibility: visible;
+	}
+	
+	.loudz-newsletter-2 .loudz__flex {
+		display: flex;
+	}
+
+	.loudz-newsletter-2 .loudz__icon {
+		width: var(--loudz-icon-width, 72px);
+		font-size: 0;
+		color: var(--loudz-svg-color, #000000);
+	}
+
+	.loudz-newsletter-2 .loudz__icon.loudz-svg-custom {
+		width: var(--loudz-svg-size, 72px);
+		height: var(--loudz-svg-size, 72px);
+	}
+	
+	.loudz-newsletter-2 .loudz__icon svg {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		stroke: currentColor;
+	}
+	
+	.loudz-newsletter-2 .loudz__top-text {
+		font-size: var(--loudz-top-text-size, 18px);
+		font-weight: var(--loudz-top-text-weight, 400);
+		color: var(--loudz-heading-color, #000000);
+		text-align: center;
+		margin-bottom: var(--loudz-top-text-to-heading-gap, 8px);
+	}
+	
+	.loudz-newsletter-2 .loudz__form {
+		background: var(--loudz-section-background, #FFFFFF);
+		max-width: 340px;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		position: static;
+		padding: 0;
+	}
+	
+	.loudz-newsletter-2 .loudz__form .loudz__popup-link {
+		color: var(--loudz-popup-link-color, #000000);
+		font-size: 16px;
+		font-weight: 400;
+		margin-top: 20px;
+		cursor: pointer;
+		transition: all 0.2s ease-in-out;
+	}
+	
+	.loudz-newsletter-2 .loudz__form .loudz__popup-link a {
+		border-bottom: 1px solid currentColor;
+		text-decoration: none;
+		color: inherit;
+	}
+	
+	.loudz-newsletter-2 .loudz__form .loudz__popup-link:hover {
+		opacity: 0.7;
+	}
+	
+	.loudz-newsletter-2 .loudz__overlay {
+		background-color: var(--loudz-overlay-color);
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		opacity: 0;
+		transition: all 0.3s ease-in-out;
+		visibility: hidden;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		z-index: -1;
+	}
+	
+	.loudz-newsletter-2 .loudz__overlay.active {
+		opacity: var(--loudz-overlay-opacity, 1);
+		visibility: visible;
+	}
+	
+	.loudz-newsletter-2 .loudz__form form {
+		margin-top: var(--loudz-form-top-space, 32px);
+		width: 100%;
+	}
+	
+	.loudz-newsletter-2 .loudz__heading {
+		font-size: var(--loudz-heading-size, 24px);
+		font-weight: var(--loudz-heading-text-weight, 500);
+		color: var(--loudz-heading-color, #000000);
+		margin-top: var(--loudz-heading-top-space, 16px);
+		text-align: center;
+	}
+	
+	.loudz-newsletter-2 .loudz__heading a {
+		color: inherit;
+	}
+	
+	.loudz-newsletter-2 p {
+		font-size: var(--loudz-description-size, 16px);
+		font-weight: var(--loudz-description-text-weight, 400);
+		color: var(--loudz-description-color, #4B4D6C);
+		margin-top: var(--loudz-heading-top-space, 16px);
+		text-align: center;
+	}
+
+	.loudz-newsletter-2 .loudz__icon img,
+	.loudz-newsletter-2 .loudz__icon svg {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
+	
+	.loudz-newsletter-2 input[type="email"] {
+		width: 100%;
+		color: var(--loudz-input-color, #000000);
+		font-size: var(--loudz-input-text-size, 16px);
+		font-weight: var(--loudz-input-text-weight, 400);
+		border: var(--loudz-input-border-thickness, 1px) solid var(--loudz-input-border-color, #808080);
+		border-radius: var(--loudz-input-border-radius, 0px);
+		background: var(--loudz-input-background-color, #FFFFFF);
+		padding: 16px 12px;
+	}
+	
+	.loudz-newsletter-2 input[type="email"]::placeholder {
+		color: var(--loudz-input-placeholder-color);
+	}
+	
+	.loudz-newsletter-2 .loudz__submit-button {
+		width: 100%;
+		color: var(--loudz-button-text-color, #FFFFFF);
+		background-color: var(--loudz-button-background-color, #000000);
+		font-size: var(--loudz-button-text-size, 16px);
+		font-weight: var(--loudz-button-text-weight, 400);
+		margin-top: var(--loudz-button-top-space, 12px);
+		border-radius: var(--loudz-button-border-radius, 0px);
+		padding-block: 16px;
+		border: 1px solid transparent;
+		cursor: pointer;
+		transition: all 0.2s ease-in-out;
+	}
+	
+	.loudz-newsletter-2 .loudz__submit-button:hover {
+		filter: brightness(0.9);
+	}
+	
+	.loudz-newsletter-2 .loudz__image-wrapper {
+		background-color: #f8f8f8;
+		width: calc(100% + 40px);
+		position: relative;
+		aspect-ratio: 1 / 1;
+		align-self: normal;
+		margin-left: -20px;
+	}
+	
+	.loudz-newsletter-2 .loudz__image-wrapper svg,
+	.loudz-newsletter-2 .loudz__image-wrapper img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+		position: absolute;
+	}
+	
+	.loudz-newsletter-2 .icon-close {
+		stroke: #000000;
+		width: 16px;
+		height: 16px;
+		position: absolute;
+		top: 30px;
+		right: 30px;
+		cursor: pointer;
+	}
+	
+	@media screen and (min-width: 768px) {
+		.loudz-newsletter-2 .loudz__form {
+			padding-block: 60px;
+			position: relative;
+		}
+	
+		.loudz-newsletter-2 .loudz__image-wrapper {
+			aspect-ratio: auto;
+			max-width: 433px;
+		}
+	
+		.loudz-newsletter-2 .icon-close {
+			top: 24px;
+			right: 10px;
+		}
+	}
+{% endstylesheet %}
+
+<style>
+	#loudz-{{ section.id }} {
+		--loudz-padding-top: {{ section.settings.mobile_top_padding }}px;
+    --loudz-padding-bottom: {{ section.settings.mobile_bottom_padding }}px;
+		--loudz-section-width: {{ section.settings.section_width }}px;
+		--loudz-section-background: {{ section.settings.background_gradient | default: section.settings.background_color }};
+		--loudz-overlay-color: {{ section.settings.overlay_color}};
+		--loudz-overlay-opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+		--loudz-icon-width: {{ section.settings.mobile_icon_width }}px;
+		--loudz-svg-size: {{ section.settings.svg_size }}px;
+		--loudz-svg-color: {{ section.settings.svg_color }};
+		--loudz-image-position: {{ section.settings.mobile_image_position }};
+		--loudz-heading-top-space: {{ section.settings.mobile_heading_top_space }}px;
+		--loudz-heading-size: {{ section.settings.mobile_heading_text_size }}px;
+		--loudz-heading-text-weight: {{ section.settings.heading_text_weight }};
+		--loudz-heading-color: {{ section.settings.heading_color }};
+		--loudz-description-top-space: {{ section.settings.mobile_top_space }}px;
+		--loudz-description-size: {{ section.settings.mobile_description_text_size }}px;
+		--loudz-description-text-weight: {{ section.settings.description_text_weight }};
+		--loudz-description-color: {{ section.settings.description_color }};
+		--loudz-form-top-space: {{ section.settings.mobile_form_top_space }}px;
+		--loudz-input-text-size: {{ section.settings.mobile_input_text_size }}px;
+		--loudz-input-color: {{ section.settings.input_color }};
+		--loudz-input-background-color: {{ section.settings.input_background_color }};
+		--loudz-input-text-weight: {{ section.settings.input_text_weight }};
+		--loudz-input-border-radius: {{ section.settings.input_border_radius }}px;
+		--loudz-input-border-color: {{ section.settings.input_border_color }};
+		--loudz-input-border-thickness: {{ section.settings.input_border_thickness }}px;
+		--loudz-input-placeholder-color: {{ section.settings.input_placeholder_color }};
+		--loudz-button-top-space: {{ section.settings.mobile_button_top_space }}px;
+		--loudz-button-width: {{ section.settings.button_width }}%;
+		--loudz-button-border-radius: {{ section.settings.button_border_radius }}px;
+		--loudz-button-text-size: {{ section.settings.mobile_button_text_size }}px;
+		--loudz-button-text-color: {{ section.settings.button_text_color }};
+		--loudz-button-background-color: {{ section.settings.button_background }};
+		--loudz-button-text-weight: {{ section.settings.button_text_weight }};
+		--loudz-horizontal-gap : {{ section.settings.desktop_gap_between_image_form }}px;
+		--loudz-popup-link-color: {{ section.settings.popup_link_color }};
+		--loudz-popup-border-radius: {{ section.settings.popup_border_radius }}px;
+		--loudz-top-text-size: {{ section.settings.mobile_top_text_size }}px;
+		--loudz-top-text-weight: {{ section.settings.top_text_weight }};
+		--loudz-top-text-to-heading-gap: {{ section.settings.top_text_to_heading_gap }}px;
+		}
+
+	@media screen and (min-width: 768px) {
+		#loudz-{{ section.id }} {
+			--loudz-padding-top: {{ section.settings.desktop_top_padding }}px;
+			--loudz-padding-bottom: {{ section.settings.desktop_bottom_padding }}px;
+			--loudz-icon-width: {{ section.settings.desktop_icon_width }}px;
+			--loudz-heading-top-space: {{ section.settings.desktop_heading_top_space }}px;
+			--loudz-heading-size: {{ section.settings.desktop_heading_text_size }}px;
+			--loudz-description-top-space: {{ section.settings.desktop_top_space }}px;
+			--loudz-description-size: {{ section.settings.desktop_description_text_size }}px;
+			--loudz-form-top-space: {{ section.settings.desktop_form_top_space }}px;
+			--loudz-input-text-size: {{ section.settings.desktop_input_text_size }}px;
+			--loudz-button-top-space: {{ section.settings.desktop_button_top_space }}px;
+			--loudz-button-text-size: {{ section.settings.desktop_button_text_size }}px;
+			--loudz-horizontal-gap: {{ section.settings.desktop_gap_between_image_form }}px;
+			--loudz-image-position: {{ section.settings.desktop_image_position }};
+			--loudz-top-text-size: {{ section.settings.desktop_top_text_size }}px;
+		}
+	}
+	@media screen and (min-width: 1024px) {
+  .loudz__form.loudz__flex {
+    margin-left: 0;    /* reset */
+    transform: translateX(-12px); /* move left by 50px */
+  }
+}
+
+</style>
+
+<script>
+	function setStorageItem(key, value, days) {
+		const expiry = new Date(Date.now() + days * 86400000).getTime();
+		localStorage.setItem(key, JSON.stringify({ value, expiry }));
+	}
+
+	function getStorageItem(key) {
+		const item = localStorage.getItem(key);
+		if (!item) return null;
+		const { value, expiry } = JSON.parse(item);
+		if (expiry && Date.now() > expiry) {
+			localStorage.removeItem(key);
+			return null;
+		}
+		return value;
+	}
+
+	function initializePopup() {
+		const popupOverlay = document.querySelector('.loudz__popup');
+		if (!popupOverlay) return;
+
+		const customizationMode = popupOverlay.getAttribute('data-customization-mode') === 'true';
+		const shouldShow = customizationMode || (!getStorageItem('popup_closed') && !getStorageItem('popup_subscribed'));
+		if (!shouldShow) return;
+
+		const popupContainer = popupOverlay.querySelector('.loudz__container');
+		const closeBtn = popupOverlay.querySelector('.icon-close');
+		const popupLink = popupOverlay.querySelector('.loudz__popup-link');
+		const form = popupOverlay.querySelector('form');
+
+		if (!popupContainer) return;
+
+		const delaySeconds = Number(popupOverlay.getAttribute('data-delay')) || 0;
+
+		// Show popup function
+		const showPopup = () => {
+			popupOverlay.classList.add('active');
+			popupContainer.classList.add('active');
+		};
+
+		// Close popup function
+		const closePopup = () => {
+			popupOverlay.classList.remove('active');
+			popupContainer.classList.remove('active');
+			if (!customizationMode) {
+				setStorageItem('popup_closed', true, 1);
+			}
+		};
+
+		// Delay logic
+		if (delaySeconds === 0) {
+			showPopup();
+		} else {
+			const delayMs = delaySeconds * 1000;
+			setTimeout(showPopup, delayMs);
+		}
+
+		// Close popup when clicking on overlay (loudz__popup)
+		popupOverlay.addEventListener('click', () => {
+			closePopup();
+		});
+
+		// Prevent close when clicking inside the container
+		popupContainer.addEventListener('click', (event) => {
+			event.stopPropagation();
+		});
+
+		// Close popup on clicking the close button
+		if (closeBtn) {
+			closeBtn.addEventListener('click', (event) => {
+				event.stopPropagation(); // Optional, prevents bubbling
+				closePopup();
+			});
+		}
+
+		// Close popup on clicking the popup link
+		if (popupLink) {
+			popupLink.addEventListener('click', (event) => {
+				event.stopPropagation();
+				closePopup();
+			});
+		}
+
+		// Handle form submission for subscribe
+		if (form) {
+			form.addEventListener('submit', (event) => {
+				// Close popup immediately
+				closePopup();
+				// Set subscribed cookie after a short delay to assume success
+				setTimeout(() => {
+					if (!customizationMode) {
+						setStorageItem('popup_subscribed', true, 20);
+					}
+				}, 1000);
+			});
+		}
+	}	
+
+document.addEventListener('DOMContentLoaded', initializePopup);
+document.addEventListener('shopify:section:load', initializePopup);
+document.addEventListener('shopify:section:select', initializePopup);
+
+</script>
+
+<div id="loudz-{{ section.id }}" class="loudz-{{ section.id }}" >
+	<div {{ html_id }} data-delay="{{ section.settings.popup_delay }}" data-customization-mode="{{ section.settings.enable_customization_mode | json }}" class="{{'loudz__popup loudz__flex '| append: section.settings.html_class | strip }}">
+		<div class="loudz__container loudz__flex">
+			<div class="loudz__image-wrapper">
+				{% if section.settings.image != blank %}
+					{{ section.settings.image | image_url: width: 354 |  image_tag: loading: 'lazy', class: "loudz__img"  }}
+					{% else %}
+					<img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Placeholder" class="loudz__img" loading="lazy">
+				{% endif %}
+			</div>
+
+<div class="loudz__form loudz__flex"> 
+	{% unless section.settings.disable_icon %}
+	<div class="loudz__icon{% if section.settings.custom_svg_code != blank %} loudz-svg-custom{% endif %}">
+		{% if section.settings.enable_custom_image and section.settings.popup_icon != blank %}
+			{{ section.settings.popup_icon |  image_url: width: 200 | image_tag: loading: 'lazy' }}
+		{% elsif section.settings.custom_svg_code != blank %}
+			{{ section.settings.custom_svg_code }}
+		{% else %}
+			<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+				<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+				<g id="SVGRepo_iconCarrier">
+					<path d="M10 9.66679L11.3846 11.0001L14.5 8.00012M3.02832 10.0001L10.2246 14.8167C10.8661 15.2444 11.1869 15.4582 11.5336 15.5413C11.8399 15.6147 12.1593 15.6147 12.4657 15.5413C12.8124 15.4582 13.1332 15.2444 13.7747 14.8167L20.971 10.0001M10.2981 4.06892L4.49814 7.71139C3.95121 8.05487 3.67775 8.2266 3.4794 8.45876C3.30385 8.66424 3.17176 8.90317 3.09111 9.16112C3 9.45256 3 9.77548 3 10.4213V16.8001C3 17.9202 3 18.4803 3.21799 18.9081C3.40973 19.2844 3.71569 19.5904 4.09202 19.7821C4.51984 20.0001 5.0799 20.0001 6.2 20.0001H17.8C18.9201 20.0001 19.4802 20.0001 19.908 19.7821C20.2843 19.5904 20.5903 19.2844 20.782 18.9081C21 18.4803 21 17.9202 21 16.8001V10.4213C21 9.77548 21 9.45256 20.9089 9.16112C20.8282 8.90317 20.6962 8.66424 20.5206 8.45876C20.3223 8.2266 20.0488 8.05487 19.5019 7.71139L13.7019 4.06891C13.0846 3.68129 12.776 3.48747 12.4449 3.41192C12.152 3.34512 11.848 3.34512 11.5551 3.41192C11.224 3.48747 10.9154 3.68129 10.2981 4.06892Z" stroke="#1c1c1c" stroke-width="0.504" stroke-linecap="round" stroke-linejoin="round"></path>
+				</g>
+			</svg>
+		{% endif %}
+
+				</div>
+	{% endunless %}
+	{% if section.settings.enable_top_text %}
+	<div class="loudz__top-text">{{ section.settings.top_text }}</div>
+	{% endif %}
+				<h2 class="loudz__heading">{{ section.settings.heading }}</h2>
+				<p>{{ section.settings.description }}</p>
+				{% form 'customer'%}
+					<input type="email" name="contact[email]" value="{{ form.email }}" required placeholder="{{ section.settings.placeholder_text }}">
+					<button class="loudz__submit-button" type="submit">{{ section.settings.button_text }}</button>
+				{% endform %}
+				{% if section.settings.popup_link != blank %}
+					<span class="loudz__popup-link">{{ section.settings.popup_link }}</span>
+				{% endif %}
+					<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" class="icon icon-close" fill="none" viewBox="0 0 18 17">
+						<path d="M.865 15.978a.5.5 0 00.707.707l7.433-7.431 7.579 7.282a.501.501 0 00.846-.37.5.5 0 00-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 10-.707-.708L8.991 7.853 1.413.573a.5.5 0 10-.693.72l7.563 7.268-7.418 7.417z" fill="currentColor">
+					</svg>
+				</div>
+		</div>
+	</div>
+</div>
+
+{% schema %}
+{
+	"name": "Promotional Newsletter",
+
+	"class": "loudz-section loudz-newsletter-2",
+	"tag": "section",
+	"settings": [
+		{
+
+
+			"type": "header",
+			"content": "Display Behavior"
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_customization_mode",
+			"label": "Enable Customization Mode (ignores cookies for editing)",
+			"default": true
+
+			},
+		{
+			"type": "number",
+			"id": "popup_delay",
+			"default": 0,
+			"label": "Delay before popup appears (seconds)",
+			"info": "Set to 0 for immediate display; otherwise, enter seconds to wait."
+		},
+		{
+			"type": "header",
+			"content": "Top Text"
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_top_text",
+			"label": "Enable Top Text",
+			"default": true
+		},
+		{
+			"type": "text",
+			"id": "top_text",
+			"label": "Top Text Content",
+			"default": "👋 Hey You"
+		},
+		{
+			"type": "select",
+			"id": "top_text_weight",
+			"label": "Top Text Font Weight",
+			"options": [
+				{
+					"value": "100",
+					"label": "Thin"
+				},
+				{
+					"value": "200",
+					"label": "Extra light"
+				},
+				{
+					"value": "300",
+					"label": "Light"
+				},
+				{
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi Bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra Bold"
+        },
+        {
+          "value": "900",
+          "label": "Black"
+        }
+			],
+			"default": "400"
+		},
+		{
+			"type": "range",
+			"id": "desktop_top_text_size",
+			"label": "Desktop: Top Text Font Size (px)",
+			"min": 12,
+			"max": 48,
+			"step": 1,
+			"unit": "px",
+			"default": 18
+		},
+		{
+			"type": "range",
+			"id": "mobile_top_text_size",
+			"label": "Mobile: Top Text Font Size (px)",
+			"min": 12,
+			"max": 48,
+			"step": 1,
+			"unit": "px",
+			"default": 18
+		},
+		{
+			"type": "range",
+			"id": "top_text_to_heading_gap",
+			"label": "Gap between Top Text and Heading (px)",
+			"min": 0,
+			"max": 30,
+			"step": 1,
+			"unit": "px",
+			"default": 0
+		},
+		{
+			"type": "checkbox",
+			"id": "disable_icon",
+			"label": "Disable Image/Icon above heading",
+			"default": true
+	
+	},
+		{
+			"type": "inline_richtext",
+			"id": "heading",
+			"label": "Main heading text",
+			"default": "Sign up and save 15%"
+		},
+		{
+			"type": "range",
+			"id": "desktop_heading_text_size",
+			"label": "Desktop: Main heading font size (px)",
+			"min": 12,
+			"max": 72,
+			"step": 1,
+			"unit": "px",
+			"default": 24
+		},
+		{
+			"type": "range",
+			"id": "mobile_heading_text_size",
+			"label": "Mobile: Main heading font size (px)",
+			"min": 12,
+			"max": 72,
+			"step": 1,
+			"unit": "px",
+			"default": 24
+		},
+		{
+			"type": "select",
+			"id": "heading_text_weight",
+			"label": "Main heading font weight",
+			"options": [
+				{
+					"value": "100",
+					"label": "Thin"
+				},
+				{
+					"value": "200",
+					"label": "Extra light"
+				},
+				{
+					"value": "300",
+					"label": "Light"
+				},
+				{
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi Bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra Bold"
+        },
+        {
+          "value": "900",
+          "label": "Black"
+        }
+			],
+			"default": "500"
+		},
+		{
+			"type": "inline_richtext",
+			"id": "description",
+			"label": "Supporting description text",
+			"default": "Whether you’re welcoming new contacts or sharing the latest news, you can make your business look good in just a few clicks."
+		},
+		{
+			"type": "range",
+			"id": "desktop_description_text_size",
+			"label": "Desktop: Description font size (px)",
+			"min": 12,
+			"max": 32,
+			"step": 1,
+			"unit": "px",
+			"default": 16
+		},
+		{
+			"type": "range",
+			"id": "mobile_description_text_size",
+			"label": "Mobile: Description font size (px)",
+			"min": 12,
+			"max": 32,
+			"step": 1,
+			"unit": "px",
+			"default": 16
+		},
+		{
+			"type": "select",
+			"id": "description_text_weight",
+			"label": "Description font weight",
+			"options": [
+				{
+					"value": "100",
+					"label": "Thin"
+				},
+				{
+					"value": "200",
+					"label": "Extra light"
+				},
+				{
+					"value": "300",
+					"label": "Light"
+				},
+				{
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi Bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra Bold"
+        },
+        {
+          "value": "900",
+          "label": "Black"
+        }
+			],
+			"default": "400"
+		},
+		{
+			"type": "image_picker",
+			"id": "popup_icon",
+			"label": "Optional icon above heading"
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_custom_image",
+			"label": "Enable Custom Image",
+			"default": false
+		},
+		{
+			"type": "textarea",
+			"id": "custom_svg_code",
+			"label": "Custom SVG Code",
+			"info": "Enter full <svg> tag code here to display instead of default icon or image. Use 'currentColor' for stroke/fill colors to allow customization."
+		},
+		{
+			"type": "range",
+			"id": "svg_size",
+			"label": "Custom SVG Size (px)",
+			"min": 20,
+			"max": 200,
+			"step": 2,
+			"unit": "px",
+			"default": 72
+		},
+		{
+			"type": "color",
+			"id": "svg_color",
+			"label": "SVG Color",
+			"default": "#000000"
+		},
+		{
+			"type": "range",
+			"id": "desktop_icon_width",
+			"label": "Desktop: Icon display width",
+			"max": 200,
+			"min": 20,
+			"step": 2,
+			"unit": "px",
+			"default": 72
+		},
+		{
+			"type": "range",
+			"id": "mobile_icon_width",
+			"label": "Mobile: Icon display width",
+			"max": 200,
+			"min": 20,
+			"step": 2,
+			"unit": "px",
+			"default": 72
+		},
+		{
+			"type": "image_picker",
+			"id": "image",
+			"label": "Optional promotional image"
+		},
+		{
+			"type": "header",
+			"content": "Form Settings"
+		},
+		{
+			"type": "text",
+			"id": "placeholder_text",
+			"label": "Email input placeholder",
+			"default": "Email address"
+		},
+		{
+			"type": "range",
+			"id": "desktop_input_text_size",
+			"label": "Desktop: Email input font size (px)",
+			"min": 12,
+			"max": 24,
+			"step": 1,
+			"unit": "px",
+			"default": 16
+		},
+		{
+			"type": "range",
+			"id": "mobile_input_text_size",
+			"label": "Mobile: Email input font size (px)",
+			"min": 12,
+			"max": 24,
+			"step": 1,
+			"unit": "px",
+			"default": 16
+		},
+		{
+			"type": "range",
+			"id": "input_border_thickness",
+			"label": "Email input border thickness (px)",
+			"min": 0,
+			"max": 5,
+			"step": 1,
+			"unit": "px",
+			"default": 1
+		},
+		{
+			"type": "range",
+			"max": 50,
+			"min": 0,
+			"id": "input_border_radius",
+			"label": "Email input border radius",
+			"step": 1,
+			"default": 6,
+			"unit": "px"
+		},
+		{
+			"type": "select",
+			"id": "input_text_weight",
+			"label": "Email input font weight",
+			"options": [
+				{
+					"value": "100",
+					"label": "Thin"
+				},
+				{
+					"value": "200",
+					"label": "Extra light"
+				},
+				{
+					"value": "300",
+					"label": "Light"
+				},
+				{
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi Bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra Bold"
+        },
+        {
+          "value": "900",
+          "label": "Black"
+        }
+			],
+			"default": "400"
+		},
+		{
+			"type": "text",
+			"id": "button_text",
+			"label": "Subscribe button label",
+			"default": "Subsribe Now"
+		},
+		{
+			"type": "select",
+			"id": "button_text_weight",
+			"label": "Button font weight",
+			"options": [
+				{
+					"value": "100",
+					"label": "Thin"
+				},
+				{
+					"value": "200",
+					"label": "Extra light"
+				},
+				{
+					"value": "300",
+					"label": "Light"
+				},
+				{
+          "value": "400",
+          "label": "Regular"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi Bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        },
+        {
+          "value": "800",
+          "label": "Extra Bold"
+        },
+        {
+          "value": "900",
+          "label": "Black"
+        }
+			],
+			"default": "400"
+		},
+		{
+			"type": "range",
+			"id": "desktop_button_text_size",
+			"label": "Desktop: Button font size (px)",
+			"min": 12,
+			"max": 24,
+			"step": 1,
+			"unit": "px",
+			"default": 16
+		},
+		{
+			"type": "range",
+			"id": "mobile_button_text_size",
+			"label": "Mobile: Button font size (px)",
+			"min": 12,
+			"max": 24,
+			"step": 1,
+			"unit": "px",
+			"default": 16
+		},
+		{
+			"type": "range",
+			"max": 50,
+			"min": 0,
+			"id": "button_border_radius",
+			"label": "Button border radius",
+			"step": 1,
+			"default": 8,
+			"unit": "px"
+		},
+		{
+			"type": "inline_richtext",
+			"label": "Optional dismiss link text (e.g., 'No thanks')",
+			"id": "popup_link",
+			"default": "No thanks"
+
+		},
+		{
+			"type": "header",
+			"content": "Design Colors"
+		},
+		{
+			"type": "color",
+			"id": "background_color",
+			"label": "Popup background color",
+			"default": "#FFFFFF"
+		},
+		{
+			"type": "color_background",
+			"id": "background_gradient",
+			"label": "Popup background gradient",
+			"info": "If set, overrides the background color."
+		},
+		{
+			"type": "color",
+			"id": "overlay_color",
+			"label": "Backdrop overlay color",
+			"default": "#000000"
+		},
+		{
+			"type": "range",
+			"id": "overlay_opacity",
+			"label": "Backdrop overlay opacity",
+			"max": 100,
+			"min" : 10,
+			"step": 1,
+			"default": 50,
+			"unit": "%"
+		},
+		{
+			"type": "color",
+			"id": "heading_color",
+			"label": "Main heading text color",
+			"default": "#000000"
+		},
+		{
+			"type": "color",
+			"id": "description_color",
+			"label": "Description text color", 
+			"default": "#4B4D6C"
+		},
+		{
+			"type": "color",
+			"id": "input_color",
+			"label": "Email input text color",
+			"default": "#000000"
+		},
+		{
+			"type": "color",
+			"id": "input_background_color",
+			"label": "Email input background color",
+			"default": "#FFFFFF"
+		},
+		{
+			"type": "color",
+			"id": "input_border_color",
+			"label": "Email input border color",
+			"default": "#808080"
+		},
+		{
+			"type": "color",
+			"id": "input_placeholder_color",
+			"label": "Email placeholder text color",
+			"default": "#808080"
+		},
+		{
+			"type": "color",
+			"id": "button_text_color",
+			"label": "Button text color",
+			"default": "#FFFFFF"
+		},
+		{
+			"type": "color",
+			"id": "button_background",
+			"label": "Button background color",
+			"default": "#000000"
+		},
+		{
+			"type": "color",
+			"id": "popup_link_color",
+			"label": "Dismiss link text color",
+			"default": "#000000"
+		},
+		{
+			"type": "header",
+			"content": "Layout and Spacing"
+		},
+		{
+			"type": "number",
+			"id": "section_width",
+			"label": "Maximum popup width (px)",
+			"default": 800
+		},
+		{
+			"type": "range",
+			"id": "popup_border_radius",
+			"label": "Overall Popup Border Radius",
+			"min": 0,
+			"max": 50,
+			"step": 1,
+			"unit": "px",
+			"default": 10
+		},
+		{
+			"type": "select",
+			"id": "desktop_image_position",
+			"label": "Desktop: Image placement relative to form",
+			"options":[
+				{
+					"value": "row",
+					"label": "Image on left, form on right"
+				}, 
+				{
+					"value": "row-reverse",
+					"label": "Form on left, image on right"
+				},
+				{
+					"value": "column",
+					"label": "Image above form"
+				},
+				{
+					"value": "column-reverse",
+					"label": "Form above image"
+				}
+			],
+			"default": "row"
+		},
+		{
+			"type": "select",
+			"id": "mobile_image_position",
+			"label": "Mobile: Image placement relative to form",
+			"options": [
+				{
+					"value": "column",
+					"label": "Image above form"
+				},
+				{
+					"value": "column-reverse",
+					"label": "Form above image"
+				}
+			],
+			"default": "column"
+		},
+		{
+			"type": "range",
+			"id": "desktop_gap_between_image_form",
+			"label": "Desktop: Gap between image and form",
+			"default": 50,
+			"step": 1,
+			"min": 10,
+			"max": 100,
+			"unit": "px"
+		},
+		{
+			"type": "range",
+			"id": "mobile_gap_between_image_form",
+			"label": "Mobile: Gap between image and form",
+			"default": 50,
+			"step": 1,
+			"min": 10,
+			"max": 100,
+			"unit": "px"
+		},
+		{
+			"type": "range",
+			"id": "desktop_heading_top_space",
+			"label": "Desktop: Space above main heading",
+			"min": 0,
+			"max": 50,
+			"default": 16,
+			"step": 1,
+			"unit": "px"
+		},
+		{
+			"type": "range",
+			"id": "mobile_heading_top_space",
+			"label": "Mobile: Space above main heading",
+			"min": 0,
+			"max": 50,
+			"default": 16,
+			"step": 1,
+			"unit": "px"
+		},
+		{
+			"type": "range",
+			"id": "desktop_top_space",
+			"label": "Desktop: Space above description",
+			"min": 0,
+			"max": 50,
+			"default": 12,
+			"step": 1,
+			"unit": "px"
+		},
+		{
+			"type": "range",
+			"id": "mobile_top_space",
+			"label": "Mobile: Space above description",
+			"min": 0,
+			"max": 50,
+			"default": 12,
+			"step": 1,
+			"unit": "px"
+		},
+		{
+			"type": "range",
+			"id": "desktop_form_top_space",
+			"label": "Desktop: Space above email form",
+			"min": 0,
+			"max": 50,
+			"default": 32,
+			"step": 1,
+			"unit": "px"
+		},
+		{
+			"type": "range",
+			"id": "mobile_form_top_space",
+			"label": "Mobile: Space above email form",
+			"min": 0,
+			"max": 50,
+			"default": 32,
+			"step": 1,
+			"unit": "px"
+		},
+		{
+			"type": "range",
+			"id": "desktop_button_top_space",
+			"label": "Desktop: Space above subscribe button",
+			"min": 0,
+			"max": 50,
+			"default": 12,
+			"step": 1,
+			"unit": "px"
+		},
+		{
+			"type": "range",
+			"id": "mobile_button_top_space",
+			"label": "Mobile: Space above subscribe button",
+			"min": 0,
+			"max": 50,
+			"default": 12,
+			"step": 1,
+			"unit": "px"
+		},
+		{
+			"type": "header",
+			"content": "Popup Padding"
+		},
+		{
+      "type": "range",
+      "id": "desktop_top_padding",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop: Overall top padding inside popup",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "desktop_bottom_padding",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop: Overall bottom padding inside popup",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mobile_top_padding",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile: Overall top padding inside popup",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mobile_bottom_padding",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile: Overall bottom padding inside popup",
+      "default": 60
+
+    }
+	],
+	"presets": [
+		{
+			"name": "Promotional Newsletter Popup",
+				"category": "Promotional Popup",
+			"settings": {
+				"heading": "Subscribe to get exclusive offers!",
+				"description": "Fill in your email and get acces to all teh amazing offers. Check you email.",
+				"placeholder_text": "Email address",
+				"button_text": "Subscribe Now!",
+				"popup_link": "No thanks"
+			}
+		}
+	]
+}
+{% endschema %}

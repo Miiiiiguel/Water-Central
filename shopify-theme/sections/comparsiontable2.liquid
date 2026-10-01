@@ -1,0 +1,357 @@
+{% comment %}  
+  Section: Comparison Cards (1:1 like screenshot)
+  Features
+  - Big headline centered
+  - Two cards: left (US, green) with 5 check items, right (THEM, light gray) with 5 cross items
+  - Product image sits half outside / half inside the card (configurable overlap)
+  - Exact spacing like reference, responsive (desktop 2 columns, mobile stacked)
+  - Tons of customizers: colors, paddings, radii, shadow, fonts, icon style, list
+  - Default placeholder image if none selected (per user request)
+{% endcomment %}
+
+<section id="cmp-{{ section.id }}" class="cmp">
+  <div class="cmp-container {% if section.settings.full_width %}cmp-container--full{% endif %}">
+    {% if section.settings.heading != blank %}
+      <h2 class="cmp-heading" style="--cmp-head-size-desktop: {{ section.settings.heading_size_desktop }}px; --cmp-head-size-mobile: {{ section.settings.heading_size_mobile }}px;">
+        {{ section.settings.heading }}
+      </h2>
+    {% endif %}
+
+    <div class="cmp-grid">
+      <!-- LEFT: US -->
+      <div class="cmp-card cmp-card--us">
+        <div class="cmp-product-wrap">
+          {% if section.settings.us_image != blank %}
+            <img
+              src="{{ section.settings.us_image | image_url: width: 1200 }}"
+              alt="{{ section.settings.us_title | escape }}"
+              loading="lazy"
+              class="cmp-product"
+              style="--cmp-product-w: {{ section.settings.product_width }}px;"
+            >
+          {% else %}
+            <div class="cmp-ph" style="--cmp-product-w: {{ section.settings.product_width }}px;">
+              <img
+                src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+                alt="{{ section.settings.us_title | escape }}"
+                loading="lazy"
+                class="cmp-product is-placeholder"
+              >
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="cmp-inner">
+          <div class="cmp-title cmp-title--us">{{ section.settings.us_title }}</div>
+
+          <ul class="cmp-list">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'us_point' -%}
+                <li class="cmp-item">
+                  <span class="cmp-icon" aria-hidden="true">
+                    {% if section.settings.icon_style == 'solid' %}
+                      <!-- solid check in circle -->
+                      <svg viewBox="0 0 20 20" width="20" height="20" xmlns="http://www.w3.org/2000/svg" role="img">
+                        <circle cx="10" cy="10" r="9" fill="{{ section.settings.us_icon_bg }}" />
+                        <path d="M6 10.3l2.4 2.4L14.3 6.8" fill="none" stroke="{{ section.settings.us_icon_fg }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    {% else %}
+                      <!-- outline check in circle -->
+                      <svg viewBox="0 0 20 20" width="20" height="20" xmlns="http://www.w3.org/2000/svg" role="img">
+                        <circle cx="10" cy="10" r="8" fill="none" stroke="{{ section.settings.us_icon_bg }}" stroke-width="2" />
+                        <path d="M6 10.3l2.4 2.4L14.3 6.8" fill="none" stroke="{{ section.settings.us_icon_fg }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    {% endif %}
+                  </span>
+                  <span class="cmp-text">{{ block.settings.text }}</span>
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </div>
+      </div>
+
+      <!-- RIGHT: THEM -->
+      <div class="cmp-card cmp-card--them">
+        <div class="cmp-product-wrap">
+          {% if section.settings.them_image != blank %}
+            <img
+              src="{{ section.settings.them_image | image_url: width: 1200 }}"
+              alt="{{ section.settings.them_title | escape }}"
+              loading="lazy"
+              class="cmp-product"
+              style="--cmp-product-w: {{ section.settings.product_width }}px;"
+            >
+          {% else %}
+            <div class="cmp-ph" style="--cmp-product-w: {{ section.settings.product_width }}px;">
+              <img
+                src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+                alt="{{ section.settings.them_title | escape }}"
+                loading="lazy"
+                class="cmp-product is-placeholder"
+              >
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="cmp-inner">
+          <div class="cmp-title cmp-title--them">{{ section.settings.them_title }}</div>
+
+          <ul class="cmp-list">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'them_point' -%}
+                <li class="cmp-item">
+                  <span class="cmp-icon" aria-hidden="true">
+                    {% if section.settings.icon_style == 'solid' %}
+                      <!-- solid cross in circle -->
+                      <svg viewBox="0 0 20 20" width="20" height="20" xmlns="http://www.w3.org/2000/svg" role="img">
+                        <circle cx="10" cy="10" r="9" fill="{{ section.settings.them_icon_bg }}" />
+                        <path d="M6.5 6.5l7 7M13.5 6.5l-7 7" fill="none" stroke="{{ section.settings.them_icon_fg }}" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                    {% else %}
+                      <!-- outline cross in circle -->
+                      <svg viewBox="0 0 20 20" width="20" height="20" xmlns="http://www.w3.org/2000/svg" role="img">
+                        <circle cx="10" cy="10" r="8" fill="none" stroke="{{ section.settings.them_icon_bg }}" stroke-width="2" />
+                        <path d="M6.5 6.5l7 7M13.5 6.5l-7 7" fill="none" stroke="{{ section.settings.them_icon_fg }}" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                    {% endif %}
+                  </span>
+                  <span class="cmp-text">{{ block.settings.text }}</span>
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% style %}
+  #cmp-{{ section.id }} {
+    --cmp-radius: {{ section.settings.card_radius }}px;
+    --cmp-shadow: {% if section.settings.card_shadow %}0 8px 24px rgba(0,0,0,.08){% else %}none{% endif %};
+    --cmp-pad-x: 32px;
+    --cmp-pad-y: 40px;
+    --cmp-product-overlap: {{ section.settings.product_overlap }}px;
+    --cmp-text-size: 14px;
+    --cmp-line: 1.5;
+    --cmp-heading-margin-desktop: {{ section.settings.heading_margin_desktop }}px;
+    --cmp-heading-margin-mobile: {{ section.settings.heading_margin_mobile }}px;
+    --cmp-cards-gap-desktop: {{ section.settings.cards_gap_desktop }}px;
+    --cmp-cards-gap-mobile: {{ section.settings.cards_gap_mobile }}px;
+
+    padding-block: {{ section.settings.pad_top }}px {{ section.settings.pad_bottom }}px;
+    background: {{ section.settings.section_bg }};
+  }
+
+  #cmp-{{ section.id }} .cmp-container {
+    max-width: {% if section.settings.full_width %}100%{% endif %}{{ section.settings.container_width }}px;
+    margin: 0 auto;
+    padding-inline: 20px;
+  }
+  #cmp-{{ section.id }} .cmp-container--full { max-width: 100%; }
+
+  #cmp-{{ section.id }} .cmp-heading {
+    text-align: center;
+    font-weight: {{ section.settings.heading_font_weight }};
+    letter-spacing: .02em;
+    margin: 0 0 var(--cmp-heading-margin-desktop);
+    font-size: var(--cmp-head-size-desktop);
+  }
+
+  #cmp-{{ section.id }} .cmp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--cmp-cards-gap-desktop);
+    align-items: stretch;
+  }
+
+  #cmp-{{ section.id }} .cmp-card {
+    position: relative;
+    border-radius: var(--cmp-radius);
+    box-shadow: var(--cmp-shadow);
+    overflow: visible;
+  }
+
+  #cmp-{{ section.id }} .cmp-card--us { background: {{ section.settings.us_bg }}; color: {{ section.settings.us_text }}; }
+  #cmp-{{ section.id }} .cmp-card--them { background: {{ section.settings.them_bg }}; color: {{ section.settings.them_text }}; }
+
+  #cmp-{{ section.id }} .cmp-product-wrap {
+    position: absolute;
+    inset-inline: 0;
+    top: calc(-1 * var(--cmp-product-overlap));
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Real images */
+  #cmp-{{ section.id }} .cmp-product {
+    width: var(--cmp-product-w);
+    height: auto;
+    object-fit: cover; /* cover-fit as requested */
+    display: block;
+  }
+
+  /* Placeholder box: slightly portrait (not square), only when no image is picked */
+  #cmp-{{ section.id }} .cmp-ph {
+    width: var(--cmp-product-w);
+    aspect-ratio: 4 / 4; /* a little portrait */
+    overflow: hidden;
+    border-radius: 12px;
+  }
+  #cmp-{{ section.id }} .cmp-ph .cmp-product.is-placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  #cmp-{{ section.id }} .cmp-inner {
+    padding: calc(var(--cmp-pad-y) + var(--cmp-product-overlap)) var(--cmp-pad-x) var(--cmp-pad-y);
+  }
+
+  #cmp-{{ section.id }} .cmp-title {
+    text-align: center;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: .04em;
+    margin: 6px 0 14px;
+  }
+  #cmp-{{ section.id }} .cmp-title--us { color: {{ section.settings.us_title_color }}; }
+  #cmp-{{ section.id }} .cmp-title--them { color: {{ section.settings.them_title_color }}; }
+
+  #cmp-{{ section.id }} .cmp-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 12px;
+  }
+
+  #cmp-{{ section.id }} .cmp-item {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    align-items: start;
+    gap: 12px;
+  }
+
+  #cmp-{{ section.id }} .cmp-text {
+    font-size: var(--cmp-text-size);
+    line-height: var(--cmp-line);
+    color: currentColor;
+    opacity: .95;
+  }
+
+  /* Responsive */
+  @media (max-width: 990px) {
+    #cmp-{{ section.id }} { --cmp-pad-x: 22px; --cmp-pad-y: 32px; }
+    #cmp-{{ section.id }} .cmp-grid { 
+      grid-template-columns: 1fr; 
+      gap: var(--cmp-cards-gap-mobile);
+    }
+    #cmp-{{ section.id }} .cmp-heading { 
+      margin-bottom: var(--cmp-heading-margin-mobile); 
+      font-size: var(--cmp-head-size-mobile);
+    }
+  }
+  {% endstyle %}
+</section>
+
+{% schema %}
+{
+  "name": "Comparison Cards",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "checkbox", "id": "full_width", "label": "Full width", "default": false },
+    { "type": "range", "id": "container_width", "label": "Container width (px)", "min": 900, "max": 1600, "step": 10, "default": 1100 },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Why we are the best?" },
+    { "type": "range", "id": "heading_size_desktop", "label": "Heading size desktop (px)", "min": 16, "max": 64, "step": 1, "default": 32 },
+    { "type": "range", "id": "heading_size_mobile", "label": "Heading size mobile (px)", "min": 16, "max": 64, "step": 1, "default": 31 },
+    { "type": "select", "id": "heading_font_weight", "label": "Heading font weight", "default": "600", "options": [
+      { "value": "400", "label": "Normal" },
+      { "value": "500", "label": "Medium" },
+      { "value": "600", "label": "Semi-bold" },
+      { "value": "700", "label": "Bold" },
+      { "value": "800", "label": "Extra Bold" }
+    ] },
+
+    { "type": "header", "content": "Section styling" },
+    { "type": "color", "id": "section_bg", "label": "Section background", "default": "#ffffff" },
+    { "type": "range", "id": "pad_top", "label": "Padding top (px)", "min": 0, "max": 120, "step": 2, "default": 24 },
+    { "type": "range", "id": "pad_bottom", "label": "Padding bottom (px)", "min": 0, "max": 120, "step": 2, "default": 24 },
+    { "type": "range", "id": "heading_margin_desktop", "label": "Heading to cards gap desktop (px)", "min": 0, "max": 200, "step": 2, "default": 132 },
+    { "type": "range", "id": "heading_margin_mobile", "label": "Heading to cards gap mobile (px)", "min": 0, "max": 200, "step": 2, "default": 134 },
+    { "type": "range", "id": "cards_gap_desktop", "label": "Cards gap desktop (px)", "min": 0, "max": 200, "step": 2, "default": 28 },
+    { "type": "range", "id": "cards_gap_mobile", "label": "Cards gap mobile (px)", "min": 0, "max": 200, "step": 2, "default": 110 },
+
+    { "type": "header", "content": "Card & product" },
+    { "type": "range", "id": "card_radius", "label": "Card corner radius (px)", "min": 0, "max": 32, "step": 1, "default": 12 },
+    { "type": "checkbox", "id": "card_shadow", "label": "Enable card shadow", "default": false },
+    { "type": "image_picker", "id": "us_image", "label": "US product image" },
+    { "type": "image_picker", "id": "them_image", "label": "THEM product image" },
+    { "type": "range", "id": "product_width", "label": "Product width (px)", "min": 80, "max": 260, "step": 2, "default": 130 },
+    { "type": "range", "id": "product_overlap", "label": "Product overlap amount (px)", "min": 10, "max": 140, "step": 2, "default": 68 },
+
+    { "type": "header", "content": "US (left card)" },
+    { "type": "text", "id": "us_title", "label": "US title", "default": "US" },
+    { "type": "color", "id": "us_bg", "label": "US card background", "default": "#2D2D2D" },
+    { "type": "color", "id": "us_text", "label": "US text color", "default": "#ffffff" },
+    { "type": "color", "id": "us_title_color", "label": "US title color", "default": "#ffffff" },
+    { "type": "color", "id": "us_icon_bg", "label": "US icon circle", "default": "#2E57FF" },
+    { "type": "color", "id": "us_icon_fg", "label": "US icon check", "default": "#FFFFFF" },
+
+    { "type": "header", "content": "THEM (right card)" },
+    { "type": "text", "id": "them_title", "label": "THEM title", "default": "THEM" },
+    { "type": "color", "id": "them_bg", "label": "THEM card background", "default": "#E7E7E7" },
+    { "type": "color", "id": "them_text", "label": "THEM text color", "default": "#111111" },
+    { "type": "color", "id": "them_title_color", "label": "THEM title color", "default": "#111111" },
+    { "type": "color", "id": "them_icon_bg", "label": "THEM icon circle", "default": "#9aa0a6" },
+    { "type": "color", "id": "them_icon_fg", "label": "THEM icon cross", "default": "#ffffff" },
+
+    { "type": "select", "id": "icon_style", "label": "Icon style", "default": "solid", "options": [
+      { "value": "solid", "label": "Solid circle" },
+      { "value": "outline", "label": "Outline circle" }
+    ] }
+  ],
+  "blocks": [
+    {
+      "type": "us_point",
+      "name": "US: point",
+      "limit": 10,
+      "settings": [
+        { "type": "text", "id": "text", "label": "Text", "default": "This is just dummy text simply dummy text" }
+      ]
+    },
+    {
+      "type": "them_point",
+      "name": "THEM: point",
+      "limit": 10,
+      "settings": [
+        { "type": "text", "id": "text", "label": "Text", "default": "This is just dummy text simply dummy text" }
+      ]
+    }
+  ],
+  "max_blocks": 20,
+  "presets": [
+    {
+      "name": "Comparison Cards",
+      "category": "Comparisons",
+      "blocks": [
+        { "type": "us_point" },
+        { "type": "us_point" },
+        { "type": "us_point" },
+        { "type": "us_point" },
+        { "type": "us_point" },
+        { "type": "them_point" },
+        { "type": "them_point" },
+        { "type": "them_point" },
+        { "type": "them_point" },
+        { "type": "them_point" }
+      ]
+    }
+  ]
+}
+{% endschema %}

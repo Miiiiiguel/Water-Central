@@ -1,0 +1,449 @@
+<section
+  class="rm-hero"
+  id="rm-hero-{{ section.id }}"
+  data-section-id="{{ section.id }}"
+>
+  <style>
+    /* ---- Scoped variables ---- */
+    #rm-hero-{{ section.id }}{
+      --rm-bg: {{ section.settings.bg_color }};
+      --rm-gradient: {% if section.settings.enable_bg_gradient and section.settings.bg_gradient != blank %}{{ section.settings.bg_gradient }}{% else %}none{% endif %};
+      --rm-overlay: {{ section.settings.overlay_color }};
+      --rm-overlay-opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+      --rm-content-max: {{ section.settings.max_width }}px;
+      --rm-align: {{ section.settings.text_align }};
+      --rm-gap: {{ section.settings.stack_gap }}px;
+      --rm-pt: {{ section.settings.pad_top_desktop }}px;
+      --rm-pb: {{ section.settings.pad_bottom_desktop }}px;
+      --rm-pt-m: {{ section.settings.pad_top_mobile }}px;
+      --rm-pb-m: {{ section.settings.pad_bottom_mobile }}px;
+      --rm-mt: {{ section.settings.margin_top_desktop }}px;
+      --rm-mb: {{ section.settings.margin_bottom_desktop }}px;
+      --rm-mt-m: {{ section.settings.margin_top_mobile }}px;
+      --rm-mb-m: {{ section.settings.margin_bottom_mobile }}px;
+      --rm-section-pad-left: {{ section.settings.section_pad_left }}px;
+      --rm-section-pad-right: {{ section.settings.section_pad_right }}px;
+      --rm-section-pad-left-m: {{ section.settings.section_pad_left_mobile }}px;
+      --rm-section-pad-right-m: {{ section.settings.section_pad_right_mobile }}px;
+      --rm-section-radius: {{ section.settings.section_border_radius }}px;
+      --rm-sub-btn-gap: {{ section.settings.sub_btn_gap }}px;
+      --rm-inner-pad: {{ section.settings.side_padding }}px;
+    }
+
+    {% for block in section.blocks %}
+      {% if block.type == 'eyebrow' %}
+        #rm-hero-{{ section.id }} .rm-hero__eyebrow {
+          --rm-eyebrow-color: {{ block.settings.color }};
+          --rm-eyebrow-weight: {{ block.settings.weight }};
+          --rm-eyebrow-transform: {{ block.settings.transform }};
+          --rm-eyebrow-letterspace: {{ block.settings.letterspace }}em;
+          --rm-eyebrow-opacity: {{ block.settings.opacity | divided_by: 100.0 }};
+          --rm-eyebrow-size-d: {{ block.settings.size_d }}px;
+          --rm-eyebrow-size-m: {{ block.settings.size_m }}px;
+        }
+      {% elsif block.type == 'heading' %}
+        #rm-hero-{{ section.id }} .rm-hero__heading {
+          --rm-heading-color: {{ block.settings.color }};
+          --rm-heading-weight: {{ block.settings.weight }};
+          --rm-heading-lineheight: {{ block.settings.lineheight }};
+          --rm-heading-letterspace: {{ block.settings.letterspace }}em;
+          --rm-heading-size-d: {{ block.settings.size_d }}px;
+          --rm-heading-size-m: {{ block.settings.size_m }}px;
+        }
+      {% elsif block.type == 'subheading' %}
+        #rm-hero-{{ section.id }} .rm-hero__sub {
+          --rm-sub-color: {{ block.settings.color }};
+          --rm-sub-lineheight: {{ block.settings.lineheight }};
+          --rm-sub-opacity: {{ block.settings.opacity | divided_by: 100.0 }};
+          --rm-sub-size-d: {{ block.settings.size_d }}px;
+          --rm-sub-size-m: {{ block.settings.size_m }}px;
+        }
+      {% elsif block.type == 'button' %}
+        #rm-hero-{{ section.id }} .rm-hero__btn {
+          --rm-btn-bg: {{ block.settings.bg }};
+          --rm-btn-text: {{ block.settings.text_color }};
+          --rm-btn-border: {{ block.settings.border_color }};
+          --rm-btn-border-width: {{ block.settings.border_width }}px;
+          --rm-btn-radius: {{ block.settings.radius }}px;
+          --rm-btn-pad-v: {{ block.settings.pad_v }}px;
+          --rm-btn-pad-h: {{ block.settings.pad_h }}px;
+          --rm-btn-weight: {{ block.settings.weight }};
+          --rm-btn-size-d: {{ block.settings.size_d }}px;
+          --rm-btn-size-m: {{ block.settings.size_m }}px;
+        }
+      {% endif %}
+    {% endfor %}
+
+    #rm-hero-{{ section.id }}{
+      position: relative;
+      width: calc(100% - var(--rm-section-pad-left-m) - var(--rm-section-pad-right-m));
+      margin: var(--rm-mt) auto var(--rm-mb);
+      background: var(--rm-bg);
+      background-image: var(--rm-gradient);
+      padding: var(--rm-pt) var(--rm-inner-pad) var(--rm-pb) var(--rm-inner-pad);
+      border-radius: var(--rm-section-radius);
+      overflow: hidden;
+    }
+    @media (min-width: 750px){
+      #rm-hero-{{ section.id }}{
+        width: calc(100% - var(--rm-section-pad-left) - var(--rm-section-pad-right));
+      }
+    }
+    @media (max-width: 749px){
+      #rm-hero-{{ section.id }}{
+        padding: var(--rm-pt-m) var(--rm-inner-pad) var(--rm-pb-m) var(--rm-inner-pad);
+        margin: var(--rm-mt-m) auto var(--rm-mb-m);
+      }
+    }
+    #rm-hero-{{ section.id }} .rm-hero__inner{
+      position: relative;
+      z-index: 1;
+      max-width: var(--rm-content-max);
+      margin-inline: auto;
+      text-align: var(--rm-align);
+      display: flex;
+      flex-direction: column;
+      align-items: var(--rm-align);
+      padding-inline: 0;
+    }
+    #rm-hero-{{ section.id }}::before{
+      content:"";
+      position:absolute; inset:0;
+      background: var(--rm-overlay);
+      opacity: var(--rm-overlay-opacity);
+      pointer-events:none;
+    }
+
+    /* Block base */
+    #rm-hero-{{ section.id }} .rm-hero__eyebrow{
+      font-weight: var(--rm-eyebrow-weight);
+      letter-spacing: var(--rm-eyebrow-letterspace);
+      text-transform: var(--rm-eyebrow-transform);
+      opacity: var(--rm-eyebrow-opacity);
+      color: var(--rm-eyebrow-color);
+      margin-bottom: var(--rm-gap);
+    }
+    #rm-hero-{{ section.id }} .rm-hero__heading{
+      margin: 0 0 var(--rm-gap) 0;
+      line-height: var(--rm-heading-lineheight);
+      font-weight: var(--rm-heading-weight);
+      color: var(--rm-heading-color) !important;
+      letter-spacing: var(--rm-heading-letterspace);
+    }
+    #rm-hero-{{ section.id }} .rm-hero__sub{
+      margin: 0 0 var(--rm-sub-btn-gap) 0;
+      line-height: var(--rm-sub-lineheight);
+      color: var(--rm-sub-color);
+      opacity: var(--rm-sub-opacity);
+    }
+
+    /* Sizes (desktop) */
+    #rm-hero-{{ section.id }} .rm-hero__eyebrow{
+      font-size: var(--rm-eyebrow-size-d);
+    }
+    #rm-hero-{{ section.id }} .rm-hero__heading{
+      font-size: var(--rm-heading-size-d);
+    }
+    #rm-hero-{{ section.id }} .rm-hero__sub{
+      font-size: var(--rm-sub-size-d);
+    }
+
+    /* Button */
+    #rm-hero-{{ section.id }} .rm-hero__btn{
+      display: inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:.5rem;
+      padding: var(--rm-btn-pad-v) var(--rm-btn-pad-h);
+      border-radius: var(--rm-btn-radius);
+      background: var(--rm-btn-bg);
+      color: var(--rm-btn-text);
+      border: var(--rm-btn-border-width) solid var(--rm-btn-border);
+      text-decoration:none;
+      font-weight: var(--rm-btn-weight);
+      font-size: var(--rm-btn-size-d);
+      margin-bottom: 0;
+      width: max-content;
+    }
+    #rm-hero-{{ section.id }} .rm-hero__btn:hover{
+      filter: brightness(1.08);
+    }
+
+    /* Mobile */
+    @media (max-width: 749px){
+      #rm-hero-{{ section.id }} .rm-hero__eyebrow{
+        font-size: var(--rm-eyebrow-size-m);
+      }
+      #rm-hero-{{ section.id }} .rm-hero__heading{
+        font-size: var(--rm-heading-size-m);
+      }
+      #rm-hero-{{ section.id }} .rm-hero__sub{
+        font-size: var(--rm-sub-size-m);
+      }
+      #rm-hero-{{ section.id }} .rm-hero__btn{
+        font-size: var(--rm-btn-size-m);
+      }
+    }
+  </style>
+
+  <div class="rm-hero__inner">
+    {% for block in section.blocks %}
+      {% case block.type %}
+
+        {% when 'eyebrow' %}
+          {% if block.settings.text != blank %}
+            <div class="rm-hero__eyebrow" {{ block.shopify_attributes }}>
+              {{ block.settings.text }}
+            </div>
+          {% endif %}
+
+        {% when 'heading' %}
+          {% if block.settings.text != blank %}
+            <h2 class="rm-hero__heading" style="
+              {% if block.settings.max_width > 0 %}max-width: {{ block.settings.max_width }}ch;{% endif %}
+            " {{ block.shopify_attributes }}>
+              {{ block.settings.text }}
+            </h2>
+          {% endif %}
+
+        {% when 'subheading' %}
+          {% if block.settings.text != blank %}
+            <p class="rm-hero__sub" style="
+              {% if block.settings.max_width > 0 %}max-width: {{ block.settings.max_width }}ch;{% endif %}
+            " {{ block.shopify_attributes }}>
+              {{ block.settings.text }}
+            </p>
+          {% endif %}
+
+        {% when 'button' %}
+          {% if block.settings.label != blank and block.settings.link != blank %}
+            <a class="rm-hero__btn" href="{{ block.settings.link }}" {{ block.shopify_attributes }}>
+              {{ block.settings.label }}
+            </a>
+          {% endif %}
+
+      {% endcase %}
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Promo Banner 3",
+  "tag": "section",
+  "class": "section",
+ 
+  "settings": [
+    { "type": "header", "content": "Background" },
+    { "id": "bg_color", "type": "color", "label": "Background color", "default": "#000000" },
+    { "id": "enable_bg_gradient", "type": "checkbox", "label": "Enable background gradient", "default": false },
+    { "id": "bg_gradient", "type": "color_background", "label": "Background gradient" },
+    { "id": "overlay_color", "type": "color", "label": "Tint overlay", "default": "#000000" },
+    { "id": "overlay_opacity", "type": "range", "label": "Tint opacity", "min": 0, "max": 90, "step": 1, "unit": "%", "default": 0 },
+
+    { "type": "header", "content": "Layout" },
+    { "id": "max_width", "type": "range", "label": "Content max width", "min": 480, "max": 1400, "step": 10, "unit": "px", "default": 760 },
+    { "id": "side_padding", "type": "range", "label": "Inner side padding", "min": 0, "max": 64, "step": 2, "unit": "px", "default": 16 },
+    { "id": "text_align", "type": "select", "label": "Text alignment", "default": "center", "options": [
+      { "value": "left", "label": "Left" },
+      { "value": "center", "label": "Center" },
+      { "value": "right", "label": "Right" }
+    ]},
+    { "id": "stack_gap", "type": "range", "label": "Vertical gap between most blocks", "min": 4, "max": 48, "step": 2, "unit": "px", "default": 18 },
+
+    { "type": "header", "content": "Margin" },
+    { "id": "margin_top_desktop", "type": "range", "label": "Top margin (desktop)", "min": 0, "max": 220, "step": 10, "unit": "px", "default": 50 },
+    { "id": "margin_bottom_desktop", "type": "range", "label": "Bottom margin (desktop)", "min": 0, "max": 220, "step": 10, "unit": "px", "default": 50 },
+    { "id": "margin_top_mobile", "type": "range", "label": "Top margin (mobile)", "min": 0, "max": 160, "step": 10, "unit": "px", "default": 50 },
+    { "id": "margin_bottom_mobile", "type": "range", "label": "Bottom margin (mobile)", "min": 0, "max": 160, "step": 10, "unit": "px", "default": 50 },
+
+    { "type": "header", "content": "Padding" },
+    { "id": "pad_top_desktop", "type": "range", "label": "Top padding (desktop)", "min": 0, "max": 220, "step": 10, "unit": "px", "default": 70},
+    { "id": "pad_bottom_desktop", "type": "range", "label": "Bottom padding (desktop)", "min": 0, "max": 220, "step": 10, "unit": "px", "default": 50 },
+    { "id": "pad_top_mobile", "type": "range", "label": "Top padding (mobile)", "min": 0, "max": 160, "step": 10, "unit": "px", "default": 50},
+    { "id": "pad_bottom_mobile", "type": "range", "label": "Bottom padding (mobile)", "min": 0, "max": 160, "step": 2, "unit": "px", "default": 56 },
+
+    { "type": "header", "content": "Section styling" },
+    { "id": "section_border_radius", "type": "range", "label": "Section border radius", "min": 0, "max": 50, "step": 1, "unit": "px", "default": 0 },
+    { "id": "section_pad_left", "type": "range", "label": "Overall left padding (desktop)", "min": 0, "max": 200, "step": 10, "unit": "px", "default": 20 },
+    { "id": "section_pad_right", "type": "range", "label": "Overall right padding (desktop)", "min": 0, "max": 200, "step": 10, "unit": "px", "default": 20 },
+    { "id": "section_pad_left_mobile", "type": "range", "label": "Overall left padding (mobile)", "min": 0, "max": 200, "step": 10, "unit": "px", "default": 20 },
+    { "id": "section_pad_right_mobile", "type": "range", "label": "Overall right padding (mobile)", "min": 0, "max": 200, "step": 10, "unit": "px", "default": 20 },
+    { "id": "sub_btn_gap", "type": "range", "label": "Vertical gap between subheading and button", "min": 0, "max": 48, "step": 2, "unit": "px", "default": 30 }
+  ],
+  "blocks": [
+    {
+      "type": "eyebrow",
+      "name": "Top text (eyebrow)",
+      "limit": 1,
+      "settings": [
+        { "id": "text", "type": "text", "label": "Text", "default": "Real Moments" },
+        { "id": "color", "type": "color", "label": "Color", "default": "#FFFFFF" },
+        { "id": "weight", "type": "select", "label": "Font weight", "default": "500", "options": [
+          { "value": "300", "label": "Light" },
+          { "value": "400", "label": "Normal" },
+          { "value": "500", "label": "Medium" },
+          { "value": "600", "label": "Semibold" },
+          { "value": "700", "label": "Bold" }
+        ]},
+        { "id": "transform", "type": "select", "label": "Transform", "default": "uppercase", "options": [
+          { "value": "none", "label": "None" },
+          { "value": "uppercase", "label": "Uppercase" }
+        ]},
+        { "id": "letterspace", "type": "range", "label": "Letter-spacing", "min": 0, "max": 1, "step": 0.1, "default": 0.6 },
+        { "id": "opacity", "type": "range", "label": "Opacity", "min": 20, "max": 100, "step": 1, "unit": "%", "default": 100 },
+        { "id": "size_d", "type": "range", "label": "Size (desktop)", "min": 10, "max": 22, "step": 1, "unit": "px", "default": 17 },
+        { "id": "size_m", "type": "range", "label": "Size (mobile)", "min": 10, "max": 22, "step": 1, "unit": "px", "default": 17 }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        { "id": "text", "type": "text", "label": "Heading text", "default": "Wear It Your Way" },
+        { "id": "color", "type": "color", "label": "Color", "default": "#FFFFFF" },
+        { "id": "weight", "type": "select", "label": "Font weight", "default": "700", "options": [
+          { "value": "300", "label": "Light" },
+          { "value": "400", "label": "Normal" },
+          { "value": "500", "label": "Medium" },
+          { "value": "600", "label": "Semibold" },
+          { "value": "700", "label": "Bold" }
+        ]},
+        { "id": "lineheight", "type": "text", "label": "Line-height", "default": "1.15" },
+        { "id": "letterspace", "type": "range", "label": "Letter-spacing", "min": -0.1, "max": 1, "step": 0.1, "default": 0.0 },
+        { "id": "size_d", "type": "range", "label": "Size (desktop)", "min": 18, "max": 72, "step": 1, "unit": "px", "default": 34 },
+        { "id": "size_m", "type": "range", "label": "Size (mobile)", "min": 16, "max": 46, "step": 1, "unit": "px", "default": 28 },
+        { "id": "max_width", "type": "range", "label": "Max width (characters)", "min": 0, "max": 80, "step": 1, "default": 0 }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        { "id": "text", "type": "text", "label": "Subheading text", "default": "See our pieces in real-life settings — from weekend escapes to daily city life." },
+        { "id": "color", "type": "color", "label": "Color", "default": "#FFFFFF" },
+        { "id": "lineheight", "type": "text", "label": "Line-height", "default": "1.5" },
+        { "id": "opacity", "type": "range", "label": "Opacity", "min": 40, "max": 100, "step": 1, "unit": "%", "default": 100 },
+        { "id": "size_d", "type": "range", "label": "Size (desktop)", "min": 10, "max": 24, "step": 1, "unit": "px", "default": 16 },
+        { "id": "size_m", "type": "range", "label": "Size (mobile)", "min": 10, "max": 22, "step": 1, "unit": "px", "default": 16 },
+        { "id": "max_width", "type": "range", "label": "Max width (characters)", "min": 0, "max": 90, "step": 1, "default": 0 }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "limit": 1,
+      "settings": [
+        { "id": "label", "type": "text", "label": "Label", "default": "Shop now" },
+        { "id": "link", "type": "url", "label": "Link", "default": "/collections/all" },
+        { "id": "bg", "type": "color", "label": "Background", "default": "#FFFFFF" },
+        { "id": "text_color", "type": "color", "label": "Text color", "default": "#000000" },
+        { "id": "border_color", "type": "color", "label": "Border color", "default": "#FFFFFF" },
+        { "id": "border_width", "type": "range", "label": "Border width", "min": 0, "max": 3, "step": 1, "unit": "px", "default": 0 },
+        { "id": "radius", "type": "range", "label": "Corner radius", "min": 0, "max": 50, "step": 10, "unit": "px", "default": 40 },
+        { "id": "pad_h", "type": "range", "label": "Horizontal padding", "min": 8, "max": 40, "step": 1, "unit": "px", "default": 20 },
+        { "id": "pad_v", "type": "range", "label": "Vertical padding", "min": 6, "max": 20, "step": 1, "unit": "px", "default": 10 },
+        { "id": "weight", "type": "select", "label": "Font weight", "default": "600", "options": [
+          { "value": "300", "label": "Light" },
+          { "value": "400", "label": "Normal" },
+          { "value": "500", "label": "Medium" },
+          { "value": "600", "label": "Semibold" },
+          { "value": "700", "label": "Bold" }
+        ]},
+        { "id": "size_d", "type": "range", "label": "Size (desktop)", "min": 10, "max": 24, "step": 1, "unit": "px", "default": 17 },
+        { "id": "size_m", "type": "range", "label": "Size (mobile)", "min": 10, "max": 22, "step": 1, "unit": "px", "default": 17 }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Promo Banner 3",
+       "category": "Banners",
+      "settings": {
+        "bg_color": "#151515",
+        "enable_bg_gradient": false,
+        "bg_gradient": "",
+        "overlay_color": "#000000",
+        "overlay_opacity": 0,
+        "max_width": 970,
+        "side_padding": 28,
+        "text_align": "center",
+        "stack_gap": 14,
+        "margin_top_desktop": 50,
+        "margin_bottom_desktop": 50,
+        "margin_top_mobile": 50,
+        "margin_bottom_mobile": 50,
+        "pad_top_desktop": 70,
+        "pad_bottom_desktop": 60,
+        "pad_top_mobile": 50,
+        "pad_bottom_mobile": 52,
+        "section_border_radius": 50,
+        "section_pad_left": 120,
+        "section_pad_right": 120,
+        "section_pad_left_mobile": 0,
+        "section_pad_right_mobile": 0,
+        "sub_btn_gap": 32
+      },
+      "blocks": [
+        {
+          "type": "eyebrow",
+          "settings": {
+            "text": "Real Moments",
+            "color": "#FFFFFF",
+            "weight": "500",
+            "transform": "uppercase",
+            "letterspace": 0.6,
+            "opacity": 100,
+            "size_d": 16,
+            "size_m": 13
+          }
+        },
+        {
+          "type": "heading",
+          "settings": {
+            "text": "Wear It Your Way",
+            "color": "#FFFFFF",
+            "weight": "700",
+            "lineheight": "1.15",
+            "letterspace": 0.0,
+            "size_d": 34,
+            "size_m": 28,
+            "max_width": 0
+          }
+        },
+        {
+          "type": "subheading",
+          "settings": {
+            "text": "See our pieces in real-life settings — from weekend escapes to daily city life.",
+            "color": "#FFFFFF",
+            "lineheight": "1.5",
+            "opacity": 100,
+            "size_d": 16,
+            "size_m": 16,
+            "max_width": 0
+          }
+        },
+        {
+          "type": "button",
+          "settings": {
+            "label": "Shop now",
+            "link": "/collections/all",
+            "bg": "#FFFFFF",
+            "text_color": "#000000",
+            "border_color": "#FFFFFF",
+            "border_width": 0,
+            "radius": 40,
+            "pad_h": 20,
+            "pad_v": 10,
+            "weight": "600",
+            "size_d": 17,
+            "size_m": 17
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,424 @@
+{% comment %}
+  Section: Contact Form Pro (2-column)
+  - Left: Title, description, contact details (block-based with icons)
+  - Right: Native Shopify contact form (name, email, website [optional], message)
+  - Gradient submit button
+  - Fully responsive; tablet stacks nicely; mobile becomes single column
+{% endcomment %}
+
+<section id="contact-{{ section.id }}" class="contact-pro">
+  <style>
+    #contact-{{ section.id }}{
+      --cp-bg: {{ section.settings.bg_color }};
+      --cp-grad-a: {{ section.settings.bg_grad_a }};
+      --cp-grad-b: {{ section.settings.bg_grad_b }};
+      --cp-card: {{ section.settings.card_color }};
+      --cp-text: {{ section.settings.text_color }};
+      --cp-muted: {{ section.settings.muted_color }};
+      --cp-input: {{ section.settings.input_bg }};
+      --cp-input-border: {{ section.settings.input_border }};
+      --cp-input-text: {{ section.settings.input_text }};
+      --cp-accent: {{ section.settings.accent_color }};
+      --cp-icon-color: {{ section.settings.icon_color }};
+      --cp-button-bg: {{ section.settings.button_bg }};
+      --cp-radius: {{ section.settings.radius }}px;
+      --cp-pad-x: {{ section.settings.pad_x }}px;
+      --cp-pad-top: {{ section.settings.pad_top }}px;
+      --cp-pad-bottom: {{ section.settings.pad_bottom }}px;
+      --cp-gap: {{ section.settings.col_gap }}px;
+      --cp-desc-info-gap: {{ section.settings.desc_info_gap }}px;
+      --cp-info-gap: {{ section.settings.info_gap }}px;
+      --cp-field-gap: {{ section.settings.field_gap }}px;
+      --cp-btn-gap: {{ section.settings.btn_gap }}px;
+      --cp-icon-size: clamp({{ section.settings.icon_size_mobile }}px, 4vw, {{ section.settings.icon_size_desktop }}px);
+      --cp-shadow: {% if section.settings.enable_shadow %}0 6px 24px rgba(0,0,0,.08){% else %}none{% endif %};
+      --cp-maxw: {{ section.settings.max_width }}px;
+      --cp-field-h: 46px;
+    }
+    #contact-{{ section.id }} .cp-wrap{
+      max-width: var(--cp-maxw);
+      margin: 0 auto;
+      padding: var(--cp-pad-top) var(--cp-pad-x) var(--cp-pad-bottom) var(--cp-pad-x);
+      color: var(--cp-text);
+    }
+    #contact-{{ section.id }} .cp-grid{
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: var(--cp-gap);
+      align-items: start;
+    }
+    @media (max-width: 1024px){
+      #contact-{{ section.id }} .cp-grid{ grid-template-columns: 1fr; }
+    }
+
+    /* Background */
+    #contact-{{ section.id }}{
+      background:
+        {% if section.settings.enable_bg_gradient %}
+          linear-gradient(135deg,var(--cp-grad-a),var(--cp-grad-b))
+        {% else %}
+          var(--cp-bg)
+        {% endif %};
+    }
+
+    /* Left panel */
+    #contact-{{ section.id }} .cp-left h2{
+      margin: 0 0 .5rem;
+      line-height: 1.15;
+      color: var(--cp-text);
+    }
+    #contact-{{ section.id }} .cp-desc{
+      color: var(--cp-muted);
+      max-width: 42ch;
+      margin-bottom: var(--cp-desc-info-gap);
+      line-height: 1.6;
+    }
+    #contact-{{ section.id }} .cp-list{
+      display: grid;
+      gap: var(--cp-info-gap);
+    }
+    #contact-{{ section.id }} .cp-item{
+      display: grid;
+      grid-template-columns: var(--cp-icon-size) 1fr;
+      gap: .75rem;
+      align-items: start;
+      color: var(--cp-text);
+    }
+    #contact-{{ section.id }} .cp-icon{
+      width: var(--cp-icon-size); height: var(--cp-icon-size);
+      display: inline-grid; place-items: center;
+      border-radius: 8px;
+      background: rgba(255,255,255,.6);
+      box-shadow: var(--cp-shadow);
+      color: var(--cp-icon-color);
+    }
+    #contact-{{ section.id }} .cp-icon svg{
+      width: 62%; height: 62%;
+    }
+    #contact-{{ section.id }} .cp-item p{
+      margin: 0; line-height: 1.5;
+      color: var(--cp-text);
+      opacity: .9;
+    }
+
+    /* Right panel card + form */
+    #contact-{{ section.id }} .cp-card{
+      background: var(--cp-card);
+      border-radius: var(--cp-radius);
+      box-shadow: var(--cp-shadow);
+      padding: 18px;
+    }
+    #contact-{{ section.id }} .cp-fields{
+      display: grid;
+      gap: var(--cp-field-gap);
+    }
+    #contact-{{ section.id }} .cp-input,
+    #contact-{{ section.id }} .cp-textarea{
+      width: 100%;
+      background: var(--cp-input);
+      border: 1px solid var(--cp-input-border);
+      color: var(--cp-input-text);
+      border-radius: 10px;
+      padding: 0 12px;
+      height: var(--cp-field-h);
+      outline: none;
+      transition: box-shadow .15s ease, border-color .15s ease, transform .02s ease;
+    }
+    #contact-{{ section.id }} .cp-textarea{
+      padding: 10px 12px;
+      min-height: 120px;
+      height: 120px;
+      resize: vertical;
+    }
+    #contact-{{ section.id }} .cp-input:focus,
+    #contact-{{ section.id }} .cp-textarea:focus{
+      border-color: var(--cp-accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--cp-accent) 25%, transparent);
+    }
+
+    /* Submit button with gradient */
+    #contact-{{ section.id }} .cp-submit{
+      margin-top: var(--cp-btn-gap);
+      width: 100%;
+      height: 46px;
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      background: {% if section.settings.enable_button_gradient %}linear-gradient(135deg, var(--cp-grad-a), var(--cp-grad-b)){% else %}var(--cp-button-bg){% endif %};
+      transition: transform .05s ease, filter .3s ease, opacity .3s ease;
+    }
+    #contact-{{ section.id }} .cp-submit:hover{ 
+      filter: brightness(0.95); 
+      opacity: 0.95; 
+    }
+    #contact-{{ section.id }} .cp-submit:active{ transform: translateY(1px); }
+
+    /* Alerts */
+    #contact-{{ section.id }} .cp-alert{
+      margin-bottom: .8rem; padding: .6rem .8rem; border-radius: 10px; font-size: clamp(14px, 4vw, 15px);
+    }
+    #contact-{{ section.id }} .cp-alert--ok{ 
+      background: #e8f8ef; 
+      color: #0f6b3e; 
+      border: 1px solid #bde8cf; 
+      font-size: clamp(14px, 4vw, 17px);
+    }
+    #contact-{{ section.id }} .cp-alert--err{ background: #fdecec; color: #7a1f1f; border: 1px solid #f4caca; }
+
+    /* Optional outer card around right panel */
+    {% if section.settings.enable_right_card == false %}
+      #contact-{{ section.id }} .cp-card{ background: transparent; box-shadow: none; padding: 0; }
+    {% endif %}
+  </style>
+
+  <div class="cp-wrap">
+    <div class="cp-grid">
+      <!-- Left column -->
+      <div class="cp-left">
+        {% for block in section.blocks %}
+          {% if block.type == 'heading' %}
+            <h2 style="
+              font-weight: {{ block.settings.font_weight }};
+              font-size: clamp({{ block.settings.font_size_mobile }}px, 3.2vw, {{ block.settings.font_size_desktop }}px);
+            ">{{ block.settings.text }}</h2>
+          {% elsif block.type == 'description' %}
+            <div class="cp-desc" style="
+              font-size: clamp({{ block.settings.font_size_mobile }}px, 4vw, {{ block.settings.font_size_desktop }}px);
+            ">{{ block.settings.text }}</div>
+          {% endif %}
+        {% endfor %}
+        <div class="cp-list">
+          {% for block in section.blocks %}
+            {% if block.type == 'info' %}
+              <div class="cp-item" {{ block.shopify_attributes }}>
+                <div class="cp-icon" aria-hidden="true">
+                  {% case block.settings.icon %}
+                    {% when 'mail' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" role="img"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4-8 5L4 8V6l8 5 8-5v2Z"/></svg>
+                    {% when 'map' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z"/></svg>
+                    {% when 'phone' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8a15.5 15.5 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1.1-.23c1.2.48 2.6.75 4 .75a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C11.85 21 3 12.15 3 2a1 1 0 0 1 1-1h2.28a1 1 0 0 1 1 1c0 1.37.27 2.77.75 4a1 1 0 0 1-.23 1.1L6.6 10.8Z"/></svg>
+                    {% when 'dot' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="7"/></svg>
+                    {% when 'clock' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" role="img"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm.5-13h-1v6l5.25 3.15.75-1.23-4.5-2.67v-5.5h1v1z"/></svg>
+                    {% when 'user' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" role="img"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    {% when 'globe' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" role="img"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18V4a8 8 0 1 1 0 16zM12 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0 4a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0 4a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+                    {% when 'calendar' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" role="img"><path d="M19 3h-1V1H6v2H5c-1.1 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+                    {% when 'message' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" role="img"><path d="M20 2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4l4 4 4-4h4a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2Z"/></svg>
+                    {% when 'briefcase' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" role="img"><path d="M19 7V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2Zm0 12V9H5v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2Z"/></svg>
+                    {% when 'home' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" role="img"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    {% when 'download' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" role="img"><path d="M12 16l-6-6h4V4h2v6h4l-6 6zm-2-2V8l-4 4h8l-4-4zM4 20h16v2H4z"/></svg>
+                    {% when 'heart' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" role="img"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    {% when 'star' %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" role="img"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    {% else %}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="7"/></svg>
+                  {% endcase %}
+                </div>
+                <div>
+                  {% if block.settings.line1 != blank %}
+                    <p style="
+                      font-size: clamp({{ block.settings.line1_size_mobile }}px, 3.5vw, {{ block.settings.line1_size_desktop }}px);
+                    ">{{ block.settings.line1 }}</p>
+                  {% endif %}
+                  {% if block.settings.line2 != blank %}
+                    <p style="
+                      color:var(--cp-muted);
+                      font-size: clamp({{ block.settings.line2_size_mobile }}px, 3.5vw, {{ block.settings.line2_size_desktop }}px);
+                    ">{{ block.settings.line2 }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div class="cp-right">
+        <div class="cp-card">
+          {% form 'contact', id: "contact-form-#{section.id}" %}
+            {% if form.posted_successfully? %}
+              <div class="cp-alert cp-alert--ok">{{ section.settings.success_text }}</div>
+            {% endif %}
+
+            {% if form.errors %}
+              <div class="cp-alert cp-alert--err">
+                {{ 'templates.contact.form.error_heading' | t }}
+                <ul style="margin:.25rem 0 0 .9rem;">
+                  {% for field in form.errors %}
+                    <li>{{ form.errors.messages[field] }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+
+            <div class="cp-fields" aria-live="polite">
+              <label class="visually-hidden" for="ContactName-{{ section.id }}">{{ 'templates.contact.form.name' | t }}</label>
+              <input class="cp-input" id="ContactName-{{ section.id }}" type="text" name="contact[name]" placeholder="{{ section.settings.ph_name }}" value="{{ form.contact.name | default: customer.name }}">
+
+              <label class="visually-hidden" for="ContactEmail-{{ section.id }}">{{ 'templates.contact.form.email' | t }}</label>
+              <input class="cp-input" id="ContactEmail-{{ section.id }}" type="email" name="contact[email]" placeholder="{{ section.settings.ph_email }}" value="{{ form.contact.email | default: customer.email }}" required>
+
+              {% if section.settings.show_website %}
+                <label class="visually-hidden" for="ContactWebsite-{{ section.id }}">Website</label>
+                <input class="cp-input" id="ContactWebsite-{{ section.id }}" type="url" name="contact[website]" placeholder="{{ section.settings.ph_website }}">
+              {% endif %}
+
+              <label class="visually-hidden" for="ContactMessage-{{ section.id }}">{{ 'templates.contact.form.message' | t }}</label>
+              <textarea class="cp-textarea" id="ContactMessage-{{ section.id }}" name="contact[body]" placeholder="{{ section.settings.ph_message }}"></textarea>
+
+              <button type="submit" class="cp-submit">
+                {{ section.settings.btn_text }}
+              </button>
+            </div>
+          {% endform %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* Small helpers */
+    #contact-{{ section.id }} .visually-hidden{
+      position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+    }
+  </style>
+</section>
+
+{% schema %}
+{
+  "name": "Contact Form Simple 2 ",
+  "tag": "section",
+  "class": "section-contact-pro",
+  "settings": [
+    { "type": "checkbox", "id": "show_website", "label": "Show Website field", "default": true },
+
+    { "type": "text", "id": "ph_name", "label": "Placeholder — Name", "default": "Name" },
+    { "type": "text", "id": "ph_email", "label": "Placeholder — Email", "default": "Email" },
+    { "type": "text", "id": "ph_website", "label": "Placeholder — Website", "default": "Website (optional)" },
+    { "type": "text", "id": "ph_message", "label": "Placeholder — Message", "default": "Message" },
+    { "type": "text", "id": "btn_text", "label": "Button text", "default": "Submit" },
+    { "type": "text", "id": "success_text", "label": "Success message", "default": "Thanks! Your message has been sent." },
+
+    { "type": "checkbox", "id": "enable_button_gradient", "label": "Enable button gradient", "default": false },
+    { "type": "color", "id": "button_bg", "label": "Button background color", "default": "#000" },
+
+    { "type": "checkbox", "id": "enable_bg_gradient", "label": "Enable background gradient", "default": false },
+    { "type": "color", "id": "bg_grad_a", "label": "Gradient color A", "default": "#6a5cff" },
+    { "type": "color", "id": "bg_grad_b", "label": "Gradient color B", "default": "#ff6a3d" },
+    { "type": "color", "id": "bg_color", "label": "Fallback background (no gradient)", "default": "#ffffff" },
+
+    { "type": "color", "id": "card_color", "label": "Right card background", "default": "#ffffff" },
+    { "type": "checkbox", "id": "enable_right_card", "label": "Show right panel card background", "default": false },
+
+    { "type": "color", "id": "text_color", "label": "Primary text color", "default": "#1f2937" },
+    { "type": "color", "id": "muted_color", "label": "Muted text color", "default": "#6b7280" },
+    { "type": "color", "id": "accent_color", "label": "Accent / focus color", "default": "#636363" },
+    { "type": "color", "id": "icon_color", "label": "Info icon color", "default": "#4858FF" },
+
+    { "type": "color", "id": "input_bg", "label": "Input background", "default": "#ffffff" },
+    { "type": "color", "id": "input_border", "label": "Input border", "default": "#e5e7eb" },
+    { "type": "color", "id": "input_text", "label": "Input text color", "default": "#111827" },
+
+    { "type": "range", "id": "desc_info_gap", "label": "Gap between description and info (px)", "min": 0, "max": 60, "step": 4, "default": 36 },
+    { "type": "range", "id": "info_gap", "label": "Gap between info items (px)", "min": 4, "max": 40, "step": 2, "default": 30 },
+    { "type": "range", "id": "field_gap", "label": "Gap between form fields (px)", "min": 4, "max": 24, "step": 2, "default": 16 },
+    { "type": "range", "id": "btn_gap", "label": "Gap before submit button (px)", "min": 0, "max": 20, "step": 2, "default": 4 },
+    { "type": "range", "id": "icon_size_desktop", "label": "Icon size desktop (px)", "min": 20, "max": 40, "step": 2, "default": 36 },
+    { "type": "range", "id": "icon_size_mobile", "label": "Icon size mobile (px)", "min": 16, "max": 32, "step": 2, "default": 30 },
+    { "type": "range", "id": "radius", "label": "Corner radius (px)", "min": 0, "max": 24, "step": 2, "default": 12 },
+    { "type": "range", "id": "col_gap", "label": "Column gap (px)", "min": 12, "max": 60, "step": 2, "default": 28 },
+    { "type": "range", "id": "pad_x", "label": "Horizontal padding (px)", "min": 0, "max": 80, "step": 4, "default": 24 },
+    { "type": "range", "id": "pad_top", "label": "Top padding (px)", "min": 0, "max": 120, "step": 4, "default": 48 },
+    { "type": "range", "id": "pad_bottom", "label": "Bottom padding (px)", "min": 0, "max": 120, "step": 4, "default": 48 },
+    { "type": "range", "id": "max_width", "label": "Max content width (px)", "min": 800, "max": 1600, "step": 20, "default": 1180 },
+    { "type": "checkbox", "id": "enable_shadow", "label": "Enable soft shadows", "default": true }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        { "type": "text", "id": "text", "label": "Heading text", "default": "Contact Us" },
+        { "type": "range", "id": "font_size_desktop", "label": "Font size desktop (px)", "min": 20, "max": 60, "step": 1, "default": 32 },
+        { "type": "range", "id": "font_size_mobile", "label": "Font size mobile (px)", "min": 16, "max": 40, "step": 1, "default": 32 },
+        { "type": "select", "id": "font_weight", "label": "Font weight", "default": "700",
+          "options": [
+            { "label": "300", "value": "300" },
+            { "label": "400", "value": "400" },
+            { "label": "500", "value": "500" },
+            { "label": "600", "value": "600" },
+            { "label": "700", "value": "700" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "description",
+      "name": "Description",
+      "settings": [
+        { "type": "richtext", "id": "text", "label": "Description text", "default": "<p>We are committed to processing the information in order to contact you and talk about your project.</p>" },
+        { "type": "range", "id": "font_size_desktop", "label": "Font size desktop (px)", "min": 12, "max": 24, "step": 1, "default": 16 },
+        { "type": "range", "id": "font_size_mobile", "label": "Font size mobile (px)", "min": 12, "max": 20, "step": 1, "default": 14 }
+      ]
+    },
+    {
+      "type": "info",
+      "name": "Info item",
+      "limit": 6,
+      "settings": [
+        { "type": "select", "id": "icon", "label": "Icon", "default": "mail",
+          "options": [
+            { "label": "Mail", "value": "mail" },
+            { "label": "Map pin", "value": "map" },
+            { "label": "Phone", "value": "phone" },
+            { "label": "Dot", "value": "dot" },
+            { "label": "Clock", "value": "clock" },
+            { "label": "User", "value": "user" },
+            { "label": "Globe", "value": "globe" },
+            { "label": "Calendar", "value": "calendar" },
+            { "label": "Message", "value": "message" },
+            { "label": "Briefcase", "value": "briefcase" },
+            { "label": "Home", "value": "home" },
+            { "label": "Download", "value": "download" },
+            { "label": "Heart", "value": "heart" },
+            { "label": "Star", "value": "star" }
+          ]
+        },
+        { "type": "text", "id": "line1", "label": "Line 1", "default": "hola@sudafin.co" },
+        { "type": "text", "id": "line2", "label": "Line 2 (optional)", "default": "Send us an email." },
+        { "type": "range", "id": "line1_size_desktop", "label": "Line 1 size desktop (px)", "min": 12, "max": 24, "step": 1, "default": 16 },
+        { "type": "range", "id": "line1_size_mobile", "label": "Line 1 size mobile (px)", "min": 10, "max": 20, "step": 1, "default": 14 },
+        { "type": "range", "id": "line2_size_desktop", "label": "Line 2 size desktop (px)", "min": 12, "max": 20, "step": 1, "default": 14 },
+        { "type": "range", "id": "line2_size_mobile", "label": "Line 2 size mobile (px)", "min": 10, "max": 18, "step": 1, "default": 12 }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Contact Form Simple 2",
+      "category": "Contact",
+      "blocks": [
+        { "type": "heading", "settings": { "text": "Contact Us" } },
+        { "type": "description", "settings": { "text": "<p>We are committed to processing the information in order to contact you and talk about your project.</p>" } },
+        { "type": "info", "settings": { "icon": "mail", "line1": "hola@sudafin.co" } },
+        { "type": "info", "settings": { "icon": "map", "line1": "4074 Ebert Summit Suite 375", "line2": "Lake Leonarchester" } },
+        { "type": "info", "settings": { "icon": "phone", "line1": "+44 123 654 7890" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

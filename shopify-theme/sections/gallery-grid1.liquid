@@ -1,0 +1,695 @@
+{% assign loading = 'eager' %}
+{% if section.settings.lazyload %}
+  {% assign loading = 'lazy' %}
+{% endif %}
+
+{%- style -%}
+  *, *:after, *:before {
+    box-sizing: border-box;
+  }
+
+  .loudecomz-section__{{ section.id }} img, .loudecomz-section__{{ section.id }} video {
+    max-width: 100%;
+    height: auto;
+    border-radius: {{ section.settings.image_border_radius }}px;
+    box-shadow:
+      {% case section.settings.image_shadow %}
+        {% when 'low' %}
+          0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        {% when 'medium' %}
+          0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+        {% when 'high' %}
+          0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+        {% else %}
+          none;
+      {% endcase %};
+  }
+
+  .loudecomz-container,
+  .loudecomz-container-fluid {
+    width: 100%;
+    padding-right: var(--loudecomz-gutter-x, 15px);
+    padding-left: var(--loudecomz-gutter-x, 15px);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  @media (min-width: 576px) {
+    .loudecomz-container {
+      max-width: 540px;
+    }
+  }
+
+  @media (min-width: 750px) {
+    .loudecomz-container {
+      max-width: 720px;
+    }
+  }
+
+  @media (min-width: 992px) {
+    .loudecomz-container {
+      max-width: 960px;
+    }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width <= 960 %}
+      .loudecomz-section__{{ section.id }} .loudecomz-container {
+        max-width: {{ section.settings.container_max_width }}px;
+      }
+    {% endif %}
+  }
+
+  @media (min-width: 1200px) {
+    .loudecomz-container {
+      max-width: 1140px;
+    }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width <= 1140 %}
+      .loudecomz-section__{{ section.id }} .loudecomz-container {
+        max-width: {{ section.settings.container_max_width }}px;
+      }
+    {% endif %}
+  }
+
+  @media (min-width: 1400px) {
+    .loudecomz-container {
+      max-width: 1320px;
+    }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width != 1320 %}
+      .loudecomz-section__{{ section.id }} .loudecomz-container {
+        max-width: {{ section.settings.container_max_width }}px;
+      }
+    {% endif %}
+  }
+
+  .loudecomz-section__{{ section.id }} .loudecomz-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: calc(var(--loudecomz-gutter-x) * -1);
+    margin-left: calc(var(--loudecomz-gutter-x) * -1);
+  }
+
+  .loudecomz-section__{{ section.id }} .loudecomz-row > * {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 100%;
+    padding-right: var(--loudecomz-gutter-x, 15px);
+    padding-left: var(--loudecomz-gutter-x, 15px);
+  }
+
+  @media (min-width: 750px) {
+    .loudecomz-section__{{ section.id }} .loudecomz-col-md-6 {
+      flex: 0 0 auto;
+      width: 50%;
+    }
+  }
+
+  .loudecomz-section__{{ section.id }} {
+    --loudecomz-gutter-x: {{ section.settings.gutter }}px;
+    padding-top: {{ section.settings.section_padding_top }}px;
+    padding-bottom: {{ section.settings.section_padding_bottom }}px;
+    padding-left: {{ section.settings.padding_left_desktop }}px;
+    padding-right: {{ section.settings.padding_right_desktop }}px;
+    overflow: visible;
+    background-color: {{ section.settings.background_color }};
+    color: {{ section.settings.text_color }};
+    line-height: 1.5;
+    display:
+      {% case section.settings.display_section_on %}
+        {% when 'no_devices' %}
+          none;
+        {% when 'all_devices' %}
+          block;
+        {% when 'mobile_only' %}
+          block;
+        {% when 'desktop_only' %}
+          block;
+      {% endcase %}
+  }
+
+  @media only screen and (max-width: 749px) {
+    .loudecomz-section__{{ section.id }} {
+      padding-top: {{ section.settings.section_padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.section_padding_bottom_mobile }}px;
+      padding-left: {{ section.settings.padding_left_mobile }}px;
+      padding-right: {{ section.settings.padding_right_mobile }}px;
+      display:
+        {% case section.settings.display_section_on %}
+          {% when 'no_devices' %}
+            none;
+          {% when 'all_devices' %}
+            block;
+          {% when 'mobile_only' %}
+            block;
+          {% when 'desktop_only' %}
+            none;
+        {% endcase %}
+    }
+  }
+
+  {% if section.settings.display_section_on == 'mobile_only' %}
+    @media only screen and (min-width: 750px) {
+      .loudecomz-section__{{ section.id }} {
+        display: none;
+      }
+    }
+  {% elsif section.settings.display_section_on == 'desktop_only' %}
+    @media only screen and (max-width: 749px) {
+      .loudecomz-section__{{ section.id }} {
+        display: none;
+      }
+    }
+  {% endif %}
+
+  .loudecomz-section__{{ section.id }} .loudecomz-section-title::before,
+  .loudecomz-section__{{ section.id }} .loudecomz-section-title::after {
+    display: none;
+  }
+
+  .loudecomz-section__{{ section.id }} .loudecomz-section-title {
+    color: {{ section.settings.text_color }};
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 40px;
+    text-align: {{ section.settings.text_align }};
+    line-height: 1.2;
+  }
+
+  {% if section.settings.inherit_fonts == false %}
+    .loudecomz-section__{{ section.id }} .loudecomz-large.loudecomz-section-title {
+      font-size: 64px;
+    }
+    .loudecomz-section__{{ section.id }} .loudecomz-medium.loudecomz-section-title {
+      font-size: 48px;
+    }
+    .loudecomz-section__{{ section.id }} .loudecomz-small.loudecomz-section-title {
+      font-size: 32px;
+    }
+  {% endif %}
+
+  .loudecomz-section__{{ section.id }} .loudecomz-img-wrapper {
+    position: relative;
+    height: auto;
+    padding-top: 100%;
+    margin-bottom: {{ section.settings.vertical_space_mobile }}px;
+    overflow: hidden;
+    {% if section.settings.image_hover_animation != 'none' %}
+      cursor: pointer;
+    {% endif %}
+  }
+
+  .loudecomz-section__{{ section.id }} .loudecomz-img-wrapper[data-index="1"] {
+    padding-top: 100%;
+  }
+
+  .loudecomz-section__{{ section.id }} .loudecomz-img-wrapper[data-index="2"] {
+    padding-top: calc(50% - var(--loudecomz-gutter-x));
+  }
+
+  .loudecomz-section__{{ section.id }} .loudecomz-img-wrapper[data-index="3"] {
+    padding-top: 100%;
+  }
+
+  .loudecomz-section__{{ section.id }} .loudecomz-img-wrapper[data-index="4"] {
+    padding-top: 100%;
+  }
+
+  .loudecomz-section__{{ section.id }} .loudecomz-img-wrapper:hover img {
+    {% case section.settings.image_hover_animation %}
+      {% when 'fade-in' %}
+        opacity: 0.8;
+      {% when 'zoom-in' %}
+        transform: scale(1.1);
+      {% when 'rotate' %}
+        transform: rotate(5deg);
+      {% when 'scale-up' %}
+        transform: scale(1.03);
+      {% else %}
+        transform: none;
+    {% endcase %}
+  }
+
+  .loudecomz-section__{{ section.id }} .loudecomz-img-wrapper img,
+  .loudecomz-section__{{ section.id }} .loudecomz-img-wrapper video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition:
+      {% if section.settings.image_hover_animation == 'fade-in' %}
+        opacity 0.25s;
+      {% elsif section.settings.image_hover_animation == 'zoom-in' %}
+        transform 0.5s ease, opacity 0.5s ease;
+      {% else %}
+        transform 0.25s, opacity 0.25s;
+      {% endif %}
+  }
+
+  @media only screen and (min-width: 750px) {
+    .loudecomz-section__{{ section.id }} .loudecomz-img-wrapper {
+      margin-bottom: {{ section.settings.vertical_space_desktop }}px;
+    }
+  }
+{%- endstyle -%}
+
+{% if section.settings.custom_css != blank %}
+  {%- style -%}
+    {{ section.settings.custom_css }}
+  {%- endstyle -%}
+{% endif %}
+
+{% if section.settings.is_fullwidth %}
+  {% assign container = 'loudecomz-container-fluid' %}
+{% else %}
+  {% assign container = 'loudecomz-container' %}
+{% endif %}
+
+<div class="loudecomz-section__{{ section.id }} {{ section.settings.custom_class }}">
+  <div class="{{ container }}">
+    {% if section.settings.heading_text != blank %}
+      <{{ section.settings.heading_tag }} class="{{ section.settings.heading_size }} loudecomz-section-title">
+        {{ section.settings.heading_text | escape }}
+      </{{ section.settings.heading_tag }}>
+    {% endif %}
+    <div class="loudecomz-row">
+      <div class="loudecomz-col-md-6">
+        <div class="loudecomz-img-wrapper" data-index="1">
+          {% if section.settings.video_url_1 != blank %}
+            <video
+              src="{{ section.settings.video_url_1 }}"
+              autoplay
+              muted
+              loop
+              playsinline
+              style="width:100%; height:100%; object-fit: cover;"
+            ></video>
+          {% elsif section.settings.background_image_1 == blank %}
+            <img
+              src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+              loading="{{ loading }}"
+            >
+          {% else %}
+            {{
+              section.settings.background_image_1
+              | image_url: width: 1920
+              | image_tag:
+                widths: '490, 750, 992, 1200, 1920',
+                sizes: '(min-width: 750px) 50vw, 100vw',
+                loading: loading
+            }}
+          {% endif %}
+        </div>
+      </div>
+      <div class="loudecomz-col-md-6">
+        <div class="loudecomz-img-wrapper" data-index="2">
+          {% if section.settings.video_url_2 != blank %}
+            <video
+              src="{{ section.settings.video_url_2 }}"
+              autoplay
+              muted
+              loop
+              playsinline
+              style="width:100%; height:100%; object-fit: cover;"
+            ></video>
+          {% elsif section.settings.background_image_2 == blank %}
+            <img
+              src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+              loading="{{ loading }}"
+            >
+          {% else %}
+            {{
+              section.settings.background_image_2
+              | image_url: width: 1920
+              | image_tag:
+                widths: '490, 750, 992, 1200, 1920',
+                sizes: '(min-width: 750px) 50vw, 100vw',
+                loading: loading
+            }}
+          {% endif %}
+        </div>
+        <div class="loudecomz-row">
+          <div class="loudecomz-col-md-6">
+            <div class="loudecomz-img-wrapper" data-index="3">
+              {% if section.settings.video_url_3 != blank %}
+                <video
+                  src="{{ section.settings.video_url_3 }}"
+                  autoplay
+                  muted
+                  loop
+                  playsinline
+                  style="width:100%; height:100%; object-fit: cover;"
+                ></video>
+              {% elsif section.settings.background_image_3 == blank %}
+                <img
+                  src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+                  loading="{{ loading }}"
+                >
+              {% else %}
+                {{
+                  section.settings.background_image_3
+                  | image_url: width: 1920
+                  | image_tag:
+                    widths: '490, 750, 992, 1200, 1920',
+                    sizes: '(min-width: 750px) 25vw, 100vw',
+                    loading: loading
+                }}
+              {% endif %}
+            </div>
+          </div>
+          <div class="loudecomz-col-md-6">
+            <div class="loudecomz-img-wrapper" data-index="4">
+              {% if section.settings.video_url_4 != blank %}
+                <video
+                  src="{{ section.settings.video_url_4 }}"
+                  autoplay
+                  muted
+                  loop
+                  playsinline
+                  style="width:100%; height:100%; object-fit: cover;"
+                ></video>
+              {% elsif section.settings.background_image_4 == blank %}
+                <img
+                  src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+                  loading="{{ loading }}"
+                >
+              {% else %}
+                {{
+                  section.settings.background_image_4
+                  | image_url: width: 1920
+                  | image_tag:
+                    widths: '490, 750, 992, 1200, 1920',
+                    sizes: '(min-width: 750px) 25vw, 100vw',
+                    loading: loading
+                }}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Gallery Grid 1",
+  "tag": "section",
+  "class": "simple-gallery--gallery-",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Gallery Settings",
+      "info": "Configure the main settings for the gallery section."
+    },
+    {
+      "type": "checkbox",
+      "id": "is_fullwidth",
+      "default": false,
+      "label": "Full Width Section",
+      "info": "Enable to make the gallery section span the full width of the page, overriding the default content width limit."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "transparent",
+      "info": "Choose a background color for the gallery section."
+    },
+    {
+      "type": "range",
+      "id": "gutter",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Horizontal Space Between Images",
+      "default": 10,
+      "info": "Adjust the horizontal spacing between each image in the gallery."
+    },
+    {
+      "type": "header",
+      "content": "Image Settings",
+      "info": "Configure the images, their appearance, and positioning within the gallery."
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image_1",
+      "label": "Image 1",
+      "info": "Select the first image to display in the gallery."
+    },
+    {
+      "type": "textarea",
+      "id": "video_url_1",
+      "label": "Video URL for Image 1",
+      "info": "Add video URL for image 1. The video will autoplay, mute, loop, and cover fit."
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image_2",
+      "label": "Image 2",
+      "info": "Select the second image to display in the gallery."
+    },
+    {
+      "type": "textarea",
+      "id": "video_url_2",
+      "label": "Video URL for Image 2",
+      "info": "Add video URL for image 2. The video will autoplay, mute, loop, and cover fit."
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image_3",
+      "label": "Image 3",
+      "info": "Select the third image to display in the gallery."
+    },
+    {
+      "type": "textarea",
+      "id": "video_url_3",
+      "label": "Video URL for Image 3",
+      "info": "Add video URL for image 3. The video will autoplay, mute, loop, and cover fit."
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image_4",
+      "label": "Image 4",
+      "info": "Select the fourth image to display in the gallery."
+    },
+    {
+      "type": "textarea",
+      "id": "video_url_4",
+      "label": "Video URL for Image 4",
+      "info": "Add video URL for image 4. The video will autoplay, mute, loop, and cover fit."
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings",
+      "info": "Adjust padding and spacing for different devices to ensure optimal layout."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top",
+      "default": 50,
+      "info": "Set the top padding for the gallery section on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom",
+      "default": 50,
+      "info": "Set the bottom padding for the gallery section on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "padding_left_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Left (Desktop)",
+      "default": 25,
+      "info": "Adjust the left padding of the gallery section on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "padding_right_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Right (Desktop)",
+      "default": 25,
+      "info": "Adjust the right padding of the gallery section on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Mobile)",
+      "default": 50,
+      "info": "Set the top padding for the gallery section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Mobile)",
+      "default": 50,
+      "info": "Set the bottom padding for the gallery section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "padding_left_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Left (Mobile)",
+      "default": 10,
+      "info": "Adjust the left padding of the gallery section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "padding_right_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Right (Mobile)",
+      "default": 10,
+      "info": "Adjust the right padding of the gallery section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "vertical_space_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Vertical Space Between Images (Mobile)",
+      "default": 20,
+      "info": "Adjust the vertical spacing between images in mobile view."
+    },
+    {
+      "type": "range",
+      "id": "vertical_space_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Vertical Space Between Images (Desktop)",
+      "default": 20,
+      "info": "Adjust the vertical spacing between images in desktop view."
+    },
+    {
+      "type": "header",
+      "content": "Customization",
+      "info": "Customize the appearance and behavior of the gallery section."
+    },
+    {
+      "type": "range",
+      "id": "container_max_width",
+      "label": "Content Width Limit (px)",
+      "min": 720,
+      "max": 1920,
+      "step": 100,
+      "unit": "px",
+      "default": 1320,
+      "info": "Set the maximum width for the gallery content area."
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS",
+      "info": "Add custom CSS to further style the gallery section."
+    },
+    {
+      "type": "checkbox",
+      "id": "lazyload",
+      "default": true,
+      "label": "Lazyload Images",
+      "info": "Enable lazy loading for images to improve page load performance."
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Image Border Radius",
+      "default": 8,
+      "info": "Adjust the border radius of gallery images for rounded corners."
+    },
+    {
+      "type": "select",
+      "id": "image_hover_animation",
+      "label": "Image Hover Animation",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "fade-in",
+          "label": "Subtle Fade-In"
+        },
+        {
+          "value": "zoom-in",
+          "label": "Subtle Zoom-In"
+        },
+        {
+          "value": "scale-up",
+          "label": "Scale Up"
+        }
+      ],
+      "default": "fade-in",
+      "info": "Choose an animation effect when hovering over gallery images."
+    },
+    {
+      "type": "select",
+      "id": "display_section_on",
+      "label": "Display Section On",
+      "options": [
+        {
+          "value": "all_devices",
+          "label": "All Devices"
+        },
+        {
+          "value": "mobile_only",
+          "label": "Mobile Devices Only"
+        },
+        {
+          "value": "desktop_only",
+          "label": "Desktop/Larger Screens Only"
+        },
+        {
+          "value": "no_devices",
+          "label": "No Devices"
+        }
+      ],
+      "default": "all_devices",
+      "info": "Select on which devices the gallery section should be displayed."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gallery Grid 1",
+       "category": "Gallery"
+    }
+  ]
+}
+{% endschema %}

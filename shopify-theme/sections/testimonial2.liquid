@@ -1,0 +1,1333 @@
+{% style %}
+:root {
+--loudz-neutral-100: #222;
+--loudz-neutral-70: #5e5e5e;
+--loudz-neutral-03: #f8f8f8;
+--loudz-neutral-01: #fff;
+--loudz-size-0: 0px;
+--loudz-size-1: 1px;
+--loudz-size-2: 2px;
+--loudz-size-4: 4px;
+--loudz-size-6: 6px;
+--loudz-size-12: 12px;
+--loudz-size-14: 14px;
+--loudz-size-16: 16px;
+--loudz-size-20: 20px;
+--loudz-size-24: 24px;
+--loudz-size-32: 32px;
+--loudz-size-40: 40px;
+--loudz-size-48: 48px;
+--loudz-size-80: 80px;
+--loudz-size-full: 9999px;
+--loudz-font-weight-100: 100;
+--loudz-font-weight-300: 300;
+--loudz-font-weight-400: 400;
+--loudz-font-weight-600: 600;
+--loudz-font-weight-700: 700;
+--loudz-line-height-140: 1.4;
+--loudz-line-height-150: 1.5;
+--loudz-text-decoration-none: none;
+--loudz-text-decoration-underline: underline;
+--loudz-border-radius-full: var(--loudz-size-full);
+--loudz-border-width-1: var(--loudz-size-1);
+--loudz-color-bg-fill-default-on-light: var(--loudz-neutral-100);
+--loudz-color-bg-fill-inverse-on-light: var(--loudz-neutral-01);
+--loudz-color-bg-surface-tertiary-on-light: var(--loudz-neutral-03);
+--loudz-color-text-disable-on-light: var(--loudz-neutral-70);
+--loudz-space-0: var(--loudz-size-0);
+--loudz-space-1: var(--loudz-size-1);
+--loudz-space-2: var(--loudz-size-2);
+--loudz-space-4: var(--loudz-size-4);
+--loudz-space-6: var(--loudz-size-6);
+--loudz-space-12: var(--loudz-size-12);
+--loudz-space-16: var(--loudz-size-16);
+--loudz-space-20: var(--loudz-size-20);
+--loudz-space-24: var(--loudz-size-24);
+--loudz-space-32: var(--loudz-size-32);
+--loudz-space-40: var(--loudz-size-40);
+--loudz-space-48: var(--loudz-size-48);
+--loudz-space-80: var(--loudz-size-80);
+--loudz-font-size-12: var(--loudz-size-12);
+--loudz-font-size-14: var(--loudz-size-14);
+}
+
+
+{% endstyle %}
+
+<!-- --UUID-c1da888b-- -->
+
+<script>
+	if (typeof window.loudzBreakpoints === 'undefined') {
+		window.loudzBreakpoints = {
+			mobile: {
+				minWidth: 0,
+				maxWidth: 479,
+			},
+			tablet: {
+				minWidth: 480,
+				maxWidth: 991,
+			},
+			desktop: {
+				minWidth: 992,
+				maxWidth: 10000,
+			},
+		};
+	}
+</script>
+
+{% style %}
+	
+
+@media(max-width: 479px){.LoudzResponsiveness--TabletAndDesktop{display:none}}@media(min-width: 992px){.LoudzResponsiveness--MobileAndTablet{display:none}}@media(min-width: 480px){.LoudzResponsiveness--Mobile{display:none}}@media not ((min-width: 480px) and (max-width: 991px)){.LoudzResponsiveness--Tablet{display:none}}@media(max-width: 991px){.LoudzResponsiveness--Desktop{display:none}}
+
+{% endstyle %}
+
+
+{% capture loudz_filled_icon %}
+    {% case section.settings.stars_shape %}
+        {% when 'stars' %}
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.46127 2.55063L7.4308 6.70529L2.83882 7.36128C2.02663 7.48624 1.71425 8.48585 2.30777 9.07938L5.58776 12.2969L4.80681 16.8264C4.68186 17.6386 5.55652 18.2633 6.275 17.8885L10.3672 15.7331L14.4281 17.8885C15.1466 18.2633 16.0213 17.6386 15.8963 16.8264L15.1153 12.2969L18.3953 9.07938C18.9889 8.48585 18.6765 7.48624 17.8643 7.36128L13.3035 6.70529L11.2418 2.55063C10.8982 1.83216 9.83613 1.80092 9.46127 2.55063Z" fill="var(--section-stars-color)"/>
+            </svg>    
+        {% when 'outline_stars' %}
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11.2418 2.55063C10.8982 1.83216 9.83613 1.80092 9.46127 2.55063L7.4308 6.70529L2.83882 7.36128C2.02663 7.48624 1.71425 8.48585 2.30777 9.07938L5.58776 12.2969L4.80681 16.8264C4.68186 17.6386 5.55652 18.2633 6.275 17.8885L10.3672 15.7331L14.4281 17.8885C15.1466 18.2633 16.0213 17.6386 15.8963 16.8264L15.1153 12.2969L18.3953 9.07938C18.9889 8.48585 18.6765 7.48624 17.8643 7.36128L13.3035 6.70529L11.2418 2.55063Z" fill="var(--section-stars-color)"/>
+            </svg>  
+        {% when 'pointed_stars' %}
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.5 1L12.6329 7.56434H19.535L13.9511 11.6213L16.084 18.1857L10.5 14.1287L4.91604 18.1857L7.04893 11.6213L1.46497 7.56434H8.36712L10.5 1Z" fill="var(--section-stars-color)"/>
+            </svg>    
+        {% when 'heart_stars' %}
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 4.89321L10.6121 4.27677C12.3022 2.57449 15.0423 2.57448 16.7324 4.27677C18.4225 5.97905 18.4225 8.739 16.7324 10.4413L10 17.2223L3.26757 10.4412C1.57748 8.73895 1.57747 5.979 3.26757 4.27671C4.95767 2.57443 7.69786 2.57443 9.38796 4.27671L10 4.89321Z" fill="var(--section-stars-color)"/>
+            </svg>     
+  {% endcase %}
+{% endcapture %}
+
+{% capture loudz_empty_icon %}
+    {% case section.settings.stars_shape %}
+        {% when 'outline_stars' %}
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M11.2418 2.55063C10.8982 1.83216 9.83613 1.80092 9.46127 2.55063L7.4308 6.70529L2.83882 7.36128C2.02663 7.48624 1.71425 8.48585 2.30777 9.07938L5.58776 12.2969L4.80681 16.8264C4.68186 17.6386 5.55652 18.2633 6.275 17.8885L10.3672 15.7331L14.4281 17.8885C15.1466 18.2633 16.0213 17.6386 15.8963 16.8264L15.1153 12.2969L18.3953 9.07938C18.9889 8.48585 18.6765 7.48624 17.8643 7.36128L13.3035 6.70529L11.2418 2.55063ZM16.2108 8.84095L12.1777 8.26084L10.3564 4.59071L8.56273 8.26084L4.49356 8.84215L7.41447 11.7074L6.72051 15.7324L10.3702 13.8101L13.9816 15.7269L13.2886 11.7074L16.2108 8.84095Z" fill="var(--section-empty-stars-color)"/>
+            </svg>
+        {% else %}
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {% case section.settings.stars_shape %}
+                    {% when 'stars' %}
+                        <path d="M9.46127 2.55063L7.4308 6.70529L2.83882 7.36128C2.02663 7.48624 1.71425 8.48585 2.30777 9.07938L5.58776 12.2969L4.80681 16.8264C4.68186 17.6386 5.55652 18.2633 6.275 17.8885L10.3672 15.7331L14.4281 17.8885C15.1466 18.2633 16.0213 17.6386 15.8963 16.8264L15.1153 12.2969L18.3953 9.07938C18.9889 8.48585 18.6765 7.48624 17.8643 7.36128L13.3035 6.70529L11.2418 2.55063C10.8982 1.83216 9.83613 1.80092 9.46127 2.55063Z" stroke="var(--section-empty-stars-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    {% when 'pointed_stars' %}
+                        <path d="M10.5 1L12.6329 7.56434H19.535L13.9511 11.6213L16.084 18.1857L10.5 14.1287L4.91604 18.1857L7.04893 11.6213L1.46497 7.56434H8.36712L10.5 1Z" stroke="var(--section-empty-stars-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    {% when 'heart_stars' %}
+                        <path d="M10 4.89321L10.6121 4.27677C12.3022 2.57449 15.0423 2.57448 16.7324 4.27677C18.4225 5.97905 18.4225 8.739 16.7324 10.4413L10 17.2223L3.26757 10.4412C1.57748 8.73895 1.57747 5.979 3.26757 4.27671C4.95767 2.57443 7.69786 2.57443 9.38796 4.27671L10 4.89321Z" stroke="var(--section-empty-stars-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                {% endcase %}
+            </svg>
+        {% endcase %}
+{% endcapture %}
+
+<loudz-testimonial-text
+	class="
+		Loudz-{{ section.id | handle }} LoudzTestimonialText
+		{% if section.settings.section_width == 100 %}LoudzTestimonialText--fullWidth{% endif %}
+		{% if section.settings.enable_fade %}LoudzTestimonialText--fade-enabled{% endif %}
+	"
+>
+	<div class="LoudzTestimonialTextContainer LoudzCarouselContainer">
+		<div class="LoudzTestimonialTextContent">
+			{%- for block in section.blocks -%}
+				 {%- if block.type == 'heading' and block.settings.heading != blank -%}
+				<h2 class="LoudzTestimonialTextContent__Heading LoudzTestimonialTextContent__Heading--style-{{ block.settings.heading_style }}">
+					{{ block.settings.heading }}
+				</h2>
+				 {%- elsif block.type == 'description' and block.settings.description != blank -%}
+				<div class="LoudzTestimonialTextContent__Description">
+					{{ block.settings.description }}
+				</div>
+				 {%- endif -%}
+			{%- endfor -%}
+			{% if section.settings.button_label != blank %}
+				<div class="LoudzTestimonialTextContent__Button">
+					{%- if section.settings.button_label != blank -%}
+						<a
+							{% if section.settings.new_tab == true %}
+								target="_blank"
+								rel="noopener noreferrer"
+							{% endif %}
+							class="LoudzTestimonialTextContentButton LoudzTestimonialTextContentButton--{{ section.settings.button_style }}"
+							href="{{ section.settings.button_link | default: "#" }}"
+						>
+							{{- section.settings.button_label | escape -}}
+						</a>
+					{%- endif -%}
+				</div>
+			{% endif %}
+		</div>
+		<div
+			class="LoudzCarousel"
+			data-section-width="{{ section.settings.section_width }}"
+		>
+			<div class="LoudzCarousel__Content">
+				<ul class="LoudzCarouselList">
+					{%- for block in section.blocks -%}
+						 {%- if block.type == 'testimonial' -%}
+						{%- liquid
+							assign testimonial_text = block.settings.testimonial_text
+							assign author_name = block.settings.author_name
+							assign author_additional_text = block.settings.author_additional_text
+							assign author_photo = block.settings.author_photo
+						-%}
+						<li
+							class="LoudzTestimonialBlock"
+							{{ block.shopify_attributes }}
+						>
+							<div class="LoudzTestimonialBlock__Wrapper">
+								<div
+									class="
+										LoudzTestimonialBlock__Content
+										LoudzTestimonialBlock__Content--blockStyle-{{ section.settings.testimonial_box_style }}
+									"
+								>
+									{% if testimonial_text != blank %}
+										<div class="LoudzTestimonialBlockDescription">
+											<div class="LoudzTestimonialBlockStarShape">
+												{% assign rating = block.settings.stars_rating | default: 5 %}
+												{% assign full_count = rating | floor %}
+												{% assign decimal = rating | modulo: 1 %}
+												{% if decimal > 0 %}
+													{% assign has_half = true %}
+													{% assign empty_count = 5 | minus: full_count | minus: 1 %}
+												{% else %}
+													{% assign has_half = false %}
+													{% assign empty_count = 5 | minus: full_count %}
+												{% endif %}
+												{% for i in (1..full_count) %}
+													{{ loudz_filled_icon }}
+												{% endfor %}
+												{% if has_half %}
+													<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+														<defs>
+															<clipPath id="left-half-{{ block.id }}">
+																<rect x="0" y="0" width="10" height="20"/>
+															</clipPath>
+															<clipPath id="right-half-{{ block.id }}">
+																<rect x="10" y="0" width="10" height="20"/>
+															</clipPath>
+														</defs>
+														<!-- Left half: filled -->
+														<g clip-path="url(#left-half-{{ block.id }})">
+															{% case section.settings.stars_shape %}
+																{% when 'stars' %}
+																	<path d="M9.46127 2.55063L7.4308 6.70529L2.83882 7.36128C2.02663 7.48624 1.71425 8.48585 2.30777 9.07938L5.58776 12.2969L4.80681 16.8264C4.68186 17.6386 5.55652 18.2633 6.275 17.8885L10.3672 15.7331L14.4281 17.8885C15.1466 18.2633 16.0213 17.6386 15.8963 16.8264L15.1153 12.2969L18.3953 9.07938C18.9889 8.48585 18.6765 7.48624 17.8643 7.36128L13.3035 6.70529L11.2418 2.55063C10.8982 1.83216 9.83613 1.80092 9.46127 2.55063Z" fill="var(--section-stars-color)"/>
+																{% when 'outline_stars' %}
+																	<path d="M11.2418 2.55063C10.8982 1.83216 9.83613 1.80092 9.46127 2.55063L7.4308 6.70529L2.83882 7.36128C2.02663 7.48624 1.71425 8.48585 2.30777 9.07938L5.58776 12.2969L4.80681 16.8264C4.68186 17.6386 5.55652 18.2633 6.275 17.8885L10.3672 15.7331L14.4281 17.8885C15.1466 18.2633 16.0213 17.6386 15.8963 16.8264L15.1153 12.2969L18.3953 9.07938C18.9889 8.48585 18.6765 7.48624 17.8643 7.36128L13.3035 6.70529L11.2418 2.55063Z" fill="var(--section-stars-color)"/>
+																{% when 'pointed_stars' %}
+																	<path d="M10.5 1L12.6329 7.56434H19.535L13.9511 11.6213L16.084 18.1857L10.5 14.1287L4.91604 18.1857L7.04893 11.6213L1.46497 7.56434H8.36712L10.5 1Z" fill="var(--section-stars-color)"/>
+																{% when 'heart_stars' %}
+																	<path d="M10 4.89321L10.6121 4.27677C12.3022 2.57449 15.0423 2.57448 16.7324 4.27677C18.4225 5.97905 18.4225 8.739 16.7324 10.4413L10 17.2223L3.26757 10.4412C1.57748 8.73895 1.57747 5.979 3.26757 4.27671C4.95767 2.57443 7.69786 2.57443 9.38796 4.27671L10 4.89321Z" fill="var(--section-stars-color)"/>
+															{% endcase %}
+														</g>
+														<!-- Right half: empty -->
+														<g clip-path="url(#right-half-{{ block.id }})">
+															{% case section.settings.stars_shape %}
+																{% when 'outline_stars' %}
+																	<path fill-rule="evenodd" clip-rule="evenodd" d="M11.2418 2.55063C10.8982 1.83216 9.83613 1.80092 9.46127 2.55063L7.4308 6.70529L2.83882 7.36128C2.02663 7.48624 1.71425 8.48585 2.30777 9.07938L5.58776 12.2969L4.80681 16.8264C4.68186 17.6386 5.55652 18.2633 6.275 17.8885L10.3672 15.7331L14.4281 17.8885C15.1466 18.2633 16.0213 17.6386 15.8963 16.8264L15.1153 12.2969L18.3953 9.07938C18.9889 8.48585 18.6765 7.48624 17.8643 7.36128L13.3035 6.70529L11.2418 2.55063ZM16.2108 8.84095L12.1777 8.26084L10.3564 4.59071L8.56273 8.26084L4.49356 8.84215L7.41447 11.7074L6.72051 15.7324L10.3702 13.8101L13.9816 15.7269L13.2886 11.7074L16.2108 8.84095Z" fill="var(--section-empty-stars-color)"/>
+																{% else %}
+																	{% case section.settings.stars_shape %}
+																		{% when 'stars' %}
+																			<path d="M9.46127 2.55063L7.4308 6.70529L2.83882 7.36128C2.02663 7.48624 1.71425 8.48585 2.30777 9.07938L5.58776 12.2969L4.80681 16.8264C4.68186 17.6386 5.55652 18.2633 6.275 17.8885L10.3672 15.7331L14.4281 17.8885C15.1466 18.2633 16.0213 17.6386 15.8963 16.8264L15.1153 12.2969L18.3953 9.07938C18.9889 8.48585 18.6765 7.48624 17.8643 7.36128L13.3035 6.70529L11.2418 2.55063C10.8982 1.83216 9.83613 1.80092 9.46127 2.55063Z" stroke="var(--section-empty-stars-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+																		{% when 'pointed_stars' %}
+																			<path d="M10.5 1L12.6329 7.56434H19.535L13.9511 11.6213L16.084 18.1857L10.5 14.1287L4.91604 18.1857L7.04893 11.6213L1.46497 7.56434H8.36712L10.5 1Z" stroke="var(--section-empty-stars-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+																		{% when 'heart_stars' %}
+																			<path d="M10 4.89321L10.6121 4.27677C12.3022 2.57449 15.0423 2.57448 16.7324 4.27677C18.4225 5.97905 18.4225 8.739 16.7324 10.4413L10 17.2223L3.26757 10.4412C1.57748 8.73895 1.57747 5.979 3.26757 4.27671C4.95767 2.57443 7.69786 2.57443 9.38796 4.27671L10 4.89321Z" stroke="var(--section-empty-stars-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+																	{% endcase %}
+																{% endcase %}
+															</g>
+													</svg>
+												{% endif %}
+												{% for i in (1..empty_count) %}
+													{{ loudz_empty_icon }}
+												{% endfor %}
+											</div>
+											{%- liquid
+												assign testimonial_text_words = testimonial_text | split: " "
+												assign testimonial_html_arr = ""
+
+												for word in testimonial_text_words
+													assign testimonial_html_arr = testimonial_html_arr | append: "<span> " | append: word | append: " </span>"
+												endfor
+
+												assign testimonial_html = testimonial_html_arr | join: " "
+											-%}
+											<div class="LoudzTestimonialBlockTextWrapper">
+												<loudz-expandable-text class="LoudzTestimonialBlockText">
+													{{ testimonial_html }}
+												</loudz-expandable-text>
+												<span class="LoudzTestimonialBlockText--arrow">
+													<svg
+														width="14"
+														height="8"
+														viewBox="0 0 14 8"
+														fill="none"
+														xmlns="http://www.w3.org/2000/svg"
+													>
+														<path d="M13 1L7 7L1 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+													</svg>
+												</span>
+											</div>
+										</div>
+									{% endif %}
+									{% assign show_author = false %}
+									{% if author_name != blank or author_additional_text != blank or author_photo != blank or section.settings.enable_reviewer_photo %}
+										{% assign show_author = true %}
+									{% endif %}
+									{% if show_author %}
+										<div class="LoudzTestimonialBlockAuthor">
+											{%- if section.settings.enable_reviewer_photo -%}
+												<div class="LoudzTestimonialBlockAuthor__AuthorPhoto">
+													{%- if author_photo != blank -%}
+														{{-
+															author_photo
+															| image_url: width: author_photo.width
+															| image_tag:
+																sizes: "100vw",
+																widths: "400, 600, 800, 1200, 1600, 1800, 2400, 2800, 3200",
+																fetchpriority: "low",
+																loading: "lazy",
+																class: "LoudzTestimonialBlockAuthor__AuthorPhoto--photo"
+														-}}
+													{%- else -%}
+														<img
+															src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+															class="LoudzTestimonialBlockAuthor__AuthorPhoto--photo"
+															alt="Reviewer placeholder"
+															loading="lazy"
+															width="48"
+															height="48"
+														>
+													{%- endif -%}
+												</div>
+											{%- endif -%}
+											<div class="LoudzTestimonialBlockAuthor__Text">
+												<div class="LoudzTestimonialBlockAuthor__AuthorName">
+													{{ author_name }}
+												</div>
+												<div class="LoudzTestimonialBlockAuthor__AuthorAddText">
+													{{ author_additional_text }}
+												</div>
+											</div>
+										</div>
+									{% endif %}
+								</div>
+							</div>
+						</li>
+						 {%- endif -%}
+					{%- endfor -%}
+				</ul>
+				<div class="LoudzCarousel__Navigation">
+					<div class="LoudzNavigationButtons">
+						<button class="LoudzNavigationButtons__Button LoudzNavigationButtons__Button--disabled left-chevron">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+							>
+								<path d="M14 18L8 12L14 6" stroke="#222" stroke-linecap="round"></path>
+							</svg>
+						</button>
+						<button class="LoudzNavigationButtons__Button right-chevron">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+							>
+								<path d="M9 6L15 12L9 18" stroke="#222" stroke-linecap="round"></path>
+							</svg>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</loudz-testimonial-text>
+
+{% schema %}
+{
+	"name": "Testimonial 2",
+	"disabled_on": {
+		"groups": ["header", "footer"]
+	},
+	"settings": [
+		{
+			"type": "header",
+			"content": "Layout"
+		},
+		{
+			"type": "range",
+			"id": "top_padding_desktop",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Top padding on desktop",
+			"default": 40
+		},
+		{
+			"type": "range",
+			"id": "bottom_padding_desktop",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Bottom padding on desktop",
+			"default": 40
+		},
+		{
+			"type": "range",
+			"id": "top_padding_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Top padding on mobile",
+			"default": 20
+		},
+		{
+			"type": "range",
+			"id": "bottom_padding_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Bottom padding on mobile",
+			"default": 20
+		},
+		{
+			"type": "range",
+			"id": "vertical_margin",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Top and bottom margin on desktop",
+			"default": 0
+		},
+		{
+			"type": "range",
+			"id": "vertical_margin_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Top and bottom margin on mobile",
+			"default": 0
+	
+		},
+		{
+			"type": "range",
+			"id": "section_width",
+			"min": 70,
+			"max": 100,
+			"step": 1,
+			"unit": "%",
+			"label": "Overall section width (desktop only)",
+			"default": 90,
+			"info": "Controls the width of the entire section on larger screens"
+
+		},
+		{
+			"type": "range",
+			"id": "testimonials_space_between",
+			"min": 10,
+			"max": 30,
+			"step": 2,
+			"unit": "px",
+			"label": "Spacing between testimonials",
+			"default": 20
+		},
+		{
+			"type": "header",
+			"content": "Design"
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_reviewer_photo",
+			"label": "Enable Reviewer Photo Profile",
+			"default": true
+		},
+		{
+			"type": "select",
+			"id": "stars_shape",
+			"label": "Shape of rating icons",
+			"options": [
+				{
+					"value": "stars",
+					"label": "Filled stars"
+				},
+				{
+					"value": "outline_stars",
+					"label": "Outlined stars"
+				},
+				{
+					"value": "pointed_stars",
+					"label": "Pointed stars"
+				},
+				{
+					"value": "heart_stars",
+					"label": "Hearts"
+				}
+			],
+			"default": "stars"
+		},
+		{
+			"type": "select",
+			"id": "stars_size",
+			"label": "Size of rating icons",
+			"options": [
+				{
+					"value": "16",
+					"label": "Small"
+				},
+				{
+					"value": "20",
+					"label": "Medium"
+				},
+				{
+					"value": "24",
+					"label": "Large"
+				}
+			],
+			"default": "20"
+		},
+		{
+			"type": "color",
+			"id": "stars_color",
+			"label": "Color of rating icons",
+			"default": "#E4CC0D"
+		},
+		{
+			"type": "color",
+			"id": "empty_stars_color",
+			"label": "Color of unfilled rating icons",
+			"default": "#5e5e5e"
+		},
+		{
+			"type": "select",
+			"id": "testimonial_per_row",
+			"label": "Number of testimonials per row (desktop only)",
+			"options": [
+				{
+					"value": "1",
+					"label": "1"
+				},
+				{
+					"value": "2",
+					"label": "2"
+				}
+			],
+			"default": "2"
+		},
+		{
+			"type": "color",
+			"id": "testimonial_color",
+			"label": "Color of testimonial quotes",
+			"default": "#222222"
+		},
+		{
+			"type": "select",
+			"id": "testimonial_text_size",
+			"label": "Size of testimonial quote text",
+			"options": [
+				{
+					"value": "12",
+					"label": "Small"
+				},
+				{
+					"value": "16",
+					"label": "Medium"
+				},
+				{
+					"value": "20",
+					"label": "Large"
+				}
+			],
+			"default": "16"
+		},
+		{
+			"type": "select",
+			"id": "testimonial_box_style",
+			"label": "Style of testimonial containers",
+			"options": [
+				{
+					"value": "color",
+					"label": "Filled background"
+				},
+				{
+					"value": "border",
+					"label": "Border outline"
+				}
+			],
+			"default": "color"
+		},
+		{
+			"type": "color",
+			"id": "testimonial_box_color",
+			"label": "Background color for filled containers",
+			"default": "#F8F8F8",
+			"visible_if": "{{ section.settings.testimonial_box_style == 'color' }}"
+		},
+		{
+			"type": "color",
+			"id": "testimonial_border_color",
+			"label": "Border color for outline containers",
+			"default": "#222222",
+			"visible_if": "{{ section.settings.testimonial_box_style == 'border' }}"
+		},
+		{
+			"type": "range",
+			"id": "testimonial_box_corner",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Corner radius for testimonial containers",
+			"default": 14
+		},
+		{
+			"type": "color",
+			"id": "author_color",
+			"label": "Color of author names and details",
+			"default": "#222222"
+		},
+		{
+			"type": "color",
+			"id": "inactive_arrows_color",
+			"label": "Color of navigation arrows ",
+			"default": "#222222"
+	
+		},
+		{
+			"type": "color",
+			"id": "section_background",
+			"label": "Background color for entire section"
+		},
+		{
+			"type": "header",
+			"content": "Text settings"
+		},
+		{
+			"type": "color",
+			"id": "text_color",
+			"label": "Color of heading and description text",
+			"default": "#222222"
+		},
+		{
+			"type": "header",
+			"content": "Button settings"
+		},
+		{
+			"type": "text",
+			"id": "button_label",
+			"label": "Button text label"
+		},
+		{
+			"type": "url",
+			"id": "button_link",
+			"label": "Button destination URL"
+		},
+		{
+			"type": "select",
+			"id": "button_style",
+			"label": "Visual style of button",
+			"options": [
+				{
+					"value": "solid",
+					"label": "Filled background"
+				},
+				{
+					"value": "outline",
+					"label": "Outlined border"
+				},
+				{
+					"value": "link",
+					"label": "Simple text link"
+				}
+			],
+			"default": "solid"
+		},
+		{
+			"type": "color",
+			"id": "button_text_color",
+			"label": "Color of button text",
+			"default": "#ffffff"
+		},
+		{
+			"type": "color",
+			"id": "button_background_color",
+			"label": "Background color for filled buttons",
+			"default": "#222222",
+			"visible_if": "{{ section.settings.button_style == 'solid' }}"
+		},
+		{
+			"type": "color",
+			"id": "button_border_color",
+			"label": "Border color for outlined buttons",
+			"default": "#222222",
+			"visible_if": "{{ section.settings.button_style == 'outline' }}"
+		},
+		{
+			"type": "range",
+			"id": "button_corner",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Corner radius for button edges",
+			"visible_if": "{{ section.settings.button_style != 'link' }}",
+			"default": 6
+		},
+		{
+			"type": "checkbox",
+			"id": "new_tab",
+			"label": "Launch button link in new browser tab",
+			"default": false
+		}
+	],
+	"blocks": [
+		{
+			"type": "heading",
+			"name": "Heading",
+			"settings": [
+				{
+					"type": "text",
+					"id": "heading",
+					"label": "Main heading text",
+					"default": "What Our Customers Say"
+				},
+				{
+					"type": "select",
+					"id": "heading_style",
+					"label": "Weight of main heading",
+					"options": [
+						{
+							"value": "thin",
+							"label": "Thin weight"
+						},
+						{
+							"value": "light",
+							"label": "Light weight"
+						},
+						{
+							"value": "regular",
+							"label": "Regular weight"
+						},
+						{
+							"value": "semibold",
+							"label": "Semibold weight"
+						},
+						{
+							"value": "bold",
+							"label": "Bold weight"
+						}
+					],
+					"default": "semibold"
+				},
+				{
+					"type": "range",
+					"id": "heading_size_desktop",
+					"min": 24,
+					"max": 64,
+					"step": 2,
+					"unit": "px",
+					"label": "Size of main heading (desktop)",
+					"default": 38
+				},
+				{
+					"type": "range",
+					"id": "heading_size_mobile",
+					"min": 18,
+					"max": 48,
+					"step": 2,
+					"unit": "px",
+					"label": "Size of main heading (mobile)",
+					"default": 34
+				}
+			]
+		},
+		{
+			"type": "description",
+			"name": "Description",
+			"settings": [
+				{
+					"type": "richtext",
+					"id": "description",
+					"label": "Introductory description text",
+					"default": "<p>Discover why our customers love us and trust our products every day.</p>"
+				},
+				{
+					"type": "range",
+					"id": "description_size_desktop",
+					"min": 14,
+					"max": 24,
+					"step": 2,
+					"unit": "px",
+					"label": "Size of description (desktop)",
+					"default": 16
+				},
+				{
+					"type": "range",
+					"id": "description_size_mobile",
+					"min": 12,
+					"max": 20,
+					"step": 2,
+					"unit": "px",
+					"label": "Size of description (mobile)",
+					"default": 14
+				}
+			]
+		},
+		{
+			"type": "testimonial",
+			"limit": 12,
+			"name": "Testimonial",
+			"settings": [
+				{
+					"type": "range",
+					"id": "stars_rating",
+					"min": 0,
+					"max": 5,
+					"step": 0.5,
+					"label": "Number of rating stars",
+					"default": 5
+				},
+				{
+					"type": "textarea",
+					"id": "testimonial_text",
+					"label": "Customer quote text",
+					"default": "Exceptional service and top-notch quality that exceeds expectations every time"
+				},
+				{
+					"type": "text",
+					"id": "author_name",
+					"label": "Name of the reviewer",
+					"default": "John Doe"
+				},
+				{
+					"type": "text",
+					"id": "author_additional_text",
+					"label": "Additional reviewer details (e.g., title or location)",
+                    "default": "21 September 2025"
+				},
+				{
+					"type": "image_picker",
+					"id": "author_photo",
+					"label": "Photo of the reviewer (optional)"
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Testimonial 2",
+			"category": "Testimonials",
+			"blocks": [
+				{
+					"type": "heading"
+				},
+				{
+					"type": "description"
+				},
+				{
+					"type": "testimonial"
+				},
+				{
+					"type": "testimonial"
+				},
+				{
+					"type": "testimonial"
+				},
+				{
+					"type": "testimonial"
+				},
+				{
+					"type": "testimonial"
+				}
+			]
+		}
+	]
+}
+{% endschema %}
+
+{%- assign heading_block = section.blocks | where: "type", "heading" | first -%}
+{%- assign description_block = section.blocks | where: "type", "description" | first -%}
+
+{% style %}
+	.Loudz-{{ section.id | handle }} {
+		--section-vertical-margin: {{- section.settings.vertical_margin -}}px;
+		--section-vertical-margin-mobile: {{- section.settings.vertical_margin_mobile -}}px;
+		--section-background-color: {{- section.settings.section_background -}};
+		--section-top-padding-desktop: {{- section.settings.top_padding_desktop -}}px;
+		--section-bottom-padding-desktop: {{- section.settings.bottom_padding_desktop -}}px;
+		--section-top-padding-mobile: {{- section.settings.top_padding_mobile -}}px;
+		--section-bottom-padding-mobile: {{- section.settings.bottom_padding_mobile -}}px;
+		--section-max-width: 1400px;
+		--section-width: {{- section.settings.section_width -}}%;
+	       --section-stars-size: {{- section.settings.stars_size -}}px;
+	       --section-testimonial-text-size: {{- section.settings.testimonial_text_size -}}px;
+	       --section-testimonial-border-radius: {{ section.settings.testimonial_box_corner }}px;
+	       --section-stars-color: {{- section.settings.stars_color -}};
+	       --section-empty-stars-color: {{- section.settings.empty_stars_color -}};
+	       --section-text-color: {{- section.settings.text_color -}};
+	       {%- if heading_block -%}
+	       --section-heading-size-desktop: {{ heading_block.settings.heading_size_desktop }}px;
+	       --section-heading-size-mobile: {{ heading_block.settings.heading_size_mobile }}px;
+	       {%- else -%}
+	       --section-heading-size-desktop: 32px;
+	       --section-heading-size-mobile: 24px;
+	       {%- endif -%}
+	       {%- if description_block -%}
+	       --section-description-size-desktop: {{ description_block.settings.description_size_desktop }}px;
+	       --section-description-size-mobile: {{ description_block.settings.description_size_mobile }}px;
+	       {%- else -%}
+	       --section-description-size-desktop: 16px;
+	       --section-description-size-mobile: 14px;
+	       {%- endif -%}
+	       --section-author-color: {{- section.settings.author_color -}};
+	       --section-testimonial-per-row: {{- section.settings.testimonial_per_row -}};
+	       --section-testimonial-color: {{- section.settings.testimonial_color -}};
+	       --section-testimonial-border-color: {{- section.settings.testimonial_border_color -}};
+	       --section-testimonial-box-color: {{- section.settings.testimonial_box_color -}};
+	       --section-inactive-arrows-color: {{- section.settings.inactive_arrows_color -}};
+	       --section-testimonial-space: {{- section.settings.testimonials_space_between -}}px;
+	       --section-button-text-color: {{- section.settings.button_text_color -}};
+	       --section-button-background-color: {{- section.settings.button_background_color -}};
+	       --section-button-corner-radius: {{- section.settings.button_corner -}}px;
+	       --section-button-border-color: {{- section.settings.button_border_color -}};
+	}
+
+	
+
+.Loudz-{{ section.id | handle }}.LoudzTestimonialText{background-color:var(--section-background-color);display:block}.Loudz-{{ section.id | handle }}.LoudzTestimonialText--fullWidth .LoudzNavigationButtons{padding-right:var(--section-testimonial-space)}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContainer{margin:var(--section-vertical-margin-mobile) auto;padding:var(--section-top-padding-mobile) 0 var(--section-bottom-padding-mobile) 0;list-style-type:none;gap:var(--loudz-space-32);position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start}@media(min-width: 992px){.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContainer{margin:var(--section-vertical-margin) auto;padding:calc(var(--loudz-space-80) + var(--section-top-padding-desktop)) 0 var(--section-bottom-padding-desktop) 0;gap:var(--loudz-space-40);flex-direction:row;padding-left:0;max-width:var(--section-max-width);width:var(--section-width)}}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent{flex-shrink:0;display:flex;flex-direction:column;padding:0 var(--loudz-space-20);gap:var(--loudz-space-16);display:flex;width:100%;flex-direction:column;justify-content:center}@media(min-width: 992px){.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent{width:30%;min-height:var(--largest-block-height, 0px)}}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Heading{margin:0;font-size:var(--section-heading-size-mobile);text-decoration:none;color:var(--section-text-color);display:block;text-align:var(--section-heading-alignment);pointer-events:auto}[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Heading,html[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Heading,body[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Heading,html[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Heading,body[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Heading{text-align:right}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Heading--style-thin{font-weight:var(--loudz-font-weight-100)}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Heading--style-light{font-weight:var(--loudz-font-weight-300)}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Heading--style-regular{font-weight:var(--loudz-font-weight-400)}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Heading--style-semibold{font-weight:var(--loudz-font-weight-600)}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Heading--style-bold{font-weight:var(--loudz-font-weight-700)}@media(min-width: 992px){.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Heading{font-size:var(--section-heading-size-desktop);padding:0}}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Button .LoudzTestimonialTextContentButton{display:inline-flex;justify-content:center;align-items:center;font:inherit;font-size:var(--loudz-font-size-14);text-decoration:var(--loudz-text-decoration-none);-webkit-appearance:none;appearance:none;width:fit-content;padding:var(--loudz-space-16) var(--loudz-space-20);transition:all .3s ease-in;line-height:1}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Button .LoudzTestimonialTextContentButton:hover{opacity:.85;cursor:pointer}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Button .LoudzTestimonialTextContentButton--solid{color:var(--section-button-text-color);background:var(--section-button-background-color);border-radius:var(--section-button-corner-radius)}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Button .LoudzTestimonialTextContentButton--outline{color:var(--section-text-color);background:rgba(0,0,0,0);border:var(--loudz-border-width-1) solid var(--section-button-border-color);border-radius:var(--section-button-corner-radius)}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Button .LoudzTestimonialTextContentButton--link{color:var(--section-button-text-color);background:rgba(0,0,0,0);border:var(--loudz-space-0);padding:0;border-radius:var(--loudz-space-0);text-decoration:var(--loudz-text-decoration-underline);text-underline-offset:var(--loudz-space-4)}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description p,.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ul,.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ol{margin:0;max-width:400px;font-size:var(--section-description-size-mobile);color:var(--section-text-color)}[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description p,[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ul,[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ol,html[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description p,html[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ul,html[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ol,body[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description p,body[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ul,body[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ol,html[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description p,html[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ul,html[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ol,body[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description p,body[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ul,body[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ol{text-align:right}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description h1,.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description h2,.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description h3,.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description h4,.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description h5,.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description h6{color:var(--section-text-color);margin:0;padding:0}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description a{color:var(--section-text-color);margin:0;padding:0;text-decoration:underline;text-underline-offset:var(--loudz-space-2);transition:opacity .3s ease-in}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description a:hover{opacity:.85}.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ul,.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ol{padding-left:var(--loudz-space-20)}[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ul,[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ol,html[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ul,html[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ol,body[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ul,body[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ol,html[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ul,html[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ol,body[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ul,body[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ol{padding-left:0;padding-right:var(--loudz-space-20)}@media(min-width: 992px){.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description p,.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ul,.Loudz-{{ section.id | handle }} .LoudzTestimonialTextContent__Description ol{font-size:var(--section-description-size-desktop)}}.Loudz-{{ section.id | handle }} .LoudzCarousel{width:100%;overflow:hidden}.Loudz-{{ section.id | handle }} .LoudzCarousel__Content{overflow:hidden;position:relative;padding-left:var(--section-testimonial-space)}@media(min-width: 992px){.Loudz-{{ section.id | handle }} .LoudzCarousel__Content{padding-left:0;padding-bottom:var(--loudz-space-80)}}[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzCarousel__Content,html[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzCarousel__Content,body[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzCarousel__Content,html[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzCarousel__Content,body[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzCarousel__Content{padding-left:0;padding-right:var(--section-testimonial-space)}@media(min-width: 992px){[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzCarousel__Content,html[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzCarousel__Content,body[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzCarousel__Content,html[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzCarousel__Content,body[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzCarousel__Content{padding-right:0}}.Loudz-{{ section.id | handle }} .LoudzCarousel__Content .LoudzCarouselList{display:flex;width:auto;padding-left:0;margin:0;transition:.3s;column-gap:var(--section-testimonial-space)}[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzCarousel__Content .LoudzCarouselList,html[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzCarousel__Content .LoudzCarouselList,body[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzCarousel__Content .LoudzCarouselList,html[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzCarousel__Content .LoudzCarouselList,body[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzCarousel__Content .LoudzCarouselList{padding-left:0;padding-right:0;padding-inline-start:0;padding-inline-end:0}.Loudz-{{ section.id | handle }} .LoudzCarousel__Content .LoudzCarouselList .LoudzTestimonialBlock{box-sizing:border-box;padding:0;flex:1;overflow:hidden;min-width:140px;max-width:140px;display:flex;flex-direction:column;justify-content:space-between}.Loudz-{{ section.id | handle }} .LoudzCarousel__Navigation{display:flex;position:absolute;bottom:var(--loudz-space-12);align-items:center;width:100%}.Loudz-{{ section.id | handle }} .LoudzCarousel__Navigation .LoudzNavigationButtons{height:var(--loudz-space-40);display:flex;width:100%;justify-content:flex-end;gap:var(--loudz-space-16)}@media(max-width: 991px){.Loudz-{{ section.id | handle }} .LoudzCarousel__Navigation .LoudzNavigationButtons{justify-content:center;gap:var(--loudz-space-24)}}@media(max-width: 991px){.Loudz-{{ section.id | handle }} .LoudzCarousel__Navigation{position:static;margin-top:var(--loudz-space-20)}}@media(max-width: 991px){.Loudz-{{ section.id | handle }} .LoudzCarousel__Content{padding-bottom:var(--loudz-space-60)}}.Loudz-{{ section.id | handle }} .LoudzCarousel__Navigation .LoudzNavigationButtons__Button{background-color:rgba(0,0,0,0);border-radius:50%;border:var(--loudz-border-width-1) solid var(--section-inactive-arrows-color, var(--loudz-color-bg-fill-default-on-light));width:var(--loudz-space-40);height:var(--loudz-space-40);display:flex;align-items:center;justify-content:center;transition: all .3s ease-in}.Loudz-{{ section.id | handle }} .LoudzCarousel__Navigation .LoudzNavigationButtons__Button path{stroke:var(--section-inactive-arrows-color, var(--loudz-color-bg-fill-default-on-light));transition: stroke .3s ease-in}.Loudz-{{ section.id | handle }} .LoudzCarousel__Navigation .LoudzNavigationButtons__Button:hover{opacity:.85;border-color: var(--section-inactive-arrows-color, var(--loudz-color-bg-fill-default-on-light));cursor:pointer}.Loudz-{{ section.id | handle }} .LoudzCarousel__Navigation .LoudzNavigationButtons__Button:hover path{stroke: var(--section-inactive-arrows-color, var(--loudz-color-bg-fill-default-on-light))}.Loudz-{{ section.id | handle }} .LoudzCarousel__Navigation .LoudzNavigationButtons__Button--disabled{cursor:default;opacity:.3}[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzCarousel__Navigation .LoudzNavigationButtons__Button svg,html[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzCarousel__Navigation .LoudzNavigationButtons__Button svg,body[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzCarousel__Navigation .LoudzNavigationButtons__Button svg,html[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzCarousel__Navigation .LoudzNavigationButtons__Button svg,body[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzCarousel__Navigation .LoudzNavigationButtons__Button svg{transform:scaleX(-1)}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlock__Wrapper{display:flex;flex-direction:column;height:100%;gap:var(--loudz-space-16)}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlock__Wrapper:hover img{transform:scale(1.03)}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlock__Content{display:flex;justify-content:center;flex-direction:column;padding:var(--loudz-space-24);min-height:var(--largest-block-height, 0px);justify-content:space-between;gap:var(--loudz-space-32);border:var(--loudz-border-width-1) solid rgba(0,0,0,0);border-radius:var(--section-testimonial-border-radius)}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlock__Content--blockStyle-color{background-color:var(--section-testimonial-box-color, var(--loudz-color-bg-surface-tertiary-on-light))}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlock__Content--blockStyle-border{border:var(--loudz-border-width-1) solid var(--section-testimonial-border-color)}@media(min-width: 992px){.Loudz-{{ section.id | handle }} .LoudzTestimonialBlock__Content{gap:var(--loudz-space-40);padding:var(--loudz-space-32)}}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText{position:relative;white-space:normal;margin:0;display:block;font-size:calc(var(--section-testimonial-text-size)*.88);color:var(--section-testimonial-color);line-height:var(--loudz-line-height-150)}@media(min-width: 992px){.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText{font-size:var(--section-testimonial-text-size)}}[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText,html[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText,body[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText,html[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText,body[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText{text-align:right}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText--arrow{position:absolute;bottom:calc(var(--section-testimonial-text-size) - var(--loudz-space-6));right:0;cursor:pointer;align-items:center;display:none;justify-content:center}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText--arrow path{stroke:var(--section-testimonial-color, var(--loudz-color-bg-fill-default-on-light))}[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText--arrow,html[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText--arrow,body[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText--arrow,html[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText--arrow,body[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText--arrow{right:auto;left:0}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText--hidden{text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden}@media(min-width: 992px){.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText--hidden{-webkit-line-clamp:4}}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText--open{text-overflow:unset;display:-webkit-box;word-break:normal;-webkit-line-clamp:unset;white-space:normal}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText--open .LoudzTestimonialBlockLast::after{display:block}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText--open::before{display:none}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockTextWrapper{position:relative}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText.LoudzTestimonialBlockText--hidden+.LoudzTestimonialBlockText--arrow,.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText.LoudzTestimonialBlockText--open+.LoudzTestimonialBlockText--arrow{display:flex}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockText.LoudzTestimonialBlockText--open+.LoudzTestimonialBlockText--arrow{transform:rotate(180deg)}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockLast{display:inline-flex;gap:var(--loudz-space-4);align-items:center}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockLast span{cursor:pointer;pointer-events:all}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockLast::after{content:"";position:static;display:none;width:var(--loudz-space-12);height:var(--loudz-space-12);cursor:pointer;z-index:2;mask-image:url("data:image/svg+xml;utf8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cpath%20d%3D%22M2%2011L8%205L14%2011%22%20stroke%3D%22%23222222%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%3C%2Fsvg%3E%0A");mask-repeat:no-repeat;mask-size:contain;background-color:var(--section-testimonial-color)}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockDescription{display:flex;flex-direction:column;gap:var(--loudz-space-16)}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockAuthor{display:flex;align-items:center;gap:var(--loudz-space-16)}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockAuthor__Text{display:flex;flex-direction:column}[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialBlockAuthor__Text,html[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialBlockAuthor__Text,body[dir=rtl] .Loudz-{{ section.id | handle }} .LoudzTestimonialBlockAuthor__Text,html[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialBlockAuthor__Text,body[style*="direction: rtl"] .Loudz-{{ section.id | handle }} .LoudzTestimonialBlockAuthor__Text{text-align:right}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockAuthor__AuthorName{margin:0;font-size:var(--loudz-font-size-14);color:var(--section-author-color);font-weight:var(--loudz-font-weight-600)}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockAuthor__AuthorAddText{margin:0;font-size:var(--loudz-font-size-12);color:var(--section-author-color);opacity:.7}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockAuthor__AuthorPhoto{width:var(--loudz-space-48);height:var(--loudz-space-48)}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockAuthor__AuthorPhoto img{width:100%;object-fit:cover;height:100%;border-radius:var(--loudz-border-radius-full)}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockStarShape{display:flex;gap:var(--loudz-space-1);height:var(--section-stars-size);line-height:1}.Loudz-{{ section.id | handle }} .LoudzTestimonialBlockStarShape svg{width:var(--section-stars-size);height:var(--section-stars-size)}.LoudzTestimonialText--fade-enabled .LoudzCarousel__Content{position:relative}.LoudzTestimonialText--fade-enabled .LoudzCarousel__Content::before{content:'';position:absolute;top:0;bottom:0;left:0;width:40px;background:linear-gradient(to right, var(--section-background-color) 0%, transparent 100%);z-index:10;pointer-events:none}.LoudzTestimonialText--fade-enabled .LoudzCarousel__Content::after{content:'';position:absolute;top:0;bottom:0;right:0;width:40px;background:linear-gradient(to left, var(--section-background-color) 0%, transparent 100%);z-index:10;pointer-events:none}
+
+{% endstyle %}
+
+{% style %}
+	
+
+.LoudzUninstallBG{background-color:var(--loudz-color-bg-fill-inverse-on-light);background-image:url("data:image/avif;base64,iVBORw0KGgoAAAANSUhEUgAABOcAAABkCAQAAABnAJxfAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAACYktHRAD/h4/MvwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+gLFQgmAgUXFkMAAARaSURBVHja7daxbSRBEATB8ZzvKw0h1dcIlJS4jl25Azlavffn9/3v++e//+vvCwqFQqFQKBRKSklEUCgUCoVCoVAMOgqFQqFQKJSzSiKCQqFQKBQKhWLQUSgUCoVCoZxVEhEUCoVCoVAoFIOOQqFQKBQK5VOURASFQqFQKBQKZVUSERQKhUKhUCiUVUlEUCgUCoVCoVBWZbtOPoVCoVAoFArlovIKERQKhUKhUCiUVXmFCAqFQqFQKBTKqrxCBIVCoVAoFAplVV4hgkKhUCgUCoUyK4kICoVCoVAoFMqqJCIoFAqFQqFQKKuSiKBQKBQKhUKhrEoigkKhUCgUCoVi0FEoFAqFQqGcVRIRFAqFQqFQKBSDjkKhUCgUCuWskoigUCgUCoVCoRh0FAqFQqFQKGeVRASFQqFQKBQKxaCjUCgUCoVCOaskIigUCoVCoVAoBh2FQqFQKBTKWSURQaFQKBQKhUIx6CgUCoVCoVDOKokICoVCoVAoFIpBR6FQKBQKhXJWSURQKBQKhUKhUAw6CoVCoVAolLNKIoJCoVAoFAqFYtBRKBQKhUKhnFUSERQKhUKhUCgUg45CoVAoFArlrJKIoFAoFAqFQqEYdBQKhUKhUChnlUQEhUKhUCgUCsWgo1AoFAqFQvkUJRFBoVAoFAqFQlmVRASFQqFQKBQKZVUSERQKhUKhUCiUVdmuk0+hUCgUCoVCuai8QgSFQqFQKBQKZVVeIYJCoVAoFAqFsiqvEEGhUCgUCoVCWZVXiKBQKBQKhUKhzEoigkKhUCgUCoWyKokICoVCoVAoFMqqJCIoFAqFQqFQKAYdhUKhUCgUylklEUGhUCgUCoVCMegoFAqFQqFQziqJCAqFQqFQKBSKQUehUCgUCoVyVklEUCgUCoVCoVAMOgqFQqFQKJSzSiKCQqFQKBQKhWLQUSgUCoVCoZxVEhEUCoVCoVAoFIOOQqFQKBQK5dOVX5nMB52iezhxAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI0LTExLTIxVDA4OjM4OjAyKzAwOjAw30WrCwAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNC0xMS0yMVQwODozODowMiswMDowMK4YE7cAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjQtMTEtMjFUMDg6Mzg6MDIrMDA6MDD5DTJoAAAAAElFTkSuQmCC");background-position:center;background-size:cover;text-align:center;padding:var(--loudz-space-32);margin:0}.LoudzUninstallBG__Text{color:var(--loudz-color-text-disable-on-light);font-family:Inter,sans-serif;font-size:var(--loudz-font-size-14);font-weight:var(--loudz-font-weight-400);line-height:var(--loudz-line-height-140);padding:var(--loudz-space-16) var(--loudz-space-16) var(--loudz-space-16) var(--loudz-space-40);background-color:var(--loudz-color-bg-fill-inverse-on-light);display:inline-block}.LoudzUninstallBG__Text::before{content:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%0A%09%09%09%3Cpath%20d%3D%22M9.99994%206.75C10.4142%206.75%2010.7499%207.08579%2010.7499%207.5V11C10.7499%2011.4142%2010.4142%2011.75%209.99994%2011.75C9.58573%2011.75%209.24994%2011.4142%209.24994%2011V7.5C9.24994%207.08579%209.58573%206.75%209.99994%206.75Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%09%3Cpath%20d%3D%22M11%2013.5C11%2014.0523%2010.5523%2014.5%2010%2014.5C9.44772%2014.5%209%2014.0523%209%2013.5C9%2012.9477%209.44772%2012.5%2010%2012.5C10.5523%2012.5%2011%2012.9477%2011%2013.5Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%09%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M10%203.5C8.95471%203.5%208.21616%204.20232%207.84762%204.94672C7.65565%205.33448%206.75984%207.0441%205.84305%208.79353L5.81531%208.84646C4.9229%2010.5493%204.01714%2012.2777%203.80716%2012.702C3.4351%2013.4537%203.32931%2014.4519%203.89953%2015.316C4.46911%2016.1791%205.44222%2016.5%206.36356%2016.5L13.6364%2016.5C14.5577%2016.5%2015.5308%2016.1791%2016.1004%2015.316C16.6707%2014.4519%2016.5649%2013.4537%2016.1928%2012.702C15.9832%2012.2784%2015.08%2010.555%2014.1889%208.85476L14.1569%208.79352C13.24%207.044%2012.3443%205.33454%2012.1524%204.94693C11.784%204.20242%2011.0454%203.5%2010%203.5ZM9.1919%205.61225C9.59605%204.79592%2010.4041%204.79592%2010.8081%205.61225C11.0102%206.02061%2011.9201%207.75686%2012.8296%209.49243C13.7383%2011.2262%2014.6466%2012.9594%2014.8485%2013.3673C15.2525%2014.1837%2014.8485%2015%2013.6364%2015L6.36356%2015C5.1515%2015%204.74746%2014.1837%205.1515%2013.3673C5.35376%2012.9587%206.26468%2011.2205%207.1748%209.4838C8.08283%207.75111%208.99005%206.01994%209.1919%205.61225Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%3C%2Fsvg%3E");position:absolute;width:var(--loudz-space-20);height:var(--loudz-space-20);margin-left:calc(-1*var(--loudz-space-24))}.LoudzUninstallBG__Text a{color:var(--loudz-color-text-disable-on-light)}.LoudzUninstallBG__Text a:hover{text-decoration:none}
+
+{% endstyle %}
+
+
+<script>
+	(function (options) {
+		const debounceFn = (func, delay) => {
+			let timeoutId;
+
+			return function (...args) {
+				clearTimeout(timeoutId);
+				timeoutId = setTimeout(() => func.apply(this, args), delay);
+			};
+		};
+
+		if (!customElements.get('loudz-testimonial-text')) {
+			class LoudzTestimonialText extends HTMLElement {
+				constructor() {
+					super();
+				}
+
+				connectedCallback() {
+					setTimeout(() => {
+						this.setProperties();
+
+						this.onResize();
+					}, 100);
+				}
+
+				setProperties() {
+					this.expandableTexts = [...this.querySelectorAll('loudz-expandable-text')];
+					this.blocks = this.expandableTexts.map((expandableText) => expandableText.block);
+					this.contents = this.expandableTexts.map((expandableText) => expandableText.content);
+
+					this.resizeHandler = debounceFn(this.onResize.bind(this), 200);
+					window.addEventListener('resize', this.resizeHandler);
+				}
+
+				onResize() {
+					this.style.setProperty('--largest-block-height', 'initial');
+					this.contents.forEach((content) => {
+						content.style.flexGrow = '1';
+					});
+
+					this.expandableTexts.forEach((expandableText) => expandableText.close());
+					const newHeight = Math.max(...this.blocks.map((block) => block.offsetHeight));
+
+					this.style.setProperty('--largest-block-height', newHeight + 'px');
+
+					this.contents.forEach((content) => {
+						content.style.flexGrow = '0';
+					});
+
+					this.expandableTexts.forEach((expandableText) => expandableText.setArrowPosition());
+				}
+			}
+
+			customElements.define('loudz-testimonial-text', LoudzTestimonialText);
+		}
+
+		if (!customElements.get('loudz-expandable-text')) {
+			class LoudzExpandableText extends HTMLElement {
+				static ARROW_OFFSET = 20;
+
+				constructor() {
+					super();
+				}
+
+				connectedCallback() {
+					requestAnimationFrame(() => {
+						this.setProperties();
+						this.checkHeight();
+						this.setArrowPosition();
+
+						this.addEventListener('click', this.thisClickHandler);
+						this.arrow.addEventListener('click', this.clickHandler);
+						this.block.addEventListener('mouseout', this.mouseOutHandler);
+
+						document.body.addEventListener('click', this.bodyClickHandler.bind(this));
+					});
+				}
+
+				setProperties() {
+					this.allSpans = [...this.querySelectorAll('span:not([class])')];
+					this.arrow = this.closest('div').querySelector('.LoudzTestimonialBlockText--arrow');
+					this.block = this.closest('.LoudzTestimonialBlock__Wrapper');
+					this.content = this.block.querySelector('.LoudzTestimonialBlock__Content');
+					this.calculateProperties();
+
+					this.thisClickHandler = () => {
+						if (this.isMobile) return;
+						this.toggle();
+					};
+					this.clickHandler = (e) => {
+						e.stopPropagation();
+						this.toggle();
+					};
+					this.bodyClickHandler = () => {
+						if (this.isMobile) {
+							this.close();
+						}
+					};
+					this.mouseOutHandler = (e) => {
+						if (this.block.contains(e.relatedTarget)) return;
+
+						if (this.isMobile) return;
+						this.close();
+					};
+				}
+
+				calculateProperties() {
+					this.isMobile = window.innerWidth <= window.loudzBreakpoints.tablet.maxWidth;
+					this.maxLines = this.isMobile ? 7 : 4;
+					this.lineHeight = parseFloat(window.getComputedStyle(this).lineHeight).toFixed(2);
+					this.maxHeight = Math.round(this.lineHeight * this.maxLines);
+				}
+
+				toggle() {
+					if (this.style.maxHeight === `${this.maxHeight}px`) {
+						this.open();
+					} else {
+						this.close();
+					}
+				}
+
+				open() {
+					this.style.maxHeight = 'none';
+					this.classList.add('LoudzTestimonialBlockText--open');
+					this.style.height = 'auto';
+					this.setArrowPosition();
+				}
+
+				close() {
+					this.style.maxHeight = `${this.maxHeight}px`;
+					this.classList.remove('LoudzTestimonialBlockText--open');
+					this.setArrowPosition();
+				}
+
+				checkHeight() {
+					this.calculateProperties();
+					this.classList.remove('LoudzTestimonialBlockText--hidden');
+					const contentHeight = Math.max(this.offsetHeight, this.scrollHeight);
+					const tolerance = 1;
+					if (contentHeight - this.maxHeight > tolerance) {
+						this.style.maxHeight = this.style.maxHeight === 'none' ? 'none' : `${this.maxHeight}px`;
+						this.classList.add('LoudzTestimonialBlockText--hidden');
+					} else {
+						this.style.maxHeight = 'none';
+						this.classList.remove('LoudzTestimonialBlockText--hidden');
+					}
+				}
+
+				setArrowPosition() {
+					if (!this.allSpans.length) return;
+					this.checkHeight();
+
+					const { bottom, right, left } = this.getBoundingClientRect();
+					const lastSpan = this.allSpans[this.allSpans.length - 1];
+
+					const lastVisibleSpan =
+						this.allSpans.findLast((span) => {
+							const { top: spanTop } = span.getBoundingClientRect();
+							return spanTop < bottom;
+						}) || lastSpan;
+
+					// Check if the page is in RTL mode
+					const isRTL = document.dir === 'rtl' || document.documentElement.dir === 'rtl' || 
+						window.getComputedStyle(document.body).direction === 'rtl';
+
+					// Optimized arrow positioning: RTL uses left, LTR uses right
+					if (isRTL) {
+						const { left: spanLeft } = lastVisibleSpan.getBoundingClientRect();
+						const arrowLeft = spanLeft - left - LoudzExpandableText.ARROW_OFFSET;
+						this.arrow.style.left = `${arrowLeft}px`;
+						this.arrow.style.right = 'auto';
+					} else {
+						const { right: spanRight } = lastVisibleSpan.getBoundingClientRect();
+						const arrowRight = right - spanRight - LoudzExpandableText.ARROW_OFFSET;
+						this.arrow.style.right = `${arrowRight}px`;
+						this.arrow.style.left = 'auto';
+					}
+				}
+			}
+
+			customElements.define('loudz-expandable-text', LoudzExpandableText);
+		}
+
+		const PARTIAL_VISIBLE_ITEM_SIZE = 0.333;
+		const lastRenderedResolution = { width: window.innerWidth, height: window.innerHeight };
+
+		const {
+			structure: {
+				cardHasBorder,
+				columnGap,
+				containerId,
+				showPortionOfLastImage,
+				slideBySet,
+				visibleItemsDesktop,
+				visibleItemsMobile,
+			},
+		} = options;
+		const containerElement = document.querySelector(containerId);
+
+		if (!containerElement) {
+			// perhaps is not created or it exists, but does not have products associated with it
+			return;
+		}
+
+		const carouselElement = containerElement.querySelector('.LoudzCarousel');
+		const listContainerElement = carouselElement.querySelector('.LoudzCarouselList');
+		const contentElement = carouselElement.querySelector('.LoudzCarousel__Content');
+		const leftButtonElement = containerElement.querySelector('.LoudzNavigationButtons__Button.left-chevron');
+		const rightButtonElement = containerElement.querySelector('.LoudzNavigationButtons__Button.right-chevron');
+		const listItems = listContainerElement.querySelectorAll('.LoudzTestimonialBlock');
+		const navigationElement = containerElement.querySelector('.LoudzCarousel__Navigation');
+		const sectionWidth = parseInt(carouselElement.getAttribute('data-section-width'));
+		const isMobile = window.innerWidth <= window.loudzBreakpoints.tablet.maxWidth;
+		const itemsLength = listItems.length;
+		
+		// Check if the page is in RTL mode
+		const isRTL = document.dir === 'rtl' || 
+			document.documentElement.dir === 'rtl' || 
+			document.body.dir === 'rtl' ||
+			window.getComputedStyle(document.documentElement).direction === 'rtl' ||
+			window.getComputedStyle(document.body).direction === 'rtl';
+
+		const getVisibleItems = () => {
+			if (window.innerWidth >= window.loudzBreakpoints.desktop.minWidth) {
+				return visibleItemsDesktop;
+			} else {
+				return visibleItemsMobile;
+			}
+		};
+
+		const getElementWidth = () => {
+			const carouselWidth = getCarouselWidth();
+			const visibleItems = getVisibleItems();
+			const columnsToShow =
+				visibleItems + (showPortionOfLastImage && itemsLength > visibleItems ? PARTIAL_VISIBLE_ITEM_SIZE : 0);
+
+			return Math.floor((carouselWidth - columnGap * visibleItems) / columnsToShow);
+		};
+
+		const getNavigationScreensNumber = () => {
+			const visibleItems = getVisibleItems();
+
+			return Math.ceil((itemsLength - visibleItems) / getSlideBy(slideBySet) + 1);
+		};
+
+		const getCarouselWidth = () => parseInt(window.getComputedStyle(carouselElement).width);
+
+		const getSlideBy = (slideBySet) => {
+			return window.innerWidth <= window.loudzBreakpoints.mobile.maxWidth ? 1 : slideBySet;
+		};
+
+		let position = 0;
+
+		const resizeElements = () => {
+			const elementWidth = getElementWidth();
+
+			listItems.forEach((item) => {
+				const imageContainerElement = item.querySelector('.LoudzTestimonialBlock__Wrapper');
+
+				item.style.minWidth = `${elementWidth}px`;
+				item.style.maxWidth = `${elementWidth}px`;
+
+				const containerWidth = elementWidth - (cardHasBorder ? 2 : 0);
+				imageContainerElement.style.width = `${containerWidth}px`;
+			});
+		};
+
+		resizeElements();
+
+		leftButtonElement.addEventListener('click', () => navigate('left'));
+		rightButtonElement.addEventListener('click', () => navigate('right'));
+
+		const updateButtonsState = () => {
+			const screensNumber = getNavigationScreensNumber();
+
+			leftButtonElement.classList.toggle('LoudzNavigationButtons__Button--disabled', position === 0);
+			rightButtonElement.classList.toggle(
+				'LoudzNavigationButtons__Button--disabled',
+				position === screensNumber - 1
+			);
+		};
+
+		const navigate = (direction) => {
+			const screensNumber = getNavigationScreensNumber();
+
+			if (direction === 'left' && position > 0) {
+				position--;
+			} else if (direction === 'right' && position < screensNumber - 1) {
+				position++;
+			} else {
+				return;
+			}
+			const elementWidth = getElementWidth();
+			const carouselList = contentElement.firstElementChild;
+			const slideBy = getSlideBy(slideBySet);
+			let shift = -(position * (elementWidth + columnGap) * slideBy);
+
+			// Check for the last slide
+			const isLastSlide = position === screensNumber - 1;
+			const partialShift = elementWidth * PARTIAL_VISIBLE_ITEM_SIZE;
+
+			if (isLastSlide) {
+				if (sectionWidth === 100) {
+					shift += isMobile ? partialShift - columnGap : partialShift;
+				} else if (sectionWidth < 100) {
+					shift += isMobile ? partialShift - columnGap : partialShift + columnGap;
+				}
+			}
+
+			// Optimized margin logic: RTL uses marginRight, LTR uses marginLeft
+			carouselList.style.marginLeft = isRTL ? '0' : `${shift}px`;
+			carouselList.style.marginRight = isRTL ? `${shift}px` : '0';
+			updateButtonsState();
+		};
+
+		const resizeCarousel = () => {
+			if (window.innerWidth !== lastRenderedResolution.width) {
+				position = 0;
+
+				resizeElements();
+				// Reset margin properties
+				listContainerElement.style.marginLeft = '0';
+				listContainerElement.style.marginRight = '0';
+				updateButtonsState();
+				updateNavigationVisibility();
+
+				lastRenderedResolution.width = window.innerWidth;
+				lastRenderedResolution.height = window.innerHeight;
+			}
+		};
+
+		const updateNavigationVisibility = () => {
+			const elementWidth = getElementWidth();
+			const contentWidth = elementWidth * itemsLength + columnGap * (itemsLength - 1);
+			const needsNavigationVisible = contentWidth > carouselElement.offsetWidth;
+
+			navigationElement.style.display = needsNavigationVisible ? 'flex' : 'none';
+		};
+
+		updateButtonsState();
+		updateNavigationVisibility();
+
+		window.addEventListener('resize', debounceFn(resizeCarousel, 100));
+
+		// touch functionality {
+		let xTouchDown = null;
+		let yTouchDown = null;
+
+		const getTouches = (evt) => {
+			return evt.touches || evt.originalEvent.touches;
+		};
+
+		const handleTouchStart = (evt) => {
+			const firstTouch = getTouches(evt)[0];
+			xTouchDown = firstTouch.clientX;
+			yTouchDown = firstTouch.clientY;
+		};
+
+		const handleTouchEnd = (evt) => {
+			if (xTouchDown === null || yTouchDown === null) return;
+
+			let xUp = xTouchDown;
+			let yUp = yTouchDown;
+
+			if (evt.changedTouches && evt.changedTouches.length > 0) {
+				xUp = evt.changedTouches[0].clientX;
+				yUp = evt.changedTouches[0].clientY;
+			}
+
+			const xDiff = xTouchDown - xUp;
+			const yDiff = yTouchDown - yUp;
+
+			if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff) > 50) {
+				const direction = (xDiff > 0) === isRTL ? 'left' : 'right';
+				navigate(direction);
+			}
+
+			xTouchDown = null;
+			yTouchDown = null;
+		};
+
+		const handleTouchMove = (evt) => {
+			if (xTouchDown !== null) {
+				const firstTouch = getTouches(evt)[0];
+				const xUp = firstTouch.clientX;
+				const yUp = firstTouch.clientY;
+				const xDiff = xTouchDown - xUp;
+				const yDiff = yTouchDown - yUp;
+
+				if (Math.abs(xDiff) > Math.abs(yDiff)) {
+					evt.preventDefault();
+				}
+			}
+		};
+
+		contentElement.addEventListener('touchstart', handleTouchStart, {passive: true});
+		contentElement.addEventListener('touchmove', handleTouchMove, {passive: false});
+		contentElement.addEventListener('touchend', handleTouchEnd, {passive: true});
+		// touch functionality }
+	})({
+		structure: {
+			containerId: '.Loudz-{{ section.id | handle }} .LoudzCarouselContainer',
+			showPortionOfLastImage: true,
+			visibleItemsDesktop: parseInt('{{ section.settings.testimonial_per_row }}'),
+			visibleItemsMobile: 1,
+			columnGap: parseInt('{{ section.settings.testimonials_space_between }}'),
+			slideBySet: 1,
+		},
+	});
+</script>

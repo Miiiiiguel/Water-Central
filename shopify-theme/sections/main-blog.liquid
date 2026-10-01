@@ -1,0 +1,335 @@
+{%- liquid
+  assign section_st = section.settings
+
+  assign blog_handle = section_st.blog_select
+  assign selected_blog = blogs[blog_handle]
+
+  assign image_ratio = section_st.image_ratio
+  assign custom_ratio = section_st.custom_ratio
+  assign content_alignment = section_st.content_alignment
+  assign show_date = section_st.show_date
+  assign show_excerpt = section_st.show_excerpt
+  assign show_readmore = section_st.show_readmore
+  assign readmore_type = section_st.readmore_type
+  assign hover_effect = section_st.hover_effect
+
+  assign layout = section_st.layout
+  assign pagination = section_st.pagination
+  assign section_width = section_st.section_width
+  assign items_to_show = section_st.items_to_show
+  assign items_per_row = section_st.items_per_row
+  assign items_per_row_mobile = section_st.items_per_row_mobile
+  assign column_gap = section_st.column_gap
+
+  assign scroll_animation = settings.scroll_animation
+-%}
+
+{%- capture style -%}
+  /* ======================================== */
+  /* SECTION PADDING & MARGIN CSS VARIABLES   */
+  /* ======================================== */
+  --section-pt: {{ section_st.padding_top }}px;
+  --section-pb: {{ section_st.padding_bottom }}px;
+  --section-mt: {{ section_st.margin_top }}px;
+  --section-mb: {{ section_st.margin_bottom }}px;
+
+  /* ======================================== */
+  /* COLUMN/LAYOUT VARIABLES                  */
+  /* ======================================== */
+  --col-gap-desktop: 6rem;
+  --col-width: 24rem;
+
+  /* ============================== */
+  /* READ MORE BUTTON CSS VARIABLES */
+  /* ============================== */
+  --readmore-bg-color: {{ section_st.readmore_bg_color | default: '#007bff' }};
+  --readmore-hover-bg-color: {{ section_st.readmore_hover_bg_color | default: '#0056b3' }};
+  --readmore-text-color: {{ section_st.readmore_text_color | default: '#ffffff' }};
+  --readmore-border-radius: {{ section_st.readmore_border_radius | default: 4 }}px;
+  --readmore-border-weight: {{ section_st.readmore_border_weight | default: 2 }}px;
+  --readmore-border-color: {{ section_st.readmore_border_color | default: '#007bff' }};
+
+  /* ============================== */
+  /* BADGE CUSTOMIZATION VARIABLES */
+  /* ============================== */
+  --badge-vertical-position: {{ section_st.badge_vertical_position }}px;
+  --badge-horizontal-position: {{ section_st.badge_horizontal_position }}px;
+  --badge-width: {{ section_st.badge_width }}px;
+  --badge-height: {{ section_st.badge_height }}px;
+  --badge-font-size: {{ section_st.badge_text_font_size }}px;
+{%- endcapture -%}
+
+{%- capture col_style -%}
+  --col-desktop: {{ items_per_row }};
+  --col-number: {{ items_per_row_mobile }};
+
+  {% if items_per_row > 3 %}
+    --col-tablet: 3;
+  {% else %}
+    --col-tablet: {{ items_per_row }};
+  {% endif %}
+
+  --col-mobile: {{ items_per_row_mobile }};
+
+  {% if column_gap < 15 %}
+    --col-gap: {{ column_gap }}px;
+    --col-gap-desktop: {{ column_gap }}px;
+  {% else %}
+    --col-gap: 15px;
+    --col-gap-desktop: {{ column_gap }}px;
+  {% endif %}
+
+  {% if layout == 'grid' %}
+    --row-gap: 4rem;
+  {% else %}
+    --row-gap: 3rem;
+  {% endif %}
+{%- endcapture -%}
+
+<div
+  class="section{% if section_st.padding_top < 30 %} pt-min{% endif %}{% if section_st.padding_bottom < 30 %} pb-min{% endif %} sec__blog-list"
+  style="{{ style | strip | strip_newlines }}"
+>
+  <div class="{{ section_width }}">
+    <div class="blog-grid-container flex flex-wrap gap-40 justify-between">
+      {%- if selected_blog and selected_blog.articles.size > 0 -%}
+        {%- paginate selected_blog.articles by items_to_show -%}
+          <div class="main-blog w-full">
+            <div
+              class="sticky top-30"
+              {% if layout == 'list' %}
+                style="--col-width: 48.5%;"
+              {% endif %}
+            >
+              <div
+                id="blog-articles"
+                class="blog-articles {{ hover_effect }} row-gap-custom{% if layout == 'grid' %} grid grid-cols gap{% else %} flex flex-column{% endif %}{% if pagination == 'load_more_button' or pagination == 'infinit_scrolling' %} loadmore-lists{% endif %}"
+                style="{{ col_style | strip | strip_newlines }}"
+              >
+                {%- for article in selected_blog.articles -%}
+                  {% comment %}
+                    We wrap the article-card in a conditional:
+                    If the article.handle == the user’s badge reference setting,
+                    we show the badge. Otherwise, just render normally.
+                  {% endcomment %}
+                  {% if article.handle == section_st.blog_post_badge_reference %}
+                    <div style="position: relative;">
+                      <div
+                        class="article-badge"
+                        style="
+                                                background-color: {{ section_st.badge_background_color }};
+                                                color: {{ section_st.badge_text_color }};
+                                                border-radius: {{ section_st.badge_border_radius }}px;
+                                                padding: 0.4rem 0.8rem;
+                                                position: absolute;
+                                                top: var(--badge-vertical-position);
+                                                left: var(--badge-horizontal-position);
+                                                width: var(--badge-width);
+                                                height: var(--badge-height);
+                                                font-size: var(--badge-font-size);
+                                               display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          text-align: center;
+                          z-index: 2;
+                                                z-index: 2;
+                        "
+                      >
+                        {{ section_st.badge_text }}
+                      </div>
+                      {%- render 'article-card',
+                        article: article,
+                        show_date: show_date,
+                        show_excerpt: show_excerpt,
+                        show_readmore: show_readmore,
+                        readmore_type: readmore_type,
+                        section_width: section_width,
+                        items_per_row: items_per_row,
+                        items_per_row_mobile: items_per_row_mobile,
+                        column_gap: column_gap,
+                        image_ratio: image_ratio,
+                        custom_ratio: custom_ratio,
+                        pagination: pagination,
+                        layout: layout,
+                        scroll_animation: scroll_animation,
+                        indexFor: forloop.index
+                      -%}
+                    </div>
+                  {% else %}
+                    {%- render 'article-card',
+                      article: article,
+                      show_date: show_date,
+                      show_excerpt: show_excerpt,
+                      show_readmore: show_readmore,
+                      readmore_type: readmore_type,
+                      section_width: section_width,
+                      items_per_row: items_per_row,
+                      items_per_row_mobile: items_per_row_mobile,
+                      column_gap: column_gap,
+                      image_ratio: image_ratio,
+                      custom_ratio: custom_ratio,
+                      pagination: pagination,
+                      layout: layout,
+                      scroll_animation: scroll_animation,
+                      indexFor: forloop.index
+                    -%}
+                  {% endif %}
+                {%- endfor -%}
+              </div>
+
+              {%- if paginate.pages > 1 -%}
+                {% render 'pagination',
+                  section_st: section_st,
+                  pagination: pagination,
+                  number_page: items_to_show,
+                  paginate: paginate
+                %}
+              {% endif %}
+            </div>
+          </div>
+        {%- endpaginate -%}
+
+      {%- else -%}
+        <p>{{ 'blogs.article.empty' | t }}</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{%- schema -%}
+{"name":"Blog","settings":[],"presets":[{"name":"Blog"}]}
+{%- endschema -%}
+
+{% stylesheet %}
+       .mt-30.inline-flex.blog-posts-readmore.no-underline.btn-secondary {
+      margin-top: 10px;
+       font-weight: bold;
+
+    }
+  .mt-30.inline-flex.blog-posts-readmore.no-underline.btn-secondary {
+      margin-top: 10px;
+      font-weight: bold;
+      position: relative;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: color 0.3s ease-in-out;
+  }
+
+  .mt-30.inline-flex.blog-posts-readmore.no-underline.btn-secondary::after {
+      content: "≫"; /* Right arrow */
+      margin-left: 8px;
+      font-size: 16px;
+      transition: margin-left 0.3s ease-in-out;
+  }
+
+  .mt-30.inline-flex.blog-posts-readmore.no-underline.btn-secondary::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 0;
+      height: 2px;
+      background-color: currentColor;
+      transition: width 0.3s ease-in-out;
+  }
+
+  .mt-30.inline-flex.blog-posts-readmore.no-underline.btn-secondary:hover::before {
+      width: 100%;
+  }
+
+  .mt-30.inline-flex.blog-posts-readmore.no-underline.btn-secondary:hover::after {
+      margin-left: 12px; /* Moves the arrow slightly on hover */
+  }
+
+
+
+
+
+
+      /* ============================= */
+      /* READ MORE BUTTON STYLING      */
+      /* ============================= */
+      .read-more-button {
+        background-color: var(--readmore-bg-color) !important;
+        color: var(--readmore-text-color);
+        border-radius: var(--readmore-border-radius);
+        border: var(--readmore-border-weight) solid var(--readmore-border-color);
+        padding: 10px 20px;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+      }
+      .read-more-button:hover {
+        background-color: var(--readmore-hover-bg-color);
+        color: var(--readmore-text-color);
+        border-color: var(--readmore-border-color);
+      }
+
+      /* =================================== */
+      /* SECTION SPACING & MARGIN STYLING    */
+      /* =================================== */
+      .sec__blog-list {
+        /* Padding from sliders */
+        padding-top: var(--section-pt);
+        padding-bottom: var(--section-pb);
+
+        /* Margin from sliders */
+        margin-top: var(--section-mt);
+        margin-bottom: var(--section-mb);
+      }
+
+      /* Optional: Adjustments for minimal padding classes */
+      .pt-min {
+        padding-top: 10px; /* Adjust as needed */
+      }
+      .pb-min {
+        padding-bottom: 10px; /* Adjust as needed */
+      }
+
+      /* ============================= */
+      /* HOVER ANIMATION STYLING      */
+      /* ============================= */
+      .blog-articles.fade_in .article-card {
+        transition: opacity 0.5s ease-in-out;
+        opacity: 0;
+      }
+      .blog-articles.fade_in:hover .article-card {
+        opacity: 1;
+      }
+
+      .blog-articles.fade_in_up .article-card {
+        transform: translateY(20px);
+        transition: transform 0.5s ease-in-out;
+      }
+      .blog-articles.fade_in_up:hover .article-card {
+        transform: translateY(0);
+      }
+
+      .blog-articles.subtle_zoom_in .article-card {
+        transition: transform 0.3s ease-in-out;
+      }
+      .blog-articles.subtle_zoom_in:hover .article-card {
+        transform: scale(1.05);
+      }
+
+      .blog-articles.zoom_out .article-card {
+        transition: transform 0.3s ease-in-out;
+      }
+      .blog-articles.zoom_out:hover .article-card {
+        transform: scale(0.95);
+      }
+
+      /* ============================= */
+      /* BADGE STYLING                */
+      /* ============================= */
+      .article-badge {
+        /* Additional styles are handled inline via Liquid */
+      }
+
+      @media only screen and (max-width: 768px) {
+        .sec__blog-list {
+          padding: 7.5px;
+        }
+      }
+{% endstylesheet %}

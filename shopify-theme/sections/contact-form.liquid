@@ -1,0 +1,1471 @@
+{%- style -%}
+  @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap'); /* Default Font */
+
+  {% if section.settings.enable_custom_font %}
+    @import url('https://fonts.googleapis.com/css2?family={{ section.settings.custom_font | replace: ' ', '+' }}&display=swap');
+  {% endif %}
+
+  *, *:after, *:before {
+    box-sizing: border-box;
+  }
+
+  .visually-hidden {
+    position: absolute!important;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    clip: rect(0 0 0 0);
+    word-wrap: normal!important;
+  }
+
+  /* Container Classes */
+  .loudecoms-container,
+  .loudecoms-container-fluid {
+    width: 100%;
+    padding-right: var(--loudecoms-gutter-x, 15px);
+    padding-left: var(--loudecoms-gutter-x, 15px);
+    margin-right: auto;
+    margin-left: auto;
+  }
+  {%- comment -%}
+    When full width is disabled, use the custom content width limit.
+  {%- endcomment -%}
+  {% unless section.settings.is_fullwidth %}
+  .loudecoms-container {
+    max-width: {{ section.settings.container_max_width | default: 1310 }}px;
+  }
+  {% endunless %}
+
+  /* Removed default media query max-widths for .loudecoms-container
+     so that the container_max_width setting is always applied when not fullwidth. */
+
+  /* New CSS Variables */
+  .loudecoms-section__{{sec_id}} {
+    --loudecoms-gutter-x: 20px;
+    padding-top: {{section.settings.section_padding_top}}px;
+    padding-bottom: {{section.settings.section_padding_bottom}}px;
+    background-color: {{section.settings.bg_color}};
+    line-height: 1.5;
+    position: relative;
+    {% if section.settings.enable_custom_font %}
+      font-family: '{{ section.settings.custom_font }}', sans-serif;
+    {% else %}
+      font-family: 'Roboto', sans-serif; /* Default Font */
+    {% endif %}
+
+    /* Existing Variables for Customization */
+    --border-radius: {{ section.settings.border_radius | default: 15 }}px;
+    --heading-text-position-desktop: {{ section.blocks[0].settings.heading_text_position | default: 'center' }};
+    --heading-text-position-mobile: {{ section.blocks[0].settings.heading_text_position_mobile | default: 'center' }};
+    --contact-form-position-desktop: {{ section.settings.contact_form_position_desktop | default: 'left' }};
+    --contact-form-position-mobile: {{ section.settings.contact_form_position_mobile | default: 'left' }};
+    --image-border-radius: {{ section.settings.image_border_radius | default: 8 }}px;
+    --heading-text-color: {{ section.settings.heading_text_color | default: section.settings.text_color }};
+    --section-text-color: {{ section.settings.section_text_color | default: section.settings.text_color }};
+    --button-background-color: {{ section.settings.button_background_color | default: '#262424' }};
+    --button-text-color: {{ section.settings.button_text_color | default: '#ffffff' }};
+    --button-border-radius: {{ section.settings.button_border_radius | default: 8 }}px;
+    --button-padding-top: {{ section.settings.button_padding_top | default: 16 }}px;
+    --button-padding-bottom: {{ section.settings.button_padding_bottom | default: 16 }}px;
+    --button-padding-left: {{ section.settings.button_padding_left | default: 24 }}px;
+    --button-padding-right: {{ section.settings.button_padding_right | default: 24 }}px;
+    --button-font-size: {{ section.settings.button_font_size | default: 16 }}px;
+    --button-font-weight: {{ section.settings.button_font_weight | default: 400 }};
+    --button-overall-size: {{ section.settings.button_overall_size | default: 1 }};
+    --gap-heading-section: {{ section.blocks[0].settings.gap_heading_section | default: 20 }}px;
+    --gap-section-form-mobile: {{ section.blocks[0].settings.gap_section_form_mobile | default: 20 }}px;
+    --name-field-text-color: {{ section.settings.name_field_text_color | default: section.settings.text_color }};
+    /* New Variable for Vertical Gap Between Subheading and Contact Form */
+    --subheading-contact-gap: {{ section.blocks[0].settings.vertical_gap_subheading_contact | default: 20 }}px;
+
+    /* New Variables for Font Sizes */
+    --heading-font-size-desktop: {{ section.blocks[0].settings.heading_font_size_desktop | default: 32 }}px;
+    --heading-font-size-mobile: {{ section.blocks[0].settings.heading_font_size_mobile | default: 24 }}px;
+    --section-font-size-desktop: {{ section.blocks[0].settings.section_font_size_desktop | default: 16 }}px;
+    --section-font-size-mobile: {{ section.blocks[0].settings.section_font_size_mobile | default: 14 }}px;
+    --heading-font-weight: {{ section.blocks[0].settings.heading_font_weight | default: 400 }};
+
+    /* New Variables for Subheading Padding */
+    --subheading-padding-left-desktop: {{ section.blocks[0].settings.subheading_padding_left_desktop | default: 0 }}px;
+    --subheading-padding-right-desktop: {{ section.blocks[0].settings.subheading_padding_right_desktop | default: 0 }}px;
+    --subheading-padding-left-mobile: {{ section.blocks[0].settings.subheading_padding_left_mobile | default: 0 }}px;
+    --subheading-padding-right-mobile: {{ section.blocks[0].settings.subheading_padding_right_mobile | default: 0 }}px;
+  }
+
+  /* Set heading-text-position and contact-form-position based on device */
+  @media (min-width: 992px) {
+    .loudecoms-section__{{sec_id}} {
+      --heading-text-position: var(--heading-text-position-desktop);
+      --contact-form-position: var(--contact-form-position-desktop);
+      --subheading-padding-left: var(--subheading-padding-left-desktop);
+      --subheading-padding-right: var(--subheading-padding-right-desktop);
+    }
+  }
+
+  @media (max-width: 991px) {
+    .loudecoms-section__{{sec_id}} {
+      --heading-text-position: var(--heading-text-position-mobile);
+      --contact-form-position: var(--contact-form-position-mobile);
+      --subheading-padding-left: var(--subheading-padding-left-mobile);
+      --subheading-padding-right: var(--subheading-padding-right-mobile);
+    }
+  }
+
+  .loudecoms-section__{{sec_id}} .loudecoms-btn, .rte .loudecoms-section__{{sec_id}} a.loudecoms-btn:not(.btn) {
+    display: inline-block;
+    text-decoration: none;
+    min-width: 200px;
+    max-width: 230px;
+    border: none;
+    outline: none;
+    text-align: center;
+    background-color: var(--button-background-color);
+    border-radius: var(--button-border-radius);
+    color: var(--button-text-color);
+    font-weight: var(--button-font-weight);
+    white-space: nowrap;
+    text-transform: none;
+    padding-top: var(--button-padding-top);
+    padding-bottom: var(--button-padding-bottom);
+    padding-left: var(--button-padding-left);
+    padding-right: var(--button-padding-right);
+    margin: 0;
+    line-height: 1.5;
+    min-height: auto;
+    transition: all 0.25s;
+    cursor: pointer;
+    box-sizing: border-box;
+    justify-content: center;
+    font-size: var(--button-font-size);
+    transform: scale(var(--button-overall-size));
+
+    /* Apply Button Hover Animation Class */
+    {% if section.settings.button_hover_animation %}
+      {% assign hover_class = section.settings.button_hover_animation | replace: ' ', '-' | downcase %}
+      &.button-hover-{{ hover_class }} {
+        /* Additional styles can be added here if needed */
+      }
+    {% endif %}
+  }
+
+  .loudecoms-section__{{sec_id}} .loudecoms-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
+  }
+
+  .loudecoms-section__{{sec_id}} .submit-btn {
+    width: 100%;
+  }
+
+  .loudecoms-section__{{sec_id}} .store-info-header {
+    color: var(--heading-text-color) !important;
+  }
+  .loudecoms-section__{{sec_id}} .contact-info p {
+    color: var(--color-text) !important;
+  }
+
+  .loudecoms-section__{{sec_id}} .two-columns-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: calc(var(--loudecoms-gutter-x, 15px) * -1);
+    margin-left: calc(var(--loudecoms-gutter-x, 15px) * -1);
+    {% if section.settings.enable_image %}
+      /* existing flex layout */
+    {% else %}
+      justify-content: center;
+    {% endif %}
+  }
+
+  .loudecoms-section__{{sec_id}} .two-columns-form {
+    flex: 0 0 auto;
+    width: {% if section.settings.enable_image %}50%{% else %}100%{% endif %};
+    color: {{section.settings.text_color}};
+    padding: 0 var(--loudecoms-gutter-x, 15px);
+    border-radius: var(--border-radius);
+    text-align: var(--contact-form-position);
+    margin-bottom: var(--gap-heading-section);
+  }
+
+  .loudecoms-section__{{sec_id}} .two-columns-form-inner {
+    /* Additional styles if needed */
+  }
+
+  .loudecoms-section__{{sec_id}} .loudecoms-section-title {
+    color: var(--heading-text-color) !important;
+    font-weight: var(--heading-font-weight) !important;
+    line-height: 1.3;
+    margin-top: 0;
+    margin-bottom: var(--gap-heading-section);
+    text-align: var(--heading-text-position);
+    font-size: var(--heading-font-size-desktop);
+  }
+
+  @media (max-width: 991px) {
+    .loudecoms-section__{{sec_id}} .loudecoms-section-title {
+      font-size: var(--heading-font-size-mobile);
+    }
+    .loudecoms-section__{{sec_id}} .two-columns-form {
+      margin-bottom: var(--gap-section-form-mobile);
+    }
+  }
+
+  .loudecoms-section__{{sec_id}} .loudecoms-section-text {
+    color: var(--section-text-color) !important;
+    margin-top: 0;
+    margin-bottom: var(--gap-heading-section);
+    text-align: var(--heading-text-position);
+    font-size: var(--section-font-size-desktop);
+    padding-left: var(--subheading-padding-left);
+    padding-right: var(--subheading-padding-right);
+  }
+
+  @media (max-width: 991px) {
+    .loudecoms-section__{{sec_id}} .loudecoms-section-text {
+      font-size: var(--section-font-size-mobile);
+      margin-bottom: var(--gap-section-form-mobile);
+    }
+  }
+
+  .loudecoms-section__{{sec_id}} .loudecoms-section-text p {
+    color: var(--section-text-color);
+    margin-top: 0;
+    margin-bottom: 16px;
+  }
+
+  .loudecoms-section__{{sec_id}} .loudecoms-contact-form .loudecoms-form {
+    position: relative;
+    z-index: 0;
+  }
+
+  /* NEW: Apply vertical gap between subheading and contact form */
+  .loudecoms-section__{{sec_id}} .loudecoms-contact-form {
+    margin-top: var(--subheading-contact-gap);
+  }
+
+  .loudecoms-section__{{sec_id}} .loudecoms-input-wrapper {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .loudecoms-section__{{sec_id}} .field-label {
+    color: var(--name-field-text-color);
+    margin-top: 0;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .loudecoms-section__{{sec_id}} .field-label span {
+    color: #C63155;
+  }
+
+  .loudecoms-section__{{sec_id}} .field-input {
+    width: 100%;
+    padding: 19px 24px;
+    border: 1px solid #E9E9E9;
+    min-width: 200px;
+    max-width: 750px;
+    border-color: var(--input-border-color);
+    background-color: var(--input-bg-color);
+    border-radius: var(--border-radius);
+    {% if section.settings.enable_custom_font %}
+      font-family: '{{ section.settings.custom_font }}', sans-serif;
+    {% endif %}
+  }
+
+  .loudecoms-section__{{sec_id}} .field-input.text-area {
+    resize: vertical;
+  }
+
+  .loudecoms-section__{{sec_id}} .form-status-list {
+    padding: 0;
+    margin-top: 16px;
+    margin-bottom: 16px;
+  }
+
+  .loudecoms-section__{{sec_id}} .form__message {
+    align-items: flex-start;
+    display: flex;
+    line-height: 1;
+    margin-top: 10px;
+    margin-bottom: 0;
+    color: {{section.settings.text_color}};
+  }
+
+  .loudecoms-section__{{sec_id}} .loudecoms-msg-wrapper {
+    margin-top: 30px;
+  }
+
+  .loudecoms-section__{{sec_id}} .two-columns-img {
+    flex: 0 0 auto;
+    width: 50%;
+    padding-right: var(--loudecoms-gutter-x, 15px);
+    padding-left: var(--loudecoms-gutter-x, 15px);
+    {% if section.settings.img_position != "right" %}
+      order: -1;
+    {% endif %}
+    {% unless section.settings.enable_image %}
+      display: none;
+    {% endunless %}
+  }
+
+  /* If the "Show Image on Mobile" toggle is off then hide image on mobile */
+  {% if section.settings.show_image_mobile == false %}
+    @media (max-width: 767px) {
+      .loudecoms-section__{{sec_id}} .two-columns-img {
+        display: none;
+      }
+    }
+  {% endif %}
+
+  .loudecoms-section__{{sec_id}} .two-columns-img-inner {
+    height: 100%;
+    position: relative;
+    border-radius: var(--image-border-radius);
+    overflow: hidden;
+  }
+
+  .loudecoms-section__{{sec_id}} .two-columns-img-inner img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -o-object-fit: cover;
+    object-fit: cover;
+    border-radius: var(--image-border-radius);
+  }
+
+  .loudecoms-section__{{sec_id}} .loudecoms-input-wrapper textarea {
+    min-height: 150px;
+    {% if section.settings.enable_custom_font %}
+      font-family: '{{ section.settings.custom_font }}', sans-serif;
+    {% endif %}
+  }
+
+  {% if section.settings.inherit_fonts == false %}
+    .loudecoms-section__{{sec_id}} .loudecoms-large.loudecoms-section-title {
+      font-size: var(--heading-font-size-desktop);
+    }
+    .loudecoms-section__{{sec_id}} .loudecoms-medium.loudecoms-section-title {
+      font-size: var(--heading-font-size-desktop);
+    }
+    .loudecoms-section__{{sec_id}} .loudecoms-small.loudecoms-section-title {
+      font-size: var(--heading-font-size-desktop);
+    }
+    .loudecoms-section__{{sec_id}} .loudecoms-section-text p {
+      font-size: var(--section-font-size-desktop);
+    }
+    .loudecoms-section__{{sec_id}} .loudecoms-btn, .rte .loudecoms-section__{{sec_id}} a.loudecoms-btn:not(.btn) {
+      font-size: var(--button-font-size);
+    }
+    .loudecoms-section__{{sec_id}} .newsletter-form__message {
+      font-size: 14px;
+    }
+    .loudecoms-section__{{sec_id}} .form__message {
+      font-size: 14px;
+    }
+    .loudecoms-section__{{sec_id}} .field-label {
+      font-size: 14px;
+    }
+    .loudecoms-section__{{sec_id}} .loudecoms-contact-text {
+      font-size: 14px;
+    }
+  {% endif %}
+
+  /* Button Hover Animations */
+  /* None */
+  .button-hover-none:hover {
+    /* No additional animation */
+    opacity: 0.8;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  /* Smooth Fade-in */
+  .button-hover-smooth-fade-in:hover {
+    opacity: 0.8;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  /* Smooth Fade-up */
+  .button-hover-smooth-fade-up:hover {
+    opacity: 0.8;
+    transform: translateY(-5px);
+    transition: all 0.3s ease-in-out;
+  }
+
+  /* Smooth Scale In */
+  .button-hover-smooth-scale-in:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  /* Smooth Zoom Out */
+  .button-hover-smooth-zoom-out:hover {
+    transform: scale(0.95);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  /* Smooth Zoom In */
+  .button-hover-smooth-zoom-in:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  /* Smooth Shadow */
+  .button-hover-smooth-shadow:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.3s ease-in-out;
+  }
+
+  /* Smooth Glow */
+  .button-hover-smooth-glow:hover {
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+    transition: box-shadow 0.3s ease-in-out;
+  }
+
+  @media only screen and (max-width: 991px) {
+
+  }
+
+  @media only screen and (max-width: 749px) {
+    .loudecoms-section__{{sec_id}} {
+      padding-top: {{section.settings.section_padding_top_mobile}}px;
+      padding-bottom: {{section.settings.section_padding_bottom_mobile}}px;
+    }
+
+    .loudecoms-section__{{sec_id}} .two-columns-form {
+      width: 100%;
+      margin-bottom: var(--gap-section-form-mobile);
+    }
+    .loudecoms-section__{{sec_id}} .two-columns-img {
+      width: 100%;
+      order: initial;
+      {% unless section.settings.enable_image %}
+        display: none;
+      {% endunless %}
+    }
+
+    .loudecoms-section__{{sec_id}} .two-columns-img img {
+      position: relative;
+    }
+
+    {% if section.settings.inherit_fonts == false %}
+      .loudecoms-section__{{sec_id}} .loudecoms-large.loudecoms-section-title {
+        font-size: var(--heading-font-size-mobile);
+      }
+      .loudecoms-section__{{sec_id}} .loudecoms-medium.loudecoms-section-title {
+        font-size: var(--heading-font-size-mobile);
+      }
+      .loudecoms-section__{{sec_id}} .loudecoms-small.loudecoms-section-title {
+        font-size: var(--heading-font-size-mobile);
+      }
+    {% endif %}
+  }
+
+  @media only screen and (max-width: 576px) {
+    .loudecoms-section__{{sec_id}} .two-columns-img {
+      {% if section.settings.is_fullwidth != true %}
+        padding: 0 var(--loudecoms-gutter-x, 15px);
+      {% endif %}
+    }
+  }
+
+  @media only screen and (max-width: 490px) {
+
+  }
+
+  /* New rules to control Store Information header and contact info texts */
+  .loudecoms-section__{{sec_id}} .store-info-header {
+    color: var(--heading-text-color) !important;
+  }
+  .loudecoms-section__{{sec_id}} .contact-info p {
+    color: var(--color-text) !important;
+  }
+{%- endstyle -%}
+
+{% if section.settings.custom_css != blank %}
+  {%- style -%}
+    {{section.settings.custom_css}}
+  {%- endstyle -%}
+{% endif %}
+
+{% if section.settings.is_fullwidth == true %}
+  {% assign container = 'loudecoms-container-fluid' %}
+{% else %}
+  {% assign container = 'loudecoms-container' %}
+{% endif %}
+
+{% if section.settings.lazyload == true %}
+  {% assign loading = 'lazy' %}
+{% else %}
+  {% assign loading = 'eager' %}
+{% endif %}
+
+<div class="loudecoms-section__{{sec_id}} {{ section.settings.custom_class }} scroll-trigger {{ settings.scroll_animation }}">
+  <div class="{{container}}">
+    <div class="two-columns-row">
+      <div class="two-columns-form">
+        <div class="two-columns-form-inner">
+          {% for block in section.blocks %}
+            {% case block.type %}
+              {% when 'heading' %}
+                {% if block.settings.heading_text != blank %}
+                  <{{ block.settings.heading_tag }}
+                    class="loudecoms-section-title"
+                    {{ block.shopify_attributes }}
+                  >
+                    {{ block.settings.heading_text | escape }}
+                  </{{ block.settings.heading_tag }}>
+                {% endif %}
+                {% if block.settings.section_text != blank %}
+                  <div class="loudecoms-section-text" {{ block.shopify_attributes }}>
+                    <p>{{ block.settings.section_text }}</p>
+                  </div>
+                {% endif %}
+
+              {% when 'contact_form' %}
+                {% assign brightness_diff = section.settings.accent_color | brightness_difference: '#ffffff' %}
+                {% if brightness_diff > 125 %}
+                  {% assign readable_text_color = '#ffffff' %}
+                {% else %}
+                  {% assign readable_text_color = '#242424' %}
+                {% endif %}
+
+                {% assign brightness_diff_2 = block.settings.input_bg | brightness_difference: '#ffffff' %}
+                {% if brightness_diff_2 > 125 %}
+                  {% assign readable_text_color_2 = '#ffffff' %}
+                {% else %}
+                  {% assign readable_text_color_2 = '#242424' %}
+                {% endif %}
+
+                <style>
+                  .loudecoms-section__{{sec_id}} .field-input {
+                    --input-border-radius: {{block.settings.btn_border_radius}}px;
+                    --input-border-color: {{block.settings.input_border_color}};
+                    --input-bg-color: {{block.settings.input_bg}};
+                  }
+                  {% if block.settings.label_type == 'label' %}
+                    .loudecoms-section__{{sec_id}} .field-input::placeholder {
+                      font-size: 0 !important;
+                    }
+                  {% else %}
+                    .loudecoms-section__{{sec_id}} .field-label {
+                      display: none !important;
+                    }
+                    .loudecoms-section__{{sec_id}} .field-input {
+                      color: {{ readable_text_color_2 }};
+                    }
+                    .loudecoms-section__{{sec_id}} .field-input::placeholder {
+                      color: {{ readable_text_color_2 }};
+                    }
+                  {% endif %}
+                </style>
+
+                <div class="loudecoms-contact-form" {{ block.shopify_attributes }}>
+                  {%- form 'contact', id: 'ContactForm', class: 'loudecoms-form' -%}
+                    {%- if block.settings.show_name == true -%}
+                      <div class="loudecoms-input-wrapper">
+                        <label class="field-label" for="ContactForm-name">{{ block.settings.name_label }}</label>
+                        <input
+                          class="field-input"
+                          autocomplete="name"
+                          type="text"
+                          id="ContactForm-name"
+                          name="contact[{{ block.settings.name_label }}]"
+                          value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}"
+                          placeholder="{{ block.settings.name_label }}"
+                        >
+                      </div>
+                    {%- endif -%}
+
+                    <div class="loudecoms-input-wrapper field--with-error">
+                      <label class="field-label" for="ContactForm-email">
+                        {{ block.settings.email_label }}
+                        <span aria-hidden="true">*</span>
+                      </label>
+                      <input
+                        autocomplete="email"
+                        type="email"
+                        id="ContactForm-email"
+                        class="field-input"
+                        name="contact[email]"
+                        spellcheck="false"
+                        autocapitalize="off"
+                        value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+                        aria-required="true"
+                        {% if form.errors contains 'email' %}
+                          aria-invalid="true"
+                          aria-describedby="ContactForm-email-error"
+                        {% endif %}
+                        placeholder="{{ block.settings.email_label }} *"
+                      >
+                      {%- if form.errors contains 'email' -%}
+                        <small class="contact__field-error" id="ContactForm-email-error">
+                          <span class="visually-hidden">{{ block.settings.error_msg }}</span>
+                          <span class="form__message">
+                            {{ block.settings.error_msg }}
+                          </span>
+                        </small>
+                      {%- endif -%}
+                    </div>
+
+                    {%- if block.settings.show_phone == true -%}
+                      <div class="loudecoms-input-wrapper">
+                        <label class="field-label" for="ContactForm-phone">{{ block.settings.phone_label }}</label>
+                        <input
+                          type="tel"
+                          id="ContactForm-phone"
+                          class="field-input"
+                          autocomplete="tel"
+                          name="contact[{{ block.settings.phone_label }}]"
+                          pattern="[0-9-]*"
+                          value="{% if form.phone %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}"
+                          placeholder="{{ block.settings.phone_label }}"
+                        >
+                      </div>
+                    {%- endif -%}
+
+                    {%- if block.settings.show_comments == true -%}
+                      <div class="loudecoms-input-wrapper">
+                        <label class="form-label field-label" for="ContactForm-body">
+                          {{- block.settings.comment_label -}}
+                        </label>
+                        <textarea
+                          rows="4"
+                          id="ContactForm-body"
+                          class="text-area field-input"
+                          name="contact[{{ block.settings.comment_label }}]"
+                          placeholder="{{ block.settings.comment_label }}"
+                        >{{- form.body -}}</textarea>
+                      </div>
+                    {%- endif -%}
+
+                    <div class="contact-button">
+                      <button
+                        type="submit"
+                        class="submit-btn loudecoms-btn button-hover-{{ section.settings.button_hover_animation | replace: ' ', '-' | downcase }}"
+                        style="color: var(--button-text-color); background-color: var(--button-background-color); border-radius: var(--button-border-radius); padding-top: var(--button-padding-top); padding-bottom: var(--button-padding-bottom); padding-left: var(--button-padding-left); padding-right: var(--button-padding-right); font-size: var(--button-font-size); transform: scale(var(--button-overall-size));"
+                      >
+                        {{ block.settings.submit_label }}
+                      </button>
+                    </div>
+
+                    {%- if form.posted_successfully? -%}
+                      <div class="loudecoms-msg-wrapper">
+                        <div class="form-status-list form__message" tabindex="-1">
+                          {{ block.settings.success_msg }}
+                        </div>
+                      </div>
+                    {%- endif -%}
+                  {%- endform -%}
+                </div>
+
+                {% if section.settings.show_store_info %}
+                  <div
+                    class="store-info-wrapper"
+                    style="margin-top:40px; text-align: {{ section.settings.store_info_content_position }};"
+                  >
+                    <div
+                      class="store-info-header"
+                      style="font-size:18.3px; text-align: {{ section.settings.store_info_header_position }};"
+                    >
+                      {{ section.settings.store_info_header }}
+                    </div>
+                    <div class="contact-info">
+                      {% if settings.store_name != blank %}
+                        <p class="store-name" style="margin: 5px 0; font-weight: bold;">{{ settings.store_name }}</p>
+                      {% endif %}
+                      {% if settings.store_address != blank %}
+                        <p class="store-address" style="margin: 5px 0;">{{ settings.store_address }}</p>
+                      {% endif %}
+                      {% if settings.store_phone != blank %}
+                        <p class="store-phone" style="margin: 5px 0;">{{ settings.store_phone }}</p>
+                      {% endif %}
+                      {% if settings.store_email != blank %}
+                        <p class="store-email" style="margin: 5px 0;">{{ settings.store_email }}</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endif %}
+            {% endcase %}
+          {% endfor %}
+        </div>
+      </div>
+
+      {% if section.settings.enable_image %}
+        <div class="two-columns-img">
+          <div class="two-columns-img-inner">
+            {% if section.settings.background_image == blank %}
+              <img
+                src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+                sizes="(min-width: 1100px) 1100px, (min-width: 750px) 750px"
+                {% if section.settings.lazyload == true %}
+                  loading="lazy"
+                {% endif %}
+                width="100%"
+                height="100%"
+              >
+            {% else %}
+              {{
+                section.settings.background_image
+                | image_url: width: 800
+                | image_tag: class: 'contact-img', loading: loading
+              }}
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Contact",
+  "tag": "section",
+  "class": "contact-01",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Main Settings",
+      "info": "Configure the primary settings for the contact section."
+    },
+    {
+      "type": "checkbox",
+      "id": "is_fullwidth",
+      "default": false,
+      "label": "Enable Full Width",
+      "info": "Overrides content width limit to make the section span the full width of the page."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "default": "default-color-scheme",
+      "info": "Select the overall color scheme for the section."
+    },
+    {
+      "type": "color",
+      "id": "heading_text_color",
+      "label": "Heading Text Color",
+      "default": "#252525",
+      "info": "Customize the color of the heading text."
+    },
+    {
+      "type": "color",
+      "id": "section_text_color",
+      "label": "Subheading Text Color",
+      "default": "#4E4E4E",
+      "info": "Customize the color of the section's descriptive text."
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "info": "Choose a background color for the entire section."
+    },
+
+    {
+      "type": "header",
+      "content": "Image Settings",
+      "info": "Configure the image, its appearance, and positioning."
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image",
+      "info": "Upload an image to use as the section's background."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_image",
+      "default": true,
+      "label": "Enable Image",
+      "info": "Toggle the display of the background image."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_image_mobile",
+      "default": true,
+      "label": "Show Image on Mobile",
+      "info": "Toggle the display of the background image on mobile devices."
+    },
+    {
+      "type": "select",
+      "id": "img_position",
+      "label": "Image Position",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "right",
+      "info": "Choose the position of the background image within the section."
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Image Border Radius",
+      "default": 43,
+      "info": "Adjust the border radius of the background image for rounded corners."
+    },
+
+    {
+      "type": "header",
+      "content": "Section Paddings",
+      "info": "Adjust the padding around the section content for better spacing."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Top Padding",
+      "default": 90,
+      "info": "Set the top padding of the section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Bottom Padding",
+      "default": 90,
+      "info": "Set the bottom padding of the section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile Top Padding",
+      "default": 60,
+      "info": "Set the top padding of the section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile Bottom Padding",
+      "default": 60,
+      "info": "Set the bottom padding of the section on mobile devices."
+    },
+
+    {
+      "type": "header",
+      "content": "Customization",
+      "info": "Customize the layout and appearance of the contact section."
+    },
+    {
+      "type": "number",
+      "id": "container_max_width",
+      "label": "Content width limit (px)",
+      "default": 1310,
+      "info": "Define the maximum width of the content area in pixels."
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS",
+      "info": "Insert custom CSS to further style the section."
+    },
+
+    {
+      "type": "header",
+      "content": "Contact Form Positioning",
+      "info": "Set the position of the contact form within the section."
+    },
+    {
+      "type": "select",
+      "id": "contact_form_position_desktop",
+      "label": "Contact Form Position (Desktop)",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center",
+      "info": "Choose the alignment of the contact form on desktop."
+    },
+    {
+      "type": "select",
+      "id": "contact_form_position_mobile",
+      "label": "Contact Form Position (Mobile)",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center",
+      "info": "Choose the alignment of the contact form on mobile devices."
+    },
+
+    {
+      "type": "header",
+      "content": "Button Settings",
+      "info": "Customize the appearance and behavior of buttons within the contact section."
+    },
+    {
+      "type": "color",
+      "id": "button_background_color",
+      "label": "Button background color",
+      "default": "#2B2B2B",
+      "info": "Set the background color of buttons."
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff",
+      "info": "Set the text color of buttons."
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "label": "Button border radius",
+      "default": 8,
+      "info": "Adjust the border radius of buttons for rounded corners."
+    },
+    {
+      "type": "range",
+      "id": "button_padding_top",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Button top padding",
+      "default": 14,
+      "info": "Set the top padding inside buttons."
+    },
+    {
+      "type": "range",
+      "id": "button_padding_bottom",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Button bottom padding",
+      "default": 14,
+      "info": "Set the bottom padding inside buttons."
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Button font size",
+      "default": 16,
+      "info": "Adjust the font size of button text."
+    },
+    {
+      "type": "select",
+      "id": "button_font_weight",
+      "label": "Button Font Weight",
+      "options": [
+        {
+          "value": "300",
+          "label": "Light"
+        },
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi Bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "400"
+    },
+
+    {
+      "type": "header",
+      "content": "Form Settings",
+      "info": "Customize the appearance and behavior of the contact form."
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Form Border Radius",
+      "default": 15,
+      "info": "Adjust the border radius of the contact form for rounded corners."
+    },
+    {
+      "type": "header",
+      "content": "Store Contact Information",
+      "info": "Enter your store's contact details."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_store_info",
+      "default": true,
+      "label": "Show Store Information",
+      "info": "Toggle display of the store header, information and social icons."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "store_info_header",
+      "label": "Store Information Header",
+      "default": "Store Information",
+      "info": "To customize store information such as address, email, phone number, social icons, and appearance, go to 'General Store Information' and ' Social Media' in the Theme Settings, located in the left corner of the page. You can also edit the header text for store information."
+    },
+    {
+      "type": "select",
+      "id": "store_info_header_position",
+      "label": "Store Information Header Position",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center",
+      "info": "Set the alignment for the store information header."
+    },
+    {
+      "type": "select",
+      "id": "store_info_content_position",
+      "label": "Store Information Content Position",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center",
+      "info": "Set the alignment for the store information content."
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Heading / Subheading",
+      "type": "heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading_text",
+          "label": "Heading Text",
+          "default": "Contact Us."
+        },
+        {
+          "type": "inline_richtext",
+          "id": "section_text",
+          "label": "Subheading text",
+          "default": "Quickly and easily generate Lorem Ipsum placeholder text. Select the number of characters."
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "Heading Text TAG",
+          "options": [
+            {
+              "value": "h1",
+              "label": "H1"
+            },
+            {
+              "value": "h2",
+              "label": "H2"
+            }
+          ],
+          "default": "h2",
+          "info": "Choose the HTML tag for the heading for SEO and accessibility."
+        },
+        {
+          "type": "select",
+          "id": "heading_text_position",
+          "label": "Heading and Section text position (Desktop)",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "center",
+          "info": "Set the alignment of the heading and section text on desktop."
+        },
+        {
+          "type": "select",
+          "id": "heading_text_position_mobile",
+          "label": "Heading and Section text position (Mobile)",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "center",
+          "info": "Set the alignment of the heading and section text on mobile devices."
+        },
+        {
+          "type": "range",
+          "id": "heading_font_size_desktop",
+          "min": 16,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "label": "Heading Font Size (Desktop)",
+          "default": 60,
+          "info": "Adjust the font size of the heading on desktop."
+        },
+        {
+          "type": "select",
+          "id": "heading_font_weight",
+          "label": "Heading Font Weight",
+          "options": [
+            {
+              "value": "300",
+              "label": "Light"
+            },
+            {
+              "value": "400",
+              "label": "Normal"
+            },
+            {
+              "value": "500",
+              "label": "Medium"
+            },
+            {
+              "value": "600",
+              "label": "Semi Bold"
+            },
+            {
+              "value": "700",
+              "label": "Bold"
+            }
+          ],
+          "default": "400"
+        },
+        {
+          "type": "range",
+          "id": "heading_font_size_mobile",
+          "min": 16,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "label": "Heading Font Size (Mobile)",
+          "default": 53,
+          "info": "Adjust the font size of the heading on mobile devices."
+        },
+        {
+          "type": "range",
+          "id": "section_font_size_desktop",
+          "min": 12,
+          "max": 40,
+          "step": 1,
+          "unit": "px",
+          "label": "Section Text Font Size (Desktop)",
+          "default": 16,
+          "info": "Set the font size of the section text on desktop."
+        },
+        {
+          "type": "range",
+          "id": "section_font_size_mobile",
+          "min": 12,
+          "max": 40,
+          "step": 1,
+          "unit": "px",
+          "label": "Section Text Font Size (Mobile)",
+          "default": 14,
+          "info": "Set the font size of the section text on mobile devices."
+        },
+        {
+          "type": "range",
+          "id": "gap_heading_section",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "label": "Vertical Gap Between Heading and Section Text",
+          "default": 20,
+          "info": "Adjust the spacing between the heading and the section text."
+        },
+        {
+          "type": "range",
+          "id": "gap_section_form_mobile",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "label": "Vertical Gap Between Section Text and Contact Form (Mobile)",
+          "default": 30,
+          "info": "Adjust the spacing between the section text and the contact form on mobile devices."
+        },
+        {
+          "type": "range",
+          "id": "vertical_gap_subheading_contact",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "label": "Vertical Gap Between Subheading and Contact Form",
+          "default": 20,
+          "info": "Adjust the vertical spacing between the subheading and the contact form."
+        },
+        {
+          "type": "range",
+          "id": "subheading_padding_left_desktop",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "label": "Subheading Left Padding (Desktop)",
+          "default": 0,
+          "info": "Adjust the left padding of the subheading text on desktop."
+        },
+        {
+          "type": "range",
+          "id": "subheading_padding_right_desktop",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "label": "Subheading Right Padding (Desktop)",
+          "default": 0,
+          "info": "Adjust the right padding of the subheading text on desktop."
+        },
+        {
+          "type": "range",
+          "id": "subheading_padding_left_mobile",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "label": "Subheading Left Padding (Mobile)",
+          "default": 0,
+          "info": "Adjust the left padding of the subheading text on mobile."
+        },
+        {
+          "type": "range",
+          "id": "subheading_padding_right_mobile",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "label": "Subheading Right Padding (Mobile)",
+          "default": 0,
+          "info": "Adjust the right padding of the subheading text on mobile."
+        }
+      ]
+    },
+    {
+      "name": "Contact Field ",
+      "type": "contact_form",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "color",
+          "id": "input_bg",
+          "label": "Input Field Color",
+          "default": "#FBFBFB"
+        },
+        {
+          "type": "color",
+          "id": "input_border_color",
+          "label": "Border Color",
+          "default": "#ECECEC"
+        },
+        {
+          "type": "header",
+          "content": "Form fields"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_name",
+          "default": true,
+          "label": "Enable Name"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_phone",
+          "default": false,
+          "label": "Enable Phone"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_comments",
+          "default": true,
+          "label": "Enable Comment Message"
+        },
+        {
+          "type": "header",
+          "content": "Form Texts & localization"
+        },
+        {
+          "type": "text",
+          "id": "name_label",
+          "label": "Name field label / placeholder",
+          "default": "Name"
+        },
+        {
+          "type": "text",
+          "id": "email_label",
+          "label": "Email placeholder",
+          "default": "Email address"
+        },
+        {
+          "type": "text",
+          "id": "phone_label",
+          "label": "Phone placeholder",
+          "default": "Phone Number"
+        },
+        {
+          "type": "text",
+          "id": "comment_label",
+          "label": "Comment placeholder",
+          "default": "Your Message"
+        },
+        {
+          "type": "text",
+          "id": "submit_label",
+          "label": "Submit button label",
+          "default": "Submit"
+        },
+        {
+          "type": "text",
+          "id": "error_msg",
+          "label": "Error message",
+          "default": "Email Incorrect"
+        },
+        {
+          "type": "text",
+          "id": "success_msg",
+          "label": "Confirmation message",
+          "default": "Thank you for getting in touch with us! Looking forward to assisting you!"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Contact Form Simple 1",
+        "category": "Contact",
+      "settings": {
+        "section_padding_top": 90,
+        "section_padding_bottom": 90
+   
+      },
+      "blocks": [
+        {
+          "type": "heading",
+          "settings": {
+            "heading_text": "Contact Us.",
+            "section_text": "Have a question, idea, or just want to say hello? Use the form below to send us a message and we’ll get back to you as quickly as possible.",
+            "heading_tag": "h2",
+            "heading_text_position": "center",
+            "heading_text_position_mobile": "center",
+            "heading_font_size_desktop": 35,
+            "heading_font_weight": "600",
+            "heading_font_size_mobile": 53,
+            "section_font_size_desktop": 16,
+            "section_font_size_mobile": 14,
+            "gap_heading_section": 20,
+            "gap_section_form_mobile": 30,
+            "vertical_gap_subheading_contact": 40,
+            "subheading_padding_left_desktop": 0,
+            "subheading_padding_right_desktop": 0,
+            "subheading_padding_left_mobile": 0,
+            "subheading_padding_right_mobile": 0
+          }
+        },
+        {
+          "type": "contact_form",
+          "settings": {
+            "input_border_color": "#ECECEC",
+            "input_bg": "#FBFBFB"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,366 @@
+{% liquid
+  assign st = section.settings
+  assign product_handle = st.selected_product
+  assign btn_text = st.button_text | default: 'Comprar Ahora'
+  assign btn_bg = st.button_bg_color | default: '#d4af37'
+  assign btn_color = st.button_text_color | default: '#000000'
+  assign btn_hover = st.button_hover_color | default: '#f9e29c'
+  assign btn_radius = st.button_border_radius | default: 50
+  assign btn_border = st.button_border_thickness | default: 0
+  assign btn_border_color = st.button_border_color | default: 'transparent'
+  assign btn_size = st.button_overall_size | default: 100
+  assign btn_font_size = st.button_font_size | default: 18
+  assign btn_font_weight = st.button_font_weight | default: 'bold'
+  assign enable_gradient = st.enable_gradient
+  assign g1 = st.gradient_color_1 | default: '#d4af37'
+  assign g2 = st.gradient_color_2 | default: '#f9e29c'
+  assign g3 = st.gradient_color_3 | default: '#996515'
+  assign g_selector = st.gradient_selector | default: 'linear'
+  assign selected_product = all_products[product_handle]
+%}
+
+{%- style -%}
+  #atc-section-{{ section.id }} {
+    padding-top: {{ st.padding_top | default: 30 }}px;
+    padding-bottom: {{ st.padding_bottom | default: 30 }}px;
+    text-align: center;
+  }
+
+  #atc-btn-{{ section.id }} {
+    display: inline-block;
+    padding: 18px 40px;
+    font-size: {{ btn_font_size }}px;
+    font-weight: {{ btn_font_weight }};
+    color: {{ btn_color }};
+    border-radius: {{ btn_radius }}px;
+    border: {{ btn_border }}px solid {{ btn_border_color }};
+    cursor: pointer;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    width: {{ btn_size }}%;
+    max-width: 600px;
+    transition: all 0.3s ease;
+    font-family: var(--heading-font, 'Instrument Sans', sans-serif);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    {% if enable_gradient %}
+      background: {{ g_selector }}-gradient(135deg, {{ g1 }} 0%, {{ g2 }} 50%, {{ g3 }} 100%);
+      background-size: 200% auto;
+    {% else %}
+      background-color: {{ btn_bg }};
+    {% endif %}
+  }
+
+  #atc-btn-{{ section.id }}:hover {
+    {% if enable_gradient %}
+      background-position: right center;
+    {% else %}
+      background-color: {{ btn_hover }};
+    {% endif %}
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(212, 175, 55, 0.45);
+    color: {{ btn_color }};
+  }
+
+  #atc-btn-{{ section.id }}:active {
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 767px) {
+    #atc-btn-{{ section.id }} {
+      width: 90%;
+      padding: 16px 24px;
+      font-size: {{ btn_font_size | minus: 2 }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div id="atc-section-{{ section.id }}">
+  {%- if selected_product != blank -%}
+    {%- assign first_available_variant = selected_product.first_available_variant -%}
+    {%- assign variant_id = first_available_variant.id -%}
+
+    <form method="post" action="/cart/add">
+      <input type="hidden" name="id" value="{{ variant_id }}">
+      <input type="hidden" name="quantity" value="1">
+      <button
+        id="atc-btn-{{ section.id }}"
+        type="submit"
+        name="add"
+        {% unless first_available_variant.available %}disabled{% endunless %}
+      >
+        {%- if first_available_variant.available -%}
+          {{ btn_text }}
+        {%- else -%}
+          Agotado
+        {%- endif -%}
+      </button>
+    </form>
+  {%- else -%}
+    <a
+      id="atc-btn-{{ section.id }}"
+      href="/products/{{ product_handle }}"
+    >
+      {{ btn_text }}
+    </a>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Quick Add to Cart",
+  "presets": [
+    {
+      "name": "Quick Add Button",
+        "category": "Other"
+    }
+  ],
+  "settings": [
+    {
+      "type": "product",
+      "id": "selected_product",
+      "label": "Select Product"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Add to Cart & Checkout"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding (px)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding (px)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Button Background Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button Hover Color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Button Border Radius (px)",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "button_border_thickness",
+      "label": "Button Border Thickness (px)",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "button_border_color",
+      "label": "Button Border Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "button_overall_size",
+      "label": "Button Overall Size (%)",
+      "min": 50,
+      "max": 200,
+      "step": 10,
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "label": "Button Font Size (px)",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "select",
+      "id": "button_font_weight",
+      "label": "Button Text Font Weight",
+      "default": "normal",
+      "options": [
+        {
+          "value": "light",
+          "label": "Light"
+        },
+        {
+          "value": "normal",
+          "label": "Normal"
+        },
+        {
+          "value": "bold",
+          "label": "Bold"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_gradient",
+      "label": "Enable Button Background Gradient",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_1",
+      "label": "Gradient Color 1",
+      "default": "#ff0000"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_2",
+      "label": "Gradient Color 2",
+      "default": "#00ff00"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_3",
+      "label": "Gradient Color 3",
+      "default": "#0000ff"
+    },
+    {
+      "type": "select",
+      "id": "gradient_selector",
+      "label": "Gradient Style",
+      "default": "linear",
+      "options": [
+        { "value": "linear", "label": "Linear" },
+        { "value": "radial", "label": "Radial" },
+        { "value": "angular", "label": "Angular" },
+        { "value": "diagonal", "label": "Diagonal" },
+        { "value": "vertical", "label": "Vertical" },
+        { "value": "horizontal", "label": "Horizontal" },
+        { "value": "cool", "label": "Cool Gradient" },
+        { "value": "warm", "label": "Warm Gradient" },
+        { "value": "pastel", "label": "Pastel Gradient" }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+<div
+  class="quick-add-to-cart-wrapper"
+  style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="quick-add-to-cart">
+    <button class="quick-add-button" id="quick-add-button">
+      {{ section.settings.button_text }}
+    </button>
+  </div>
+</div>
+
+<script>
+  (function(){
+    function addToCart() {
+      // Use the first variant of the selected product.
+      var productVariantId = {{ section.settings.selected_product.variants[0].id | json }};
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: productVariantId, quantity: 1 })
+      })
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(data) {
+        // Redirect to the checkout page after a successful add.
+        window.location.href = '/checkout';
+      })
+      .catch(function(error) {
+        console.error('Error:', error);
+      });
+    }
+
+    var button = document.getElementById('quick-add-button');
+    if (button) {
+      button.addEventListener('click', addToCart);
+    }
+  })();
+</script>
+
+<style>
+  .quick-add-to-cart-wrapper {
+    text-align: center;
+  }
+  .quick-add-to-cart {
+    display: inline-block;
+    z-index: 999;
+  }
+  .quick-add-to-cart-wrapper .quick-add-button {
+    padding: 15px 25px;
+    font-size: {{ section.settings.button_font_size }}px;
+    color: {{ section.settings.button_text_color }};
+    border: {{ section.settings.button_border_thickness }}px solid {{ section.settings.button_border_color }};
+    border-radius: {{ section.settings.button_border_radius }}px;
+    cursor: pointer;
+    transition: background 0.3s, filter 0.3s;
+    font-weight: {{ section.settings.button_font_weight }};
+    transform: scale({{ section.settings.button_overall_size | divided_by: 100 }});
+    transform-origin: center;
+    {% if section.settings.enable_gradient %}
+      {% if section.settings.gradient_selector == 'linear' %}
+        background: linear-gradient(90deg, {{ section.settings.gradient_color_1 }}, {{ section.settings.gradient_color_2 }}, {{ section.settings.gradient_color_3 }});
+      {% elsif section.settings.gradient_selector == 'radial' %}
+        background: radial-gradient(circle, {{ section.settings.gradient_color_1 }}, {{ section.settings.gradient_color_2 }}, {{ section.settings.gradient_color_3 }});
+      {% elsif section.settings.gradient_selector == 'angular' %}
+        background: conic-gradient({{ section.settings.gradient_color_1 }}, {{ section.settings.gradient_color_2 }}, {{ section.settings.gradient_color_3 }});
+      {% elsif section.settings.gradient_selector == 'diagonal' %}
+        background: linear-gradient(45deg, {{ section.settings.gradient_color_1 }}, {{ section.settings.gradient_color_2 }}, {{ section.settings.gradient_color_3 }});
+      {% elsif section.settings.gradient_selector == 'vertical' %}
+        background: linear-gradient(180deg, {{ section.settings.gradient_color_1 }}, {{ section.settings.gradient_color_2 }}, {{ section.settings.gradient_color_3 }});
+      {% elsif section.settings.gradient_selector == 'horizontal' %}
+        background: linear-gradient(90deg, {{ section.settings.gradient_color_1 }}, {{ section.settings.gradient_color_2 }}, {{ section.settings.gradient_color_3 }});
+      {% elsif section.settings.gradient_selector == 'cool' %}
+        background: linear-gradient(135deg, {{ section.settings.gradient_color_1 }}, {{ section.settings.gradient_color_2 }}, {{ section.settings.gradient_color_3 }});
+      {% elsif section.settings.gradient_selector == 'warm' %}
+        background: linear-gradient(45deg, {{ section.settings.gradient_color_1 }}, {{ section.settings.gradient_color_2 }}, {{ section.settings.gradient_color_3 }});
+      {% elsif section.settings.gradient_selector == 'pastel' %}
+        background: linear-gradient(60deg, {{ section.settings.gradient_color_1 }}, {{ section.settings.gradient_color_2 }}, {{ section.settings.gradient_color_3 }});
+      {% else %}
+        background-color: {{ section.settings.button_bg_color }};
+      {% endif %}
+    {% else %}
+      background-color: {{ section.settings.button_bg_color }};
+    {% endif %}
+  }
+  .quick-add-to-cart-wrapper .quick-add-button:hover {
+    {% if section.settings.enable_gradient %}
+      filter: brightness(90%);
+    {% else %}
+      background-color: {{ section.settings.button_hover_color }};
+    {% endif %}
+  }
+</style>

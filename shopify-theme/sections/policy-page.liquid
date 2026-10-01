@@ -1,0 +1,119 @@
+{% comment %}
+  This section displays one of your store's policies based on the selection.
+  Available options: Privacy Policy, Refund Policy, Shipping Policy, Terms of Service.
+{% endcomment %}
+
+{% assign policy_type = section.settings.policy %}
+{% if policy_type == 'privacy_policy' %}
+  {% assign policy_title = shop.privacy_policy.title %}
+  {% assign policy_content = shop.privacy_policy.body %}
+{% elsif policy_type == 'refund_policy' %}
+  {% assign policy_title = shop.refund_policy.title %}
+  {% assign policy_content = shop.refund_policy.body %}
+{% elsif policy_type == 'shipping_policy' %}
+  {% assign policy_title = shop.shipping_policy.title %}
+  {% assign policy_content = shop.shipping_policy.body %}
+{% elsif policy_type == 'terms_of_service' %}
+  {% assign policy_title = shop.terms_of_service.title %}
+  {% assign policy_content = shop.terms_of_service.body %}
+{% endif %}
+
+<style>
+.policy-section {
+  padding-top: {{ section.settings.top_padding_desktop }}px;
+  padding-bottom: {{ section.settings.bottom_padding_desktop }}px;
+}
+@media screen and (max-width: 768px) {
+  .policy-section {
+    padding-top: {{ section.settings.top_padding_mobile }}px;
+    padding-bottom: {{ section.settings.bottom_padding_mobile }}px;
+  }
+}
+</style>
+
+<section class="policy-section">
+  <div class="container">
+    <header class="policy-header" style="margin-bottom: 1rem;">
+      <h1 style="font-size: 2rem; font-weight: bold;">{{ policy_title }}</h1>
+    </header>
+    <div class="policy-content" style="line-height: 1.6;">
+      {% if policy_content %}
+        {{ policy_content }}
+      {% else %}
+        <p>No policy content available. Please update your store policies.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Policy Section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "policy",
+      "label": "Select Policy",
+      "options": [
+        {
+          "value": "privacy_policy",
+          "label": "Privacy Policy"
+        },
+        {
+          "value": "refund_policy",
+          "label": "Refund Policy"
+        },
+        {
+          "value": "shipping_policy",
+          "label": "Shipping Policy"
+        },
+        {
+          "value": "terms_of_service",
+          "label": "Terms of Service"
+        }
+      ],
+      "default": "privacy_policy"
+    },
+    {
+      "type": "range",
+      "id": "top_padding_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Top padding (desktop)",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "bottom_padding_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom padding (desktop)",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "top_padding_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Top padding (mobile)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "bottom_padding_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom padding (mobile)",
+      "default": 20
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,421 @@
+{%- liquid
+  assign horizontal_position = section.settings.horizontal_position
+  assign horizontal_dst_to_edge = section.settings.horizontal_dst_to_edge
+  assign horizontal_dst_to_edge_mobile = section.settings.horizontal_dst_to_edge_mobile
+  assign vertical_dst_to_edge = section.settings.vertical_dst_to_edge
+  assign vertical_dst_to_edge_mobile = section.settings.vertical_dst_to_edge_mobile
+
+  assign circle_size = section.settings.circle_size
+  assign circle_size_mobile = section.settings.circle_size_mobile
+  assign progress_thickness = section.settings.progress_thickness
+
+  assign circle_bg_color = section.settings.circle_bg_color
+  assign circle_bg_hover_color = section.settings.circle_bg_hover_color
+
+  assign progress_color = section.settings.progress_color
+  assign progress_active_color = section.settings.progress_active_color
+
+  assign arrow_color = section.settings.arrow_color
+  assign arrow_hover_color = section.settings.arrow_hover_color
+
+  assign hide_on_mobile = section.settings.hide_on_mobile
+-%}
+
+{%- style -%}
+  .buttontoppro .top-{{ section.id }} {
+    position: fixed;
+    z-index: 100;
+    bottom: {{ vertical_dst_to_edge_mobile }}px;
+    opacity: 0;
+    /* Initial scale is set via JS; fallback value */
+    transform: scale(0.8);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .buttontoppro .top-circle-{{ section.id }} {
+    position: relative;
+    width: {{ circle_size_mobile }}px;
+    height: {{ circle_size_mobile }}px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .buttontoppro .top-circle-{{ section.id }}::after {
+    position: absolute;
+    content: "";
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    border-radius: 50%;
+    background: {{ circle_bg_color }};
+    border: {{ progress_thickness }}px solid {{ progress_color }};
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+
+  .buttontoppro .top-{{ section.id }}:hover .top-circle-{{ section.id }}::after {
+    background: {{ circle_bg_hover_color }};
+  }
+
+  .buttontoppro .top-progress-circle-{{ section.id }} {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .buttontoppro .top-progress-circle-{{ section.id }} path {
+    stroke: {{ progress_active_color }};
+    stroke-width: {{ progress_thickness }};
+    box-sizing: border-box;
+    fill: none;
+    transition: stroke-dashoffset 0.3s ease;
+  }
+
+  .buttontoppro .top-arrow-{{ section.id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    width: {{ circle_size_mobile | times: 0.35 }}px;
+    height: {{ circle_size_mobile | times: 0.35 }}px;
+  }
+
+  .buttontoppro .top-arrow-{{ section.id }} path {
+    stroke: {{ arrow_color }};
+    transition: stroke 0.3s ease;
+  }
+
+  .buttontoppro .top-{{ section.id }}:hover .top-arrow-{{ section.id }} path {
+    stroke: {{ arrow_hover_color }};
+  }
+
+  @media(min-width: 1024px) {
+    .buttontoppro .top-{{ section.id }} {
+      bottom: {{ vertical_dst_to_edge }}px;
+    }
+
+    .buttontoppro .top-circle-{{ section.id }} {
+      width: {{ circle_size }}px;
+      height: {{ circle_size }}px;
+    }
+
+    .buttontoppro .top-arrow-{{ section.id }} {
+      width: {{ circle_size | times: 0.35 }}px;
+      height: {{ circle_size | times: 0.35 }}px;
+    }
+  }
+{%- endstyle -%}
+
+{% if horizontal_position == 'left' %}
+  <style>
+    .buttontoppro .top-{{ section.id }} {
+      left: {{ horizontal_dst_to_edge_mobile }}px;
+    }
+    @media(min-width: 1024px) {
+      .buttontoppro .top-{{ section.id }} {
+        left: {{ horizontal_dst_to_edge }}px;
+        right: unset;
+      }
+    }
+  </style>
+{% elsif horizontal_position == 'right' %}
+  <style>
+    .buttontoppro .top-{{ section.id }} {
+      right: {{ horizontal_dst_to_edge_mobile }}px;
+    }
+    @media(min-width: 1024px) {
+      .buttontoppro .top-{{ section.id }} {
+        right: {{ horizontal_dst_to_edge }}px;
+        left: unset;
+      }
+    }
+  </style>
+{% elsif horizontal_position == 'center' %}
+  <style>
+    .buttontoppro .top-{{ section.id }} {
+      left: 50%;
+      /* Default translation for center; the scale value is managed by JS */
+      transform: translateX(-50%) scale(0.8);
+    }
+    @media(min-width: 1024px) {
+      .buttontoppro .top-{{ section.id }} {
+        left: 50%;
+        transform: translateX(-50%) scale(0.8);
+        right: unset;
+      }
+    }
+  </style>
+{% endif %}
+
+{% if hide_on_mobile %}
+  <style>
+    @media(max-width: 1023px) {
+      .buttontoppro .top-{{ section.id }} {
+        display: none !important;
+      }
+    }
+  </style>
+{% endif %}
+
+<div class="buttontoppro">
+  <div class="top-{{ section.id }}" data-horizontal-position="{{ horizontal_position }}">
+    <div class="top-circle-{{ section.id }}">
+      <svg class="top-progress-circle-{{ section.id }}" width="100%" height="100%" viewBox="-1 -1 102 102">
+        <path class="progress-path-{{ section.id }}"
+          d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98"
+          style="stroke-dasharray: 307.919; stroke-dashoffset: 307.919; transition: stroke-dashoffset 10ms linear;">
+        </path>
+      </svg>
+      <svg
+        class="top-arrow-{{ section.id }}"
+        width="100%"
+        height="100%"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M17 18L12 13L7 18M17 11L12 6L7 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<script>
+  function initBackToTop2() {
+    const topElement = document.querySelector('.top-{{ section.id }}');
+    const progressPath = document.querySelector('.progress-path-{{ section.id }}');
+    const totalScrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const startOpacityScroll = 50;
+
+    const pathLength = progressPath.getTotalLength();
+    progressPath.style.strokeDasharray = pathLength;
+    progressPath.style.strokeDashoffset = pathLength;
+
+    function handleScroll() {
+      const scrollTop = window.scrollY;
+      const horizontalPos = topElement.getAttribute('data-horizontal-position');
+
+      if (scrollTop > startOpacityScroll) {
+        topElement.style.opacity = 1;
+        topElement.style.pointerEvents = 'all';
+        if (horizontalPos === 'center') {
+          topElement.style.transform = 'translateX(-50%) scale(1)';
+        } else {
+          topElement.style.transform = 'scale(1)';
+        }
+      } else {
+        topElement.style.opacity = 0;
+        topElement.style.pointerEvents = 'none';
+        if (horizontalPos === 'center') {
+          topElement.style.transform = 'translateX(-50%) scale(0.8)';
+        } else {
+          topElement.style.transform = 'scale(0.8)';
+        }
+      }
+
+      const progress = Math.min(scrollTop / totalScrollHeight, 1);
+      let dashoffset = pathLength * (1 - progress);
+      if (scrollTop === totalScrollHeight) {
+        dashoffset = 0;
+      }
+      progressPath.style.strokeDashoffset = dashoffset;
+    }
+
+    window.addEventListener('scroll', handleScroll);
+    topElement.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    // Initialize state in case the page is already scrolled
+    handleScroll();
+  }
+
+  document.addEventListener('DOMContentLoaded', initBackToTop2);
+
+  if (Shopify.designMode) {
+    document.addEventListener('shopify:section:unload', initBackToTop2);
+    document.addEventListener('shopify:section:load', initBackToTop2);
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Back To Top Pro",
+  "settings": [
+    {
+
+      "type": "header",
+      "content": "Circle Settings"
+    },
+    {
+      "type": "range",
+      "id": "circle_size",
+      "min": 20,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Desktop Circle Diameter",
+      "default": 46,
+      "info": "Define the diameter of the circular button for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "circle_size_mobile",
+      "min": 20,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile Circle Diameter",
+      "default": 46,
+      "info": "Define the diameter of the circular button for mobile view."
+    },
+    {
+      "type": "range",
+      "id": "progress_thickness",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Progress Ring Thickness",
+      "default": 4,
+      "info": "Set the thickness of the progress indicator ring."
+    },
+    {
+      "type": "header",
+      "content": "Circle Colors"
+    },
+    {
+      "type": "color",
+      "id": "circle_bg_color",
+      "label": "Default Circle Fill",
+      "default": "#FFFFFF",
+      "info": "Choose the primary fill color for the circle."
+    },
+    {
+      "type": "color",
+      "id": "circle_bg_hover_color",
+      "label": "Hover Circle Fill",
+      "default": "#cbbeb0",
+      "info": "Choose the fill color when hovering over the circle."
+    },
+    {
+      "type": "header",
+      "content": "Progress Colors"
+    },
+    {
+      "type": "color",
+      "id": "progress_color",
+      "label": "Inactive Progress Color",
+      "default": "#F5F5F5",
+      "info": "Select the color for the inactive part of the progress ring."
+    },
+    {
+      "type": "color",
+      "id": "progress_active_color",
+      "label": "Active Progress Color",
+      "default": "#000000",
+      "info": "Select the color for the active segment of the progress ring."
+    },
+    {
+      "type": "header",
+      "content": "Arrow Colors"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Default Arrow Hue",
+      "default": "#000000",
+      "info": "Select the color for the arrow icon."
+    },
+    {
+      "type": "color",
+      "id": "arrow_hover_color",
+      "label": "Hover Arrow Hue",
+      "default": "#FFFFFF",
+      "info": "Select the arrow color when hovered over."
+    },
+    {
+      "type": "header",
+      "content": "Position Settings"
+    },
+    {
+      "type": "select",
+      "id": "horizontal_position",
+      "label": "Horizontal Alignment",
+      "default": "right",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "info": "Choose the button's horizontal position on the page."
+    },
+    {
+      "type": "range",
+      "id": "horizontal_dst_to_edge",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Desktop Side Offset",
+      "default": 30,
+      "info": "Set the distance from the side edge on desktop."
+    },
+    {
+      "type": "range",
+      "id": "horizontal_dst_to_edge_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Side Offset",
+      "default": 20,
+      "info": "Set the distance from the side edge on mobile."
+    },
+    {
+      "type": "range",
+      "id": "vertical_dst_to_edge",
+      "min": 0,
+      "max": 150,
+      "step": 10,
+      "unit": "px",
+      "label": "Desktop Bottom Offset",
+      "default": 110,
+      "info": "Set the distance from the bottom edge on desktop."
+    },
+    {
+      "type": "range",
+      "id": "vertical_dst_to_edge_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile Bottom Offset",
+      "default": 150,
+      "info": "Set the distance from the bottom edge on mobile."
+    },
+    {
+      "type": "header",
+      "content": "Mobile Visibility"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_on_mobile",
+      "label": "Disable on Mobile",
+      "default": false,
+      "info": "When enabled, the back-to-top button will be hidden on mobile devices."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Back To Top Pro ",
+       "category": "Other"
+    }
+  ]
+}
+{% endschema %}

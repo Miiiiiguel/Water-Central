@@ -1,0 +1,212 @@
+{%- liquid
+  assign section_st = section.settings
+  assign section_width = section_st.section_width
+  assign color_scheme = section_st.color_scheme
+  assign heading = section_st.heading
+  assign scroll_animation = settings.scroll_animation
+-%}
+{%- capture style -%}
+  --section-pt: {{ section_st.padding_top }}; --section-pb: {{ section_st.padding_bottom }};
+{%- endcapture -%}
+{%- style -%}
+  .sec__google-map iframe {
+    width: 100%;
+    height: var(--map-height);
+  }
+{%- endstyle -%}
+<div
+  class="section{% if section_st.padding_top < 30 %} pt-min{% endif %}{% if section_st.padding_bottom < 30 %} pb-min{% endif %} sec__google-map color-{{ color_scheme }} gradient"
+  style="{{ style | strip | strip_newlines }}"
+>
+  <div class="{{ section_width }}">
+    <div class="sec__inner relative" style="--map-height: {{ section_st.map_height }}px">
+      {%- if heading != blank -%}
+        <div class="section__header mb-33 mb-sm-20 text-{{ section_st.header_alignment }}{% if section_st.section_width == 'full_width' %} px-20{% endif %}">
+          {%- if section_st.heading != blank -%}
+            <h2
+              class="section__header-heading {% if scroll_animation != 'none' %} scroll-trigger {{ scroll_animation }} {% endif %} heading-letter-spacing mt-0"
+              style="font-size: {{ section_st.header_text_font_size }}px; font-weight: {{ section_st.header_font_weight }}; {% if scroll_animation != 'none' %} --animation-order: 0 {% endif %}"
+            >
+              {{ section_st.heading }}
+            </h2>
+          {% endif %}
+        </div>
+      {% endif %}
+      <div class="sec__content">
+        {%- if section_st.map_iframe != blank -%}
+          {{ section_st.map_iframe }}
+        {%- else -%}
+          <span>
+            {{ 'section.google_map.no_iframe' | t }}
+          </span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% schema %}
+{
+  "name": "Google Map",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer", "custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding (px)",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "info": "Set the space above the section."
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding (px)",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "info": "Set the space below the section."
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Container Width Option",
+      "default": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "Standard Container"
+        },
+        {
+          "value": "fluid_container",
+          "label": "Fluid Container"
+        },
+        {
+          "value": "stretch_width",
+          "label": "Stretched Width"
+        },
+        {
+          "value": "full_width",
+          "label": "Full Width"
+        }
+      ],
+      "info": "Choose the layout width for the section."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "default": "scheme-1",
+      "info": "Select a color palette for the section."
+    },
+    {
+      "type": "header",
+      "content": "Section Header Settings",
+      "info": "Customize the header display options."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Our Location",
+      "label": "Header Title",
+      "info": "Enter the title for the map section."
+    },
+    {
+      "type": "range",
+      "id": "header_text_font_size",
+      "label": "Header Text Font Size (px)",
+      "default": 32,
+      "min": 10,
+      "max": 72,
+      "step": 1,
+      "unit": "px",
+      "info": "Adjust the font size of the header title."
+    },
+    {
+      "type": "select",
+      "id": "header_font_weight",
+      "label": "Header Font Weight",
+      "default": "medium",
+      "options": [
+        {
+          "value": "normal",
+          "label": "Normal"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "semibold",
+          "label": "Semi Bold"
+        },
+        {
+          "value": "bold",
+          "label": "Bold"
+        },
+        {
+          "value": "extrabold",
+          "label": "Extra Bold"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Header Alignment",
+      "default": "center",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left Align"
+        },
+        {
+          "value": "center",
+          "label": "Center Align"
+        },
+        {
+          "value": "right",
+          "label": "Right Align"
+        }
+      ],
+      "info": "Choose the alignment for the header text."
+    },
+    {
+      "type": "header",
+      "content": "Google Map Settings",
+      "info": "Configure the embedded map options."
+    },
+    {
+      "type": "textarea",
+      "id": "map_iframe",
+      "label": "Enter the iframe map code",
+      "default": "<div style=\"width: 100%\"><iframe width=\"100%\" height=\"600\" frameborder=\"0\" scrolling=\"no\" marginheight=\"0\" marginwidth=\"0\" src=\"https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=1%20Grafton%20Street,%20Dublin,%20Ireland+(My%20Business%20Name)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed\"><a href=\"https://www.mapsdirections.info/it/calcola-la-popolazione-su-una-mappa/\">densità di popolazione Italia mappa</a></iframe></div>",
+      "info": "Paste the embed code for your Google Map here."
+    },
+    {
+      "type": "range",
+      "id": "map_height",
+      "min": 400,
+      "max": 1000,
+      "step": 10,
+      "unit": "px",
+      "default": 500,
+      "label": "Map Height (px)",
+      "info": "Set the vertical size of the map."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Google Map ",
+      "category": "Contact"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,231 @@
+<!-- Include Wishlist JavaScript (only one instance is needed) -->
+<script src="{{ 'wishlist.js' | asset_url }}" defer="defer"></script>
+
+<!-- Include the wishlist-page stylesheet -->
+{{ 'wishlist-page.css' | asset_url | stylesheet_tag }}
+
+<!-- Custom CSS for the Remove Button -->
+<style>
+  /*
+    Custom remove button styling for products in the wishlist.
+    This button appears as a light gray circle with an "X" SVG icon centered.
+  */
+  .wishlist-page .product-item__button-remove {
+    position: relative;
+    top: 40px !important;
+    right: 20px;
+    width: 45px;
+    height: 45px;
+    background-color: #f0f0f0 !important; /* light gray background */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    z-index: 10;
+  }
+
+  button-wishlist.active,
+  button-wishlist[aria-checked=true] {
+    color: var(--remove-wishlist-svg-color) !important;
+    position: absolute;
+    top: 23px !important;
+    right: 18px !important;
+    background-color: var(--remove-wishlist-bg) !important; /* Uses the selected color */
+    border: 1px solid var(--remove-wishlist-border) !important;
+    box-shadow: 0 1px 1px #e0e0e0;
+  }
+
+  .wishlist-page-section-inner .product-item__button-action button-wishlist {
+    display: none !important;
+  }
+
+  button-wishlist.active svg,
+  button-wishlist[aria-checked=true] svg {
+    color: var(--remove-wishlist-svg-color) !important;
+    width: 10px;
+    height: 10px;
+  }
+
+  @media (max-width: 1024px) { /* Adjust this breakpoint as needed */
+    .product-item__button.active {
+      top: 10 px;
+      right: 10px !important;
+    }
+    .product-item__button.active {
+      top: 10px !important;
+      right: 10px !important;
+    }
+  }
+
+  .wishlist-page-section-inner .product-item__button-action button-wishlist {
+    display: none !important;
+  }
+
+  .wishlist-page .product-item__button-remove:hover {
+    background-color: #e0e0e0;
+  }
+  .wishlist-page .product-item__button-remove svg {
+    width: 20px;
+    height: 20px;
+    fill: #333; /* icon color */
+  }
+
+  /* Hide the default heart (love) icon on the wishlist page */
+  .wishlist-page .product-item__button-wishlist {
+    display: none;
+  }
+
+  /* Ensure the remove button displays on mobile devices and adjust its position */
+  @media (max-width: 767px) {
+    .wishlist-page .product-item__button-remove {
+      display: flex !important;
+      --remove-wishlist-svg-color: {{ settings.remove_wishlist_svg_color }} !important;
+      z-index: 9999; /* increased to ensure it sits on top */
+      top: 15px;  /* moved down slightly on mobile */
+      right: 25px; /* shifted a bit to the right on mobile */
+    }
+  }
+
+  /* Adjust remove button position on desktop/larger screens */
+  @media (min-width: 1024px) {
+    .wishlist-page .product-item__button-remove {
+      top: 5px; /* moved up slightly on desktop */
+    }
+  }
+</style>
+
+{%- liquid
+  assign section_st = section.settings
+  assign section_width = section_st.section_width
+-%}
+{%- capture style -%}
+  --section-pt: {{ section_st.padding_top }};
+  --section-pb: {{ section_st.padding_bottom }};
+  --col-gap-desktop: 30px;
+  --col-desktop: 4;
+  --col-number: 2;
+  --col-desktop-small: 3;
+  --col-tablet: 3;
+  --col-gap: 15px;
+  {%- if section_st.enable_custom_background %}
+    background-color: {{ section_st.custom_background_color }};
+  {%- endif %}
+{%- endcapture -%}
+<div
+  class="section product wishlist-page-section"
+  data-section-type="page-wishlist"
+  data-section-id="{{ section.id }}"
+  data-view="{{ template.name }}"
+  style="{{ style | strip | strip_newlines }}"
+>
+  <skeleton-page></skeleton-page>
+  <div class="wishlist-page-section-inner">
+    <div class="{{ section_width }} wishlist-page-main">
+      {%- if search.results != blank -%}
+        {% paginate search.results by 50 %}
+          <div class="wishlist-list-items grid grid-cols gap fadeIn">
+            {%- for product in search.results -%}
+              <div
+                class="col-6 col-md-4 col-lg-3 product-load wl-product-js product-preload-js wishlist-list"
+                data-product-handle="{{ product.handle }}"
+              >
+                {% render 'product-item',
+                  card_product: product,
+                  section_id: section.id,
+                  template_enable_action: true,
+                  template_enable_price: true,
+                  template_enable_product_vendor: true,
+                  template_enable_rate: true,
+                  template_enable_add_cart: true,
+                  template_enable_product_short_description: false,
+                  template_enable_color_swatches: true,
+                  template_enable_remove_in_wishlist_page: true,
+                  type: 'gird'
+                %}
+              </div>
+            {%- endfor -%}
+          </div>
+        {% endpaginate %}
+      {% endif %}
+      <div class="wishlist-no-product-js fadeIn hidden text-center empty-hidden-heading">
+        <p class="mb-30">{{ 'templates.wishlist.empty_des' | t }}</p>
+        <a
+          class="wishlist-no-product-url btn-primary no-underline inline-block"
+          href="{{ routes.all_products_collection_url }}"
+        >
+          {{- 'templates.wishlist.redirect' | t -}}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.page-wishlist.name",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.all.section_width.container.label"
+        },
+        {
+          "value": "fluid_container",
+          "label": "t:sections.all.section_width.fluid_container.label"
+        },
+        {
+          "value": "stretch_width",
+          "label": "t:sections.all.section_width.stretch_width.label"
+        },
+        {
+          "value": "full_width",
+          "label": "t:sections.all.section_width.full_width.label"
+        }
+      ],
+      "default": "fluid_container",
+      "label": "t:sections.all.section_width.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.section_padding.label"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.all.section_padding.top.label",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.all.section_padding.bottom.label",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_background",
+      "label": "Enable Custom Background Color"
+    },
+    {
+      "type": "color",
+      "id": "custom_background_color",
+      "label": "Custom Background Color",
+      "default": "#ffffff"
+    }
+  ]
+}
+{% endschema %}

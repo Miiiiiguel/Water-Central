@@ -1,0 +1,1229 @@
+ 
+ {% liquid
+  assign enable_rtl = settings.rtl
+  assign iso_code = request.locale.iso_code
+  assign lis_language_rtl = settings.language_rtl
+  if lis_language_rtl != blank
+    if lis_language_rtl contains iso_code
+      assign enable_rtl = true
+    else
+      assign enable_rtl = false
+      
+    endif
+  endif
+  
+%}
+
+<!doctype html>
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+  <head>
+  {%- if settings.font_type_heading == 'google' and settings.font_heading_google != blank -%}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family={{ settings.font_heading_google | replace: ' ', '+' }}:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    :root { --heading-font: '{{ settings.font_heading_google }}', serif; }
+    h1,h2,h3,h4,h5,h6,.h0,.h1,.h2,.h3,.h4,.h5,.h6,.heading,[class*="heading"] {
+      font-family: '{{ settings.font_heading_google }}', serif !important;
+    }
+  </style>
+  {%- endif -%}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="">
+    <link rel="canonical" href="{{ canonical_url }}">
+    {%- if settings.favicon != blank -%}
+      <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+    {%- endif -%}
+    <title>
+      {{ page_title }}
+      {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
+      {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
+      {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+    </title>
+    {% if page_description %}
+      <meta name="description" content="{{ page_description | escape }}">
+    {% endif %}
+    {% render 'meta-tags' %}
+
+  
+    {{ content_for_header }}
+    {{ 'critical.css' | asset_url | stylesheet_tag }}
+    {{ 'sudafin-fixes.css' | asset_url | stylesheet_tag }}
+    {% if settings.scroll_animation != 'none' %}
+      {{ 'animation.css' | asset_url | stylesheet_tag }}
+    {%- endif %}
+    {% if enable_rtl %}{{ 'rtl.css' | asset_url | stylesheet_tag: preload: true }}{% endif %}
+    <link rel="preload" href="{{ 'product-card.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ 'product-card.css' | asset_url }}"></noscript>
+    <link rel="preload" href="{{ 'swiper-bundle.min.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ 'swiper-bundle.min.css' | asset_url }}"></noscript>
+    <link rel="preload" href="{{ 'judgeme-reviews.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ 'judgeme-reviews.css' | asset_url }}"></noscript>
+    {% render 'font-variables' %}
+
+    {% if request.design_mode %}
+      {{ 'design-mode.css' | asset_url | stylesheet_tag: preload: true }}
+    {% endif %}
+    {% style %}
+      {% for scheme in settings.color_schemes -%}
+      {% # theme-check-disable UndefinedObject %}
+      {% assign scheme_classes = scheme_classes | append: ', .color-' | append: scheme.id %}
+      {% # theme-check-disable UndefinedObject %}
+      {% if forloop.index == 1 -%}
+      :root,
+      {%- endif %}
+      .color-{{ scheme.id }} {
+      --color-background: {{ scheme.settings.background }};
+      {% if scheme.settings.background_gradient != empty %}
+      --gradient-background: {{ scheme.settings.background_gradient }};
+      {% else %}
+      --gradient-background: {{ scheme.settings.background }};
+      {% endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      --color-primary: {{ scheme.settings.primary_color }};
+      --color-primary-rgb: {{ scheme.settings.primary_color.red }}, {{ scheme.settings.primary_color.green }}, {{ scheme.settings.primary_color.blue }};
+      --color-text: {{ scheme.settings.text_color }};
+
+      --color-text-rgb: {{ scheme.settings.text_color.red }}, {{ scheme.settings.text_color.green }}, {{ scheme.settings.text_color.blue }};
+      --color-heading: {{ scheme.settings.heading_color }};
+      --color-heading-rgb:{{ scheme.settings.heading_color.red }}, {{ scheme.settings.heading_color.green }}, {{ scheme.settings.heading_color.blue }};
+      --color-link: {{ scheme.settings.text_color }};
+      --color-link-hover: {{ scheme.settings.primary_color }};
+
+      --color-border: {{ scheme.settings.border_color }};
+
+      --trending-pill-bg-color: {{ settings.trending_pill_bg_color }};
+      --trending-pill-text-color: {{ settings.trending_pill_text_color }};
+      --trending-pill-border-radius: {{ settings.trending_pill_border_radius }}px;
+      --trending-pill-hover-bg-color: {{ settings.trending_pill_hover_bg_color }};
+      --trending-pill-hover-text-color: {{ settings.trending_pill_hover_text_color }};
+      --sale-badge-font-size: {{ settings.sale_badge_font_size | default: 13 }}px;
+      --sale-badge-border-color: {{ settings.sale_badge_border_color | default: "#000000" }};
+
+      --primary-button-bg-color: {{ settings.primary_button_background_color | default: '#0033FF' }};
+      --primary-button-hover-bg-color: {{ settings.primary_button_hover_background_color | default: '#0056FF' }};
+      --primary-button-text-color: {{ settings.primary_button_text_color | default: '#FFFFFF' }};
+      --primary-button-hover-text-color: {{ settings.primary_button_hover_text_color | default: '#FFFFFF' }};
+      --wishlist-icon-color: {{ settings.wishlist_icon_color }} !important;
+      --primary-button-border-weight: {{ settings.primary_button_border_weight | default: 1 }}px;
+
+      --primary-button-border-color: {{ settings.primary_button_border_color | default: '#000000' }};
+      --primary-button-border-radius: {{ settings.primary_button_border_radius | default: 8 }}px;
+      --mobile-logo-size: {{ settings.mobile_logo_size }}px;
+      --mobile-logo-position: {{ settings.mobile_logo_position }}px;
+      --promotion-button-text: "{{ settings.global_promotion_button_text | default: 'Discover' }}";
+      --primary-button-padding-top: {{ settings.primary_button_padding_top | default: 10 }}px;
+      --cart-recommend-button-text-color: {{ settings.cart_recommend_button_text_color | default: '#000000' }} !important;
+      --cart-recommend-button-hover-text-color: {{ settings.cart_recommend_button_hover_text_color | default: '#FF0000' }} !important;
+      --cart-recommend-button-font-size: {{ settings.cart_recommend_button_font_size | default: 14 }}px !important;
+      --primary-button-padding-bottom: {{ settings.primary_button_padding_bottom | default: 10 }}px;
+      --cart-drawer-shipping-bar-background-color: {{ settings.cart_drawer_shipping_bar_color }};
+      --cart-drawer-shipping-bar-height: {{ settings.cart_drawer_shipping_bar_height }}px;
+      --cart-drawer-shipping-bar-fill-color: {{ settings.cart_drawer_shipping_bar_fill_color }};
+      --cart-drawer-free-shipping-message-color: {{ settings.cart_drawer_free_shipping_message_color }};
+      --product-vendor-color: {{ settings.product_vendor_color | default: "#000000" }};
+      --compare-price-color: {{ settings.compare_price_color | default: "#000000" }};
+      --compare-price-font-size: {{ settings.compare_price_font_size | default: 14 }}px;
+      --cart-drawer-free-shipping-price-color: {{ settings.cart_drawer_free_shipping_price_color }};
+      /* Button primary */
+      --wishlist-top: {{ settings.wishlist_button_top }}px;
+      --search-desktop-bg: {{ settings.search_desktop_bg_color }};
+      --notification-bubble-bg: {{ settings.notification_bubble_bg }};
+      --notification-bubble-text-color: {{ settings.notification_bubble_text_color }};
+      --notification-bubble-width: {{ settings.notification_bubble_width }}rem;
+      --notification-bubble-height: {{ settings.notification_bubble_height }}rem;
+      --notification-bubble-top: {{ settings.notification_bubble_top }}px;
+      --btn-outline-font-weight: {{ settings.primary_button_font_weight }} !important;
+
+      --wishlist-bg: {{ settings.wishlist_button_bg }};
+      --wishlist-border: {{ settings.wishlist_button_border }};
+      --wishlist-active-bg: {{ settings.wishlist_button_active_bg }};
+      --btn-primary-color: {{ scheme.settings.btn_primary_color }};
+      --wishlist-top-mobile: {{ settings.wishlist_button_top_mobile }}px;
+      --btn-primary-hover-color: {{ scheme.settings.btn_primary_hover_color }};
+      --cart-drawer-checkout-bg-color: {{ settings.cart_drawer_checkout_bg_color }} !important;
+      --cart-drawer-checkout-hover-bg-color: {{ settings.cart_drawer_checkout_hover_bg_color }} !important;
+      --cart-drawer-checkout-text-color: {{ settings.cart_drawer_checkout_text_color }} !important;
+      --search-input-border-radius: {{ settings.search_input_border_radius | append: 'px' }} !important;
+      --cart-drawer-checkout-border-weight: {{ settings.cart_drawer_checkout_border_weight }}px !important;
+      --cart-drawer-checkout-border-color: {{ settings.cart_drawer_checkout_border_color }} !important;
+      --cart-drawer-checkout-border-radius: {{ settings.cart_drawer_checkout_border_radius }}px !important;
+      --cart-drawer-checkout-hover-text-color: {{ settings.cart_drawer_checkout_hover_text_color }} !important;
+      --link-filter-border-color: {{ settings.link_filter_border_color | default: "#cccccc" }};
+      --link-filter-border-weight: {{ settings.link_filter_border_weight | default: 1 }}px;
+      --btn-primary-bg-color: {{ scheme.settings.btn_primary_background }};
+      --btn-font: {{ settings.font_button_family.family }}, sans-serif;
+      --wishlist-icon-color: {{ settings.wishlist_icon_color }} !important;
+      --wishlist-icon-checked-color: {{ settings.wishlist_icon_checked_color }} !important;
+      --search-input-border-radius: {{ settings.search_input_border_radius | default: '5px' }};
+      --search-input-focus-color: {{ settings.search_input_focus_color | default: '#ff224e' }};
+      --btn-outline-hover-color: {{ settings.btn_outline_hover_color }};
+      --btn-primary-hover-bg-color: {{ scheme.settings.btn_primary_hover_background }};
+      --cta-instagram-accent-color: {{ settings.cta_instagram_accent_color | default: '#3b82f6' }};
+      --sale-badge-padding-left: {{ settings.sale_badge_padding_left | default: 10 }}px;
+      --sale-badge-padding-right: {{ settings.sale_badge_padding_right | default: 10 }}px;
+      --sale-badge-padding-top: {{ settings.sale_badge_padding_top | default: 5 }}px;
+      --sale-badge-padding-bottom: {{ settings.sale_badge_padding_bottom | default: 5 }}px;
+      --primary-button-font-weight: {{ settings.primary_button_font_weight }};
+      /* Button outline */
+      --btn-outline-color: {{ scheme.settings.btn_outline_color }};
+      --remove-wishlist-svg-color: {{ settings.remove_wishlist_svg_color }};
+      --btn-outline-hover-color: {{ settings.btn_outline_hover_color }} !important;
+      --desktop-logo-position: {{ settings.desktop_logo_position }}px;
+      --remove-wishlist-bg: {{ settings.remove_wishlist_bg }};
+      --remove-wishlist-border: {{ settings.remove_wishlist_border }};
+      --btn-outline-border-color: {{ scheme.settings.btn_outline_border_color }};
+      --outline-button-border-color: {{ settings.outline_button_border_color | default: '#2980b9' }};
+      --outline-button-border-weight: {{ settings.outline_button_border_weight | default: 1 }}px;
+      --btn-outline-text-color: {{ settings.btn_outline_text_color | default: '#ffffff' }};
+      --btn-outline-hover-text-color: {{ settings.btn_outline_hover_text_color | default: '#ecf0f1' }};
+      --btn-outline-bg-color: {{ settings.btn_outline_bg_color | default: '#3498db' }};
+      --btn-outline-hover-color: {{ settings.btn_outline_hover_color }};
+      --payment-button-more-options-bg-color: {{ settings.payment_button_more_options_bg_color | default: '#000000' }};
+      --payment-button-more-options-text-color: {{ settings.payment_button_more_options_text_color | default: '#ffffff' }};
+      --payment-button-more-options-border-color: {{ settings.payment_button_more_options_border_color | default: '#000000' }};
+      --add-to-cart-bg-color: {{ settings.add_to_cart_bg_color | default: '#000000' }};
+      --add-to-cart-text-color: {{ settings.add_to_cart_text_color | default: '#ffffff' }} !important;
+      --add-to-cart-border-color: {{ settings.add_to_cart_border_color | default: '#000000' }} !important;
+      --add-to-cart-border-weight: {{ settings.add_to_cart_border_weight | default: 1 }}px !important;
+      --add-to-cart-border-radius: {{ settings.add_to_cart_border_radius | default: 8 }}px !important;
+      --add-to-cart-hover-bg-color: {{ settings.add_to_cart_hover_bg_color | default: '#333333' }} !important;
+      --checked-product-size-bg-color: {{ settings.checked_product_size_bg_color | default: "#ffffff" }};
+      --checked-product-size-border-color: {{ settings.checked_product_size_border_color | default: "#000000" }};
+      --checked-product-size-text-color: {{ settings.checked_product_size_text_color | default: "#000000" }};
+      --add-to-cart-hover-text-color: {{ settings.add_to_cart_hover_text_color | default: '#ffffff' }} !important;
+      --payment-button-more-options-border-radius: {{ settings.payment_button_more_options_border_radius | default: '8' }}px;
+      --payment-button-more-options-border-weight: {{ settings.payment_button_more_options_border_weight | default: 2 }}px;
+      /* Button link */
+      --btn-link-color: {{ scheme.settings.button_link_color }};
+      --btn-outline-hover-color: {{ settings.btn_outline_hover_color }} !important;
+      --btn-link-hover-color: {{ scheme.settings.button_link_hover_color }};
+      --input-color: var(--color-text);
+      --btn-outline-hover-color: {{ settings.btn_outline_hover_color }};
+      --input-placeholder-color: rgba(var(--color-heading-rgb), 0.55);
+      --input-bg: rgba({{ scheme.settings.background.red }}, {{ scheme.settings.background.green }}, {{ scheme.settings.background.blue }}, 0.6);
+      }
+      {% endfor %}
+      {{ scheme_classes | prepend: 'body' }} {
+      color: var(--color-text);
+      background-color: var(--color-background);
+      }
+      :root {
+      --border-color-base: #e5e5e5;
+      --light-grey-color: #f5f5f5;
+      {% if settings.enable_rounded %} --rounded-radius: {{ settings.rounded_corner }}px;{% endif %}
+      --logo-width: {{ settings.mobile_logo_width }}px;
+      --body-font-size: {{ settings.body_font_size }}px;
+      --body-line-height: 1.714;
+
+      --body-weight: {{ settings.body_font_weight }};
+      --heading-font-scale: {{ settings.heading_font_scale | divided_by: 100.0 }};
+      --heading-text-transform: {{ settings.heading_text_transform }};
+      --heading-letter-spacing: {% if settings.heading_letter_spacing == 'negative' %}-0.034em{% else %}{{ settings.heading_letter_spacing }}{% endif %};
+      --heading-weight: {{ settings.heading_font_weight }};
+      --subheading-weight: {{ settings.subheading_font_weight }};
+      --medium-font-weight: {% if settings.menu_font == 'body_font' %}{{ settings.body_font.family }}{% else %}{{ settings.heading_font.family }}{% endif %}, {{ settings.body_font.fallback_families }};
+      --btn-text-transform: {{ settings.btn_text_transform }};
+      --btn-radius: {{ settings.button_radius }}px;
+      --btn-border-radius: {{ settings.btn_border_radius | default: 8 }}px !important;
+      --btn-font-size: var(--body-font-size, 1.4rem);
+      --btn-padding-y: 1.5rem;
+
+
+      --btn-padding-x: 3rem;
+      --btn-letter-spacing:  {% if settings.heading_letter_spacing == 'negative' %}calc(var(--heading-letter-spacing) + 0.01em){% else %}calc(var(--heading-letter-spacing) - 0.01em){% endif %};
+      --input-height: 5rem;
+      {% if settings.rounded_corner > 1 %}
+      --input-padding: 1rem 2rem;
+      {% else %}
+      --input-padding: 1rem 1.5rem;
+      {% endif %}
+      --inputs-border-width: 1px;
+      --btn-border-radius: {{ settings.btn_border_radius | default: 8 }}px !important;
+      --input-color: var(--color-text);
+
+
+      --input-border-radius: var(--btn-radius);
+      --input-font-size:  {% if settings.body_font_size < 16 %}16px{% else %}{{ settings.body_font_size }}{% endif %}  ;
+      --input-placeholder-color: rgba(var(--color-heading-rgb), 0.6);
+      --page-width: {{ settings.page_width }}px;
+      --page-width-value: {{ settings.page_width }};
+      --fluid-container-width: {{ settings.fluid_container_width }}px;
+      --fluid-container-width-value: {{ settings.fluid_container_width }}px;
+      --color-white: #FFF;
+      --color-dark: #111;
+      --h0-size: calc(var(--heading-font-scale) * 4.8rem);
+      --h1-size: calc(var(--heading-font-scale) * 4rem);
+      --h2-size: calc(var(--heading-font-scale) * 3.6rem);
+      --h3-size: calc(var(--heading-font-scale) * 3rem);
+      --h4-size:  calc(var(--heading-font-scale) * 2.4rem);
+      --h5-size: calc(var(--heading-font-scale) * 1.8rem);
+      --h6-size: calc(var(--heading-font-scale) * 1.6rem);
+      --transition: all 0.4s;
+      --duration-short: 0.3s;
+      --duration-long: 0.5s;
+      --transition-popup: var(--transition-type, all) 0.4s;
+      --zoom-transform: scale(1.05);
+      --overlay-bg: rgba(0, 0, 0, 0.60);
+      --grey-color: #f5f5f5;
+      --section-spacing: {{ settings.space_mobile }}px;
+      --bs-gutter-x: 1.5rem;
+      --shadow: 5px 0px 30px 0px rgba(0, 0, 0, 0.08);
+      /* Badge color */
+      --bages-radius: {{ settings.badges_rounded_corner }}px;
+      --bages-sale-color: {{ settings.sale_color }};
+      --bages-sale-bg-color: {{ settings.sale_background }};
+      --bages-new-color: {{ settings.new_color }};
+      --bages-new-bg-color: {{ settings.new_background }};
+      --bages-pre-order-color: {{ settings.pre_order_color }};
+      --bages-pre-order-bg-color: {{ settings.pre_order_background }};
+      --bages-sold-out-color: {{ settings.sold_out_color }};
+      --bages-sold-out-bg-color: {{ settings.sold_out_background }};
+      --bages-custom-color: {{ settings.custom_badge_color }};
+      --bages-custom-bg-color: {{ settings.custom_badge_background }};
+      --responsive-rate: ((100vw - 575px) / (1600 - 575));
+      }
+      @media (min-width: 768px) {
+      :root{
+      --section-spacing: {{ settings.spacing_desktop }}px;
+      --logo-width: {{ settings.logo_width }}px;
+      --btn-padding-y: 1.5rem;
+      --btn-padding-x: 5.5rem;
+      --input-font-size: calc(var(--body-font-size) - 1px);
+      }
+      }
+    {% endstyle %}
+    <link rel="stylesheet" href="{{ 'theme.css' | asset_url }}" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ 'theme.css' | asset_url }}"></noscript>
+    <link rel="stylesheet" href="{{ 'popup.css' | asset_url }}" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ 'popup.css' | asset_url }}"></noscript>
+    <script src="{{ 'swiper-bundle.min.js' | asset_url }}" defer="defer"></script>
+    {{- 'sudafin-premium.css' | asset_url | stylesheet_tag -}}
+    <script src="{{ 'sudafin-premium.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
+    <script>
+      document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+      if (Shopify.designMode) {
+        document.documentElement.classList.add('shopify-design-mode');
+      }
+    </script>
+
+
+    
+    <script></script>
+  </head>
+  
+ <script
+	data-name="shopifyAddiWidget"
+	data-id="samacaresassabaneta-ecommerce"
+	data-ally-slug="samacaresassabaneta-ecommerce"
+	data-element-reference={{ETIQUETA_HTML_DE_REFERENCIA}}
+	src="https://statics.addi.com/shopify/js/shopify-co-widget-wrapper.bundle.min.js"
+></script> 
+  
+  <body
+
+
+
+    class="gradient{% if settings.rounded_corner > 1 and settings.enable_rounded %} rounded-style{% endif %}{% if settings.action_after_add_cart == 'show_popup' %} minicart_type-popup{% endif %}{% if enable_rtl %} rtl{% endif %} {% if request.page_type == 'cart'%}template-cart{% endif %} {{ request.page_type }}"
+  >
+    {%- liquid
+      render 'preload-page'
+      sections 'header-group'
+    -%}
+    {%- render 'sudafin-locale-bar' -%}
+    <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
+      {{ content_for_layout }}
+    </main>
+    {% sections 'footer-group' %}
+    {%- liquid
+      sections 'overlay-group'
+      section 'mobile-navigation-bar'
+
+      section 'custom-colors'
+      section 'fake-order'
+    -%}
+    {%- render 'scripts-tag' -%}
+    {%- render 'sprite-svg' -%}
+  
+    {%- render 'content-bottom' -%}
+  <script>
+    window.addEventListener('unhandledrejection', function(e) {
+      if (e.reason && e.reason.message) {
+        console.warn('[Sudafin] Unhandled rejection:', e.reason.message);
+      }
+      e.preventDefault();
+    });
+  </script>
+  </body>
+</html>
+
+{% if settings.enable_custom_heading_font and settings.custom_heading_font_url != blank %}
+  <style>
+    @font-face {
+      font-family: 'CustomHeadingFont';
+      src: url('{{ settings.custom_heading_font_url }}') format('woff2');
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'CustomHeadingFont', sans-serif !important;
+    }
+  </style>
+{% endif %}
+
+{% if settings.enable_custom_body_font and settings.custom_body_font_url != blank %}
+  <style>
+    @font-face {
+      font-family: 'CustomBodyFont';
+      src: url('{{ settings.custom_body_font_url }}') format('woff2');
+    }
+    body, p, span {
+      font-family: 'CustomBodyFont', sans-serif !important;
+    }
+  </style>
+{% endif %}
+
+{% if settings.enable_speed_optimization %}
+<script>
+/* ---------- Speed Optimizer (safe defaults) ---------- */
+(function () {
+  /* Polyfill requestIdleCallback for broader support */
+  window.requestIdleCallback = window.requestIdleCallback || function (cb) {
+    return setTimeout(function () { cb({ didTimeout: false, timeRemaining: function () { return 1; } }); }, 1);
+  };
+
+  /* Helper: mark a single image as LCP (use data-lcp on the hero image) */
+  function tuneLCPImage() {
+    var lcp = document.querySelector('img[data-lcp], picture[data-lcp] img, picture img[data-lcp]');
+    if (!lcp) return;
+    try {
+      lcp.setAttribute('loading', 'eager');
+      lcp.setAttribute('fetchpriority', 'high');
+      lcp.setAttribute('decoding', 'async');
+    } catch (e) {}
+  }
+
+  /* Images: lazy-load non-critical & set decoding=async */
+  function optimizeImages() {
+    var imgs = document.querySelectorAll('img');
+    for (var i = 0; i < imgs.length; i++) {
+      var img = imgs[i];
+
+      // Respect explicit opt-outs/ins:
+      // data-eager → load immediately; data-lcp → handled separately
+      if (img.hasAttribute('data-eager') || img.hasAttribute('data-lcp')) {
+        if (!img.hasAttribute('loading')) img.setAttribute('loading', 'eager');
+        if (!img.hasAttribute('fetchpriority')) img.setAttribute('fetchpriority', 'high');
+      } else {
+        if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
+        // Lower network priority for obviously non-critical images
+        if (!img.hasAttribute('fetchpriority')) img.setAttribute('fetchpriority', 'low');
+      }
+
+      if (!img.hasAttribute('decoding')) img.setAttribute('decoding', 'async');
+    }
+
+    // Iframes: lazy by default, unless explicitly eager
+    var ifr = document.querySelectorAll('iframe');
+    for (var j = 0; j < ifr.length; j++) {
+      var f = ifr[j];
+      if (!f.hasAttribute('data-eager') && !f.hasAttribute('loading')) {
+        f.setAttribute('loading', 'lazy');
+      }
+    }
+  }
+
+  /* Background images: lazy apply when entering viewport
+     Use: <div data-bg="{{ 'hero.jpg' | image_url }}"></div> */
+  function lazyBackgrounds() {
+    var bgEls = document.querySelectorAll('[data-bg]');
+    if (!bgEls.length || !('IntersectionObserver' in window)) return;
+
+    var io = new IntersectionObserver(function (entries, obs) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          var el = entry.target;
+          var url = el.getAttribute('data-bg');
+          if (url) {
+            el.style.backgroundImage = 'url("' + url + '")';
+            el.removeAttribute('data-bg');
+          }
+          obs.unobserve(el);
+        }
+      });
+    }, { rootMargin: '200px 0px' });
+
+    bgEls.forEach(function (el) { io.observe(el); });
+  }
+
+  /* Scripts: defer non-critical external scripts safely
+     Opt-out: add data-nodefer to any <script src>
+     We also skip Shopify/checkout/analytics scripts by default. */
+  function deferScripts() {
+    var external = document.querySelectorAll('script[src]');
+    var skipRe = /(shopify|checkout|cart|analytics|google-analytics|gtm|gtag)/i;
+
+    for (var i = 0; i < external.length; i++) {
+      var s = external[i];
+      // already async/defer/module → respect it
+      if (s.async || s.defer || s.type === 'module') continue;
+      // explicit opt-out
+      if (s.hasAttribute('data-nodefer')) continue;
+      // likely critical platform scripts
+      if (skipRe.test(s.src)) continue;
+
+      // Defer execution without changing load order
+      s.setAttribute('defer', 'true');
+    }
+  }
+
+  /* Fonts: add preconnect for Google Fonts only if used */
+  function maybePreconnectFonts() {
+    if (document.querySelector('link[href*="fonts.googleapis.com"]')) {
+      if (!document.querySelector('link[rel="preconnect"][href*="fonts.gstatic.com"]')) {
+        var pre = document.createElement('link');
+        pre.rel = 'preconnect';
+        pre.href = 'https://fonts.gstatic.com';
+        pre.crossOrigin = 'anonymous';
+        document.head.appendChild(pre);
+      }
+    }
+  }
+
+  tuneLCPImage();
+
+
+  document.addEventListener('DOMContentLoaded', function () {
+    optimizeImages();
+    lazyBackgrounds();
+    deferScripts();
+    maybePreconnectFonts();
+
+    
+    requestIdleCallback(function () {
+     
+      var all = document.querySelectorAll('img[fetchpriority]');
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].complete) all[i].removeAttribute('fetchpriority');
+      }
+    });
+  });
+})();
+</script>
+{% endif %}
+
+<style>
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-down {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-left {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-right {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes zoom-in {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes zoom-out {
+    from { opacity: 0; transform: scale(1.1); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes rotate-in {
+    from { opacity: 0; transform: rotate(-10deg); }
+    to { opacity: 1; transform: rotate(0deg); }
+}
+
+@keyframes rotate-out {
+    from { opacity: 0; transform: rotate(10deg); }
+    to { opacity: 1; transform: rotate(0deg); }
+}
+
+@keyframes flip-in {
+    from { opacity: 0; transform: rotateX(-90deg); }
+    to { opacity: 1; transform: rotateX(0deg); }
+}
+
+/* Additional Modern Animations */
+@keyframes bounce {
+  0% { opacity: 0; transform: scale(0.3); }
+  50% { opacity: 1; transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+@keyframes swing-in {
+  0% { opacity: 0; transform: rotateX(-100deg); }
+  100% { opacity: 1; transform: rotateX(0deg); }
+}
+
+@keyframes flip-in-y {
+  0% { opacity: 0; transform: perspective(400px) rotateY(90deg); }
+  100% { opacity: 1; transform: perspective(400px) rotateY(0deg); }
+}
+
+@keyframes zoom-in-up {
+  0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes rotate-fade {
+  0% { opacity: 0; transform: rotate(-20deg); }
+  100% { opacity: 1; transform: rotate(0deg); }
+}
+
+/* Base style for animated sections */
+.animated-section {
+    opacity: 0;
+}
+</style>
+
+
+
+
+
+
+
+
+
+<style>
+  @media (min-width: 1024px){
+    html:not(.shopify-design-mode){
+      zoom: {{ settings.global_scale | default: 100 }}%;
+    }
+    /* Safety: if some browser ignores the class */
+    html.shopify-design-mode { zoom: 100% !important; }
+  }
+</style>
+<script>
+  if (Shopify && Shopify.designMode) {
+    document.documentElement.classList.add('shopify-design-mode');
+  }
+</script>
+{% assign __scale = settings.global_scale | default: 100 %}
+{% assign __factor = __scale | divided_by: 100.0 %}
+
+{% if request.design_mode %}
+  <style>
+    /* Reset any accidental transform/zoom in the editor */
+    html.shopify-design-mode { zoom: 100% !important; }
+
+    /* Simulated zoom: scale the design tokens */
+    :root {
+      /* Typography */
+      --body-font-size: calc({{ settings.body_font_size | default: 16 }}px * {{ __factor }});
+      --h0-size: calc({{ __factor }} * ({{ settings.heading_font_scale | divided_by: 100.0 }} * 4.8rem));
+      --h1-size: calc({{ __factor }} * ({{ settings.heading_font_scale | divided_by: 100.0 }} * 4rem));
+      --h2-size: calc({{ __factor }} * ({{ settings.heading_font_scale | divided_by: 100.0 }} * 3.6rem));
+      --h3-size: calc({{ __factor }} * ({{ settings.heading_font_scale | divided_by: 100.0 }} * 3rem));
+      --h4-size: calc({{ __factor }} * ({{ settings.heading_font_scale | divided_by: 100.0 }} * 2.4rem));
+      --h5-size: calc({{ __factor }} * ({{ settings.heading_font_scale | divided_by: 100.0 }} * 1.8rem));
+      --h6-size: calc({{ __factor }} * ({{ settings.heading_font_scale | divided_by: 100.0 }} * 1.6rem));
+
+      /* Buttons & inputs (your theme already uses these) */
+      --btn-font-size: calc({{ __factor }} * var(--btn-font-size));
+      --btn-padding-y: calc({{ __factor }} * 1.5rem);
+      --btn-padding-x: calc({{ __factor }} * 3rem);
+      --input-height: calc({{ __factor }} * 5rem);
+      --input-font-size: calc({{ __factor }} * ({{ settings.body_font_size | default: 16 }}px));
+
+      /* Layout widths / container spacing */
+      --page-width: calc({{ settings.page_width | default: 1200 }}px * {{ __factor }});
+      --page-width-value: calc({{ settings.page_width | default: 1200 }} * {{ __factor }});
+      --fluid-container-width: calc({{ settings.fluid_container_width | default: 1440 }}px * {{ __factor }});
+      --fluid-container-width-value: calc({{ settings.fluid_container_width | default: 1440 }}px * {{ __factor }});
+
+      /* Section spacing */
+      --section-spacing: calc({{ settings.space_mobile | default: 24 }}px * {{ __factor }});
+      --bs-gutter-x: calc(1.5rem * {{ __factor }});
+
+      /* Corners & radii (optional) */
+      --btn-border-radius: calc({{ settings.btn_border_radius | default: 8 }}px * {{ __factor }});
+      --rounded-radius: calc({{ settings.rounded_corner | default: 8 }}px * {{ __factor }});
+    }
+
+    @media (min-width: 768px){
+      :root{
+        --section-spacing: calc({{ settings.spacing_desktop | default: 48 }}px * {{ __factor }});
+        --logo-width: calc({{ settings.logo_width | default: 160 }}px * {{ __factor }});
+        --btn-padding-x: calc(5.5rem * {{ __factor }});
+      }
+    }
+  </style>
+{% endif %}
+
+
+{%- if settings.enable_speed_optimization -%}
+  <!-- Enable Lazy Loading -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      let images = document.querySelectorAll("img");
+      images.forEach(img => {
+        img.setAttribute("loading", "lazy");
+      });
+    });
+  </script>
+
+  <!-- Async & Defer Non-Critical Scripts -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      document.querySelectorAll("script").forEach(script => {
+        if (!script.hasAttribute("async") && !script.hasAttribute("defer")) {
+          script.setAttribute("defer", "true");
+        }
+      });
+    });
+  </script>
+
+  <!-- Optimize Font Loading -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <style>
+    body { font-display: swap; }
+  </style>
+{%- endif -%}
+
+
+
+{%- if settings.enable_preload_resources -%}
+  <!-- Preload Critical Fonts -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" as="style">
+  <link rel="preload" href="https://fonts.gstatic.com" crossorigin="anonymous" as="font" type="font/woff2">
+
+  <!-- Preload Important Stylesheets -->
+  <link rel="preload" href="{{ 'theme.css' | asset_url }}" as="style">
+
+  <!-- Preload Hero Image -->
+  {%- if section.settings.hero_image -%}
+    <link rel="preload" href="{{ section.settings.hero_image | img_url: 'master' }}" as="image">
+  {%- endif -%}
+
+  <!-- Async Load Fonts -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      let fontStylesheet = document.createElement("link");
+      fontStylesheet.rel = "stylesheet";
+      fontStylesheet.href = "https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap";
+      document.head.appendChild(fontStylesheet);
+    });
+  </script>
+{%- endif -%}
+
+
+
+{%- if settings.enable_preload_resources -%}
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      function preloadAsset(url, asType) {
+        let link = document.createElement("link");
+        link.rel = "preload";
+        link.as = asType;
+        link.href = url;
+        document.head.appendChild(link);
+      }
+
+      // Preload Images
+      document.querySelectorAll("img").forEach(img => {
+        if (img.src) {
+          preloadAsset(img.src, "image");
+        }
+      });
+
+      // Preload Stylesheets
+      preloadAsset("{{ 'theme.css' | asset_url }}", "style");
+
+      // Preload Fonts
+      preloadAsset("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap", "style");
+      preloadAsset("https://fonts.gstatic.com", "font");
+    });
+  </script>
+{%- endif -%}
+
+{% comment %}
+  The snippet below checks if 'enable_website_intro' is enabled.
+  If so, it renders an intro overlay that covers the entire screen,
+  along with background blur/brightness and all requested enhancements.
+{% endcomment %}
+{% if settings.enable_website_intro %}
+<div id="website-intro-overlay">
+  <!-- A dedicated background container so only it can be blurred/brightened -->
+  <div id="website-intro-bg"></div>
+
+  <div class="website-intro-inner">
+    <!-- Logo (conditionally displayed if the user has one) -->
+    {% if settings.intro_logo != blank %}
+      <img
+        class="intro-logo animation-{{ settings.intro_logo_animation }}"
+        src="{{ settings.intro_logo | img_url: '1024x' }}"
+        alt="Intro Logo"
+        style="width: {{ settings.intro_logo_size }}px;"
+      >
+    {% endif %}
+
+    <!-- Text above loading (conditional) -->
+    {% if settings.enable_text_above_loading %}
+      <div id="intro-text">
+        {{ settings.intro_loading_text }}
+      </div>
+    {% endif %}
+
+    <!-- Loading Bar (with 5 style options) -->
+    <div class="loading-bar-container" data-style="{{ settings.intro_loading_bar_style }}">
+      <div class="loading-bar-bg">
+        <div class="loading-bar-fill"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<style>
+/* 
+  =============================================================================
+  INTRO OVERLAY / BACKGROUND / CONTENT CONTAINERS
+  =============================================================================
+*/
+#website-intro-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 999999; /* Very high so it covers everything */
+  display: none;   /* Hidden by default, shown by JS logic */
+  justify-content: center;
+  align-items: center;
+}
+
+#website-intro-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0; /* background behind the content */
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  /* We'll dynamically apply brightness and blur with filters in JS */
+}
+
+.website-intro-inner {
+  position: relative;
+  z-index: 1; /* on top of the background */
+  text-align: center;
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+.intro-logo {
+  display: block;
+  margin: 0 auto 20px auto;
+  height: auto;
+  /* width is set inline by the slider setting */
+}
+
+/* Text above loading bar */
+#intro-text {
+  color: {{ settings.intro_loading_text_color }};
+  font-size: {{ settings.intro_loading_text_font_size }}px;
+  margin-bottom: 20px;
+}
+
+/*
+  =============================================================================
+  LOADING BAR STYLES
+  =============================================================================
+*/
+.loading-bar-container {
+  width: 80%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.loading-bar-bg {
+  width: 100%;
+  height: 10px;
+  background-color: {{ settings.intro_loading_bar_unfilled_color }};
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-bar-fill {
+  width: 0%;
+  height: 100%;
+  background-color: {{ settings.intro_loading_bar_filled_color }};
+  transition: width linear;
+}
+
+/* 
+  Add a glow if enabled (we'll toggle an extra class in JS).
+  This just defines the style; the class is appended if enabled.
+*/
+.loading-bar-fill.glow {
+  box-shadow: 0 0 10px 5px #ffffff;
+}
+
+/* Example of distinct style overrides for different data-style values */
+.loading-bar-container[data-style="style1"] .loading-bar-bg {
+  border-radius: 0;
+}
+.loading-bar-container[data-style="style2"] .loading-bar-bg {
+  border-radius: 5px;
+}
+.loading-bar-container[data-style="style3"] .loading-bar-bg {
+  border-radius: 15px;
+}
+.loading-bar-container[data-style="style4"] .loading-bar-bg {
+  border-radius: 50px;
+}
+.loading-bar-container[data-style="style5"] .loading-bar-bg {
+  border-radius: 0;
+  border: 2px solid {{ settings.intro_loading_bar_filled_color }};
+}
+
+/*
+  =============================================================================
+  LOGO ANIMATION STYLES
+  (Applied via classes .animation-xxxx)
+  =============================================================================
+*/
+.animation-none {
+  /* No animation */
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.animation-fade_in {
+  animation: fadeIn 1s forwards;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+.animation-blink {
+  animation: blink 2s infinite;
+}
+
+@keyframes floatAnim {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-20px); }
+  100% { transform: translateY(0); }
+}
+.animation-float {
+  animation: floatAnim 3s ease-in-out infinite;
+}
+
+@keyframes zoomAnim {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.1); }
+}
+.animation-zoom {
+  animation: zoomAnim 3s ease-in-out infinite;
+}
+
+@keyframes rotateAnim {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.animation-rotate {
+  animation: rotateAnim 2s linear infinite;
+}
+
+@keyframes glowAnim {
+  0%, 100% { filter: drop-shadow(0 0 5px #fff); }
+  50%      { filter: drop-shadow(0 0 20px #fff); }
+}
+.animation-glow {
+  animation: glowAnim 2s ease-in-out infinite;
+}
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+  var enableIntro = {{ settings.enable_website_intro }};
+  if (!enableIntro) {
+    // If intro is not enabled, do nothing.
+    return;
+  }
+
+  // Grab relevant settings
+  var showIntroOnlyFirstLoad = {{ settings.show_intro_only_first_load }};
+  var introBehavior = "{{ settings.intro_behavior }}"; // "show_on_first_access", "show_on_every_page", ...
+  var introDuration = {{ settings.intro_duration }};
+  var enableBgColorInsteadOfImage = {{ settings.enable_background_color_instead_of_image }};
+  var bgColor = "{{ settings.intro_background_color }}";
+  var bgImageUrl = "{{ settings.intro_background_image | img_url: '2048x' }}";
+  var bgBrightness = {{ settings.intro_background_brightness }};
+  var bgBlur = {{ settings.intro_background_blur }};
+
+  var overlay = document.getElementById("website-intro-overlay");
+  var bgDiv = document.getElementById("website-intro-bg");
+  if (!overlay || !bgDiv) return;
+
+  // If "Show intro only on the first load" is toggled, override the behavior to "show_on_first_access".
+  if (showIntroOnlyFirstLoad) {
+    introBehavior = "show_on_first_access";
+  }
+
+  // Toggle glow on loading bar if enabled
+  var enableLoadingBarGlow = {{ settings.enable_loading_bar_glow }};
+  if (enableLoadingBarGlow) {
+    var loadingBarFill = overlay.querySelector(".loading-bar-fill");
+    if (loadingBarFill) {
+      loadingBarFill.classList.add("glow");
+    }
+  }
+
+  // Function: Check Behavior logic using localStorage
+  function shouldShowIntro() {
+    var now = new Date().getTime();
+    var shownKey = "websiteIntroShown";
+    var storedValue = localStorage.getItem(shownKey);
+
+    switch(introBehavior) {
+      case "show_on_first_access":
+        if (!storedValue) {
+          localStorage.setItem(shownKey, "true");
+          return true;
+        }
+        return false;
+
+      case "show_on_every_page":
+        // Always show if we haven't forced it off
+        return true;
+
+      case "show_always":
+        // Always show, no matter what
+        return true;
+
+      case "show_once_per_day":
+        var oneDay = 24 * 60 * 60 * 1000;
+        if (!storedValue) {
+          localStorage.setItem(shownKey, now.toString());
+          return true;
+        } else {
+          var storedTime = parseInt(storedValue, 10);
+          if (now - storedTime > oneDay) {
+            localStorage.setItem(shownKey, now.toString());
+            return true;
+          }
+          return false;
+        }
+
+      default:
+        return true;
+    }
+  }
+
+  // Decide if we show the intro based on settings
+  if (!shouldShowIntro()) {
+    return;
+  }
+
+  // Display the overlay
+  overlay.style.display = "flex"; // Make it visible (we used flex for alignment)
+
+  // Apply background color or background image
+  if (enableBgColorInsteadOfImage) {
+    bgDiv.style.backgroundColor = bgColor;
+    bgDiv.style.backgroundImage = "none";
+  } else {
+    bgDiv.style.backgroundColor = "transparent";
+    if (bgImageUrl !== "") {
+      bgDiv.style.backgroundImage = "url('" + bgImageUrl + "')";
+    }
+  }
+
+  // Apply brightness and blur via CSS filters on #website-intro-bg
+  var filterString = "";
+  // brightness is fraction 0-1 from user’s 0-100
+  var brightnessFraction = bgBrightness / 100;
+  filterString += "brightness(" + brightnessFraction + ") ";
+  filterString += "blur(" + bgBlur + "px)";
+  bgDiv.style.filter = filterString;
+
+  // Animate the loading bar (fill over the entire introDuration)
+  var loadingBarFill = overlay.querySelector(".loading-bar-fill");
+  if (loadingBarFill) {
+    loadingBarFill.style.transitionDuration = introDuration + "s";
+    setTimeout(function() {
+      loadingBarFill.style.width = "100%";
+    }, 50);
+  }
+
+  // After the duration, fade out overlay
+  setTimeout(function() {
+    overlay.style.opacity = 1;
+    overlay.style.transition = "opacity 0.5s ease";
+    overlay.style.opacity = 0;
+    setTimeout(function(){
+      overlay.style.display = "none";
+    }, 500);
+  }, introDuration * 1000);
+});
+</script>
+
+{% if settings.enable_fade_in_animation %}
+  <style>
+    :root { --fade-speed: {{ settings.fade_in_duration | default: 0.8 }}s; }
+
+    /* Animation Class: starts invisible */
+    .fade-in-on-scroll {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity var(--fade-speed) ease, transform var(--fade-speed) ease;
+    }
+
+    /* When visible: fully opaque and in place */
+    .fade-in-on-scroll.visible {
+      opacity: 1;
+      transform: none;
+    }
+  </style>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      /* grab all sections inside #MainContent */
+      const sections = document.querySelectorAll("#MainContent > .shopify-section");
+      if (!sections.length) return;
+
+      /* add initial fade-in class */
+      sections.forEach(s => s.classList.add("fade-in-on-scroll"));
+
+      /* observer reveals them */
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      sections.forEach(s => observer.observe(s));
+    });
+  </script>
+{% endif %}
+
+<style id="global-numeral-fix">
+  /* --- Global rendering tweaks --- */
+  html{
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* stop browser "fake" bold/italic that deforms digits */
+    font-synthesis: none;
+    font-synthesis-weight: none;
+    font-synthesis-style: none;
+  }
+
+  /* Make ALL digits clean + even-width across the site */
+  body, h1, h2, h3, h4, h5, h6,
+  p, a, strong, em, small, span, label, button,
+  input, select, textarea,
+  ul, ol, li, dt, dd, table, th, td, figcaption, blockquote {
+    /* prefer lining (modern) digits and fixed-width tabular spacing */
+    font-variant-numeric: lining-nums tabular-nums;
+    /* explicitly enable/disable OpenType features across fonts */
+    font-feature-settings: 'lnum' 1, 'tnum' 1, 'onum' 0, 'liga' 0, 'clig' 0;
+    /* tiny tracking helps small UI text like timers/prices */
+    letter-spacing: 0.005em;
+  }
+
+  /* Numeric-heavy UI (prices, timers, counters) – ensure a clean UI fallback */
+  .price, .money, .amount, .subtotal, .total, .cart__totals,
+  .qty, .quantity, .counter, .stock, .rating,
+  .badge, .pill, .timer, .countdown, .minicart, .cart,
+  [data-numeric], [data-money], [data-count] {
+    font-family: inherit, system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+    font-variant-numeric: lining-nums tabular-nums;
+    font-feature-settings: 'lnum' 1, 'tnum' 1, 'onum' 0, 'liga' 0, 'clig' 0;
+  }
+
+  /* Utility class you can add anywhere to force clean digits */
+  .num{
+    font-variant-numeric: lining-nums tabular-nums !important;
+    font-feature-settings: 'lnum' 1, 'tnum' 1, 'onum' 0, 'liga' 0, 'clig' 0 !important;
+  }
+</style>
+
+
+      
+
+<!-- (Optional) Preconnects for faster font load; safe, non-styling -->
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+
+
+<style id="materia-mobile-overflow-fix">
+  /* Mobile-only guard rail */
+  @media (max-width: 990px){
+    /* 1) Clip ONLY the main layout wrappers (not <html>/<body>, not header) */
+    #MainContent,
+    .content-for-layout,
+    #shopify-section-footer{
+      overflow-x: clip;
+      max-width: 100%;
+    }
+
+    /* 2) Prevent random media inside content from pushing the page sideways */
+    #MainContent :where(img, video, iframe){
+      display: block;
+      max-width: 100%;
+
+    }
+
+    /* 3) EXCLUDE sliders/carousels so their sizing stays intact */
+    .swiper-slide img,
+    .swiper img,
+    .swiper video,
+    .slick-slide img,
+    .slideshow img,
+    .slideshow__slide img,
+    .splide__slide img{
+      max-width: none;
+    }
+  }
+
+  /* 4) Optional: add class="mx-clip" on any rogue block that still overflows */
+  .mx-clip{ overflow-x: clip !important; }
+</style>
+

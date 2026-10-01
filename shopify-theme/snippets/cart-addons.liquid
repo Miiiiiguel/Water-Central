@@ -1,0 +1,345 @@
+{%- liquid
+  assign theme_st = settings
+  assign cart_note = theme_st.enable_cart_note
+  assign enable_gift_wrap = theme_st.enable_gift_wrap
+  assign show_currency_code = theme_st.show_currency_code
+  assign gift_wrap_pr = all_products[theme_st.choose_gift_wrap_product]
+  assign gift_pr_id = gift_wrap_pr.id
+  assign gift_wrap = cart.items | where: 'product_id', gift_pr_id
+  if show_currency_code
+    assign gift_pr_price = gift_wrap_pr.selected_or_first_available_variant.price | money_with_currency
+  else
+    assign gift_pr_price = gift_wrap_pr.selected_or_first_available_variant.price | money
+  endif
+  assign show_estimate_shipping_rates = theme_st.show_estimate_shipping_rates
+  assign show_delivery_day = theme_st.show_delivery_day
+-%}
+
+<!-- Scoped Styles and Scripts -->
+<style>
+        :root {
+          /* Existing Variables */
+          --cta-instagram-accent-color: {{ settings.cta_instagram_accent_color | default: '#3b82f6' }};
+          --color-border: {{ settings.color_border | default: '#e5e5e5' }};
+          --color-background: {{ settings.color_background | default: '#ffffff' }};
+
+          /* New Variables */
+          --coupon-text-color: {{ settings.coupon_text_color | default: '#3366FF' }};
+          --copied-text-color: {{ settings.copied_text_color | default: '#374151' }};
+        }
+
+      #custom-cart-addons .banner-text {
+        font-size: 1rem; /* Adjust font size for better readability */
+        font-weight: 500;
+        color: var(--color-heading) ; /* Dynamic color for text */
+        margin: 0.5rem 0; /* Added margin for spacing */
+        text-align: center; /* Centered alignment */
+        display: block; /* Ensures consistent spacing across lines */
+      }
+
+      #custom-cart-addons .banner-text a {
+        color: var(--cta-instagram-accent-color); /* Accent color for the link */
+        text-decoration: none; /* No underline for links */
+        font-weight: 700; /* Bold links */
+      }
+
+      #custom-cart-addons .banner-text a:hover {
+        text-decoration: underline; /* Adds underline on hover for better UX */
+      }
+
+        /* Scoped under #custom-cart-addons */
+        #custom-cart-addons .cart-addons {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          /* Use whole pixel for consistency */
+
+          background-color: var(--color-background) !important ;
+          padding-top: 11px !important;
+          padding-left: 21px;
+          padding-bottom: 11px !important;
+          border-top: 1px solid rgba(0, 0, 0, 0.2) !important; /* Adjusted to be darker */
+          border-bottom: none !important;
+          filter: brightness(1.2) contrast(0.90);
+          font-family: inherit;
+          flex-direction: column;
+          box-shadow: 0px -5px 10px rgba(0, 0, 0, 0.03); /* Soft shadow at the top */
+          box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+        }
+
+  .drawer-bottom {
+       border-top: none !important ; /* Top border */
+     }
+    #custom-cart-addons .banner-content svg {
+      width: 21px !important; /* Apply the size globally to any SVG in this context */
+      height: 21px !important; /* Maintain uniform height */
+    }
+        #social-icon svg {
+
+          width: 24px;
+          height: 24px;
+          margin-bottom: -4px;
+          justify-content: center !important;
+          transition: color 0.3s ease; /* Smooth color change */
+        }
+
+        #custom-cart-addons .cart-addons .banner-content {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          background-color: var(--color-background) !important;
+          flex-wrap: wrap;
+          justify-content: flex-start; /* Left alignment */
+          width: 100%;
+        }
+
+        #custom-cart-addons .cart-addons .banner-text {
+          color: var(--color-heading) ;
+            word-spacing: 0.1em; /* Increase space between words (adjust as needed) */
+          font-weight: 700; /* Bold text */
+          font-size: 1.3rem; /* Slightly larger font */
+          text-align: left; /* Left-aligned text */
+          flex: 1; /* Flexible width */
+        }
+
+        #custom-cart-addons .cart-addons .banner-text a {
+          color: var(--cta-instagram-accent-color); /* Dynamic accent color */
+          text-decoration: none;
+          font-weight: 700;
+        }
+
+        #custom-cart-addons .cart-addons .banner-text a:hover {
+          text-decoration: underline;
+        }
+
+        /* Coupon Code Styles */
+        #custom-cart-addons .coupon-container {
+          display: none; /* Hidden by default */
+          align-items: center;
+          gap: 0.5rem;
+          margin-top: 1.3rem;
+          justify-content: flex-start; /* Left-aligned */
+          background-color: transparent; /* Transparent background */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06); /* Subtle shadow */
+          padding: 0.85rem 1.6rem;
+          border-radius: 0.5rem; /* More rounded corners */
+          font-family: Arial, sans-serif;
+          width: 100%;
+          max-width: 400px; /* Restrict maximum width for better aesthetics */
+          transition: opacity 0.3s ease, visibility 0.3s ease;
+          opacity: 0;
+          visibility: hidden;
+        }
+
+        #custom-cart-addons .coupon-container.show {
+          display: flex;
+          opacity: 1;
+          visibility: visible;
+        }
+
+        #custom-cart-addons .preloader {
+          width: 24px;
+          height: 24px;
+          margin-left: 0.5rem;
+        }
+
+        #custom-cart-addons .coupon-code {
+          background-color: #F8F8F8; /* Tailwind gray-100 */
+          padding: 0.5rem 1rem;
+          border-radius: 0.375rem;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          color: var(--coupon-text-color) !important; /* Dynamic coupon text color */
+          align-items: center;
+          gap: 0.25rem;
+          transition: background-color 0.3s ease;
+          flex: 1;
+          justify-content: center;
+        }
+
+        #custom-cart-addons .coupon-code:hover {
+          background-color: #e5e7eb; /* Tailwind gray-200 */
+        }
+
+        #custom-cart-addons .copy-icon {
+          width: 16px;
+          height: 16px;
+          fill: var(--copied-text-color); /* Dynamic "Copied!" text color */
+          cursor: pointer;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 640px) {
+          #custom-cart-addons .cart-addons {
+            padding: 0.95rem;
+              padding-left: 15px;
+          }
+
+          #custom-cart-addons .cart-addons .banner-text {
+            font-size: 1.25rem; /* Adjusted for smaller screens */
+              word-spacing: 0.1em; /* Increase space between words (adjust as needed) */
+          }
+
+          #custom-cart-addons .coupon-container {
+            padding: 0.7rem 1.1rem;
+            max-width: 100%; /* Full width on small screens */
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          #custom-cart-addons .coupon-code {
+            font-size: 1.3rem; /* Slightly smaller font */
+            width: 100%;
+            justify-content: space-between;
+          }
+
+          #custom-cart-addons .preloader {
+            margin-left: 0;
+            margin-top: 0.5rem;
+          }
+        }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const socialIcon = document.querySelector('#custom-cart-addons #social-icon');
+    const socialLink = document.querySelector('#custom-cart-addons #social-link');
+    const couponContainer = document.querySelector('#custom-cart-addons .coupon-container');
+    const couponElement = document.querySelector('#custom-cart-addons .coupon-code');
+    const preloader = document.querySelector('#custom-cart-addons .preloader');
+    let showTimeout;
+    let hideTimeout;
+
+    // Function to show the coupon container, preloader, and then the coupon code
+    function initiateCouponDisplay() {
+      // Clear any existing timeouts to prevent duplicate triggers
+      if (showTimeout) clearTimeout(showTimeout);
+      if (hideTimeout) clearTimeout(hideTimeout);
+
+      // Reset display styles
+      couponContainer.classList.add('show');
+      preloader.style.display = 'inline-block';
+      couponElement.style.display = 'none';
+
+      // After 7 seconds, hide the preloader and show the coupon code
+      showTimeout = setTimeout(() => {
+        preloader.style.display = 'none';
+        couponElement.style.display = 'flex';
+      }, 7000);
+
+      // After 27 seconds total, hide the coupon container and reset inline styles
+      hideTimeout = setTimeout(() => {
+        couponContainer.classList.remove('show');
+        // Reset inline styles for next activation
+        preloader.style.display = '';
+        couponElement.style.display = '';
+      }, 27000);
+    }
+
+    // Function to handle social link click events
+    function handleSocialLinkClick(e) {
+      e.preventDefault(); // Prevent the default link navigation
+      // Open the Instagram link in a new tab immediately
+      window.open(this.href, '_blank', 'noopener,noreferrer');
+      // Initiate the coupon display sequence
+      initiateCouponDisplay();
+    }
+
+    // Attach event listeners if the elements exist
+    if (socialIcon) {
+      socialIcon.addEventListener('click', handleSocialLinkClick);
+    }
+    if (socialLink) {
+      socialLink.addEventListener('click', handleSocialLinkClick);
+    }
+
+    // Copy coupon code to clipboard on coupon element click
+    if (couponElement) {
+      couponElement.addEventListener('click', function () {
+        const couponCode = couponElement.getAttribute('data-coupon');
+        if (!couponCode) return;
+        navigator.clipboard.writeText(couponCode).then(() => {
+          const originalText = couponElement.innerHTML;
+          couponElement.innerHTML = 'Copied!';
+          setTimeout(() => {
+            couponElement.innerHTML = originalText;
+          }, 2000);
+        }).catch(err => {
+          console.error('Failed to copy!', err);
+        });
+      });
+    }
+  });
+</script>
+
+{% if settings.enable_cart_addons %}
+  <div id="custom-cart-addons">
+    <div class="cart-addons">
+      <div class="banner-content">
+        <!-- Social Icon Link -->
+        <a
+          href="{{ settings.social_account_url | default: 'https://instagram.com/YOUR_USERNAME' }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          id="social-icon"
+        >
+          {{
+            settings.social_icon_svg
+            | default: '<svg viewBox="0 -0.5 25 25" xmlns="http://www.w3.org/2000/svg" width="24" height="24">\n  <g>\n    <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M15.5 5H9.5C7.29086 5 5.5 6.79086 5.5 9V15C5.5 17.2091 7.29086 19 9.5 19H15.5C17.7091 19 19.5 17.2091 19.5 15V9C19.5 6.79086 17.7091 5 15.5 5Z"></path>\n    <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M12.5 15C10.8431 15 9.5 13.6569 9.5 12C9.5 10.3431 10.8431 9 12.5 9C14.1569 9 15.5 10.3431 15.5 12C15.5 12.7956 15.1839 13.5587 14.6213 14.1213C14.0587 14.6839 13.2956 15 12.5 15Z"></path>\n    <rect x="15.5" y="9" width="2" height="2" rx="1" transform="rotate(-90 15.5 9)" fill="currentColor"></rect>\n    <rect x="16" y="8.5" width="1" height="1" rx="0.5" transform="rotate(-90 16 8.5)" stroke="currentColor"></rect>\n  </g>\n</svg>'
+          }}
+        </a>
+
+        <span class="banner-text">
+          {{ settings.cta_message_text | default: 'Follow us on' }}
+          <a
+            href="{{ settings.social_account_url | default: 'https://instagram.com/YOUR_USERNAME' }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            id="social-link"
+          >
+            {{ settings.social_media_name_text | default: 'Instagram' }}
+          </a>
+          and get
+          <strong>{{ settings.discount_percentage | default: '5' }}% off</strong>.
+        </span>
+
+        <!-- Coupon Code Display with Preloader -->
+        <div id="coupon-container" class="coupon-container">
+          <!-- Preloader -->
+          <div id="preloader" class="preloader">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+              <radialGradient id="a6" cx=".66" fx=".66" cy=".3125" fy=".3125" gradientTransform="scale(1.5)">
+                <stop offset="0" stop-color="#FF156D"></stop>
+                <stop offset=".3" stop-color="#FF156D" stop-opacity=".9"></stop>
+                <stop offset=".6" stop-color="#FF156D" stop-opacity=".6"></stop>
+                <stop offset=".8" stop-color="#FF156D" stop-opacity=".3"></stop>
+                <stop offset="1" stop-color="#FF156D" stop-opacity="0"></stop>
+              </radialGradient>
+              <circle transform-origin="center" fill="none" stroke="url(#a6)" stroke-width="15" stroke-linecap="round" stroke-dasharray="200 1000" stroke-dashoffset="0" cx="100" cy="100" r="70">
+                <animateTransform type="rotate" attributeName="transform" calcMode="spline" dur="2" values="360;0" keyTimes="0;1" keySplines="0 0 1 1" repeatCount="indefinite"></animateTransform>
+              </circle>
+              <circle transform-origin="center" fill="none" opacity=".2" stroke="#FF156D" stroke-width="15" stroke-linecap="round" cx="100" cy="100" r="70"></circle>
+            </svg>
+          </div>
+          <!-- Coupon Code -->
+          <div
+            id="coupon-code"
+            class="coupon-code"
+            data-coupon="{{ settings.coupon_code | default: 'YOUR_COUPON_CODE_HERE' }}"
+          >
+            {{ settings.coupon_code | default: 'YOUR_COUPON_CODE_HERE' }}
+            <!-- Copy Icon -->
+            <svg class="copy-icon" viewBox="0 0 24 24">
+              <path d="M16 1H4C2.89543 1 2 1.89543 2 3V15H4V3H16V1Z" fill="currentColor"/>
+              <path d="M18 5H8C6.89543 5 6 5.89543 6 7V21C6 22.1046 6.89543 23 8 23H18C19.1046 23 20 22.1046 20 21V7C20 5.89543 19.1046 5 18 5ZM18 21H8V7H18V21Z" fill="currentColor"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endif %}
+
+<!--
+  Ensure you replace 'YOUR_USERNAME' with your actual social media username and 'YOUR_COUPON_CODE_HERE' with your actual coupon code in the href and data-coupon attribute respectively.
+-->

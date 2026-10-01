@@ -1,0 +1,1028 @@
+{%- liquid
+  assign section_st = section.settings
+  assign section_width = section_st.section_width
+  assign color_scheme = section_st.color_scheme
+
+  if section_st.reset_spacing
+    assign reset_spacing = ' remove_spacing'
+  endif
+
+  assign column_gap = section_st.column_gap
+  assign items_per_row = section_st.items_per_row
+  assign items_per_row_mobile = section_st.items_per_row_mobile
+  assign heading = section_st.heading
+  assign description = section_st.description
+
+  assign header_font_size = section_st.header_font_size
+  assign subheading_font_size = section_st.subheading_font_size
+  assign subheading_padding_lr = section_st.subheading_padding_lr
+
+  assign show_gradient_bg = section_st.enable_gradient_bg
+  assign gradient_color_1 = section_st.gradient_color_1
+  assign gradient_color_2 = section_st.gradient_color_2
+  assign gradient_color_3 = section_st.gradient_color_3
+  assign gradient_color_4 = section_st.gradient_color_4
+  assign gradient_angle = section_st.gradient_angle
+
+  assign card_border_color = section_st.testimonial_card_border_color
+  assign card_border_thickness = section_st.testimonial_card_border_thickness
+
+  assign quote_font_size_desktop = section_st.quote_font_size_desktop
+  assign quote_font_size_mobile = section_st.quote_font_size_mobile
+
+  assign vertical_gap_spacing = section_st.vertical_gap_spacing
+  assign vertical_gap_after_subheading = section_st.vertical_gap_between_subheading_testimonials
+
+  assign heading_color = section_st.heading_color
+  assign subheading_color = section_st.subheading_color
+
+  assign star_unfilled_color = section_st.star_unfilled_color
+
+  assign make_image_circle = section_st.make_image_circle
+  assign image_border_radius = section_st.image_border_radius
+
+  assign enable_read_more_button = section_st.enable_read_more_button
+  assign read_more_button_text = section_st.read_more_button_text
+  assign read_more_button_link = section_st.read_more_button_link
+
+  assign read_more_button_bg = section_st.read_more_button_bg
+  assign read_more_button_bg_hover = section_st.read_more_button_bg_hover
+  assign read_more_button_text_color = section_st.read_more_button_text_color
+  assign read_more_button_text_hover_color = section_st.read_more_button_text_hover_color
+  assign read_more_button_vertical_spacing = section_st.read_more_button_vertical_spacing
+  assign read_more_button_border_radius = section_st.read_more_button_border_radius
+
+  assign enable_arrows = section_st.enable_arrows
+  assign arrow_color = section_st.arrow_color
+  assign arrow_size = section_st.arrow_size
+  assign arrow_icon_size = section_st.arrow_icon_size
+  assign arrow_background_color = section_st.arrow_background_color
+  assign arrow_border_thickness = section_st.arrow_border_thickness
+  assign arrow_border_color = section_st.arrow_border_color
+  assign arrow_vertical_position = section_st.arrow_vertical_position
+
+  assign tpye = section_st.tpye
+
+  assign author_name_margin_top = section_st.author_name_margin_top
+
+  assign heading_font_weight = section_st.heading_font_weight
+
+  if section_st.items_per_row_mobile > 1 and section_st.items_per_row_mobile < 2
+    assign data_free_scroll = 'true'
+  endif
+-%}
+
+{%- capture style -%}
+  /* Section spacing (top/bottom/left/right) */
+  --section-pt: {{ section_st.padding_top }}px;
+  --section-pb: {{ section_st.padding_bottom }}px;
+  --section-pl: {{ section_st.padding_left }}px;
+  --section-pr: {{ section_st.padding_right }}px;
+
+  /* Apply color scheme to star rating when filled */
+  --rate-color: {{ section_st.rate_color }};
+
+  /* Unfilled star color */
+  --rate-color-unfilled: {{ star_unfilled_color }};
+
+  /* Column gap logic */
+  {% if column_gap < 15 %}
+    --col-gap: {{ column_gap }}px;
+  {% else %}
+    --col-gap: 15px;
+    --col-gap-desktop: {{ column_gap }}px;
+  {% endif %}
+
+  /* Heading and Subheading colors */
+  --heading-color: {{ heading_color }};
+  --subheading-color: {{ subheading_color }};
+
+  /* Heading and Subheading font sizes */
+  --header-font-size: {{ header_font_size }}px;
+  --subheading-font-size: {{ subheading_font_size }}px;
+
+  /* Heading font weight */
+  --header-font-weight: {{ heading_font_weight }};
+
+  /* Subheading left/right padding */
+  --subheading-padding-lr: {{ subheading_padding_lr }}px;
+
+  /* Card border color & thickness */
+  --testimonial-card-border-color: {{ card_border_color }};
+  --testimonial-card-border-thickness: {{ card_border_thickness }}px;
+  --testimonial-card-border-radius: {{ section_st.testimonial_card_border_radius }}px;
+
+  /* Desktop & mobile quote font sizes */
+  --quote-font-size-desktop: {{ quote_font_size_desktop }}px;
+  --quote-font-size-mobile: {{ quote_font_size_mobile }}px;
+{%- endcapture -%}
+
+{%- capture col_style -%}
+  {% if column_gap < 15 %}
+    --col-gap: {{ column_gap }}px;
+  {% else %}
+    --col-gap: 15px;
+    --col-gap-desktop: {{ column_gap }}px;
+  {% endif %}
+{%- endcapture -%}
+
+<div
+  class="section{% if section_st.padding_top < 30 %} pt-min{% endif %}{% if section_st.padding_bottom < 30 %} pb-min{% endif %} sec__testimonials color-{{ color_scheme }} gradient{{ reset_spacing }} {{ tpye }} always-top-image"
+  style="
+    {{ style | strip | strip_newlines }}
+    padding-top: var(--section-pt);
+    padding-bottom: var(--section-pb);
+    padding-left: var(--section-pl);
+    padding-right: var(--section-pr);
+  "
+>
+  <div class="{{ section_width }}">
+    {%- if heading != blank or description != blank -%}
+      <div
+        class="section__header text-{{ section_st.header_alignment }}{% if section_st.section_width == 'full_width' %} px-20{% endif %}"
+        style="margin-bottom: {{ vertical_gap_after_subheading }}px;"
+      >
+        {%- if heading != blank -%}
+          <h2
+            class="section__header-heading heading-letter-spacing mt-0 mb-0"
+            style="
+              color: var(--heading-color) !important;
+              font-size: var(--header-font-size);
+              font-weight: var(--header-font-weight);
+            "
+          >
+            {{ heading }}
+          </h2>
+        {% endif %}
+        {%- if description != blank -%}
+          <div
+            class="section__header-des rich__text-m0"
+            style="
+              margin-top: {{ vertical_gap_spacing }}px;
+              margin-bottom: 0;
+              padding-left: var(--subheading-padding-lr);
+              padding-right: var(--subheading-padding-lr);
+              color: var(--subheading-color);
+              font-size: var(--subheading-font-size);
+              font-weight: inherit;
+            "
+          >
+            {{ description }}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {%- if section_st.items_per_row_mobile > 1 and section_st.items_per_row_mobile < 2 -%}
+      <div class="free-scroll">
+    {%- endif -%}
+
+    <slide-section
+      class="swiper"
+      data-section-id="{{ section.id }}"
+      data-autoplay="{{ section_st.autoplay }}"
+      data-effect="slide"
+      data-loop="{{ section_st.infinite }}"
+      data-autoplay-speed="{{ section_st.autorotate_speed }}"
+      data-spacing="{{ column_gap }}"
+      data-mobile="{{ items_per_row_mobile }}"
+      data-desktop="{{ items_per_row }}"
+      data-free-scroll="{{ data_free_scroll }}"
+      style="{{ col_style | strip | strip_newlines }}"
+    >
+      {%- if enable_arrows %}
+        <!-- Left arrow (mirrored) -->
+        <div
+          class="swiper-button-prev"
+          style="
+            color: {{ arrow_color }};
+            background-color: {{ arrow_background_color }};
+            border-radius: 50%;
+            border: {{ arrow_border_thickness }}px solid {{ arrow_border_color }};
+            width: {{ arrow_size }}px;
+            height: {{ arrow_size }}px;
+            margin-top: {{ arrow_vertical_position }}px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+          "
+        >
+          <svg
+            fill="currentColor"
+            style="width: {{ arrow_icon_size }}px; height: {{ arrow_icon_size }}px;"
+            viewBox="0 0 330 330"
+            aria-hidden="true"
+          >
+            <g transform="scale(-1,1) translate(-330,0)">
+              <path d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001c-5.857,5.858-5.857,15.355,0.001,21.213
+              l139.393,139.39L79.393,304.394c-5.857,5.858-5.857,15.355,0.001,21.213C82.322,328.536,86.161,330,90,330
+              s7.678-1.464,10.607-4.394l149.999-150.004c2.814-2.813,4.394-6.628,4.394-10.606C255,161.018,253.42,157.202,250.606,154.389z"/>
+            </g>
+          </svg>
+        </div>
+        <!-- Right arrow -->
+        <div
+          class="swiper-button-next"
+          style="
+            color: {{ arrow_color }};
+            background-color: {{ arrow_background_color }};
+            border-radius: 50%;
+            border: {{ arrow_border_thickness }}px solid {{ arrow_border_color }};
+            width: {{ arrow_size }}px;
+            height: {{ arrow_size }}px;
+            margin-top: {{ arrow_vertical_position }}px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+          "
+        >
+          <svg
+            fill="currentColor"
+            style="width: {{ arrow_icon_size }}px; height: {{ arrow_icon_size }}px;"
+            viewBox="0 0 330 330"
+            aria-hidden="true"
+          >
+            <path d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001c-5.857,5.858-5.857,15.355,0.001,21.213
+            l139.393,139.39L79.393,304.394c-5.857,5.858-5.857,15.355,0.001,21.213C82.322,328.536,86.161,330,90,330
+            s7.678-1.464,10.607-4.394l149.999-150.004c2.814-2.813,4.394-6.628,4.394-10.606C255,161.018,253.42,157.202,250.606,154.389z"/>
+          </svg>
+        </div>
+      {% endif %}
+
+      <div class="swiper-wrapper">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign block_st = block.settings
+            assign author_image = block_st.author_image
+            assign author_rating = block_st.author_rating
+            assign author_text = block_st.author_text
+            assign author_name = block_st.author_name
+            assign author_address = block_st.author_address
+          -%}
+          <div {{ block.shopify_attributes }} class="swiper-slide">
+            <div
+              class="testimonial_wraper flex flex-column text-{{ section_st.content_alignment }} justify-content-{{ section_st.content_alignment }}"
+              style="
+                border: var(--testimonial-card-border-thickness) solid var(--testimonial-card-border-color);
+                border-radius: var(--testimonial-card-border-radius);
+                padding: 25px 30px;
+                margin-bottom: 10px;
+                {% if show_gradient_bg %}
+                  background: linear-gradient({{ gradient_angle }}deg, {{ gradient_color_1 }}, {{ gradient_color_2 }}, {{ gradient_color_3 }}, {{ gradient_color_4 }});
+                {% endif %}
+              "
+            >
+              <!-- AUTHOR INFO + STARS ABOVE NAME -->
+              <div class="author-infor flex flex-column align-{{ section_st.content_alignment }}">
+                {% if section_st.show_author_image %}
+                  <div
+                    class="testimonials-author-image w-custom"
+                    style="--aspect-ratio: 1/1; --custom-width: {{ section_st.img_width }}px;"
+                  >
+                    {% if author_image != blank %}
+                      {%- liquid
+                        assign alt = 'sections.testimonial.alt' | t
+                        if author_image.alt
+                          assign alt = author_image.alt | escape
+                        endif
+                      -%}
+                      {% render 'responsive-image',
+                        type: 'other',
+                        container: section_width,
+                        image: author_image,
+                        image_alt: alt,
+                        colunm: items_per_row,
+                        colunm_mobile: items_per_row_mobile,
+                        padding: column_gap,
+                        class: 'testimonials-image'
+                      %}
+                    {% else %}
+                      {% render 'placeholder-render' %}
+                    {% endif %}
+                  </div>
+                {% endif %}
+
+                {% if section_st.show_rate %}
+                  <div class="testimonials-rating mt-10 relative">
+                    <div class="relative inline-flex">
+                      <!-- Unfilled stars -->
+                      <svg width="78" height="14" fill="var(--rate-color-unfilled)">
+                        <use href="#icon-rate-grey"></use>
+                      </svg>
+                      <!-- Filled stars -->
+                      <div class="absolute inset-0 z-1 rate-color inline-flex gap-custom" style="--gap: 2">
+                        {%- for i in (1..author_rating) -%}
+                          <svg width="14" height="14" fill="none" class="rate-color">
+                            <use href="#icon-rate"></use>
+                          </svg>
+                        {%- endfor -%}
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+
+                {% if section_st.show_author_name %}
+                  <div class="heading-style" style="margin-top: {{ author_name_margin_top }}px;">
+                    {{ author_name }}
+                  </div>
+                {% endif %}
+
+                {% if section_st.show_author_info %}
+                  <div class="testimonials-group mt-10 fs-small flex flex-wrap gap-10 justify-content-{{ section_st.content_alignment }}">
+                    <span class="testimonials-adress fs-small">{{ author_address }}</span>
+                  </div>
+                {% endif %}
+              </div>
+              <!-- END AUTHOR INFO -->
+
+              <!-- QUOTE TEXT -->
+              <div
+                class="testimonials-quote m-0 rich__text-m0"
+                style="
+                  margin-top: 15px;
+                  font-size: var(--quote-font-size-desktop);
+                "
+              >
+                {{ author_text }}
+              </div>
+              <style>
+                @media (max-width: 767px) {
+                  .swiper-slide:nth-child({{ forloop.index }}) .testimonials-quote {
+                    font-size: var(--quote-font-size-mobile) !important;
+                  }
+                }
+              </style>
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </slide-section>
+
+    {%- if section_st.items_per_row_mobile > 1 and section_st.items_per_row_mobile < 2 -%}
+      </div>
+    {%- endif -%}
+
+    {% if enable_read_more_button %}
+      <div
+        class="read-more-button-wrapper flex justify-content-center"
+        style="margin-top: {{ read_more_button_vertical_spacing }}px;"
+      >
+        <a
+          href="{{ read_more_button_link }}"
+          class="read-more-button"
+          style="
+            background-color: {{ read_more_button_bg }};
+            color: {{ read_more_button_text_color }};
+            padding: 12px 24px;
+            border-radius: {{ read_more_button_border_radius }}px;
+            text-decoration: none;
+          "
+        >
+          {{ read_more_button_text }}
+        </a>
+      </div>
+      <style>
+        .read-more-button:hover {
+          background-color: {{ read_more_button_bg_hover }};
+          color: {{ read_more_button_text_hover_color }};
+        }
+      </style>
+    {% endif %}
+  </div>
+</div>
+
+{% comment %}
+  --------------------------------------------------------------------------
+   * Global styles for the author images:
+   * If "Make Image Circle?" is checked, force circle; else use border radius.
+  --------------------------------------------------------------------------
+{% endcomment %}
+{% if make_image_circle %}
+<style>
+  .sec__testimonials .swiper-slide .testimonials-image {
+    border-radius: 50% !important;
+  }
+</style>
+{% else %}
+<style>
+  .sec__testimonials .swiper-slide .testimonials-image {
+    border-radius: {{ image_border_radius }}px !important;
+  }
+</style>
+{% endif %}
+
+
+{% schema %}
+{
+  "name": "Testimonials 1",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer", "custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Padding (Top / Bottom / Left / Right)"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding (px)",
+      "info": "Adjust the top spacing of this section",
+      "default": 55,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding (px)",
+      "info": "Adjust the bottom spacing of this section",
+      "default": 55,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "label": "Left Padding (px)",
+      "info": "Adjust the left spacing of this section (desktop)",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "label": "Right Padding (px)",
+      "info": "Adjust the right spacing of this section (desktop)",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "reset_spacing",
+      "label": "Reset Default Spacing?",
+      "info": "Check to remove theme’s default vertical spacing",
+      "default": 0,
+      "min": 0,
+      "max": 0,
+      "step": 1
+    },
+    {
+   
+  
+      "type": "header",
+      "content": "Section Width & Color Scheme"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section Width",
+      "info": "Choose how wide this section should display",
+      "options": [
+        { "value": "container", "label": "Container" },
+        { "value": "fluid_container", "label": "Fluid Container" },
+        { "value": "stretch_width", "label": "Stretch Width" },
+        { "value": "full_width", "label": "Full Width" }
+      ],
+      "default": "fluid_container"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Base Color Scheme",
+      "info": "Select the general color scheme for the section",
+      "default": "default-color-scheme"
+    },
+    {
+      "type": "header",
+      "content": "Section Heading & Subheading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading Text",
+      "info": "Controls the main title text for this section",
+      "default": "Our Happy Customers"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Subheading",
+      "info": "Optional additional text under the main heading",
+       "default": "<p>These are real voices from people who struggled, tried everything, and finally found something that works.<p>"
+    },
+    {
+      "type": "range",
+      "id": "header_font_size",
+      "label": "Heading Font Size (px)",
+      "info": "Adjust the size of the main heading text",
+      "min": 14,
+      "max": 80,
+      "step": 1,
+      "default": 29
+    },
+    {
+      "type": "range",
+      "id": "subheading_font_size",
+      "label": "Subheading Font Size (px)",
+      "info": "Adjust the size of the subheading text",
+      "min": 12,
+      "max": 40,
+      "step": 1,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_lr",
+      "label": "Subheading Left/Right Padding (px)",
+      "info": "Adjust horizontal padding for the subheading text",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "inherit", "label": "Inherit" },
+        { "value": "100", "label": "100 (Thin)" },
+        { "value": "200", "label": "200" },
+        { "value": "300", "label": "300" },
+        { "value": "400", "label": "400 (Normal)" },
+        { "value": "500", "label": "500" },
+        { "value": "600", "label": "600" },
+        { "value": "700", "label": "700 (Bold)" },
+        { "value": "800", "label": "800" },
+        { "value": "900", "label": "900 (Black)" }
+      ],
+      "default": "500"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading Color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Heading & Subheading Alignment"
+    },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Heading & Subheading Alignment",
+      "info": "Position your heading/subheading text left, center or right",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Testimonials Settings"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Testimonials Content Alignment",
+      "info": "Set alignment for testimonial text, rating, and images",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rate",
+      "label": "Show Rating Stars",
+      "info": "Enable or disable rating stars",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author_image",
+      "label": "Show User Image",
+      "info": "Display the reviewer’s image or avatar",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author_name",
+      "label": "Show User Name",
+      "info": "Display the reviewer’s name",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author_info",
+      "label": "Show User Additional Info",
+      "info": "Display the reviewer’s location or secondary info",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "author_name_margin_top",
+      "label": "Vertical Gap Above User Name (px)",
+      "info": "Adjust the space between rating stars and user name",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "img_width",
+      "label": "User Image Width (px)",
+      "info": "Adjust the display width of the user`s image",
+      "min": 50,
+      "max": 100,
+      "step": 1,
+      "default": 70,
+      "unit": "px"
+    },
+    {
+      "type": "checkbox",
+      "id": "framed",
+      "label": "Enable Framed Style",
+      "info": "Wrap each testimonial with a subtle border frame",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "rate_color",
+      "label": "Filled Stars Color",
+      "info": "Choose a color for filled rating stars",
+      "default": "#FCCE11"
+   
+    },
+    {
+      "type": "range",
+      "id": "items_per_row",
+      "label": "Testimonials per Row (desktop)",
+      "info": "Set how many testimonials appear in a single row on larger screens",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "label": "Column Gap (px)",
+      "info": "Adjust horizontal spacing between testimonial items",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "default": 25,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Slider Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_arrows",
+      "label": "Enable Arrows",
+      "info": "Show left/right navigation arrows at the bottom center",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Arrow Icon Color",
+      "info": "Customize the arrow icon’s color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "arrow_size",
+      "label": "Arrow Background Size (px)",
+      "info": "Adjust the size of the arrow button background",
+      "min": 20,
+      "max": 80,
+      "step": 1,
+      "default": 47
+    },
+    {
+      "type": "range",
+      "id": "arrow_icon_size",
+      "label": "Arrow Icon Size (px)",
+      "info": "Adjust the size of the SVG arrow icon inside the button",
+      "min": 5,
+      "max": 40,
+      "step": 1,
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "arrow_background_color",
+      "label": "Arrow Background Color",
+      "info": "Choose a background color for the arrows’ circle",
+      "default": "#F7F7F7"
+    },
+    {
+      "type": "range",
+      "id": "arrow_border_thickness",
+      "label": "Arrow Border Thickness (px)",
+      "info": "Set the circle border thickness of the arrows",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "color",
+      "id": "arrow_border_color",
+      "label": "Arrow Border Color",
+      "info": "Customize the arrow circle border color",
+      "default": "#D7D7D7"
+    },
+    {
+      "type": "range",
+      "id": "arrow_vertical_position",
+      "label": "Arrow Vertical Offset (px)",
+      "info": "Move arrows up or down from center bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "checkbox",
+      "id": "infinite",
+      "label": "Infinite Loop?",
+      "info": "Continuously loop through slides",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay Slides?",
+      "info": "Auto rotate the testimonials",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autorotate_speed",
+      "label": "Autoplay Speed (s)",
+      "info": "Number of seconds between auto-rotations",
+      "max": 6,
+      "min": 2,
+      "step": 1,
+      "default": 3,
+      "unit": "s"
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Enable Reveal Animation?",
+      "info": "Trigger a reveal animation on scroll",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Mobile Options"
+    },
+    {
+      "type": "range",
+      "id": "items_per_row_mobile",
+      "label": "Testimonials per Row (mobile)",
+      "info": "Set how many items appear in a row on smaller devices",
+      "min": 1,
+      "max": 2,
+      "step": 0.5,
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "Gap & Spacing Controls"
+    },
+    {
+      "type": "range",
+      "id": "vertical_gap_spacing",
+      "label": "Vertical Gap after Heading/Subheading (px)",
+      "info": "Adjust the spacing below the heading or between heading/subheading",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "default": 17
+    },
+    {
+      "type": "range",
+      "id": "vertical_gap_between_subheading_testimonials",
+      "label": "Vertical Gap between Subheading and Testimonials (px)",
+      "info": "Adjust the space below subheading to testimonial area",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "default": 43
+    },
+    {
+      "type": "header",
+      "content": "Gradient Background for Cards"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_gradient_bg",
+      "label": "Enable Gradient Background?",
+      "info": "Toggle gradient overlay on testimonial cards",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_1",
+      "label": "Gradient Color 1",
+      "info": "First color in the gradient",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_2",
+      "label": "Gradient Color 2",
+      "info": "Second color in the gradient",
+      "default": "#F9F9F9"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_3",
+      "label": "Gradient Color 3",
+      "info": "Third color in the gradient",
+      "default": "#F6F6F6"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_4",
+      "label": "Gradient Color 4",
+      "info": "Fourth color in the gradient",
+      "default": "#F7F7F7"
+    },
+    {
+      "type": "select",
+      "id": "gradient_angle",
+      "label": "Gradient Angle",
+      "info": "Change the gradient direction by selecting a degree",
+      "default": "180",
+      "options": [
+        { "value": "0", "label": "0 degrees" },
+        { "value": "45", "label": "45 degrees" },
+        { "value": "90", "label": "90 degrees" },
+        { "value": "135", "label": "135 degrees" },
+        { "value": "180", "label": "180 degrees" },
+        { "value": "225", "label": "225 degrees" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Testimonial Card Border"
+    },
+    {
+      "type": "color",
+      "id": "testimonial_card_border_color",
+      "label": "Border Color",
+      "info": "Customize the color around testimonial cards",
+      "default": "#F1F1F1"
+    },
+    {
+      "type": "range",
+      "id": "testimonial_card_border_thickness",
+      "label": "Border Thickness (px)",
+      "info": "Set the thickness of the testimonial card border",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "testimonial_card_border_radius",
+      "label": "Card Border Radius (px)",
+      "info": "Round the corners of the testimonial card container",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 25
+    },
+    {
+      "type": "header",
+      "content": "Quote Font Size Controls"
+    },
+    {
+      "type": "range",
+      "id": "quote_font_size_desktop",
+      "label": "Quote Font Size (desktop, px)",
+      "info": "Adjust testimonial quote text size on larger screens",
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "quote_font_size_mobile",
+      "label": "Quote Font Size (mobile, px)",
+      "info": "Adjust testimonial quote text size on smaller screens",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Author Image Options"
+    },
+    {
+      "type": "checkbox",
+      "id": "make_image_circle",
+      "label": "Make Image Circle?",
+      "info": "If enabled, author image is displayed as a circle",
+      "default": true
+ 
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonials_items",
+      "name": "Add Testimonial Item",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "author_image",
+          "label": "User Image",
+          "info": "Upload or select the reviewer’s image"
+        },
+        {
+          "type": "range",
+          "id": "author_rating",
+          "label": "Star Rating",
+          "info": "Set how many stars (1-5) for this testimonial",
+          "min": 1,
+          "max": 5,
+          "default": 4,
+          "step": 1
+        },
+        {
+          "type": "richtext",
+          "id": "author_text",
+          "label": "Testimonial Text",
+          "info": "Main quote or feedback content from the reviewer",
+          "default": "<p>It is a long established fact that a reader will be distracted by the readable content.</p>"
+        },
+        {
+          "type": "text",
+          "id": "author_name",
+          "label": "User Name",
+          "info": "Name of the reviewer or author of testimonial",
+          "default": "Johnny Doe"
+        },
+        {
+          "type": "text",
+          "id": "author_address",
+          "label": "User Location / Info",
+          "info": "Location or secondary info about the reviewer",
+          "default": "Published 3/25/2026"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonials 1",
+      "category": "Testimonials",
+      "blocks": [
+        { "type": "testimonials_items" },
+        { "type": "testimonials_items" },
+           { "type": "testimonials_items" },
+        { "type": "testimonials_items" }
+      ]
+    }
+  ]
+}
+{% endschema %}

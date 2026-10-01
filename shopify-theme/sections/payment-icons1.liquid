@@ -1,0 +1,666 @@
+<style>
+  {%- capture loud_content -%}
+
+  {% if section.settings.override_fonts %}
+      {{ section.settings.text_font | font_face }}
+      {{ section.settings.headline_font | font_face }}
+  {% endif %}
+
+  #loud-{{ section.id }} p {
+      font-size: {{ section.settings.text_size }}px;
+      {% if section.settings.override_fonts %}
+      font-family: {{ section.settings.text_font.family }}, {{ section.settings.text_font.fallback_families }};
+      font-weight: {{ section.settings.text_font.weight }};
+      {% endif %}
+      {% if section.settings.text_line_height != 'inherit' %}line-height: {{ section.settings.text_line_height }};{% endif %}
+      margin: 0 0 {{ section.settings.element_spacing }}px 0;
+      padding: 0;
+      color: {{ section.settings.text_color }} !important;
+  }
+
+  #loud-{{ section.id }} ul, #loud-{{ section.id }} ol {
+    margin: 0 0 {{ section.settings.element_spacing }}px 0;
+  }
+
+  #loud-{{ section.id }} li {
+    font-size: {{ section.settings.text_size }}px;
+    {% if section.settings.override_fonts %}
+    font-family: {{ section.settings.text_font.family }}, {{ section.settings.text_font.fallback_families }};
+    font-weight: {{ section.settings.text_font.weight }};
+    {% endif %}
+    {% if section.settings.text_line_height != 'inherit' %}line-height: {{ section.settings.text_line_height }};{% endif %}
+    margin: 0 0 5px 0;
+    padding: 0;
+    color: {{ section.settings.text_color }} !important;
+  }
+
+  #loud-{{ section.id }} li:last-child {
+    margin: 0;
+  }
+
+  /* Removed Link Color CSS */
+
+  @media (max-width: 800px) {
+      #loud-{{ section.id }} p,
+      #loud-{{ section.id }} li {
+        font-size: {{ section.settings.mobile_text_size }}px;
+      }
+  }
+
+  #loud-{{ section.id }} h1,
+  #loud-{{ section.id }} h2,
+  #loud-{{ section.id }} h3,
+  #loud-{{ section.id }} h4,
+  #loud-{{ section.id }} h5 {
+      font-size: {{ section.settings.headline_size }}px;
+      {% if section.settings.override_fonts %}
+      font-family: {{ section.settings.headline_font.family }}, {{ section.settings.headline_font.fallback_families }};
+      font-weight: {{ section.settings.headline_font.weight }};
+      {% endif %}
+      {% if section.settings.headline_line_height != 'inherit' %}line-height: {{ section.settings.headline_line_height }};{% endif %}
+      margin: 0 0 {{ section.settings.element_spacing }}px 0;
+      padding: 0;
+      color: {{ section.settings.text_color }} !important;
+  }
+
+  @media (max-width: 800px) {
+      #loud-{{ section.id }} h1,
+      #loud-{{ section.id }} h2,
+      #loud-{{ section.id }} h3,
+      #loud-{{ section.id }} h4,
+      #loud-{{ section.id }} h5 {
+      font-size: {{ section.settings.mobile_headline_size }}px;
+      }
+  }
+
+  #loud-{{ section.id }} h2 {
+      font-size: {{ section.settings.headline_size | minus:5  | at_least:13 }}px;
+  }
+
+  #loud-{{ section.id }} h3 {
+      font-size: {{ section.settings.headline_size | minus:10 | at_least:13 }}px;
+  }
+
+  #loud-{{ section.id }} h4 {
+      font-size: {{ section.settings.headline_size | minus:15 | at_least:13 }}px;
+  }
+
+  #loud-{{ section.id }} h5 {
+      font-size: {{ section.settings.headline_size | minus:20 | at_least:13 }}px;
+  }
+
+  @media (max-width: 800px) {
+      #loud-{{ section.id }} h2 {
+      font-size: {{ section.settings.mobile_headline_size | minus:5 | at_least:13 }}px;
+      }
+
+      #loud-{{ section.id }} h3 {
+      font-size: {{ section.settings.mobile_headline_size | minus:10 | at_least:13 }}px;
+      }
+
+      #loud-{{ section.id }} h4 {
+      font-size: {{ section.settings.mobile_headline_size | minus:15 | at_least:13 }}px;
+      }
+
+      #loud-{{ section.id }} h5 {
+      font-size: {{ section.settings.mobile_headline_size | minus:20 | at_least:13 }}px;
+      }
+  }
+
+  #loud-{{ section.id }} {
+      background-color: {{ section.settings.section_background_color }};
+      /* Removed background image related code */
+      width: 100%;
+      box-sizing: border-box;
+      padding: {{ section.settings.section_padding_top_bottom }}px {{ section.settings.section_padding_left_right }}px;
+      overflow: hidden;
+  }
+
+  @media (max-width: 800px) {
+      #loud-{{ section.id }} {
+        padding: {{ section.settings.mobile_section_padding_top_bottom }}px {{ section.settings.mobile_section_padding_left_right }}px;
+      }
+  }
+
+  {% if section.settings.show_on_device == 'mobile' %}
+    @media (min-width: 801px) {
+        #loud-{{ section.id }} {
+            display: none;
+        }
+    }
+  {% endif %}
+
+  {% if section.settings.show_on_device == 'desktop' %}
+    @media (max-width: 800px) {
+        #loud-{{ section.id }} {
+            display: none;
+        }
+    }
+  {% endif %}
+
+  #loud-{{ section.id }} .loud-container {
+      position: relative;
+      margin: 0 auto;
+      background-color: {{ section.settings.container_background_color }};
+      border-radius: {{ section.settings.container_radius }}px;
+      {% if section.settings.container_shadow %}box-shadow: 0 0 5px 0 rgba(0,0,0,0.20);{% endif %}
+      border: {{ section.settings.container_border_size }}px solid {{ section.settings.container_border_color }};
+      max-width: {{ section.settings.container_max_width }}px;
+      padding: {{ section.settings.container_padding_top_bottom }}px {{ section.settings.container_padding_left_right }}px;
+  }
+
+  @media (max-width: 800px) {
+      #loud-{{ section.id }} .loud-container {
+      padding: {{ section.settings.mobile_container_padding_top_bottom }}px {{ section.settings.mobile_container_padding_left_right }}px;
+      }
+  }
+
+
+  #loud-{{ section.id }} .loud-headline {
+    margin: 0;
+    padding: 0 0 {{ section.settings.headline_spacing }}px 0;
+  }
+
+  #loud-{{ section.id }} .loud-headline * {
+    text-align: {{ section.settings.text_alignment }};
+  }
+
+  @media only screen and (max-width: 800px) {
+    #loud-{{ section.id }} .loud-headline * {
+      text-align: {{ section.settings.mobile_text_alignment }};
+    }
+  }
+
+  /* grid */
+  #loud-{{ section.id }} .loud-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    position: relative;
+    z-index: 2;
+  }
+
+  @media only screen and (max-width: 800px) {
+    #loud-{{ section.id }} .loud-grid {
+      display: grid;
+      grid-template-columns: {{ section.settings.mobile_columns }};
+    }
+  }
+
+  #loud-{{ section.id }} .loud-col {
+    text-align: center;
+  }
+
+  /* Updated to separate desktop and mobile icon styles */
+  #loud-{{ section.id }} .loud-col img {
+    display: inline-block;
+    height: {{ section.settings.icon_height }}px;
+    margin: 0 {{ section.settings.icon_gap }}px 0 0;
+    transition: all 0.5s ease;
+  }
+
+  @media (max-width: 800px) {
+    #loud-{{ section.id }} .loud-col img {
+      height: {{ section.settings.mobile_icon_height }}px;
+      margin: 0 {{ section.settings.mobile_icon_gap }}px 0 0;
+    }
+  }
+
+  #loud-{{ section.id }} .loud-col img:last-child {
+    margin: 0;
+  }
+
+  #loud-{{ section.id }} .loud-col img:hover {
+    transform: scale(1.05);
+  }
+
+  {%- endcapture -%}
+
+  {%- liquid
+    assign chunks = loud_content | strip_newlines | split: ' ' | join: ' ' | split: '*/'
+    for chunk in chunks
+      assign mini = chunk | split: '/*' | first | strip | replace: ': ', ':' | replace: '; ', ';' | replace: '} ', '}' | replace: '{ ', '{' | replace: ' {', '{' | replace: ';}', '}'
+      echo mini
+    endfor
+  %}
+</style>
+
+<div id="loud-{{ section.id }}" class="loud-wrap" loud-wrap>
+  <div class="loud-container" loud-container>
+    {% if section.settings.headline != '' or section.settings.text != '' %}
+      <div class="loud-headline" loud-column>
+        {% if section.settings.headline != '' %}
+          <h2>{{ section.settings.headline }}</h2>
+        {% endif %}
+        {% if section.settings.text != '' %}
+          <p>{{ section.settings.text }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="loud-grid">
+      <div class="loud-col" loud-column>
+        {% if section.settings.show_mastercard %}
+          <img
+            loading="lazy"
+            alt="Mastercard"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' height='48' viewBox='0 0 70 48' width='70'%3E%3Crect fill='%23fff' height='47' rx='5.5' stroke='%23d9d9d9' width='69' x='.5' y='.5'/%3E%3Cg clip-rule='evenodd' fill-rule='evenodd'%3E%3Cpath d='m35.3945 34.7619c-2.3831 2.0565-5.4745 3.298-8.8524 3.298-7.5374 0-13.6476-6.1811-13.6476-13.8059 0-7.6249 6.1102-13.806 13.6476-13.806 3.3779 0 6.4693 1.2415 8.8524 3.2981 2.3832-2.0566 5.4745-3.2981 8.8525-3.2981 7.5373 0 13.6475 6.1811 13.6475 13.806 0 7.6248-6.1102 13.8059-13.6475 13.8059-3.378 0-6.4693-1.2415-8.8525-3.298z' fill='%23ed0006'/%3E%3Cpath d='m35.3945 34.7619c2.9344-2.5323 4.7951-6.3003 4.7951-10.5079 0-4.2077-1.8607-7.9757-4.7951-10.5079 2.3832-2.0566 5.4745-3.2981 8.8525-3.2981 7.5373 0 13.6475 6.1811 13.6475 13.806 0 7.6248-6.1102 13.8059-13.6475 13.8059-3.378 0-6.4693-1.2415-8.8525-3.298z' fill='%23f9a000'/%3E%3Cpath d='m35.3946 13.7461c2.9344 2.5323 4.7951 6.3002 4.7951 10.5079 0 4.2076-1.8607 7.9755-4.7951 10.5078-2.9343-2.5323-4.795-6.3002-4.795-10.5078 0-4.2077 1.8607-7.9756 4.795-10.5079z' fill='%23ff5e00'/%3E%3C/g%3E%3C/svg%3E"
+          >
+        {% endif %}
+
+        {% if section.settings.show_american_express %}
+          <img
+            loading="lazy"
+            alt="American Express"
+            src="data:image/svg+xml,%3Csvg width='780' height='500' enable-background='new 0 0 780 500' version='1.1' viewBox='0 0 780 500' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m40 1e-3h700c22.092 0 40 17.909 40 40v420c0 22.092-17.908 40-40 40h-700c-22.091 0-40-17.908-40-40v-420c0-22.091 17.909-40 40-40z' fill='%232557D6'/%3E%3Cpath d='m0.253 235.69h37.441l8.442-19.51h18.9l8.42 19.51h73.668v-14.915l6.576 14.98h38.243l6.576-15.202v15.138h183.08l-0.085-32.026h3.542c2.479 0.083 3.204 0.302 3.204 4.226v27.8h94.689v-7.455c7.639 3.92 19.518 7.455 35.148 7.455h39.836l8.525-19.51h18.9l8.337 19.51h76.765v-18.532l11.626 18.532h61.515v-122.51h-60.88v14.468l-8.522-14.468h-62.471v14.468l-7.828-14.468h-84.38c-14.123 0-26.539 1.889-36.569 7.153v-7.153h-58.229v7.153c-6.383-5.426-15.079-7.153-24.75-7.153h-212.74l-14.274 31.641-14.659-31.641h-67.005v14.468l-7.362-14.468h-57.145l-26.539 58.246v64.261h3e-3zm236.34-17.67h-22.464l-0.083-68.794-31.775 68.793h-19.24l-31.858-68.854v68.854h-44.57l-8.42-19.592h-45.627l-8.505 19.592h-23.801l39.241-87.837h32.559l37.269 83.164v-83.164h35.766l28.678 59.587 26.344-59.587h36.485l1e-3 87.838zm-165.9-37.823l-14.998-35.017-14.915 35.017h29.913zm255.3 37.821h-73.203v-87.837h73.203v18.291h-51.289v15.833h50.06v18.005h-50.061v17.542h51.289l1e-3 18.166zm103.16-64.18c0 14.004-9.755 21.24-15.439 23.412 4.794 1.748 8.891 4.838 10.84 7.397 3.094 4.369 3.628 8.271 3.628 16.116v17.255h-22.104l-0.083-11.077c0-5.285 0.528-12.886-3.458-17.112-3.202-3.09-8.083-3.76-15.973-3.76h-23.523v31.95h-21.914v-87.838h50.401c11.199 0 19.451 0.283 26.535 4.207 6.933 3.924 11.09 9.652 11.09 19.45zm-27.699 13.042c-3.013 1.752-6.573 1.81-10.841 1.81h-26.62v-19.51h26.982c3.818 0 7.804 0.164 10.393 1.584 2.842 1.28 4.601 4.003 4.601 7.765 0 3.84-1.674 6.929-4.515 8.351zm62.844 51.138h-22.358v-87.837h22.358v87.837zm259.56 0h-31.053l-41.535-65.927v65.927h-44.628l-8.527-19.592h-45.521l-8.271 19.592h-25.648c-10.649 0-24.138-2.257-31.773-9.715-7.701-7.458-11.708-17.56-11.708-33.533 0-13.027 2.395-24.936 11.812-34.347 7.085-7.01 18.18-10.242 33.28-10.242h21.215v18.821h-20.771c-7.997 0-12.514 1.14-16.862 5.203-3.735 3.699-6.298 10.69-6.298 19.897 0 9.41 1.951 16.196 6.023 20.628 3.373 3.476 9.506 4.53 15.272 4.53h9.842l30.884-69.076h32.835l37.102 83.081v-83.08h33.366l38.519 61.174v-61.174h22.445v87.833zm-133.2-37.82l-15.165-35.017-15.081 35.017h30.246zm189.04 178.08c-5.322 7.457-15.694 11.238-29.736 11.238h-42.319v-18.84h42.147c4.181 0 7.106-0.527 8.868-2.175 1.665-1.474 2.605-3.554 2.591-5.729 0-2.561-1.064-4.593-2.677-5.811-1.59-1.342-3.904-1.95-7.722-1.95-20.574-0.67-46.244 0.608-46.244-27.194 0-12.742 8.443-26.156 31.439-26.156h43.649v-17.479h-40.557c-12.237 0-21.129 2.81-27.425 7.174v-7.175h-59.985c-9.595 0-20.854 2.279-26.179 7.175v-7.175h-107.12v7.175c-8.524-5.892-22.908-7.175-29.549-7.175h-70.656v7.175c-6.745-6.258-21.742-7.175-30.886-7.175h-79.077l-18.094 18.764-16.949-18.764h-118.13v122.59h115.9l18.646-19.062 17.565 19.062 71.442 0.061v-28.838h7.021c9.479 0.14 20.66-0.228 30.523-4.312v33.085h58.928v-31.952h2.842c3.628 0 3.985 0.144 3.985 3.615v28.333h179.01c11.364 0 23.244-2.786 29.824-7.845v7.845h56.78c11.815 0 23.354-1.587 32.134-5.649l2e-3 -22.84zm-354.94-47.155c0 24.406-19.005 29.445-38.159 29.445h-27.343v29.469h-42.591l-26.984-29.086-28.042 29.086h-86.802v-87.859h88.135l26.961 28.799 27.875-28.799h70.021c17.389 0 36.929 4.613 36.929 28.945zm-174.22 40.434h-53.878v-17.48h48.11v-17.926h-48.11v-15.974h54.939l23.969 25.604-25.03 25.776zm86.81 10.06l-33.644-35.789 33.644-34.65v70.439zm49.757-39.066h-28.318v-22.374h28.572c7.912 0 13.404 3.09 13.404 10.772 0 7.599-5.238 11.602-13.658 11.602zm148.36-40.373h73.138v18.17h-51.315v15.973h50.062v17.926h-50.062v17.48l51.314 0.08v18.23h-73.139l2e-3 -87.859zm-28.119 47.029c4.878 1.725 8.865 4.816 10.734 7.375 3.095 4.291 3.542 8.294 3.631 16.037v17.418h-22.002v-10.992c0-5.286 0.531-13.112-3.542-17.198-3.201-3.147-8.083-3.899-16.076-3.899h-23.42v32.09h-22.02v-87.859h50.594c11.093 0 19.173 0.47 26.366 4.146 6.915 4.004 11.266 9.487 11.266 19.511-1e-3 14.022-9.764 21.178-15.531 23.371zm-12.385-11.107c-2.932 1.667-6.556 1.811-10.818 1.811h-26.622v-19.732h26.982c3.902 0 7.807 0.08 10.458 1.587 2.84 1.423 4.538 4.146 4.538 7.903 0 3.758-1.699 6.786-4.538 8.431zm197.82 5.597c4.27 4.229 6.554 9.571 6.554 18.613 0 18.9-12.322 27.723-34.425 27.723h-42.68v-18.84h42.51c4.157 0 7.104-0.525 8.95-2.175 1.508-1.358 2.589-3.333 2.589-5.729 0-2.561-1.17-4.592-2.675-5.811-1.675-1.34-3.986-1.949-7.803-1.949-20.493-0.67-46.157 0.609-46.157-27.192 0-12.744 8.355-26.158 31.33-26.158h43.932v18.7h-40.198c-3.984 0-6.575 0.145-8.779 1.587-2.4 1.422-3.29 3.534-3.29 6.319 0 3.314 2.037 5.57 4.795 6.546 2.311 0.77 4.795 0.995 8.526 0.995l11.797 0.306c11.895 0.276 20.061 2.248 25.024 7.065zm86.955-23.52h-39.938c-3.986 0-6.638 0.144-8.867 1.587-2.312 1.423-3.202 3.534-3.202 6.322 0 3.314 1.951 5.568 4.791 6.544 2.312 0.771 4.795 0.996 8.444 0.996l11.878 0.304c11.983 0.284 19.982 2.258 24.86 7.072 0.891 0.67 1.422 1.422 2.033 2.175v-25h1e-3z' fill='%23fff'/%3E%3C/svg%3E"
+          >
+        {% endif %}
+
+        {% if section.settings.show_visa %}
+          <img
+            loading="lazy"
+            alt="Visa"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' height='50' viewBox='0 0 70 48' width='72'%3E%3Crect fill='%23fff' height='47' rx='5.5' stroke='%23d9d9d9' width='69' x='.5' y='.5'/%3E%3Cpath clip-rule='evenodd' d='M21.2505 32.5165h-4.2406l-3.18-12.1318c-.1509-.558-.4714-1.0514-.9428-1.2839-1.1765-.5843-2.4729-1.0494-3.8871-1.2839v-.4671h6.8313c.9429 0 1.65.7016 1.7678 1.5165l1.65 8.751 4.2386-10.2675h4.1227zm8.717 0h-4.0049l3.2978-15.1667h4.0049zm8.4792-10.9651c.1179-.8168.825-1.2839 1.65-1.2839 1.2964-.1173 2.7085.1173 3.8871.6996l.7071-3.2655c-1.1786-.4671-2.4749-.7016-3.6514-.7016-3.8871 0-6.7156 2.1008-6.7156 5.0165 0 2.2181 2.0035 3.3827 3.4178 4.0843 1.53.6996 2.1193 1.1667 2.0014 1.8663 0 1.0494-1.1785 1.5165-2.355 1.5165-1.4142 0-2.8285-.3498-4.1228-.9342l-.7071 3.2675c1.4142.5823 2.9443.8169 4.3585.8169 4.3585.1152 7.0671-1.9836 7.0671-5.1338 0-3.9671-5.5371-4.1996-5.5371-5.9486zm19.5533 10.9651-3.18-15.1667h-3.4156c-.7072 0-1.4143.4671-1.65 1.1667l-5.8885 14h4.1228l.8229-2.2161h5.0656l.4714 2.2161zm-6.0064-11.0823 1.1765 5.716h-3.2978z' fill='%23172b85' fill-rule='evenodd'/%3E%3C/svg%3E"
+          >
+        {% endif %}
+
+        {% if section.settings.show_apple_pay %}
+          <img
+            loading="lazy"
+            alt="Apple Pay"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 58 37'%3E%3Crect width='57' height='36' x='.5' y='.5' fill='%23fff' stroke='%23B0B0B0' stroke-width='0.5' rx='2.5'/%3E%3Cpath fill='%23000' d='M7.527 16.87c.023-.162.043-.327.07-.49.116-.701.358-1.354.779-1.931a3.554 3.554 0 012.024-1.373c.628-.167 1.24-.115 1.843.11l.916.342c.276.103.553.104.83.003.33-.12.657-.247.989-.362.484-.169.98-.275 1.498-.232.8.069 1.525.328 2.113.897.172.166.316.36.47.537-.171.136-.336.251-.484.383-.644.58-1.034 1.29-1.084 2.167-.034.585.048 1.152.313 1.685.314.629.8 1.086 1.41 1.42.033.018.066.037.098.052.141.07.14.07.093.215-.148.455-.345.89-.58 1.305-.313.55-.655 1.083-1.07 1.564-.205.24-.434.453-.707.618-.454.273-.938.32-1.44.19a4.222 4.222 0 01-.65-.24c-.81-.364-1.612-.352-2.418.007-.283.127-.572.246-.881.304-.47.088-.888-.022-1.273-.299-.387-.278-.687-.637-.969-1.015-.45-.605-.852-1.239-1.151-1.934a9.258 9.258 0 01-.706-2.665c-.01-.093-.022-.185-.033-.278v-.98zm8.898-7.506c.003.12.01.24.007.359-.017.692-.27 1.305-.668 1.858-.404.564-.94.944-1.622 1.105a2.036 2.036 0 01-.686.033 2.01 2.01 0 01.055-.854c.377-1.328 1.248-2.14 2.584-2.46.074-.017.151-.028.227-.041h.103zm7.525 9.926v4.597h-2.1V10.396h5.032c.814 0 1.592.155 2.313.545a3.951 3.951 0 011.782 1.93c.33.746.436 1.531.381 2.34-.05.74-.249 1.435-.64 2.069-.499.809-1.205 1.365-2.091 1.7-.588.222-1.201.308-1.826.31h-2.85zm-.032-1.75h.072c.787 0 1.574.003 2.362-.001.334-.002.663-.034.986-.12.835-.22 1.43-.711 1.708-1.545.182-.544.19-1.103.09-1.663-.152-.862-.626-1.475-1.449-1.802-.443-.175-.909-.223-1.381-.225h-2.388v5.357zm8.422-.542c.009-.287.064-.56.16-.825.318-.888.945-1.482 1.79-1.862.56-.25 1.15-.368 1.763-.402.721-.04 1.43.024 2.114.263.887.307 1.567.85 1.935 1.738.168.406.232.832.232 1.267.003 2.224.001 4.449.001 6.672v.074h-1.93v-1.601l-.021-.004c-.01.012-.024.022-.031.036-.464.834-1.175 1.357-2.082 1.605-1.067.29-2.1.182-3.051-.397-.751-.457-1.174-1.146-1.284-2.02-.065-.512-.022-1.01.184-1.488.236-.545.632-.94 1.14-1.228a4.325 4.325 0 011.733-.541c.68-.067 1.363-.098 2.045-.141.406-.026.811-.045 1.219-.069.01 0 .022-.003.043-.007v-.222c-.01-.297.006-.597-.04-.89-.108-.697-.541-1.116-1.211-1.291a2.784 2.784 0 00-1.64.06c-.585.2-.971.598-1.124 1.206-.012.048-.024.079-.086.079-.598-.004-1.197-.002-1.795-.002a1.14 1.14 0 00-.064-.01zm5.96 2.47c-.038 0-.06-.002-.083 0-.828.05-1.656.096-2.484.155a2.543 2.543 0 00-1.074.3c-.685.38-.816 1.112-.563 1.7.187.438.553.678.998.791a2.73 2.73 0 002.02-.249c.622-.333 1.03-.841 1.15-1.546.042-.249.027-.507.035-.76.004-.128 0-.257 0-.39zm3.829 8.105V25.96c.26 0 .518.006.778-.002.381-.012.735-.108 1.025-.373a1.74 1.74 0 00.46-.696c.109-.292.197-.59.288-.888.01-.034-.004-.079-.016-.115-.544-1.505-1.089-3.01-1.635-4.513l-1.876-5.174c-.009-.024-.016-.048-.026-.081.036-.002.067-.004.096-.004.662 0 1.323.002 1.984-.001.069 0 .1.019.12.086.813 2.62 1.63 5.24 2.443 7.86l.033.09h.024c.01-.027.023-.053.031-.08l1.886-6.058c.19-.606.378-1.211.566-1.817.015-.052.03-.081.096-.081.665.003 1.328.002 1.992.002.023 0 .045.003.076.006l-.235.667-3.436 9.704c-.198.559-.426 1.105-.742 1.608-.303.48-.672.89-1.184 1.155a3.307 3.307 0 01-1.221.348c-.213.021-.43.04-.643.033-.295-.005-.587-.04-.884-.062z'/%3E%3C/svg%3E"
+          >
+        {% endif %}
+
+        {% if section.settings.show_shop_pay %}
+          <img
+            loading="lazy"
+            alt="Shop Pay"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 58 37'%3E%3Cg clip-path='url(%23clip0)'%3E%3Cpath fill='%235A31F4' d='M53.413.209H4.321A4.063 4.063 0 00.258 4.272v28.523a4.063 4.063 0 004.063 4.063h49.092a4.063 4.063 0 004.063-4.063V4.272A4.063 4.063 0 0053.413.209z'/%3E%3Cpath fill='%23fff' d='M32.678 14.872c0 2.663-1.867 4.564-4.476 4.564h-2.458a.206.206 0 00-.206.207v3.5a.207.207 0 01-.206.207h-1.72a.208.208 0 01-.191-.128.205.205 0 01-.016-.078v-12.63a.206.206 0 01.206-.207h4.602c2.598-.003 4.465 1.898 4.465 4.565zm-2.145 0c0-1.531-1.044-2.65-2.46-2.65h-2.329a.206.206 0 00-.206.207v4.874a.206.206 0 00.206.206h2.329c1.416.01 2.46-1.11 2.46-2.637zM33.188 20.927a2.453 2.453 0 011.026-2.104c.671-.505 1.72-.766 3.26-.82l1.64-.058v-.484c0-.97-.65-1.38-1.694-1.38s-1.706.37-1.858.975a.2.2 0 01-.198.144h-1.62a.203.203 0 01-.206-.235c.24-1.434 1.433-2.524 3.956-2.524 2.684 0 3.653 1.25 3.653 3.636v5.066a.209.209 0 01-.21.207h-1.633a.209.209 0 01-.146-.06.206.206 0 01-.06-.146v-.379a.155.155 0 00-.268-.109c-.49.533-1.281.918-2.548.918-1.864 0-3.094-.97-3.094-2.647zm5.926-1.098v-.393l-2.124.112c-1.119.057-1.77.522-1.77 1.305 0 .708.597 1.1 1.64 1.1 1.417 0 2.254-.765 2.254-2.124zM42.787 27.178V25.71a.21.21 0 01.25-.204c.25.047.505.071.76.072a1.961 1.961 0 001.975-1.4l.106-.338a.218.218 0 000-.14l-3.403-8.74a.21.21 0 01.194-.286h1.65a.21.21 0 01.194.135l2.311 6.164a.21.21 0 00.396 0l2.007-6.147a.21.21 0 01.2-.144h1.707a.212.212 0 01.197.287l-3.64 9.706c-.838 2.256-2.275 2.833-3.857 2.833-.3.008-.6-.028-.89-.107a.212.212 0 01-.157-.223zM12.352 9.579a8.475 8.475 0 00-5.844 2.28.37.37 0 00-.046.495l.981 1.34a.375.375 0 00.573.045 6.063 6.063 0 014.344-1.775c3.364 0 5.121 2.532 5.121 5.032 0 2.718-1.846 4.63-4.499 4.668-2.05 0-3.595-1.359-3.595-3.154a3.065 3.065 0 011.133-2.365.37.37 0 00.051-.516L9.54 14.327a.376.376 0 00-.536-.055 5.448 5.448 0 00-2.03 4.238c0 3.09 2.626 5.514 5.99 5.534h.045c3.994-.052 6.882-3.01 6.882-7.053 0-3.59-2.644-7.412-7.538-7.412z'/%3E%3C/g%3E%3Cdefs%3E%3CclipPath id='clip0'%3E%3Cpath fill='%23fff' d='M0 0h57.699v37H0z'/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E"
+          >
+        {% endif %}
+
+        {% if section.settings.show_google_pay %}
+          <img
+            loading="lazy"
+            alt="Google Pay"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 58 37'%3E%3Crect width='57' height='36' x='.5' y='.5' fill='%23fff' stroke='%23B0B0B0' stroke-width='0.5' rx='2.5'/%3E%3Cpath fill='%235F6368' d='M27.737 18.288v5.43h-1.723v-13.41h4.57a4.133 4.133 0 012.958 1.16 3.734 3.734 0 011.236 2.831 3.716 3.716 0 01-1.236 2.847c-.8.762-1.785 1.142-2.959 1.142h-2.846zm0-6.33v4.682h2.889a2.277 2.277 0 001.705-.694 2.285 2.285 0 000-3.277 2.247 2.247 0 00-1.705-.712h-2.89v.001zm11.011 2.285c1.274 0 2.279.34 3.016 1.02.737.681 1.105 1.614 1.104 2.8v5.656H41.22v-1.274h-.075c-.713 1.049-1.662 1.573-2.846 1.573-1.011 0-1.857-.3-2.537-.899a2.87 2.87 0 01-1.021-2.247c0-.95.359-1.705 1.076-2.265.718-.561 1.676-.842 2.875-.844 1.023 0 1.865.188 2.527.562v-.394a1.96 1.96 0 00-.711-1.524 2.44 2.44 0 00-1.663-.629c-.963 0-1.724.406-2.285 1.218l-1.518-.955c.835-1.2 2.07-1.798 3.706-1.798zM36.52 20.91a1.377 1.377 0 00.572 1.123c.38.3.854.459 1.338.45a2.747 2.747 0 001.938-.805c.571-.537.857-1.168.857-1.891-.538-.428-1.287-.642-2.248-.642-.7 0-1.283.169-1.75.506-.472.343-.707.759-.707 1.259zm15.808-6.367l-5.753 13.22h-1.779l2.135-4.625-3.783-8.596h1.873l2.734 6.592h.038l2.659-6.591h1.876z'/%3E%3Cpath fill='%234285F4' d='M20.774 17.117a9.17 9.17 0 00-.133-1.567h-7.266v2.968h4.162a3.567 3.567 0 01-1.54 2.341v1.927h2.485c1.454-1.341 2.292-3.324 2.292-5.669z'/%3E%3Cpath fill='%2334A853' d='M13.376 24.646c2.08 0 3.83-.682 5.107-1.86l-2.484-1.926c-.691.47-1.582.737-2.623.737-2.01 0-3.715-1.355-4.325-3.18H6.492V20.4a7.705 7.705 0 006.884 4.245z'/%3E%3Cpath fill='%23FBBC04' d='M9.051 18.416a4.617 4.617 0 010-2.949v-1.985H6.492a7.705 7.705 0 000 6.92l2.559-1.986z'/%3E%3Cpath fill='%23EA4335' d='M13.376 12.287a4.183 4.183 0 012.956 1.155l2.199-2.199a7.403 7.403 0 00-5.155-2.006 7.705 7.705 0 00-6.884 4.245l2.559 1.985c.61-1.826 2.316-3.18 4.325-3.18z'/%3E%3C/svg%3E"
+          >
+        {% endif %}
+
+        {% if section.settings.show_paypal %}
+          <img
+            loading="lazy"
+            alt="PayPal"
+            src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20enable-background='new%200%200%20780%20500'%20height='500'%20viewBox='0%200%20780%20500'%20width='780'%3E%3Cpath%20d='m725%200h-670c-30.327%200-55%2024.673-55%2055v391c0%2030.327%2024.673%2055%2055%2055h670c30.325%200%2055-24.673%2055-55v-391c0-30.327-24.675-55-55-55z'%20fill='%23fff'/%3E%3Cpath%20d='m168.38%20169.85c-8.399-5.774-19.359-8.668-32.88-8.668h-52.346c-4.145%200-6.435%202.073-6.87%206.214l-21.265%20133.48c-.221%201.311.107%202.51.981%203.6.869%201.093%201.962%201.636%203.271%201.636h24.864c4.361%200%206.758-2.068%207.198-6.216l5.888-35.985c.215-1.744.982-3.162%202.291-4.254%201.308-1.09%202.944-1.804%204.907-2.13%201.963-.324%203.814-.487%205.562-.487%201.743%200%203.814.11%206.217.327%202.397.218%203.925.324%204.58.324%2018.756%200%2033.478-5.285%2044.167-15.866%2010.684-10.577%2016.032-25.244%2016.032-44.004%200-12.868-4.202-22.192-12.597-27.975zm-26.99%2040.08c-1.094%207.635-3.926%2012.649-8.506%2015.049-4.581%202.403-11.124%203.597-19.629%203.597l-10.797.328%205.563-35.007c.434-2.397%201.851-3.597%204.252-3.597h6.218c8.72%200%2015.049%201.257%2018.975%203.761%203.924%202.51%205.233%207.802%203.924%2015.869z'%20fill='%23003087'/%3E%3Cpath%20d='m720.79%20161.18h-24.208c-2.405%200-3.821%201.2-4.253%203.599l-21.267%20136.1-.328.654c0%201.096.437%202.127%201.311%203.109.868.979%201.963%201.471%203.271%201.471h21.595c4.138%200%206.429-2.068%206.871-6.215l21.265-133.81v-.325c-.002-3.053-1.424-4.58-4.257-4.58z'%20fill='%23009cde'/%3E%3Cpath%20d='m428.31%20213.86c0-1.088-.438-2.126-1.306-3.106-.875-.981-1.857-1.474-2.945-1.474h-25.191c-2.404%200-4.366%201.096-5.89%203.271l-34.679%2051.04-14.394-49.075c-1.096-3.488-3.493-5.236-7.198-5.236h-24.54c-1.093%200-2.075.492-2.942%201.474-.875.98-1.309%202.019-1.309%203.106%200%20.44%202.127%206.871%206.379%2019.303%204.252%2012.434%208.833%2025.848%2013.741%2040.244%204.908%2014.394%207.468%2022.031%207.688%2022.898-17.886%2024.43-26.826%2037.518-26.826%2039.26%200%202.838%201.417%204.254%204.253%204.254h25.191c2.399%200%204.361-1.088%205.89-3.271l83.427-120.4c.433-.433.651-1.193.651-2.289z'%20fill='%23003087'/%3E%3Cpath%20d='m662.89%20209.28h-24.865c-3.056%200-4.904%203.599-5.559%2010.797-5.677-8.72-16.031-13.088-31.083-13.088-15.704%200-29.065%205.89-40.077%2017.668-11.016%2011.779-16.521%2025.631-16.521%2041.551%200%2012.871%203.761%2023.121%2011.285%2030.752%207.524%207.639%2017.611%2011.451%2030.266%2011.451%206.323%200%2012.757-1.311%2019.3-3.926%206.544-2.617%2011.665-6.105%2015.379-10.469%200%20.219-.222%201.198-.654%202.942-.44%201.748-.655%203.06-.655%203.926%200%203.494%201.414%205.234%204.254%205.234h22.576c4.138%200%206.541-2.068%207.193-6.216l13.415-85.389c.215-1.309-.111-2.507-.981-3.599-.876-1.087-1.964-1.634-3.273-1.634zm-42.694%2064.452c-5.562%205.453-12.269%208.179-20.12%208.179-6.328%200-11.449-1.742-15.377-5.234-3.928-3.483-5.891-8.282-5.891-14.396%200-8.064%202.727-14.884%208.181-20.446%205.446-5.562%2012.214-8.343%2020.284-8.343%206.102%200%2011.174%201.8%2015.212%205.397%204.032%203.599%206.055%208.563%206.055%2014.888-.001%207.851-2.783%2014.505-8.344%2019.955z'%20fill='%23009cde'/%3E%3Cpath%20d='m291.23%20209.28h-24.864c-3.058%200-4.908%203.599-5.563%2010.797-5.889-8.72-16.25-13.088-31.081-13.088-15.704%200-29.065%205.89-40.078%2017.668-11.016%2011.779-16.521%2025.631-16.521%2041.551%200%2012.871%203.763%2023.121%2011.288%2030.752%207.525%207.639%2017.61%2011.451%2030.262%2011.451%206.104%200%2012.433-1.311%2018.975-3.926%206.543-2.617%2011.778-6.105%2015.704-10.469-.875%202.616-1.309%204.907-1.309%206.868%200%203.494%201.417%205.234%204.253%205.234h22.574c4.141%200%206.543-2.068%207.198-6.216l13.413-85.389c.215-1.309-.112-2.507-.981-3.599-.873-1.087-1.962-1.634-3.27-1.634zm-42.695%2064.614c-5.563%205.351-12.382%208.017-20.447%208.017-6.329%200-11.4-1.742-15.214-5.234-3.819-3.483-5.726-8.282-5.726-14.396%200-8.064%202.725-14.884%208.18-20.446%205.449-5.562%2012.211-8.343%2020.284-8.343%206.104%200%2011.175%201.8%2015.214%205.398%204.032%203.599%206.052%208.563%206.052%2014.888%200%208.069-2.781%2014.778-8.343%2020.116z'%20fill='%23003087'/%3E%3Cpath%20d='m540.04%20169.85c-8.398-5.774-19.356-8.668-32.879-8.668h-52.02c-4.364%200-6.765%202.073-7.197%206.214l-21.266%20133.48c-.221%201.312.106%202.511.981%203.601.865%201.092%201.962%201.635%203.271%201.635h26.826c2.617%200%204.361-1.416%205.235-4.252l5.89-37.949c.216-1.744.98-3.162%202.29-4.254%201.309-1.09%202.943-1.803%204.908-2.13%201.962-.324%203.812-.487%205.562-.487%201.743%200%203.814.11%206.214.327%202.399.218%203.931.324%204.58.324%2018.76%200%2033.479-5.285%2044.168-15.866%2010.688-10.577%2016.031-25.244%2016.031-44.004.002-12.867-4.199-22.191-12.594-27.974zm-33.534%2053.82c-4.799%203.271-11.997%204.906-21.592%204.906l-10.47.328%205.562-35.007c.432-2.397%201.849-3.597%204.252-3.597h5.887c4.798%200%208.614.218%2011.454.653%202.831.44%205.562%201.799%208.179%204.089%202.618%202.291%203.926%205.618%203.926%209.98%200%209.16-2.402%2015.375-7.198%2018.648z'%20fill='%23009cde'/%3E%3C/svg%3E"
+            style="border: 0.4px solid #D3D3D3; border-radius: 5px;"
+            style="border: 0.4px solid #D3D3D3; border-radius: 5px;"
+          >
+        {% endif %}
+      </div>
+    </div>
+    <!-- /.loud-grid -->
+  </div>
+  <!-- /.loud-container -->
+</div>
+<!-- /.loud-wrap -->
+
+{% schema %}
+{
+  "name": "Payment Icons Pro 1",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content Settings",
+      "info": "Configure the headline and text content for your section."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "headline",
+      "label": "Headline",
+      "info": "Set the main headline text for the section.",
+      "default": "Trusted Payments"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "text",
+      "label": "Subheading Text",
+      "info": "Set the subheading or descriptive text for the section.",
+      "default": "We accept multiple payment options! See the list below for more information."
+    },
+    {
+      "type": "text_alignment",
+      "id": "text_alignment",
+      "label": "Texts Alignment",
+      "info": "Choose the alignment for the headline and subheading on desktop.",
+      "default": "center"
+    },
+    {
+      "type": "text_alignment",
+      "id": "mobile_text_alignment",
+      "label": "Texts Alignment (Mobile)",
+      "info": "Choose the alignment for the headline and subheading on mobile devices.",
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "headline_spacing",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Spacing Between Headline and Icons",
+      "info": "Adjust the vertical spacing between the headline and the payment icons.",
+      "default": 13
+    },
+    {
+      "type": "header",
+      "content": "Font Settings",
+      "info": "Customize the fonts used in the headline and text."
+    },
+    {
+      "type": "checkbox",
+      "id": "override_fonts",
+      "label": "Enable Custom Fonts",
+      "info": "Check to use custom fonts instead of the default fonts.",
+      "default": false
+    },
+    {
+      "type": "font_picker",
+      "id": "headline_font",
+      "label": "Headline Font",
+      "info": "Select the font for the headline text.",
+      "default": "sans-serif"
+    },
+    {
+      "type": "font_picker",
+      "id": "text_font",
+      "label": "Subheading Font",
+      "info": "Select the font for the subheading text.",
+      "default": "sans-serif"
+    },
+    {
+      "type": "header",
+      "content": "Text Styling",
+      "info": "Adjust the size, color, and spacing of your text."
+    },
+    {
+      "type": "range",
+      "id": "headline_size",
+      "min": 10,
+      "max": 75,
+      "step": 1,
+      "unit": "px",
+      "label": "Headline Size",
+      "info": "Set the font size for the headline.",
+      "default": 33
+    },
+    {
+      "type": "range",
+      "id": "mobile_headline_size",
+      "min": 10,
+      "max": 75,
+      "step": 1,
+      "unit": "px",
+      "label": "Headline Size (Mobile)",
+      "info": "Set the font size for the headline on mobile devices.",
+      "default": 31
+    },
+    {
+      "type": "select",
+      "id": "headline_line_height",
+      "label": "Headline Line Height",
+      "info": "Adjust the line height for the headline text.",
+      "options": [
+        { "value": "0.75", "label": "0.75" },
+        { "value": "1.0", "label": "1.0" },
+        { "value": "1.1", "label": "1.1" },
+        { "value": "1.2", "label": "1.2" },
+        { "value": "1.3", "label": "1.3" },
+        { "value": "1.4", "label": "1.4" },
+        { "value": "1.5", "label": "1.5" },
+        { "value": "1.6", "label": "1.6" },
+        { "value": "inherit", "label": "Inherit" }
+      ],
+      "default": "inherit"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading Text Size",
+      "info": "Set the font size for the subheading text.",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_text_size",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading Text Size (Mobile)",
+      "info": "Set the font size for the subheading text on mobile devices.",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "text_line_height",
+      "label": "Subheading Text Spacing",
+      "info": "Adjust the line height for the subheading text.",
+      "options": [
+        { "value": "0.75", "label": "0.75" },
+        { "value": "1.0", "label": "1.0" },
+        { "value": "1.1", "label": "1.1" },
+        { "value": "1.2", "label": "1.2" },
+        { "value": "1.3", "label": "1.3" },
+        { "value": "1.4", "label": "1.4" },
+        { "value": "1.5", "label": "1.5" },
+        { "value": "1.6", "label": "1.6" },
+        { "value": "1.7", "label": "1.7" },
+        { "value": "inherit", "label": "Inherit" }
+      ],
+      "default": "inherit"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "default": "#363636",
+      "label": "Texts Color",
+      "info": "Choose the color for the subheading text."
+    },
+    {
+      "type": "header",
+      "content": "Section Design",
+      "info": "Customize the overall design and layout of the section."
+    },
+    {
+      "type": "select",
+      "id": "show_on_device",
+      "label": "Display On",
+      "info": "Choose which devices to display this section on.",
+      "options": [
+        { "value": "all", "label": "All Devices" },
+        { "value": "mobile", "label": "Mobile Devices" },
+        { "value": "desktop", "label": "Desktop / Larger Screens" }
+      ],
+      "default": "all"
+    },
+    {
+      "type": "color",
+      "id": "section_background_color",
+      "default": "#fff",
+      "label": "Background Color",
+      "info": "Set the background color for the section."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Top/Bottom",
+      "info": "Adjust the top and bottom padding of the section.",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_top_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Top/Bottom (Mobile)",
+      "info": "Adjust the top and bottom padding of the section on mobile devices.",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Left/Right",
+      "info": "Adjust the left and right padding of the section.",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Left/Right (Mobile)",
+      "info": "Adjust the left and right padding of the section on mobile devices.",
+      "default": 9
+    },
+    {
+      "type": "range",
+      "id": "element_spacing",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Spacing Between Elements",
+      "info": "Set the spacing between different elements within the section.",
+      "default": 15
+    },
+    {
+      "type": "header",
+      "content": "Icons Settings",
+      "info": "Configure the appearance and display of payment icons."
+    },
+    {
+      "type": "range",
+      "id": "icon_height",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Icon Height (Desktop)",
+      "info": "Set the height of the payment icons on desktop.",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "mobile_icon_height",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Icon Height (Mobile)",
+      "info": "Set the height of the payment icons on mobile devices.",
+      "default": 29
+    },
+    {
+      "type": "range",
+      "id": "icon_gap",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Gap Between Icons (Desktop)",
+      "info": "Set the horizontal gap between icons on desktop.",
+      "default": 27
+    },
+    {
+      "type": "range",
+      "id": "mobile_icon_gap",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Gap Between Icons (Mobile)",
+      "info": "Set the horizontal gap between icons on mobile devices.",
+      "default": 10
+    },
+    {
+      "type": "header",
+      "content": "Payment Methods",
+      "info": "Select which payment methods to display."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_visa",
+      "default": true,
+      "label": "Enable VISA",
+      "info": "Toggle the display of VISA payment icon."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_mastercard",
+      "default": true,
+      "label": "Enable Mastercard",
+      "info": "Toggle the display of Mastercard payment icon."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_discover",
+      "default": true,
+      "label": "Enable Discover",
+      "info": "Toggle the display of Discover payment icon."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_paypal",
+      "default": true,
+      "label": "Enable PayPal",
+      "info": "Toggle the display of PayPal payment icon."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_apple_pay",
+      "default": true,
+      "label": "Enable Apple Pay",
+      "info": "Toggle the display of Apple Pay payment icon."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_google_pay",
+      "default": true,
+      "label": "Enable Google Pay",
+      "info": "Toggle the display of Google Pay payment icon."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shop_pay",
+      "default": false,
+      "label": "Enable Shop Pay",
+      "info": "Toggle the display of Shop Pay payment icon."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Payment Icons Pro 1",
+              "category": "Other",
+      "blocks": [
+      ]
+    }
+  ]
+}
+{% endschema %}

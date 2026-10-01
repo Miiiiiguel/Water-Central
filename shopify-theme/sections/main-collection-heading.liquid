@@ -1,0 +1,306 @@
+{{ 'critical.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign section_st = section.settings
+  assign section_width = section_st.section_width
+  assign color_scheme = section_st.color_scheme
+  assign background_image = section_st.background_image
+  assign show_collection_image = section_st.show_collection_image
+
+  assign image_bg = background_image
+  if show_collection_image and collection.image != blank
+    assign image_bg = collection.image
+  endif
+
+  assign alt = image_bg.alt | default: collection.title | escape
+  assign image_height = section_st.image_height
+-%}
+
+{%- capture style -%}
+  --section-pt: {{ section_st.padding_top }}px;
+  --section-pb: {{ section_st.padding_bottom }}px;
+  --overlay-opacity: {{ section_st.overlay_opacity }}%;
+  height: {{ section_st.image_height }}px;
+{%- endcapture -%}
+
+{%- if section.blocks.size > 0 -%}
+  <div
+    class="section remove_spacing sec__page-heading color-{{ color_scheme }} gradient{% if image_bg != blank %} bg-transparent relative mb-60{% else %} mb-60{% endif %} flex align-center justify-content-{{ section_st.alignment }}"
+    style="{{ style | strip | strip_newlines }}"
+  >
+    {% if show_collection_image or background_image != blank %}
+      <div class="overlay-bg">
+        {%- if image_bg != blank -%}
+          {% render 'responsive-image', type: 'banner', container: section_width, image: image_bg, image_alt: alt, class: 'background-heading absolute inset-0 z--1 pointer-none w-full h-full object-position-center object-fit-cover', style: 'filter: brightness(', append: ');', default: 100, times: 0.01 %}
+        {%- else -%}
+          {% render 'placeholder-render', type: "collection", class: 'background-heading absolute inset-0 z--1 pointer-none w-full h-full object-position-center object-fit-cover', style: 'filter: brightness(', append: ');', default: 100, times: 0.01 %}
+        {%- endif -%}
+      </div>
+    {% endif %}
+
+    <div class="{{ section_width }}">
+      <div class="heading-content relative text-{{ section_st.alignment }}">
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'heading' -%}
+              {%- assign block_st = block.settings -%}
+              <h1
+                class="heading-title heading-letter-spacing h2 mt-8 mb-0"
+                style="
+                  color: {{ section_st.heading_title_color }} !important;
+                  font-size: {{ section_st.heading_title_font_size }}px;
+                "
+              >
+                {%- if block_st.page_title != blank -%}
+                  {{ block_st.page_title }}
+                {%- else -%}
+                  {{ collection.title }}
+                {%- endif -%}
+              </h1>
+            {%- when 'breadcrumb' -%}
+              <div class="page-title-breadcrumb">
+                {%- capture breadcrumb_html -%}
+                  {%- render 'breadcrumbs' -%}
+                {%- endcapture -%}
+                {{
+                  breadcrumb_html
+                  | replace: ' · ',
+                    ' <svg aria-hidden="true" focusable="false" role="presentation" style="height:1em;width:1em;vertical-align:middle;" viewBox="0 0 24 24"><path fill="currentColor" d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg> '
+                }}
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+<style>
+  .page-title-breadcrumb a:last-child,
+  .page-title-breadcrumb span:last-child {
+    color: {{ section_st.heading_title_color }} !important;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Collection Banner",
+  "tag": "section",
+  "class": "page-title",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding (px)",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "info": "Adjust the top padding of the section in pixels."
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding (px)",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "info": "Adjust the bottom padding of the section in pixels."
+    },
+    {
+      "type": "header",
+      "content": "Section Layout & Colors"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "options": [
+        {
+          "value": "container",
+          "label": "Container Width"
+        },
+        {
+          "value": "fluid_container",
+          "label": "Fluid Container"
+        },
+        {
+          "value": "stretch_width",
+          "label": "Stretch Width"
+        },
+        {
+          "value": "full_width",
+          "label": "Full Width"
+        }
+      ],
+      "default": "stretch_width",
+      "label": "Section Container Width",
+      "info": "Choose the container width for the section."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "default": "default-color-scheme",
+      "info": "Select a color scheme for the section that affects background and text colors."
+    },
+    {
+      "type": "header",
+      "content": "Content Alignment"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Content Alignment",
+      "default": "center",
+      "options": [
+        {
+          "value": "left",
+          "label": "Align Left"
+        },
+        {
+          "value": "center",
+          "label": "Align Center"
+        },
+        {
+          "value": "right",
+          "label": "Align Right"
+        }
+      ],
+      "info": "Set the alignment of the content within the section header."
+    },
+    {
+      "type": "header",
+      "content": "Background Image Settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Upload a background image for the section."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_image",
+      "label": "Use Collection Image as Background",
+      "default": false,
+      "info": "If enabled, the section will use the collection's image as the background."
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Overlay Opacity (%)",
+      "default": 0,
+      "info": "Set the opacity of the overlay applied on the background image."
+    },
+    {
+      "type": "range",
+      "id": "image_height",
+      "label": "Background Image Height (px)",
+      "default": 500,
+      "min": 100,
+      "max": 1000,
+      "step": 10,
+      "unit": "px",
+      "info": "Control the height of the background image in pixels."
+    },
+    {
+
+      "type": "header",
+      "content": "Heading Settings"
+    },
+    {
+      "type": "color",
+      "id": "heading_title_color",
+      "label": "Heading Title Color",
+      "default": "#000000",
+      "info": "Select the color for the heading title text. This color also applies to the last item of the breadcrumb."
+    },
+    {
+      "type": "range",
+      "id": "heading_title_font_size",
+      "label": "Heading Title Font Size (px)",
+      "default": 32,
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "info": "Set the font size of the heading title text in pixels."
+    }
+  ],
+  "max_blocks": 3,
+  "blocks": [
+    {
+      "type": "breadcrumb",
+      "name": "Breadcrumb",
+      "limit": 1
+    },
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Add a custom page title. If left empty, the collection title will be used."
+        },
+        {
+          "type": "text",
+          "id": "page_title",
+          "label": "Custom Page Title"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: |-
+    {%
+                render 'responsive-image',
+                type: 'banner',
+                container: section_width,
+                image: image_bg,
+                image_alt: alt,
+                class: 'background-heading absolute inset-0 z--1 pointer-none w-full h-full object-position-center object-fit-cover',
+                style: 'filter: brightness('
+                | append: ( section_st.bg_brightness | default: 100 | times: 0.01 )
+                | append: ') contrast('
+                | append: ( section_st.bg_contrast | default: 100 | times: 0.01 )
+                | append: ');'
+              %}
+  to: "{% render 'responsive-image', type: 'banner', container: section_width, image:
+    image_bg, image_alt: alt, class: 'background-heading absolute inset-0 z--1 pointer-none
+    w-full h-full object-position-center object-fit-cover', style: 'filter: brightness(',
+    append: ');', default: 100, times: 0.01 %}"
+  position: 1290..1585
+- from: |-
+    {%
+                render 'placeholder-render'
+                | type: "collection",
+                class: 'background-heading absolute inset-0 z--1 pointer-none w-full h-full object-position-center object-fit-cover',
+                style: 'filter: brightness('
+                | append: ( section_st.bg_brightness | default: 100 | times: 0.01 )
+                | append: ') contrast('
+                | append: ( section_st.bg_contrast | default: 100 | times: 0.01 )
+                | append: ');'
+              %}
+  to: '{% render ''placeholder-render'', type: "collection", class: ''background-heading
+    absolute inset-0 z--1 pointer-none w-full h-full object-position-center object-fit-cover'',
+    style: ''filter: brightness('', append: '');'', default: 100, times: 0.01 %}'
+  position: 1617..1859
+{% endcomment %}

@@ -1,0 +1,719 @@
+{% liquid
+  assign st = section.settings
+  assign blocks = section.blocks
+  assign video_url = st.video_url
+  assign enable_video = st.enable_centered_video
+  assign enable_3d = st.enable_3d_model
+  assign center_image = st.center_image
+  assign font_family = st.custom_font | default: 'inherit'
+  assign enable_fonts = st.enable_custom_fonts
+  assign product_3d = all_products[st.product_3d_handle]
+%}
+
+{%- style -%}
+  #benefits2-{{ section.id }} {
+    padding-top: {{ st.padding_desktop }}px;
+    padding-bottom: {{ st.padding_desktop }}px;
+    background-color: {{ st.section_bg_color }};
+  }
+  @media (max-width: 767px) {
+    #benefits2-{{ section.id }} {
+      padding-top: {{ st.padding_mobile }}px;
+      padding-bottom: {{ st.padding_mobile }}px;
+    }
+  }
+  {% if enable_fonts %}
+  #benefits2-{{ section.id }} .benefit-title,
+  #benefits2-{{ section.id }} .benefit-desc {
+    font-family: '{{ font_family }}', sans-serif;
+  }
+  {% endif %}
+  #benefits2-{{ section.id }} .benefit-title {
+    color: {{ st.feature_title_color }};
+    font-weight: {{ st.feature_title_font_weight }};
+    font-size: {{ st.feature_title_font_size }}px;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+  }
+  #benefits2-{{ section.id }} .benefit-desc {
+    color: {{ st.feature_description_color }};
+    font-size: {{ st.feature_description_font_size }}px;
+    margin: 0;
+    line-height: 1.5;
+  }
+  #benefits2-{{ section.id }} .benefit-icon-wrap { flex-shrink: 0; }
+  #benefits2-{{ section.id }} .benefit-icon-circle { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+  #benefits2-{{ section.id }} .benefit-icon-circle:has(img):hover { transform: scale(1.08); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+  #benefits2-{{ section.id }} .benefit-icon-circle:has(img) img:hover { transform: scale(1.06); }
+{%- endstyle -%}
+
+{% if st.enable_custom_fonts %}
+  <link href="https://fonts.googleapis.com/css2?family={{ st.custom_font | replace: ' ', '+' }}&display=swap" rel="stylesheet">
+{% endif %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+{%- if enable_3d -%}
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+{%- endif -%}
+
+<div id="benefits2-{{ section.id }}" class="benefits2-section">
+  <div class="benefits2-inner">
+
+    {%- comment -%} LEFT COLUMN {%- endcomment -%}
+    <div class="benefits2-col benefits2-col--left">
+      {%- for block in blocks -%}
+        {%- assign idx = forloop.index0 -%}
+        {%- if idx < 2 and block.disabled != true -%}
+          {%- assign b = block.settings -%}
+          <div class="benefit-item benefit-item--right" {{ block.shopify_attributes }}>
+            <div class="benefit-text">
+              <p class="benefit-title">{{ b.title }}</p>
+              <p class="benefit-desc">{{ b.description }}</p>
+            </div>
+            <div class="benefit-icon-wrap">
+              <div class="benefit-icon-circle{% if b.enable_icon_circle_bg %} has-bg{% endif %}"
+                style="width:{{ b.icon_circle_bg_size }}px;height:{{ b.icon_circle_bg_size }}px;border-radius:{{ b.icon_circle_border_radius }}%;{% if b.enable_icon_circle_bg %}background-color:{{ b.icon_circle_bg_color }};{% endif %}display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
+                {%- if b.benefit_image != blank -%}
+                  <img src="{{ b.benefit_image | image_url: width: 300 }}"
+                       srcset="{{ b.benefit_image | image_url: width: 150 }} 150w, {{ b.benefit_image | image_url: width: 300 }} 300w"
+                       alt="{{ b.benefit_image.alt | default: b.title | escape }}"
+                       width="{{ b.icon_circle_bg_size }}"
+                       height="{{ b.icon_circle_bg_size }}"
+                       loading="lazy"
+                       style="width:100%;height:100%;object-fit:cover;border-radius:{{ b.icon_circle_border_radius }}%;display:block;transition:transform 0.4s ease;">
+                {%- elsif b.svg_icon_code != blank -%}
+                  <span style="display:flex;align-items:center;justify-content:center;width:{{ b.svg_icon_size }}px;height:{{ b.svg_icon_size }}px;color:{{ b.icon_color }}">{{ b.svg_icon_code }}</span>
+                {%- else -%}
+                  <i class="{{ b.icon }}" style="font-size:{{ b.svg_icon_size | times: 0.55 | round }}px;color:{{ b.icon_color }};"></i>
+                {%- endif -%}
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    {%- comment -%} CENTER — 3D / video / imagen {%- endcomment -%}
+    <div class="benefits2-center">
+      {%- if enable_3d and product_3d != blank -%}
+        {%- assign has_model = false -%}
+        {%- for media in product_3d.media -%}
+          {%- if media.media_type == 'model' and has_model == false -%}
+            {%- assign has_model = true -%}
+            <div class="benefits2-model-wrap" style="border-radius:{{ st.image_border_radius }}px;overflow:hidden;">
+              <model-viewer
+                src="{{ media.sources[0].url }}"
+                ios-src="{{ media.sources[1].url }}"
+                alt="{{ product_3d.title }}"
+                auto-rotate
+                camera-controls
+                shadow-intensity="1"
+                style="width:100%;height:{{ st.model_height }}px;background:transparent;"
+                loading="lazy">
+              </model-viewer>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+        {%- if has_model == false -%}
+          <p style="color:{{ st.feature_description_color }};text-align:center;font-size:14px;">El producto seleccionado no tiene modelo 3D.</p>
+        {%- endif -%}
+      {%- elsif enable_video and video_url != blank -%}
+        <video class="benefits2-media"
+          style="border-radius:{{ st.image_border_radius }}px;{% case st.image_shadow %}{% when 'low' %}box-shadow:0 4px 12px rgba(0,0,0,.15);{% when 'medium' %}box-shadow:0 8px 24px rgba(0,0,0,.25);{% when 'high' %}box-shadow:0 16px 40px rgba(0,0,0,.4);{% endcase %}"
+          autoplay muted loop playsinline preload="metadata">
+          <source src="{{ video_url }}" type="video/mp4">
+        </video>
+      {%- elsif center_image != blank -%}
+        <img class="benefits2-media"
+          src="{{ center_image | image_url: width: 800 }}"
+          srcset="{{ center_image | image_url: width: 400 }} 400w, {{ center_image | image_url: width: 800 }} 800w"
+          alt="{{ center_image.alt | default: shop.name }}"
+          loading="lazy"
+          style="border-radius:{{ st.image_border_radius }}px;{% case st.image_shadow %}{% when 'low' %}box-shadow:0 4px 12px rgba(0,0,0,.15);{% when 'medium' %}box-shadow:0 8px 24px rgba(0,0,0,.25);{% when 'high' %}box-shadow:0 16px 40px rgba(0,0,0,.4);{% endcase %}">
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} RIGHT COLUMN {%- endcomment -%}
+    <div class="benefits2-col benefits2-col--right">
+      {%- for block in blocks -%}
+        {%- assign idx = forloop.index0 -%}
+        {%- if idx >= 2 and block.disabled != true -%}
+          {%- assign b = block.settings -%}
+          <div class="benefit-item benefit-item--left" {{ block.shopify_attributes }}>
+            <div class="benefit-icon-wrap">
+              <div class="benefit-icon-circle{% if b.enable_icon_circle_bg %} has-bg{% endif %}"
+                style="width:{{ b.icon_circle_bg_size }}px;height:{{ b.icon_circle_bg_size }}px;border-radius:{{ b.icon_circle_border_radius }}%;{% if b.enable_icon_circle_bg %}background-color:{{ b.icon_circle_bg_color }};{% endif %}display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
+                {%- if b.benefit_image != blank -%}
+                  <img src="{{ b.benefit_image | image_url: width: 300 }}"
+                       srcset="{{ b.benefit_image | image_url: width: 150 }} 150w, {{ b.benefit_image | image_url: width: 300 }} 300w"
+                       alt="{{ b.benefit_image.alt | default: b.title | escape }}"
+                       width="{{ b.icon_circle_bg_size }}"
+                       height="{{ b.icon_circle_bg_size }}"
+                       loading="lazy"
+                       style="width:100%;height:100%;object-fit:cover;border-radius:{{ b.icon_circle_border_radius }}%;display:block;transition:transform 0.4s ease;">
+                {%- elsif b.svg_icon_code != blank -%}
+                  <span style="display:flex;align-items:center;justify-content:center;width:{{ b.svg_icon_size }}px;height:{{ b.svg_icon_size }}px;color:{{ b.icon_color }}">{{ b.svg_icon_code }}</span>
+                {%- else -%}
+                  <i class="{{ b.icon }}" style="font-size:{{ b.svg_icon_size | times: 0.55 | round }}px;color:{{ b.icon_color }};"></i>
+                {%- endif -%}
+              </div>
+            </div>
+            <div class="benefit-text">
+              <p class="benefit-title">{{ b.title }}</p>
+              <p class="benefit-desc">{{ b.description }}</p>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+  </div>
+
+  {%- comment -%} MÓVIL {%- endcomment -%}
+  <div class="benefits2-mobile">
+    {%- if enable_3d and product_3d != blank -%}
+      {%- for media in product_3d.media -%}
+        {%- if media.media_type == 'model' -%}
+          <div style="border-radius:{{ st.image_border_radius }}px;overflow:hidden;width:100%;max-width:340px;margin:0 auto;">
+            <model-viewer
+              src="{{ media.sources[0].url }}"
+              alt="{{ product_3d.title }}"
+              auto-rotate camera-controls shadow-intensity="1"
+              style="width:100%;height:320px;background:transparent;"
+              loading="lazy">
+            </model-viewer>
+          </div>
+          {%- break -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- elsif enable_video and video_url != blank -%}
+      <video style="border-radius:{{ st.image_border_radius }}px;width:100%;max-width:340px;height:auto;display:block;margin:0 auto;"
+        autoplay muted loop playsinline preload="metadata">
+        <source src="{{ video_url }}" type="video/mp4">
+      </video>
+    {%- elsif center_image != blank -%}
+      <img src="{{ center_image | image_url: width: 600 }}"
+        alt="{{ center_image.alt | default: shop.name }}"
+        loading="lazy"
+        style="border-radius:{{ st.image_border_radius }}px;width:100%;max-width:340px;height:auto;display:block;margin:0 auto;">
+    {%- endif -%}
+
+    <div class="benefits2-mobile-features">
+      {%- for block in blocks -%}
+        {%- unless block.disabled -%}
+          {%- assign b = block.settings -%}
+          <div class="benefit-item-mobile" {{ block.shopify_attributes }}>
+            <div class="benefit-icon-circle{% if b.enable_icon_circle_bg %} has-bg{% endif %}"
+              style="width:{{ b.icon_circle_bg_size }}px;height:{{ b.icon_circle_bg_size }}px;border-radius:{{ b.icon_circle_border_radius }}%;{% if b.enable_icon_circle_bg %}background-color:{{ b.icon_circle_bg_color }};{% endif %}flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+              {%- if b.svg_icon_code != blank -%}
+                <span style="display:flex;align-items:center;justify-content:center;width:{{ b.svg_icon_size }}px;height:{{ b.svg_icon_size }}px;color:{{ b.icon_color }}">{{ b.svg_icon_code }}</span>
+              {%- else -%}
+                <i class="{{ b.icon }}" style="font-size:{{ b.svg_icon_size | times: 0.55 | round }}px;color:{{ b.icon_color }};"></i>
+              {%- endif -%}
+            </div>
+            <div class="benefit-text">
+              <p class="benefit-title">{{ b.title }}</p>
+              <p class="benefit-desc">{{ b.description }}</p>
+            </div>
+          </div>
+        {%- endunless -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+<style>
+.benefits2-section { width: 100%; box-sizing: border-box; }
+
+.benefits2-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.benefits2-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  min-width: 0;
+}
+
+.benefits2-center {
+  flex: 0 0 420px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.benefits2-media {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+.benefits2-model-wrap {
+  width: 420px;
+  max-width: 100%;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.benefit-item--right { flex-direction: row-reverse; text-align: right; }
+.benefit-item--left  { flex-direction: row; text-align: left; }
+.benefit-text { flex: 1; min-width: 0; }
+
+.benefit-icon-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Íconos FontAwesome correctos */
+.benefit-icon-circle i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.benefits2-mobile { display: none; }
+
+@media (max-width: 991px) {
+  .benefits2-center { flex: 0 0 320px; }
+  .benefits2-model-wrap { width: 320px; }
+  .benefits2-media { max-width: 320px; }
+  .benefits2-inner { gap: 24px; padding: 0 20px; }
+  .benefits2-col { gap: 28px; }
+}
+
+@media (max-width: 767px) {
+  .benefits2-inner { display: none !important; }
+  .benefits2-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 0 16px;
+  }
+  .benefits2-mobile-features {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .benefit-item-mobile {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-align: left;
+  }
+}
+</style>
+
+{% schema %}{
+  "name": "Product Benefits Pro",
+  "settings": [
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Color de fondo",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Centro — elige UNA opción"
+    },
+    {
+      "type": "header",
+      "content": "Opción 1: Modelo 3D"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_3d_model",
+      "label": "Activar visor 3D",
+      "default": false,
+      "info": "Selecciona un producto que tenga un modelo 3D (.glb) subido en sus medios."
+    },
+    {
+      "type": "product",
+      "id": "product_3d_handle",
+      "label": "Producto con modelo 3D",
+      "info": "El producto debe tener un archivo 3D subido en la sección de medios del producto."
+    },
+    {
+      "type": "range",
+      "id": "model_height",
+      "label": "Alto del visor 3D (px)",
+      "min": 300,
+      "max": 700,
+      "step": 20,
+      "unit": "px",
+      "default": 480
+    },
+    {
+      "type": "header",
+      "content": "Opción 2: Video"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_centered_video",
+      "label": "Activar video central",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "video_url",
+      "label": "URL del video (MP4)"
+    },
+    {
+      "type": "header",
+      "content": "Opción 3: Imagen"
+    },
+    {
+      "type": "image_picker",
+      "id": "center_image",
+      "label": "Imagen central"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "label": "Radio borde",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "select",
+      "id": "image_shadow",
+      "label": "Sombra",
+      "options": [
+        {
+          "value": "none",
+          "label": "Ninguna"
+        },
+        {
+          "value": "low",
+          "label": "Baja"
+        },
+        {
+          "value": "medium",
+          "label": "Media"
+        },
+        {
+          "value": "high",
+          "label": "Alta"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "header",
+      "content": "Tipografía"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_fonts",
+      "label": "Fuente personalizada",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "custom_font",
+      "label": "Fuente",
+      "options": [
+        {
+          "value": "Roboto",
+          "label": "Roboto"
+        },
+        {
+          "value": "Open Sans",
+          "label": "Open Sans"
+        },
+        {
+          "value": "Montserrat",
+          "label": "Montserrat"
+        },
+        {
+          "value": "Poppins",
+          "label": "Poppins"
+        },
+        {
+          "value": "Lato",
+          "label": "Lato"
+        }
+      ],
+      "default": "Roboto"
+    },
+    {
+      "type": "color",
+      "id": "feature_title_color",
+      "label": "Color título",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "feature_description_color",
+      "label": "Color descripción",
+      "default": "#cccccc"
+    },
+    {
+      "type": "select",
+      "id": "feature_title_font_weight",
+      "label": "Peso título",
+      "options": [
+        {
+          "value": "lighter",
+          "label": "Ligero"
+        },
+        {
+          "value": "normal",
+          "label": "Normal"
+        },
+        {
+          "value": "bold",
+          "label": "Negrita"
+        }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "range",
+      "id": "feature_title_font_size",
+      "label": "Tamaño título (px)",
+      "min": 12,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "feature_description_font_size",
+      "label": "Tamaño descripción (px)",
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "padding_desktop",
+      "label": "Padding desktop (px)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_mobile",
+      "label": "Padding móvil (px)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "default": 30
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Beneficio",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "benefit_image",
+          "label": "📷 Foto en el círculo",
+          "info": "Si subes una foto, reemplaza el ícono. Usa imagen cuadrada para mejor resultado."
+        },
+        {
+          "type": "header",
+          "content": "─── Ícono (si no usas foto) ───"
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Ícono",
+          "options": [
+            {
+              "value": "fas fa-heart",
+              "label": "Corazón"
+            },
+            {
+              "value": "fas fa-shield-alt",
+              "label": "Escudo"
+            },
+            {
+              "value": "fas fa-check-circle",
+              "label": "Check"
+            },
+            {
+              "value": "fas fa-lock",
+              "label": "Candado"
+            },
+            {
+              "value": "fas fa-star",
+              "label": "Estrella"
+            },
+            {
+              "value": "fas fa-clock",
+              "label": "Reloj"
+            },
+            {
+              "value": "fas fa-battery-full",
+              "label": "Batería"
+            },
+            {
+              "value": "fas fa-certificate",
+              "label": "Certificado"
+            },
+            {
+              "value": "fas fa-award",
+              "label": "Premio"
+            },
+            {
+              "value": "fas fa-thumbs-up",
+              "label": "Pulgar arriba"
+            },
+            {
+              "value": "fas fa-leaf",
+              "label": "Hoja"
+            },
+            {
+              "value": "fas fa-shipping-fast",
+              "label": "Envío rápido"
+            },
+            {
+              "value": "fas fa-medal",
+              "label": "Medalla"
+            },
+            {
+              "value": "fas fa-eye",
+              "label": "Ojo"
+            },
+            {
+              "value": "fas fa-mobile-alt",
+              "label": "Móvil"
+            },
+            {
+              "value": "fas fa-pencil-alt",
+              "label": "Lápiz"
+            },
+            {
+              "value": "fas fa-sync-alt",
+              "label": "Garantía"
+            },
+            {
+              "value": "fas fa-users",
+              "label": "Usuarios"
+            },
+            {
+              "value": "fas fa-fire",
+              "label": "Fuego"
+            },
+            {
+              "value": "fas fa-bolt",
+              "label": "Rayo"
+            },
+            {
+              "value": "fas fa-flask",
+              "label": "Laboratorio"
+            },
+            {
+              "value": "fas fa-fingerprint",
+              "label": "Huella"
+            }
+          ],
+          "default": "fas fa-heart"
+        },
+        {
+          "type": "color",
+          "id": "icon_color",
+          "label": "Color ícono",
+          "default": "#d4af37"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_icon_circle_bg",
+          "label": "Fondo circular",
+          "default": true
+        },
+        {
+          "type": "color",
+          "id": "icon_circle_bg_color",
+          "label": "Color fondo",
+          "default": "#d4af371f"
+        },
+        {
+          "type": "range",
+          "id": "icon_circle_bg_size",
+          "label": "Tamaño círculo (px)",
+          "min": 40,
+          "max": 120,
+          "step": 5,
+          "unit": "px",
+          "default": 70
+        },
+        {
+          "type": "range",
+          "id": "icon_circle_border_radius",
+          "label": "Radio borde círculo (%)",
+          "min": 0,
+          "max": 50,
+          "step": 5,
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "textarea",
+          "id": "svg_icon_code",
+          "label": "SVG personalizado (opcional)"
+        },
+        {
+          "type": "range",
+          "id": "svg_icon_size",
+          "label": "Tamaño ícono (px)",
+          "min": 10,
+          "max": 80,
+          "step": 2,
+          "unit": "px",
+          "default": 28
+        },
+        {
+          "type": "inline_richtext",
+          "id": "title",
+          "label": "Título",
+          "default": "Beneficio"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Descripción",
+          "default": "Descripción del beneficio."
+        }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Product Benefits Pro",
+      "category": "Benefits"
+    }
+  ]
+}{% endschema %}

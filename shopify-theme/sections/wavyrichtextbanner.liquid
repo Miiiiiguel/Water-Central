@@ -1,0 +1,1047 @@
+<!-- --VERSION-9-- -->
+
+{% style %}
+:root {
+--loudz-neutral-100: #222;
+--loudz-neutral-70: #5e5e5e;
+--loudz-neutral-05: #eaeaea;
+--loudz-neutral-01: #fff;
+--loudz-size-0: 0px;
+--loudz-size-1: 1px;
+--loudz-size-2: 2px;
+--loudz-size-4: 4px;
+--loudz-size-8: 8px;
+--loudz-size-12: 12px;
+--loudz-size-14: 14px;
+--loudz-size-16: 16px;
+--loudz-size-20: 20px;
+--loudz-size-24: 24px;
+--loudz-size-32: 32px;
+--loudz-size-40: 40px;
+--loudz-size-48: 48px;
+--loudz-size-96: 96px;
+--loudz-font-weight-400: 400;
+--loudz-font-weight-600: 600;
+--loudz-line-height-140: 1.4;
+--loudz-text-decoration-none: none;
+--loudz-text-decoration-underline: underline;
+--loudz-border-width-1: var(--loudz-size-1);
+--loudz-color-bg-fill-default-on-light: var(--loudz-neutral-100);
+--loudz-color-bg-fill-tertiary-on-light: var(--loudz-neutral-05);
+--loudz-color-bg-fill-inverse-on-light: var(--loudz-neutral-01);
+--loudz-color-text-disable-on-light: var(--loudz-neutral-70);
+--loudz-color-text-on-bg-fill-on-light: var(--loudz-neutral-01);
+--loudz-space-0: var(--loudz-size-0);
+--loudz-space-2: var(--loudz-size-2);
+--loudz-space-4: var(--loudz-size-4);
+--loudz-space-8: var(--loudz-size-8);
+--loudz-space-12: var(--loudz-size-12);
+--loudz-space-16: var(--loudz-size-16);
+--loudz-space-20: var(--loudz-size-20);
+--loudz-space-24: var(--loudz-size-24);
+--loudz-space-32: var(--loudz-size-32);
+--loudz-space-40: var(--loudz-size-40);
+--loudz-space-48: var(--loudz-size-48);
+--loudz-space-96: var(--loudz-size-96);
+--loudz-font-size-14: var(--loudz-size-14);
+}
+
+
+{% endstyle %}
+
+<!-- --UUID-c3ee5db1-- -->
+
+<section class="Loudz-{{ section.id | handle }} LoudzWavyBannerSection">
+	{%- liquid
+		assign buttons_block = section.blocks | where: "type", "buttons" | first
+
+    case section.settings.wave_type
+      when 'type1'
+        assign top_back_d = 'M0,110 C200,160 400,60 600,110 C800,160 1000,60 1200,110 L1200,0 L0,0 Z'
+        assign top_back_animate1 = 'M0,110 C200,60 400,160 600,110 C800,60 1000,160 1200,110 L1200,0 L0,0 Z'
+        assign top_back_animate2 = 'M0,110 C200,160 400,60 600,110 C800,160 1000,60 1200,110 L1200,0 L0,0 Z'
+        assign top_back_animate3 = top_back_animate1
+
+        assign top_front_d = 'M0,100 C150,200 350,0 600,100 C850,200 1050,0 1200,100 L1200,0 L0,0 Z'
+        assign top_front_animate1 = 'M0,100 C150,200 350,0 600,100 C850,200 1050,0 1200,100 L1200,0 L0,0 Z'
+        assign top_front_animate2 = 'M0,100 C150,0 350,200 600,100 C850,0 1050,200 1200,100 L1200,0 L0,0 Z'
+        assign top_front_animate3 = top_front_animate1
+
+        assign bottom_back_d = 'M0,100 C250,100 450,150 600,100 C750,50 950,100 1200,100 L1200,200 L0,200 Z'
+        assign bottom_back_animate1 = 'M0,100 C250,100 450,150 600,100 C750,50 950,100 1200,100 L1200,200 L0,200 Z'
+        assign bottom_back_animate2 = 'M0,100 C250,150 450,50 600,100 C750,150 950,50 1200,100 L1200,200 L0,200 Z'
+        assign bottom_back_animate3 = bottom_back_animate1
+
+        assign bottom_front_d = 'M0,100 C150,200 350,0 600,100 C850,200 1050,0 1200,100 L1200,200 L0,200 Z'
+        assign bottom_front_animate1 = 'M0,100 C150,200 350,0 600,100 C850,200 1050,0 1200,100 L1200,200 L0,200 Z'
+        assign bottom_front_animate2 = 'M0,100 C150,0 350,200 600,100 C850,0 1050,200 1200,100 L1200,200 L0,200 Z'
+        assign bottom_front_animate3 = bottom_front_animate1
+      when 'type2'
+        assign top_back_d = 'M0,120 C180,170 380,50 580,120 C780,170 980,50 1180,120 L1200,0 L0,0 Z'
+        assign top_back_animate1 = 'M0,120 C180,50 380,170 580,120 C780,50 980,170 1180,120 L1200,0 L0,0 Z'
+        assign top_back_animate2 = 'M0,120 C180,170 380,50 580,120 C780,170 980,50 1180,120 L1200,0 L0,0 Z'
+        assign top_back_animate3 = top_back_animate1
+
+        assign top_front_d = 'M0,90 C130,190 330,10 580,90 C830,190 1030,10 1180,90 L1200,0 L0,0 Z'
+        assign top_front_animate1 = 'M0,90 C130,190 330,10 580,90 C830,190 1030,10 1180,90 L1200,0 L0,0 Z'
+        assign top_front_animate2 = 'M0,90 C130,10 330,190 580,90 C830,10 1030,190 1180,90 L1200,0 L0,0 Z'
+        assign top_front_animate3 = top_front_animate1
+
+        assign bottom_back_d = 'M0,90 C230,90 430,140 580,90 C730,40 930,90 1180,90 L1200,200 L0,200 Z'
+        assign bottom_back_animate1 = 'M0,90 C230,90 430,140 580,90 C730,40 930,90 1180,90 L1200,200 L0,200 Z'
+        assign bottom_back_animate2 = 'M0,90 C230,140 430,40 580,90 C730,140 930,40 1180,90 L1200,200 L0,200 Z'
+        assign bottom_back_animate3 = bottom_back_animate1
+
+        assign bottom_front_d = 'M0,90 C130,190 330,10 580,90 C830,190 1030,10 1180,90 L1200,200 L0,200 Z'
+        assign bottom_front_animate1 = 'M0,90 C130,190 330,10 580,90 C830,190 1030,10 1180,90 L1200,200 L0,200 Z'
+        assign bottom_front_animate2 = 'M0,90 C130,10 330,190 580,90 C830,10 1030,190 1180,90 L1200,200 L0,200 Z'
+        assign bottom_front_animate3 = bottom_front_animate1
+      when 'type3'
+        assign top_back_d = 'M0,130 C220,150 420,70 620,130 C820,150 1020,70 1220,130 L1200,0 L0,0 Z'
+        assign top_back_animate1 = 'M0,130 C220,70 420,150 620,130 C820,70 1020,150 1220,130 L1200,0 L0,0 Z'
+        assign top_back_animate2 = 'M0,130 C220,150 420,70 620,130 C820,150 1020,70 1220,130 L1200,0 L0,0 Z'
+        assign top_back_animate3 = top_back_animate1
+
+        assign top_front_d = 'M0,110 C170,210 370,30 620,110 C870,210 1070,30 1220,110 L1200,0 L0,0 Z'
+        assign top_front_animate1 = 'M0,110 C170,210 370,30 620,110 C870,210 1070,30 1220,110 L1200,0 L0,0 Z'
+        assign top_front_animate2 = 'M0,110 C170,30 370,210 620,110 C870,30 1070,210 1220,110 L1200,0 L0,0 Z'
+        assign top_front_animate3 = top_front_animate1
+
+        assign bottom_back_d = 'M0,110 C270,110 470,160 620,110 C770,60 970,110 1220,110 L1200,200 L0,200 Z'
+        assign bottom_back_animate1 = 'M0,110 C270,110 470,160 620,110 C770,60 970,110 1220,110 L1200,200 L0,200 Z'
+        assign bottom_back_animate2 = 'M0,110 C270,160 470,60 620,110 C770,160 970,60 1220,110 L1200,200 L0,200 Z'
+        assign bottom_back_animate3 = bottom_back_animate1
+
+        assign bottom_front_d = 'M0,110 C170,210 370,30 620,110 C870,210 1070,30 1220,110 L1200,200 L0,200 Z'
+        assign bottom_front_animate1 = 'M0,110 C170,210 370,30 620,110 C870,210 1070,30 1220,110 L1200,200 L0,200 Z'
+        assign bottom_front_animate2 = 'M0,110 C170,30 370,210 620,110 C870,30 1070,210 1220,110 L1200,200 L0,200 Z'
+        assign bottom_front_animate3 = bottom_front_animate1
+      when 'type4'
+        assign top_back_d = 'M0,100 C160,180 360,40 560,100 C760,180 960,40 1160,100 L1200,0 L0,0 Z'
+        assign top_back_animate1 = 'M0,100 C160,40 360,180 560,100 C760,40 960,180 1160,100 L1200,0 L0,0 Z'
+        assign top_back_animate2 = 'M0,100 C160,180 360,40 560,100 C760,180 960,40 1160,100 L1200,0 L0,0 Z'
+        assign top_back_animate3 = top_back_animate1
+
+        assign top_front_d = 'M0,80 C120,180 320,-20 560,80 C800,180 1000,-20 1160,80 L1200,0 L0,0 Z'
+        assign top_front_animate1 = 'M0,80 C120,180 320,-20 560,80 C800,180 1000,-20 1160,80 L1200,0 L0,0 Z'
+        assign top_front_animate2 = 'M0,80 C120,-20 320,180 560,80 C800,-20 1000,180 1160,80 L1200,0 L0,0 Z'
+        assign top_front_animate3 = top_front_animate1
+
+        assign bottom_back_d = 'M0,80 C210,80 410,130 560,80 C710,30 910,80 1160,80 L1200,200 L0,200 Z'
+        assign bottom_back_animate1 = 'M0,80 C210,80 410,130 560,80 C710,30 910,80 1160,80 L1200,200 L0,200 Z'
+        assign bottom_back_animate2 = 'M0,80 C210,130 410,30 560,80 C710,130 910,30 1160,80 L1200,200 L0,200 Z'
+        assign bottom_back_animate3 = bottom_back_animate1
+
+        assign bottom_front_d = 'M0,80 C120,180 320,-20 560,80 C800,180 1000,-20 1160,80 L1200,200 L0,200 Z'
+        assign bottom_front_animate1 = 'M0,80 C120,180 320,-20 560,80 C800,180 1000,-20 1160,80 L1200,200 L0,200 Z'
+        assign bottom_front_animate2 = 'M0,80 C120,-20 320,180 560,80 C800,-20 1000,180 1160,80 L1200,200 L0,200 Z'
+        assign bottom_front_animate3 = bottom_front_animate1
+      when 'type5'
+        assign top_back_d = 'M0,140 C240,190 440,90 640,140 C840,190 1040,90 1240,140 L1200,0 L0,0 Z'
+        assign top_back_animate1 = 'M0,140 C240,90 440,190 640,140 C840,90 1040,190 1240,140 L1200,0 L0,0 Z'
+        assign top_back_animate2 = 'M0,140 C240,190 440,90 640,140 C840,190 1040,90 1240,140 L1200,0 L0,0 Z'
+        assign top_back_animate3 = top_back_animate1
+
+        assign top_front_d = 'M0,120 C190,220 390,20 640,120 C890,220 1090,20 1240,120 L1200,0 L0,0 Z'
+        assign top_front_animate1 = 'M0,120 C190,220 390,20 640,120 C890,220 1090,20 1240,120 L1200,0 L0,0 Z'
+        assign top_front_animate2 = 'M0,120 C190,20 390,220 640,120 C890,20 1090,220 1240,120 L1200,0 L0,0 Z'
+        assign top_front_animate3 = top_front_animate1
+
+        assign bottom_back_d = 'M0,120 C290,120 490,170 640,120 C790,70 990,120 1240,120 L1200,200 L0,200 Z'
+        assign bottom_back_animate1 = 'M0,120 C290,120 490,170 640,120 C790,70 990,120 1240,120 L1200,200 L0,200 Z'
+        assign bottom_back_animate2 = 'M0,120 C290,170 490,70 640,120 C790,170 990,70 1240,120 L1200,200 L0,200 Z'
+        assign bottom_back_animate3 = bottom_back_animate1
+
+        assign bottom_front_d = 'M0,120 C190,220 390,20 640,120 C890,220 1090,20 1240,120 L1200,200 L0,200 Z'
+        assign bottom_front_animate1 = 'M0,120 C190,220 390,20 640,120 C890,220 1090,20 1240,120 L1200,200 L0,200 Z'
+        assign bottom_front_animate2 = 'M0,120 C190,20 390,220 640,120 C890,20 1090,220 1240,120 L1200,200 L0,200 Z'
+        assign bottom_front_animate3 = bottom_front_animate1
+    endcase
+	-%}
+
+	<div class="LoudzWavesBoxContainer">
+		<div class="LoudzWavesBox LoudzWavesBox--top">
+			<div class="LoudzWavesBox__Wave LoudzWavesBox__Wave--back">
+				<svg viewBox="0 0 1200 200" preserveAspectRatio="none">
+					 <path d="{{ top_back_d }}" opacity="0.4">
+					{% if section.settings.enable_wave_animation %}
+					<animate
+					  attributeName="d"
+					  dur="12s"
+					  repeatCount="indefinite"
+					  values="{{ top_back_animate1 }}; {{ top_back_animate2 }}; {{ top_back_animate3 }}" />
+					{% endif %}
+					 </path>
+				</svg>
+			</div>
+			<div class="LoudzWavesBox__Wave LoudzWavesBox__Wave--front">
+				<svg viewBox="0 0 1200 200" preserveAspectRatio="none">
+					 <path d="{{ top_front_d }}">
+					{% if section.settings.enable_wave_animation %}
+						<animate
+						attributeName="d"
+						dur="8s"
+						repeatCount="indefinite"
+						values="{{ top_front_animate1 }}; {{ top_front_animate2 }}; {{ top_front_animate3 }}" />
+					{% endif %}
+					 </path>
+				</svg>
+			</div>
+		</div>
+		<div class="LoudzWavyBannerSectionContainer">
+			<div
+				class="
+					LoudzTextButtonContent
+					LoudzTextButtonContent--contentLayout-{{ section.settings.content_layout_desktop }}
+					LoudzTextButton__Content--alignment-{{ section.settings.content_alignment }}
+				"
+			>
+				<div class="LoudzTextBox">
+					{%- for block in section.blocks -%}
+						{%- case block.type -%}
+							{%- when "heading" -%}
+								{%- if block.settings.heading_alternative_font -%}
+									<style>
+										{{- block.settings.heading_font | font_face: font_display: 'swap' -}}
+									</style>
+								{%- endif -%}
+								{%- capture heading_css_variables -%}
+										--block-heading-size: {{- block.settings.heading_size -}}px;
+										--block-heading-color: {{- block.settings.heading_color -}};
+										--block-heading-font: {{- block.settings.heading_font.family -}};
+                    --block-heading-weight: {{- block.settings.heading_weight -}};
+									  {%- endcapture -%}
+								<h2
+									style="{{- heading_css_variables | strip_newlines | escape -}}"
+									class="LoudzTextBox__Heading {% if block.settings.heading_alternative_font == true %}LoudzTextBox__Heading--alternativeFont{% endif %}"
+									{{ block.shopify_attributes }}
+								>
+									{{- block.settings.heading -}}
+								</h2>
+							{%- when "caption" -%}
+								{%- if block.settings.caption_alternative_font -%}
+									<style>
+										{{- block.settings.caption_font | font_face: font_display: 'swap' -}}
+									</style>
+								{%- endif -%}
+								{%- capture caption_css_variables -%}
+										--block-caption-size: {{- block.settings.caption_size -}}px;
+										--block-caption-color: {{- block.settings.caption_color -}};
+										--block-caption-font: {{- block.settings.caption_font.family -}};
+										--block-caption-weight: {{- block.settings.caption_weight -}};
+									  {%- endcapture -%}
+								<p
+									style="{{- caption_css_variables | strip_newlines | escape -}}"
+									class="LoudzTextBox__Caption {% if block.settings.caption_alternative_font == true %}LoudzTextBox__Caption--alternativeFont{% endif %}"
+									{{ block.shopify_attributes }}
+								>
+									{{- block.settings.caption -}}
+								</p>
+							{%- when "text" -%}
+								{%- if block.settings.description_alternative_font -%}
+									{%- liquid
+										assign body_font_bold = block.settings.description_font | font_modify: 'weight', 'bold'
+										assign body_font_italic = block.settings.description_font | font_modify: 'style', 'italic'
+										assign body_font_bold_italic = body_font_bold | font_modify: 'style', 'italic'
+									%}
+									<style>
+										{{- block.settings.description_font | font_face: font_display: 'swap' -}}
+										{{ body_font_bold | font_face: font_display: 'swap' }}
+										{{ body_font_italic | font_face: font_display: 'swap' }}
+										{{ body_font_bold_italic | font_face: font_display: 'swap' }}
+									</style>
+								{%- endif -%}
+								{%- capture description_css_variables -%}
+										--block-description-size: {{- block.settings.description_size -}}px;
+										--block-description-color: {{- block.settings.description_color -}};
+										--block-description-font: {{- block.settings.description_font.family -}};
+									  {%- endcapture -%}
+								<div
+									style="{{- description_css_variables | strip_newlines | escape -}}"
+									class="LoudzTextBox__Description {% if block.settings.description_alternative_font == true %}LoudzTextBox__Description--alternativeFont{% endif %}"
+									{{ block.shopify_attributes }}
+								>
+									{{- block.settings.description -}}
+								</div>
+						{%- endcase -%}
+					{%- endfor -%}
+				</div>
+				{%- if buttons_block -%}
+					<div class="LoudzButtonsGroup">
+						{%- capture buttons_css_variables -%}
+								--block-primary-button-text-color: {{- buttons_block.settings.primary_text_color -}};
+								--block-primary-button-background-color: {{- buttons_block.settings.primary_background_color -}};
+								--block-primary-button-corner-radius: {{- buttons_block.settings.primary_button_corner -}}px;
+								--block-primary-button-border-color: {{- buttons_block.settings.primary_border_color -}};
+				
+								--block-secondary-button-text-color: {{- buttons_block.settings.secondary_text_color -}};
+								--block-secondary-button-background-color: {{- buttons_block.settings.secondary_background_color -}};
+								--block-secondary-button-corner-radius: {{- buttons_block.settings.secondary_button_corner -}}px;
+								--block-secondary-button-border-color: {{- buttons_block.settings.secondary_border_color -}};
+
+                --block-button-font-weight: {{- buttons_block.settings.button_font_weight -}};
+							  {%- endcapture -%}
+						<div
+							style="{{- buttons_css_variables | strip_newlines | escape -}}"
+							class="LoudzTextButtonButtons"
+							{{ buttons_block.shopify_attributes }}
+						>
+							{%- if buttons_block.settings.primary_button_label != blank -%}
+								<loudz-wave-scroll-to-top>
+									<a
+										{% if buttons_block.settings.primary_new_tab == true %}
+											target="_blank"
+										{% endif %}
+										class="LoudzTextButtonButtons__Primary LoudzTextButtonButtons__Primary--{{ buttons_block.settings.primary_button_style }}"
+										{% if buttons_block.settings.primary_button_behaviour == "link" %}
+											href="{{ buttons_block.settings.primary_button_link }}"
+										{% else %}
+											href="javascript:void(0)"
+											data-scroll-to-top
+										{% endif %}
+										aria-label="{{ buttons_block.settings.primary_button_label | escape }}"
+									>
+										{{- buttons_block.settings.primary_button_label | escape -}}
+									</a>
+								</loudz-wave-scroll-to-top>
+							{%- endif -%}
+							{%- if buttons_block.settings.secondary_button_label != blank -%}
+								<a
+									{% if buttons_block.settings.secondary_new_tab == true %}
+										target="_blank"
+									{% endif %}
+									class="LoudzTextButtonButtons__Secondary LoudzTextButtonButtons__Secondary--{{ buttons_block.settings.secondary_button_style }}"
+									href="{{ buttons_block.settings.secondary_button_link }}"
+									aria-label="{{ buttons_block.settings.secondary_button_label | escape }}"
+								>
+									{{- buttons_block.settings.secondary_button_label | escape -}}
+								</a>
+							{%- endif -%}
+						</div>
+					</div>
+				{%- endif -%}
+			</div>
+		</div>
+		<div class="LoudzWavesBox LoudzWavesBox--bottom">
+			<div class="LoudzWavesBox__Wave LoudzWavesBox__Wave--back">
+				<svg viewBox="0 0 1200 200" preserveAspectRatio="none">
+					<path d="{{ bottom_back_d }}" opacity="0.4">
+						{% if section.settings.enable_wave_animation %}
+							<animate
+							attributeName="d"
+							dur="12s"
+							repeatCount="indefinite"
+							values="{{ bottom_back_animate1 }}; {{ bottom_back_animate2 }}; {{ bottom_back_animate3 }}" />
+						{% endif %}
+					</path>
+				</svg>
+			</div>
+
+			<div class="LoudzWavesBox__Wave LoudzWavesBox__Wave--front">
+				<svg viewBox="0 0 1200 200" preserveAspectRatio="none">
+					<path d="{{ bottom_front_d }}">
+						{% if section.settings.enable_wave_animation %}
+							<animate
+							attributeName="d"
+							dur="8s"
+							repeatCount="indefinite"
+							values="{{ bottom_front_animate1 }}; {{ bottom_front_animate2 }}; {{ bottom_front_animate3 }}" />
+						{% endif %}
+					</path>
+				</svg>
+			</div>
+		</div>
+	</div>
+</section>
+
+{% schema %}
+{
+	"name": "Wavy Richtext Banner",
+	"disabled_on": {
+		"groups": ["header"]
+	},
+	"settings": [
+		{
+			"type": "header",
+			"content": "General Settings"
+		},
+		{
+			"type": "select",
+			"id": "content_alignment",
+			"label": "Alignment of Content",
+			"options": [
+				{
+					"value": "left",
+					"label": "Left"
+				},
+				{
+					"value": "center",
+					"label": "Center"
+				},
+				{
+					"value": "right",
+					"label": "Right"
+				}
+			],
+			"default": "center"
+		},
+		{
+			"type": "select",
+			"id": "content_layout_desktop",
+			"label": "Desktop Layout for Content",
+			"options": [
+				{
+					"value": "vertical",
+					"label": "Vertical"
+				},
+				{
+					"value": "horizontal",
+					"label": "Horizontal"
+				},
+				{
+					"value": "vertical_reverse",
+					"label": "Vertical reverse"
+				},
+				{
+					"value": "horizontal_reverse",
+					"label": "Horizontal reverse"
+				}
+			],
+			"default": "vertical"
+		},
+		{
+			"type": "color",
+			"id": "wave_color",
+			"label": "Color of Waves",
+			"default": "#F1F6FF"
+		},
+		{
+			"type": "checkbox",
+			"id": "enable_wave_animation",
+			"label": "Enable Wave Animation",
+			"default": true
+		},
+		{
+			"type": "select",
+			"id": "wave_type",
+			"label": "Type of Waves",
+			"options": [
+				{
+					"value": "type1",
+					"label": "Gentle Waves"
+				},
+				{
+					"value": "type2",
+					"label": "Curvy Waves"
+				},
+				{
+					"value": "type3",
+					"label": "Sharp Waves"
+				},
+				{
+					"value": "type4",
+					"label": "Asymmetric Waves"
+				},
+				{
+					"value": "type5",
+					"label": "Rolling Waves"
+				}
+			],
+			"default": "type5"
+		},
+		{
+			"type": "header",
+			"content": "Layout Settings"
+		},
+		{
+			"type": "range",
+			"id": "top_padding_desktop",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Desktop Top Padding",
+			"default": 40
+		},
+		{
+			"type": "range",
+			"id": "bottom_padding_desktop",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Desktop Bottom Padding",
+			"default": 40
+		},
+		{
+			"type": "range",
+			"id": "top_padding_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Mobile Top Padding",
+			"default": 40
+		},
+		{
+			"type": "range",
+			"id": "bottom_padding_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Mobile Bottom Padding",
+			"default": 40
+		},
+		{
+			"type": "range",
+			"id": "vertical_gap_desktop",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Desktop Vertical Gap between Button & Elements",
+			"default": 20
+		},
+		{
+			"type": "range",
+			"id": "vertical_gap_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Mobile Vertical Gap between Button & Elements",
+			"default": 16
+		},
+		{
+			"type": "range",
+			"id": "section_width",
+			"min": 70,
+			"max": 100,
+			"step": 1,
+			"unit": "%",
+			"label": "Width of Section",
+			"default": 80,
+			"info": "Applies only to desktop"
+		},
+		{
+			"type": "range",
+			"id": "top_margin_desktop",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Desktop Top Margin",
+			"default": 40
+		},
+		{
+			"type": "range",
+			"id": "bottom_margin_desktop",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Desktop Bottom Margin",
+			"default": 40
+		},
+		{
+			"type": "range",
+			"id": "top_margin_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Mobile Top Margin",
+			"default": 20
+		},
+		{
+			"type": "range",
+			"id": "bottom_margin_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Mobile Bottom Margin",
+			"default": 20
+		}
+	],
+	"blocks": [
+		{
+			"type": "heading",
+			"name": "Heading",
+			"limit": 1,
+			"settings": [
+				{
+					"type": "text",
+					"id": "heading",
+					"default": "Catchy Headline",
+					"label": "Heading Text"
+				},
+				{
+					"type": "range",
+					"id": "heading_size",
+					"min": 16,
+					"max": 72,
+					"step": 2,
+					"unit": "px",
+					"label": "Heading Font Size",
+					"default": 32
+				},
+				{
+					"type": "select",
+					"id": "heading_weight",
+					"label": "Heading Font Weight",
+					"options": [
+						{
+							"value": "100",
+							"label": "Thin"
+						},
+						{
+							"value": "300",
+							"label": "Light"
+						},
+						{
+							"value": "400",
+							"label": "Regular"
+						},
+						{
+							"value": "600",
+							"label": "Semi-bold"
+						},
+						{
+							"value": "700",
+							"label": "Bold"
+						}
+					],
+					"default": "600"
+				},
+				{
+					"type": "color",
+					"id": "heading_color",
+					"label": "Heading Color",
+					"default": "#222222"
+				},
+				{
+					"type": "header",
+					"content": "Alternative Font for Heading"
+				},
+				{
+					"type": "checkbox",
+					"id": "heading_alternative_font",
+					"label": "Use Alternative Font",
+					"default": false
+				},
+				{
+					"type": "font_picker",
+					"id": "heading_font",
+					"label": "Alternative Font",
+					"default": "sans_serif_n4"
+				}
+			]
+		},
+		{
+			"type": "caption",
+			"name": "Caption",
+			"limit": 1,
+			"settings": [
+				{
+					"type": "text",
+					"id": "caption",
+					"default": "Supporting Subheadline",
+					"label": "Caption Text"
+				},
+				{
+					"type": "range",
+					"id": "caption_size",
+					"min": 10,
+					"max": 30,
+					"step": 1,
+					"unit": "px",
+					"label": "Caption Font Size",
+					"default": 16
+				},
+				{
+					"type": "select",
+					"id": "caption_weight",
+					"label": "Caption Font Weight",
+					"options": [
+						{
+							"value": "400",
+							"label": "Regular"
+						},
+						{
+							"value": "600",
+							"label": "Bold"
+						}
+					],
+					"default": "400"
+				},
+				{
+					"type": "color",
+					"id": "caption_color",
+					"label": "Caption Color",
+					"default": "#222222"
+				},
+				{
+					"type": "header",
+					"content": "Alternative Font for Caption"
+				},
+				{
+					"type": "checkbox",
+					"id": "caption_alternative_font",
+					"label": "Use Alternative Font",
+					"default": false
+				},
+				{
+					"type": "font_picker",
+					"id": "caption_font",
+					"label": "Alternative Font",
+					"default": "sans_serif_n4"
+				}
+			]
+		},
+		{
+			"type": "text",
+			"name": "Description",
+			"limit": 1,
+			"settings": [
+				{
+					"type": "richtext",
+					"id": "description",
+					"default": "<p>Engage your audience with compelling content about your offer.</p>",
+					"label": "Description Text"
+				},
+				{
+					"type": "range",
+					"id": "description_size",
+					"min": 12,
+					"max": 24,
+					"step": 1,
+					"unit": "px",
+					"label": "Description Font Size",
+					"default": 16
+				},
+				{
+					"type": "color",
+					"id": "description_color",
+					"label": "Description Color",
+					"default": "#222222"
+				},
+				{
+					"type": "header",
+					"content": "Alternative Font for Description"
+				},
+				{
+					"type": "checkbox",
+					"id": "description_alternative_font",
+					"label": "Use Alternative Font",
+					"default": false
+				},
+				{
+					"type": "font_picker",
+					"id": "description_font",
+					"label": "Alternative Font",
+					"default": "sans_serif_n4"
+				}
+			]
+		},
+		{
+			"type": "buttons",
+			"name": "Buttons",
+			"limit": 1,
+			"settings": [
+				{
+					"type": "header",
+					"content": "Primary Button Settings"
+				},
+				{
+					"type": "select",
+					"id": "primary_button_behaviour",
+					"label": "Primary Button Action",
+					"options": [
+						{
+							"value": "link",
+							"label": "Link"
+						},
+						{
+							"value": "scroll_to_top",
+							"label": "Scroll to top"
+						}
+					],
+					"default": "link"
+				},
+				{
+					"type": "text",
+					"id": "primary_button_label",
+					"default": "Shop Now",
+					"label": "Primary Button Text"
+				},
+				{
+					"type": "url",
+					"id": "primary_button_link",
+					"label": "Primary Button URL",
+					"visible_if": "{{ block.settings.primary_button_behaviour == 'link' }}"
+				},
+				{
+					"type": "select",
+					"id": "primary_button_style",
+					"label": "Primary Button Style",
+					"options": [
+						{
+							"value": "solid",
+							"label": "Filled"
+						},
+						{
+							"value": "outline",
+							"label": "Outline"
+						},
+						{
+							"value": "link",
+							"label": "Link"
+						}
+					],
+					"default": "solid"
+				},
+				{
+					"type": "color",
+					"id": "primary_text_color",
+					"label": "Primary Text Color",
+					"default": "#ffffff"
+				},
+				{
+					"type": "color",
+					"id": "primary_background_color",
+					"label": "Primary Background Color",
+					"default": "#222222",
+					"visible_if": "{{ block.settings.primary_button_style == 'solid' }}"
+				},
+				{
+					"type": "color",
+					"id": "primary_border_color",
+					"label": "Primary Border Color",
+					"default": "#222222",
+					"visible_if": "{{ block.settings.primary_button_style == 'outline' }}"
+				},
+				{
+					"type": "range",
+					"id": "primary_button_corner",
+					"min": 0,
+					"max": 100,
+					"step": 2,
+					"unit": "px",
+					"label": "Primary Corner Radius",
+					"visible_if": "{{ block.settings.primary_button_style != 'link' }}",
+					"default": 8
+				},
+				{
+					"type": "checkbox",
+					"id": "primary_new_tab",
+					"label": "Open Primary Link in New Tab",
+					"default": false,
+					"visible_if": "{{ block.settings.primary_button_behaviour == 'link' }}"
+				},
+				{
+					"type": "header",
+					"content": "Secondary Button Settings"
+				},
+				{
+					"type": "text",
+					"id": "secondary_button_label",
+					"label": "Secondary Button Text"
+	
+				},
+				{
+					"type": "url",
+					"id": "secondary_button_link",
+					"label": "Secondary Button URL"
+				},
+				{
+					"type": "select",
+					"id": "secondary_button_style",
+					"label": "Secondary Button Style",
+					"options": [
+						{
+							"value": "solid",
+							"label": "Filled"
+						},
+						{
+							"value": "outline",
+							"label": "Outline"
+						},
+						{
+							"value": "link",
+							"label": "Link"
+						}
+					],
+					"default": "solid"
+				},
+				{
+					"type": "color",
+					"id": "secondary_text_color",
+					"label": "Secondary Text Color",
+					"default": "#ffffff"
+				},
+				{
+					"type": "color",
+					"id": "secondary_background_color",
+					"label": "Secondary Background Color",
+					"default": "#222222",
+					"visible_if": "{{ block.settings.secondary_button_style == 'solid' }}"
+				},
+				{
+					"type": "color",
+					"id": "secondary_border_color",
+					"label": "Secondary Border Color",
+					"default": "#222222",
+					"visible_if": "{{ block.settings.secondary_button_style == 'outline' }}"
+				},
+				{
+					"type": "range",
+					"id": "secondary_button_corner",
+					"min": 0,
+					"max": 100,
+					"step": 2,
+					"unit": "px",
+					"label": "Secondary Corner Radius",
+					"visible_if": "{{ block.settings.secondary_button_style != 'link' }}",
+					"default": 8
+				},
+				{
+					"type": "checkbox",
+					"id": "secondary_new_tab",
+					"label": "Open Secondary Link in New Tab",
+					"default": false
+				},
+        {
+          "type": "header",
+          "content": "Button Font Settings"
+        },
+        {
+          "type": "select",
+          "id": "button_font_weight",
+          "label": "Button Font Weight",
+          "options": [
+            {
+              "value": "100",
+              "label": "Thin"
+            },
+            {
+              "value": "300",
+              "label": "Light"
+            },
+            {
+              "value": "400",
+              "label": "Regular"
+            },
+            {
+              "value": "600",
+              "label": "Semi-bold"
+            },
+            {
+              "value": "700",
+              "label": "Bold"
+            }
+          ],
+          "default": "400"
+        }
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Wavy Richtext Banner",
+			"category": "Banners",
+			"blocks": [
+				{
+					"type": "caption"
+				},
+				{
+					"type": "heading"
+				},
+				{
+					"type": "text"
+				},
+				{
+					"type": "buttons"
+				}
+			]
+		}
+	]
+}
+{% endschema %}
+
+{% style %}
+	.Loudz-{{ section.id | handle }} {
+	 --section-top-margin: {{- section.settings.top_margin_desktop -}}px;
+   --section-bottom-margin: {{- section.settings.bottom_margin_desktop -}}px;
+	 --section-top-margin-mobile: {{- section.settings.top_margin_mobile -}}px;
+   --section-bottom-margin-mobile: {{- section.settings.bottom_margin_mobile -}}px;
+	 --section-wave-color: {{- section.settings.wave_color -}};
+	 --section-top-padding: {{- section.settings.top_padding_desktop -}}px;
+   --section-bottom-padding: {{- section.settings.bottom_padding_desktop -}}px;
+	 --section-top-padding-mobile: {{- section.settings.top_padding_mobile -}}px;
+   --section-bottom-padding-mobile: {{- section.settings.bottom_padding_mobile -}}px;
+	 --section-text-alignment: {{- section.settings.content_alignment -}};
+	 --section-width: {{- section.settings.section_width -}}%;
+	 --vertical-gap-desktop: {{- section.settings.vertical_gap_desktop -}}px;
+	 --vertical-gap-mobile: {{- section.settings.vertical_gap_mobile -}}px;
+	}
+
+	
+
+.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection{margin:var(--section-top-margin-mobile) 0 var(--section-bottom-margin-mobile) 0;position:relative}@media(min-width: 992px){.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection{margin:var(--section-top-margin) 0 var(--section-bottom-margin) 0}}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzWavesBoxContainer{position:relative}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzWavesBox{width:100%}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzWavesBox__Wave{max-height:var(--loudz-space-48);width:100%;height:100%;z-index:0}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzWavesBox__Wave svg{max-height:var(--loudz-space-48);width:100%;fill:var(--section-wave-color, var(--loudz-color-bg-fill-tertiary-on-light))}@media(min-width: 992px){.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzWavesBox__Wave{max-height:var(--loudz-space-96)}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzWavesBox__Wave svg{max-height:var(--loudz-space-96)}}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzWavesBox--top{top:0;transform:rotate(180deg)}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzWavesBox--top .LoudzWavesBox__Wave--back{position:absolute}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzWavesBox--bottom{transform:rotate(180deg)}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzWavesBox--bottom .LoudzWavesBox__Wave--back{bottom:0;position:absolute}@keyframes waveParallax{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzWavyBannerSectionContainer{padding:var(--section-top-padding-mobile) 0 var(--section-bottom-padding-mobile) 0;display:flex;margin:0 auto;position:relative;background-color:var(--section-wave-color, var(--loudz-color-bg-fill-tertiary-on-light));justify-content:center}@media(min-width: 992px){.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzWavyBannerSectionContainer{display:flex;padding:var(--section-top-padding) 0 var(--section-bottom-padding) 0;width:100%}}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent{max-width:100%;width:100%;display:flex;align-items:center;flex-direction:column;gap:var(--vertical-gap-mobile);padding:var(--loudz-space-12) var(--loudz-space-16)}@media(min-width: 992px){.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent{justify-content:var(--section-text-alignment);width:var(--section-width);gap:var(--vertical-gap-desktop)}}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-vertical{flex-direction:column;gap:var(--vertical-gap-mobile)}@media(min-width: 992px){.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-vertical{gap:var(--vertical-gap-desktop)}}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-vertical .LoudzButtonsGroup{width:100%}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-vertical .LoudzTextBox{width:100%}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-horizontal .LoudzButtonsGroup{width:100%}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-horizontal .LoudzTextBox{width:100%}@media(min-width: 992px){.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-horizontal .LoudzTextBox{width:50%}}@media(min-width: 992px){.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-horizontal{flex-direction:row;width:var(--section-width);gap:var(--vertical-gap-desktop);justify-content:space-between;margin:0 auto}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-horizontal .LoudzTextBox{width:50%}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-horizontal .LoudzButtonsGroup{width:50%}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-horizontal .LoudzButtonsGroup .LoudzTextButtonButtons{justify-content:flex-end}}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-horizontal_reverse{flex-direction:row-reverse;width:var(--section-width);gap:var(--vertical-gap-desktop);justify-content:space-between;margin:0 auto}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-horizontal_reverse .LoudzTextBox{width:50%}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-horizontal_reverse .LoudzButtonsGroup{width:50%}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-horizontal_reverse .LoudzButtonsGroup .LoudzTextButtonButtons{justify-content:flex-start}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-vertical_reverse{flex-direction:column-reverse;gap:var(--vertical-gap-mobile)}@media(min-width: 992px){.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent--contentLayout-vertical_reverse{gap:var(--vertical-gap-desktop)}}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox{display:flex;flex-direction:column;gap:var(--loudz-space-8);text-align:var(--section-text-alignment)}@media(min-width: 992px){.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox{text-align:var(--section-text-alignment)}}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox p:empty,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox div:empty,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox h2:empty{display:none}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Heading{margin:0;font-size:calc(var(--block-heading-size)*.75);color:var(--block-heading-color);font-weight:var(--block-heading-weight)}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Heading--alternativeFont{font-family:var(--block-heading-font)}@media(min-width: 992px){.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Heading{font-size:var(--block-heading-size);text-align:var(--section-text-alignment)}}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description p,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description ul,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description ol{margin:0;font-size:calc(var(--block-description-size)*.88);color:var(--block-description-color)}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description h1,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description h2,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description h3,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description h4,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description h5,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description h6{color:var(--block-description-color);margin:0;padding:0}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description a{color:var(--block-description-color);margin:0;padding:0;text-decoration:underline;text-underline-offset:var(--loudz-space-2);transition:opacity .3s ease-in}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description a:hover{opacity:.85}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description ul,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description ol{padding-left:var(--loudz-space-20)}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description--alignment-center ul,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description--alignment-center ol,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description--alignment-right ul,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description--alignment-right ol{list-style-position:inside}@media(min-width: 992px){.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description p,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description ul,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description ol{font-size:var(--block-description-size)}}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description--alternativeFont p,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description--alternativeFont ul,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description--alternativeFont ol,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description--alternativeFont h1,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description--alternativeFont h2,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description--alternativeFont h3,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description--alternativeFont h4,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description--alternativeFont h5,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Description--alternativeFont h6{font-family:var(--block-description-font)}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Caption{margin:0;font-size:var(--block-caption-size);color:var(--block-caption-color);font-weight:var(--block-caption-weight)}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextBox__Caption--alternativeFont{font-family:var(--block-caption-font)}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextButtonButtons{display:flex;gap:var(--loudz-space-16);flex-wrap:wrap;justify-content:var(--section-text-alignment)}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextButtonButtons__Primary,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextButtonButtons__Secondary{display:inline-flex;justify-content:center;align-items:center;cursor:pointer;font:inherit;font-size:var(--loudz-font-size-14);font-weight:var(--block-button-font-weight);text-decoration:var(--loudz-text-decoration-none);-webkit-appearance:none;appearance:none;width:fit-content;padding:var(--loudz-space-16) var(--loudz-space-20);transition:all .3s ease-in;line-height:1}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextButtonButtons__Primary:hover,.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextButtonButtons__Secondary:hover{opacity:.85}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextButtonButtons__Primary--solid{color:var(--block-primary-button-text-color, var(--loudz-color-text-on-bg-fill-on-light));background-color:var(--block-primary-button-background-color, var(--loudz-color-bg-fill-default-on-light));border-radius:var(--block-primary-button-corner-radius)}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextButtonButtons__Primary--outline{color:var(--block-primary-button-text-color);background-color:rgba(0,0,0,0);border:var(--loudz-border-width-1) solid var(--block-primary-button-border-color);border-radius:var(--block-primary-button-corner-radius)}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextButtonButtons__Primary--link{color:var(--block-primary-button-text-color);background-color:rgba(0,0,0,0);border:var(--loudz-space-0);border-radius:var(--loudz-space-0);text-decoration:var(--loudz-text-decoration-underline);text-underline-offset:var(--loudz-space-4);padding:0}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextButtonButtons__Secondary--solid{color:var(--block-secondary-button-text-color, var(--loudz-color-text-on-bg-fill-on-light));background-color:var(--block-secondary-button-background-color, var(--loudz-color-bg-fill-default-on-light));border-radius:var(--block-secondary-button-corner-radius)}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextButtonButtons__Secondary--outline{color:var(--block-secondary-button-text-color);background-color:rgba(0,0,0,0);border:var(--loudz-border-width-1) solid var(--block-secondary-button-border-color);border-radius:var(--block-secondary-button-corner-radius)}.Loudz-{{ section.id | handle }}.LoudzWavyBannerSection .LoudzTextButtonContent .LoudzTextButtonButtons__Secondary--link{color:var(--block-secondary-button-text-color);background-color:rgba(0,0,0,0);border:var(--loudz-space-0);padding:0;border-radius:var(--loudz-space-0);text-decoration:var(--loudz-text-decoration-underline);text-underline-offset:var(--loudz-space-4)}
+
+{% endstyle %}
+<script>
+	(() => {
+		class LoudzWaveScrollToTop extends HTMLElement {
+			constructor() {
+				super();
+			}
+
+			connectedCallback() {
+				this.initScrollHandler();
+			}
+
+			initScrollHandler() {
+				const scrollToButton = this.querySelector('[data-scroll-to-top]');
+
+				if (!scrollToButton) {
+					return;
+				}
+
+				scrollToButton.addEventListener('click', this.handleClick.bind(this));
+			}
+
+			handleClick(event) {
+				event.preventDefault();
+
+				window.scrollTo({
+					top: 0,
+					behavior: 'smooth',
+				});
+			}
+		}
+
+		document.addEventListener('shopify:section:load', () => {
+			if (!customElements.get('loudz-wave-scroll-to-top')) {
+				customElements.define('loudz-wave-scroll-to-top', LoudzWaveScrollToTop);
+			}
+		});
+
+		document.addEventListener('DOMContentLoaded', () => {
+			if (!customElements.get('loudz-wave-scroll-to-top')) {
+				customElements.define('loudz-wave-scroll-to-top', LoudzWaveScrollToTop);
+			}
+		});
+	})();
+</script>
+
+
+
+{% style %}
+	
+
+.LoudzUninstallBG{background-color:var(--loudz-color-bg-fill-inverse-on-light);background-image:url("data:image/avif;base64,iVBORw0KGgoAAAANSUhEUgAABOcAAABkCAQAAABnAJxfAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAACYktHRAD/h4/MvwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+gLFQgmAgUXFkMAAARaSURBVHja7daxbSRBEATB8ZzvKw0h1dcIlJS4jl25Azlavffn9/3v++e//+vvCwqFQqFQKBRKSklEUCgUCoVCoVAMOgqFQqFQKJSzSiKCQqFQKBQKhWLQUSgUCoVCoZxVEhEUCoVCoVAoFIOOQqFQKBQK5VOURASFQqFQKBQKZVUSERQKhUKhUCiUVUlEUCgUCoVCoVBWZbtOPoVCoVAoFArlovIKERQKhUKhUCiUVXmFCAqFQqFQKBTKqrxCBIVCoVAoFAplVV4hgkKhUCgUCoUyK4kICoVCoVAoFMqqJCIoFAqFQqFQKKuSiKBQKBQKhUKhrEoigkKhUCgUCoVi0FEoFAqFQqGcVRIRFAqFQqFQKBSDjkKhUCgUCuWskoigUCgUCoVCoRh0FAqFQqFQKGeVRASFQqFQKBQKxaCjUCgUCoVCOaskIigUCoVCoVAoBh2FQqFQKBTKWSURQaFQKBQKhUIx6CgUCoVCoVDOKokICoVCoVAoFIpBR6FQKBQKhXJWSURQKBQKhUKhUAw6CoVCoVAolLNKIoJCoVAoFAqFYtBRKBQKhUKhnFUSERQKhUKhUCgUg45CoVAoFArlrJKIoFAoFAqFQqEYdBQKhUKhUChnlUQEhUKhUCgUCsWgo1AoFAqFQvkUJRFBoVAoFAqFQlmVRASFQqFQKBQKZVUSERQKhUKhUCiUVdmuk0+hUCgUCoVCuai8QgSFQqFQKBQKZVVeIYJCoVAoFAqFsiqvEEGhUCgUCoVCWZVXiKBQKBQKhUKhzEoigkKhUCgUCoWyKokICoVCoVAoFMqqJCIoFAqFQqFQKAYdhUKhUCgUylklEUGhUCgUCoVCMegoFAqFQqFQziqJCAqFQqFQKBSKQUehUCgUCoVyVklEUCgUCoVCoVAMOgqFQqFQKJSzSiKCQqFQKBQKhWLQUSgUCoVCoZxVEhEUCoVCoVAoFIOOQqFQKBQK5dOVX5nMB52iezhxAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI0LTExLTIxVDA4OjM4OjAyKzAwOjAw30WrCwAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNC0xMS0yMVQwODozODowMiswMDowMK4YE7cAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjQtMTEtMjFUMDg6Mzg6MDIrMDA6MDD5DTJoAAAAAElFTkSuQmCC");background-position:center;background-size:cover;text-align:center;padding:var(--loudz-space-32);margin:0}.LoudzUninstallBG__Text{color:var(--loudz-color-text-disable-on-light);font-family:Inter,sans-serif;font-size:var(--loudz-font-size-14);font-weight:var(--loudz-font-weight-400);line-height:var(--loudz-line-height-140);padding:var(--loudz-space-16) var(--loudz-space-16) var(--loudz-space-16) var(--loudz-space-40);background-color:var(--loudz-color-bg-fill-inverse-on-light);display:inline-block}.LoudzUninstallBG__Text::before{content:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%0A%09%09%09%3Cpath%20d%3D%22M9.99994%206.75C10.4142%206.75%2010.7499%207.08579%2010.7499%207.5V11C10.7499%2011.4142%2010.4142%2011.75%209.99994%2011.75C9.58573%2011.75%209.24994%2011.4142%209.24994%2011V7.5C9.24994%207.08579%209.58573%206.75%209.99994%206.75Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%09%3Cpath%20d%3D%22M11%2013.5C11%2014.0523%2010.5523%2014.5%2010%2014.5C9.44772%2014.5%209%2014.0523%209%2013.5C9%2012.9477%209.44772%2012.5%2010%2012.5C10.5523%2012.5%2011%2012.9477%2011%2013.5Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%09%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M10%203.5C8.95471%203.5%208.21616%204.20232%207.84762%204.94672C7.65565%205.33448%206.75984%207.0441%205.84305%208.79353L5.81531%208.84646C4.9229%2010.5493%204.01714%2012.2777%203.80716%2012.702C3.4351%2013.4537%203.32931%2014.4519%203.89953%2015.316C4.46911%2016.1791%205.44222%2016.5%206.36356%2016.5L13.6364%2016.5C14.5577%2016.5%2015.5308%2016.1791%2016.1004%2015.316C16.6707%2014.4519%2016.5649%2013.4537%2016.1928%2012.702C15.9832%2012.2784%2015.08%2010.555%2014.1889%208.85476L14.1569%208.79352C13.24%207.044%2012.3443%205.33454%2012.1524%204.94693C11.784%204.20242%2011.0454%203.5%2010%203.5ZM9.1919%205.61225C9.59605%204.79592%2010.4041%204.79592%2010.8081%205.61225C11.0102%206.02061%2011.9201%207.75686%2012.8296%209.49243C13.7383%2011.2262%2014.6466%2012.9594%2014.8485%2013.3673C15.2525%2014.1837%2014.8485%2015%2013.6364%2015L6.36356%2015C5.1515%2015%204.74746%2014.1837%205.1515%2013.3673C5.35376%2012.9587%206.26468%2011.2205%207.1748%209.4838C8.08283%207.75111%208.99005%206.01994%209.1919%205.61225Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%3C%2Fsvg%3E");position:absolute;width:var(--loudz-space-20);height:var(--loudz-space-20);margin-left:calc(-1*var(--loudz-space-24))}.LoudzUninstallBG__Text a{color:var(--loudz-color-text-disable-on-light)}.LoudzUninstallBG__Text a:hover{text-decoration:none}
+
+{% endstyle %}

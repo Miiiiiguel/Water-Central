@@ -1,0 +1,710 @@
+<!-- External CSS Links -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+<style>
+  /* Dynamic Import of Google Fonts */
+  {% if section.settings.enable_custom_fonts %}
+    @import url('https://fonts.googleapis.com/css2?family={{ section.settings.custom_font | replace: ' ', '+' }}&display=swap');
+  {% endif %}
+
+  /* Scoped CSS for Instagram Promo Section */
+  .instagram-promo-section {
+      font-family: 'Roboto', sans-serif;
+      margin-left: {{ section.settings.margin_left }}px;
+      margin-right: {{ section.settings.margin_right }}px;
+      padding: 0;
+      background-color: #fff;
+      text-align: center;
+  }
+
+  /* Visibility Classes Based on Device */
+  .instagram-promo-section.hide-all { display: none; }
+  .instagram-promo-section.show-mobile { display: none; }
+  .instagram-promo-section.show-desktop { display: none; }
+
+  @media (max-width: 767px) {
+      .instagram-promo-section.show-mobile { display: block; }
+      .instagram-promo-section.show-desktop,
+      .instagram-promo-section.hide-all { display: none; }
+  }
+  @media (min-width: 768px) {
+      .instagram-promo-section.show-desktop { display: block; }
+      .instagram-promo-section.show-mobile,
+      .instagram-promo-section.hide-all { display: none; }
+  }
+  .instagram-promo-section.show-all { display: block; }
+
+  /* Promo Container Base – background only; padding set via media queries */
+  .instagram-promo-section .promo-container {
+      background-color: {{ section.settings.background_color }};
+  }
+
+  /* Desktop Styles */
+  @media (min-width: 768px) {
+      .instagram-promo-section .promo-container {
+          padding-top: {{ section.settings.padding_top_desktop }}px;
+          padding-bottom: {{ section.settings.padding_bottom_desktop }}px;
+          {% if section.settings.full_width_desktop %}
+            padding-left: 0;
+            padding-right: 0;
+            width: 100%;
+          {% else %}
+            padding-left: {{ section.settings.padding_lr_desktop }}px;
+            padding-right: {{ section.settings.padding_lr_desktop }}px;
+          {% endif %}
+      }
+  }
+
+  /* Mobile Styles */
+  @media (max-width: 767px) {
+      .instagram-promo-section .promo-container {
+          padding-top: {{ section.settings.padding_top_mobile }}px;
+          padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+          {% if section.settings.full_width_mobile %}
+            padding-left: 0;
+            padding-right: 0;
+            width: 100%;
+          {% else %}
+            padding-left: {{ section.settings.padding_lr_mobile }}px;
+            padding-right: {{ section.settings.padding_lr_mobile }}px;
+          {% endif %}
+      }
+  }
+
+  /* Keep generic margins; actual sizes/colors come from block-scoped styles below */
+  .instagram-promo-section .promo-container h1 { margin-bottom: 10px; }
+  .instagram-promo-section .promo-container p { margin-bottom: 30px; }
+
+  .instagram-promo-section .image-row {
+      display: flex;
+      justify-content: center;
+      gap: {{ section.settings.horizontal_gap_desktop }}px;
+      flex-wrap: wrap;
+  }
+
+  /* Desktop: Ensure images are in one horizontal row */
+  @media (min-width: 768px) {
+      .instagram-promo-section .image-row { flex-wrap: nowrap; }
+  }
+
+  .instagram-promo-section .image-row .image-container {
+      position: relative;
+      width: {{ section.settings.image_width_desktop }}px;
+      height: {{ section.settings.image_height_desktop }}px;
+      border-radius:
+        {% if section.settings.circular_images %}50%
+        {% else %}{{ section.settings.image_border_radius }}px
+        {% endif %};
+      overflow: hidden;
+      box-shadow:
+        {% case section.settings.image_shadow %}
+          {% when 'low' %}0 2px 5px rgba(0,0,0,0.1)
+          {% when 'medium' %}0 4px 10px rgba(0,0,0,0.2)
+          {% when 'high' %}0 6px 15px rgba(0,0,0,0.3)
+          {% else %}none
+        {% endcase %};
+      transition: all 0.3s ease;
+  }
+
+  .instagram-promo-section .image-row img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: all 0.3s ease;
+      border-radius: inherit; /* Inherit border-radius from container */
+      display: block;
+  }
+
+  .instagram-promo-section .image-row .overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+  }
+  .instagram-promo-section .image-row .overlay i {
+      color: #fff;
+      font-size: 2em;
+  }
+
+  /* Hover Animations */
+  {% case section.settings.image_hover_animation %}
+    {% when 'none' %}
+      .instagram-promo-section .image-row .image-container:hover img { filter: none; }
+      .instagram-promo-section .image-row .image-container:hover .overlay { opacity: 1; }
+    {% when 'fade-in' %}
+      .instagram-promo-section .image-row .image-container:hover img { opacity: 0.7; }
+      .instagram-promo-section .image-row .image-container:hover .overlay { opacity: 1; }
+    {% when 'scale-in' %}
+      .instagram-promo-section .image-row .image-container:hover img { transform: scale(1.05); }
+      .instagram-promo-section .image-row .image-container:hover .overlay { opacity: 1; }
+    {% when 'rotate' %}
+      .instagram-promo-section .image-row .image-container:hover img { transform: rotate(5deg); }
+      .instagram-promo-section .image-row .image-container:hover .overlay { opacity: 1; }
+    {% when 'slide-up' %}
+      .instagram-promo-section .image-row .image-container:hover img { transform: translateY(-10px); }
+      .instagram-promo-section .image-row .image-container:hover .overlay { opacity: 1; }
+    {% when 'blur' %}
+      .instagram-promo-section .image-row .image-container:hover img { filter: blur(2px); }
+      .instagram-promo-section .image-row .image-container:hover .overlay { opacity: 1; }
+  {% endcase %}
+
+  .instagram-promo-section .image-row .image-container:hover .overlay { cursor: pointer; }
+
+  /* Instagram Button */
+  .instagram-promo-section .instagram-button {
+      margin-top: 30px;
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: {{ section.settings.button_bg_color }};
+      color: {{ section.settings.button_text_color }};
+      font-size: {{ section.settings.button_size_desktop }}px;
+      font-weight: {{ section.settings.button_font_weight }};
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+      {% if section.settings.enable_custom_fonts %}
+        font-family: '{{ section.settings.custom_font }}', sans-serif;
+      {% endif %}
+  }
+  .instagram-promo-section .instagram-button:hover {
+      background-color: {{ section.settings.button_hover_bg_color }};
+      color: {{ section.settings.button_text_hover_color }};
+      transform: translateY(-2px);
+  }
+
+  /* Mobile Text and Button Adjustments */
+  @media (max-width: 767px) {
+      .instagram-promo-section .image-row {
+          gap: {{ section.settings.vertical_gap_mobile }}px;
+      }
+      .instagram-promo-section .image-row .image-container {
+          width: {{ section.settings.image_width_mobile }}px;
+          height: {{ section.settings.image_height_mobile }}px;
+          border-radius:
+            {% if section.settings.circular_images %}50%
+            {% else %}{{ section.settings.image_border_radius }}px
+            {% endif %};
+      }
+      .instagram-promo-section .instagram-button {
+          width: 80%;
+          max-width: 300px;
+          font-size: {{ section.settings.button_size_mobile }}px;
+      }
+  }
+</style>
+
+<div
+  class="
+    instagram-promo-section
+    {% case section.settings.show_section_on %}
+        {% when 'no_devices' %} hide-all
+        {% when 'all_devices' %} show-all
+        {% when 'mobile_only' %} show-mobile
+        {% when 'desktop_only' %} show-desktop
+    {% endcase %}
+  "
+>
+  <div class="promo-container">
+
+    {%- comment -%}
+      Render text blocks (Heading/Subheading) in the order the merchant sets.
+      Each block injects its own scoped styles for sizes/colors and mobile overrides.
+    {%- endcomment -%}
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+
+        {%- when 'heading' -%}
+          <style>
+            #heading-{{ block.id }}{
+              font-size: {{ block.settings.size_desktop }}px;
+              font-weight: {{ block.settings.font_weight }};
+              color: {{ block.settings.color }};
+              {% if section.settings.enable_custom_fonts %}
+                font-family: '{{ section.settings.custom_font }}', sans-serif;
+              {% endif %}
+            }
+            @media (max-width: 767px){
+              #heading-{{ block.id }}{ font-size: {{ block.settings.size_mobile }}px; }
+            }
+          </style>
+          <h1 id="heading-{{ block.id }}">{{ block.settings.text }}</h1>
+
+        {%- when 'subheading' -%}
+          <style>
+            #subheading-{{ block.id }}{
+              font-size: {{ block.settings.size_desktop }}px;
+              color: {{ block.settings.color }};
+              {% if section.settings.enable_custom_fonts %}
+                font-family: '{{ section.settings.custom_font }}', sans-serif;
+              {% endif %}
+            }
+            @media (max-width: 767px){
+              #subheading-{{ block.id }}{ font-size: {{ block.settings.size_mobile }}px; }
+            }
+          </style>
+          <p id="subheading-{{ block.id }}">{{ block.settings.text }}</p>
+
+      {%- endcase -%}
+    {%- endfor -%}
+
+    <div class="image-row">
+      {% for block in section.blocks %}
+        {% if block.type == 'image' %}
+          <div class="image-container">
+            <a href="{{ block.settings.link_url | default: '#' }}" target="_blank">
+              {%- assign _img = block.settings.image -%}
+              <img
+                alt="{{ block.settings.alt_text | escape }}"
+                src="{% if _img != blank %}{{ _img | img_url: '500x' }}{% else %}data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E{% endif %}"
+              >
+              <div class="overlay">
+                <i class="fab fa-instagram"></i>
+              </div>
+            </a>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    {% if section.settings.show_instagram_button %}
+      <a
+        href="{{ section.settings.button_link_url | default: 'https://instagram.com/' | append: section.settings.instagram_username }}"
+        target="_blank"
+        class="instagram-button"
+      >
+        {{ section.settings.button_text | default: 'Follow @' | append: section.settings.instagram_username }}
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Instagram Promo Pro 1",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Fonts",
+      "info": "Customize the fonts used in this section."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_fonts",
+      "label": "Enable Custom Fonts",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "custom_font",
+      "label": "Select Custom Font",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open+Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "PT+Sans", "label": "PT Sans" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Source+Sans+Pro", "label": "Source Sans Pro" },
+        { "value": "Playfair+Display", "label": "Playfair Display" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Nunito", "label": "Nunito" },
+        { "value": "Fira+Sans", "label": "Fira Sans" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "Roboto+Condensed", "label": "Roboto Condensed" },
+        { "value": "Cabin", "label": "Cabin" },
+        { "value": "Bitter", "label": "Bitter" },
+        { "value": "Work+Sans", "label": "Work Sans" },
+        { "value": "Rubik", "label": "Rubik" },
+        { "value": "Varela+Round", "label": "Varela Round" },
+        { "value": "Quicksand", "label": "Quicksand" },
+        { "value": "Mukta", "label": "Mukta" },
+        { "value": "Barlow", "label": "Barlow" },
+        { "value": "Josefin+Sans", "label": "Josefin Sans" },
+        { "value": "Karla", "label": "Karla" },
+        { "value": "Inter", "label": "Inter" },
+        { "value": "Spectral", "label": "Spectral" },
+        { "value": "Dosis", "label": "Dosis" }
+      ],
+      "default": "Roboto"
+    },
+
+    {
+      "type": "header",
+      "content": "Colors & Layout"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+
+    {
+      "type": "header",
+      "content": "Image Settings"
+    },
+    {
+      "type": "range",
+      "id": "image_width_desktop",
+      "label": "Images Width (Desktop)",
+      "min": 100, "max": 500, "step": 10, "unit": "px",
+      "default": 290
+    },
+    {
+      "type": "range",
+      "id": "image_height_desktop",
+      "label": "Images Height (Desktop)",
+      "min": 100, "max": 500, "step": 10, "unit": "px",
+      "default": 270
+    },
+    {
+      "type": "range",
+      "id": "image_width_mobile",
+      "label": "Images Width (Mobile)",
+      "min": 50, "max": 300, "step": 10, "unit": "px",
+      "default": 140
+    },
+    {
+      "type": "range",
+      "id": "image_height_mobile",
+      "label": "Images Height (Mobile)",
+      "min": 50, "max": 300, "step": 10, "unit": "px",
+      "default": 140
+    },
+    {
+      "type": "range",
+      "id": "horizontal_gap_desktop",
+      "label": "Horizontal Gap Between Images (Desktop)",
+      "min": 0, "max": 50, "step": 5, "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "vertical_gap_mobile",
+      "label": "Vertical Gap Between Images (Mobile)",
+      "min": 0, "max": 50, "step": 5, "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "checkbox",
+      "id": "circular_images",
+      "label": "Make Images Circle",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "image_shadow",
+      "label": "Images Shadow",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "low", "label": "Low Shadow" },
+        { "value": "medium", "label": "Medium Shadow" },
+        { "value": "high", "label": "High Shadow" }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "label": "Images Border Radius",
+      "min": 0, "max": 50, "step": 1, "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "select",
+      "id": "image_hover_animation",
+      "label": "Images Hover Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "fade-in", "label": "Smooth Fade-In" },
+        { "value": "scale-in", "label": "Smooth Scale-In" },
+        { "value": "rotate", "label": "Rotate" },
+        { "value": "slide-up", "label": "Slide Up" },
+        { "value": "blur", "label": "Blur" }
+      ],
+      "default": "blur"
+    },
+
+    {
+      "type": "header",
+      "content": "Section Spacing & Width"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_desktop",
+      "label": "Section Top Padding (Desktop)",
+      "min": 0, "max": 200, "step": 5, "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_desktop",
+      "label": "Section Bottom Padding (Desktop)",
+      "min": 0, "max": 200, "step": 5, "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Section Top Padding (Mobile)",
+      "min": 0, "max": 100, "step": 5, "unit": "px",
+      "default": 25
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Section Bottom Padding (Mobile)",
+      "min": 0, "max": 100, "step": 5, "unit": "px",
+      "default": 25
+    },
+    {
+      "type": "range",
+      "id": "margin_left",
+      "label": "Section Margin Left",
+      "min": 0, "max": 100, "step": 1, "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_right",
+      "label": "Section Margin Right",
+      "min": 0, "max": 100, "step": 1, "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width_mobile",
+      "label": "Enable Full Width (Mobile)",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width_desktop",
+      "label": "Enable Full Width (Desktop)",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "padding_lr_desktop",
+      "label": "Section Left/Right Padding (Desktop)",
+      "min": 0, "max": 100, "step": 5, "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_lr_mobile",
+      "label": "Section Left/Right Padding (Mobile)",
+      "min": 0, "max": 100, "step": 5, "unit": "px",
+      "default": 25
+    },
+    {
+      "type": "select",
+      "id": "show_section_on",
+      "label": "Show Section On",
+      "options": [
+        { "value": "no_devices", "label": "No Devices" },
+        { "value": "all_devices", "label": "All Devices" },
+        { "value": "mobile_only", "label": "Mobile Devices Only" },
+        { "value": "desktop_only", "label": "Desktop/Large Screens Only" }
+      ],
+      "default": "all_devices"
+    },
+
+    {
+      "type": "header",
+      "content": "Instagram Button"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_instagram_button",
+      "label": "Show @instagramuser Modern Button",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Button Background Color",
+      "default": "#EBEBEB"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#252525"
+    },
+    {
+      "type": "color",
+      "id": "button_text_hover_color",
+      "label": "Button Text Hover Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_bg_color",
+      "label": "Button Hover Background Color",
+      "default": "#3B3B3B"
+    },
+    {
+      "type": "url",
+      "id": "button_link_url",
+      "label": "Button Link URL",
+      "default": "/"
+    },
+    {
+      "type": "range",
+      "id": "button_size_desktop",
+      "label": "Button Font Size (Desktop)",
+      "min": 12, "max": 24, "step": 1, "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "button_size_mobile",
+      "label": "Button Font Size (Mobile)",
+      "min": 12, "max": 24, "step": 1, "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "select",
+      "id": "button_font_weight",
+      "label": "Button Font Weight",
+      "default": "700",
+      "options": [
+        { "value": "300", "label": "300" },
+        { "value": "400", "label": "400" },
+        { "value": "500", "label": "500" },
+        { "value": "600", "label": "600" },
+        { "value": "700", "label": "700" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "@instagramuser"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        { "type": "inline_richtext", "id": "text", "label": "Heading Text", "default": "<strong>Follow Us on Instagram</strong>" },
+        { "type": "color", "id": "color", "label": "Heading Color", "default": "#000000" },
+        { "type": "range", "id": "size_desktop", "label": "Heading Size (Desktop)", "min": 20, "max": 80, "step": 1, "unit": "px", "default": 32 },
+        { "type": "range", "id": "size_mobile", "label": "Heading Size (Mobile)", "min": 16, "max": 60, "step": 1, "unit": "px", "default": 31 },
+        {
+          "type": "select",
+          "id": "font_weight",
+          "label": "Heading Font Weight",
+          "default": "500",
+          "options": [
+            { "value": "300", "label": "300" },
+            { "value": "400", "label": "400" },
+            { "value": "500", "label": "500" },
+            { "value": "600", "label": "600" },
+            { "value": "700", "label": "700" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        { "type": "textarea", "id": "text", "label": "Subheading Text", "default": "Follow us on Instagram @followuspleaseee and tag us to get featured on our timeline." },
+        { "type": "color", "id": "color", "label": "Subheading Color", "default": "#333333" },
+        { "type": "range", "id": "size_desktop", "label": "Subheading Size (Desktop)", "min": 12, "max": 36, "step": 1, "unit": "px", "default": 19 },
+        { "type": "range", "id": "size_mobile", "label": "Subheading Size (Mobile)", "min": 10, "max": 30, "step": 1, "unit": "px", "default": 16 }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Instagram Image",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "alt_text", "label": "Alt Text", "default": "Instagram Image" },
+        { "type": "url", "id": "link_url", "label": "Instagram URL", "default": "/" }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "presets": [
+    {
+      "name": "Instagram Promo Pro 1",
+      "category": "Social",
+      "settings": {
+        "background_color": "#ffffff",
+        "enable_custom_fonts": false,
+        "custom_font": "Roboto",
+        "image_width_desktop": 210,
+        "image_height_desktop": 210,
+        "image_width_mobile": 140,
+        "image_height_mobile": 140,
+        "horizontal_gap_desktop": 25,
+        "vertical_gap_mobile": 20,
+        "full_width_mobile": false,
+        "full_width_desktop": false,
+        "padding_top_desktop": 40,
+        "padding_bottom_desktop": 40,
+        "padding_top_mobile": 25,
+        "padding_bottom_mobile": 25,
+        "margin_left": 0,
+        "margin_right": 0,
+        "padding_lr_desktop": 40,
+        "padding_lr_mobile": 25,
+        "circular_images": false,
+        "image_shadow": "none",
+        "image_border_radius": 8,
+        "image_hover_animation": "blur",
+        "show_section_on": "all_devices",
+        "show_instagram_button": true,
+        "button_bg_color": "#EBEBEB",
+        "button_text_color": "#252525",
+        "button_text_hover_color": "#ffffff",
+        "button_hover_bg_color": "#3B3B3B",
+        "button_size_desktop": 16,
+        "button_size_mobile": 15,
+        "button_font_weight": "700",
+        "button_text": "@sudafin",
+        "button_link_url": "/"
+      },
+      "blocks": [
+        {
+          "type": "heading",
+          "settings": {
+            "text": "Follow us on instagram",
+            "color": "#000000",
+            "size_desktop": 44,
+            "size_mobile": 43,
+            "font_weight": "500"
+          }
+        },
+        {
+          "type": "subheading",
+          "settings": {
+            "text": "Follow us on Instagram @sudafin and tag us to get featured on our timeline.",
+            "color": "#333333",
+            "size_desktop": 19,
+            "size_mobile": 16
+          }
+        },
+        { "type": "image", "settings": { "alt_text": "Placeholder Image 1", "link_url": "/" } },
+        { "type": "image", "settings": { "alt_text": "Placeholder Image 2", "link_url": "/" } },
+        { "type": "image", "settings": { "alt_text": "Placeholder Image 3", "link_url": "/" } },
+        { "type": "image", "settings": { "alt_text": "Placeholder Image 4", "link_url": "/" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,490 @@
+/* =================== */
+/*  ORIGINAL CODE      */
+/*  (unchanged)        */
+/* =================== */
+
+  :root {
+    --cart-drawer-shipping-bar-background-color: {{ settings.cart_drawer_shipping_bar_color }} !important;
+    --cart-drawer-shipping-bar-height: {{ settings.cart_drawer_shipping_bar_height }}px !important;
+    --cart-drawer-shipping-bar-fill-color: {{ settings.cart_drawer_shipping_bar_fill_color }} !important ;
+     --cart-drawer-free-shipping-message-color: {{ settings.cart_drawer_free_shipping_message_color }};
+    --cart-drawer-free-shipping-price-color: {{ settings.cart_drawer_free_shipping_price_color }};
+  }
+
+   .minicart .add-to-cart-hover-button {
+       display: none !important;
+      }
+.header__minicart.show_popup .overlay:after {
+  display: none;
+}
+html:has(.header__minicart.show_popup).open-minicart {
+  overflow: auto;
+}
+html:has(.header__minicart.show_popup).open-minicart .tingle-enabled {
+  position: static;
+}
+.cart_bar_w {
+  height: 9px;
+  background-color: #ddd;
+    }
+ 
+.cart_bar_w span {
+  display: block;
+  height: 100%;
+  animation: 5s linear infinite progress;
+  background-color: var(--color-primary);
+  -webkit-background-image: linear-gradient(
+    135deg,
+    #ffffff26 0 25%,
+    #fff0 25% 50%,
+    #ffffff26 50% 75%,
+    #fff0 75% 100%
+  );
+  background-image: linear-gradient(
+    135deg,
+    #ffffff26 0 25%,
+    #fff0 25% 50%,
+    #ffffff26 50% 75%,
+    #fff0 75% 100%
+  );
+  background-size: 40px 40px;
+}
+.percent_shipping_bar svg {
+  display: none !important;
+}
+.cart_shipping_free .cart_bar_w span svg {
+  display: none !important;
+}
+.cart_shipping_free .primary-color {
+  --color-primary: #14854e;
+}
+.cart_shipping_free.cart_shipping * {
+  animation: flash 0.8s linear 0.8s 2 both;
+}
+.mini_cart_addon_btn.show-overlay {
+  padding-inline: clamp(3rem, 2vw, 5rem);
+  min-height: 5rem;
+  --top: 15px;
+}
+.cart-addons > div:not(:last-child) {
+  border-right: 1px solid var(--color-border);
+  line-height: 1;
+}
+.cart__addon-content {
+  transform: translateY(100%);
+  max-height: 100%;
+  overflow: auto;
+}
+.cart-options .product-option:not(:first-child)::before {
+  content: " / ";
+  padding: 0 2px;
+}
+.product-option-property .product-option {
+  gap: 5px;
+}
+.product-option-property .product-option:not(:first-child)::before {
+  display: none;
+}
+.cart__addon-content.is-open {
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.minicart__header + .cart-countdown-time countdown-timer {
+  border-top: 1px solid var(--color-border);
+  display: none !important;
+}
+:is(.cart-countdown-time, .page-cart) .countdown-inner {
+  color: var(--color-primary);
+  font-weight: var(--heading-weight);
+  --countdown-text-weight: var(--heading-weight);
+}
+:is(.cart-countdown-time, .page-cart)
+  .countdown--container:not(:last-child):after {
+  display: none;
+}
+.cart-countdown-time,
+.cart-countdown-time * {
+  display: none !important;
+}
+.minicart .free-shipping-message {
+   color: var(--cart-drawer-free-shipping-message-color, #000000) !important;
+}
+
+.minicart .free-shipping-message span {
+  color: var(--cart-drawer-free-shipping-price-color, #FF0000) !important;
+}
+
+
+
+.items .cart-item:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+  margin-bottom: 0;
+}
+@keyframes flash {
+  50%,
+  0%,
+  100% {
+    opacity: 1;
+  }
+  25%,
+  75% {
+    opacity: 0;
+  }
+}
+.header__minicart.loading .minicart__wrapper::after {
+  background: var(--color-primary);
+  content: "";
+  height: 3px;
+  left: 0;
+  opacity: 1;
+  position: absolute;
+  top: 0;
+  width: 0;
+  z-index: 3;
+  animation: al-loading 1s cubic-bezier(0.43, 0.27, 0.36, 0.83) forwards;
+  transition: width 1s linear, opacity 0.35s linear 0.35s;
+}
+.header__minicart.finish.loading .minicart__wrapper::after {
+  width: 100%;
+  animation: al-loading-finish 0.3s cubic-bezier(0.43, 0.27, 0.36, 0.83)
+    forwards;
+}
+.header__minicart.loading .minicart__wrapper::before {
+  background-color: rgb(255 255 255 / 60%);
+  bottom: 0;
+  content: "";
+  left: 0;
+  opacity: 1;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: opacity 0.35s cubic-bezier(0.43, 0.27, 0.36, 0.83);
+  z-index: 3;
+}
+.drawer-bottom .checkbox-group .checkmark:before {
+  --grey-color: #fff;
+}
+.addon-message:empty {
+  display: none;
+}
+.popup_cart.open {
+  transform: translateY(0);
+}
+.cart-countdown-time countdown--item {
+  color: var(--color-primary);
+}
+.open-drawer .popup_cart.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.cart-recommend .product-item__wrapper {
+  --col-width: 9rem;
+  --product-item__price-top: 4px;
+}
+.rounded-style .cart-recommend .product-item__wrapper .product-item__inner {
+  --rounded-radius: 5px;
+}
+.cart-recommend {
+  --swiper-pagination-position: static;
+  --swiper-pagination-mt: 12px;
+  --swiper-pagination-bullet-width: 20px;
+  --tns-nav-width: 5px;
+  --swiper-pagination-bullet-height: 1.7rem;
+  --tns-nav-border: transparent;
+}
+.cart-recommend .swiper-pagination {
+  font-size: 0;
+}
+.cart-recommend .product-list-action {
+  margin-top: 1.3rem;
+}
+.cart-recommend.inside .product-item__wrapper {
+  border: var(--product-recommendations-border-weight) solid var(--product-recommendations-border-color) !important;
+  padding: 12px;
+  background-color: var(--product-recommendations-bg-color) !important;
+  border-radius: var(--product-card-border-radius, 8px); /* Fallback to 8px */
+  transition: background-color 0.3s ease, border-color 0.3s ease !important; /* Smooth transition for background and border */
+}
+.cart-recommend.inside .product-item__wrapper:hover {
+  background-color: var(--product-recommendations-hover-bg-color) !important;
+}
+@media (min-width: 1025px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .cart-recommend .bls-add-cart-list:hover {
+    color: var(--btn-link-hover-color);
+  }
+  .cart-recommend .bls-add-cart-list:hover::before {
+    width: calc(100% - 3px);
+    transition: var(--transition);
+    animation: 1s infinite btnLinkAnimation;
+  }
+}
+@media (min-width: 1025px) {
+  .cart-recommend.beside {
+    position: fixed;
+    width: 23rem;
+    transform: translateX(0);
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.4, 1), all 0.5s,
+      opacity 0.5s 0.2s;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--color-border);
+    padding: 0;
+    border-top: 0;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: -1;
+  }
+  .cart-recommend.beside.open {
+    transform: translateX(-100%);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .minicart__wrapper:not(.open) .cart-recommend.beside.open {
+    pointer-events: none;
+  }
+  .cart-recommend grid-custom {
+    padding: 3rem;
+    flex-grow: 1;
+    overflow: auto;
+  }
+  .cart-recommend.beside grid-custom {
+    flex-grow: unset;
+  }
+  .cart-recommend.beside .recommend-heading {
+    padding: 1.55rem 3rem;
+    min-height: 57.78px;
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+  }
+  .cart-recommend.beside .minicart-heading {
+    margin-bottom: 0;
+  }
+  .cart-recommend.beside .product-item__wrapper {
+    flex-wrap: wrap;
+    --col-width: 100%;
+    --gap: 2rem;
+    justify-content: center;
+  }
+  .cart-recommend.beside .product-item__information {
+    text-align: center;
+  }
+  .cart-recommend.beside .product-item__information > * {
+    justify-content: center;
+  }
+  .popup_cart {
+    width: 40rem;
+    max-width: 90vw;
+    max-height: 80vh;
+    top: calc(100% + (var(--section-pb) * 1px) + 3px);
+    transform: translateY(30px);
+  }
+}
+@media (max-width: 1024.98px) {
+  .cart-recommend.beside .product-item__wrapper {
+    border: 1px solid var(--color-heading);
+    padding: 15px;
+    border-radius: var(--rounded-radius);
+  }
+  .cart-recommend.beside .recommend-heading {
+    padding: 2.8rem 0 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .cart-recommend.beside grid-custom {
+    flex-wrap: nowrap;
+    overflow: auto;
+    padding: 0;
+    margin-right: -3rem;
+  }
+  .cart-recommend.beside grid-custom::-webkit-scrollbar {
+    display: none;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .cart-recommend.beside .cart-upsell-item {
+    flex: 0 0 80%;
+  }
+  .popup_cart {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform: translateY(30px);
+    max-height: 80vh;
+    overflow: visible;
+  }
+}
+variant-radios-quick-edit .option-swatch-js.active .product__item-option {
+  color: var(--btn-primary-hover-color);
+  background-color: var(--btn-primary-hover-bg-color);
+  border-color: var(--btn-primary-hover-bg-color);
+}
+body .dmp_discount-form button {
+  width: auto !important;
+  border-radius: var(--btn-radius) !important;
+  color: var(--btn-color) !important;
+  background-color: var(--btn-bg) !important;
+}
+body .dmp_discount-form input {
+  border-radius: var(--btn-radius) !important;
+}
+.cart-item__error {
+  flex: 0 0 auto;
+  width: 100%;
+}
+.cart-item__error-text+svg {
+  flex-shrink: 0;
+  margin-right: .7rem;
+}
+.cart-item__error-text:empty+svg {
+  display: none;
+}
+.cart-item__error-text {
+  order: 1;
+  color: #d0473e;
+}
+.gift_card_product.open {
+  pointer-events: none
+}
+
+/* ==================================== */
+/* NEW: FREE SHIPPING TEXT & BAR STYLES */
+/* ==================================== */
+
+/* 
+  1) A simple class for the free-shipping text, 
+     positioned above the bar, matching your example. 
+*/
+.mini_cart_free_shipping_text {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  color: #fff !important;        /* Adjust text color if needed */
+  text-align: left;   /* or 'center' if you prefer */
+  font-weight: 400;   /* match screenshot style */
+}
+
+/* 
+  2) Override the bar styling so it looks 
+     like a mostly-black progress bar with the 
+     small unfilled portion on the right. 
+*/
+.cart_bar_w {
+    height: var(--shipping-bar-height, 7px);
+  width: 100%;
+ background-color: var(--shipping-bar-color, #C8C8C8) !important; /* Fallback to #C8C8C8 */
+  border-radius: var(--shipping-bar-border-radius, 2px);
+  position: relative;
+  overflow: hidden;
+  /* Added margin-top to create space if needed */
+  margin-top: 0.5rem;
+}
+
+/* 
+  3) Span now acts as the "filled" portion of the bar. 
+     By default, let's say it's 80% or 90% wide – 
+     you'd adjust dynamically based on how many dollars 
+     until free shipping, or do it in inline styles. 
+*/
+.cart_bar_w span {
+  width: 90%;
+  background-color: var(--shipping-bar-fill-color, #000) !important; /* Fallback to #000 */
+  animation: none !important; 
+  background-image: none !important;
+}
+.minicart .cart_bar_w {
+   height: var(--cart-drawer-shipping-bar-height, 7px);
+  width: 100%;
+ background-color: var(--cart-drawer-shipping-bar-background-color, #C8C8C8) !important;
+  border-radius: var(--shipping-bar-border-radius, 2px);
+  position: relative;
+  overflow: hidden;
+  margin-top: 0.5rem; /* Space adjustment */
+}
+
+.minicart .cart_bar_w span {
+  width: 90%;
+   background-color: var(--cart-drawer-shipping-bar-fill-color, #000) !important;
+  animation: none !important; 
+  background-image: none !important;
+}
+/* 
+  Ensure that the free shipping text appears above the bar.
+  This assumes that both elements share a common parent.
+*/
+.cart_bar_container {
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  align-items: flex-start; /* Align items to the start (left) */
+}
+
+/* 
+  Optional: Center the text if desired.
+  Uncomment the following lines if you prefer centered text.
+*/
+/*
+.mini_cart_free_shipping_text {
+  text-align: center;
+}
+.cart_bar_container {
+  align-items: center;
+}
+*/
+
+/* 
+  Example HTML Structure:
+
+  <div class="cart_bar_container">
+    <div class="mini_cart_free_shipping_text">
+      You are $5.00 away from free shipping
+    </div>
+    <div class="cart_bar_w"><span></span></div>
+  </div>
+*/
+
+/* ======================================= */
+/* NEW LOADER SNIPPET (smooth moving fill) */
+/* ======================================= */
+
+/* 
+   Use .loader wherever you want this exact 
+   animated bar effect. Feel free to merge 
+   it with .cart_bar_w if you prefer. 
+*/
+.loader {
+  display: block;
+  --height-of-loader: 4px;
+  --loader-color: #0071e2;
+  width: 130px;
+  height: var(--height-of-loader);
+  border-radius: 30px;
+  background-color: #C8C8C8;  /* Gray background */
+  position: relative;
+}
+
+.loader::before {
+  content: "";
+  position: absolute;
+  background: var(--loader-color);
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  border-radius: 30px;
+  animation: moving 1s ease-in-out infinite;
+}
+
+@keyframes moving {
+  50% {
+    width: 100%;
+  }
+  100% {
+    width: 0;
+    right: 0;
+    left: unset;
+  }
+}

@@ -1,0 +1,663 @@
+{% style %}
+:root {
+--loudibs-neutral-70: #5e5e5e;
+--loudibs-neutral-01: #fff;
+--loudibs-size-1: 1px;
+--loudibs-size-2: 2px;
+--loudibs-size-4: 4px;
+--loudibs-size-14: 14px;
+--loudibs-size-16: 16px;
+--loudibs-size-20: 20px;
+--loudibs-size-24: 24px;
+--loudibs-size-32: 32px;
+--loudibs-size-40: 40px;
+--loudibs-font-weight-400: 400;
+--loudibs-font-weight-600: 600;
+--loudibs-line-height-140: 1.4;
+--loudibs-text-decoration-none: none;
+--loudibs-border-width-1: var(--loudibs-size-1);
+--loudibs-border-width-2: var(--loudibs-size-2);
+--loudibs-color-bg-fill-inverse-on-light: var(--loudibs-neutral-01);
+--loudibs-color-text-disable-on-light: var(--loudibs-neutral-70);
+--loudibs-space-4: var(--loudibs-size-4);
+--loudibs-space-16: var(--loudibs-size-16);
+--loudibs-space-20: var(--loudibs-size-20);
+--loudibs-space-24: var(--loudibs-size-24);
+--loudibs-space-32: var(--loudibs-size-32);
+--loudibs-space-40: var(--loudibs-size-40);
+--loudibs-font-size-14: var(--loudibs-size-14);
+}
+
+
+{% endstyle %}
+
+
+
+<section class="Loudibs-{{ section.id | handle }}" aria-label="Collection banners">
+	<div class="LoudibsCollListContainer">
+		<ul class="LoudibsCollList">
+			{%- for block in section.blocks -%}
+				{%- liquid
+					assign collection_image = block.settings.collection.featured_image
+					assign desktop_image = block.settings.image_desktop
+					assign mobile_image = block.settings.image_mobile
+					assign heading = block.settings.collection.title
+					assign card_width = block.settings.card_width | default: 2
+
+					if mobile_image == blank and desktop_image != blank
+						assign mobile_image = block.settings.image_desktop
+					endif
+					if mobile_image == blank
+						assign mobile_image = block.settings.collection.featured_image
+					endif
+					if desktop_image != blank
+						assign collection_image = desktop_image
+					endif
+					if block.settings.heading != blank
+						assign heading = block.settings.heading
+					endif
+				-%}
+				{%- capture block_css_variables -%}
+					--block-banner-width: {{- card_width -}};
+					--block-banner-height: {{- block.settings.card_height -}};
+
+					--block-subheading-size: {{- block.settings.subheading_size -}}px;
+					--block-heading-size: {{- block.settings.heading_size -}}px;
+					--block-description-size: {{- block.settings.description_size -}}px;
+					--block-text-color: {{- block.settings.text_color -}};
+					--block-vertical-gap: {{- block.settings.vertical_text_gap -}}px;
+
+					--block-primary-button-text-color: {{- block.settings.primary_text_color -}};
+					--block-primary-button-background-color: {{- block.settings.primary_background_color -}};
+					--block-primary-button-border-color: {{- block.settings.primary_border_color -}};
+
+					--block-overlay-color: {{- block.settings.overlay_color -}};
+					--block-overlay-opacity: {{- block.settings.overlay_opacity -}}%;
+      			{%- endcapture -%}
+				<li
+					style="{{- block_css_variables | strip_newlines -}}"
+					class="LoudibsCollListCard"
+					{{ block.shopify_attributes }}
+				>
+					<div class="LoudibsCollListCard__Wrapper">
+						<a
+							href="{%- if block.settings.primary_button_link != blank -%}{{ block.settings.primary_button_link }}{% else %}{{- block.settings.collection.url -}}{%- endif -%}"
+							class="
+								LoudibsCollListCard__Media
+								{% if block.settings.primary_button_link == blank and block.settings.collection == blank %}
+								 	LoudibsCollListCard__Media--inactiveLink
+								{% endif %}
+							"
+							aria-label="Collection banner for {{- heading | escape -}}"
+						>
+							{%- if collection_image -%}
+								{{-
+									collection_image
+									| image_url: width: collection_image.width
+									| image_tag:
+										sizes: "100vw",
+										widths: "400, 600, 800, 1200, 1600, 1800, 2400, 2800, 3200",
+										fetchpriority: "low",
+										loading: "lazy",
+										class: "LoudibsCollListCard__Image LoudibsCollListCard__Image--media-desktop"
+								-}}
+							{%- else -%}
+								<img
+									src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+									alt="Collection banner"
+									width="580"
+									height="580"
+									loading="lazy"
+									sizes="100vw"
+									fetchpriority="low"
+									class="LoudibsCollListCard__Image LoudibsCollListCard__Image--media-desktop"
+								>
+							{%- endif -%}
+							{%- if mobile_image -%}
+								{{-
+									mobile_image
+									| image_url: width: mobile_image.width
+									| image_tag:
+										sizes: "100vw",
+										widths: "400, 600, 800, 1200, 1600, 1800, 2400, 2800, 3200",
+										fetchpriority: "low",
+										loading: "lazy",
+										class: "LoudibsCollListCard__Image LoudibsCollListCard__Image--media-mobile"
+								-}}
+							{%- else -%}
+								<img
+									src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+									alt="Collection banner"
+									width="580"
+									height="580"
+									loading="lazy"
+									sizes="100vw"
+									fetchpriority="low"
+									class="LoudibsCollListCard__Image LoudibsCollListCard__Image--media-mobile"
+								>
+							{%- endif -%}
+						</a>
+						<div class="LoudibsCollListCard__Content">
+							<div class="LoudibsCollListCard__Information LoudibsCollListCard__Information--desktop-position--{{ section.settings.desktop_content_position }} LoudibsCollListCard__Information--mobile-position--{{ section.settings.mobile_content_position }}">
+								{%- if block.settings.subheading != blank -%}
+									<p class="LoudibsCollListCard__Caption">
+										{{- block.settings.subheading -}}
+									</p>
+								{%- endif -%}
+								{%- if heading -%}
+									<h2>
+										<a
+											class="LoudibsCollListCard__Heading"
+											href="{{- block.settings.collection.url -}}"
+											{% if block.settings.collection == blank %}
+												aria-disabled="true"
+												tabindex="-1"
+											{% endif %}
+										>
+											{{- heading | escape -}}
+										</a>
+									</h2>
+								{%- else -%}
+									<h2>
+										<span class="LoudibsCollListCard__Heading" aria-label="Collection title"> Featured Collection </span>
+									</h2>
+								{%- endif -%}
+								{%- if block.settings.description != blank -%}
+									<p class="LoudibsCollListCard__Description">
+										{{- block.settings.description | strip_html | truncatewords: 12 -}}
+									</p>
+								{%- endif -%}
+								{%- if block.settings.primary_button_label != blank -%}
+									<a
+										{% if block.settings.primary_new_tab == true %}
+											target="_blank"
+											rel="noopener noreferrer"
+										{% endif %}
+										href="{%- if block.settings.primary_button_link != blank -%} {{ block.settings.primary_button_link }} {% else %} {{- block.settings.collection.url -}} {%- endif -%}"
+										class="
+											LoudibsCollListCard__Button LoudibsCollListCard__Button--{{ block.settings.primary_button_style }}
+											{% if block.settings.primary_button_link == blank and block.settings.collection == blank %}
+											  LoudibsCollListCard__Button--inactiveLink
+											{% endif %}
+										"
+									>
+										{{- block.settings.primary_button_label | escape -}}
+									</a>
+								{%- endif -%}
+							</div>
+						</div>
+					</div>
+				</li>
+			{%- endfor -%}
+		</ul>
+	</div>
+</section>
+
+{% schema %}
+{
+	"name": "Collection Banner",
+	"disabled_on": {
+		"groups": ["header", "footer"]
+	},
+	"settings": [
+		{
+			"type": "header",
+			"content": "Layout"
+		},
+		{
+			"type": "range",
+			"id": "vertical_padding",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Top - bottom padding (desktop)",
+			"default": 40,
+			"info": "Adjusts the vertical space inside the section on larger screens."
+		},
+		{
+			"type": "range",
+			"id": "vertical_padding_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Top - bottom padding (mobile)",
+			"default": 20
+		},
+		{
+			"type": "header",
+			"content": "Horizontal padding"
+		},
+		{
+			"type": "range",
+			"id": "horizontal_padding_mobile",
+			"min": 10,
+			"max": 50,
+			"step": 2,
+			"unit": "px",
+			"label": "Left - right padding (mobile)",
+			"default": 20
+		},
+		{
+			"type": "range",
+			"id": "horizontal_padding_desktop",
+			"min": 20,
+			"max": 80,
+			"step": 2,
+			"unit": "px",
+			"label": "Left - right padding (desktop)",
+			"default": 32
+		},
+		{
+			"type": "range",
+			"id": "vertical_margin",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Top - bottom margin (desktop)",
+			"default": 0
+		},
+		{
+			"type": "range",
+			"id": "vertical_margin_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Top - bottom margin (mobile)",
+			"default": 0
+		},
+		{
+			"type": "range",
+			"id": "section_width",
+			"min": 70,
+			"max": 100,
+			"step": 1,
+			"unit": "%",
+			"label": "Section max width",
+			"default": 85,
+			"info": "Controls the overall width of the banner grid."
+		},
+		{
+			"type": "text",
+			"id": "section_max_width",
+			"label": "Custom max width (optional)",
+			"info": "Section max width in pixels"
+		},
+		{
+			"type": "range",
+			"id": "items_gap",
+			"min": 0,
+			"max": 50,
+			"step": 2,
+			"unit": "px",
+			"label": "Space between banners",
+			"default": 20
+		},
+		{
+			"type": "header",
+			"content": "Design"
+		},
+		{
+			"type": "color",
+			"id": "section_background",
+			"label": "Section background"
+		},
+		{
+			"type": "range",
+			"id": "card_border_radius",
+			"min": 0,
+			"max": 50,
+			"step": 1,
+			"unit": "px",
+			"label": "Collection cards border radius",
+			"default": 0
+		},
+		{
+			"type": "select",
+			"id": "desktop_content_position",
+			"label": "Desktop content position",
+			"options": [
+				{
+					"value": "top-left",
+					"label": "Top left"
+				},
+				{
+					"value": "top-center",
+					"label": "Top center"
+				},
+				{
+					"value": "top-right",
+					"label": "Top right"
+				},
+				{
+					"value": "center-left",
+					"label": "Center left"
+				},
+				{
+					"value": "center-center",
+					"label": "Center center"
+				},
+				{
+					"value": "center-right",
+					"label": "Center right"
+				},
+				{
+					"value": "bottom-left",
+					"label": "Bottom left"
+				},
+				{
+					"value": "bottom-center",
+					"label": "Bottom center"
+				},
+				{
+					"value": "bottom-right",
+					"label": "Bottom right"
+				}
+			],
+			"default": "bottom-center",
+			"info": "Position of text and buttons on desktop view."
+		},
+		{
+			"type": "select",
+			"id": "mobile_content_position",
+			"label": "Mobile content position",
+			"options": [
+				{
+					"value": "top-left",
+					"label": "Top left"
+				},
+				{
+					"value": "top-center",
+					"label": "Top center"
+				},
+				{
+					"value": "top-right",
+					"label": "Top right"
+				},
+				{
+					"value": "center-left",
+					"label": "Center left"
+				},
+				{
+					"value": "center-center",
+					"label": "Center center"
+				},
+				{
+					"value": "center-right",
+					"label": "Center right"
+				},
+				{
+					"value": "bottom-left",
+					"label": "Bottom left"
+				},
+				{
+					"value": "bottom-center",
+					"label": "Bottom center"
+				},
+				{
+					"value": "bottom-right",
+					"label": "Bottom right"
+				}
+			],
+			"default": "center-center",
+			"info": "Position of text and buttons on mobile view."
+		},
+		{
+			"type": "range",
+			"id": "buttons_corner",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Buttons corner radius",
+			"default": 4
+		}
+	],
+	"blocks": [
+		{
+			"type": "collection",
+			"limit": 12,
+			"name": "Collection",
+			"settings": [
+				{
+					"type": "collection",
+					"id": "collection",
+					"label": "Collection"
+				},
+				{
+					"type": "header",
+					"content": "Image (optional)",
+					"info": "Select another image for the collection banner."
+				},
+				{
+					"type": "image_picker",
+					"id": "image_desktop",
+					"label": "Image on desktop"
+				},
+				{
+					"type": "image_picker",
+					"id": "image_mobile",
+					"label": "Image on mobile"
+				},
+				{
+					"type": "header",
+					"content": "Banner settings",
+					"info": "When using a 1/4 width and small height banner, we recommend centering the content."
+				},
+				{
+					"type": "select",
+					"id": "card_height",
+					"label": "Banner height on desktop",
+					"options": [
+						{
+							"value": "1",
+							"label": "Small"
+						},
+						{
+							"value": "2",
+							"label": "Medium"
+						},
+						{
+							"value": "3",
+							"label": "Large"
+						}
+					],
+					"default": "1"
+				},
+				{
+					"type": "color",
+					"id": "overlay_color",
+					"label": "Overlay color",
+					"default": "#222222"
+				},
+				{
+					"type": "range",
+					"id": "overlay_opacity",
+					"min": 0,
+					"max": 100,
+					"step": 2,
+					"unit": "%",
+					"label": "Overlay opacity",
+					"default": 20
+				},
+				{
+					"type": "header",
+					"content": "Text settings (optional)"
+				},
+				{
+					"type": "text",
+					"id": "heading",
+					"label": "Heading"
+				},
+				{
+					"type": "range",
+					"id": "heading_size",
+					"min": 20,
+					"max": 60,
+					"step": 2,
+					"unit": "px",
+					"label": "Heading size",
+					"default": 32
+				},
+				{
+					"type": "text",
+					"id": "subheading",
+					"label": "Subheading"
+				},
+				{
+					"type": "range",
+					"id": "subheading_size",
+					"min": 10,
+					"max": 24,
+					"step": 1,
+					"unit": "px",
+					"label": "Subheading size",
+					"default": 14
+				},
+				{
+					"type": "text",
+					"id": "description",
+					"label": "Description"
+				},
+				{
+					"type": "range",
+					"id": "description_size",
+					"min": 12,
+					"max": 28,
+					"step": 1,
+					"unit": "px",
+					"label": "Description size",
+					"default": 16
+				},
+				{
+					"type": "range",
+					"id": "vertical_text_gap",
+					"min": 8,
+					"max": 32,
+					"step": 2,
+					"unit": "px",
+					"label": "Vertical space between text",
+					"default": 16
+				},
+				{
+					"type": "color",
+					"id": "text_color",
+					"label": "Text color",
+					"default": "#ffffff"
+				},
+				{
+					"type": "header",
+					"content": "Button settings"
+				},
+				{
+					"type": "text",
+					"id": "primary_button_label",
+					"label": "Button label"
+				},
+				{
+					"type": "url",
+					"id": "primary_button_link",
+					"label": "Button link (optional)"
+				},
+				{
+					"type": "select",
+					"id": "primary_button_style",
+					"label": "Button style",
+					"options": [
+						{
+							"value": "solid",
+							"label": "Filled"
+						},
+						{
+							"value": "outline",
+							"label": "Outline"
+						},
+						{
+							"value": "link",
+							"label": "Link"
+						}
+					],
+					"default": "link"
+				},
+				{
+					"type": "color",
+					"id": "primary_text_color",
+					"label": "Button text",
+					"default": "#ffffff"
+				},
+				{
+					"type": "color",
+					"id": "primary_background_color",
+					"label": "Button background",
+					"default": "#ffffff",
+					"visible_if": "{{ block.settings.primary_button_style == 'solid' }}"
+				},
+				{
+					"type": "color",
+					"id": "primary_border_color",
+					"label": "Button border",
+					"default": "#ffffff",
+					"visible_if": "{{ block.settings.primary_button_style == 'outline' }}"
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Collection Banner",
+			"category": "Collections",
+			"blocks": [
+				{
+					"type": "collection",
+					"settings": {
+						"card_height": "2",
+						"primary_button_style": "solid",
+						"primary_text_color": "#222222",
+						"primary_button_label": "Explore Collection",
+						"subheading": "New Arrivals"
+					}
+				},
+				{
+					"type": "collection"
+				},
+				{
+					"type": "collection"
+				}
+			]
+		}
+	]
+}
+{% endschema %}
+
+{% style %}
+	.Loudibs-{{ section.id | handle }} {
+		--section-vertical-margin: {{- section.settings.vertical_margin -}}px;
+		--section-vertical-margin-mobile: {{- section.settings.vertical_margin_mobile -}}px;
+		--section-banners-space: {{- section.settings.items_gap -}}px;
+		--section-background-color: {{- section.settings.section_background -}};
+		--section-vertical-padding: {{- section.settings.vertical_padding -}}px;
+		--section-vertical-padding-mobile: {{- section.settings.vertical_padding_mobile -}}px;
+		--section-horizontal-padding-mobile: {{- section.settings.horizontal_padding_mobile -}}px;
+		--section-horizontal-padding-desktop: {{- section.settings.horizontal_padding_desktop -}}px;
+		--section-max-width: {{- section.settings.section_max_width -}}px;
+		--section-width: {{- section.settings.section_width -}}%;
+		--section-buttons-corner-radius: {{- section.settings.buttons_corner -}}px;
+		--section-card-border-radius: {{- section.settings.card_border_radius -}}px;
+	}
+
+	
+
+.Loudibs-{{ section.id | handle }} .LoudibsCollListContainer{margin:var(--section-vertical-margin-mobile) 0;background-color:var(--section-background-color)}@media(min-width: 992px){.Loudibs-{{ section.id | handle }} .LoudibsCollListContainer{margin:var(--section-vertical-margin) 0}}.Loudibs-{{ section.id | handle }} .LoudibsCollList{padding:var(--section-vertical-padding-mobile) var(--section-horizontal-padding-mobile);display:grid;grid:auto-flow dense 200px/repeat(1, minmax(0, 1fr));max-width:var(--section-max-width);gap:var(--section-banners-space);width:var(--section-width);margin:0 auto;list-style-type:none}@media(min-width: 992px){.Loudibs-{{ section.id | handle }} .LoudibsCollList{padding:var(--section-vertical-padding) var(--section-horizontal-padding-desktop);display:grid;grid:auto-flow dense 290px/repeat(4, minmax(0, 1fr));max-width:var(--section-max-width);gap:var(--section-banners-space);width:var(--section-width);margin:0 auto}}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard{grid-area:span min(2, var(--block-banner-height))/span min(1,var(--block-banner-width))}@media(min-width: 992px){.Loudibs-{{ section.id | handle }} .LoudibsCollListCard{grid-area:span var(--block-banner-height)/span var(--block-banner-width)}}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Wrapper{height:100%;position:relative;border-radius:var(--section-card-border-radius);overflow:hidden}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Media{overflow:hidden;height:100%;display:block}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Media img{width:100%;height:100%;object-fit:cover}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Media::before{position:absolute;top:0;left:0;display:block;width:100%;height:100%;content:"";z-index:2;background-color:var(--block-overlay-color);opacity:var(--block-overlay-opacity)}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Media--inactiveLink{cursor:default;pointer-events:none}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Image--media-desktop{display:none}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Image--media-mobile{display:block}@media(min-width: 992px){.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Image--media-desktop{display:block}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Image--media-mobile{display:none}}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information{position:absolute;color:var(--block-text-color);width:100%;z-index:2;pointer-events:none;height:fit-content;display:flex;flex-direction:column;padding:var(--loudibs-space-20)}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information h2,.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information p{margin:0}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--mobile-position--top-left{top:0;left:0;text-align:left;align-items:flex-start}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--mobile-position--top-center{top:0;left:50%;transform:translate(-50%, 0);text-align:center;align-items:center}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--mobile-position--top-right{top:0;right:0;text-align:right;align-items:flex-end}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--mobile-position--center-left{top:50%;left:0;transform:translate(0, -50%);text-align:left;align-items:flex-start}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--mobile-position--center-center{top:50%;left:50%;transform:translate(-50%, -50%);text-align:center;align-items:center}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--mobile-position--center-right{top:50%;right:0;transform:translate(0, -50%);text-align:right;align-items:flex-end}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--mobile-position--bottom-left{bottom:0;left:0;text-align:left;align-items:flex-start}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--mobile-position--bottom-center{top:unset;bottom:0;left:50%;transform:translate(-50%, 0);text-align:center;align-items:center}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--mobile-position--bottom-right{bottom:0;right:0;text-align:right;align-items:flex-end}@media(min-width: 992px){.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information{padding:var(--loudibs-space-32)}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--desktop-position--top-left{top:0;left:0;text-align:left;transform:unset;align-items:flex-start}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--desktop-position--top-center{top:0;left:50%;transform:translate(-50%, 0);text-align:center;align-items:center}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--desktop-position--top-right{top:0;right:0;left:0;text-align:right;transform:unset;align-items:flex-end}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--desktop-position--center-left{top:50%;left:0;transform:translate(0, -50%);text-align:left;align-items:flex-start}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--desktop-position--center-center{top:50%;left:50%;transform:translate(-50%, -50%);text-align:center;align-items:center}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--desktop-position--center-right{top:50%;right:0;left:unset;transform:translate(0, -50%);text-align:right;align-items:flex-end}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--desktop-position--bottom-left{bottom:0;left:0;text-align:left;top:unset;transform:unset;align-items:flex-start}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--desktop-position--bottom-center{top:unset;bottom:0;left:50%;transform:translate(-50%, 0);text-align:center;align-items:center}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Information--desktop-position--bottom-right{bottom:0;right:0;top:unset;left:unset;transform:unset;text-align:right;align-items:flex-end}}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Caption{margin:0;font-size:var(--block-subheading-size);font-weight:var(--loudibs-font-weight-600);margin-bottom:var(--block-vertical-gap)}@media(min-width: 992px){.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Caption{font-size:var(--block-subheading-size)}}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Heading{padding-bottom:var(--block-vertical-gap);pointer-events:auto;margin:0;font-size:calc(var(--block-heading-size)*.75);text-decoration:none;color:var(--block-text-color);display:block;width:100%;font-weight:var(--loudibs-font-weight-600);pointer-events:auto}@media(min-width: 992px){.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Heading{font-size:var(--block-heading-size)}}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Description{max-width:400px;padding-bottom:var(--block-vertical-gap);font-size:calc(var(--block-description-size)*.88)}@media(min-width: 992px){.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Description{font-size:var(--block-description-size)}}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Button{display:inline-flex;justify-content:center;align-items:center;cursor:pointer;font:inherit;font-size:var(--loudibs-font-size-14);text-decoration:var(--loudibs-text-decoration-none);-webkit-appearance:none;appearance:none;width:fit-content;padding:var(--loudibs-space-16) var(--loudibs-space-20);transition:all .3s ease-in;line-height:1}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Button:hover{filter:brightness(0.9)}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Button--solid{color:var(--block-primary-button-text-color);background:var(--block-primary-button-background-color);border-radius:var(--section-buttons-corner-radius)}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Button--outline{color:var(--block-primary-button-text-color);background:rgba(0,0,0,0);border:var(--loudibs-border-width-1) solid var(--block-primary-button-border-color);border-radius:var(--section-buttons-corner-radius)}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Button--link{color:var(--block-primary-button-text-color);background:rgba(0,0,0,0);border:0;border-radius:0;padding:0;text-decoration:underline;text-underline-offset:var(--loudibs-space-4)}.Loudibs-{{ section.id | handle }} .LoudibsCollListCard__Button--inactiveLink{cursor:not-allowed;pointer-events:none}
+
+{% endstyle %}
+
+
+{% style %}
+	
+
+.LoudibsUninstallBG{background-color:var(--loudibs-color-bg-fill-inverse-on-light);background-image:url("data:image/avif;base64,iVBORw0KGgoAAAANSUhEUgAABOcAAABkCAQAAABnAJxfAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAACYktHRAD/h4/MvwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+gLFQgmAgUXFkMAAARaSURBVHja7daxbSRBEATB8ZzvKw0h1dcIlJS4jl25Azlavffn9/3v++e//+vvCwqFQqFQKBRKSklEUCgUCoVCoVAMOgqFQqFQKJSzSiKCQqFQKBQKhWLQUSgUCoVCoZxVEhEUCoVCoVAoFIOOQqFQKBQK5VOURASFQqFQKBQKZVUSERQKhUKhUCiUVUlEUCgUCoVCoVBWZbtOPoVCoVAoFArlovIKERQKhUKhUCiUVXmFCAqFQqFQKBTKqrxCBIVCoVAoFAplVV4hgkKhUCgUCoUyK4kICoVCoVAoFMqqJCIoFAqFQqFQKKuSiKBQKBQKhUKhrEoigkKhUCgUCoVi0FEoFAqFQqGcVRIRFAqFQqFQKBSDjkKhUCgUCuWskoigUCgUCoVCoRh0FAqFQqFQKGeVRASFQqFQKBQKxaCjUCgUCoVCOaskIigUCoVCoVAoBh2FQqFQKBTKWSURQaFQKBQKhUIx6CgUCoVCoVDOKokICoVCoVAoFIpBR6FQKBQKhXJWSURQKBQKhUKhUAw6CoVCoVAolLNKIoJCoVAoFAqFYtBRKBQKhUKhnFUSERQKhUKhUCgUg45CoVAoFArlrJKIoFAoFAqFQqEYdBQKhUKhUChnlUQEhUKhUCgUCsWgo1AoFAqFQvkUJRFBoVAoFAqFQlmVRASFQqFQKBQKZVUSERQKhUKhUCiUVdmuk0+hUCgUCoVCuai8QgSFQqFQKBQKZVVeIYJCoVAoFAqFsiqvEEGhUCgUCoVCWZVXiKBQKBQKhUKhzEoigkKhUCgUCoWyKokICoVCoVAoFMqqJCIoFAqFQqFQKAYdhUKhUCgUylklEUGhUCgUCoVCMegoFAqFQqFQziqJCAqFQqFQKBSKQUehUCgUCoVyVklEUCgUCoVCoVAMOgqFQqFQKJSzSiKCQqFQKBQKhWLQUSgUCoVCoZxVEhEUCoVCoVAoFIOOQqFQKBQK5dOVX5nMB52iezhxAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI0LTExLTIxVDA4OjM4OjAyKzAwOjAw30WrCwAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNC0xMS0yMVQwODozODowMiswMDowMK4YE7cAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjQtMTEtMjFUMDg6Mzg6MDIrMDA6MDD5DTJoAAAAAElFTkSuQmCC");background-position:center;background-size:cover;text-align:center;padding:var(--loudibs-space-32);margin:0}.LoudibsUninstallBG__Text{color:var(--loudibs-color-text-disable-on-light);font-family:Inter,sans-serif;font-size:var(--loudibs-font-size-14);font-weight:var(--loudibs-font-weight-400);line-height:var(--loudibs-line-height-140);padding:var(--loudibs-space-16) var(--loudibs-space-16) var(--loudibs-space-16) var(--loudibs-space-40);background-color:var(--loudibs-color-bg-fill-inverse-on-light);display:inline-block}.LoudibsUninstallBG__Text::before{content:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%0A%09%09%09%3Cpath%20d%3D%22M9.99994%206.75C10.4142%206.75%2010.7499%207.08579%2010.7499%207.5V11C10.7499%2011.4142%2010.4142%2011.75%209.99994%2011.75C9.58573%2011.75%209.24994%2011.4142%209.24994%2011V7.5C9.24994%207.08579%209.58573%206.75%209.99994%206.75Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%09%3Cpath%20d%3D%22M11%2013.5C11%2014.0523%2010.5523%2014.5%2010%2014.5C9.44772%2014.5%209%2014.0523%209%2013.5C9%2012.9477%209.44772%2012.5%2010%2012.5C10.5523%2012.5%2011%2012.9477%2011%2013.5Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%09%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M10%203.5C8.95471%203.5%208.21616%204.20232%207.84762%204.94672C7.65565%205.33448%206.75984%207.0441%205.84305%208.79353L5.81531%208.84646C4.9229%2010.5493%204.01714%2012.2777%203.80716%2012.702C3.4351%2013.4537%203.32931%2014.4519%203.89953%2015.316C4.46911%2016.1791%205.44222%2016.5%206.36356%2016.5L13.6364%2016.5C14.5577%2016.5%2015.5308%2016.1791%2016.1004%2015.316C16.6707%2014.4519%2016.5649%2013.4537%2016.1928%2012.702C15.9832%2012.2784%2015.08%2010.555%2014.1889%208.85476L14.1569%208.79352C13.24%207.044%2012.3443%205.33454%2012.1524%204.94693C11.784%204.20242%2011.0454%203.5%2010%203.5ZM9.1919%205.61225C9.59605%204.79592%2010.4041%204.79592%2010.8081%205.61225C11.0102%206.02061%2011.9201%207.75686%2012.8296%209.49243C13.7383%2011.2262%2014.6466%2012.9594%2014.8485%2013.3673C15.2525%2014.1837%2014.8485%2015%2013.6364%2015L6.36356%2015C5.1515%2015%204.74746%2014.1837%205.1515%2013.3673C5.35376%2012.9587%206.26468%2011.2205%207.1748%209.4838C8.08283%207.75111%208.99005%206.01994%209.1919%205.61225Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%3C%2Fsvg%3E");position:absolute;width:var(--loudibs-space-20);height:var(--loudibs-space-20);margin-left:calc(-1*var(--loudibs-space-24))}.LoudibsUninstallBG__Text a{color:var(--loudibs-color-text-disable-on-light)}.LoudibsUninstallBG__Text a:hover{text-decoration:none}
+
+{% endstyle %}

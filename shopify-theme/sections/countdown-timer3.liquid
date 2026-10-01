@@ -1,0 +1,1203 @@
+{% style %}
+:root {
+--loudz-neutral-70: #5e5e5e;
+--loudz-neutral-03: #f8f8f8;
+--loudz-neutral-01: #fff;
+--loudz-size-1: 1px;
+--loudz-size-2: 2px;
+--loudz-size-4: 4px;
+--loudz-size-8: 8px;
+--loudz-size-12: 12px;
+--loudz-size-14: 14px;
+--loudz-size-16: 16px;
+--loudz-size-20: 20px;
+--loudz-size-24: 24px;
+--loudz-size-32: 32px;
+--loudz-size-40: 40px;
+--loudz-size-48: 48px;
+--loudz-font-weight-400: 400;
+--loudz-font-weight-600: 600;
+--loudz-line-height-140: 1.4;
+--loudz-text-decoration-none: none;
+--loudz-text-decoration-underline: underline;
+--loudz-border-width-1: var(--loudz-size-1);
+--loudz-border-width-2: var(--loudz-size-2);
+--loudz-color-bg-fill-inverse-on-light: var(--loudz-neutral-01);
+--loudz-color-bg-surface-tertiary-on-light: var(--loudz-neutral-03);
+--loudz-color-text-disable-on-light: var(--loudz-neutral-70);
+--loudz-space-2: var(--loudz-size-2);
+--loudz-space-4: var(--loudz-size-4);
+--loudz-space-8: var(--loudz-size-8);
+--loudz-space-12: var(--loudz-size-12);
+--loudz-space-16: var(--loudz-size-16);
+--loudz-space-20: var(--loudz-size-20);
+--loudz-space-24: var(--loudz-size-24);
+--loudz-space-32: var(--loudz-size-32);
+--loudz-space-40: var(--loudz-size-40);
+--loudz-font-size-12: var(--loudz-size-12);
+--loudz-font-size-14: var(--loudz-size-14);
+--loudz-font-size-16: var(--loudz-size-16);
+--loudz-font-size-20: var(--loudz-size-20);
+--loudz-font-size-24: var(--loudz-size-24);
+--loudz-font-size-32: var(--loudz-size-32);
+--loudz-font-size-48: var(--loudz-size-48);
+}
+
+
+{% endstyle %}
+
+<!-- --UUID-01a02399-- -->
+
+{%- liquid
+	assign timer_block = section.blocks | where: "type", "timer" | first
+	assign caption_block = section.blocks | where: "type", "caption" | first
+	assign heading_block = section.blocks | where: "type", "heading" | first
+	assign text_block = section.blocks | where: "type", "text" | first
+	assign button_block = section.blocks | where: "type", "button" | first
+
+	assign is_block_text_empty = false
+
+	assign is_caption_empty = false
+	assign is_heading_empty = false
+	assign is_text_empty = false
+	assign is_button_empty = false
+
+	if caption_block == blank or caption_block.settings.caption == blank
+		assign is_caption_empty = true
+	endif
+
+	if heading_block == blank or heading_block.settings.heading == blank
+		assign is_heading_empty = true
+	endif
+
+	if button_block == blank or button_block.settings.primary_button_label == blank
+		assign is_text_empty = true
+	endif
+
+	if text_block == blank or text_block.settings.description == blank
+		assign is_button_empty = true
+	endif
+
+	if is_caption_empty == true and is_heading_empty == true and is_text_empty == true and is_button_empty == true
+		assign is_block_text_empty = true
+	endif
+-%}
+
+<section class="loudz-{{ section.id | handle }} loudzFlashTimer" {% if is_heading_empty == false %}aria-labelledby="loudzFlashTimerHeading-{{ section.id }}"{% else %}aria-label="Flash Sale Countdown"{% endif %}>
+	<div class="loudzFlashTimerContainer">
+		<div class="loudzFlashCountdownTimer loudzFlashCountdownTimer--desktopPosition-{{ section.settings.timer_position_desktop }} loudzFlashCountdownTimer--mobilePosition-{{ section.settings.timer_position_mobile }}">
+			<div class="loudzFlashCountdownTimer__Content {% if is_block_text_empty == true %}loudzFlashCountdownTimer__Content--onlyTimer{% endif %}">
+				<div class="loudzTextBox">
+					{%- for block in section.blocks -%}
+						{%- case block.type -%}
+							{%- when "heading" -%}
+								{%- if block.settings.heading_alternative_font -%}
+									<style>
+										{{- block.settings.heading_font | font_face: font_display: 'swap' -}}
+									</style>
+								{%- endif -%}
+								{%- capture heading_css_variables -%}
+                                    --block-heading-size: {{- block.settings.heading_size -}}px;
+                                    --block-heading-color: {{- block.settings.heading_color -}};
+                                    --block-heading-font: {{- block.settings.heading_font.family -}};
+                                  {%- endcapture -%}
+								<h2
+									style="{{- heading_css_variables | strip_newlines | escape -}}"
+									class="loudzTextBox__Heading loudzTextBox__Heading--style-{{ block.settings.heading_style }} {% if block.settings.heading_alternative_font == true %}loudzTextBox__Heading--alternativeFont{% endif %}"
+									id="loudzFlashTimerHeading-{{ section.id }}"
+									{{ block.shopify_attributes }}
+								>
+									{{- block.settings.heading -}}
+								</h2>
+							{%- when "caption" -%}
+								{%- if block.settings.caption_alternative_font -%}
+									<style>
+										{{- block.settings.caption_font | font_face: font_display: 'swap' -}}
+									</style>
+								{%- endif -%}
+								{%- capture caption_css_variables -%}
+                                    --block-caption-size: {{- block.settings.caption_size -}}px;
+                                    --block-caption-color: {{- block.settings.caption_color -}};
+                                    --block-caption-font: {{- block.settings.caption_font.family -}};
+                                    --block-caption-weight: {{- block.settings.caption_weight -}};
+                                  {%- endcapture -%}
+								<p
+									style="{{- caption_css_variables | strip_newlines | escape -}}"
+									class="loudzTextBox__Caption {% if block.settings.caption_alternative_font == true %}loudzTextBox__Caption--alternativeFont{% endif %}"
+									{{ block.shopify_attributes }}
+								>
+									{{- block.settings.caption -}}
+								</p>
+							{%- when "text" -%}
+								{%- if block.settings.description_alternative_font -%}
+									{%- liquid
+										assign body_font_bold = block.settings.description_font | font_modify: 'weight', 'bold'
+										assign body_font_italic = block.settings.description_font | font_modify: 'style', 'italic'
+										assign body_font_bold_italic = body_font_bold | font_modify: 'style', 'italic'
+									%}
+									<style>
+										{{- block.settings.description_font | font_face: font_display: 'swap' -}}
+										{{ body_font_bold | font_face: font_display: 'swap' }}
+										{{ body_font_italic | font_face: font_display: 'swap' }}
+										{{ body_font_bold_italic | font_face: font_display: 'swap' }}
+									</style>
+								{%- endif -%}
+								{%- capture description_css_variables -%}
+                                    --block-description-size: {{- block.settings.description_size -}}px;
+                                    --block-description-color: {{- block.settings.description_color -}};
+                                    --block-description-font: {{- block.settings.description_font.family -}};
+                                  {%- endcapture -%}
+								<div
+									style="{{- description_css_variables | strip_newlines | escape -}}"
+									class="loudzTextBox__Description loudzTextBox__Description--alignment-{{ section.settings.text_alignment }} {% if block.settings.description_alternative_font == true %}loudzTextBox__Description--alternativeFont{% endif %}"
+									{{ block.shopify_attributes }}
+								>
+									{{- block.settings.description -}}
+								</div>
+							{%- when "button" -%}
+								{%- capture buttons_css_variables -%}
+                                    --block-primary-button-text-color: {{- block.settings.primary_text_color -}};
+                                    --block-primary-button-background-color: {{- block.settings.primary_background_color -}};
+                                    --block-primary-button-corner-radius: {{- block.settings.primary_button_corner -}}px;
+                                    --block-primary-button-border-color: {{- block.settings.primary_border_color -}};
+                                  {%- endcapture -%}
+								<div
+									style="{{- buttons_css_variables | strip_newlines | escape -}}"
+									class="loudzImgTextButtons"
+									{{ block.shopify_attributes }}
+								>
+									{%- if block.settings.primary_button_label != blank -%}
+										<a
+											{% if block.settings.primary_new_tab == true %}
+												target="_blank"
+												rel="noopener noreferrer"
+											{% endif %}
+											class="loudzImgTextButtons__Primary loudzImgTextButtons__Primary--{{ block.settings.primary_button_style }}"
+											href="{{ block.settings.primary_button_link | default: "#" }}"
+										>
+											{{- block.settings.primary_button_label | escape -}}
+										</a>
+									{%- endif -%}
+								</div>
+						{%- endcase -%}
+					{%- endfor -%}
+				</div>
+			</div>
+			{%- if timer_block -%}
+                <loudz-countdown-timer
+					class="
+						loudzFlashCountdownTimer__Timer
+						{% if timer_block.settings.show_numbers == true %}loudzFlashCountdownTimer__Timer--onlyNumbers{% endif %}
+						{% if is_block_text_empty == true %}loudzFlashCountdownTimer__Timer--onlyTimer{% endif %}
+					"
+					{{ timer_block.shopify_attributes }}
+				>
+					{%- assign end_date = timer_block.settings.end_date -%}
+					{%- assign end_time = timer_block.settings.end_time -%}
+
+					{%- capture heading_css_variables -%}
+                        --block-numbers-color: {{- timer_block.settings.numbers_color -}};
+                        --block-text-color: {{- timer_block.settings.text_color -}};
+                    {%- endcapture -%}
+					<div
+						style="{{- heading_css_variables | strip_newlines | escape -}}"
+						id="loudzCountdownTimer"
+						class="loudzCountdownTimer"
+						{%- if end_date != blank and end_time != blank -%}
+							data-end-date="{{ end_date }}"
+							data-end-time="{{ end_time }}"
+						{%- endif -%}
+						data-completed-text="{{ section.settings.completed_message }}"
+						data-hide-section="{{ section.settings.hide_section }}"
+						role="timer"
+						aria-live="polite"
+						aria-atomic="true"
+						aria-label="Time remaining: 00 days, 00 hours, 00 minutes"
+					>
+						<div
+							class="
+								loudzCountdownTimerActive
+								loudzCountdownTimerActive--{{ timer_block.settings.countdown_size }}
+								loudzCountdownTimerActive--{{ timer_block.settings.numbers_style }}
+							"
+							aria-hidden="true"
+						>
+							<div class="loudzCountdownTimerActive__Item">
+								<h6 class="loudzCountdownTimerActive__Number loudzDays">00</h6>
+								<span class="loudzCountdownTimerActive__Text">days</span>
+							</div>
+							<span class="loudzCountdownTimerActive__Divider">:</span>
+							<div class="loudzCountdownTimerActive__Item">
+								<h6 class="loudzCountdownTimerActive__Number loudzHours">00</h6>
+								<span class="loudzCountdownTimerActive__Text">hours</span>
+							</div>
+							<span class="loudzCountdownTimerActive__Divider">:</span>
+							<div class="loudzCountdownTimerActive__Item">
+								<h6 class="loudzCountdownTimerActive__Number loudzMinutes">00</h6>
+								<span class="loudzCountdownTimerActive__Text">min</span>
+							</div>
+							<span class="loudzCountdownTimerActive__Divider">:</span>
+							<div class="loudzCountdownTimerActive__Item">
+								<h6 class="loudzCountdownTimerActive__Number loudzSeconds">00</h6>
+								<span class="loudzCountdownTimerActive__Text">sec</span>
+							</div>
+						</div>
+					</div>
+				</loudz-countdown-timer>
+			{%- endif -%}
+		</div>
+	</div>
+</section>
+
+{% schema %}
+{
+	"name": "Countdown Timer Pro 3",
+	"settings": [
+		{
+			"type": "header",
+			"content": "General"
+		},
+		{
+			"type": "color",
+			"id": "section_background",
+			"label": "Section background color",
+			"default": "#000000"
+		},
+		{
+			"type": "select",
+			"id": "timer_position_desktop",
+			"label": "Timer position on desktop",
+			"options": [
+				{
+					"value": "left",
+					"label": "Left"
+				},
+				{
+					"value": "right",
+					"label": "Right"
+				}
+			],
+			"default": "left",
+			"info": "Controls where the countdown timer appears relative to other content on desktop screens."
+		},
+		{
+			"type": "select",
+			"id": "timer_position_mobile",
+			"label": "Timer position on mobile",
+			"options": [
+				{
+					"value": "above",
+					"label": "Above content"
+				},
+				{
+					"value": "bellow",
+					"label": "Below content"
+				}
+			],
+			"default": "above"
+		},
+		{
+			"type": "select",
+			"id": "text_alignment",
+			"label": "Text alignment on desktop",
+			"options": [
+				{
+					"value": "left",
+					"label": "Left"
+				},
+				{
+					"value": "center",
+					"label": "Center"
+				},
+				{
+					"value": "right",
+					"label": "Right"
+				}
+			],
+			"default": "left"
+		},
+		{
+			"type": "select",
+			"id": "text_alignment_mobile",
+			"label": "Text alignment on mobile",
+			"options": [
+				{
+					"value": "left",
+					"label": "Left"
+				},
+				{
+					"value": "center",
+					"label": "Center"
+				},
+				{
+					"value": "right",
+					"label": "Right"
+				}
+			],
+			"default": "center"
+		},
+		{
+			"type": "checkbox",
+			"id": "hide_section",
+			"label": "Hide entire section after countdown ends",
+			"default": true
+		},
+		{
+			"type": "text",
+			"id": "completed_message",
+			"label": "Message after countdown completes",
+			"info": "Visible only if 'Hide entire section after countdown ends' is disabled. This text will replace the timer."
+		},
+		{
+			"type": "color",
+			"id": "completed_message_color",
+			"label": "Completed message text color",
+			"default": "#222222"
+		},
+		{
+			"type": "header",
+			"content": "Layout"
+		},
+		{
+			"type": "range",
+			"id": "vertical_padding",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Desktop top and bottom padding",
+			"default": 40,
+			"info": "Adds space inside the section on the top and bottom for desktop views."
+		},
+		{
+			"type": "range",
+			"id": "vertical_padding_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Mobile top and bottom padding",
+			"default": 20
+		},
+		{
+			"type": "range",
+			"id": "vertical_margin",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Desktop top and bottom margin",
+			"default": 0,
+			"info": "Adds space outside the section on the top and bottom for desktop views."
+		},
+		{
+			"type": "range",
+			"id": "vertical_margin_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Mobile top and bottom margin",
+			"default": 0
+		},
+		{
+			"type": "range",
+			"id": "section_width",
+			"min": 70,
+			"max": 100,
+			"step": 1,
+			"unit": "%",
+			"label": "Section width percentage",
+			"default": 70
+		},
+		{
+			"type": "text",
+			"id": "section_max_width",
+			"label": "Custom maximum width in pixels (optional)",
+			"info": "Enter a pixel value to set a fixed maximum width, overriding the percentage if specified."
+		}
+	],
+	"blocks": [
+		{
+			"type": "heading",
+			"name": "Heading",
+			"limit": 1,
+			"settings": [
+				{
+					"type": "text",
+					"id": "heading",
+					"default": "Flash Sale Countdown",
+					"label": "Heading text"
+				},
+				{
+					"type": "select",
+					"id": "heading_size",
+					"label": "Heading font size",
+					"options": [
+						{
+							"value": "24",
+							"label": "Small (24px)"
+						},
+						{
+							"value": "32",
+							"label": "Medium (32px)"
+						},
+						{
+							"value": "48",
+							"label": "Large (48px)"
+						}
+					],
+					"default": "32"
+				},
+				{
+					"type": "select",
+					"id": "heading_style",
+					"label": "Heading font weight",
+					"options": [
+						{
+							"value": "regular",
+							"label": "Regular"
+						},
+						{
+							"value": "bold",
+							"label": "Bold"
+						}
+					],
+					"default": "bold"
+				},
+				{
+					"type": "color",
+					"id": "heading_color",
+					"label": "Heading text color",
+					"default": "#fff"
+				},
+				{
+					"type": "header",
+					"content": "Alternative font"
+				},
+				{
+					"type": "checkbox",
+					"id": "heading_alternative_font",
+					"label": "Use alternative font for heading",
+					"default": false,
+					"info": "Enables a custom font family for this heading block."
+				},
+				{
+					"type": "font_picker",
+					"id": "heading_font",
+					"label": "Custom font family",
+					"default": "sans_serif_n4"
+				}
+			]
+		},
+		{
+			"type": "caption",
+			"name": "Caption",
+			"limit": 1,
+			"settings": [
+				{
+					"type": "text",
+					"id": "caption",
+					"label": "Caption text"
+				},
+				{
+					"type": "select",
+					"id": "caption_size",
+					"label": "Caption font size",
+					"options": [
+						{
+							"value": "12",
+							"label": "Small (12px)"
+						},
+						{
+							"value": "16",
+							"label": "Medium (16px)"
+						},
+						{
+							"value": "20",
+							"label": "Large (20px)"
+						}
+					],
+					"default": "16"
+				},
+				{
+					"type": "select",
+					"id": "caption_weight",
+					"label": "Caption font weight",
+					"options": [
+						{
+							"value": "400",
+							"label": "Regular (400)"
+						},
+						{
+							"value": "600",
+							"label": "Semi-bold (600)"
+						}
+					],
+					"default": "400"
+				},
+				{
+					"type": "color",
+					"id": "caption_color",
+					"label": "Caption text color",
+					"default": "#222222"
+				},
+				{
+					"type": "header",
+					"content": "Alternative font"
+				},
+				{
+					"type": "checkbox",
+					"id": "caption_alternative_font",
+					"label": "Use alternative font for caption",
+					"default": false
+				},
+				{
+					"type": "font_picker",
+					"id": "caption_font",
+					"label": "Custom font family",
+					"default": "sans_serif_n4"
+				}
+			]
+		},
+		{
+			"type": "text",
+			"name": "Description",
+			"limit": 1,
+			"settings": [
+				{
+					"type": "richtext",
+					"id": "description",
+					"default": "<p>Share details about your exclusive limited-time offer or special promotion.</p>",
+					"label": "Description text"
+				},
+				{
+					"type": "select",
+					"id": "description_size",
+					"label": "Description font size",
+					"options": [
+						{
+							"value": "12",
+							"label": "Small (12px)"
+						},
+						{
+							"value": "16",
+							"label": "Medium (16px)"
+						},
+						{
+							"value": "20",
+							"label": "Large (20px)"
+						}
+					],
+					"default": "16"
+				},
+				{
+					"type": "color",
+					"id": "description_color",
+					"label": "Description text color",
+					"default": "#D8D8D8"
+				},
+				{
+					"type": "header",
+					"content": "Alternative font"
+				},
+				{
+					"type": "checkbox",
+					"id": "description_alternative_font",
+					"label": "Use alternative font for description",
+					"default": false
+				},
+				{
+					"type": "font_picker",
+					"id": "description_font",
+					"label": "Custom font family",
+					"default": "sans_serif_n4"
+				}
+			]
+		},
+		{
+			"type": "button",
+			"name": "Button",
+			"limit": 1,
+			"settings": [
+				{
+					"type": "header",
+					"content": "Primary button"
+				},
+				{
+					"type": "text",
+					"id": "primary_button_label",
+					"label": "Button label text"
+				},
+				{
+					"type": "url",
+					"id": "primary_button_link",
+					"label": "Button link URL"
+				},
+				{
+					"type": "select",
+					"id": "primary_button_style",
+					"label": "Button appearance style",
+					"options": [
+						{
+							"value": "solid",
+							"label": "Filled (solid background)"
+						},
+						{
+							"value": "outline",
+							"label": "Outline (border only)"
+						},
+						{
+							"value": "link",
+							"label": "Text link (no background)"
+						}
+					],
+					"default": "solid"
+				},
+				{
+					"type": "color",
+					"id": "primary_text_color",
+					"label": "Button text color",
+					"default": "#ffffff"
+				},
+				{
+					"type": "color",
+					"id": "primary_background_color",
+					"label": "Button background color",
+					"default": "#222222",
+					"visible_if": "{{ block.settings.primary_button_style == 'solid' }}"
+				},
+				{
+					"type": "color",
+					"id": "primary_border_color",
+					"label": "Button border color",
+					"default": "#222222",
+					"visible_if": "{{ block.settings.primary_button_style == 'outline' }}"
+				},
+				{
+					"type": "range",
+					"id": "primary_button_corner",
+					"min": 0,
+					"max": 100,
+					"step": 2,
+					"unit": "px",
+					"label": "Button corner radius",
+					"visible_if": "{{ block.settings.primary_button_style != 'link' }}",
+					"default": 0,
+					"info": "Rounds the corners of the button for a softer look."
+				},
+				{
+					"type": "checkbox",
+					"id": "primary_new_tab",
+					"label": "Open button link in new tab",
+					"default": false
+				}
+			]
+		},
+		{
+			"type": "timer",
+			"name": "Countdown timer",
+			"limit": 1,
+			"settings": [
+				{
+					"type": "text",
+					"id": "end_date",
+					"label": "Countdown end date",
+					"info": "Format: MM-DD-YYYY. Timezone based on your store's primary timezone."
+				},
+				{
+					"type": "select",
+					"id": "end_time",
+					"label": "Countdown end time",
+					"options": [
+						{
+							"value": "12am",
+							"label": "12:00 am (0:00)"
+						},
+						{
+							"value": "12:30am",
+							"label": "12:30 am (0:30)"
+						},
+						{
+							"value": "1am",
+							"label": "1:00 am (1:00)"
+						},
+						{
+							"value": "1:30am",
+							"label": "1:30 am (1:30)"
+						},
+						{
+							"value": "2am",
+							"label": "2:00 am (2:00)"
+						},
+						{
+							"value": "2:30am",
+							"label": "2:30 am (2:30)"
+						},
+						{
+							"value": "3am",
+							"label": "3:00 am (3:00)"
+						},
+						{
+							"value": "3:30am",
+							"label": "3:30 am (3:30)"
+						},
+						{
+							"value": "4am",
+							"label": "4:00 am (4:00)"
+						},
+						{
+							"value": "4:30am",
+							"label": "4:30 am (4:30)"
+						},
+						{
+							"value": "5am",
+							"label": "5:00 am (5:00)"
+						},
+						{
+							"value": "5:30am",
+							"label": "5:30 am (5:30)"
+						},
+						{
+							"value": "6am",
+							"label": "6:00 am (6:00)"
+						},
+						{
+							"value": "6:30am",
+							"label": "6:30 am (6:30)"
+						},
+						{
+							"value": "7am",
+							"label": "7:00 am (7:00)"
+						},
+						{
+							"value": "7:30am",
+							"label": "7:30 am (7:30)"
+						},
+						{
+							"value": "8am",
+							"label": "8:00 am (8:00)"
+						},
+						{
+							"value": "8:30am",
+							"label": "8:30 am (8:30)"
+						},
+						{
+							"value": "9am",
+							"label": "9:00 am (9:00)"
+						},
+						{
+							"value": "9:30am",
+							"label": "9:30 am (9:30)"
+						},
+						{
+							"value": "10am",
+							"label": "10:00 am (10:00)"
+						},
+						{
+							"value": "10:20am",
+							"label": "10:20 am (10:20)"
+						},
+						{
+							"value": "10:30am",
+							"label": "10:30 am (10:30)"
+						},
+						{
+							"value": "11am",
+							"label": "11:00 am (11:00)"
+						},
+						{
+							"value": "11:30am",
+							"label": "11:30 am (11:30)"
+						},
+						{
+							"value": "12pm",
+							"label": "12:00 pm (12:00)"
+						},
+						{
+							"value": "12:30pm",
+							"label": "12:30 pm (12:30)"
+						},
+						{
+							"value": "1pm",
+							"label": "1:00 pm (13:00)"
+						},
+						{
+							"value": "1:30pm",
+							"label": "1:30 pm (13:30)"
+						},
+						{
+							"value": "2pm",
+							"label": "2:00 pm (14:00)"
+						},
+						{
+							"value": "2:30pm",
+							"label": "2:30 pm (14:30)"
+						},
+						{
+							"value": "3pm",
+							"label": "3:00 pm (15:00)"
+						},
+						{
+							"value": "3:30pm",
+							"label": "3:30 pm (15:30)"
+						},
+						{
+							"value": "4pm",
+							"label": "4:00 pm (16:00)"
+						},
+						{
+							"value": "4:30pm",
+							"label": "4:30 pm (16:30)"
+						},
+						{
+							"value": "5pm",
+							"label": "5:00 pm (17:00)"
+						},
+						{
+							"value": "5:30pm",
+							"label": "5:30 pm (17:30)"
+						},
+						{
+							"value": "6pm",
+							"label": "6:00 pm (18:00)"
+						},
+						{
+							"value": "6:30pm",
+							"label": "6:30 pm (18:30)"
+						},
+						{
+							"value": "7pm",
+							"label": "7:00 pm (19:00)"
+						},
+						{
+							"value": "7:30pm",
+							"label": "7:30 pm (19:30)"
+						},
+						{
+							"value": "8pm",
+							"label": "8:00 pm (20:00)"
+						},
+						{
+							"value": "8:30pm",
+							"label": "8:30 pm (20:30)"
+						},
+						{
+							"value": "9pm",
+							"label": "9:00 pm (21:00)"
+						},
+						{
+							"value": "9:30pm",
+							"label": "9:30 pm (21:30)"
+						},
+						{
+							"value": "10pm",
+							"label": "10:00 pm (22:00)"
+						},
+						{
+							"value": "10:30pm",
+							"label": "10:30 pm (22:30)"
+						},
+						{
+							"value": "11pm",
+							"label": "11:00 pm (23:00)"
+						},
+						{
+							"value": "11:30pm",
+							"label": "11:30 pm (23:30)"
+						}
+					],
+					"default": "11:30pm"
+				},
+				{
+					"type": "checkbox",
+					"id": "show_numbers",
+					"label": "Display only numbers (hide labels like 'Days', 'Hours')",
+					"default": false
+				},
+				{
+					"type": "select",
+					"id": "numbers_style",
+					"label": "Countdown numbers font weight",
+					"options": [
+						{
+							"value": "regular",
+							"label": "Regular"
+						},
+						{
+							"value": "bold",
+							"label": "Bold"
+						}
+					],
+					"default": "bold"
+				},
+				{
+					"type": "select",
+					"id": "countdown_size",
+					"label": "Overall countdown timer size",
+					"options": [
+						{
+							"value": "small",
+							"label": "Small"
+						},
+						{
+							"value": "medium",
+							"label": "Medium"
+						},
+						{
+							"value": "large",
+							"label": "Large"
+						}
+					],
+					"default": "medium"
+				},
+				{
+					"type": "header",
+					"content": "Colors"
+				},
+				{
+					"type": "color",
+					"id": "numbers_color",
+					"label": "Countdown numbers color",
+					"default": "#FCFCFC"
+				},
+				{
+					"type": "color",
+					"id": "text_color",
+					"label": "Countdown text labels color",
+					"default": "#F4F4F4"
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Countdown Timer Pro 3",
+			"category": "Countdown Timers",
+			"blocks": [
+				{
+					"type": "caption"
+				},
+				{
+					"type": "heading"
+				},
+				{
+					"type": "text"
+				},
+				{
+					"type": "timer"
+				},
+				{
+					"type": "button"
+				}
+			]
+		}
+	]
+}
+{% endschema %}
+
+{% style %}
+	.loudz-{{ section.id | handle }} {
+	 --section-vertical-margin: {{- section.settings.vertical_margin -}}px;
+	 --section-vertical-margin-mobile: {{- section.settings.vertical_margin_mobile -}}px;
+	 --section-background-color: {{- section.settings.section_background -}};
+	    --section-completed-message-color: {{- section.settings.completed_message_color -}};
+	 --section-background-image: url({{- section.settings.background_image | img_url: 'master' -}});
+	 --section-vertical-padding: {{- section.settings.vertical_padding -}}px;
+	 --section-vertical-padding-mobile: {{- section.settings.vertical_padding_mobile -}}px;
+	 --section-text-background: {{- section.settings.text_box_background -}};
+	 --section-text-alignment: {{- section.settings.text_alignment -}};
+	 --section-text-alignment-mobile: {{- section.settings.text_alignment_mobile -}};
+	 --section-max-width: {{- section.settings.section_max_width -}}px;
+	 --section-width: {{- section.settings.section_width -}}%;
+	 --section-text-box-width: {{- section.settings.text_box_width -}}%;
+	}
+
+	
+
+.loudz-{{ section.id | handle }}.loudzFlashTimer{margin:var(--section-vertical-margin-mobile) 0;background-color:var(--section-background-color, var(--loudz-color-bg-surface-tertiary-on-light))}@media(min-width: 992px){.loudz-{{ section.id | handle }}.loudzFlashTimer{margin:var(--section-vertical-margin) 0}}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashTimerContainer{padding:var(--section-vertical-padding-mobile) 0;display:flex;max-width:var(--section-max-width);width:var(--section-width);margin:0 auto}@media(max-width: 480px){.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashTimerContainer{max-width:100%;width:100%;margin:0 auto;padding:var(--section-vertical-padding-mobile) var(--loudz-space-20)}}@media(min-width: 992px){.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashTimerContainer{display:flex;padding:var(--section-vertical-padding) 0;max-width:var(--section-max-width);width:var(--section-width);margin:0 auto}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashTimerContainer--desktopPosition-left{flex-direction:row}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashTimerContainer--desktopPosition-right{flex-direction:row-reverse}}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer{display:flex;align-items:center;width:100%;gap:var(--loudz-space-8)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer--mobilePosition-above{flex-direction:column}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer--mobilePosition-bellow{flex-direction:column-reverse}@media(min-width: 992px){.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer--desktopPosition-left{flex-direction:row-reverse}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer--desktopPosition-left .loudzFlashCountdownTimer__Timer{justify-content:flex-start}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer--desktopPosition-right{flex-direction:row}}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content{width:100%;display:flex;align-items:center;justify-content:var(--section-text-alignment-mobile)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content--onlyTimer{display:none}@media(min-width: 992px){.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content{justify-content:var(--section-text-alignment)}}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox{text-align:var(--section-text-alignment-mobile);display:flex;flex-direction:column;gap:var(--loudz-space-8)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox p:empty,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox div:empty,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox h2:empty{display:none}@media(min-width: 992px){.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox{text-align:var(--section-text-alignment)}}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Heading{margin:0;font-size:calc(var(--block-heading-size)*.75);color:var(--block-heading-color) !important;}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Heading--style-regular{font-weight:var(--loudz-font-weight-400)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Heading--style-bold{font-weight:var(--loudz-font-weight-600)}@media(min-width: 992px){.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Heading{font-size:var(--block-heading-size);text-align:var(--section-text-alignment)}}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Heading--alternativeFont{font-family:var(--block-heading-font)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description p,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description ul,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description ol{margin:0;max-width:400px;font-size:calc(var(--block-description-size)*.88);color:var(--block-description-color) !important;}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description h1,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description h2,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description h3,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description h4,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description h5,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description h6{color:var(--block-description-color) !important;margin:0;padding:0}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description a{color:var(--block-description-color) !important;margin:0;padding:0;text-decoration:underline;text-underline-offset:var(--loudz-space-2);transition:opacity .3s ease-in}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description a:hover{opacity:.85}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description ul,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description ol{padding-left:var(--loudz-space-20)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description--alignment-center ul,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description--alignment-center ol,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description--alignment-right ul,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description--alignment-right ol{list-style-position:inside}@media(min-width: 992px){.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description p,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description ul,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description ol{font-size:var(--block-description-size)}}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description--alternativeFont p,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description--alternativeFont ul,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description--alternativeFont ol,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description--alternativeFont h1,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description--alternativeFont h2,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description--alternativeFont h3,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description--alternativeFont h4,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description--alternativeFont h5,.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Description--alternativeFont h6{font-family:var(--block-description-font)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Caption{margin:0;font-size:var(--block-caption-size);color:var(--block-caption-color) !important;font-weight:var(--block-caption-weight)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzTextBox__Caption--alternativeFont{font-family:var(--block-caption-font)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzImgTextButtons{display:flex;gap:var(--loudz-space-12);flex-wrap:wrap;justify-content:var(--section-text-alignment-mobile)}@media(min-width: 992px){.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzImgTextButtons{justify-content:var(--section-text-alignment)}}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzImgTextButtons__Primary{display:inline-flex;justify-content:center;align-items:center;cursor:pointer;font:inherit;font-size:var(--loudz-font-size-14);text-decoration:var(--loudz-text-decoration-none);-webkit-appearance:none;appearance:none;width:fit-content;padding:var(--loudz-space-16) var(--loudz-space-20);transition:all .3s ease-in;line-height:1;outline:none}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzImgTextButtons__Primary:hover{opacity:.85}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzImgTextButtons__Primary--solid{color:var(--block-primary-button-text-color) !important;background:var(--block-primary-button-background-color) !important;border-radius:var(--block-primary-button-corner-radius)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzImgTextButtons__Primary--outline{color:var(--block-primary-button-text-color) !important;background:rgba(0,0,0,0);border:var(--loudz-border-width-1) solid var(--block-primary-button-border-color) !important;border-radius:var(--block-primary-button-corner-radius)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzImgTextButtons__Primary--link{color:var(--block-primary-button-text-color) !important;background:rgba(0,0,0,0);border:0;padding:0;border-radius:0;text-decoration:var(--loudz-text-decoration-underline);text-underline-offset:var(--loudz-space-4)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Content .loudzImgTextButtons__Primary:focus-visible{outline:var(--loudz-border-width-2) solid var(--loudz-color-border-focus, #005fcc);outline-offset:var(--loudz-space-2)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Timer{width:100%;display:flex;justify-content:var(--section-text-alignment-mobile)}@media(min-width: 992px){.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Timer{font-size:var(--loudz-font-size-32);justify-content:end}}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Timer--onlyNumbers .loudzCountdownTimerActive__Text{display:none}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Timer--onlyTimer{justify-content:center}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Timer .loudzCountdownTimer{color:var(--section-completed-message-color) !important;font-size:var(--loudz-font-size-20);letter-spacing:normal;text-align:var(--section-text-alignment-mobile)}@media(min-width: 992px){.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer__Timer .loudzCountdownTimer{font-size:var(--loudz-font-size-24)}}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive{display:grid;gap:var(--loudz-space-8);grid:auto/auto-flow minmax(0, 1fr) auto}@media(max-width: 479px){.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive{gap:var(--loudz-space-4)}}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--regular .loudzCountdownTimerActive__Number{font-weight:var(--loudz-font-weight-400)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--bold .loudzCountdownTimerActive__Number{font-weight:var(--loudz-font-weight-600)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--small .loudzCountdownTimerActive__Number{font-size:var(--loudz-font-size-20)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--small .loudzCountdownTimerActive__Text{font-size:var(--loudz-font-size-12)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--small .loudzCountdownTimerActive__Divider{font-size:var(--loudz-font-size-20)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--medium .loudzCountdownTimerActive__Number{font-size:var(--loudz-font-size-24)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--medium .loudzCountdownTimerActive__Text{font-size:var(--loudz-font-size-14)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--medium .loudzCountdownTimerActive__Divider{font-size:var(--loudz-font-size-24)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--large .loudzCountdownTimerActive__Number{font-size:var(--loudz-font-size-32)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--large .loudzCountdownTimerActive__Text{font-size:var(--loudz-font-size-16)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--large .loudzCountdownTimerActive__Divider{font-size:var(--loudz-font-size-32)}@media(min-width: 992px){.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--small .loudzCountdownTimerActive__Number{font-size:var(--loudz-font-size-24)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--small .loudzCountdownTimerActive__Text{font-size:var(--loudz-font-size-12)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--small .loudzCountdownTimerActive__Divider{font-size:var(--loudz-font-size-24)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--medium .loudzCountdownTimerActive__Number{font-size:var(--loudz-font-size-32)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--medium .loudzCountdownTimerActive__Text{font-size:var(--loudz-font-size-16)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--medium .loudzCountdownTimerActive__Divider{font-size:var(--loudz-font-size-32)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--large .loudzCountdownTimerActive__Number{font-size:var(--loudz-font-size-48)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--large .loudzCountdownTimerActive__Text{font-size:var(--loudz-font-size-20)}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive--large .loudzCountdownTimerActive__Divider{font-size:var(--loudz-font-size-48)}}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive__Item{display:flex;flex-direction:column;align-items:center}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive__Number{color:var(--block-numbers-color) !important;font-size:var(--loudz-font-size-24);line-height:1.3;padding:0;margin:0}@media(min-width: 992px){.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive__Number{font-size:var(--loudz-font-size-32)}}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive__Text{text-transform:uppercase;color:var(--block-text-color) !important;font-size:var(--loudz-font-size-14)}@media(min-width: 992px){.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive__Text{font-size:var(--loudz-font-size-16)}}.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive__Divider{color:var(--block-numbers-color) !important;line-height:1.2;font-size:var(--loudz-font-size-24);vertical-align:middle}@media(min-width: 992px){.loudz-{{ section.id | handle }}.loudzFlashTimer .loudzFlashCountdownTimer .loudzCountdownTimerActive__Divider{font-size:var(--loudz-font-size-32)}}
+
+{% endstyle %}
+
+<script>
+	(() => {
+		class loudzFlashCountdown extends HTMLElement {
+			constructor() {
+				super();
+				this.timerElement = null;
+				this.targetDate = null;
+				this.endDate = null;
+				this.endTime = null;
+				this.interval = null;
+				this.lastAnnouncedMinutes = null;
+			}
+
+			connectedCallback() {
+				this.initCountdownTimer();
+			}
+
+			disconnectedCallback() {
+				clearInterval(this.interval);
+			}
+
+			initCountdownTimer() {
+				this.timerElement = this.querySelector('.loudzCountdownTimer');
+				this.endDate = this.timerElement?.getAttribute('data-end-date');
+				this.endTime = this.timerElement?.getAttribute('data-end-time');
+
+				if (!this.endDate || !this.endTime) {
+					return;
+				}
+
+				if (!this.isValidDate(this.endDate)) {
+					return;
+				}
+
+				const { hours, minutes } = this.convertTo24Hour(this.endTime);
+				const [month, day, year] = this.endDate.split('-');
+				const isoDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+				this.targetDate = new Date(
+					`${isoDate}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`
+				);
+
+				if (isNaN(this.targetDate.getTime())) {
+					return;
+				}
+
+				this.updateCountdown();
+				this.interval = setInterval(() => this.updateCountdown(), 1000);
+			}
+
+			isValidDate(dateStr) {
+				const dateParts = dateStr.split('-');
+
+				if (dateParts.length !== 3) {
+					return false;
+				}
+
+				const [month, day, year] = dateParts.map(Number);
+
+				if (isNaN(year) || isNaN(month) || isNaN(day)) {
+					return false;
+				}
+
+				if (month < 1 || month > 12) {
+					return false;
+				}
+
+				const lastDayOfMonth = new Date(year, month, 0).getDate();
+
+				if (day < 1 || day > lastDayOfMonth) {
+					return false;
+				}
+
+				return true;
+			}
+
+			convertTo24Hour(timeStr) {
+				const match = timeStr.match(/(\d+)(?::(\d+))?(am|pm)/);
+
+				if (!match) {
+					return { hours: 0, minutes: 0 };
+				}
+
+				let [_, hours, minutes, period] = match;
+				hours = parseInt(hours, 10);
+				minutes = minutes ? parseInt(minutes, 10) : 0;
+
+				if (period === 'pm' && hours !== 12) {
+					hours += 12;
+				}
+
+				if (period === 'am' && hours === 12) {
+					hours = 0;
+				}
+
+				return { hours, minutes };
+			}
+
+			updateCountdown() {
+				if (!this.targetDate) {
+					return;
+				}
+
+				const now = new Date();
+				const timeLeft = this.targetDate - now;
+				const completedMessage = this.timerElement.getAttribute('data-completed-text') || 'Expired';
+				const sectionElement = this.closest('section');
+
+				if (timeLeft <= 0) {
+					this.timerElement.setAttribute('aria-label', completedMessage.trim() !== '' ? completedMessage : 'Expired');
+					this.timerElement.innerHTML = completedMessage.trim() !== '' ? completedMessage : 'Expired';
+					clearInterval(this.interval);
+
+					if (
+						sectionElement &&
+						this.timerElement.dataset.hideSection === 'true' &&
+						!window.Shopify.designMode
+					) {
+						sectionElement.remove();
+					}
+
+					return;
+				}
+
+				const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+				const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+				const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+				const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+				this.timerElement.querySelector('.loudzDays').textContent = String(days).padStart(2, '0');
+				this.timerElement.querySelector('.loudzHours').textContent = String(hours).padStart(2, '0');
+				this.timerElement.querySelector('.loudzMinutes').textContent = String(minutes).padStart(2, '0');
+				this.timerElement.querySelector('.loudzSeconds').textContent = String(seconds).padStart(2, '0');
+
+				const totalMinutesLeft = Math.floor(timeLeft / (1000 * 60));
+
+				if (timeLeft <= 0) {
+					this.timerElement.setAttribute(
+						'aria-label',
+						this.timerElement.dataset.completedText || 'Countdown finished'
+					);
+				} else {
+					if (totalMinutesLeft > 1) {
+						if (this.lastAnnouncedMinutes !== totalMinutesLeft) {
+							this.lastAnnouncedMinutes = totalMinutesLeft;
+							const parts = [];
+							if (days > 0) parts.push(`${days} ${days === 1 ? 'day' : 'days'}`);
+							if (hours > 0 || days > 0) parts.push(`${hours} ${hours === 1 ? 'hour' : 'hours'}`);
+							parts.push(`${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`);
+							this.timerElement.setAttribute(
+								'aria-label',
+								`Time remaining: ${parts.join(', ')}`
+							);
+						}
+					} else {
+						const parts = [];
+						if (days > 0) parts.push(`${days} ${days === 1 ? 'day' : 'days'}`);
+						if (hours > 0 || days > 0) parts.push(`${hours} ${hours === 1 ? 'hour' : 'hours'}`);
+						if (minutes > 0) parts.push(`${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`);
+						parts.push(`${seconds} ${seconds === 1 ? 'second' : 'seconds'}`);
+						this.timerElement.setAttribute(
+							'aria-label',
+							`Time remaining: ${parts.join(', ')}`
+						);
+					}
+				}
+			}
+		}
+
+		document.addEventListener('DOMContentLoaded', () => {
+			if (!customElements.get('loudz-countdown-timer')) {
+				customElements.define('loudz-countdown-timer', loudzFlashCountdown);
+			}
+		});
+	})();
+</script>
+
+{% style %}
+	
+
+.loudzUninstallBG{background-color:var(--loudz-color-bg-fill-inverse-on-light);background-image:url("data:image/avif;base64,iVBORw0KGgoAAAANSUhEUgAABOcAAABkCAQAAABnAJxfAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAACYktHRAD/h4/MvwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+gLFQgmAgUXFkMAAARaSURBVHja7daxbSRBEATB8ZzvKw0h1dcIlJS4jl25Azlavffn9/3v++e//+vvCwqFQqFQKBRKSklEUCgUCoVCoVAMOgqFQqFQKJSzSiKCQqFQKBQKhWLQUSgUCoVCoZxVEhEUCoVCoVAoFIOOQqFQKBQK5VOURASFQqFQKBQKZVUSERQKhUKhUCiUVUlEUCgUCoVCoVBWZbtOPoVCoVAoFArlovIKERQKhUKhUCiUVXmFCAqFQqFQKBTKqrxCBIVCoVAoFAplVV4hgkKhUCgUCoUyK4kICoVCoVAoFMqqJCIoFAqFQqFQKKuSiKBQKBQKhUKhrEoigkKhUCgUCoVi0FEoFAqFQqGcVRIRFAqFQqFQKBSDjkKhUCgUCuWskoigUCgUCoVCoRh0FAqFQqFQKGeVRASFQqFQKBQKxaCjUCgUCoVCOaskIigUCoVCoVAoBh2FQqFQKBTKWSURQaFQKBQKhUIx6CgUCoVCoVDOKokICoVCoVAoFIpBR6FQKBQKhXJWSURQKBQKhUKhUAw6CoVCoVAolLNKIoJCoVAoFAqFYtBRKBQKhUKhnFUSERQKhUKhUCgUg45CoVAoFArlrJKIoFAoFAqFQqEYdBQKhUKhUChnlUQEhUKhUCgUCsWgo1AoFAqFQvkUJRFBoVAoFAqFQlmVRASFQqFQKBQKZVUSERQKhUKhUCiUVdmuk0+hUCgUCoVCuai8QgSFQqFQKBQKZVVeIYJCoVAoFAqFsiqvEEGhUCgUCoVCWZVXiKBQKBQKhUKhzEoigkKhUCgUCoWyKokICoVCoVAoFMqqJCIoFAqFQqFQKAYdhUKhUCgUylklEUGhUCgUCoVCMegoFAqFQqFQziqJCAqFQqFQKBSKQUehUCgUCoVyVklEUCgUCoVCoVAMOgqFQqFQKJSzSiKCQqFQKBQKhWLQUSgUCoVCoZxVEhEUCoVCoVAoFIOOQqFQKBQK5dOVX5nMB52iezhxAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI0LTExLTIxVDA4OjM4OjAyKzAwOjAw30WrCwAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNC0xMS0yMVQwODozODowMiswMDowMK4YE7cAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjQtMTEtMjFUMDg6Mzg6MDIrMDA6MDD5DTJoAAAAAElFTkSuQmCC");background-position:center;background-size:cover;text-align:center;padding:var(--loudz-space-32);margin:0}.loudzUninstallBG__Text{color:var(--loudz-color-text-disable-on-light);font-family:Inter,sans-serif;font-size:var(--loudz-font-size-14);font-weight:var(--loudz-font-weight-400);line-height:var(--loudz-line-height-140);padding:var(--loudz-space-16) var(--loudz-space-16) var(--loudz-space-16) var(--loudz-space-40);background-color:var(--loudz-color-bg-fill-inverse-on-light);display:inline-block}.loudzUninstallBG__Text::before{content:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%0A%09%09%09%3Cpath%20d%3D%22M9.99994%206.75C10.4142%206.75%2010.7499%207.08579%2010.7499%207.5V11C10.7499%2011.4142%2010.4142%2011.75%209.99994%2011.75C9.58573%2011.75%209.24994%2011.4142%209.24994%2011V7.5C9.24994%207.08579%209.58573%206.75%209.99994%206.75Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%09%3Cpath%20d%3D%22M11%2013.5C11%2014.0523%2010.5523%2014.5%2010%2014.5C9.44772%2014.5%209%2014.0523%209%2013.5C9%2012.9477%209.44772%2012.5%2010%2012.5C10.5523%2012.5%2011%2012.9477%2011%2013.5Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%09%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M10%203.5C8.95471%203.5%208.21616%204.20232%207.84762%204.94672C7.65565%205.33448%206.75984%207.0441%205.84305%208.79353L5.81531%208.84646C4.9229%2010.5493%204.01714%2012.2777%203.80716%2012.702C3.4351%2013.4537%203.32931%2014.4519%203.89953%2015.316C4.46911%2016.1791%205.44222%2016.5%206.36356%2016.5L13.6364%2016.5C14.5577%2016.5%2015.5308%2016.1791%2016.1004%2015.316C16.6707%2014.4519%2016.5649%2013.4537%2016.1928%2012.702C15.9832%2012.2784%2015.08%2010.555%2014.1889%208.85476L14.1569%208.79352C13.24%207.044%2012.3443%205.33454%2012.1524%204.94693C11.784%204.20242%2011.0454%203.5%2010%203.5ZM9.1919%205.61225C9.59605%204.79592%2010.4041%204.79592%2010.8081%205.61225C11.0102%206.02061%2011.9201%207.75686%2012.8296%209.49243C13.7383%2011.2262%2014.6466%2012.9594%2014.8485%2013.3673C15.2525%2014.1837%2014.8485%2015%2013.6364%2015L6.36356%2015C5.1515%2015%204.74746%2014.1837%205.1515%2013.3673C5.35376%2012.9587%206.26468%2011.2205%207.1748%209.4838C8.08283%207.75111%208.99005%206.01994%209.1919%205.61225Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%3C%2Fsvg%3E");position:absolute;width:var(--loudz-space-20);height:var(--loudz-space-20);margin-left:calc(-1*var(--loudz-space-24))}.loudzUninstallBG__Text a{color:var(--loudz-color-text-disable-on-light)}.loudzUninstallBG__Text a:hover{text-decoration:none}
+
+{% endstyle %}

@@ -1,0 +1,1146 @@
+{% comment %}
+  Global alignment variables – these use the new settings to output the proper text alignment and flex justification classes.
+{% endcomment %}
+{% assign mobile_text_class = 'text-' | append: section.settings.global_alignment_mobile %}
+{% if section.settings.global_alignment_mobile == 'left' %}
+  {% assign mobile_flex_class = 'justify-start' %}
+{% elsif section.settings.global_alignment_mobile == 'right' %}
+  {% assign mobile_flex_class = 'justify-end' %}
+{% else %}
+  {% assign mobile_flex_class = 'justify-center' %}
+{% endif %}
+{% assign desktop_text_class = 'text-' | append: section.settings.global_alignment_desktop %}
+{% if section.settings.global_alignment_desktop == 'left' %}
+  {% assign desktop_flex_class = 'justify-start' %}
+{% elsif section.settings.global_alignment_desktop == 'right' %}
+  {% assign desktop_flex_class = 'justify-end' %}
+{% else %}
+  {% assign desktop_flex_class = 'justify-center' %}
+{% endif %}
+
+{% comment %}
+  Title and Badges Font Weight Mapping
+  (light → 300, normal → 400, bold → 700)
+{% endcomment %}
+{% assign title_block = section.blocks | where: "type", "title" | first %}
+{% assign title_font_weight_value = '700' %}
+{% if title_block.settings.title_font_weight == 'light' %}
+  {% assign title_font_weight_value = '300' %}
+{% elsif title_block.settings.title_font_weight == 'normal' %}
+  {% assign title_font_weight_value = '400' %}
+{% endif %}
+
+{% assign badges_block = section.blocks | where: "type", "badges" | first %}
+{% assign badges_font_weight_value = '700' %}
+{% if badges_block.settings.badges_font_weight == 'light' %}
+  {% assign badges_font_weight_value = '300' %}
+{% elsif badges_block.settings.badges_font_weight == 'normal' %}
+  {% assign badges_font_weight_value = '400' %}
+{% endif %}
+
+{% assign sub_block = section.blocks | where: "type", "subheading" | first %}
+{% assign benefits_block = section.blocks | where: "type", "benefits" | first %}
+{% assign button_block = section.blocks | where: "type", "button" | first %}
+{% assign rating_block = section.blocks | where: "type", "rating" | first %}
+{% assign image_block = section.blocks | where: "type", "image" | first %}
+
+<!--
+  PINK CHERRY SECTION
+  ----------------------------------------------------------------------------
+  This section replicates the original layout and functionality, but now with:
+    - Global alignment selectors for mobile and desktop (controls text & flex alignment for all elements)
+    - No button border, and a new Overall Button Size slider control to adjust the button size
+    - A button link URL setting to redirect the button
+    - A customizable rating text with a font size slider and now a color customizer
+    - Customizable rating stars colors for both filled and unfilled states
+    - New color customizers for Title, Subheading, Benefits Text and SVG icons (toggle enabled)
+    - A background brightness slider that applies to the background image/video only
+    - New toggles to disable Benefits and Rating Text and Stars
+  ----------------------------------------------------------------------------
+-->
+
+{% comment %}
+  Tailwind is removed; we only keep Font Awesome and Roboto for icons and fonts.
+  Remove the lines below if your theme already loads these libraries.
+{% endcomment %}
+<!-- Removed: <script src="https://cdn.tailwindcss.com"></script> -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+<section
+  class="font-roboto my-pink-cherry-section"
+  {% if section.settings.bg_image == blank %}
+    style="background-color: {{ section.settings.bg_color }};"
+  {% endif %}
+>
+  {% if section.settings.bg_image != blank %}
+    <div
+      class="bg-overlay"
+      style="background: url('{{ section.settings.bg_image | img_url: 'master' }}') no-repeat center center; background-size: cover; filter: brightness({{ section.settings.bg_brightness }}%);"
+    ></div>
+  {% endif %}
+
+  {% if section.settings.bg_video_url != blank %}
+    <video
+      autoplay
+      muted
+      loop
+      playsinline
+      class="background-video"
+      style="filter: brightness({{ section.settings.bg_brightness }}%);"
+    >
+      <source src="{{ section.settings.bg_video_url }}" type="video/mp4">
+    </video>
+  {% endif %}
+
+  <style>
+    /* ---------------------------------------------------
+       SCOPED REPLACEMENTS FOR TAILWIND CLASSES
+       --------------------------------------------------- */
+    .my-pink-cherry-section {
+      font-family: inherit; /* from "font-roboto" */
+      --element-spacing: calc({{ section.settings.spacing_between_elements | default: 0 }}px + 5px);
+      position: relative;
+    }
+    .bg-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+    }
+    {% if title_block.settings.enable_title_custom_font and title_block.settings.title_custom_font_url != blank %}
+    @font-face {
+      font-family: 'CustomTitleFont';
+      src: url('{{ title_block.settings.title_custom_font_url }}');
+    }
+    {% endif %}
+    .my-pink-cherry-section .flex {
+      display: flex;
+    }
+    .my-pink-cherry-section .flex-col {
+      flex-direction: column;
+    }
+    @media (min-width: 768px) {
+      .my-pink-cherry-section .md\:flex-row {
+        flex-direction: row;
+      }
+    }
+    .my-pink-cherry-section .items-center {
+      align-items: center;
+    }
+    /* Container Padding using new slider settings - Updated to fix mobile padding */
+    .my-pink-cherry-section .my-pink-cherry-container {
+      padding-left: {{ section.settings.left_padding_mobile }}px;
+      padding-right: {{ section.settings.right_padding_mobile }}px;
+    }
+    @media (min-width: 768px) {
+      .my-pink-cherry-section .my-pink-cherry-container {
+        padding-left: {{ section.settings.left_padding_desktop }}px;
+        padding-right: {{ section.settings.right_padding_desktop }}px;
+      }
+    }
+    .my-pink-cherry-section .md\:w-1\/2 {
+      width: 100%;
+    }
+    @media (min-width: 768px) {
+      .my-pink-cherry-section .md\:w-1\/2 {
+        width: 50%;
+      }
+    }
+    /* Added extra horizontal spacing between badges */
+    .my-pink-cherry-section .space-x-2 > :not(:last-child) {
+      margin-right: calc(0.5rem + 5px);
+    }
+    .my-pink-cherry-section .space-y-2 > :not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
+    .my-pink-cherry-section .text-lg {
+      font-size: 1.125rem;
+      line-height: 1.75rem;
+    }
+    .my-pink-cherry-section .py-3 {
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
+    }
+    .my-pink-cherry-section .text-pink-500 {
+      color: #ec4899;
+    }
+    .my-pink-cherry-section .mr-2 {
+      margin-right: 0.5rem;
+    }
+    .my-pink-cherry-section .relative {
+      position: relative;
+    }
+    /* Button: Remove border and apply border-radius from settings; make clickable */
+    .my-pink-cherry-section .pink-cherry-button {
+      border: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    /* ---------------------------------------------------
+       SPACING & PADDING
+       --------------------------------------------------- */
+    .my-pink-cherry-section {
+      padding-top: {{ section.settings.top_padding_mobile }}px;
+      padding-bottom: {{ section.settings.bottom_padding_mobile }}px;
+    }
+    @media (min-width: 768px) {
+      .my-pink-cherry-section {
+        padding-top: {{ section.settings.top_padding_desktop }}px;
+        padding-bottom: {{ section.settings.bottom_padding_desktop }}px;
+      }
+    }
+    /* ---------------------------------------------------
+       IMAGE: WIDTH/HEIGHT (MOBILE & DESKTOP)
+       --------------------------------------------------- */
+    .my-pink-cherry-section .my-pink-cherry-image img {
+      width: {{ image_block.settings.image_width_mobile }}px;
+      height: {{ image_block.settings.image_height_mobile }}px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      box-shadow: none;
+    }
+    @media (min-width: 768px) {
+      .my-pink-cherry-section .my-pink-cherry-image img {
+        width: {{ image_block.settings.image_width_desktop }}px;
+        height: {{ image_block.settings.image_height_desktop }}px;
+      }
+    }
+    /* ---------------------------------------------------
+       MOBILE VERTICAL GAP BETWEEN TEXT & IMAGE
+       --------------------------------------------------- */
+    .my-pink-cherry-section .my-pink-cherry-image {
+      margin-top: {{ section.settings.mobile_vertical_gap }}px;
+    }
+    @media (min-width: 768px) {
+      .my-pink-cherry-section .my-pink-cherry-image {
+        margin-top: 0;
+      }
+    }
+    /* ---------------------------------------------------
+       TITLE & SUBHEADING FONT SIZES & COLORS
+       --------------------------------------------------- */
+    .my-pink-cherry-section h1 {
+      font-size: {{ title_block.settings.title_font_size_mobile }}px;
+      margin-bottom: var(--element-spacing);
+      font-weight: {{ title_font_weight_value }};
+      {% if title_block.settings.enable_title_custom_font and title_block.settings.title_custom_font_url != blank %}
+        font-family: 'CustomTitleFont';
+      {% endif %}
+      color: {{ title_block.settings.title_text_color }} !important;
+    }
+    .my-pink-cherry-section .subheading-text {
+      font-size: {{ sub_block.settings.subheading_font_size_mobile }}px;
+      margin-bottom: var(--element-spacing);
+      color: {{ sub_block.settings.subheading_text_color }};
+    }
+    @media (min-width: 768px) {
+      .my-pink-cherry-section h1 {
+        font-size: {{ title_block.settings.title_font_size_desktop }}px;
+      }
+      .my-pink-cherry-section .subheading-text {
+        font-size: {{ sub_block.settings.subheading_font_size_desktop }}px;
+      }
+    }
+    /* ---------------------------------------------------
+       BUTTON & PINK CHERRY COLORS + HOVER
+       --------------------------------------------------- */
+    .my-pink-cherry-section .pink-cherry-button {
+      background-color: {{ button_block.settings.button_bg_color }};
+      color: {{ button_block.settings.button_text_color }};
+      border-radius: {{ button_block.settings.button_border_radius }}px;
+      font-size: {{ button_block.settings.button_overall_size }}px;
+      font-weight: {{ title_font_weight_value }};
+      padding: calc({{ button_block.settings.button_overall_size }}px + 0.1px) calc({{ button_block.settings.button_overall_size }}px + 0.2px);
+      width: 126px !important;
+      margin-bottom: var(--element-spacing);
+    }
+    .my-pink-cherry-section .pink-cherry-button:hover {
+      background-color: {{ button_block.settings.button_bg_hover_color }};
+      color: {{ button_block.settings.button_text_hover_color }};
+    }
+    .my-pink-cherry-section .pink-cherry-button .pink-cherry-label {
+      color: {{ button_block.settings.pink_cherry_text_color }};
+    }
+    .my-pink-cherry-section .pink-cherry-button:hover .pink-cherry-label {
+      color: {{ button_block.settings.pink_cherry_text_hover_color }};
+    }
+    /* ---------------------------------------------------
+       BACKGROUND VIDEO STYLING
+       --------------------------------------------------- */
+    .background-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+    {% if benefits_block.settings.enable_svg_icon_color_customizer %}
+    .my-pink-cherry-section .benefit-svg-icon svg {
+      color: {{ benefits_block.settings.svg_icon_color }};
+    }
+    {% endif %}
+    /* ---------------------------------------------------
+       DESKTOP IMAGE HORIZONTAL OFFSET
+       --------------------------------------------------- */
+    @media (min-width: 768px) {
+      .my-pink-cherry-section .desktop-image-offset {
+        transform: translateX({{ image_block.settings.section_image_horizontal_position }}%);
+        transition: transform 0.3s ease;
+      }
+    }
+  </style>
+
+  <div class="flex flex-col md:flex-row items-center justify-center my-pink-cherry-container" style="gap: var(--element-spacing);">
+    <!-- LEFT TEXT AREA -->
+    <div class="md:w-1/2 {{ mobile_text_class }} md:{{ desktop_text_class }}">
+      <!-- BADGE ROW -->
+      {% if badges_block %}
+      <div
+        class="flex items-center space-x-2 {{ mobile_flex_class }} md:{{ desktop_flex_class }}"
+        style="margin-bottom: var(--element-spacing);"
+      >
+        <span
+          class="badge-1"
+          style="background-color: {{ badges_block.settings.badge_bg_color_1 }}; color: {{ badges_block.settings.badges_text_color }}; font-size: {{ badges_block.settings.badges_size }}px; border-radius: {{ badges_block.settings.badges_border_radius }}px; padding: calc(0.25em + 2px) calc(0.5em + 2px); display: inline-block; font-weight: {{ badges_font_weight_value }};"
+        >
+          {{ badges_block.settings.badge_text_1 }}
+        </span>
+        <span
+          class="badge-2"
+          style="background-color: {{ badges_block.settings.badge_bg_color_2 }}; color: {{ badges_block.settings.badges_text_color }}; font-size: {{ badges_block.settings.badges_size }}px; border-radius: {{ badges_block.settings.badges_border_radius }}px; padding: calc(0.25em + 2px) calc(0.5em + 2px); display: inline-block; font-weight: {{ badges_font_weight_value }};"
+        >
+          {{ badges_block.settings.badge_text_2 }}
+        </span>
+      </div>
+      {% endif %}
+
+      <!-- TITLE -->
+      {% if title_block %}
+      <h1>
+        {{ title_block.settings.title_text }}
+      </h1>
+      {% endif %}
+
+      <!-- SUBHEADING -->
+      {% if sub_block %}
+      <p class="subheading-text">
+        {{ sub_block.settings.subheading_text }}
+      </p>
+      {% endif %}
+
+      <!-- BENEFITS LIST (WITH TOGGLE) -->
+      {% if benefits_block and benefits_block.settings.disable_benefits != true %}
+      <ul class="space-y-2" style="margin-bottom: var(--element-spacing); padding: 0px;">
+        <!-- Benefit 1 -->
+        <li class="flex items-center {{ mobile_flex_class }} md:{{ desktop_flex_class }}">
+          {% if benefits_block.settings.benefits_svg_icon_1 != blank %}
+            <span
+              class="mr-2 benefit-svg-icon"
+              style="width: {{ benefits_block.settings.benefits_icon_size }}px; height: {{ benefits_block.settings.benefits_icon_size }}px;"
+            >
+              {{ benefits_block.settings.benefits_svg_icon_1 }}
+            </span>
+          {% else %}
+            <i
+              class="fas fa-candy-cane text-pink-500 mr-2"
+              style="font-size: {{ benefits_block.settings.benefits_icon_size }}px;"
+            ></i>
+          {% endif %}
+          <span style="font-size: {{ benefits_block.settings.benefits_text_font_size }}px; color: {{ benefits_block.settings.benefits_text_color }};">
+            {{ benefits_block.settings.benefits_text_1 }}
+          </span>
+        </li>
+        <!-- Benefit 2 -->
+        <li class="flex items-center {{ mobile_flex_class }} md:{{ desktop_flex_class }}">
+          {% if benefits_block.settings.benefits_svg_icon_2 != blank %}
+            <span
+              class="mr-2 benefit-svg-icon"
+              style="width: {{ benefits_block.settings.benefits_icon_size }}px; height: {{ benefits_block.settings.benefits_icon_size }}px;"
+            >
+              {{ benefits_block.settings.benefits_svg_icon_2 }}
+            </span>
+          {% else %}
+            <i
+              class="fas fa-heart text-pink-500 mr-2"
+              style="font-size: {{ benefits_block.settings.benefits_icon_size }}px;"
+            ></i>
+          {% endif %}
+          <span style="font-size: {{ benefits_block.settings.benefits_text_font_size }}px; color: {{ benefits_block.settings.benefits_text_color }};">
+            {{ benefits_block.settings.benefits_text_2 }}
+          </span>
+        </li>
+        <!-- Benefit 3 -->
+        <li class="flex items-center {{ mobile_flex_class }} md:{{ desktop_flex_class }}">
+          {% if benefits_block.settings.benefits_svg_icon_3 != blank %}
+            <span
+              class="mr-2 benefit-svg-icon"
+              style="width: {{ benefits_block.settings.benefits_icon_size }}px; height: {{ benefits_block.settings.benefits_icon_size }}px;"
+            >
+              {{ benefits_block.settings.benefits_svg_icon_3 }}
+            </span>
+          {% else %}
+            <i
+              class="fas fa-fire text-pink-500 mr-2"
+              style="font-size: {{ benefits_block.settings.benefits_icon_size }}px;"
+            ></i>
+          {% endif %}
+          <span style="font-size: {{ benefits_block.settings.benefits_text_font_size }}px; color: {{ benefits_block.settings.benefits_text_color }};">
+            {{ benefits_block.settings.benefits_text_3 }}
+          </span>
+        </li>
+      </ul>
+      {% endif %}
+
+      <!-- BUTTON -->
+      {% if button_block %}
+      {% if button_block.settings.button_link_url != blank %}
+        <a href="{{ button_block.settings.button_link_url }}">
+      {% endif %}
+      <button class="pink-cherry-button">
+        {{ button_block.settings.button_shop_text }}
+        <span class="pink-cherry-label">{{ button_block.settings.button_pink_cherry_text }}</span>
+      </button>
+      {% if button_block.settings.button_link_url != blank %}
+        </a>
+      {% endif %}
+      {% endif %}
+
+      <!-- RATING (WITH TOGGLE) -->
+      {% if rating_block and rating_block.settings.disable_rating != true %}
+      <div class="flex items-center {{ mobile_flex_class }} md:{{ desktop_flex_class }}">
+        <div class="flex items-center mr-2">
+          {% assign rating = rating_block.settings.star_rating | default: 4.5 %}
+          {% for i in (1..5) %}
+            {% assign half_threshold = i | minus: 0.5 %}
+            {% if rating >= i %}
+              <i class="fas fa-star" style="color: {{ rating_block.settings.rating_star_filled_color }};"></i>
+            {% elsif rating >= half_threshold %}
+              <i class="fas fa-star-half-alt" style="color: {{ rating_block.settings.rating_star_filled_color }};"></i>
+            {% else %}
+              <i class="far fa-star" style="color: {{ rating_block.settings.rating_star_unfilled_color }};"></i>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <span style="font-size: {{ rating_block.settings.rating_text_font_size }}px; color: {{ rating_block.settings.rating_text_color }};">
+          {{ rating_block.settings.rating_text }}
+        </span>
+      </div>
+    {% endif %}
+    </div>
+
+    <!-- RIGHT IMAGE AREA -->
+    {% if image_block %}
+    <div class="md:w-1/2 flex justify-center desktop-image-offset my-pink-cherry-image relative">
+      {% if image_block.settings.section_image != blank %}
+        <img
+          alt="A happy couple enjoying Pink Cherry tabs"
+          src="{{ image_block.settings.section_image | img_url: 'master' }}"
+        >
+      {% else %}
+        <img
+          alt="Placeholder"
+          src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+        >
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Hero Pro 2",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Spacing & Padding Settings",
+      "info": "Control spacing and padding for both mobile and desktop views."
+    },
+    {
+      "type": "range",
+      "id": "top_padding_mobile",
+      "label": "Top Padding (Mobile)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 170,
+      "info": "Sets the top padding for mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "bottom_padding_mobile",
+      "label": "Bottom Padding (Mobile)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 60,
+      "info": "Sets the bottom padding for mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "top_padding_desktop",
+      "label": "Top Padding (Desktop)",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "default": 200,
+      "info": "Sets the top padding for desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "bottom_padding_desktop",
+      "label": "Bottom Padding (Desktop)",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "default": 100,
+      "info": "Sets the bottom padding for desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "left_padding_mobile",
+      "label": "Left Padding (Mobile)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 20,
+      "info": "Sets the left padding for mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "right_padding_mobile",
+      "label": "Right Padding (Mobile)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 20,
+      "info": "Sets the right padding for mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "left_padding_desktop",
+      "label": "Left Padding (Desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 100,
+      "info": "Sets the left padding for desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "right_padding_desktop",
+      "label": "Right Padding (Desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 20,
+      "info": "Sets the right padding for desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "mobile_vertical_gap",
+      "label": "Vertical Gap Between Content And Image (Mobile)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 10,
+      "info": "Determines the vertical gap between elements on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "spacing_between_elements",
+      "label": "Spacing Between Elements",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 25,
+      "info": "Sets the spacing between individual elements."
+    },
+    {
+      "type": "header",
+      "content": "Background Settings",
+      "info": "Customize the background color, image, or video and adjust brightness."
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#FFFFFF",
+      "info": "Select a background color for the section."
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Background Image",
+      "info": "Choose a background image for the section."
+    },
+    {
+      "type": "textarea",
+      "id": "bg_video_url",
+      "label": "Background Video URL (mp4)",
+      "info": "Enter a video URL for a video background (MP4 format)."
+    },
+    {
+      "type": "range",
+      "id": "bg_brightness",
+      "label": "Background Brightness (%)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 80,
+      "info": "Adjust the brightness of the background media."
+    },
+    {
+      "type": "header",
+      "content": "Global Alignment",
+      "info": "Set the overall alignment for mobile and desktop views."
+    },
+    {
+      "type": "select",
+      "id": "global_alignment_mobile",
+      "label": "Global Alignment (Mobile)",
+      "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "info": "Choose the global alignment for mobile."
+    },
+    {
+      "type": "select",
+      "id": "global_alignment_desktop",
+      "label": "Global Alignment (Desktop)",
+      "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "info": "Choose the global alignment for desktop."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "badges",
+      "name": "Badges",
+      "settings": [
+        {
+          "type": "text",
+          "id": "badge_text_1",
+          "label": "Badge 1 Text",
+          "default": "BENEFIT 1",
+          "info": "Text displayed on badge 1."
+        },
+        {
+          "type": "text",
+          "id": "badge_text_2",
+          "label": "Badge 2 Text",
+          "default": "BENEFIT 2",
+          "info": "Text displayed on badge 2."
+        },
+        {
+          "type": "range",
+          "id": "badges_size",
+          "label": "Badges Overall Size (px)",
+          "min": 8,
+          "max": 36,
+          "step": 1,
+          "default": 12,
+          "info": "Set the overall size for badge text."
+        },
+        {
+          "type": "range",
+          "id": "badges_border_radius",
+          "label": "Badges Border Radius (px)",
+          "min": 0,
+          "max": 50,
+          "step": 1,
+          "default": 4,
+          "info": "Set the border radius for badges."
+        },
+        {
+          "type": "color",
+          "id": "badge_bg_color_1",
+          "label": "Badge 1 Background Color",
+          "default": "#000000",
+          "info": "Choose the background color for badge 1."
+        },
+        {
+          "type": "color",
+          "id": "badge_bg_color_2",
+          "label": "Badge 2 Background Color",
+          "default": "#FF463B",
+          "info": "Choose the background color for badge 2."
+        },
+        {
+          "type": "color",
+          "id": "badges_text_color",
+          "label": "Badges Text Color",
+          "default": "#ffffff",
+          "info": "Select the text color for badges."
+        },
+        {
+          "type": "select",
+          "id": "badges_font_weight",
+          "label": "Badges Text Font Weight",
+          "default": "bold",
+          "options": [
+            { "value": "light", "label": "Light" },
+            { "value": "normal", "label": "Normal" },
+            { "value": "bold", "label": "Bold" }
+          ],
+          "info": "Choose the font weight for the badge text."
+        }
+      ]
+    },
+    {
+      "type": "title",
+      "name": "Title",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title_text",
+          "label": "Title Text",
+          "default": "Empowering your body everyday.",
+          "info": "Enter the main title for the section."
+        },
+        {
+          "type": "color",
+          "id": "title_text_color",
+          "label": "Title Text Color",
+          "default": "#000000",
+          "info": "Select the color for the title text."
+        },
+        {
+          "type": "range",
+          "id": "title_font_size_mobile",
+          "label": "Title Font Size (px) (Mobile)",
+          "min": 16,
+          "max": 72,
+          "step": 1,
+          "default": 37,
+          "info": "Set the font size of the title on mobile devices."
+        },
+        {
+          "type": "range",
+          "id": "title_font_size_desktop",
+          "label": "Title Font Size (px) (Desktop)",
+          "min": 16,
+          "max": 72,
+          "step": 1,
+          "default": 51,
+          "info": "Set the font size of the title on desktop devices."
+        },
+        {
+          "type": "select",
+          "id": "title_font_weight",
+          "label": "Title Font Weight",
+          "default": "bold",
+          "options": [
+            { "value": "light", "label": "Light" },
+            { "value": "normal", "label": "Normal" },
+            { "value": "bold", "label": "Bold" }
+          ],
+          "info": "Choose the font weight for the title text."
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_title_custom_font",
+          "label": "Enable Title Text Custom Font",
+          "default": false,
+          "info": "Enable to use a custom font for the title."
+        },
+        {
+          "type": "text",
+          "id": "title_custom_font_url",
+          "label": "Title Custom Font URL",
+          "info": "Provide the URL for the custom title font."
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "subheading_text",
+          "label": "Subheading Text",
+          "default": "Ou product uses natural ingredients & modern technologies to make you feel great and stay free!",
+          "info": "Enter additional information for the subheading."
+        },
+        {
+          "type": "color",
+          "id": "subheading_text_color",
+          "label": "Subheading Text Color",
+          "default": "#4B4B4B",
+          "info": "Select the color for the subheading text."
+        },
+        {
+          "type": "range",
+          "id": "subheading_font_size_mobile",
+          "label": "Subheading Font Size (px) (Mobile)",
+          "min": 12,
+          "max": 48,
+          "step": 1,
+          "default": 16,
+          "info": "Set the font size for the subheading on mobile devices."
+        },
+        {
+          "type": "range",
+          "id": "subheading_font_size_desktop",
+          "label": "Subheading Font Size (px) (Desktop)",
+          "min": 12,
+          "max": 48,
+          "step": 1,
+          "default": 17,
+          "info": "Set the font size for the subheading on desktop devices."
+        }
+      ]
+    },
+    {
+      "type": "benefits",
+      "name": "Benefits",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "benefits_svg_icon_1",
+          "label": "SVG Code for Benefit 1",
+          "default": "<svg viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><g id=\"SVGRepo_bgCarrier\" stroke-width=\"0\"></g><g id=\"SVGRepo_tracerCarrier\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></g><g id=\"SVGRepo_iconCarrier\"><path d=\"M8.5 12.5L10.5 14.5L15.5 9.5\" stroke=\"#ff1414\" stroke-width=\"1.848\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path><path d=\"M7 3.33782C8.47087 2.48697 10.1786 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 10.1786 2.48697 8.47087 3.33782 7\" stroke=\"#ff1414\" stroke-width=\"1.848\" stroke-linecap=\"round\"></path></g></svg>",
+          "info": "Insert SVG code for the first benefit icon. Use websites like https://svgrepo.com or https://icons.getbootstrap.com "
+        },
+        {
+          "type": "textarea",
+          "id": "benefits_svg_icon_2",
+          "label": "SVG Code for Benefit 2",
+          "default": "<svg viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><g id=\"SVGRepo_bgCarrier\" stroke-width=\"0\"></g><g id=\"SVGRepo_tracerCarrier\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></g><g id=\"SVGRepo_iconCarrier\"><path d=\"M8.5 12.5L10.5 14.5L15.5 9.5\" stroke=\"#fbff14\" stroke-width=\"1.848\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path><path d=\"M7 3.33782C8.47087 2.48697 10.1786 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 10.1786 2.48697 8.47087 3.33782 7\" stroke=\"#fbff14\" stroke-width=\"1.848\" stroke-linecap=\"round\"></path></g></svg>",
+          "info": "Insert SVG code for the second benefit icon. Use websites like https://svgrepo.com or https://icons.getbootstrap.com/"
+        },
+        {
+          "type": "textarea",
+          "id": "benefits_svg_icon_3",
+          "label": "SVG Code for Benefit 3",
+          "default": "<svg viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><g id=\"SVGRepo_bgCarrier\" stroke-width=\"0\"></g><g id=\"SVGRepo_tracerCarrier\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></g><g id=\"SVGRepo_iconCarrier\"><path d=\"M8.5 12.5L10.5 14.5L15.5 9.5\" stroke=\"#ffffff\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path><path d=\"M7 3.33782C8.47087 2.48697 10.1786 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 10.1786 2.48697 8.47087 3.33782 7\" stroke=\"#ffffff\" stroke-width=\"1.5\" stroke-linecap=\"round\"></path></g></svg>",
+          "info": "Insert SVG code for the third benefit icon. Use websites like https://svgrepo.com or https://icons.getbootstrap.com/"
+        },
+        {
+          "type": "range",
+          "id": "benefits_icon_size",
+          "label": "Benefits SVG Icon Size (px)",
+          "min": 10,
+          "max": 100,
+          "step": 1,
+          "default": 21,
+          "info": "Set the size for the benefits SVG icons. Use websites like https://svgrepo.com or https://icons.getbootstrap.com/"
+        },
+        {
+          "type": "text",
+          "id": "benefits_text_1",
+          "label": "Benefit 1 Text",
+          "default": "Lorem Ipsum Dolor – Sit  consectetur.",
+          "info": "Enter the text description for benefit 1."
+        },
+        {
+          "type": "text",
+          "id": "benefits_text_2",
+          "label": "Benefit 2 Text",
+          "default": "Adipiscing Elit Vero – Sed do eiusmod.",
+          "info": "Enter the text description for benefit 2."
+        },
+        {
+          "type": "text",
+          "id": "benefits_text_3",
+          "label": "Benefit 3 Text",
+          "default": "Tempor Incididunt Labore – Ut  minim.",
+          "info": "Enter the text description for benefit 3."
+        },
+        {
+          "type": "range",
+          "id": "benefits_text_font_size",
+          "label": "Benefits Text Font Size (px)",
+          "min": 10,
+          "max": 40,
+          "step": 1,
+          "default": 15,
+          "info": "Set the font size for the benefits text."
+        },
+        {
+          "type": "color",
+          "id": "benefits_text_color",
+          "label": "Benefits Text Color",
+          "default": "#505050",
+          "info": "Select the color for the benefits text."
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_benefits",
+          "label": "Disable Benefits",
+          "default": false,
+          "info": "Check to hide the benefits list."
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_svg_icon_color_customizer",
+          "label": "Enable SVG Icon Color Customizer",
+          "default": false,
+          "info": "Enable to customize the color of SVG icons."
+        },
+        {
+          "type": "color",
+          "id": "svg_icon_color",
+          "label": "SVG Icon Color",
+          "default": "#000000",
+          "info": "Select the color for SVG icons."
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "color",
+          "id": "button_bg_color",
+          "label": "Button Background Color",
+          "default": "#000",
+          "info": "Choose the background color for the button."
+        },
+        {
+          "type": "color",
+          "id": "button_text_color",
+          "label": "Button Text Color",
+          "default": "#FFFFFF",
+          "info": "Choose the text color for the button."
+        },
+        {
+          "type": "color",
+          "id": "button_bg_hover_color",
+          "label": "Button Background Hover Color",
+          "default": "#1D1D1D",
+          "info": "Set the background color when the button is hovered over."
+        },
+        {
+          "type": "color",
+          "id": "button_text_hover_color",
+          "label": "Button Text Hover Color",
+          "default": "#fff",
+          "info": "Set the text color when the button is hovered over."
+        },
+        {
+          "type": "text",
+          "id": "button_shop_text",
+          "label": "Button Main Text",
+          "default": "Shop",
+          "info": "Text displayed on the shop button."
+        },
+        {
+          "type": "text",
+          "id": "button_pink_cherry_text",
+          "label": "Button Second Text",
+          "default": "Now",
+          "info": "Text displayed on the pink cherry button."
+        },
+        {
+          "type": "color",
+          "id": "pink_cherry_text_color",
+          "label": "Button Second Text Color",
+          "default": "#fff",
+          "info": "Color of the pink cherry button text."
+        },
+        {
+          "type": "color",
+          "id": "pink_cherry_text_hover_color",
+          "label": "Button Second Text Hover Color",
+          "default": "#fff",
+          "info": "Hover color of the pink cherry button text."
+        },
+        {
+          "type": "range",
+          "id": "button_border_radius",
+          "label": "Button Border Radius (px)",
+          "min": 0,
+          "max": 50,
+          "step": 1,
+          "default": 4,
+          "info": "Set the border radius for the button."
+        },
+        {
+          "type": "url",
+          "id": "button_link_url",
+          "label": "Button Link URL",
+          "default": "/",
+          "info": "Specify the URL that the button will link to."
+        },
+        {
+          "type": "range",
+          "id": "button_overall_size",
+          "label": "Overall Button Size (px)",
+          "min": 12,
+          "max": 50,
+          "step": 1,
+          "default": 14,
+          "info": "Adjust the overall size of the button text and padding."
+        }
+      ]
+    },
+    {
+      "type": "rating",
+      "name": "Rating",
+      "settings": [
+        {
+          "type": "range",
+          "id": "star_rating",
+          "label": "Star Rating",
+          "min": 0,
+          "max": 5,
+          "step": 0.5,
+          "default": 4.5,
+          "info": "Set the star rating value."
+        },
+        {
+          "type": "text",
+          "id": "rating_text",
+          "label": "Rating Text",
+          "default": "Trusted by over  +1255 people",
+          "info": "Text displaying the rating details."
+        },
+        {
+          "type": "color",
+          "id": "rating_star_filled_color",
+          "label": "Rating Star Filled Color",
+          "default": "#E6D821",
+          "info": "Color for filled rating stars."
+        },
+        {
+          "type": "color",
+          "id": "rating_star_unfilled_color",
+          "label": "Rating Star Unfilled Color",
+          "default": "#BE7A7A",
+          "info": "Color for unfilled rating stars."
+        },
+        {
+          "type": "range",
+          "id": "rating_text_font_size",
+          "label": "Rating Text Font Size (px)",
+          "min": 10,
+          "max": 30,
+          "step": 1,
+          "default": 15,
+          "info": "Set the font size for the rating text."
+        },
+        {
+          "type": "color",
+          "id": "rating_text_color",
+          "label": "Rating Text Color",
+          "default": "#1D1D1D",
+          "info": "Select the color for the rating text."
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_rating",
+          "label": "Disable Rating Text and Stars",
+          "default": false,
+          "info": "Check to hide the rating text and stars."
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "section_image",
+          "label": "Section Image",
+          "info": "Select an image to display in the section."
+        },
+        {
+          "type": "range",
+          "id": "section_image_horizontal_position",
+          "label": "Section Image Horizontal Position (Desktop) (%)",
+          "min": -100,
+          "max": 100,
+          "step": 10,
+          "default": 10,
+          "info": "Set the horizontal offset for the section image on desktop devices. Negative values shift left, positive values shift right. On mobile, the image is always centered."
+        },
+        {
+          "type": "range",
+          "id": "image_width_mobile",
+          "label": "Image Width (Mobile, px)",
+          "min": 50,
+          "max": 1000,
+          "step": 10,
+          "default": 300,
+          "info": "Set the image width for mobile devices."
+        },
+        {
+          "type": "range",
+          "id": "image_height_mobile",
+          "label": "Image Height (Mobile, px)",
+          "min": 50,
+          "max": 1000,
+          "step": 10,
+          "default": 300,
+          "info": "Set the image height for mobile devices."
+        },
+        {
+          "type": "range",
+          "id": "image_width_desktop",
+          "label": "Image Width (Desktop, px)",
+          "min": 50,
+          "max": 1000,
+          "step": 10,
+          "default": 440,
+          "info": "Set the image width for desktop devices."
+        },
+        {
+          "type": "range",
+          "id": "image_height_desktop",
+          "label": "Image Height (Desktop, px)",
+          "min": 50,
+          "max": 1000,
+          "step": 10,
+          "default": 440,
+          "info": "Set the image height for desktop devices."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Pro 2",
+      "category": "Hero",
+      "blocks": [
+        {
+          "type": "badges"
+        },
+        {
+          "type": "title"
+        },
+        {
+          "type": "subheading"
+        },
+        {
+          "type": "benefits"
+        },
+        {
+          "type": "button"
+        },
+        {
+          "type": "rating"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

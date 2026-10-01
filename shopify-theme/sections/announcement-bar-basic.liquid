@@ -1,0 +1,519 @@
+{% comment %}
+  Announcement Bar Section
+  This section creates a customizable announcement bar at the top of your Shopify store.
+{% endcomment %}
+
+<section
+  id="announcement-bar"
+  class="unique-announcement-bar"
+  style="
+    background: {% if section.settings.background_type == 'solid' %}
+                 {{ section.settings.background_color }};
+               {% elsif section.settings.background_type == 'gradient' %}
+                 linear-gradient({{ section.settings.gradient_angle }}deg, {{ section.settings.gradient_start_color }}, {{ section.settings.gradient_end_color }});
+               {% endif %};
+    color: {{ section.settings.text_color }};
+  "
+>
+  <style>
+    /* Scoped CSS for Announcement Bar */
+    /* Import Custom Font if Enabled */
+    {% if section.settings.enable_custom_font %}
+      @import url('https://fonts.googleapis.com/css2?family={{ section.settings.custom_font | replace: ' ', '+' }}&display=swap');
+    {% endif %}
+
+    /* Base Styles */
+    #announcement-bar.unique-announcement-bar {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+      text-align: center;
+      flex-wrap: wrap;
+      font-family: {% if section.settings.enable_custom_font %}"{{ section.settings.custom_font }}"{% else %}inherit{% endif %};
+      {% if section.settings.enable_custom_font and section.settings.font_weight %}
+        font-weight: {{ section.settings.font_weight }};
+      {% endif %}
+    }
+    #announcement-bar.unique-announcement-bar a {
+      color: {{ section.settings.text_color }};
+      text-decoration: none;
+    }
+    #announcement-bar.unique-announcement-bar a:hover {
+      text-decoration: underline;
+    }
+    #announcement-bar.unique-announcement-bar .close-button {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: {{ section.settings.text_color }};
+      font-size: 20px;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      z-index: 1;
+    }
+
+    /* Display Section On Settings */
+    {% case section.settings.display_section_on %}
+      {% when 'display_none' %}
+        #announcement-bar.unique-announcement-bar {
+          display: none;
+        }
+      {% when 'display_only_desktop' %}
+        /* Hide on Mobile */
+        @media (max-width: 767px) {
+          #announcement-bar.unique-announcement-bar {
+            display: none;
+          }
+        }
+      {% when 'display_mobile' %}
+        /* Hide on Desktop */
+        @media (min-width: 768px) {
+          #announcement-bar.unique-announcement-bar {
+            display: none;
+          }
+        }
+      {% when 'display_all' %}
+        /* Display on All Devices */
+    {% endcase %}
+
+    /* Desktop Styles */
+    @media (min-width: 768px) {
+      #announcement-bar.unique-announcement-bar {
+        height: {{ section.settings.bar_height }}px;
+        font-size: {{ section.settings.font_size }}px;
+      }
+      #announcement-bar.unique-announcement-bar .mobile-message {
+        display: none;
+      }
+      #announcement-bar.unique-announcement-bar .desktop-message {
+        display: block;
+      }
+    }
+
+    /* Mobile Styles */
+    @media (max-width: 767px) {
+      #announcement-bar.unique-announcement-bar {
+        height: {{ section.settings.mobile_bar_height }}px;
+        font-size: {{ section.settings.mobile_font_size }}px;
+        padding: 15px 10px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+      }
+      #announcement-bar.unique-announcement-bar .close-button {
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      #announcement-bar.unique-announcement-bar a,
+      #announcement-bar.unique-announcement-bar span {
+        text-align: center;
+        flex: 1;
+      }
+
+      {% if section.settings.show_close_button_mobile %}
+        #announcement-bar.unique-announcement-bar .close-button {
+          display: block;
+        }
+      {% else %}
+        #announcement-bar.unique-announcement-bar .close-button {
+          display: none;
+        }
+      {% endif %}
+
+      #announcement-bar.unique-announcement-bar .mobile-message {
+        display: none;
+      }
+      {% if section.settings.message_mobile != blank %}
+        #announcement-bar.unique-announcement-bar .mobile-message {
+          display: block;
+        }
+        #announcement-bar.unique-announcement-bar .desktop-message {
+          display: none;
+        }
+      {% endif %}
+    }
+  </style>
+
+  <!-- Announcement Messages -->
+  {% if section.settings.message_mobile != blank %}
+    <a
+      href="{{ section.settings.link }}"
+      class="desktop-message"
+      {% if section.settings.open_in_new_tab %} target="_blank"{% endif %}
+    >
+      {{ section.settings.message }}
+    </a>
+    <span class="mobile-message">
+      {{ section.settings.message_mobile }}
+    </span>
+  {% else %}
+    {% if section.settings.display_section_on != 'display_mobile' %}
+      {% if section.settings.link != blank %}
+        <a
+          href="{{ section.settings.link }}"
+          class="desktop-message"
+          {% if section.settings.open_in_new_tab %} target="_blank"{% endif %}
+        >
+          {{ section.settings.message }}
+        </a>
+      {% else %}
+        <span class="desktop-message">
+          {{ section.settings.message }}
+        </span>
+      {% endif %}
+    {% endif %}
+  {% endif %}
+
+  <!-- Close Button -->
+  {% if section.settings.show_close_button %}
+    <button class="close-button" aria-label="Close">&times;</button>
+  {% endif %}
+
+  <!-- Updated Scoped JavaScript -->
+  <script>
+    (function() {
+      document.addEventListener('DOMContentLoaded', function() {
+        var announcementBar = document.getElementById('announcement-bar');
+        if (!announcementBar) return;
+
+        // If closed flag exists and is still valid, hide bar immediately
+        var closedUntil = localStorage.getItem('announcementBarClosedUntil');
+        if (closedUntil && Date.now() < parseInt(closedUntil, 10)) {
+          announcementBar.style.display = 'none';
+          return;
+        }
+
+        var closeButton = announcementBar.querySelector('.close-button');
+        if (closeButton) {
+          closeButton.addEventListener('click', function() {
+            // Hide the bar and set expiry for 1 day
+            announcementBar.style.display = 'none';
+            var expireTime = Date.now() + 24 * 60 * 60 * 1000; // now + 1 day
+            localStorage.setItem('announcementBarClosedUntil', expireTime);
+          });
+        }
+      });
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Announcement Bar Basic ",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Announcement Content",
+      "info": "Adjust the text and visibility settings of the announcement bar."
+    },
+    {
+      "type": "textarea",
+      "id": "message",
+      "label": "Announcement Text (Desktop)",
+      "default": "Click and Collect is now available. Complimentary shipping over $400.",
+      "info": "The message displayed in the announcement bar for desktop and larger screens."
+    },
+    {
+      "type": "textarea",
+      "id": "message_mobile",
+      "label": "Announcement Text (Mobile)",
+      "default": "FREE SHIPPING ON ORDERS OVER 50$",
+      "info": "The message displayed in the announcement bar for mobile devices."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_close_button",
+      "label": "Show Close Button (Desktop)",
+      "default": true,
+      "info": "Allows users to close the announcement bar on desktop and larger screens."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_close_button_mobile",
+      "label": "Show Close Button (Mobile)",
+      "default": true,
+      "info": "Allows users to close the announcement bar on mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Link Settings",
+      "info": "Configure the link associated with the announcement."
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Link URL",
+      "default": "/",
+      "info": "The URL to navigate to when the announcement is clicked."
+    },
+    {
+      "type": "checkbox",
+      "id": "open_in_new_tab",
+      "label": "Open Link in New Tab",
+      "default": false,
+      "info": "Open the link in a new browser tab."
+    },
+    {
+      "type": "header",
+      "content": "Font Settings",
+      "info": "Adjust the font and text size of the announcement."
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Font Size (px) - Desktop",
+      "min": 12,
+      "max": 36,
+      "step": 1,
+      "default": 15,
+      "info": "Set the size of the announcement text for desktop."
+    },
+    {
+      "type": "range",
+      "id": "mobile_font_size",
+      "label": "Font Size (px) - Mobile",
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "default": 15,
+      "info": "Set the size of the announcement text for mobile."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_font",
+      "label": "Enable Custom Font",
+      "default": false,
+      "info": "Enable to choose a custom font for the announcement text."
+    },
+    {
+      "type": "select",
+      "id": "custom_font",
+      "label": "Custom Fonts",
+      "default": "Roboto",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "Yanone Kaffeesatz", "label": "Yanone Kaffeesatz" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "PT Sans", "label": "PT Sans" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Nunito", "label": "Nunito" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Slabo 27px", "label": "Slabo 27px" },
+        { "value": "Lora", "label": "Lora" },
+        { "value": "Fira Sans", "label": "Fira Sans" },
+        { "value": "Libre Baskerville", "label": "Libre Baskerville" },
+        { "value": "Indie Flower", "label": "Indie Flower" },
+        { "value": "Bebas Neue", "label": "Bebas Neue" },
+        { "value": "Cabin", "label": "Cabin" },
+        { "value": "Cinzel", "label": "Cinzel" },
+        { "value": "Dosis", "label": "Dosis" },
+        { "value": "Exo 2", "label": "Exo 2" },
+        { "value": "Fjalla One", "label": "Fjalla One" },
+        { "value": "Gilda Display", "label": "Gilda Display" },
+        { "value": "Heebo", "label": "Heebo" },
+        { "value": "Karla", "label": "Karla" },
+        { "value": "Muli", "label": "Muli" },
+        { "value": "Noto Serif", "label": "Noto Serif" },
+        { "value": "Quicksand", "label": "Quicksand" },
+        { "value": "Roboto Slab", "label": "Roboto Slab" },
+        { "value": "Signika", "label": "Signika" },
+        { "value": "Titillium Web", "label": "Titillium Web" },
+        { "value": "Varela Round", "label": "Varela Round" },
+        { "value": "Work Sans", "label": "Work Sans" },
+        { "value": "Zilla Slab", "label": "Zilla Slab" },
+        { "value": "Asap", "label": "Asap" },
+        { "value": "Cairo", "label": "Cairo" },
+        { "value": "DM Sans", "label": "DM Sans" },
+        { "value": "Eczar", "label": "Eczar" },
+        { "value": "Fira Mono", "label": "Fira Mono" },
+        { "value": "Gentium Basic", "label": "Gentium Basic" },
+        { "value": "Hind", "label": "Hind" },
+        { "value": "Jost", "label": "Jost" },
+        { "value": "Kreon", "label": "Kreon" },
+        { "value": "Lexend", "label": "Lexend" },
+        { "value": "Mukta", "label": "Mukta" },
+        { "value": "Noto Sans JP", "label": "Noto Sans JP" },
+        { "value": "Overpass", "label": "Overpass" },
+        { "value": "Qwigley", "label": "Qwigley" },
+        { "value": "Sen", "label": "Sen" },
+        { "value": "Teko", "label": "Teko" },
+        { "value": "Ultra", "label": "Ultra" },
+        { "value": "Vollkorn", "label": "Vollkorn" },
+        { "value": "ZCOOL XiaoWei", "label": "ZCOOL XiaoWei" },
+        { "value": "ABeeZee", "label": "ABeeZee" },
+        { "value": "Acme", "label": "Acme" },
+        { "value": "Balsamiq Sans", "label": "Balsamiq Sans" },
+        { "value": "Caveat", "label": "Caveat" },
+        { "value": "Engagement", "label": "Engagement" },
+        { "value": "Fredoka One", "label": "Fredoka One" },
+        { "value": "Gloria Hallelujah", "label": "Gloria Hallelujah" },
+        { "value": "Irish Grover", "label": "Irish Grover" },
+        { "value": "Kalam", "label": "Kalam" },
+        { "value": "Marck Script", "label": "Marck Script" },
+        { "value": "Neucha", "label": "Neucha" },
+        { "value": "Patrick Hand", "label": "Patrick Hand" },
+        { "value": "Rock Salt", "label": "Rock Salt" },
+        { "value": "Tangerine", "label": "Tangerine" },
+        { "value": "Unica One", "label": "Unica One" },
+        { "value": "Vibur", "label": "Vibur" },
+        { "value": "Wallpoet", "label": "Wallpoet" },
+        { "value": "Yellowtail", "label": "Yellowtail" },
+        { "value": "Zilla Slab Highlight", "label": "Zilla Slab Highlight" },
+        { "value": "Alice", "label": "Alice" },
+        { "value": "Alfa Slab One", "label": "Alfa Slab One" },
+        { "value": "Amatic SC", "label": "Amatic SC" },
+        { "value": "Archivo Narrow", "label": "Archivo Narrow" },
+        { "value": "Baloo 2", "label": "Baloo 2" },
+        { "value": "Bangers", "label": "Bangers" },
+        { "value": "Bellefair", "label": "Bellefair" },
+        { "value": "Big Shoulders Display", "label": "Big Shoulders Display" },
+        { "value": "Black Han Sans", "label": "Black Han Sans" },
+        { "value": "Bowlby One SC", "label": "Bowlby One SC" },
+        { "value": "Bungee", "label": "Bungee" },
+        { "value": "Cardo", "label": "Cardo" },
+        { "value": "Chonburi", "label": "Chonburi" },
+        { "value": "Cinzel Decorative", "label": "Cinzel Decorative" },
+        { "value": "Contrail One", "label": "Contrail One" },
+        { "value": "Cormorant Garamond", "label": "Cormorant Garamond" },
+        { "value": "Courgette", "label": "Courgette" },
+        { "value": "Crimson Pro", "label": "Crimson Pro" },
+        { "value": "Cuprum", "label": "Cuprum" },
+        { "value": "Delius", "label": "Delius" },
+        { "value": "Delius Swash Caps", "label": "Delius Swash Caps" },
+        { "value": "Doppio One", "label": "Doppio One" },
+        { "value": "EB Garamond SC", "label": "EB Garamond SC" },
+        { "value": "Expletus Sans", "label": "Expletus Sans" },
+        { "value": "Faustina", "label": "Faustina" },
+        { "value": "Fjord One", "label": "Fjord One" },
+        { "value": "Frank Ruhl Libre", "label": "Frank Ruhl Libre" },
+        { "value": "Frijole", "label": "Frijole" },
+        { "value": "Glegoo", "label": "Glegoo" },
+        { "value": "Goblin One", "label": "Goblin One" },
+        { "value": "Grenze Gotisch", "label": "Grenze Gotisch" },
+        { "value": "Habibi", "label": "Habibi" },
+        { "value": "Henny Penny", "label": "Henny Penny" },
+        { "value": "IM Fell DW Pica", "label": "IM Fell DW Pica" },
+        { "value": "IM Fell English", "label": "IM Fell English" },
+        { "value": "IM Fell French Canon", "label": "IM Fell French Canon" },
+        { "value": "IM Fell Great Primer", "label": "IM Fell Great Primer" }
+      ],
+      "info": "Select the custom font for the announcement text. Enabled by 'Enable Custom Font'."
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#FFFFFF",
+      "info": "Set the color of the announcement text."
+    },
+    {
+      "type": "header",
+      "content": "Background Settings",
+      "info": "Customize the background of the announcement bar."
+    },
+    {
+      "type": "select",
+      "id": "background_type",
+      "label": "Background Type",
+      "default": "solid",
+      "options": [
+        { "value": "solid", "label": "Solid Color" },
+        { "value": "gradient", "label": "Gradient" }
+      ],
+      "info": "Select between a solid color or gradient background."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#4135F5",
+      "info": "This color is applied when 'Solid Color' is selected."
+    },
+    {
+      "type": "color",
+      "id": "gradient_start_color",
+      "label": "Gradient Start Color",
+      "default": "#007BFF",
+      "info": "The starting color when 'Gradient' background is selected."
+    },
+    {
+      "type": "color",
+      "id": "gradient_end_color",
+      "label": "Gradient End Color",
+      "default": "#00BFFF",
+      "info": "The ending color when 'Gradient' background is selected."
+    },
+    {
+      "type": "range",
+      "id": "gradient_angle",
+      "label": "Gradient Angle (degrees)",
+      "min": 0,
+      "max": 360,
+      "step": 10,
+      "default": 90,
+      "info": "Set the angle of the gradient background."
+    },
+    {
+      "type": "header",
+      "content": "Display Settings",
+      "info": "Control the visibility and layout of the announcement bar."
+    },
+    {
+      "type": "range",
+      "id": "bar_height",
+      "label": "Announcement Bar Height (px) - Desktop",
+      "min": 30,
+      "max": 100,
+      "step": 1,
+      "default": 53,
+      "info": "Adjust the height of the announcement bar for desktop."
+    },
+    {
+      "type": "range",
+      "id": "mobile_bar_height",
+      "label": "Announcement Bar Height (px) - Mobile",
+      "min": 30,
+      "max": 100,
+      "step": 1,
+      "default": 49,
+      "info": "Adjust the height of the announcement bar for mobile."
+    },
+    {
+      "type": "select",
+      "id": "display_section_on",
+      "label": "Display Section On",
+      "default": "display_all",
+      "options": [
+        { "value": "display_none", "label": "Display None" },
+        { "value": "display_all", "label": "Display All" },
+        { "value": "display_only_desktop", "label": "Display Only Desktop / Larger Screens" },
+        { "value": "display_mobile", "label": "Display Mobile" }
+      ],
+      "info": "Select where the announcement bar should be displayed."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Announcement Bar Basic ",
+      "category": "Announcement Bars"
+    }
+  ]
+}
+{% endschema %}

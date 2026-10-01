@@ -1,0 +1,823 @@
+ /* =========================================
+   MOBILE STYLES: Screens with width up to 1024.98px
+   ========================================= */
+.button-localization {
+             color: var(--color-heading) !important ; /* Base text color */
+   
+   }
+
+         @media (max-width: 767px) {
+      .disclosure {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start; /* Aligns the content to the left */
+        left: -6px !important; /* Adjusts the position of the disclosure more to the left */
+
+          
+        
+          
+      }
+    }
+
+
+
+
+@media screen and (max-width: 1024.98px) {
+
+  /* 
+    When the navigation menu is open, transform it into view,
+    set opacity to fully visible, and ensure it's visible.
+  */
+  .nav-open .navigation {
+    transform: translate(0);
+    opacity: 1;
+    background-color: var(--color-background) !important; /* Enforced background color */
+    visibility: visible;
+  }
+
+
+
+
+
+.navigation svg {
+
+   width: 29px !important;
+
+  }
+.pointer-none.border.inline-flex.hidden-1025.mx-auto.rounded-50.overflow-hidden.absolute.top-0.inset-x-0.w-50.h-50.content-center.heading-color.bg-white {
+    display: none !important;
+}
+  /* 
+    Base navigation container:
+    - Sets the background color to var(--color-background) to override any other background settings.
+    - Maintains other existing properties for layout and transitions.
+  */
+  .navigation {
+    background-color: var(--color-background) !important; /* Enforced background color */
+    --menu-mobile-width: 43rem; /* Custom property for mobile menu width */
+    --show-overlay-bg: rgba(255, 255, 255, 0.9); /* Overlay background color */
+    width: var(--mobile-nav-width);
+    max-width: var(--menu-mobile-width); /* Maximum width */
+    overflow: hidden; /* Hide overflow content */
+    transform: translateX(-100%); /* Initially hide the navigation off-screen */
+    transition: var(--transition-popup); /* Transition for smooth sliding */
+  }
+
+  /* 
+    Navigation links:
+    - Sets link color and transition effects.
+  */
+  .navigation a {
+  color: var(--color-heading) ; /* Base text color */
+  opacity: 1; /* Default opacity */
+  transition: color 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Smooth transition for both color and opacity */
+  }
+
+  /* 
+    Navigation links hover state:
+    - Adds a slight opacity fade effect on hover.
+  */
+  .navigation a:hover {
+  opacity: 0.8; /* Slight fade effect */
+    
+  color: var(--color-heading); /* Ensures consistent hover color */
+  }
+
+  /* 
+    Toggle color for child elements when children are open.
+    - Ensures the toggle icon/text inherits the heading color.
+  */
+  .navigation open-children-toggle {
+    color: {{ settings.mobile_toggle_arrow_color }};
+  }
+
+  /* 
+    Mobile menu title link styling:
+    - Inherits heading color with slight transparency.
+  */
+  .menu-mobile-title a {
+    color: var(--color-heading); /* Color from CSS variable */
+    opacity: 0.6; /* Slight transparency */
+         transition: color 0.3s ease-in-out;
+    
+  
+
+
+
+ }
+  .menu-mobile-title {
+    
+
+    
+     background: linear-gradient(180deg, var(--menu-mobile-title-bg), var(--menu-mobile-title-bg-secondary)) !important; 
+   
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04); /* Soft outward shadow */
+    padding-bottom: 10px; /* Padding at the bottom */
+    padding-top: 10px; /* Padding at the top */
+  }
+ 
+  /* 
+    Active state for mobile menu title link:
+    - Increases opacity to indicate active state.
+  */
+  .menu-mobile-title a.active {
+    transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    opacity: 1; /* Full opacity when active */
+  }
+
+  /* 
+    Container for menu content:
+    - Sets background color to var(--color-background).
+    - Maintains other existing properties for layout and scrolling.
+  */
+  .navigation__menu-content {
+    height: 100%; /* Full height */
+    flex: 1; /* Flex-grow */
+    background-color: var(--color-background) !important; /* Enforced background color */
+    /* Removed the conflicting background property */
+    /* background: var(--mobile-nav-bg-color); */
+    overflow-y: auto; /* Scroll if content overflows vertically */
+  }
+
+  /* 
+    Submenu and sub-children-menu styles:
+    - Sets background color to var(--color-background) to override any other background settings.
+    - Maintains other existing properties for layout and transitions.
+  */
+  .submenu,
+  .sub-children-menu {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-background) !important; /* Enforced background color */
+    /* Removed the conflicting background property */
+    /* background: var(--mobile-nav-bg-color); */
+    max-width: var(--menu-mobile-width); /* Maximum width */
+    transform: translateX(100%); /* Initially hide off-screen to the right */
+    z-index: 12; /* Stack order */
+    border-radius: 0px; /* Rounded corners */
+  }
+
+  
+  /* 
+    When a submenu or sub-children-menu is open, slide it into view.
+  */
+  .is-open + .submenu,
+  .is-open + .sub-children-menu {
+    transform: translate(0); /* Slide into view */
+    background-color: var(--color-background) !important; /* Enforced background color */
+    /* Removed the conflicting background property */
+    /* background: var(--mobile-nav-bg-color); */
+  }
+
+  /* 
+    Force single-column layout within submenu using CSS variable.
+  */
+  .submenu .grid-cols {
+    --col-desktop: 1 !important; /* Force single column layout */
+    background-color: var(--color-background) !important; /* Enforced background color */
+    /* Removed the conflicting background property */
+    /* background: var(--mobile-nav-bg-color); */
+  }
+
+  /* 
+    Subchild menu adjustments:
+    - Removes column gaps.
+    - Sets background color to var(--color-background).
+    - Removes rounded corners.
+  */
+  .subchildmenu {
+    --col-gap: 0 !important; /* Remove column gap */
+    background-color: var(--color-background) !important; /* Enforced background color */
+    /* Removed the conflicting background property */
+    /* background: var(--mobile-nav-bg-color); */
+    border-radius: 0px; /* Rounded corners */
+  }
+
+  /* 
+    Ensure maximum height and enable scrolling for nested menus.
+    - Sets background color to var(--color-background).
+  */
+  :is(.subchildmenu, .sub-children-menu ul, .horizontal-list) {
+    max-height: 100%;
+    overflow: auto;
+      border-color: var(--color-border) !important; /* Change border color on focus */
+    background-color: var(--color-background) !important; /* Enforced background color */
+    /* Removed the conflicting background property */
+    /* background: var(--mobile-nav-bg-color); */
+  }
+
+  /* 
+    Touch target for mobile interactions:
+    - Defines a clickable area for toggling menus.
+  */
+  .touch-target-mb {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  /* 
+    Styles for currency and language disclosure lists:
+    - Sets background color to var(--color-background).
+    - Overrides the black background.
+    - Maintains other existing properties for layout and appearance.
+  */
+  :where(.lang__currency-on-nav, .lang__currency-desktop) .disclosure__list {
+    bottom: -3rem;
+    padding: 2.5rem 3rem;
+    border-radius: var(--rounded-radius) var(--rounded-radius) 0 0; /* Rounded top corners */
+    position: fixed;
+    z-index: 15;
+    box-shadow: var(--shadow);
+    background-color: var(--color-background) !important; /* Enforced background color */
+    /* Removed the black background */
+    /* background-color: #000; */
+  }
+
+  /* 
+    Sets a maximum height for the disclosure list to prevent it from overflowing.
+  */
+  :where(.lang__currency-on-nav, .lang__currency-desktop) .disclosure__list ul {
+    max-height: 50vh;
+  }
+
+  /* 
+    Adds vertical padding for the currency section on navigation.
+  */
+  .lang__currency-on-nav {
+    padding-block: 1rem;
+  }
+
+  /* 
+    Adds padding for localization buttons within the currency section.
+  */
+  .lang__currency-on-nav .button-localization {
+    padding: 0.5rem 3rem;
+    margin-bottom: -25px !important;
+  }
+
+  /* 
+    When the localization button is open, display the disclosure list.
+  */
+  :where(.lang__currency-on-nav, .lang__currency-desktop)
+    .button-localization.open
+    + .disclosure__list {
+    bottom: 0;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* 
+    Highlights the current item in the disclosure list.
+  */
+  :where(.lang__currency-on-nav, .lang__currency-desktop)
+    .disclosure__list
+    [aria-current="true"] {
+    font-weight: var(--heading-weight);
+  }
+
+  /* 
+    Adds fade-in animation to horizontal and categories lists.
+  */
+  :is(.horizontal-list, .categories-list) {
+    animation: 0.5s fadeIn;
+  }
+
+  /* 
+    Positions the menu label slightly off to the right.
+  */
+  .menu_label {
+    right: -10px;
+   
+    padding-bottom: 3px !important;
+  }
+
+  /* 
+    After pseudo-element for the menu label:
+    - Creates a decorative element (e.g., arrow or indicator).
+  */
+  .menu_label:after {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-95%);
+    -webkit-transform: translateX(-95%);
+    border-right-color: var(--menu-label-bg);
+    margin: auto;
+    border-top-color: transparent;
+  }
+
+  /* 
+    Ensures full width and removes padding/margin for stretchable containers within submenu.
+  */
+  .submenu :is(.stretch_width, .fluid_container, .full_width, .container) {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    background-color: var(--color-background) !important; /* Enforced background color */
+  }
+
+}
+/* =========================================
+   DESKTOP STYLES: Screens with width 1025px and above
+   ========================================= */
+@media screen and (min-width: 1025px) {
+
+  /* 
+    Main navigation container styling.
+    - Applies a shadow effect for depth.
+    - Adds left padding for spacing.
+  */
+  .navigation {
+    --shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.00); /* Shadow effect */
+    padding-left: 30px; /* Padding on the left */
+    
+    transition: all 0.3s ease; /* Reduce the duration to make it faster */
+ 
+   }
+  /* 
+    Submenu and sub-children-menu styles.
+    - Applies light gray background and rounded corners.
+    - Removes glassmorphism effect.
+    - Ensures full opacity.
+  */
+  :is(.submenu, .sub-children-menu) {
+     background-color: var(--dropdown-bg-color) !important;
+    border-radius: 20px; /* Rounded corners */
+         background-color: var(--color-background) !important ;
+    /* Removed backdrop-filter and border for solid background */
+    /* backdrop-filter: blur(10px); */
+    /* border: 1px solid rgba(255, 255, 255, 0.3); */
+  }
+
+  /* 
+    Specific styling for second-level dropdowns (sub-children-menu).
+    - Ensures light gray background and rounded corners.
+    - Removes blur effect for glassmorphism.
+    - Ensures full opacity.
+  */
+  .sub-children-menu {
+     background-color: var(--dropdown-bg-color) !important;
+    border-radius: 20px; /* Rounded corners */
+    /* Removed backdrop-filter and border for solid background */
+    /* backdrop-filter: blur(10px); */
+    /* border: 1px solid rgba(255, 255, 255, 0.3); */
+  }
+
+  /* 
+    Navigation links styling.
+    - Uses flex layout with horizontal gaps and right margin for spacing.
+  */
+  .navigation a {
+    display: flex;
+    color: var(--menu-link-text-color-desktop, #000);
+    transition: color 0.3s ease-in-out;
+     
+    gap: 10px;  /* Horizontal gap between links */
+     font-size: var(--nav-font-size);  /* Controlled by Theme Editor */
+       margin-right: var(--nav-link-gap);  /* Apply margin using the slider value */
+    /* Ensure links do not have transparent backgrounds */
+    background-color: inherit; /* Inherit background from parent */
+    /* Alternatively, set to the same light gray if inheritance causes issues */
+    /* background-color: #fff; */
+  }
+  
+  .navigation a:hover {
+      color: var(--menu-link-hover-color-desktop, #FF0000);
+  }
+  
+.navigation open-children-toggle {
+       margin-right: var(--nav-link-gap);  /* Apply margin using the slider value */
+  
+  
+   }
+  /* 
+    Main submenu styling.
+    - Applies light gray background and rounded corners.
+    - Removes blur effect for glassmorphism.
+    - Ensures full opacity.
+  */
+  .submenu {
+     background-color: var(--dropdown-bg-color) !important;
+ 
+    border-radius: 20px; /* Rounded corners */
+    /* Removed backdrop-filter and border for solid background */
+    /* backdrop-filter: blur(10px); */
+    /* border: 1px solid rgba(255, 255, 255, 0.3); */
+  }
+
+  /* 
+    Mega menu specific styles.
+    - Limits the maximum height and enables vertical scrolling if content overflows.
+  */
+  .mega-menu .submenu {
+    max-height: 80vh; /* Maximum height */
+    overflow-y: auto; /* Scroll if content overflows vertically */
+  }
+
+  /* 
+    Animation: Dropdown sliding down.
+    - Translates dropdown menus downward with light gray background and rounded corners.
+    - Removes blur effect for glassmorphism.
+    - Ensures full opacity.
+  */
+  .animation-down-to-up :is(.submenu, .dropdown-menu .sub-children-menu) {
+    transform: translateY(20px);
+      background-color: var(--dropdown-bg-color) !important;
+    -webkit-transform: translateY(20px);
+    border-radius: var(--dropdown-border-radius) !important;
+    /* Removed backdrop-filter and border for solid background */
+    /* backdrop-filter: blur(10px); */
+    /* border: 1px solid rgba(255, 255, 255, 0.3); */
+  }
+
+  /* 
+    Animation: Dropdown fading in and sliding down.
+    - Translates dropdown menus upward with light gray background and rounded corners.
+    - Removes blur effect for glassmorphism.
+    - Ensures full opacity.
+  */
+  .animation-fade-in-down :is(.submenu, .dropdown-menu .sub-children-menu) {
+    transform: translateY(-20px);
+  
+    -webkit-transform: translateY(-20px);
+    
+      background-color: var(--dropdown-bg-color) !important;
+    border-radius: var(--dropdown-border-radius) !important;
+    /* Removed backdrop-filter and border for solid background */
+    /* backdrop-filter: blur(10px); */
+    /* border: 1px solid rgba(255, 255, 255, 0.3); */
+  }
+
+  /* 
+    Animation: Dropdown fading in.
+    - Fades in the dropdown menus with a slight vertical translation.
+  */
+  .animation-fade-in :is(.submenu, .dropdown-menu .sub-children-menu) {
+    transform: translateY(calc(var(--section-pb) * 1px));
+      background-color: var(--dropdown-bg-color) !important;
+     border-radius: var(--dropdown-border-radius) !important;
+    background-color: var(--dropdown-bg-color) !important;
+    -webkit-transform: translateY(calc(var(--section-pb) * 1px));
+  }
+
+  /* 
+    General dropdown menu styles.
+    - Sets stack order and disables pointer events initially.
+    - Applies light gray background, rounded corners, smooth transitions, and shadow.
+    - Removes blur effect for glassmorphism.
+    - Ensures full opacity.
+  */
+  :is(.submenu, .dropdown-menu .sub-children-menu) {
+    z-index: 12; /* Stack order */
+    pointer-events: none; /* Disable pointer events initially */
+  background-color: var(--dropdown-bg-color) !important;
+    border-radius: 20px; /* Rounded corners */
+           
+    /* Removed backdrop-filter and border for solid background */
+    /* backdrop-filter: blur(10px); */
+    /* border: 1px solid rgba(255, 255, 255, 0.3); */
+    transition: opacity 0.3s, visibility 0.3s, transform 0.3s; /* Smooth transitions */
+    box-shadow: var(--shadow); /* Shadow effect */
+  }
+
+  /* 
+    When a submenu becomes visible (e.g., on hover or active state).
+    - Makes the dropdown fully visible and interactive.
+  */
+  .menu-parent.visible .submenu,
+  .dropdown-menu .level-1:hover > .sub-children-menu {
+    opacity: 1; /* Fully visible */
+     background-color: var(--dropdown-bg-color) !important;
+    visibility: visible; /* Make visible */
+
+    pointer-events: auto; /* Enable pointer events */
+    transform: none; /* Reset transform */
+    /* Removed backdrop-filter and border for solid background */
+    /* backdrop-filter: blur(10px); */
+    /* border: 1px solid rgba(255, 255, 255, 0.3); */
+  }
+
+  /* 
+    Additional styles for visible submenu.
+    - Applies a slight vertical translation to align with other elements.
+  */
+  .menu-parent.visible .submenu {
+    transform: translateY(calc(var(--section-pb) * 1px));
+       background-color: var(--dropdown-bg-color) !important;
+    -webkit-transform: translateY(calc(var(--section-pb) * 1px));
+    /* Removed backdrop-filter and border for solid background */
+    /* backdrop-filter: blur(10px); */
+
+    /* border: 1px solid rgba(255, 255, 255, 0.3); */
+  }
+
+  /* 
+    After pseudo-element for horizontal list menu items.
+    - Creates a decorative element (e.g., underline or arrow).
+  */
+  .horizontal-list .level0 > menu-item > a:after {
+    content: "";
+    position: absolute;
+    right: 0;
+    left: 0;
+    height: 30px;
+    bottom: calc(-1 * var(--section-pb) - 3px);
+    z-index: 1;
+  }
+
+  /* 
+    Toggle transition for menu items.
+    - Ensures smooth transitions when toggling child menus.
+  */
+  .level0 > menu-item open-children-toggle {
+    transition: var(--transition);
+  }
+
+  /* 
+    Hover state for top-level menu items.
+    - Changes color on hover to indicate interactivity.
+  */
+  .level0:hover > menu-item > a,
+  .level0:hover > menu-item open-children-toggle {
+    color: var(--color-link-hover); /* Change color on hover */
+  }
+
+  /* 
+    Sub-children-menu specific styles.
+    - Positions the submenu to the right of the parent menu.
+    - Applies light gray background and rounded corners.
+    - Slightly offsets vertically.
+    - Removes blur effect for glassmorphism.
+    - Ensures full opacity.
+  */
+  .dropdown-menu .sub-children-menu {
+    left: 100%; /* Position to the right of the parent */
+        background-color: var(--dropdown-bg-color) !important;
+    top: -1rem; /* Position slightly above */
+    border-radius: 20px; /* Rounded corners */
+    /* Removed backdrop-filter and border for solid background */
+    /* backdrop-filter: blur(10px); */
+    /* border: 1px solid rgba(255, 255, 255, 0.3); */
+  }
+
+  /* 
+    Positioning for toggle within level-1 dropdowns.
+    - Ensures the toggle is relative to its container.
+  */
+  .dropdown-menu .level-1 open-children-toggle {
+    position: relative;
+  }
+
+  /* 
+    Padding and width for dropdown menus.
+    - Adds vertical padding and sets a fixed width.
+  */
+  :is(.dropdown-menu .submenu, .dropdown-menu .sub-children-menu) {
+    padding-top: 2rem; /* Padding at the top */
+    padding-bottom: 2rem; /* Padding at the bottom */
+    width: 26rem; /* Fixed width */
+  }
+
+  /* 
+    Positioning for menu links within dropdowns.
+    - Ensures links are positioned correctly relative to their container.
+    - Ensures menu links have a non-transparent background.
+  */
+  :is(.dropdown-menu .menu-link, .dropdown-menu .menu_item-link) {
+    position: relative;
+      background-color: var(--dropdown-bg-color) !important;
+    /* If menu links should inherit the background from their parent, use the following:
+       background-color: inherit; 
+       However, setting a specific color ensures consistency */
+  }
+
+  /* 
+    Hover state for menu links.
+    - Changes the toggle color on hover.
+  */
+  .dropdown-menu .menu-link:hover open-children-toggle {
+        color: var(--color-heading);
+  }
+
+  /* 
+    Menu item link padding and positioning.
+    - Adds horizontal padding and ensures relative positioning.
+    - Ensures menu links have a non-transparent background.
+  */
+  :is(.dropdown-menu .menu_item-link) {
+    padding-left: 3rem; /* Left padding */
+    padding-right: 3rem; /* Right padding */
+    position: relative;
+      background-color: var(--dropdown-bg-color) !important;
+  }
+
+  /* 
+    Menu list container styles.
+    - Prevents flex-grow and flex-shrink.
+    - Applies light gray background, rounded corners, and shadow.
+    - Removes blur effect for glassmorphism.
+    - Calculates width based on custom properties.
+  */
+  .menu-list {
+    flex: 0 0 auto; /* Prevent flex-grow and flex-shrink */
+       background-color: var(--dropdown-bg-color) !important;
+    width: calc(100% - var(--col-mega-width) - var(--col-gap) * 0.5); /* Calculate width */
+    border-radius: 20px; /* Rounded corners */
+    /* Removed backdrop-filter and border for solid background */
+    /* backdrop-filter: blur(10px); */
+    /* border: 1px solid rgba(255, 255, 255, 0.3); */
+    box-shadow: var(--shadow); /* Shadow effect */
+  }
+
+  /* 
+    Mega column styles.
+    - Prevents flex-grow and flex-shrink.
+    - Calculates width based on custom properties.
+  */
+  .col-mega {
+    flex: 0 0 auto; /* Prevent flex-grow and flex-shrink */
+    width: calc(var(--col-mega-width) - var(--col-gap) * 0.5); /* Calculate width */
+  }
+
+  /* 
+    Custom width for mega menus.
+    - Sets width based on a custom property.
+    - Limits maximum width to 90% of the viewport width.
+  */
+  .mega-menu-custom-width {
+    width: var(--mega_custom_width); /* Custom property for width */
+    max-width: 90vw; /* Maximum width */
+  }
+
+  /* 
+    Collection info within submenu.
+    - Sets width and maximum width to ensure proper sizing.
+  */
+  .submenu .collection-info .bg-white {
+    width: 90%;
+    max-width: 17rem;
+  }
+
+  /* 
+    Menu label within submenu.
+    - Removes absolute positioning.
+    - Adds margin and padding for spacing.
+  */
+  .submenu .menu_label {
+    position: static; /* Remove absolute positioning */
+    margin-inline-start: 1rem; /* Margin on the start side */
+    padding: 4px 8px 2px 8px; /* Padding */
+      background-color: var(--dropdown-bg-color) !important;
+    border-radius: 20px; /* Rounded corners */
+  }
+
+  /* 
+    Rounded style for menu label.
+    - Applies rounded corners for decorative labels.
+  */
+  .rounded-style .submenu .menu_label.rounded-2 {
+    border-radius: 20px; /* Rounded corners */
+  }
+
+  /* 
+    Remove after pseudo-element for menu label.
+    - Cleans up unnecessary decorative elements.
+  */
+  .submenu .menu_label::after {
+    display: none;
+  }
+
+  /* 
+    Mega menu item link styles.
+    - Removes top padding.
+    - Applies light gray background and rounded corners.
+    - Removes blur effect for glassmorphism.
+  */
+  .mega-menu .level-1 menu-item > .menu_item-link {
+    padding-top: 0; /* Remove top padding */
+    font-size: 20px !important;
+     background-color: var(--dropdown-bg-color) !important;
+    border-radius: 20px; /* Rounded corners */
+
+  }
+}
+
+/* 
+  Mega menu parent styles outside of media queries.
+  - Applies font size adjustments, light gray background, rounded corners.
+  - Removes blur effect for glassmorphism.
+*/
+.menu-parent.mega-menu .level-1 > menu-item {
+  font-size: calc(var(--body-font-size) + 1px); /* Slightly larger font size */
+    background-color: var(--dropdown-bg-color) !important;
+  border-radius: 20px; /* Rounded corners */
+  /* Removed backdrop-filter and border for solid background */
+  /* backdrop-filter: blur(10px); */
+  /* border: 1px solid rgba(255, 255, 255, 0.3); */
+}
+
+
+
+@media (max-width: 768px) { /* Adjust breakpoint if needed */
+  .menu-parent.mega-menu .level-1 > menu-item {
+    background-color: var(--color-background) !important;
+    border: none !important;
+  }
+}
+
+/* ================================================================
+   SUDAFIN FIXES — navigation.css addendum
+   ================================================================ */
+
+/* Fix: disclosure dropdown z-index on desktop to avoid being clipped by sticky header */
+@media screen and (min-width: 1025px) {
+  :where(.lang__currency-desktop) .disclosure__list {
+    z-index: 200 !important;
+  }
+}
+
+/* Fix: mobile language/currency selector — safe-area-inset bottom padding */
+@media screen and (max-width: 1024.98px) {
+  :where(.lang__currency-on-nav, .lang__currency-desktop) .disclosure__list {
+    padding-bottom: max(2rem, env(safe-area-inset-bottom, 2rem)) !important;
+  }
+
+  /* Ensure mobile nav items have adequate tap targets (44px Apple HIG) */
+  .menu-mobile-title a,
+  .toggle-menu a,
+  nav a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* Fix: prevent nav from creating stacking context that clips dropdowns */
+.section-header {
+  isolation: auto;
+}
+.section-header .disclosure__list {
+  isolation: isolate;
+}
+
+/* =================================================================
+   SUDAFIN FIX v4 — Desktop disclosure dropdown (MISSING in original)
+   The original theme only had mobile (.open + .disclosure__list) CSS.
+   Without this rule, clicking the selector on desktop does nothing.
+   ================================================================= */
+@media screen and (min-width: 1025px) {
+  /* Show the dropdown panel when button has 'open' class */
+  .lang__currency-desktop .disclosure .button-localization.open ~ .disclosure__list,
+  .lang__currency-desktop .button-localization.open + .disclosure__list {
+    opacity: 1 !important;
+    visibility: visible !important;
+    bottom: auto !important;
+    top: calc(100% + 8px) !important;
+    left: 0 !important;
+    right: auto !important;
+    min-width: 180px !important;
+    position: absolute !important;
+    background: #0d0d0d !important;
+    border: 1px solid rgba(212,175,55,0.35) !important;
+    border-radius: 10px !important;
+    padding: 8px 0 !important;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6) !important;
+    z-index: 9999 !important;
+  }
+
+  .lang__currency-desktop .disclosure__list ul {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .lang__currency-desktop .disclosure__list a {
+    color: #eeeeee !important;
+    padding: 10px 18px !important;
+    font-size: 14px !important;
+    display: block !important;
+    white-space: nowrap !important;
+    text-decoration: none !important;
+    transition: background 0.15s ease, color 0.15s ease !important;
+  }
+
+  .lang__currency-desktop .disclosure__list a:hover {
+    background: rgba(212,175,55,0.12) !important;
+    color: #d4af37 !important;
+  }
+
+  .lang__currency-desktop .disclosure__list a[aria-current="true"] {
+    color: #d4af37 !important;
+    font-weight: 600 !important;
+  }
+
+  /* Also fix the mobile header lang bar on desktop — hide it */
+  .lang__currency-mobile-header {
+    display: none !important;
+  }
+}

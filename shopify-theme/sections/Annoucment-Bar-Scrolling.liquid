@@ -1,0 +1,709 @@
+{% schema %}  
+{
+  "name": "Announcement Bar Pro 1",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Announcement Messages",
+      "info": "Configure the messages displayed in the announcement bar."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "message_1",
+      "label": "Announcement Message 1",
+      "default": "FAST—FREE PACKING AND SHIPPING",
+      "info": "First announcement message displayed in the bar."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "message_2",
+      "label": "Announcement Message 2",
+      "default": "SIGN UP FOR SALE OFF YOUR FIRST ORDER",
+      "info": "Second announcement message displayed in the bar."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "message_3",
+      "label": "Announcement Message 3",
+      "info": "Optional third announcement message."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "message_4",
+      "label": "Announcement Message 4",
+      "info": "Optional fourth announcement message."
+    },
+    {
+      "type": "header",
+      "content": "Appearance Settings",
+      "info": "Customize the look and feel of the announcement bar."
+    },
+    {
+      "type": "select",
+      "id": "background_type",
+      "label": "Background Type",
+      "options": [
+        { "value": "solid", "label": "Solid Color" },
+        { "value": "gradient", "label": "Gradient" }
+      ],
+      "default": "solid",
+      "info": "Select the type of background for the bar."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#4135F5",
+      "info": "Background color when using a solid color type."
+    },
+    {
+      "type": "color",
+      "id": "gradient_start_color",
+      "label": "Gradient Start Color",
+      "default": "#007BFF",
+      "info": "Starting color of the gradient background."
+    },
+    {
+      "type": "color",
+      "id": "gradient_end_color",
+      "label": "Gradient End Color",
+      "default": "#00BFFF",
+      "info": "Ending color of the gradient background."
+    },
+    {
+      "type": "range",
+      "id": "gradient_angle",
+      "label": "Gradient Angle (degrees)",
+      "min": 0,
+      "max": 360,
+      "step": 10,
+      "default": 90,
+      "info": "Set the angle of the gradient background."
+    },
+    {
+      "type": "range",
+      "id": "bar_height",
+      "label": "Bar Height (px)",
+      "min": 30,
+      "max": 100,
+      "step": 1,
+      "default": 52,
+      "info": "Adjust the height of the announcement bar."
+    },
+    {
+      "type": "color",
+      "id": "message_text_color",
+      "label": "Announcement Message Text Color",
+      "default": "#FFFFFF",
+      "info": "Color of the announcement messages text."
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Font Size (px)",
+      "min": 12,
+      "max": 100,
+      "step": 1,
+      "default": 15,
+      "info": "Adjust the size of the announcement text."
+    },
+
+    
+    {
+      "type": "select",
+      "id": "message_font_weight",
+      "label": "Announcement Message Font Weight",
+      "options": [
+        { "value": "300", "label": "Light (300)" },
+        { "value": "400", "label": "Regular (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semibold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ],
+      "default": "600",
+      "info": "Font weight for the announcement messages."
+    },
+
+    {
+      "type": "range",
+      "id": "message_spacing",
+      "label": "Spacing Between Messages (px)",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "default": 22,
+      "info": "Space between individual announcement messages."
+    },
+    {
+      "type": "range",
+      "id": "repetition_spacing",
+      "label": "Spacing Between Repetitions (px)",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "default": 35,
+      "info": "Space between repeated cycles of messages."
+    },
+    {
+      "type": "header",
+      "content": "Animation Settings",
+      "info": "Control the animations applied to the announcement bar."
+    },
+    {
+      "type": "select",
+      "id": "background_animation",
+      "label": "Background Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "animation1", "label": "Subtle Pulse" },
+        { "value": "animation6", "label": "Blur Transition" },
+        { "value": "animation7", "label": "Zoom In-Out" },
+        { "value": "animation10", "label": "Opacity Change" }
+      ],
+      "default": "none",
+      "info": "Select the animation style for the background."
+    },
+    {
+      "type": "select",
+      "id": "hover_effect",
+      "label": "Hover Effect",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "grow", "label": "Grow" },
+        { "value": "color_change", "label": "Color Change" }
+      ],
+      "default": "none",
+      "info": "Effect applied when the user hovers over the bar."
+    },
+    {
+      "type": "header",
+      "content": "Font Settings",
+      "info": "Customize the typography of the announcement text."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_font",
+      "label": "Enable Custom Font",
+      "default": false,
+      "info": "Toggle to enable or disable custom fonts for text."
+    },
+    {
+      "type": "font_picker",
+      "id": "announcement_font",
+      "label": "Announcement Font",
+      "default": "sans-serif",
+      "info": "Select the font family for the announcement text."
+    },
+    {
+      "type": "header",
+      "content": "Icon Settings",
+      "info": "Configure the separator icon between messages."
+    },
+    {
+      "type": "select",
+      "id": "separator_icon",
+      "label": "Separator Icon",
+      "options": [
+        { "value": "fa-star", "label": "Star" },
+        { "value": "fa-heart", "label": "Heart" },
+        { "value": "fa-circle", "label": "Circle" },
+        { "value": "fa-square", "label": "Square" },
+        { "value": "fa-diamond", "label": "Diamond" },
+        { "value": "fa-arrow-right", "label": "Arrow Right" },
+        { "value": "fa-arrow-left", "label": "Arrow Left" },
+        { "value": "fa-check", "label": "Check" },
+        { "value": "fa-times", "label": "Times" },
+        { "value": "fa-plus", "label": "Plus" },
+        { "value": "fa-minus", "label": "Minus" },
+        { "value": "fa-star-half-alt", "label": "Star Half" },
+        { "value": "fa-heart-broken", "label": "Heart Broken" },
+        { "value": "fa-circle-notch", "label": "Circle Notch" },
+        { "value": "fa-sun", "label": "Sun" },
+        { "value": "fa-moon", "label": "Moon" },
+        { "value": "fa-cloud", "label": "Cloud" },
+        { "value": "fa-envelope", "label": "Envelope" },
+        { "value": "fa-bell", "label": "Bell" },
+        { "value": "fa-comment", "label": "Comment" },
+        { "value": "fa-comments", "label": "Comments" },
+        { "value": "fa-thumbs-up", "label": "Thumbs Up" },
+        { "value": "fa-thumbs-down", "label": "Thumbs Down" },
+        { "value": "fa-smile", "label": "Smile" },
+        { "value": "fa-frown", "label": "Frown" },
+        { "value": "fa-meh", "label": "Meh" },
+        { "value": "fa-music", "label": "Music" },
+        { "value": "fa-video", "label": "Video" },
+        { "value": "fa-camera", "label": "Camera" },
+        { "value": "fa-gift", "label": "Gift" },
+        { "value": "fa-shopping-cart", "label": "Shopping Cart" },
+        { "value": "fa-truck", "label": "Truck" },
+        { "value": "fa-user", "label": "User" },
+        { "value": "fa-users", "label": "Users" },
+        { "value": "fa-globe", "label": "Globe" },
+        { "value": "fa-map-marker-alt", "label": "Map Marker" },
+        { "value": "fa-phone", "label": "Phone" },
+        { "value": "fa-mobile-alt", "label": "Mobile" },
+        { "value": "fa-laptop", "label": "Laptop" },
+        { "value": "fa-tablet-alt", "label": "Tablet" },
+        { "value": "fa-desktop", "label": "Desktop" },
+        { "value": "fa-lightbulb", "label": "Lightbulb" },
+        { "value": "fa-battery-full", "label": "Battery Full" },
+        { "value": "fa-wifi", "label": "WiFi" },
+        { "value": "fa-bluetooth", "label": "Bluetooth" },
+        { "value": "fa-search", "label": "Search" },
+        { "value": "fa-lock", "label": "Lock" },
+        { "value": "fa-key", "label": "Key" },
+        { "value": "fa-home", "label": "Home" },
+        { "value": "fa-cog", "label": "Cog" },
+        { "value": "fa-tools", "label": "Tools" },
+        { "value": "fa-leaf", "label": "Leaf" },
+        { "value": "fa-fire", "label": "Fire" },
+        { "value": "fa-water", "label": "Water" },
+        { "value": "fa-bolt", "label": "Bolt" },
+        { "value": "fa-snowflake", "label": "Snowflake" },
+        { "value": "fa-anchor", "label": "Anchor" },
+        { "value": "fa-bicycle", "label": "Bicycle" },
+        { "value": "fa-bomb", "label": "Bomb" },
+        { "value": "fa-bug", "label": "Bug" },
+        { "value": "fa-building", "label": "Building" },
+        { "value": "fa-bullhorn", "label": "Bullhorn" },
+        { "value": "fa-bus", "label": "Bus" },
+        { "value": "fa-cab", "label": "Cab" },
+        { "value": "fa-candle-light", "label": "Candle Light" },
+        { "value": "fa-car", "label": "Car" },
+        { "value": "fa-carrot", "label": "Carrot" },
+        { "value": "fa-cart-plus", "label": "Cart Plus" },
+        { "value": "fa-cat", "label": "Cat" },
+        { "value": "fa-chair", "label": "Chair" },
+        { "value": "fa-chess", "label": "Chess" },
+        { "value": "fa-chess-knight", "label": "Chess Knight" },
+        { "value": "fa-church", "label": "Church" },
+        { "value": "fa-cloud-upload-alt", "label": "Cloud Upload" },
+        { "value": "fa-cocktail", "label": "Cocktail" },
+        { "value": "fa-cookie", "label": "Cookie" },
+        { "value": "fa-dog", "label": "Dog" },
+        { "value": "fa-dragon", "label": "Dragon" },
+        { "value": "fa-dragon-head", "label": "Dragon Head" },
+        { "value": "fa-drone", "label": "Drone" },
+        { "value": "fa-drum", "label": "Drum" },
+        { "value": "fa-drum-steelpan", "label": "Drum Steelpan" },
+        { "value": "fa-dumbbell", "label": "Dumbbell" },
+        { "value": "fa-earbuds", "label": "Earbuds" },
+        { "value": "fa-egg", "label": "Egg" },
+        { "value": "fa-envelope-open", "label": "Envelope Open" },
+        { "value": "fa-eyeglasses", "label": "Eyeglasses" },
+        { "value": "fa-feather", "label": "Feather" },
+        { "value": "fa-fighter-jet", "label": "Fighter Jet" },
+        { "value": "fa-file-alt", "label": "File Alt" },
+        { "value": "fa-film", "label": "Film" },
+        { "value": "fa-fire-extinguisher", "label": "Fire Extinguisher" },
+        { "value": "fa-flag", "label": "Flag" },
+        { "value": "fa-flask", "label": "Flask" },
+        { "value": "fa-futbol", "label": "Futbol" },
+        { "value": "fa-gem", "label": "Gem" },
+        { "value": "fa-guitar", "label": "Guitar" },
+        { "value": "fa-hammer", "label": "Hammer" },
+        { "value": "fa-handshake", "label": "Handshake" },
+        { "value": "fa-hat-wizard", "label": "Hat Wizard" },
+        { "value": "fa-headphones", "label": "Headphones" },
+        { "value": "fa-heartbeat", "label": "Heartbeat" },
+        { "value": "fa-hippo", "label": "Hippo" },
+        { "value": "fa-ice-cream", "label": "Ice Cream" },
+        { "value": "fa-keyboard", "label": "Keyboard" },
+        { "value": "fa-lamp", "label": "Lamp" },
+        { "value": "fa-lemon", "label": "Lemon" },
+        { "value": "fa-lightning", "label": "Lightning" },
+        { "value": "fa-lock-open", "label": "Lock Open" },
+        { "value": "fa-magnet", "label": "Magnet" },
+        { "value": "fa-mountain", "label": "Mountain" },
+        { "value": "fa-paint-brush", "label": "Paint Brush" },
+        { "value": "fa-paw", "label": "Paw" },
+        { "value": "fa-peace", "label": "Peace" },
+        { "value": "fa-pizza-slice", "label": "Pizza Slice" },
+        { "value": "fa-rocket", "label": "Rocket" },
+        { "value": "fa-sailboat", "label": "Sailboat" },
+        { "value": "fa-seedling", "label": "Seedling" },
+        { "value": "fa-sheep", "label": "Sheep" },
+        { "value": "fa-socks", "label": "Socks" },
+        { "value": "fa-spider", "label": "Spider" },
+        { "value": "fa-sunflower", "label": "Sunflower" },
+        { "value": "fa-tshirt", "label": "T-Shirt" },
+        { "value": "fa-umbrella", "label": "Umbrella" },
+        { "value": "fa-utensils", "label": "Utensils" },
+        { "value": "fa-violin", "label": "Violin" },
+        { "value": "fa-watermelon", "label": "Watermelon" },
+        { "value": "fa-wheelchair", "label": "Wheelchair" },
+        { "value": "fa-wrench", "label": "Wrench" }
+      ],
+      "default": "fa-sun",
+      "info": "Choose an icon to separate the announcement messages."
+    },
+    {
+      "type": "color",
+      "id": "separator_icon_color",
+      "label": "Separator Icon Color",
+      "default": "#FFFFFF",
+      "info": "Set the color of the separator icon."
+    },
+    {
+      "type": "header",
+      "content": "Behavior Settings",
+      "info": "Define the behavior of the announcement bar."
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay",
+      "default": true,
+      "info": "Automatically start scrolling the messages."
+    },
+    {
+      "type": "number",
+      "id": "scroll_speed",
+      "label": "Scroll Speed (milliseconds)",
+      "default": 1300,
+      "info": "Set the duration for one complete scroll cycle."
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "Pause on Hover",
+      "default": true,
+      "info": "Pause the scrolling when hovered over."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_link_redirect",
+      "label": "Enable Link Redirection",
+      "default": false,
+      "info": "Make the bar clickable and redirect to a URL."
+    },
+    {
+      "type": "url",
+      "id": "redirect_url",
+      "label": "Redirect URL",
+      "default": "/",
+      "info": "Set the URL to redirect when the bar is clicked."
+    }
+  ],
+  "presets": [
+    
+    { "name": "Announcement Bar Pro 1", "category": "Announcement Bars" }
+  ]
+}
+{% endschema %}
+
+<div
+  id="announcement-bar-pro-1-{{ section.id }}"
+  class="announcement-bar-pro-1 announcement-bar-container {% if section.settings.enable_sticky_bar %}sticky{% endif %} {% if section.settings.background_animation != 'none' %}{{ section.settings.background_animation }}{% endif %} {% if section.settings.hover_effect != 'none' %}hover-{{ section.settings.hover_effect }}{% endif %}"
+  aria-live="polite"
+>
+  {% if section.settings.enable_link_redirect and section.settings.redirect_url != '#' %}
+    <a
+      href="{{ section.settings.redirect_url }}"
+      class="announcement-bar-link"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+  {% endif %}
+  <div class="announcement-bar{% unless section.settings.autoplay %} no-autoplay{% endunless %}{% if section.settings.pause_on_hover %} pause-on-hover{% endif %}">
+    <div class="announcement-content">
+      {% assign messages = '' %}
+      {% for i in (1..4) %}
+        {% assign message_key = 'message_' | append: i %}
+        {% assign msg = section.settings[message_key] %}
+        {% if msg != blank %}
+          {% assign messages = messages | append: msg | append: '\n' %}
+        {% endif %}
+      {% endfor %}
+      {% assign messages = messages | split: '\n' %}
+      {% for n in (1..100) %}
+        {% for message in messages %}
+          <span class="announcement-message">{{ message | upcase }}</span>
+          {% if forloop.last == false %}
+            {% if section.settings.separator_icon != blank %}
+              <i class="separator-icon fas {{ section.settings.separator_icon }}"></i>
+            {% else %}
+              <span class="separator-icon">●●</span>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        {% unless forloop.last %}
+          <span class="repetition-spacing" style="margin-right: {{ section.settings.repetition_spacing }}px;"></span>
+        {% endunless %}
+      {% endfor %}
+    </div>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <!-- Duplicate the announcement-content for seamless infinite scrolling -->
+    <div class="announcement-content">
+      {% for n in (1..100) %}
+        {% for message in messages %}
+          <span class="announcement-message">{{ message | upcase }}</span>
+          {% if forloop.last == false %}
+            {% if section.settings.separator_icon != blank %}
+              <i class="separator-icon fas {{ section.settings.separator_icon }}"></i>
+            {% else %}
+              <span class="separator-icon">●●</span>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        {% unless forloop.last %}
+          <span class="repetition-spacing" style="margin-right: {{ section.settings.repetition_spacing }}px;"></span>
+        {% endunless %}
+      {% endfor %}
+    </div>
+  </div>
+  {% if section.settings.enable_link_redirect and section.settings.redirect_url != '#' %}
+    </a>
+  {% endif %}
+</div>
+
+<style>
+  {% if section.settings.enable_custom_font %}
+    {{ section.settings.announcement_font | font_face }}
+  {% endif %}
+
+  /* All rules are instance-scoped by section id to avoid cross-instance bleed. */
+  #announcement-bar-pro-1-{{ section.id }} {
+    position: relative;
+    z-index: 0;
+    width: 100%;
+  }
+
+  #announcement-bar-pro-1-{{ section.id }}.announcement-bar-container {
+    width: 100%;
+    color: {{ section.settings.message_text_color }};
+    overflow: hidden;
+    position: relative;
+    box-sizing: border-box;
+    height: {{ section.settings.bar_height }}px;
+    display: flex;
+    align-items: center;
+    background: {% if section.settings.background_type == 'solid' %}
+      {{ section.settings.background_color }};
+    {% else %}
+      linear-gradient({{ section.settings.gradient_angle }}deg, {{ section.settings.gradient_start_color }}, {{ section.settings.gradient_end_color }});
+    {% endif %};
+    transition: all 0.3s ease;
+  }
+
+  #announcement-bar-pro-1-{{ section.id }} .announcement-message {
+    display: inline-block;
+    font-size: {{ section.settings.font_size }}px;
+    margin-right: {{ section.settings.message_spacing }}px;
+    line-height: 1.2;
+    color: {{ section.settings.message_text_color }};
+    font-weight: {{ section.settings.message_font_weight }}; /* NEW: weight selector */
+    {% if section.settings.enable_custom_font %}
+      font-family: {{ section.settings.announcement_font.family }}, sans-serif !important;
+    {% else %}
+      font-family: inherit;
+    {% endif %}
+  }
+
+  #announcement-bar-pro-1-{{ section.id }} .separator-icon {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: {{ section.settings.message_spacing }}px;
+    color: {{ section.settings.separator_icon_color }};
+    font-size: {{ section.settings.font_size }}px;
+  }
+
+  #announcement-bar-pro-1-{{ section.id }}.sticky {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .content-below {
+    margin-top: var(--announcement-bar-height, 0px);
+    transition: margin-top 0.3s ease-in-out;
+  }
+
+  #announcement-bar-pro-1-{{ section.id }}.announcement-bar-container.animation1 {
+    animation: announcementPulse 5s infinite;
+  }
+
+  #announcement-bar-pro-1-{{ section.id }}.announcement-bar-container.animation6 {
+    animation: announcementBlurTransition 7s infinite;
+  }
+
+  #announcement-bar-pro-1-{{ section.id }}.announcement-bar-container.animation7 {
+    animation: announcementZoomInOut 9s infinite;
+  }
+
+  #announcement-bar-pro-1-{{ section.id }}.announcement-bar-container.animation10 {
+    animation: announcementOpacityChange 4s infinite;
+  }
+
+  /* Hover Effects */
+  #announcement-bar-pro-1-{{ section.id }}.announcement-bar-container.hover-grow:hover {
+    transform: scale(1.05);
+  }
+
+  #announcement-bar-pro-1-{{ section.id }}.announcement-bar-container.hover-shrink:hover {
+    transform: scale(0.95);
+  }
+
+  #announcement-bar-pro-1-{{ section.id }}.announcement-bar-container.hover-color_change:hover {
+    filter: brightness(1.2);
+  }
+
+  /* Keyframe Animations (global names, harmless across instances) */
+  @keyframes announcementPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  @keyframes announcementSmoothFade {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+  }
+
+  @keyframes announcementSlideIn {
+    0% { background-position: -100% 0; }
+    100% { background-position: 100% 0; }
+  }
+
+  @keyframes announcementColorShift {
+    0% {
+      background: {% if section.settings.background_type == 'solid' %}
+        {{ section.settings.background_color }};
+      {% else %}
+        linear-gradient({{ section.settings.gradient_angle }}deg, {{ section.settings.gradient_start_color }}, {{ section.settings.gradient_end_color }});
+      {% endif %};
+    }
+    50% {
+      background: {% if section.settings.background_type == 'solid' %}
+        {{ section.settings.background_color }};
+      {% else %}
+        linear-gradient({{ section.settings.gradient_angle }}deg, {{ section.settings.gradient_end_color }}, {{ section.settings.gradient_start_color }});
+      {% endif %};
+    }
+    100% {
+      background: {% if section.settings.background_type == 'solid' %}
+        {{ section.settings.background_color }};
+      {% else %}
+        linear-gradient({{ section.settings.gradient_angle }}deg, {{ section.settings.gradient_start_color }}, {{ section.settings.gradient_end_color }});
+      {% endif %};
+    }
+  }
+
+  @keyframes announcementWave {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes announcementBlurTransition {
+    0%, 100% { filter: blur(0px); }
+    50% { filter: blur(2px); }
+  }
+
+  @keyframes announcementZoomInOut {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  @keyframes announcementRotateBackground {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes announcementScalePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  @keyframes announcementOpacityChange {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  #announcement-bar-pro-1-{{ section.id }} .announcement-bar {
+    display: flex;
+    {% if section.settings.autoplay %}
+      animation: announcementScroll {{ section.settings.scroll_speed }}s linear infinite; /* kept as-is */
+    {% endif %}
+  }
+
+  #announcement-bar-pro-1-{{ section.id }} .announcement-bar-link {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+  }
+
+  {% if section.settings.pause_on_hover %}
+  #announcement-bar-pro-1-{{ section.id }} .announcement-bar.pause-on-hover:hover {
+    animation-play-state: paused;
+  }
+  {% endif %}
+
+  #announcement-bar-pro-1-{{ section.id }} .announcement-content {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  @keyframes announcementScroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    #announcement-bar-pro-1-{{ section.id }}.announcement-bar-container {
+      height: calc({{ section.settings.bar_height }}px - 5px);
+    }
+
+    #announcement-bar-pro-1-{{ section.id }} .announcement-message {
+      font-size: calc({{ section.settings.font_size }}px - 2px);
+      margin-right: {{ section.settings.message_spacing }}px;
+    }
+
+    #announcement-bar-pro-1-{{ section.id }} .separator-icon {
+      margin-right: {{ section.settings.message_spacing }}px;
+      font-size: calc({{ section.settings.font_size }}px - 2px);
+    }
+  }
+</style>
+
+<script>
+  // Scoped JavaScript for Announcement Bar Pro 1 (for any additional logic)
+  document.addEventListener('DOMContentLoaded', function() {
+    const root = document.getElementById('announcement-bar-pro-1-{{ section.id }}');
+    if (!root) return;
+    root.querySelectorAll('.announcement-bar').forEach(function(announcementBar) {
+      // Reserved for per-instance enhancements if needed
+    });
+  });
+</script>
+
+<script>
+  // Adjust sticky behavior and margin for this instance only
+  document.addEventListener("DOMContentLoaded", function () {
+    const stickyBar = document.getElementById("announcement-bar-pro-1-{{ section.id }}");
+    if (!stickyBar) return;
+
+    const nextSibling = stickyBar.nextElementSibling;
+    if (nextSibling && nextSibling.classList.contains("content-below")) {
+      nextSibling.style.marginTop = stickyBar.offsetHeight + "px";
+    }
+
+    // Only toggle 'sticky' on this instance to avoid cross-instance interference
+    window.addEventListener("scroll", function () {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      if (scrollTop > 0) {
+        stickyBar.classList.add("sticky");
+      } else {
+        stickyBar.classList.remove("sticky");
+      }
+    });
+  });
+</script>

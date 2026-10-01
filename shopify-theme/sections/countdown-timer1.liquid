@@ -1,0 +1,1150 @@
+<style>
+  {%- capture loudecomz_content -%}
+
+  {% assign heading_block = section.blocks | where: "type", "heading" | first %}
+  {% assign subheading_block = section.blocks | where: "type", "subheading" | first %}
+
+  {% if section.settings.override_fonts %}
+    {{ heading_block.settings.headline_font | font_face }}
+    {{ subheading_block.settings.text_font | font_face }}
+  {% endif %}
+
+  #loudecomz-{{ section.id }} p {
+    font-size: {{ subheading_block.settings.text_size }}px;
+    {% if section.settings.override_fonts %}
+      font-family: {{ subheading_block.settings.text_font.family }}, {{ subheading_block.settings.text_font.fallback_families }};
+      font-weight: {{ subheading_block.settings.text_font.weight }};
+    {% endif %}
+    {% if subheading_block.settings.text_line_height != 'inherit' %}line-height: {{ subheading_block.settings.text_line_height }};{% endif %}
+    margin: 0 0 {{ section.settings.element_spacing }}px 0;
+    padding: 0;
+    color: {{ subheading_block.settings.text_color }};
+  }
+
+  #loudecomz-{{ section.id }} ul,
+  #loudecomz-{{ section.id }} ol {
+    margin: 0 0 {{ section.settings.element_spacing }}px 0;
+  }
+
+  #loudecomz-{{ section.id }} li {
+    font-size: {{ subheading_block.settings.text_size }}px;
+    {% if section.settings.override_fonts %}
+      font-family: {{ subheading_block.settings.text_font.family }}, {{ subheading_block.settings.text_font.fallback_families }};
+      font-weight: {{ subheading_block.settings.text_font.weight }};
+    {% endif %}
+    {% if subheading_block.settings.text_line_height != 'inherit' %}line-height: {{ subheading_block.settings.text_line_height }};{% endif %}
+    margin: 0 0 5px 0;
+    padding: 0;
+    color: {{ subheading_block.settings.text_color }};
+  }
+
+  #loudecomz-{{ section.id }} li:last-child { margin: 0; }
+
+  #loudecomz-{{ section.id }} p a,
+  #loudecomz-{{ section.id }} p a:visited,
+  #loudecomz-{{ section.id }} li a,
+  #loudecomz-{{ section.id }} li a:visited {
+    color: {{ subheading_block.settings.link_color }};
+  }
+
+  @media (max-width: 800px) {
+    #loudecomz-{{ section.id }} p,
+    #loudecomz-{{ section.id }} li {
+      font-size: {{ subheading_block.settings.mobile_text_size }}px !important;
+    }
+  }
+
+  #loudecomz-{{ section.id }} h1,
+  #loudecomz-{{ section.id }} h2,
+  #loudecomz-{{ section.id }} h3,
+  #loudecomz-{{ section.id }} h4,
+  #loudecomz-{{ section.id }} h5 {
+    font-size: {{ heading_block.settings.headline_size }}px;
+    {% if section.settings.override_fonts %}
+      font-family: {{ heading_block.settings.headline_font.family }}, {{ heading_block.settings.headline_font.fallback_families }};
+    {% endif %}
+    font-weight: {{ heading_block.settings.heading_text_weight }};
+    {% if heading_block.settings.headline_line_height != 'inherit' %}line-height: {{ heading_block.settings.headline_line_height }};{% endif %}
+    margin: 0 0 {{ section.settings.element_spacing }}px 0;
+    padding: 0;
+    color: {{ heading_block.settings.headline_color }} !important;
+  }
+
+  @media (max-width: 800px) {
+    #loudecomz-{{ section.id }} h1,
+    #loudecomz-{{ section.id }} h2,
+    #loudecomz-{{ section.id }} h3,
+    #loudecomz-{{ section.id }} h4,
+    #loudecomz-{{ section.id }} h5 {
+      font-size: {{ heading_block.settings.mobile_headline_size }}px;
+    }
+  }
+
+  #loudecomz-{{ section.id }} h2 { font-size: {{ heading_block.settings.headline_size | minus:5  | at_least:13 }}px; }
+  #loudecomz-{{ section.id }} h3 { font-size: {{ heading_block.settings.headline_size | minus:10 | at_least:13 }}px; }
+  #loudecomz-{{ section.id }} h4 { font-size: {{ heading_block.settings.headline_size | minus:15 | at_least:13 }}px; }
+  #loudecomz-{{ section.id }} h5 { font-size: {{ heading_block.settings.headline_size | minus:20 | at_least:13 }}px; }
+
+  @media (max-width: 800px) {
+    #loudecomz-{{ section.id }} h2 { font-size: {{ heading_block.settings.mobile_headline_size | minus:5 | at_least:13 }}px; }
+    #loudecomz-{{ section.id }} h3 { font-size: {{ heading_block.settings.mobile_headline_size | minus:10 | at_least:13 }}px; }
+    #loudecomz-{{ section.id }} h4 { font-size: {{ heading_block.settings.mobile_headline_size | minus:15 | at_least:13 }}px; }
+    #loudecomz-{{ section.id }} h5 { font-size: {{ heading_block.settings.mobile_headline_size | minus:20 | at_least:13 }}px; }
+  }
+
+  #loudecomz-{{ section.id }} {
+    background-color: {{ section.settings.section_background_color }};
+    {% if section.settings.section_background_image %}
+      position: relative;
+    {% endif %}
+    width: 100%;
+    box-sizing: border-box;
+    padding: {{ section.settings.section_padding_top }}px {{ section.settings.section_padding_left_right }}px {{ section.settings.section_padding_bottom }}px {{ section.settings.section_padding_left_right }}px;
+    overflow: hidden;
+  }
+
+  {% if section.settings.section_background_image %}
+    #loudecomz-{{ section.id }}::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url({{ section.settings.section_background_image | image_url | default: 'https://www.redhouseoriginals.com/wp-content/uploads/dark-placeholder.png' }}) center/{{ section.settings.section_background_size }} no-repeat;
+      {% if section.settings.section_background_image_color %}
+        background-color: {{ section.settings.section_background_image_color }};
+      {% endif %}
+      filter: brightness({{ section.settings.background_image_brightness }}%);
+      z-index: -1;
+    }
+  {% else %}
+    /* If no background image is set, use the placeholder */
+    #loudecomz-{{ section.id }}::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      filter: brightness({{ section.settings.background_image_brightness }}%);
+      z-index: -1;
+    }
+  {% endif %}
+
+  @media (max-width: 800px) {
+    #loudecomz-{{ section.id }} {
+      padding: {{ section.settings.mobile_section_padding_top }}px {{ section.settings.mobile_section_padding_left_right }}px {{ section.settings.mobile_section_padding_bottom }}px {{ section.settings.mobile_section_padding_left_right }}px;
+    }
+  }
+
+  {% if section.settings.show_on_device == 'mobile' %}
+    @media (min-width: 801px) {
+      #loudecomz-{{ section.id }} { display: none; }
+    }
+  {% endif %}
+  {% if section.settings.show_on_device == 'desktop' %}
+    @media (max-width: 800px) {
+      #loudecomz-{{ section.id }} { display: none; }
+    }
+  {% endif %}
+
+  #loudecomz-{{ section.id }} .loudecomz-container {
+    position: relative;
+    margin: 0 auto;
+    background-color: {{ section.settings.container_background_color }};
+    max-width: {{ section.settings.container_max_width }}px;
+    padding: {{ section.settings.container_padding_top }}px {{ section.settings.container_padding_left_right }}px {{ section.settings.container_padding_bottom }}px {{ section.settings.container_padding_left_right }}px;
+  }
+  @media (max-width: 800px) {
+    #loudecomz-{{ section.id }} .loudecomz-container {
+      padding: {{ section.settings.mobile_container_padding_top }}px {{ section.settings.mobile_container_padding_left_right }}px {{ section.settings.mobile_container_padding_bottom }}px {{ section.settings.mobile_container_padding_left_right }}px;
+    }
+  }
+
+  #loudecomz-{{ section.id }} .loudecomz-headline p {
+    font-size: {{ subheading_block.settings.text_size }}px;
+    {% if section.settings.override_fonts %}
+      font-family: {{ subheading_block.settings.text_font.family }}, {{ subheading_block.settings.text_font.fallback_families }};
+      font-weight: {{ subheading_block.settings.text_font.weight }};
+    {% endif %}
+    color: {{ subheading_block.settings.text_color }};
+    line-height: 1.15;
+    margin: 0;
+    padding: 0 0 25px 0;
+    text-align: {{ section.settings.text_alignment }};
+  }
+  #loudecomz-{{ section.id }} .loudecomz-headline {
+    margin: 0;
+    padding: 0 0 {{ section.settings.headline_spacing }}px 0;
+  }
+  #loudecomz-{{ section.id }} .loudecomz-headline * {
+    text-align: {{ section.settings.text_alignment }};
+  }
+  @media only screen and (max-width: 800px) {
+    #loudecomz-{{ section.id }} .loudecomz-headline * {
+      text-align: {{ section.settings.mobile_text_alignment }};
+    }
+  }
+
+  #loudecomz-{{ section.id }} .loudecomz-grid {
+    display: grid;
+    margin: 0 auto;
+    grid-auto-columns: {{ section.settings.item_width }}px;
+    grid-auto-flow: column;
+    gap: {{ section.settings.grid_gap }}px; /* Desktop gap */
+    {% if section.settings.timer_alignment == 'left' %}
+      justify-content: start;
+    {% elsif section.settings.timer_alignment == 'center' %}
+      justify-content: center;
+    {% elsif section.settings.timer_alignment == 'right' %}
+      justify-content: end;
+    {% endif %}
+    font-size: {{ section.settings.overall_countdown_size }}px;
+  }
+  @media only screen and (max-width: 800px) {
+    #loudecomz-{{ section.id }} .loudecomz-grid {
+      display: grid;
+      grid-auto-columns: 1fr;
+      gap: {{ section.settings.grid_gap_mobile }}px; /* Mobile gap */
+    }
+  }
+
+  /* Countdown Background with RGBA */
+  #loudecomz-{{ section.id }} .loudecomz-grid-item {
+    {% if section.settings.enable_countdown_background %}
+      background-color: {{ section.settings.countdown_background_color }};
+      min-width: 110px !important; /* Increase the size */
+      border-radius: {{ section.settings.countdown_background_border_radius }}px;
+    {% else %}
+      background: none;
+    {% endif %}
+    padding: {{ section.settings.countdown_padding }}px;
+    text-align: center;
+  }
+
+  #loudecomz-{{ section.id }} .loudecomz-timer,
+  #loudecomz-{{ section.id }} .loudecomz-label {
+    {% if section.settings.override_fonts %}
+      font-family: {{ subheading_block.settings.text_font.family }}, {{ subheading_block.settings.text_font.fallback_families }};
+      font-weight: {{ subheading_block.settings.text_font.weight }};
+    {% endif %}
+    font-size: {{ section.settings.timer_size }}px; /* Desktop timer size */
+    line-height: 1;
+    text-align: center;
+    display: block;
+    {% if section.settings.enable_timer_gradient %}
+      background: linear-gradient({{ section.settings.gradient_degrees }}, {{ section.settings.gradient_start_color }}, {{ section.settings.gradient_middle_color }}, {{ section.settings.gradient_end_color }});
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    {% else %}
+      font-weight: bold;
+      color: {{ section.settings.timer_color }};
+    {% endif %}
+  }
+
+  @media only screen and (max-width: 800px) {
+    #loudecomz-{{ section.id }} .loudecomz-timer {
+      font-size: {{ section.settings.timer_size_mobile }}px; /* Mobile timer size */
+    }
+  }
+
+  /* Override countdown numbers font weight with custom setting */
+  #loudecomz-{{ section.id }} .loudecomz-timer { font-weight: {{ section.settings.countdown_font_weight }}; }
+  #loudecomz-{{ section.id }} .loudecomz-label { font-size: {{ section.settings.label_size }}px; line-height: 1; }
+
+  @media (max-width: 800px) {
+    #loudecomz-{{ section.id }} .loudecomz-label {
+      font-size: {{ section.settings.mobile_label_size }}px !important;
+    }
+  }
+
+  /* Hours text color */
+  #loudecomz-{{ section.id }} .loudecomz-grid-item:nth-child(1) .loudecomz-label { color: {{ section.settings.hours_text_color }} !important; }
+  /* Minutes text color */
+  #loudecomz-{{ section.id }} .loudecomz-grid-item:nth-child(2) .loudecomz-label { color: {{ section.settings.minutes_text_color }} !important; }
+  /* Seconds text color */
+  #loudecomz-{{ section.id }} .loudecomz-grid-item:nth-child(3) .loudecomz-label { color: {{ section.settings.seconds_text_color }} !important; }
+
+  #loudecomz-{{ section.id }} .loudecomz-section { position: relative; padding: 10px; margin: 0; }
+  #loudecomz-{{ section.id }} .loudecomz-section * { box-sizing: border-box; }
+
+  {%- endcapture -%}
+  {{ loudecomz_content | strip }}
+</style>
+
+<!-- start content -->
+<section id="loudecomz-{{ section.id }}" class="loudecomz-section" loudecomz-section data-section-id="{{ section.id }}">
+  <section class="loudecomz-container" loudecomz-container>
+    <div class="loudecomz-headline">
+      {% for block in section.blocks %}
+        {% case block.type %}
+          {% when 'heading' %}
+            <h2>{{ block.settings.headline }}</h2>
+          {% when 'subheading' %}
+            <p>{{ block.settings.text }}</p>
+        {% endcase %}
+      {% endfor %}
+    </div>
+    <div class="loudecomz-grid">
+      <div class="loudecomz-grid-item">
+        <div class="loudecomz-countdown">
+          <span id="loudecomz-hours-{{ section.id }}" class="loudecomz-timer">{{ section.settings.start_hours | default: 0 | plus: 0 | prepend: '' }}</span>
+          <span class="loudecomz-label">{{ section.settings.hours_text }}</span>
+        </div>
+      </div>
+      <div class="loudecomz-grid-item">
+        <div class="loudecomz-countdown">
+          <span id="loudecomz-minutes-{{ section.id }}" class="loudecomz-timer">{{ section.settings.start_minutes | default: 0 | plus: 0 | prepend: '' | split: '' | first | default: '00' }}</span>
+          <span class="loudecomz-label">{{ section.settings.minutes_text }}</span>
+        </div>
+      </div>
+      <div class="loudecomz-grid-item" {% if section.settings.show_seconds == false %}style="display:none;"{% endif %}>
+        <div class="loudecomz-countdown">
+          <span id="loudecomz-seconds-{{ section.id }}" class="loudecomz-timer">{{ section.settings.start_seconds | default: 0 | plus: 0 | prepend: '' | split: '' | first | default: '00' }}</span>
+          <span class="loudecomz-label">{{ section.settings.seconds_text }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
+<!-- end Sections.AI content -->
+
+<script>
+(function(){
+  var secId = "{{ section.id }}";
+  var hoursEl   = document.getElementById('loudecomz-hours-{{ section.id }}');
+  var minutesEl = document.getElementById('loudecomz-minutes-{{ section.id }}');
+  var secondsEl = document.getElementById('loudecomz-seconds-{{ section.id }}');
+
+  // Initial values from settings
+  var startH = parseInt("{{ section.settings.start_hours | default: 0 }}", 10)   || 0;
+  var startM = parseInt("{{ section.settings.start_minutes | default: 0 }}", 10) || 0;
+  var startS = parseInt("{{ section.settings.start_seconds | default: 0 }}", 10) || 0;
+
+  // Normalize minutes/seconds into total ms
+  var totalMs = ((startH * 3600) + (startM * 60) + startS) * 1000;
+  if (totalMs < 0) totalMs = 0;
+
+  // Unique storage keys per section
+  var storageKey = "loudecomzCountdownTarget_" + secId;
+  var versionKey = "loudecomzCountdownVersion_" + secId;
+
+  // Version signature changes when the configured duration changes
+  var currentVersion = [startH, startM, startS].join(":");
+
+  // Helper: safe storage (falls back if localStorage is blocked)
+  var storage = (function(){
+    try {
+      var t = "__test__";
+      window.localStorage.setItem(t, "1");
+      window.localStorage.removeItem(t);
+      return window.localStorage;
+    } catch(e) {
+      // fallback to in-memory
+      var mem = {};
+      return {
+        getItem: function(k){ return mem[k] || null; },
+        setItem: function(k,v){ mem[k] = String(v); },
+        removeItem: function(k){ delete mem[k]; }
+      }
+    }
+  })();
+
+  function now(){ return Date.now(); }
+
+  function getOrInitTarget() {
+    var savedTarget = storage.getItem(storageKey);
+    var savedVersion = storage.getItem(versionKey);
+
+    // If no target yet OR the configured duration changed in the editor, re-seed
+    if (!savedTarget || savedVersion !== currentVersion) {
+      var newTarget = now() + totalMs;
+      storage.setItem(storageKey, String(newTarget));
+      storage.setItem(versionKey, currentVersion);
+      return newTarget;
+    }
+    return parseInt(savedTarget, 10);
+  }
+
+  var targetTime = getOrInitTarget();
+  var rafId = null;
+  var tickInterval = null;
+
+  function render(diffMs){
+    if (diffMs < 0) diffMs = 0;
+
+    var hrs = Math.floor(diffMs / 3600000);
+    var mins = Math.floor((diffMs % 3600000) / 60000);
+    var secs = Math.floor((diffMs % 60000) / 1000);
+
+    if (hoursEl)   hoursEl.textContent   = String(hrs).padStart(2, "0");
+    if (minutesEl) minutesEl.textContent = String(mins).padStart(2, "0");
+    if (secondsEl) secondsEl.textContent = String(secs).padStart(2, "0");
+  }
+
+  function scheduleNextFrame(){
+    // Use setInterval for 1s cadence; requestAnimationFrame only for immediate paint
+    if (tickInterval) clearInterval(tickInterval);
+    render(targetTime - now());
+    tickInterval = setInterval(function(){
+      var diff = targetTime - now();
+
+      if (diff <= 0) {
+        // Restart with the configured duration (looping behavior)
+        targetTime = now() + totalMs;
+        storage.setItem(storageKey, String(targetTime));
+        storage.setItem(versionKey, currentVersion);
+        diff = totalMs;
+      }
+
+      render(diff);
+    }, 1000);
+  }
+
+  // Keep accurate when tab visibility changes or device wakes
+  function handleVisibility(){
+    if (!document.hidden) {
+      // Recalculate against stored target to avoid drift
+      var stored = storage.getItem(storageKey);
+      if (stored) targetTime = parseInt(stored, 10);
+      scheduleNextFrame();
+    }
+  }
+
+  document.addEventListener("visibilitychange", handleVisibility);
+
+  // Kick things off
+  scheduleNextFrame();
+})();
+</script>
+<!-- end snippet code -->
+
+{% schema %} 
+{
+  "name": "Countdown Timer Pro 1",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Font",
+      "info": "Set the fonts for your section."
+    },
+    {
+      "type": "checkbox",
+      "id": "override_fonts",
+      "label": "Enable Custom Fonts",
+      "default": false,
+      "info": "Toggle to enable or disable custom fonts for this section."
+    },
+    {
+      "type": "header",
+      "content": "Text",
+      "info": "Configure the text settings for your countdown timer section."
+    },
+    {
+      "type": "range",
+      "id": "headline_spacing",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 15,
+      "label": "Gap Between Texts and Timer",
+      "info": "Set the spacing between the text elements and the countdown timer."
+    },
+    {
+      "type": "range",
+      "id": "label_size",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Labels Text Size (Desktop version)",
+      "default": 16,
+      "info": "Adjust the font size of the labels (Hours, Minutes, Seconds)."
+    },
+    {
+      "type": "range",
+      "id": "mobile_label_size",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Labels Text Size (Mobile version)",
+      "default": 16,
+      "info": "Set the font size for labels on mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Section Design",
+      "info": "Configure the overall design and appearance of the countdown timer section."
+    },
+    {
+      "type": "select",
+      "id": "show_on_device",
+      "label": "Show Section",
+      "options": [
+        { "value": "all", "label": "All Devices" },
+        { "value": "mobile", "label": "Mobile Device Only" },
+        { "value": "desktop", "label": "Desktop Device Only" }
+      ],
+      "default": "all",
+      "info": "Determine on which devices the countdown timer section should be displayed."
+    },
+    {
+      "type": "color",
+      "id": "section_background_color",
+      "label": "Background Color",
+      "info": "Choose the background color for the countdown timer section."
+    },
+    {
+      "type": "image_picker",
+      "id": "section_background_image",
+      "label": "Background Image",
+      "info": "Make Background Color Transparent for the Image to Display.Upload an image to use as the background for the section."
+    },
+    {
+      "type": "color",
+      "id": "section_background_image_color",
+      "default": "#FFFFFF",
+      "label": "Section Background Image Color",
+      "info": "Select a color overlay for the background image to adjust its appearance."
+    },
+    {
+      "type": "range",
+      "id": "background_image_brightness",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "%",
+      "label": "Background Image Brightness",
+      "default": 160,
+      "info": "Adjust the brightness level of the background image."
+    },
+    {
+      "type": "select",
+      "id": "section_background_size",
+      "default": "cover",
+      "label": "Background Image Display",
+      "options": [
+        { "value": "cover", "label": "Cover Fit All" },
+        { "value": "contain", "label": "Contain Within" },
+        { "value": "auto", "label": "Auto Size" }
+      ],
+      "info": "Determine how the background image is displayed within the section."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Padding Top (Desktop)",
+      "default": 30,
+      "info": "Set the top padding for the section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Padding Bottom (Desktop)",
+      "default": 30,
+      "info": "Set the bottom padding for the section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_top",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Padding Top (Mobile)",
+      "default": 20,
+      "info": "Set the top padding for the section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_bottom",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Padding Bottom (Mobile)",
+      "default": 20,
+      "info": "Set the bottom padding for the section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Left/Right",
+      "default": 21,
+      "info": "Set the horizontal padding (left and right) for the section."
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Padding Left/Right",
+      "default": 10,
+      "info": "Adjust the horizontal padding for the section on mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Container Design",
+      "info": "Configure the design settings for the inner container of the countdown timer."
+    },
+    {
+      "type": "range",
+      "id": "container_max_width",
+      "min": 100,
+      "max": 2000,
+      "step": 100,
+      "unit": "px",
+      "label": "Max Width",
+      "default": 800,
+      "info": "Set the maximum width for the inner container to control its size."
+    },
+    {
+      "type": "range",
+      "id": "container_padding_top",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Container Padding Top (Desktop)",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "container_padding_bottom",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Container Padding Bottom (Desktop)",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "container_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Container Padding Left/Right",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mobile_container_padding_top",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile Container Padding Top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mobile_container_padding_bottom",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile Container Padding Bottom",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mobile_container_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Container Padding Left/Right",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "element_spacing",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "General Gap Between Elements",
+      "default": 15,
+      "info": "Define the spacing between individual elements within the container."
+    },
+    {
+      "type": "header",
+      "content": "Grid Display",
+      "info": "Configure the layout and spacing of the countdown timer grid."
+    },
+    {
+      "type": "range",
+      "id": "item_width",
+      "min": 50,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "label": "Column Width",
+      "default": 90,
+      "info": "Set the width for each column in the countdown timer grid."
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Gap Between Numbers (Desktop version)",
+      "default": 20,
+      "info": "Adjust the space between the countdown numbers on larger screens."
+    },
+    {
+      "type": "range",
+      "id": "grid_gap_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Gap Between Numbers (Mobile version)",
+      "default": 20,
+      "info": "Adjust the space between the countdown numbers on mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Timer Display",
+      "info": "Customize the appearance and behavior of the countdown timer."
+    },
+    {
+      "type": "text_alignment",
+      "id": "timer_alignment",
+      "label": "Timer Alignment",
+      "default": "center",
+      "info": "Set the alignment of the countdown timer within the section."
+    },
+    {
+      "type": "range",
+      "id": "timer_size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Timer Numbers Size (Desktop version)",
+      "default": 41,
+      "info": "Adjust the font size of the countdown numbers on larger screens."
+    },
+    {
+      "type": "range",
+      "id": "timer_size_mobile",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Timer Numbers Size (Mobile version)",
+      "default": 41,
+      "info": "Adjust the font size of the countdown numbers on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "countdown_padding",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Number",
+      "default": 0,
+      "info": "Set the padding around each countdown number."
+    },
+    {
+      "type": "color",
+      "id": "countdown_background_color",
+      "default": "#1B1B1B",
+      "label": "Countdown Background Color",
+      "info": "Choose the background color for the countdown numbers."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_countdown_background",
+      "label": "Enable Countdown Background",
+      "default": false,
+      "info": "Toggle to enable or disable the background color for countdown numbers."
+    },
+    {
+      "type": "range",
+      "id": "countdown_background_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Countdown Background Border Radius",
+      "default": 20,
+      "info": "Set the border radius for the countdown background to control its roundness."
+    },
+    {
+      "type": "color",
+      "id": "timer_color",
+      "default": "#FFFFFF",
+      "label": "Timer Color",
+      "info": "Select the color for the countdown numbers."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_timer_gradient",
+      "label": "Enable Timer Color Gradient",
+      "default": true,
+      "info": "Toggle to apply a gradient effect to the countdown numbers."
+    },
+    {
+      "type": "color",
+      "id": "gradient_start_color",
+      "label": "Gradient Start Color",
+      "default": "#5F5F5F",
+      "info": "Choose the starting color for the timer gradient."
+    },
+    {
+      "type": "color",
+      "id": "gradient_middle_color",
+      "label": "Gradient Middle Color",
+      "default": "#252525",
+      "info": "Select the middle color for the timer gradient."
+    },
+    {
+      "type": "color",
+      "id": "gradient_end_color",
+      "label": "Gradient End Color",
+      "default": "#212121",
+      "info": "Choose the ending color for the timer gradient."
+    },
+    {
+      "type": "select",
+      "id": "gradient_degrees",
+      "label": "Gradient Degrees",
+      "options": [
+        { "value": "0deg", "label": "0 deg" },
+        { "value": "45deg", "label": "45 deg" },
+        { "value": "90deg", "label": "90 deg" },
+        { "value": "135deg", "label": "135 deg" },
+        { "value": "180deg", "label": "180 deg" },
+        { "value": "225deg", "label": "225 deg" },
+        { "value": "270deg", "label": "270 deg" },
+        { "value": "315deg", "label": "315 deg" },
+        { "value": "360deg", "label": "360 deg" },
+        { "value": "405deg", "label": "405 deg" }
+      ],
+      "default": "180deg",
+      "info": "Set the angle for the gradient applied to the countdown numbers."
+    },
+    {
+      "type": "range",
+      "id": "overall_countdown_size",
+      "min": 10,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Overall Countdown Size",
+      "default": 60,
+      "info": "Define the overall size of the countdown timer."
+    },
+
+    
+    {
+      "type": "range",
+      "id": "start_hours",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "label": "Hours Set Time Left",
+      "default": 4,
+      "info": "Initial hours."
+    },
+    {
+      "type": "range",
+      "id": "start_minutes",
+      "min": 0,
+      "max": 59,
+      "step": 1,
+      "label": "Minutes Set Time Left",
+      "default": 0,
+      "info": "Initial minutes."
+    },
+    {
+      "type": "range",
+      "id": "start_seconds",
+      "min": 0,
+      "max": 59,
+      "step": 1,
+      "label": "Seconds Set Time Left",
+      "default": 0,
+      "info": "Initial seconds."
+    },
+
+    {
+      "type": "inline_richtext",
+      "id": "hours_text",
+      "label": "Hours Text",
+      "default": "hours",
+      "info": "Enter the text label for hours in the countdown timer."
+    },
+    {
+      "type": "color",
+      "id": "hours_text_color",
+      "label": "Hours Text Color",
+      "default": "#ffffff",
+      "info": "Make sure the toggle gradient for numbers is off. Select the color for the hours text label."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "minutes_text",
+      "label": "Minutes Text",
+      "default": "minutes",
+      "info": "Enter the text label for minutes in the countdown timer."
+    },
+    {
+      "type": "color",
+      "id": "minutes_text_color",
+      "label": "Minutes Text Color",
+      "default": "#ffffff",
+      "info": "Make sure the toggle gradient for numbers is off. Select the color for the minutes text label."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "seconds_text",
+      "label": "Seconds Text",
+      "default": "seconds",
+      "info": "Enter the text label for seconds in the countdown timer."
+    },
+    {
+      "type": "color",
+      "id": "seconds_text_color",
+      "label": "Seconds Text Color",
+      "default": "#ffffff",
+      "info": "Make sure the toggle gradient for numbers is off. Select the color for the seconds text label."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_seconds",
+      "label": "Enable Seconds",
+      "default": true,
+      "info": "Toggle to show or hide the seconds in the countdown timer."
+    },
+    {
+      "type": "select",
+      "id": "countdown_font_weight",
+      "label": "Countdown Numbers Font Weight",
+      "options": [
+        { "value": "light", "label": "Light" },
+        { "value": "normal", "label": "Normal" },
+        { "value": "bold", "label": "Bold" }
+      ],
+      "default": "normal",
+      "info": "Select the font weight for the countdown numbers."
+    },
+    {
+      "type": "header",
+      "content": "Headline",
+      "info": "Configure the headline text for the countdown timer section."
+    },
+    {
+      "type": "text_alignment",
+      "id": "text_alignment",
+      "label": "All Texts Alignment",
+      "default": "center",
+      "info": "Set the alignment for all text elements within the section."
+    },
+    {
+      "type": "text_alignment",
+      "id": "mobile_text_alignment",
+      "label": "All Mobile Texts Alignment",
+      "default": "center",
+      "info": "Set the alignment for all text elements on mobile devices."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "font_picker",
+          "id": "headline_font",
+          "label": "Headline Font",
+          "default": "sans-serif",
+          "info": "Choose the font for the headline text."
+        },
+        {
+          "type": "inline_richtext",
+          "id": "headline",
+          "label": "Headline",
+          "default": "Big Sale, Hurry Up!",
+          "info": "Enter the main headline text for the countdown timer section."
+        },
+        {
+          "type": "range",
+          "id": "headline_size",
+          "min": 10,
+          "max": 75,
+          "step": 1,
+          "unit": "px",
+          "label": "Heading Text Size",
+          "default": 35,
+          "info": "Set the font size for the main headline."
+        },
+        {
+          "type": "range",
+          "id": "mobile_headline_size",
+          "min": 10,
+          "max": 75,
+          "step": 1,
+          "unit": "px",
+          "label": "Mobile Heading Text Size",
+          "default": 35,
+          "info": "Adjust the headline font size specifically for mobile devices."
+        },
+        {
+          "type": "select",
+          "id": "headline_line_height",
+          "label": "Headline Line Height",
+          "options": [
+            { "value": "1.3", "label": "1.3" },
+            { "value": "1.4", "label": "1.4" },
+            { "value": "1.5", "label": "1.5" },
+            { "value": "1.6", "label": "1.6" },
+            { "value": "1.7", "label": "1.7" },
+            { "value": "1.8", "label": "1.8" },
+            { "value": "1.9", "label": "1.9" },
+            { "value": "2.0", "label": "2.0" },
+            { "value": "inherit", "label": "Inherit" }
+          ],
+          "default": "inherit",
+          "info": "Specify the line height for the headline to manage vertical spacing."
+        },
+        {
+          "type": "color",
+          "id": "headline_color",
+          "default": "#181818",
+          "label": "Heading Text Color",
+          "info": "Choose the color for the main headline text."
+        },
+        {
+          "type": "select",
+          "id": "heading_text_weight",
+          "label": "Heading Text Font Weight",
+          "options": [
+            { "value": "light", "label": "Light" },
+            { "value": "normal", "label": "Normal" },
+            { "value": "bold", "label": "Bold" }
+          ],
+          "default": "light",
+          "info": "Select the font weight for the main headline text."
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "font_picker",
+          "id": "text_font",
+          "label": "Text Font",
+          "default": "sans-serif",
+          "info": "Select the font for the subheading and other text elements."
+        },
+        {
+          "type": "inline_richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "Up to 70% off on fashion, electronics, home decor, and more. Don't miss out on our exclusive doorbusters.",
+          "info": "Provide additional descriptive text for the countdown timer section."
+        },
+        {
+          "type": "range",
+          "id": "text_size",
+          "min": 10,
+          "max": 50,
+          "step": 1,
+          "unit": "px",
+          "label": "Subheading Text Size",
+          "default": 16,
+          "info": "Adjust the font size of the subheading text."
+        },
+        {
+          "type": "range",
+          "id": "mobile_text_size",
+          "min": 10,
+          "max": 50,
+          "step": 1,
+          "unit": "px",
+          "label": "Mobile Subheading Text Size",
+          "default": 15,
+          "info": "Set the font size for subheading text on mobile devices."
+        },
+        {
+          "type": "select",
+          "id": "text_line_height",
+          "label": "Subheading Line Height",
+          "options": [
+            { "value": "1.2", "label": "1.2" },
+            { "value": "1.3", "label": "1.3" },
+            { "value": "1.4", "label": "1.4" },
+            { "value": "1.5", "label": "1.5" },
+            { "value": "1.6", "label": "1.6" },
+            { "value": "1.7", "label": "1.7" },
+            { "value": "1.8", "label": "1.8" },
+            { "value": "1.9", "label": "1.9" },
+            { "value": "2.0", "label": "2.0" },
+            { "value": "inherit", "label": "Inherit" }
+          ],
+          "default": "inherit",
+          "info": "Define the line height for the subheading text to control spacing between lines."
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "default": "#4B4B4B",
+          "label": "Subheading Text Color",
+          "info": "Select the color for the subheading and descriptive text."
+        },
+        {
+          "type": "color",
+          "id": "link_color",
+          "default": "#000000",
+          "label": "Link Color",
+          "info": "Set the color for any links within this section."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Countdown Timer Pro 1",
+      "category": "Countdown Timers",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "subheading"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

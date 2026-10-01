@@ -1,0 +1,1645 @@
+{% liquid
+  assign container = section.settings.container
+  if container == 'w-full'
+    assign container = 'container-full'
+  endif
+
+  assign classes = 'm-section m-scrolling-promotion-section'
+  if section.settings.custom_class != blank
+    assign classes = classes | append: ' ' | append: section.settings.custom_class
+  endif
+  assign classes = classes | append: ' m-color-' | append: section.settings.color_scheme
+%}
+
+<style>
+  /* Dynamically import the selected Google Font if custom font is enabled */
+  {% if section.settings.enable_custom_font and section.settings.font_family != blank %}
+    {% assign first_font = section.settings.font_family | split: ',' | first | strip | remove: "'" | remove: '"' | replace: ' ', '+' %}
+    @import url('https://fonts.googleapis.com/css2?family={{ first_font }}&display=swap');
+  {% endif %}
+
+  /* Scoped CSS: All styles are prefixed with the unique section ID */
+  #m-section--{{ section.id }} {
+    /* CSS Variables */
+    --section-padding-top: {{ section.settings.padding_top }}px;
+    --section-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --subheading-font-weight: {{ section.settings.subheading_font_weight }};
+    --item-gap: {{ section.settings.item_gap }}px;
+    --item-gap-mobile: {{ section.settings.item_gap_mobile }}px;
+    --duration: {{ section.settings.speed }}s;
+    --duration-second: {{ section.settings.speed_second_scrolling }}s; /* Added for second scrolling */
+    --slider-scale: {{ section.settings.slider_scale }};
+    --gradient-start-color: {{ section.settings.gradient_start_color }};
+    --gradient-middle-color: {{ section.settings.gradient_middle_color }};
+    --gradient-end-color: {{ section.settings.gradient_end_color }};
+    --gradient-degree: {{ section.settings.gradient_degree }};
+    --slider-scale-mobile: {{ section.settings.overall_size_mobile }};
+    --duration-mobile: {{ section.settings.speed_mobile }}s;
+    --duration-second-mobile: {{ section.settings.speed_second_scrolling }}s; /* Added for second scrolling mobile */
+    --card-size-mobile: {{ section.settings.card_size_mobile }}; /* Added to match schema */
+    --scroll-gap: {{ section.settings.scroll_gap }}px; /* New CSS variable for gap between scrollings */
+    --headline-color: {{ section.settings.headline_color }};
+    --subheading-color: {{ section.settings.subheading_color }};
+    --headline-text-align: {{ section.settings.headline_text_align }};
+    --subheading-text-align: {{ section.settings.subheading_text_align }};
+    --headline-title-size-desktop: {{ section.settings.headline_title_size_desktop }}px;
+    --headline-title-size-mobile: {{ section.settings.headline_title_size_mobile }}px;
+    --subheading-size-desktop: {{ section.settings.subheading_size_desktop }}px;
+    --subheading-size-mobile: {{ section.settings.subheading_size_mobile }}px;
+    --space-between-heading-and-subheading: {{ section.settings.space_between_heading_and_subheading }}px; /* Renamed for consistency */
+    --space-between-subheading-and-scrolling-cards: {{ section.settings.vertical_spacing_texts_scrolling_cards }}px; /* Renamed for consistency */
+    --user-name-color: {{ section.settings.user_name_color }};
+    --testimonial-message-color: {{ section.settings.testimonial_message_color }};
+    --filled-star-color: {{ section.settings.filled_star_color }};
+    --unfilled-star-color: {{ section.settings.unfilled_star_color }};
+    --card-background-color: {{ section.settings.card_background_color }}; /* Added to match schema */
+    --card-border-radius: {{ section.settings.card_border_radius }}px;
+    --card-shadow: {{ section.settings.card_shadow }};
+    --headline-padding-left-desktop: {{ section.settings.headline_padding_left_desktop }}px;
+    --headline-padding-right-desktop: {{ section.settings.headline_padding_right_desktop }}px;
+    --headline-padding-left-mobile: {{ section.settings.headline_padding_left_mobile }}px;
+    --headline-padding-right-mobile: {{ section.settings.headline_padding_right_mobile }}px;
+    --subheading-padding-left-desktop: {{ section.settings.subheading_padding_left }}px;
+    --subheading-padding-right-desktop: {{ section.settings.subheading_padding_right }}px;
+    --subheading-padding-left-mobile: {{ section.settings.subheading_padding_left_mobile }}px;
+    --subheading-padding-right-mobile: {{ section.settings.subheading_padding_right_mobile }}px;
+    --fade-color: {{ section.settings.background_color }}; /* Changed to section background color for better blending */
+    --fade-size: {{ section.settings.fade_size }}px;
+    /* Font Family Handling */
+    {% if section.settings.enable_custom_font %}
+      --font-family: "{{ section.settings.font_family }}";
+    {% else %}
+      --font-family: inherit;
+    {% endif %}
+    font-family: var(--font-family); /* Apply font family to the entire section */
+    {% if section.settings.enable_gradient_background %}
+      /* Gradient is handled within the .card style */
+    {% else %}
+      background-color: {{ section.settings.background_color }};
+    {% endif %}
+    padding-top: var(--section-padding-top);
+    padding-bottom: var(--section-padding-bottom);
+    width: 100%; /* Ensure full width */
+    box-sizing: border-box;
+    text-align: center; /* Center content by default */
+    position: relative; /* Needed for fading panels */
+  }
+
+  /* Container for the scrolling testimonial section */
+  #m-section--{{ section.id }} .m-scrolling-promotion {
+      display: flex; /* Aligns items horizontally */
+      align-items: center; /* Vertically centers the items */
+      overflow: hidden; /* Hides content that overflows the container */
+      position: relative; /* Ensure fading panels are positioned correctly */
+      transform: scale(var(--slider-scale));
+  }
+
+  /* Apply margin between scrolling promotions if second scrolling is enabled */
+  #m-section--{{ section.id }} .m-scrolling-promotion + .m-scrolling-promotion {
+      margin-top: var(--scroll-gap);
+  }
+
+  /* Headline Title and Subheading Styles */
+  #m-section--{{ section.id }} .headline-title {
+      color: var(--headline-color, #000) !important; /* Customizable color */
+      font-size: var(--headline-title-size-desktop, 24px);
+      text-align: var(--headline-text-align, center); /* Text alignment */
+      margin-bottom: var(--space-between-heading-and-subheading, 10px); /* Spacing between Headline and Subheading */
+      font-family: var(--font-family, inherit); /* Font family applied */
+      padding-left: var(--headline-padding_left_desktop, 0px);
+      line-height: 1.1 !important;
+      padding-right: var(--headline-padding_right_desktop, 0px);
+  }
+
+  #m-section--{{ section.id }} .subheading {
+      color: var(--subheading-color, #333); /* Customizable color */
+      font-size: var(--subheading-size-desktop, 18px);
+      text-align: var(--subheading-text-align, center); /* Text alignment */
+      margin-bottom: var(--space-between-subheading-and-scrolling-cards, 20px); /* Spacing between Subheading and Scrolling Cards */
+      font-family: var(--font-family, inherit); /* Font family applied */
+     font-weight: var(--subheading-font-weight, 400); /* Apply font weight */
+      padding-left: var(--subheading-padding-left-desktop, 0px);
+      padding-right: var(--subheading-padding-right-desktop, 0px);
+  }
+
+  /* Responsive Adjustments for Headline and Subheading Sizes */
+  @media screen and (min-width: 750px) {
+      #m-section--{{ section.id }} .headline-title {
+          padding-left: var(--headline-padding-left-desktop, 0px);
+          padding-right: var(--headline-padding-right-desktop, 0px);
+          line-height: 1.2 !important;
+      }
+      #m-section--{{ section.id }} .subheading {
+          padding-left: var(--subheading-padding-left-desktop, 0px);
+          padding-right: var(--subheading-padding-right-desktop, 0px);
+      }
+  }
+
+  @media screen and (max-width: 749px) {
+      #m-section--{{ section.id }} .headline-title {
+          font-size: var(--headline-title-size-mobile, 20px);
+          padding-left: var(--headline-padding-left-mobile, 0px);
+          line-height: 1.2 !important;
+          padding-right: var(--headline-padding-right-mobile, 0px);
+      }
+      #m-section--{{ section.id }} .subheading {
+          font-size: var(--subheading-size-mobile, 16px);
+          padding-left: var(--subheading-padding-left-mobile, 0px);
+          padding-right: var(--subheading-padding-right-mobile, 0px);
+      }
+  }
+
+  /* Applies scrolling animation to the promotion items based on scroll direction */
+  #m-section--{{ section.id }} .m-scrolling-promotion--left .m-promotion--animated {
+      animation-name: scrolling-left-{{ section.id }}; /* Uses the unique keyframe animation */
+  }
+
+  #m-section--{{ section.id }} .m-scrolling-promotion--right .m-promotion--animated {
+      animation-name: scrolling-right-{{ section.id }}; /* Uses the unique keyframe animation */
+  }
+
+  /* Second Scrolling Promotion Animation */
+  #m-section--{{ section.id }} .m-scrolling-promotion-second--left .m-promotion--animated {
+      animation-name: scrolling-left-{{ section.id }}; /* Uses the unique keyframe animation */
+  }
+
+  #m-section--{{ section.id }} .m-scrolling-promotion-second--right .m-promotion--animated {
+      animation-name: scrolling-right-{{ section.id }}; /* Uses the unique keyframe animation */
+  }
+
+  /* Controls animation play state based on hover and paused state */
+  #m-section--{{ section.id }} .m-scrolling-promotion--pause-on-hover:hover .m-promotion--animated {
+      animation-play-state: paused; /* Pauses animation on hover if enabled */
+  }
+
+  #m-section--{{ section.id }} .m-scrolling-promotion--paused .m-promotion--animated {
+      animation-play-state: paused; /* Pauses animation when manually paused */
+  }
+
+  /* Keeps animation running continuously when not paused */
+  #m-section--{{ section.id }} .m-scrolling-promotion .m-promotion--animated {
+      animation-play-state: running;
+  }
+
+  /* Removes padding for the full container inside the scrolling promotion section */
+  #m-section--{{ section.id }} .container-full {
+      padding-left: 0;
+      padding-right: 0;
+  }
+
+  /* Promotion container styles */
+  #m-section--{{ section.id }} .m-promotion {
+      flex: 0 0 auto; /* Prevents shrinking or growing of items */
+      display: flex; /* Aligns items horizontally */
+      align-items: center; /* Vertically centers the items */
+      gap: var(--item-gap, 50px); /* Desktop item gap */
+      transition: gap 0.3s ease; /* Smooth transition for gap changes */
+  }
+
+  /* Styles for individual promotion items */
+  #m-section--{{ section.id }} .m-promotion__item {
+      margin: 0 calc(var(--item-gap-mobile)/2); /* Adds margin based on the mobile gap variable */
+      display: flex; /* Aligns items horizontally */
+      align-items: center; /* Vertically centers the items */
+      width: 350px; /* Updated to match the new card width */
+      box-sizing: border-box;
+  }
+
+  /* Card styling with Enhanced Customizations */
+  #m-section--{{ section.id }} .card {
+    background-color: var(--card-background-color, rgba(243, 244, 246, 1));
+    padding: 1.5rem; /* Adjusted padding to fit within the new height */
+    width: 350px; /* Fixed width as per user specification */
+    height: 200px; /* Fixed height as per user specification */
+    border-radius: var(--card-border-radius, 10px);
+    box-shadow: var(--card-shadow, 0 20px 30px -20px rgba(5, 5, 5, 0.24));
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box; /* Ensures padding and border are included in the total width and height */
+    /* Initialize the CSS variables with default values */
+    --message-vertical-position: 0px;
+    /* Initialize the card size variable for mobile */
+    --card-size-mobile: 1;
+
+    /* Gradient Background */
+    {% if section.settings.enable_gradient_background %}
+      background: linear-gradient(var(--gradient-degree, 90deg), var(--gradient-start-color, #ff7e5f), var(--gradient-middle-color, #feb47b), var(--gradient-end-color, #ff7e5f));
+    {% endif %}
+    font-family: var(--font-family, inherit); /* Font family applied */
+    transition: transform 0.3s ease; /* Smooth transition for scaling */
+  }
+
+  #m-section--{{ section.id }} .card .header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    font-family: var(--font-family, inherit); /* Font family applied */
+  }
+
+  #m-section--{{ section.id }} .card .header .image {
+    height: 4rem;
+    width: 4rem;
+    border-radius: 9999px;
+    object-fit: cover;
+    background-color: royalblue;
+    background-size: cover;
+    background-position: center;
+    background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E'); /* Default placeholder image */
+    transition: transform 0.3s ease-in-out; /* Smooth transition for zoom effect */
+  }
+
+  #m-section--{{ section.id }} .card .stars {
+    display: flex;
+    justify-content: center;
+    gap: 0.125rem;
+    margin-top: 0.5rem; /* Adjusted for better positioning */
+  }
+
+  #m-section--{{ section.id }} .card .stars svg {
+    height: 1.2rem;
+    width: 1.2rem;
+    fill: var(--unfilled-star-color, gray); /* Default color for unfilled stars */
+  }
+
+  #m-section--{{ section.id }} .card .stars .filled-star {
+    fill: var(--filled-star-color, #eeb800); /* Color for filled stars */
+  }
+
+  #m-section--{{ section.id }} .card .name {
+    margin-top: 0.25rem;
+
+       font-size: 15px !Important;
+    line-height: 1.75rem;
+    font-weight: 600;
+    color: var(--user-name-color, rgba(55, 65, 81, 1));
+    font-family: var(--font-family, inherit); /* Font family applied */
+  }
+
+  #m-section--{{ section.id }} .card .message {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    margin-top: 0.6rem;
+    margin-bottom: 0.5rem;
+       font-size: 16px !Important;
+    color: var(--testimonial-message-color, rgba(107, 114, 128, 1));
+    /* Use the CSS variable for vertical positioning */
+    transform: translateY(var(--message-vertical-position));
+    text-align: left; /* Aligns the text to the left */
+    font-family: var(--font-family, inherit); /* Font family applied */
+  }
+
+  /* Media query: Adjusts margin for promotion items for screens wider than 750px */
+  @media(min-width: 750px) {
+      #m-section--{{ section.id }} .m-promotion__item {
+          margin: 0 calc(var(--item-gap)/2); /* Adds margin based on the desktop gap variable */
+      }
+  }
+
+  /* Media query: Adjusts gap for promotion items on mobile devices */
+  @media screen and (max-width: 749px) {
+      #m-section--{{ section.id }} .m-promotion {
+          gap: var(--item-gap-mobile, 30px); /* Mobile item gap */
+      }
+      #m-section--{{ section.id }} .m-promotion__item {
+          margin: 0 calc(var(--item-gap-mobile)/2); /* Adjusts margin based on mobile gap */
+      }
+      /* Adjust card size based on the slider */
+      #m-section--{{ section.id }} .card {
+          transform: scale(var(--card-size-mobile)); /* Applies mobile scaling */
+      }
+  }
+
+  /* Icon container styling */
+  #m-section--{{ section.id }} .m-promotion__icon {
+      display: inline-flex; /* Aligns items horizontally */
+      line-height: 0; /* Removes line-height */
+      margin-right: 10px; /* Adds right margin */
+      --icon-height: 26px; /* Default icon height variable */
+  }
+
+  /* Small icon size */
+  #m-section--{{ section.id }} .m-promotion__icon--small {
+      --icon-height: 20px; /* Sets icon height to 20px */
+  }
+
+  /* Large icon size */
+  #m-section--{{ section.id }} .m-promotion__icon--large {
+      --icon-height: 32px; /* Sets icon height to 32px */
+  }
+
+  /* Styling for SVG or image within icons */
+  #m-section--{{ section.id }} .m-promotion__icon svg,
+  #m-section--{{ section.id }} .m-promotion__icon img {
+      width: auto; /* Width adjusts automatically */
+      height: var(--icon-height); /* Sets height based on icon height variable */
+      max-width: var(--icon-height); /* Ensures icon does not exceed set height */
+      fill: currentColor; /* Fills SVG with current text color */
+  }
+
+  /* Text styling for promotion items */
+  #m-section--{{ section.id }} .m-promotion__text {
+      color: inherit; /* Inherits parent text color */
+      line-height: 1; /* Sets line-height to 1 */
+      white-space: nowrap; /* Prevents text from wrapping */
+      font-size: var(--text-size, 16px); /* Sets font size to text size variable */
+      color: var(--color-foreground, #000); /* Sets text color using foreground color variable */
+      font-family: var(--font-family, inherit); /* Font family applied */
+  }
+
+  /* Media query: Adjusts text size for screens smaller than 767px */
+  @media screen and (max-width: 767px) {
+      #m-section--{{ section.id }} .m-promotion__text {
+          font-size: calc(var(--text-size, 16px) * 0.75); /* Sets font size to 75% of the text size variable */
+      }
+  }
+
+  /* Animation properties for animated promotion items */
+  #m-section--{{ section.id }} .m-promotion--animated {
+      animation-iteration-count: infinite; /* Animation repeats indefinitely */
+      animation-timing-function: linear; /* Creates a smooth animation */
+      animation-duration: var(--duration); /* Sets animation duration */
+      animation-play-state: running; /* Keeps animation running */
+      width: max-content; /* Adjusts width based on content */
+      will-change: transform, width; /* Optimizes animation performance */
+      display: flex;
+      gap: var(--item-gap-mobile, 18px); /* Ensures gap consistency */
+  }
+
+  /* Keyframe animation for scrolling left */
+  @keyframes scrolling-left-{{ section.id }} {
+      0% {
+          transform: translate3d(0, 0, 0); /* Starts at original position */
+          visibility: visible; /* Ensures visibility */
+      }
+      100% {
+          transform: translate3d(-100%, 0, 0); /* Moves the content left by 100% */
+      }
+  }
+
+  /* Keyframe animation for scrolling right */
+  @keyframes scrolling-right-{{ section.id }} {
+      0% {
+          transform: translate3d(-100%, 0, 0); /* Starts off-screen to the left */
+          visibility: visible; /* Ensures visibility */
+      }
+      100% {
+          transform: translate3d(0, 0, 0); /* Moves the content right to its original position */
+      }
+  }
+
+  /* Keyframe animation for scrolling left in RTL (Right-to-Left) mode */
+  @keyframes scrolling-left-rtl-{{ section.id }} {
+      0% {
+          transform: translate3d(0, 0, 0);
+          visibility: visible;
+      }
+      100% {
+          transform: translate3d(100%, 0, 0);
+      }
+  }
+
+  /* Keyframe animation for scrolling right in RTL (Right-to-Left) mode */
+  @keyframes scrolling-right-rtl-{{ section.id }} {
+      0% {
+          transform: translate3d(100%, 0, 0);
+          visibility: visible;
+      }
+      100% {
+          transform: translate3d(0, 0, 0);
+      }
+  }
+
+  /* Fade Panels for Carousel */
+  #m-section--{{ section.id }} .fading-panel-left,
+  #m-section--{{ section.id }} .fading-panel-right {
+      position: absolute;
+      top: 0;
+      width: var(--fade-size, 50px);
+      height: 100%;
+      pointer-events: none;
+      z-index: 2; /* Ensure fading panels are above the carousel */
+      background: linear-gradient(to right, var(--fade-color, white), transparent);
+  }
+
+  #m-section--{{ section.id }} .fading-panel-right {
+      right: 0;
+      background: linear-gradient(to left, var(--fade-color, white), transparent);
+  }
+
+  /* Promotion container styles */
+  #m-section--{{ section.id }} .m-promotion__item img {
+      border-radius: var(--image-border-radius, 9999px); /* Added default value */
+      object-fit: cover;
+  }
+
+  /* Fade Panels (only visible if fading effect is enabled) */
+  {% if section.settings.enable_fading_effect %}
+    #m-section--{{ section.id }} .fading-panel-left,
+    #m-section--{{ section.id }} .fading-panel-right {
+        /* Already defined above */
+        background: linear-gradient(to right, var(--fade-color, #ffffff), transparent);
+    }
+  {% endif %}
+</style>
+
+<section
+  id="m-section--{{ section.id }}"
+  class="{{ classes }}"
+  data-section-type="scrolling-promotion"
+  data-section-id="{{ section.id }}"
+  data-pause-on-hover="{{ section.settings.pause_on_hover }}"
+>
+  <div class="{{ container }} m-section-py">
+    <!-- Headline Title -->
+    {% if section.settings.show_headline_title %}
+      <h2 class="headline-title">{{ section.settings.headline_title }}</h2>
+    {% endif %}
+
+    <!-- Subheading -->
+    {% if section.settings.show_subheading %}
+      <h3 class="subheading">{{ section.settings.subheading }}</h3>
+    {% endif %}
+
+    <!-- First Scrolling Promotion -->
+    <m-scrolling-promotion
+      class="m-scrolling-promotion m-scrolling-promotion--{{ section.settings.direction }}{% if section.settings.pause_on_hover %} m-scrolling-promotion--pause-on-hover{% endif %}"
+      data-pause-on-hover="{{ section.settings.pause_on_hover }}"
+    >
+      <div class="m-promotion">
+        {% assign first_limit = section.settings.enable_second_scrolling %}
+        {% if section.settings.enable_second_scrolling %}
+          {% assign first_limit = 5 %}
+        {% else %}
+          {% assign first_limit = section.blocks.size %}
+        {% endif %}
+
+        {% for block in section.blocks limit: first_limit %}
+          {%- case block.type -%}
+            {%- when 'testimonial' -%}
+              <div class="m-promotion__item">
+                <div
+                  class="card"
+                  style="--message-vertical-position: {{ block.settings.message_vertical_position }}px;"
+                >
+                  <div class="header">
+                    {% if block.settings.image %}
+                      <div
+                        class="image"
+                        style="background-image: url('{{ block.settings.image | img_url: '400x400' }}');"
+                      ></div>
+                    {% else %}
+                      <div
+                        class="image"
+                        style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E');"
+                      ></div>
+                    {% endif %}
+                    <div>
+                      <div class="stars">
+                        {% assign rating = block.settings.rating | plus: 0 %}
+                        {% for i in (1..5) %}
+                          {% if i <= rating %}
+                            <svg class="filled-star" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                            </svg>
+                          {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                            </svg>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                      <p class="name">{{ block.settings.name }}</p>
+                    </div>
+                  </div>
+
+                  <p class="message">
+                    {{ block.settings.message }}
+                  </p>
+                </div>
+              </div>
+          {%- endcase -%}
+        {% endfor %}
+      </div>
+    </m-scrolling-promotion>
+
+    <!-- Second Scrolling Promotion (if enabled) -->
+    {% if section.settings.enable_second_scrolling %}
+      <m-scrolling-promotion
+        class="m-scrolling-promotion m-scrolling-promotion--{{ section.settings.second_direction }} m-scrolling-promotion-second m-scrolling-promotion-second--{{ section.settings.second_direction }}{% if section.settings.pause_on_hover %} m-scrolling-promotion--pause-on-hover{% endif %}"
+        data-pause-on-hover="{{ section.settings.pause_on_hover }}"
+      >
+        <div class="m-promotion">
+          {% assign second_limit = 5 %}
+          {% assign second_offset = 5 %}
+          {% for block in section.blocks offset: second_offset limit: second_limit %}
+            {%- case block.type -%}
+              {%- when 'testimonial' -%}
+                <div class="m-promotion__item">
+                  <div
+                    class="card"
+                    style="--message-vertical-position: {{ block.settings.message_vertical_position }}px;"
+                  >
+                    <div class="header">
+                      {% if block.settings.image %}
+                        <div
+                          class="image"
+                          style="background-image: url('{{ block.settings.image | img_url: '400x400' }}');"
+                        ></div>
+                      {% else %}
+                        <div
+                          class="image"
+                          style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E');"
+                        ></div>
+                      {% endif %}
+                      <div>
+                        <div class="stars">
+                          {% assign rating = block.settings.rating | plus: 0 %}
+                          {% for i in (1..5) %}
+                            {% if i <= rating %}
+                              <svg class="filled-star" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                              </svg>
+                            {% else %}
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                              </svg>
+                            {% endif %}
+                          {% endfor %}
+                        </div>
+                        <p class="name">{{ block.settings.name }}</p>
+                      </div>
+                    </div>
+
+                    <p class="message">
+                      {{ block.settings.message }}
+                    </p>
+                  </div>
+                </div>
+            {%- endcase -%}
+          {% endfor %}
+        </div>
+      </m-scrolling-promotion>
+    {% endif %}
+
+    <!-- Fading Panels (if enabled) -->
+    {% if section.settings.enable_fading_effect %}
+      <div class="fading-panel-left"></div>
+      <div class="fading-panel-right"></div>
+    {% endif %}
+  </div>
+</section>
+
+<script>
+  // Scoped JavaScript: Ensures scripts target only elements within this section
+  (function() {
+    const sectionId = "{{ section.id }}";
+    // **Fixed line below**: now correctly gets the element by ID
+    const section = document.getElementById("m-section--" + sectionId);
+    if (!section) return;
+
+    // Check if the custom element "m-scrolling-promotion" is already defined
+    if (!customElements.get("m-scrolling-promotion")) {
+
+      /**
+       * Class definition for the custom HTML element <m-scrolling-promotion>.
+       */
+      class MScrollingPromotion extends HTMLElement {
+
+        // Constructor for the MScrollingPromotion class
+        constructor() {
+          super();
+        }
+
+        /**
+         * Called when the element is connected to the DOM.
+         * Initializes the promotion element and its functionality.
+         */
+        connectedCallback() {
+          this.promotion = this.querySelector(".m-promotion");
+          this.pauseOnHover = this.getAttribute('data-pause-on-hover') === 'true';
+          this.init();
+        }
+
+        /**
+         * Initializes the promotion element.
+         * If there is only one child element, it adds multiple clones
+         * to create a continuous scrolling effect.
+         */
+        init() {
+          if (this.promotion && this.promotion.children.length > 0) {
+            // Add a class to start animation on the promotion element
+            this.promotion.classList.add("m-promotion--animated");
+
+            // Create multiple clones of the promotion element for smooth scrolling
+            this.createClones();
+
+            // Add zoom effect to images on hover
+            this.addZoomEffect();
+
+            // Setup pause on hover functionality if enabled
+            if (this.pauseOnHover) {
+              this.setupPauseOnHover();
+            }
+
+            // Start scrolling the promotion element
+            this.scrollingPlay();
+          }
+        }
+
+        /**
+         * Creates multiple clones of the promotion element to ensure continuous scrolling.
+         */
+        createClones() {
+          const cloneCount = 10; // Adjust the number of clones as needed
+          for (let index = 0; index < cloneCount; index++) {
+            // Clone the promotion element
+            const clone = this.promotion.cloneNode(true);
+
+            // Mark the clone as hidden for accessibility purposes
+            clone.setAttribute("aria-hidden", true);
+
+            // Append the clone to the promotion container
+            this.appendChild(clone);
+          }
+        }
+
+        /**
+         * Adds a smooth zoom effect to all images within the promotion items on hover.
+         */
+        addZoomEffect() {
+          const images = this.querySelectorAll(".card .header .image");
+
+          images.forEach((image) => {
+            // Set CSS transition for a smooth zoom-in effect on hover
+            image.style.transition = "transform 0.3s ease-in-out";
+
+            // Scale up the image on mouseover with a smooth animation
+            image.addEventListener("mouseover", () => {
+              image.style.transform = "scale(1.1)";
+            });
+
+            // Reset the image scale on mouseout with a smooth animation
+            image.addEventListener("mouseout", () => {
+              image.style.transform = "scale(1)";
+            });
+          });
+        }
+
+        /**
+         * Keeps the scrolling functionality always active by removing any paused state.
+         */
+        scrollingPlay() {
+          this.classList.remove("m-scrolling-promotion--paused");
+        }
+
+        /**
+         * A placeholder function for pausing scrolling.
+         * It is intentionally left empty to prevent pausing.
+         */
+        scrollingPause() {
+          // This function is intentionally empty
+        }
+
+        /**
+         * Sets up event listeners to pause and resume scrolling on hover.
+         */
+        setupPauseOnHover() {
+          this.addEventListener('mouseenter', () => {
+            this.classList.add('m-scrolling-promotion--paused');
+          });
+
+          this.addEventListener('mouseleave', () => {
+            this.classList.remove('m-scrolling-promotion--paused');
+          });
+        }
+      }
+
+      // Define the custom HTML element <m-scrolling-promotion> with the MScrollingPromotion class
+      customElements.define("m-scrolling-promotion", MScrollingPromotion);
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Testimonial Carousel",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Settings",
+      "info": "Configure the overall section settings including layout and appearance."
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "Custom CSS Classes",
+      "info": "Add custom CSS classes for additional styling."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "info": "Select a color scheme for the section."
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding Top",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "info": "Set the top padding of the section."
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding Bottom",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "info": "Set the bottom padding of the section."
+    },
+    {
+      "type": "range",
+      "id": "slider_scale",
+      "label": "Slider Scale",
+      "default": 1,
+      "min": 0.5,
+      "max": 2,
+      "step": 0.1,
+      "info": "Adjust the overall scale of the slider."
+    },
+    {
+      "type": "range",
+      "id": "overall_size_mobile",
+      "label": "Overall Size (Mobile View)",
+      "min": 0.5,
+      "max": 2,
+      "step": 0.1,
+      "default": 1,
+      "info": "Adjust the overall size of the section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "scroll_gap",
+      "label": "Gap Between Scrollings",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 20,
+      "info": "Set the gap between the first and second scrolling promotions."
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "Pause testimonials on hover",
+      "default": false,
+      "info": "Pause the scrolling animation when a user hovers over the testimonials."
+    },
+    {
+      "type": "header",
+      "content": "Headline Settings",
+      "info": "Configure the headline text, color, alignment, and padding."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_headline_title",
+      "label": "Show Headline Title",
+      "default": true,
+      "info": "Toggle the visibility of the headline title."
+    },
+    {
+      "type": "richtext",
+      "id": "headline_title",
+      "label": "Headline Title",
+      "default": "<p>People Love It</p>",
+      "info": "Enter the headline text for the testimonials section."
+    },
+    {
+      "type": "color",
+      "id": "headline_color",
+      "label": "Headline Color",
+      "default": "#1A1A1A",
+      "info": "Choose the color for the headline text."
+    },
+    {
+      "type": "select",
+      "id": "headline_text_align",
+      "label": "Headline Text Alignment",
+      "options": [
+        {
+          "label": "Left",
+          "value": "left"
+        },
+        {
+          "label": "Center",
+          "value": "center"
+        },
+        {
+          "label": "Right",
+          "value": "right"
+        }
+      ],
+      "default": "center",
+      "info": "Select the text alignment for the headline."
+    },
+    {
+      "type": "range",
+      "id": "headline_title_size_desktop",
+      "label": "Headline Title Size (Desktop)",
+      "min": 12,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 41,
+      "info": "Set the font size of the headline on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "headline_title_size_mobile",
+      "label": "Headline Title Size (Mobile)",
+      "min": 12,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 32,
+      "info": "Set the font size of the headline on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "headline_padding_left_desktop",
+      "label": "Headline Left Padding (Desktop)",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 200,
+      "info": "Set the left padding for the headline on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "headline_padding_right_desktop",
+      "label": "Headline Right Padding (Desktop)",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 200,
+      "info": "Set the right padding for the headline on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "headline_padding_left_mobile",
+      "label": "Headline Left Padding (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 28,
+      "info": "Set the left padding for the headline on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "headline_padding_right_mobile",
+      "label": "Headline Right Padding (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 28,
+      "info": "Set the right padding for the headline on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "space_between_heading_and_subheading",
+      "label": "Spacing Between Heading and Subheading",
+      "min": -50,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "default": -20,
+      "info": "Adjust the spacing between the headline and subheading."
+    },
+    {
+      "type": "header",
+      "content": "Subheading Settings",
+      "info": "Configure the subheading text, color, alignment, and padding."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_subheading",
+      "label": "Show Subheading",
+      "default": true,
+      "info": "Toggle the visibility of the subheading."
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "<p>Lorem ipsum odor amet, consectetuer adipiscing elit. Scelerisque neque consectetur primis consectetur fames iaculis.<p>",
+      "info": "Enter the subheading text for the testimonials section."
+
+
+
+    },
+    {
+
+    "type": "select",
+  "id": "subheading_font_weight",
+  "label": "Subheading Font Weight",
+  "default": "400",
+  "options": [
+    {
+      "value": "100",
+      "label": "Thin (100)"
+    },
+    {
+      "value": "200",
+      "label": "Extra Light (200)"
+    },
+    {
+      "value": "300",
+      "label": "Light (300)"
+    },
+    {
+      "value": "400",
+      "label": "Regular (400)"
+    },
+    {
+      "value": "500",
+      "label": "Medium (500)"
+    },
+    {
+      "value": "600",
+      "label": "Semi-Bold (600)"
+    },
+    {
+      "value": "700",
+      "label": "Bold (700)"
+    },
+    {
+      "value": "800",
+      "label": "Extra Bold (800)"
+    },
+    {
+      "value": "900",
+      "label": "Black (900)"
+    }
+  ],
+  "info": "Select the font weight for the subheading."
+
+
+
+
+
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_right",
+      "label": "Subheading Right Padding (Desktop)",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 300,
+      "info": "Set the right padding for the subheading on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_left",
+      "label": "Subheading Left Padding (Desktop)",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 300,
+      "info": "Set the left padding for the subheading on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_left_mobile",
+      "label": "Subheading Left Padding (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 30,
+      "info": "Set the left padding for the subheading on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_right_mobile",
+      "label": "Subheading Right Padding (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 30,
+      "info": "Set the right padding for the subheading on mobile devices."
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading Color",
+      "default": "#636363",
+      "info": "Choose the color for the subheading text."
+    },
+    {
+      "type": "select",
+      "id": "subheading_text_align",
+      "label": "Subheading Text Alignment",
+      "options": [
+        {
+          "label": "Left",
+          "value": "left"
+        },
+        {
+          "label": "Center",
+          "value": "center"
+        },
+        {
+          "label": "Right",
+          "value": "right"
+        }
+      ],
+      "default": "center",
+      "info": "Select the text alignment for the subheading."
+    },
+    {
+      "type": "range",
+      "id": "subheading_size_desktop",
+      "label": "Subheading Size (Desktop)",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 16,
+      "info": "Set the font size of the subheading on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "subheading_size_mobile",
+      "label": "Subheading Size (Mobile)",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 14,
+      "info": "Set the font size of the subheading on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "vertical_spacing_texts_scrolling_cards",
+      "label": "Vertical Spacing Between Texts and Scrolling Cards",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 55,
+      "info": "Adjust the vertical spacing between the subheading and the scrolling testimonial cards."
+    },
+    {
+      "type": "header",
+      "content": "Animation Settings",
+      "info": "Configure the animation speed and directions for scrolling testimonials."
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Speed Values (First Scrolling)",
+      "min": 0,
+      "max": 400,
+      "unit": "s",
+      "step": 10,
+      "default": 70,
+      "info": "Set the animation speed for the first scrolling testimonials."
+
+    },
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "Scroll Direction",
+      "options": [
+        {
+          "label": "Left direction",
+          "value": "left"
+        },
+        {
+          "label": "Right direction",
+          "value": "right"
+        }
+      ],
+      "default": "right",
+      "info": "Select the scroll direction for the first scrolling testimonials."
+
+    },
+    {
+      "type": "select",
+      "id": "second_direction",
+      "label": "Scroll Direction for Second Scrolling",
+      "options": [
+        {
+          "label": "Left direction",
+          "value": "left"
+        },
+        {
+          "label": "Right direction",
+          "value": "right"
+        }
+      ],
+      "default": "left",
+      "info": "Select the scroll direction for the second scrolling testimonials."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_second_scrolling",
+      "label": "Enable Second Scrolling",
+      "default": true,
+      "info": "Enable a second set of scrolling testimonials."
+    },
+    {
+      "type": "header",
+      "content": "Gap Settings",
+      "info": "Configure the gaps between items and sections."
+    },
+    {
+      "type": "range",
+      "id": "item_gap",
+      "label": "Desktop Device Item Gap",
+      "default": 30,
+      "min": 0,
+      "max": 180,
+      "step": 2,
+      "unit": "px",
+      "info": "Set the gap between testimonial items on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "item_gap_mobile",
+      "label": "Mobile Device Item Gap",
+      "default": 18,
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "info": "Set the gap between testimonial items on mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Font Settings",
+      "info": "Select the font family for the testimonials."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_font",
+      "label": "Enable Custom Font",
+      "default": false,
+      "info": "Toggle to enable custom font for Headline and Subheading."
+    },
+    {
+      "type": "select",
+      "id": "font_family",
+      "label": "Font Family",
+      "default": "Work Sans, sans-serif",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "Yanone Kaffeesatz", "label": "Yanone Kaffeesatz" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "PT Sans", "label": "PT Sans" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Nunito", "label": "Nunito" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Slabo 27px", "label": "Slabo 27px" },
+        { "value": "Lora", "label": "Lora" },
+        { "value": "Fira Sans", "label": "Fira Sans" },
+        { "value": "Libre Baskerville", "label": "Libre Baskerville" },
+        { "value": "Indie Flower", "label": "Indie Flower" },
+        { "value": "Bebas Neue", "label": "Bebas Neue" },
+        { "value": "Cabin", "label": "Cabin" },
+        { "value": "Work Sans, sans-serif", "label": "Work Sans" },
+        { "value": "Cinzel", "label": "Cinzel" },
+        { "value": "Dosis", "label": "Dosis" },
+        { "value": "Exo 2", "label": "Exo 2" },
+        { "value": "Fjalla One", "label": "Fjalla One" },
+        { "value": "Gilda Display", "label": "Gilda Display" },
+        { "value": "Heebo", "label": "Heebo" },
+        { "value": "Karla", "label": "Karla" },
+        { "value": "Muli", "label": "Muli" },
+        { "value": "Noto Serif", "label": "Noto Serif" },
+        { "value": "Quicksand", "label": "Quicksand" },
+        { "value": "Roboto Slab", "label": "Roboto Slab" },
+        { "value": "Signika", "label": "Signika" },
+        { "value": "Titillium Web", "label": "Titillium Web" },
+        { "value": "Varela Round", "label": "Varela Round" },
+        { "value": "Work Sans", "label": "Work Sans" },
+        { "value": "Zilla Slab", "label": "Zilla Slab" },
+        { "value": "Asap", "label": "Asap" },
+        { "value": "Cairo", "label": "Cairo" },
+        { "value": "DM Sans", "label": "DM Sans" },
+        { "value": "Eczar", "label": "Eczar" },
+        { "value": "Fira Mono", "label": "Fira Mono" },
+        { "value": "Gentium Basic", "label": "Gentium Basic" },
+        { "value": "Hind", "label": "Hind" },
+        { "value": "Jost", "label": "Jost" },
+        { "value": "Kreon", "label": "Kreon" },
+        { "value": "Lexend", "label": "Lexend" },
+        { "value": "Mukta", "label": "Mukta" },
+        { "value": "Noto Sans JP", "label": "Noto Sans JP" },
+        { "value": "Overpass", "label": "Overpass" },
+        { "value": "Qwigley", "label": "Qwigley" },
+        { "value": "Sen", "label": "Sen" },
+        { "value": "Teko", "label": "Teko" },
+        { "value": "Ultra", "label": "Ultra" },
+        { "value": "Vollkorn", "label": "Vollkorn" },
+        { "value": "ZCOOL XiaoWei", "label": "ZCOOL XiaoWei" },
+        { "value": "ABeeZee", "label": "ABeeZee" },
+        { "value": "Acme", "label": "Acme" },
+        { "value": "Balsamiq Sans", "label": "Balsamiq Sans" },
+        { "value": "Caveat", "label": "Caveat" },
+        { "value": "Engagement", "label": "Engagement" },
+        { "value": "Fredoka One", "label": "Fredoka One" },
+        { "value": "Gloria Hallelujah", "label": "Gloria Hallelujah" },
+        { "value": "Irish Grover", "label": "Irish Grover" },
+        { "value": "Kalam", "label": "Kalam" },
+        { "value": "Marck Script", "label": "Marck Script" },
+        { "value": "Neucha", "label": "Neucha" },
+        { "value": "Patrick Hand", "label": "Patrick Hand" },
+        { "value": "Rock Salt", "label": "Rock Salt" },
+        { "value": "Tangerine", "label": "Tangerine" },
+        { "value": "Unica One", "label": "Unica One" },
+        { "value": "Vibur", "label": "Vibur" },
+        { "value": "Wallpoet", "label": "Wallpoet" },
+        { "value": "Yellowtail", "label": "Yellowtail" },
+        { "value": "Zilla Slab Highlight", "label": "Zilla Slab Highlight" },
+        { "value": "Alice", "label": "Alice" },
+        { "value": "Alfa Slab One", "label": "Alfa Slab One" },
+        { "value": "Amatic SC", "label": "Amatic SC" },
+        { "value": "Archivo Narrow", "label": "Archivo Narrow" },
+        { "value": "Baloo 2", "label": "Baloo 2" },
+        { "value": "Bangers", "label": "Bangers" },
+        { "value": "Bellefair", "label": "Bellefair" },
+        { "value": "Big Shoulders Display", "label": "Big Shoulders Display" },
+        { "value": "Black Han Sans", "label": "Black Han Sans" },
+        { "value": "Bowlby One SC", "label": "Bowlby One SC" },
+        { "value": "Bungee", "label": "Bungee" },
+        { "value": "Cardo", "label": "Cardo" },
+        { "value": "Chonburi", "label": "Chonburi" },
+        { "value": "Cinzel Decorative", "label": "Cinzel Decorative" },
+        { "value": "Contrail One", "label": "Contrail One" },
+        { "value": "Cormorant Garamond", "label": "Cormorant Garamond" },
+        { "value": "Courgette", "label": "Courgette" },
+        { "value": "Crimson Pro", "label": "Crimson Pro" },
+        { "value": "Cuprum", "label": "Cuprum" },
+        { "value": "Delius", "label": "Delius" },
+        { "value": "Delius Swash Caps", "label": "Delius Swash Caps" },
+        { "value": "Doppio One", "label": "Doppio One" },
+        { "value": "EB Garamond SC", "label": "EB Garamond SC" },
+        { "value": "Expletus Sans", "label": "Expletus Sans" },
+        { "value": "Faustina", "label": "Faustina" },
+        { "value": "Fjord One", "label": "Fjord One" },
+        { "value": "Frank Ruhl Libre", "label": "Frank Ruhl Libre" },
+        { "value": "Frijole", "label": "Frijole" },
+        { "value": "Glegoo", "label": "Glegoo" },
+        { "value": "Goblin One", "label": "Goblin One" },
+        { "value": "Grenze Gotisch", "label": "Grenze Gotisch" },
+        { "value": "Habibi", "label": "Habibi" },
+        { "value": "Henny Penny", "label": "Henny Penny" },
+        { "value": "IM Fell DW Pica", "label": "IM Fell DW Pica" },
+        { "value": "IM Fell English", "label": "IM Fell English" },
+        { "value": "IM Fell French Canon", "label": "IM Fell French Canon" },
+        { "value": "IM Fell Great Primer", "label": "IM Fell Great Primer" },
+        { "value": "Irregular Hand", "label": "Irregular Hand" },
+        { "value": "Judson", "label": "Judson" },
+        { "value": "Lekton", "label": "Lekton" },
+        { "value": "Mate", "label": "Mate" },
+        { "value": "Michroma", "label": "Michroma" },
+        { "value": "Milonga", "label": "Milonga" },
+        { "value": "Monoton", "label": "Monoton" },
+        { "value": "Neuton", "label": "Neuton" },
+        { "value": "Nixie One", "label": "Nixie One" },
+        { "value": "Nova Cut", "label": "Nova Cut" },
+        { "value": "Nova Flat", "label": "Nova Flat" },
+        { "value": "Nova Mono", "label": "Nova Mono" },
+        { "value": "Nova Oval", "label": "Nova Oval" },
+        { "value": "Nova Round", "label": "Nova Round" },
+        { "value": "Nova Script", "label": "Nova Script" },
+        { "value": "Nova Slim", "label": "Nova Slim" },
+        { "value": "Nova Square", "label": "Nova Square" },
+        { "value": "Noto Sans TC", "label": "Noto Sans TC" },
+        { "value": "Noto Serif SC", "label": "Noto Serif SC" },
+        { "value": "Poiret One", "label": "Poiret One" },
+        { "value": "Poller One", "label": "Poller One" },
+        { "value": "Prata", "label": "Prata" },
+        { "value": "Ruslan Display", "label": "Ruslan Display" },
+        { "value": "Saira Condensed", "label": "Saira Condensed" },
+        { "value": "Saira Extra Condensed", "label": "Saira Extra Condensed" },
+        { "value": "Saira Semi Condensed", "label": "Saira Semi Condensed" },
+        { "value": "Oxygen", "label": "Oxygen" },
+        { "value": "Alegreya", "label": "Alegreya" },
+        { "value": "Josefin Slab", "label": "Josefin Slab" },
+        { "value": "Catamaran", "label": "Catamaran" },
+        { "value": "Manrope", "label": "Manrope" },
+        { "value": "Source Code Pro", "label": "Source Code Pro" },
+        { "value": "Abril Fatface", "label": "Abril Fatface" },
+        { "value": "Archivo", "label": "Archivo" },
+        { "value": "Rokkitt", "label": "Rokkitt" },
+        { "value": "IBM Plex Serif", "label": "IBM Plex Serif" },
+        { "value": "League Spartan", "label": "League Spartan" },
+        { "value": "Overlock", "label": "Overlock" },
+        { "value": "Play", "label": "Play" },
+        { "value": "Comfortaa", "label": "Comfortaa" },
+        { "value": "Monda", "label": "Monda" },
+        { "value": "Philosopher", "label": "Philosopher" },
+        { "value": "Arapey", "label": "Arapey" },
+        { "value": "Old Standard TT", "label": "Old Standard TT" },
+        { "value": "Anonymous Pro", "label": "Anonymous Pro" },
+        { "value": "Merriweather Sans", "label": "Merriweather Sans" },
+        { "value": "Permanent Marker", "label": "Permanent Marker" },
+        { "value": "Roboto Condensed", "label": "Roboto Condensed" },
+        { "value": "PT Mono", "label": "PT Mono" },
+        { "value": "Exo", "label": "Exo" },
+        { "value": "Fira Code", "label": "Fira Code" },
+        { "value": "Lalezar", "label": "Lalezar" },
+        { "value": "Great Vibes", "label": "Great Vibes" },
+        { "value": "Lobster", "label": "Lobster" },
+        { "value": "Shadows Into Light", "label": "Shadows Into Light" },
+        { "value": "Salsa", "label": "Salsa" },
+        { "value": "Satisfy", "label": "Satisfy" },
+        { "value": "Seaweed Script", "label": "Seaweed Script" },
+        { "value": "Simonetta", "label": "Simonetta" },
+        { "value": "Sirin Stencil", "label": "Sirin Stencil" },
+        { "value": "Six Caps", "label": "Six Caps" },
+        { "value": "Slabo 13px", "label": "Slabo 13px" },
+        { "value": "Sniglet", "label": "Sniglet" },
+        { "value": "Staatliches", "label": "Staatliches" },
+        { "value": "Stint Ultra Condensed", "label": "Stint Ultra Condensed" },
+        { "value": "Syncopate", "label": "Syncopate" },
+        { "value": "Terminal Dosis", "label": "Terminal Dosis" },
+        { "value": "Tienne", "label": "Tienne" },
+        { "value": "Titan One", "label": "Titan One" },
+        { "value": "Trade Winds", "label": "Trade Winds" },
+        { "value": "Trocchi", "label": "Trocchi" },
+        { "value": "Tulpen One", "label": "Tulpen One" },
+        { "value": "Vidaloka", "label": "Vidaloka" },
+        { "value": "Viga", "label": "Viga" },
+        { "value": "Volkhov", "label": "Volkhov" },
+        { "value": "Alata", "label": "Alata" },
+        { "value": "Anton", "label": "Anton" },
+        { "value": "Arimo", "label": "Arimo" },
+        { "value": "Arvo", "label": "Arvo" },
+        { "value": "Bitter", "label": "Bitter" },
+        { "value": "Bodoni Moda", "label": "Bodoni Moda" },
+        { "value": "Cedarville Cursive", "label": "Cedarville Cursive" },
+        { "value": "Coda", "label": "Coda" },
+        { "value": "Concert One", "label": "Concert One" },
+        { "value": "Dancing Script", "label": "Dancing Script" },
+        { "value": "Domine", "label": "Domine" },
+        { "value": "El Messiri", "label": "El Messiri" },
+        { "value": "Fahkwang", "label": "Fahkwang" },
+        { "value": "Gloock", "label": "Gloock" },
+        { "value": "Halant", "label": "Halant" },
+        { "value": "Ibarra Real Nova", "label": "Ibarra Real Nova" },
+        { "value": "Koulen", "label": "Koulen" },
+        { "value": "Libre Barcode 39", "label": "Libre Barcode 39" },
+        { "value": "Manjari", "label": "Manjari" },
+        { "value": "Marmelad", "label": "Marmelad" },
+        { "value": "Mitr", "label": "Mitr" },
+        { "value": "Niramit", "label": "Niramit" },
+        { "value": "PT Serif", "label": "PT Serif" },
+        { "value": "Rozha One", "label": "Rozha One" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Card Settings",
+      "info": "Customize the appearance of the testimonial cards."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_gradient_background",
+      "label": "Enable Gradient Background for Cards",
+      "default": true,
+      "info": "Toggle a gradient background for testimonial cards."
+    },
+    {
+      "type": "color",
+      "id": "gradient_start_color",
+      "label": "Gradient Start Color",
+      "default": "#ECECEC",
+      "info": "Choose the starting color for the gradient background."
+    },
+    {
+      "type": "color",
+      "id": "gradient_middle_color",
+      "label": "Gradient Middle Color",
+      "default": "#F7F7F7",
+      "info": "Choose the middle color for the gradient background."
+    },
+    {
+      "type": "color",
+      "id": "gradient_end_color",
+      "label": "Gradient End Color",
+      "default": "#FAFAFA",
+      "info": "Choose the ending color for the gradient background."
+    },
+    {
+      "type": "select",
+      "id": "gradient_degree",
+      "label": "Gradient Degree",
+      "options": [
+        { "label": "0°", "value": "0deg" },
+        { "label": "15°", "value": "15deg" },
+        { "label": "30°", "value": "30deg" },
+        { "label": "45°", "value": "45deg" },
+        { "label": "60°", "value": "60deg" },
+        { "label": "75°", "value": "75deg" },
+        { "label": "90°", "value": "90deg" },
+        { "label": "105°", "value": "105deg" },
+        { "label": "120°", "value": "120deg" },
+        { "label": "135°", "value": "135deg" },
+        { "label": "150°", "value": "150deg" },
+        { "label": "165°", "value": "165deg" },
+        { "label": "180°", "value": "180deg" }
+      ],
+      "default": "150deg",
+      "info": "Set the angle for the gradient background."
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Card Border Radius",
+      "default": 8,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "info": "Set the border radius of the testimonial cards."
+    },
+    {
+      "type": "select",
+      "id": "card_shadow",
+      "label": "Card Shadow",
+      "options": [
+        { "label": "None", "value": "none" },
+        { "label": "Low Shadow", "value": "0 10px 20px -10px rgba(5, 5, 5, 0.2)" },
+        { "label": "Medium Shadow", "value": "0 15px 25px -10px rgba(5, 5, 5, 0.3)" },
+        { "label": "High Shadow", "value": "0 20px 30px -20px rgba(5, 5, 5, 0.4)" }
+      ],
+      "default": "0 10px 20px -10px rgba(5, 5, 5, 0.2)",
+      "info": "Select the shadow intensity for the testimonial cards."
+    },
+    {
+      "type": "header",
+      "content": "Text Settings",
+      "info": "Customize the colors and alignments of various text elements."
+    },
+    {
+      "type": "color",
+      "id": "user_name_color",
+      "label": "User Name Color",
+      "default": "#343434",
+      "info": "Choose the color for the user's name."
+    },
+    {
+      "type": "color",
+      "id": "testimonial_message_color",
+      "label": "Testimonial Message Color",
+      "default": "#6B7280",
+      "info": "Choose the color for the testimonial message."
+    },
+    {
+      "type": "color",
+      "id": "filled_star_color",
+      "label": "Filled Star Color",
+      "default": "#FAC000",
+      "info": "Choose the color for filled stars in ratings."
+    },
+    {
+      "type": "color",
+      "id": "unfilled_star_color",
+      "label": "Unfilled Star Color",
+      "default": "#CCCCCC",
+      "info": "Choose the color for unfilled stars in ratings."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "User Image",
+          "info": "Upload an image of the user. If left blank, a default placeholder image will be used."
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "User Name",
+          "default": "John Doe",
+          "info": "Enter the name of the user giving the testimonial."
+        },
+        {
+          "type": "textarea",
+          "id": "message",
+          "label": "Testimonial Message",
+          "default": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Deserunt voluptatem alias ut provident sapiente repellendus.",
+          "info": "Enter the testimonial message from the user."
+        },
+        {
+          "type": "select",
+          "id": "rating",
+          "label": "Rating",
+          "options": [
+            {
+              "label": "1 star",
+              "value": "1"
+            },
+            {
+              "label": "2 stars",
+              "value": "2"
+            },
+            {
+              "label": "3 stars",
+              "value": "3"
+            },
+            {
+              "label": "4 stars",
+              "value": "4"
+            },
+            {
+              "label": "5 stars",
+              "value": "5"
+            }
+          ],
+          "default": "5",
+          "info": "Select the rating given by the user."
+        },
+        {
+          "type": "range",
+          "id": "message_vertical_position",
+          "label": "Testimonial Message Vertical Position",
+          "min": -50,
+          "max": 50,
+          "step": 1,
+          "unit": "px",
+          "default": 0,
+          "info": "Adjust the vertical position of the testimonial message."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonial Carousel",
+      "category": "Testimonials",
+      "blocks": [
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

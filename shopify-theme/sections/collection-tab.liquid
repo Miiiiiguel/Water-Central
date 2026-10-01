@@ -1,0 +1,1681 @@
+
+
+{%- liquid
+  assign st = section.settings
+  assign section_width = st.section_width
+  assign color_scheme = st.color_scheme
+  if st.reset_spacing
+    assign reset_spacing = ' remove_spacing'
+  endif
+
+  assign heading = st.heading
+  assign subheading = st.subheading
+
+  if st.items_per_row_mobile > 1 and st.items_per_row_mobile < 2
+    assign data_free_scroll = 'true'
+  endif
+
+  assign display_mode = st.display_mode
+  assign items_to_show = st.items_to_show
+  assign items_per_row = st.items_per_row
+  assign column_gap = st.column_gap
+    assign tab_checked_border_thickness = st.tab_checked_border_thickness
+assign tab_unchecked_border_thickness = st.tab_unchecked_border_thickness
+assign tab_checked_border_color = st.tab_checked_border_color
+assign tab_unchecked_border_color = st.tab_unchecked_border_color
+  assign show_arrow = st.show_arrow
+  assign carousel_pagination = st.pagination
+  assign infinite = st.infinite
+  assign autoplay = st.autoplay
+  assign autorotate_speed = st.autorotate_speed
+  assign reveal = st.reveal
+  assign rows = st.rows
+  assign show_load_more_button = st.show_load_more_button
+  assign button_label = st.button_label
+  assign items_per_row_mobile = st.items_per_row_mobile
+  assign scroll_animation = st.scroll_animation
+  assign rows_mobile = st.rows_mobile
+
+  assign tab_switch_animation = st.tab_switch_animation
+  assign tab_unchecked_bg_color = st.tab_unchecked_bg_color
+  assign tab_checked_bg_color = st.tab_checked_bg_color
+  assign tab_unchecked_text_color = st.tab_unchecked_text_color
+  assign tab_checked_text_color = st.tab_checked_text_color
+  assign tab_border_radius = st.tab_border_radius
+  assign tab_font_size = st.tab_font_size
+
+  assign heading_font_size_desktop = st.heading_font_size_desktop
+  assign heading_font_size_mobile = st.heading_font_size_mobile
+  assign enable_custom_font_weight_heading = st.enable_custom_font_weight_heading
+  assign font_weight_heading = st.font_weight_heading
+  assign content_alignment = st.content_alignment
+
+  assign subheading_font_size_desktop = st.subheading_font_size_desktop
+  assign subheading_font_size_mobile = st.subheading_font_size_mobile
+  assign enable_custom_font_weight_subheading = st.enable_custom_font_weight_subheading
+  assign font_weight_subheading = st.font_weight_subheading
+  assign subheading_color = st.subheading_color
+
+  assign vertical_gap_heading_subheading = st.vertical_gap_heading_subheading
+  assign vertical_gap_subheading_section_desktop = st.vertical_gap_subheading_section_desktop
+  assign vertical_gap_subheading_section_mobile = st.vertical_gap_subheading_section_mobile
+  assign subheading_padding_left_right_desktop = st.subheading_padding_left_right_desktop
+  assign subheading_padding_left_right_mobile = st.subheading_padding_left_right_mobile
+
+  assign gap_product_cards_dots = st.gap_product_cards_dots
+
+  assign desktop_arrows = st.desktop_arrows
+-%}
+
+{%- capture style -%}
+  /* Section spacing variables */
+  --section-pt: {{ st.padding_top }};
+  --section-pb: {{ st.padding_bottom }};
+{%- endcapture -%}
+
+{%- capture col_style -%}
+  --col-desktop: {{ items_per_row }};
+  --col-number:  {{ items_per_row_mobile }};
+
+  {% if items_per_row > 3 %}
+    --col-tablet: 3;
+  {% else %}
+    --col-tablet: {{ items_per_row }};
+  {% endif %}
+
+  {% if column_gap < 15 %}
+    --col-gap: {{ column_gap }}px;
+  {% else %}
+    --col-gap: 15px;
+    --col-gap-desktop: {{ column_gap }}px;
+  {% endif %}
+
+  --repeat: {{ items_to_show }};
+  --col-mobile: {{ items_per_row_mobile }};
+{%- endcapture -%}
+
+{%- style -%}
+  /* -------------------------------------------------------
+     2. Basic Tab Content Defaults
+     ------------------------------------------------------- */
+  .collection-tab__tab-content {
+    transform: translateY(30px);
+    -webkit-transform: translateY(30px);
+    transition: all 0.3s ease;
+  }
+  .collection-tab__tab-content.active {
+    opacity: 1;
+    visibility: visible;
+    position: relative;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .collection-tab__ta {
+    margin-bottom: 20px !important; /* Adjust this value as needed */
+  }
+  /* -------------------------------------------------------
+     3. Tab Items (Un/Checked) + Font Size + Radius
+     ------------------------------------------------------- */
+  .collection-tab__tab-item {
+   background-color: var(--tab-unchecked-bg, transparent) !important;
+  color: var(--tab-unchecked-text, inherit) !important;
+  font-size: var(--tab-font-size, 14px) !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  padding-left: 28px !important;
+  padding-right: 28px !important;
+  border-radius: var(--tab-border-radius, 0px) !important;
+  border: var(--tab-unchecked-border-thickness, 0px) solid var(--tab-unchecked-border-color, #000000) !important;
+  }
+  .collection-tab__tab-item.active {
+    background-color: var(--tab-checked-bg, #000000) !important;
+  color: var(--tab-checked-text, #ffffff) !important;
+  font-size: var(--tab-font-size, 14px) !important;
+  border: var(--tab-checked-border-thickness, 0px) solid var(--tab-checked-border-color, #000000) !important;
+  }
+  .collection-tab__ta {
+    scrollbar-width: none; /* For Firefox */
+    -ms-overflow-style: none; /* For IE and Edge */
+  }
+
+  .collection-tab__ta::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Opera */
+  }
+  /* -------------------------------------------------------
+     4. Tab Switching Animations
+        Note: "default" vs. "none" vs. "fade" are new naming
+        plus older "fade-in", "fade-out", etc. + new extras
+     ------------------------------------------------------- */
+
+  /* Default (the old 'none' behavior) */
+  .collection-tab__tab-content.tab-anim-default {
+    /* matches original transform & transitions above */
+  }
+
+  /* None (no animation at all) */
+  .collection-tab__tab-content.tab-anim-none {
+    transition: none !important;
+    transform: none !important;
+  }
+  .collection-tab__tab-content.tab-anim-none.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Fade (simple fade) */
+  .collection-tab__tab-content.tab-anim-fade {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease;
+  }
+  .collection-tab__tab-content.tab-anim-fade.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Fade In */
+  .collection-tab__tab-content.tab-anim-fade-in {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease-in-out;
+  }
+  .collection-tab__tab-content.tab-anim-fade-in.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Fade Out */
+  .collection-tab__tab-content.tab-anim-fade-out {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.4s ease-in-out;
+  }
+  .collection-tab__tab-content.tab-anim-fade-out.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Slide Up */
+  .collection-tab__tab-content.tab-anim-slide-up {
+    transform: translateY(20px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease-in-out;
+  }
+  .collection-tab__tab-content.tab-anim-slide-up.active {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Slide Down */
+  .collection-tab__tab-content.tab-anim-slide-down {
+    transform: translateY(-20px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease-in-out;
+  }
+  .collection-tab__tab-content.tab-anim-slide-down.active {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Zoom In */
+  .collection-tab__tab-content.tab-anim-zoom-in {
+    transform: scale(0.9);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease-in-out;
+  }
+  .collection-tab__tab-content.tab-anim-zoom-in.active {
+    transform: scale(1);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Zoom Out */
+  .collection-tab__tab-content.tab-anim-zoom-out {
+    transform: scale(1.1);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease-in-out;
+  }
+  .collection-tab__tab-content.tab-anim-zoom-out.active {
+    transform: scale(1);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* ---- 4 Additional Complex Animations ---- */
+
+  /* Flip X */
+  .collection-tab__tab-content.tab-anim-flip-x {
+    transform: perspective(600px) rotateX(90deg);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.6s ease;
+  }
+  .collection-tab__tab-content.tab-anim-flip-x.active {
+    transform: perspective(600px) rotateX(0deg);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Flip Y */
+  .collection-tab__tab-content.tab-anim-flip-y {
+    transform: perspective(600px) rotateY(90deg);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.6s ease;
+  }
+  .collection-tab__tab-content.tab-anim-flip-y.active {
+    transform: perspective(600px) rotateY(0deg);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Rotate Left */
+  .collection-tab__tab-content.tab-anim-rotate-left {
+    transform: rotate(-90deg);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.6s ease;
+  }
+  .collection-tab__tab-content.tab-anim-rotate-left.active {
+    transform: rotate(0deg);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Rotate Right */
+  .collection-tab__tab-content.tab-anim-rotate-right {
+    transform: rotate(90deg);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.6s ease;
+  }
+  .collection-tab__tab-content.tab-anim-rotate-right.active {
+    transform: rotate(0deg);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* -------------------------------------------------------
+     New: Scroll Animation CSS (fully scoped to .workspace-section)
+     ------------------------------------------------------- */
+  .workspace-section.scroll-animation-fade-in {
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .workspace-section.scroll-animation-fade {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .workspace-section.scroll-animation-slide-in {
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.3s ease, transform 0.8s ease;
+  }
+  .workspace-section.scroll-animation-smooth-fade-up {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  /* Revealed states */
+  .workspace-section.scroll-animation-fade-in.revealed,
+  .workspace-section.scroll-animation-fade.revealed {
+    opacity: 1;
+  }
+  .workspace-section.scroll-animation-slide-in.revealed {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .workspace-section.scroll-animation-smooth-fade-up.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* CSS Override for Theme Editor */
+  .shopify-design-mode .workspace-section.scroll-animation-fade-in,
+  .shopify-design-mode .workspace-section.scroll-animation-fade,
+  .shopify-design-mode .workspace-section.scroll-animation-slide-in,
+  .shopify-design-mode .workspace-section.scroll-animation-smooth-fade-up {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* New CSS for mobile-only dots and desktop-only arrows */
+  @media (min-width: 768px) {
+    .hidden-desktop {
+      display: none !important;
+    }
+  }
+  @media (max-width: 767px) {
+    .desktop-only {
+      display: none !important;
+    }
+  }
+
+  /* -------- Placeholder card visual styles -------- */
+  .sec__collection-tab .ph-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  /* Soft tile background like the screenshot, but keep image clear */
+  .sec__collection-tab .ph-media-wrap {
+    background: #F6EFEA; /* light warm tile */
+    border-radius: 6px;
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Instagram-style 4:5 image area */
+  .sec__collection-tab .ph-media {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  /* Placeholder title (shown only when no collection selected) */
+  .sec__collection-tab .ph-title {
+    margin: 8px 6px 0;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.35;
+    color: #1b1b1b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Default spacing between slides uses your variables */
+  .sec__collection-tab .swiper-wrapper {
+    gap: var(--col-gap, 15px);
+  }
+  @media (min-width: 992px) {
+    .sec__collection-tab .swiper-wrapper {
+      gap: var(--col-gap-desktop, 15px);
+    }
+  }
+
+  /* Tighter gap ONLY when placeholders are showing */
+  .sec__collection-tab .placeholder-mode .swiper-wrapper,
+  .sec__collection-tab .placeholder-mode .products-grid__items {
+    gap: 10px;
+  }
+  @media (min-width: 992px) {
+    .sec__collection-tab .placeholder-mode .swiper-wrapper,
+    .sec__collection-tab .placeholder-mode .products-grid__items {
+      gap: 16px;
+    }
+  }
+
+  /* Heading and Subheading Styles */
+  .section__header-heading {
+    font-size: {{ heading_font_size_desktop }}px;
+    font-weight: {% if enable_custom_font_weight_heading %}{{ font_weight_heading }}{% else %}inherit{% endif %};
+  }
+  .section__header-subheading {
+    font-size: {{ subheading_font_size_desktop }}px;
+    color: {{ subheading_color }};
+    font-weight: {% if enable_custom_font_weight_subheading %}{{ font_weight_subheading }}{% else %}inherit{% endif %};
+    margin-top: {{ vertical_gap_heading_subheading }}px;
+    margin-bottom: {{ vertical_gap_subheading_section_desktop }}px;
+    padding-left: {{ subheading_padding_left_right_desktop }}px;
+    padding-right: {{ subheading_padding_left_right_desktop }}px;
+    text-align: {{ content_alignment }};
+  }
+
+  @media (max-width: 767px) {
+    .section__header-heading {
+      font-size: {{ heading_font_size_mobile }}px;
+    }
+    .section__header-subheading {
+      font-size: {{ subheading_font_size_mobile }}px;
+      margin-bottom: {{ vertical_gap_subheading_section_mobile }}px;
+      padding-left: {{ subheading_padding_left_right_mobile }}px;
+      padding-right: {{ subheading_padding_left_right_mobile }}px;
+    }
+  }
+
+  /* Gap between product cards and navigation dots */
+  .sec__collection-tab .swiper-pagination {
+    margin-top: {{ gap_product_cards_dots }}px;
+  }
+{%- endstyle -%}
+
+<div
+  id="section-{{ section.id }}"
+  class="section workspace-section{% if st.padding_top < 30 %} pt-min{% endif %}{% if st.padding_bottom < 30 %} pb-min{% endif %} sec__collection-tab {% if show_load_more_button %}sec__products-loadmore{% endif %} color-{{ color_scheme }} gradient{{ reset_spacing }}{% if reveal %} overflow-hidden{% endif %}"
+  style="{{ style | strip | strip_newlines }}"
+>
+  <div class="{{ section_width }}">
+    {%- comment -%}
+      ------------------------------------------------------
+      5. If No Blocks, Show Only Heading (If Any)
+      ------------------------------------------------------
+    {%- endcomment -%}
+    {% if section.blocks.size == 0 %}
+      {% if heading != blank or subheading != blank %}
+        <div
+          class="
+            section__header mb-30 mb-sm-20 text-{{ content_alignment }}
+            {% if st.section_width == 'full_width' %} px-20{% endif %}
+            {% if button_label != blank %} flex gap-15 flex-wrap justify-content-{{ content_alignment }}
+              {% if content_alignment == 'right' %}
+                flex-row-reverse
+              {% endif %}
+            {% endif %}
+          "
+        >
+          {% if heading != blank %}
+            <h2
+              class="section__header-heading heading-letter-spacing {% if scroll_animation != 'none' %}scroll-trigger {{ scroll_animation }}{% endif %} mt-0 mb-0"
+            >
+              {{ heading }}
+            </h2>
+          {% endif %}
+          {% if subheading != blank %}
+            <p class="section__header-subheading mt-0 mb-0">
+              {{ subheading }}
+            </p>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endif %}
+
+    {%- comment -%}
+      ------------------------------------------------------
+      6. If Blocks Exist, Render Tabs & Content
+      ------------------------------------------------------
+    {%- endcomment -%}
+    {% if section.blocks.size > 0 %}
+      <!-- Forced "horizontal" tab style, "fill" default -->
+     <tab-items
+  data-type="horizontal"
+  style="
+    --tab-unchecked-bg: {{ tab_unchecked_bg_color }};
+    --tab-checked-bg: {{ tab_checked_bg_color }};
+    --tab-unchecked-text: {{ tab_unchecked_text_color }};
+    --tab-checked-text: {{ tab_checked_text_color }};
+    --tab-border-radius: {{ tab_border_radius }}px;
+    --tab-font-size: {{ tab_font_size }}px;
+    --tab-checked-border-thickness: {{ tab_checked_border_thickness }}px;
+    --tab-unchecked-border-thickness: {{ tab_unchecked_border_thickness }}px;
+    --tab-checked-border-color: {{ tab_checked_border_color }};
+    --tab-unchecked-border-color: {{ tab_unchecked_border_color }};
+  "
+>
+        <div
+          class="
+            text-{{ content_alignment }}
+            {% if scroll_animation != 'none' %}scroll-trigger {{ scroll_animation }}{% endif %}
+            section__header mb-40 mb-sm-30
+            {% if st.section_width == 'full_width' %} px-20{% endif %}
+          "
+          style="--animation-order: 2;"
+        >
+          <!-- Main Heading -->
+          {% if heading != blank %}
+            <div class="text-{{ content_alignment }}">
+              <h2
+                class="section__header-heading heading-letter-spacing mt-0 mb-0"
+              >
+                {{ heading }}
+              </h2>
+            </div>
+          {% endif %}
+          <!-- Subheading -->
+          {% if subheading != blank %}
+            <div class="text-{{ content_alignment }}">
+              <p class="section__header-subheading mt-0 mb-0">
+                {{ subheading }}
+              </p>
+            </div>
+          {% endif %}
+
+          <!-- Horizontal Tabs (fill style only) -->
+          <div class="mt-30 inline-flex align-center max-w-100 collection-tab__ta overflow-auto gap-15 ">
+            {% for block in section.blocks %}
+              {% liquid
+                assign block_st = block.settings
+                assign col_title = block_st.collection_title
+                if col_title == blank and block_st.collection != blank
+                  assign temp_col = collections[block_st.collection]
+                  if temp_col != blank
+                    assign col_title = temp_col.title
+                  endif
+                endif
+                if col_title == blank
+                  assign col_title = 'Collection'
+                endif
+              %}
+              <div
+                data-block-id="{{ block.id }}"
+                class="collection-tab__tab-item whitespace-nowrap pointer px-20 pb-8 transition text-center heading-style grey-bg btn-hover btn-rounded px-20 py-10 btn-active{% if forloop.first %} active{% endif %}"
+              >
+                {{ col_title }}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        {%- comment -%}
+          ------------------------------------------------------
+          7. TAB CONTENT: Grid or Carousel
+          ------------------------------------------------------
+        {%- endcomment -%}
+        <div class="relative tab-content">
+          {% if display_mode == 'grid' %}
+            {%- comment -%} GRID MODE {%- endcomment -%}
+            {% for block in section.blocks %}
+              {% liquid
+                assign block_st = block.settings
+                assign collection_handle = block_st.collection
+                assign all_products_to_show = 0
+                assign all_product_visible = rows | times: items_per_row
+                assign limit_products_paginate = 0
+                if all_products_to_show >= all_product_visible
+                  assign limit_products_paginate = all_product_visible
+                else
+                  assign limit_products_paginate = all_products_to_show
+                endif
+              %}
+              {% if collection_handle != blank %}
+                {% assign collection_obj = collections[collection_handle] %}
+                {% if collection_obj != blank and collection_obj.products_count > 0 %}
+                  {% liquid
+                    assign all_products_to_show = 0
+                    if collection_obj.products.size >= items_to_show
+                      assign all_products_to_show = items_to_show
+                    else
+                      assign all_products_to_show = collection_obj.products.size
+                    endif
+
+                    assign all_product_visible = rows | times: items_per_row
+                    assign limit_products_paginate = 0
+                    if all_products_to_show >= all_product_visible
+                      assign limit_products_paginate = all_product_visible
+                    else
+                      assign limit_products_paginate = all_products_to_show
+                    endif
+                  %}
+                  {% if show_load_more_button %}
+                    {%- paginate collection_obj.products by limit_products_paginate -%}
+                      <div
+                        class="
+                          collection-tab__tab-content tab-anim-{{ tab_switch_animation }}
+                          collection-tab-{{ block.id }}
+                          absolute invisible inset-0 transition pointer-none
+                          {% if forloop.first %} active{% endif %}
+                        "
+                        data-block-id="{{ block.id }}"
+                      >
+                        <grid-custom
+                          class="swiper products-grid__items flex flex-cols{% if column_gap < 31 %} row-gap-20 row-gap-md-30{% endif %} product-ajax__append flex-wrap"
+                          style="{{ col_style | strip | strip_newlines }}"
+                          data-enable="false"
+                          data-section-id="{{ section.id }}"
+                          data-mobile="{{ items_per_row_mobile }}"
+                          data-mobile-rows="{{ rows_mobile }}"
+                          data-spacing="{{ column_gap }}"
+                          data-free-scroll="{{ data_free_scroll }}"
+                        >
+                          {% for product in collection_obj.products %}
+                            {% render 'product-item',
+                              card_product: product,
+                              container: section_width,
+                              colunm: items_per_row,
+                              colunm_mobile: items_per_row_mobile,
+                              padding: column_gap,
+                              scroll_animation: scroll_animation,
+                              section_id: section.id,
+                              class: 'grid-custom-item',
+                              template_enable_action: true,
+                              template_enable_product_vendor: true,
+                              template_enable_rate: true,
+                              template_enable_product_short_description: true,
+                              template_enable_color_swatches: true,
+                              template_enable_price: true,
+                              template_enable_add_cart: true,
+                              indexFor: forloop.index,
+                              template_enable_product_badges: true
+                            %}
+                          {% endfor %}
+                        </grid-custom>
+
+                        {% if button_label != blank and all_products_to_show > all_product_visible %}
+                          <loadmore-function
+                            data-all-products="{{ all_products_to_show }}"
+                            data-section-id="{{ section.id }}"
+                            data-limit="{{ limit_products_paginate }}"
+                            data-collection-url="{{ collection_obj.url }}"
+                            data-url="?page={{ paginate.current_page | plus: 1 }}"
+                            class="block text-center mt-25 w-full col-md-w-custom"
+                            style="--col-width: 100%"
+                            data-block-id="{{ block.id }}"
+                          >
+                            <button class="btn-{% if st.use_outline_button_style %}outline{% else %}primary{% endif %} load-more relative">
+                              <span class="hidden-on-load">{{ button_label }}</span>
+                              <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 14 14"
+                                fill="none"
+                                class="spin opacity-0 icon-load"
+                              >
+                                <use href="#icon-load"></use>
+                              </svg>
+                            </button>
+                          </loadmore-function>
+                        {% endif %}
+                      </div>
+                      {%- if paginate.pages > 1 -%}{% endif %}
+                    {% endpaginate %}
+                  {% else %}
+                    <div
+                      class="
+                        collection-tab__tab-content tab-anim-{{ tab_switch_animation }}
+                        absolute invisible inset-0 transition pointer-none
+                        {% if forloop.first %} active{% endif %}
+                      "
+                      data-block-id="{{ block.id }}"
+                    >
+                      <grid-custom
+                        class="swiper products-grid__items flex flex-cols{% if column_gap < 31 %} row-gap-20 row-gap-md-30{% endif %} flex-md-wrap placeholder-mode"
+                        style="{{ col_style | strip | strip_newlines }}"
+                        data-enable="false"
+                        data-mobile="{{ items_per_row_mobile }}"
+                        data-mobile-rows="{{ rows_mobile }}"
+                        data-spacing="{{ column_gap }}"
+                        data-free-scroll="{{ data_free_scroll }}"
+                      >
+                        {%- assign placeholder_count = 4 -%}
+                        {%- for i in (1..placeholder_count) -%}
+                          <div class="grid-custom-item">
+                            <div class="ph-card">
+                              <div class="ph-media-wrap">
+                                <div
+                                  class="ph-media"
+                                  style="background-image:url('https://artistintelligence.org/wp-content/uploads/2015/08/import_placeholder.png');"
+                                  role="img"
+                                  aria-label="Product Placeholder"
+                                ></div>
+                              </div>
+                              <!-- Single placeholder title only when no collection is selected -->
+                              <div class="ph-title">Product Title</div>
+                            </div>
+                          </div>
+                        {%- endfor -%}
+                      </grid-custom>
+                    </div>
+                  {% endif %}
+                {% else %}
+                  <div
+                    class="
+                      collection-tab__tab-content tab-anim-{{ tab_switch_animation }}
+                      absolute invisible inset-0 transition pointer-none
+                      {% if forloop.first %} active{% endif %}
+                    "
+                    data-block-id="{{ block.id }}"
+                  >
+                    <grid-custom
+                      class="swiper products-grid__items flex flex-cols{% if column_gap < 31 %} row-gap-20 row-gap-md-30{% endif %} flex-md-wrap placeholder-mode"
+                      style="{{ col_style | strip | strip_newlines }}"
+                      data-enable="false"
+                      data-mobile="{{ items_per_row_mobile }}"
+                      data-mobile-rows="{{ rows_mobile }}"
+                      data-spacing="{{ column_gap }}"
+                      data-free-scroll="{{ data_free_scroll }}"
+                    >
+                      {%- assign placeholder_count = 4 -%}
+                      {%- for i in (1..placeholder_count) -%}
+                        <div class="grid-custom-item">
+                          <div class="ph-card">
+                            <div class="ph-media-wrap">
+                              <div
+                                class="ph-media"
+                                style="background-image:url('https://artistintelligence.org/wp-content/uploads/2015/08/import_placeholder.png');"
+                                role="img"
+                                aria-label="Product Placeholder"
+                              ></div>
+                            </div>
+                            <!-- Single placeholder title only when no collection is selected -->
+                            <div class="ph-title">Product Title</div>
+                          </div>
+                        </div>
+                      {%- endfor -%}
+                    </grid-custom>
+                  </div>
+                {% endif %}
+              {% else %}
+                <div
+                  class="
+                    collection-tab__tab-content tab-anim-{{ tab_switch_animation }}
+                    absolute invisible inset-0 transition pointer-none
+                    {% if forloop.first %} active{% endif %}
+                  "
+                  data-block-id="{{ block.id }}"
+                >
+                  <grid-custom
+                    class="swiper products-grid__items flex flex-cols{% if column_gap < 31 %} row-gap-20 row-gap-md-30{% endif %} flex-md-wrap placeholder-mode"
+                    style="{{ col_style | strip | strip_newlines }}"
+                    data-enable="false"
+                    data-mobile="{{ items_per_row_mobile }}"
+                    data-mobile-rows="{{ rows_mobile }}"
+                    data-spacing="{{ column_gap }}"
+                    data-free-scroll="{{ data_free_scroll }}"
+                  >
+                    {%- assign placeholder_count = 4 -%}
+                    {%- for i in (1..placeholder_count) -%}
+                      <div class="grid-custom-item">
+                        <div class="ph-card">
+                          <div class="ph-media-wrap">
+                            <div
+                              class="ph-media"
+                              style="background-image:url('https://artistintelligence.org/wp-content/uploads/2015/08/import_placeholder.png');"
+                              role="img"
+                              aria-label="Product Placeholder"
+                            ></div>
+                          </div>
+                          <!-- Single placeholder title only when no collection is selected -->
+                          <div class="ph-title">Product Title</div>
+                        </div>
+                      </div>
+                    {%- endfor -%}
+                  </grid-custom>
+                </div>
+              {% endif %}
+            {% endfor %}
+
+          {% else %}
+            {%- comment -%} CAROUSEL MODE {%- endcomment -%}
+            {% for block in section.blocks %}
+              {% liquid
+                assign block_st = block.settings
+                assign collection_handle = block_st.collection
+                assign all_products_to_show = 0
+                if collection_obj.products.size >= items_to_show
+                  assign all_products_to_show = items_to_show
+                else
+                  assign all_products_to_show = collection_obj.products.size
+                endif
+                assign all_product_visible = rows | times: items_per_row
+              %}
+
+              {% if collection_handle != blank %}
+                {% assign collection_obj = collections[collection_handle] %}
+                {% if collection_obj != blank and collection_obj.products_count > 0 %}
+                  {%- paginate collection_obj.products by all_product_visible -%}
+                    <div
+                      class="
+                        collection-tab__tab-content tab-anim-{{ tab_switch_animation }}
+                        absolute invisible inset-0 transition pointer-none
+                        {% if forloop.first %} active{% endif %}
+                      "
+                      data-block-id="{{ block.id }}"
+                    >
+                      {% if items_per_row_mobile > 1 and items_per_row_mobile < 2 %}
+                        <div class="free-scroll">
+                      {% endif %}
+                      <slide-section
+                        class="swiper{% if reveal %} reveal_on_scroll{% endif %}"
+                        data-section-id="{{ section.id }}"
+                        data-block-id="{{ block.id }}"
+                        data-autoplay="{{ autoplay }}"
+                        data-effect="slide"
+                        data-loop="{{ infinite }}"
+                        data-speed="800"
+                        data-autoplay-speed="{{ autorotate_speed }}"
+                        data-spacing="{{ column_gap }}"
+                        data-mobile="{{ items_per_row_mobile }}"
+                        data-tablet="3"
+                        data-desktop="{{ items_per_row }}"
+                        data-free-scroll="{{ data_free_scroll }}"
+                        data-pagination-progressbar="false"
+                        style="{{ col_style | strip | strip_newlines }}"
+                        data-arrow-centerimage="1"
+                      >
+                        {% if show_arrow %}
+                          <div class="{% if desktop_arrows %}desktop-only{% endif %}">
+                            {%- render 'swiper-navigation',
+                              arrow_color: st.arrow_color,
+                              arrow_bg_color: st.arrow_bg_color
+                            -%}
+                          </div>
+                        {% endif %}
+                        <div class="swiper-wrapper">
+                          {% for product in collection_obj.products %}
+                            {% render 'product-item',
+                              card_product: product,
+                              section_id: section.id,
+                              class: ' swiper-slide',
+                              template_enable_action: true,
+                              template_enable_product_vendor: true,
+                              template_enable_rate: true,
+                              template_enable_product_short_description: true,
+                              template_enable_color_swatches: true,
+                              template_enable_price: true,
+                              template_enable_add_cart: true,
+                              template_enable_product_badges: true,
+                              scroll_animation: scroll_animation,
+                              indexFor: forloop.index
+                            %}
+                          {% endfor %}
+                        </div>
+                        {% if carousel_pagination == 'dots' or carousel_pagination == 'dots_mobile' %}
+                          <div
+                            class="swiper-pagination flex flex-wrap px-15 lh-1 bottom-30 justify-content-center {% if carousel_pagination == 'dots_mobile' %}hidden-desktop{% endif %}"
+                            style="--swiper-pagination-bottom: 3rem; --swiper-pagination-position: static;"
+                          ></div>
+                        {% endif %}
+                      </slide-section>
+                      {% if items_per_row_mobile > 1 and items_per_row_mobile < 2 %}
+                        </div>
+                      {% endif %}
+                    </div>
+                  {% endpaginate %}
+                {% else %}
+                  <!-- Fallback for empty collection in carousel mode -->
+                  <div
+                    class="
+                      collection-tab__tab-content tab-anim-{{ tab_switch_animation }}
+                      absolute invisible inset-0 transition pointer-none
+                      {% if forloop.first %} active{% endif %}
+                    "
+                    data-block-id="{{ block.id }}"
+                  >
+                    {% if items_per_row_mobile > 1 and items_per_row_mobile < 2 %}
+                      <div class="free-scroll">
+                    {% endif %}
+                    <slide-section
+                      class="swiper{% if reveal %} reveal_on_scroll{% endif %} placeholder-mode"
+                      data-section-id="{{ section.id }}"
+                      data-autoplay="{{ autoplay }}"
+                      data-effect="slide"
+                      data-loop="{{ infinite }}"
+                      data-speed="800"
+                      data-autoplay-speed="{{ autorotate_speed }}"
+                      data-spacing="{{ column_gap }}"
+                      data-mobile="{{ items_per_row_mobile }}"
+                      data-tablet="3"
+                      data-desktop="{{ items_per_row }}"
+                      data-pagination-progressbar="false"
+                      style="{{ col_style | strip | strip_newlines }}"
+                    >
+                      {% if show_arrow %}
+                        <div class="{% if desktop_arrows %}desktop-only{% endif %}">
+                          {%- render 'swiper-navigation',
+                            arrow_color: st.arrow_color,
+                            arrow_bg_color: st.arrow_bg_color
+                          -%}
+                        </div>
+                      {% endif %}
+                      <div class="swiper-wrapper">
+                        {%- assign placeholder_count = 4 -%}
+                        {%- for i in (1..placeholder_count) -%}
+                          <div class="swiper-slide">
+                            <div class="ph-card">
+                              <div class="ph-media-wrap">
+                                <div
+                                  class="ph-media"
+                                  style="background-image:url('https://artistintelligence.org/wp-content/uploads/2015/08/import_placeholder.png');"
+                                  role="img"
+                                  aria-label="Product Placeholder"
+                                ></div>
+                              </div>
+                              <!-- Single placeholder title only when no collection is selected -->
+                              <div class="ph-title">Product Title</div>
+                            </div>
+                          </div>
+                        {%- endfor -%}
+                      </div>
+                      {% if carousel_pagination == 'dots' or carousel_pagination == 'dots_mobile' %}
+                        <div
+                          class="swiper-pagination flex flex-wrap px-15 lh-1 bottom-30 justify-content-center {% if carousel_pagination == 'dots_mobile' %}hidden-desktop{% endif %}"
+                          style="--swiper-pagination-bottom: 3rem; --swiper-pagination-position: static;"
+                        ></div>
+                      {% endif %}
+                    </slide-section>
+                    {% if items_per_row_mobile > 1 and items_per_row_mobile < 2 %}
+                      </div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              {% else %}
+                <!-- Fallback for empty collection in carousel mode -->
+                <div
+                  class="
+                    collection-tab__tab-content tab-anim-{{ tab_switch_animation }}
+                    absolute invisible inset-0 transition pointer-none
+                    {% if forloop.first %} active{% endif %}
+                  "
+                  data-block-id="{{ block.id }}"
+                >
+                  {% if items_per_row_mobile > 1 and items_per_row_mobile < 2 %}
+                    <div class="free-scroll">
+                  {% endif %}
+                  <slide-section
+                    class="swiper{% if reveal %} reveal_on_scroll{% endif %} placeholder-mode"
+                    data-section-id="{{ section.id }}"
+                    data-autoplay="{{ autoplay }}"
+                    data-effect="slide"
+                    data-loop="{{ infinite }}"
+                    data-speed="800"
+                    data-autoplay-speed="{{ autorotate_speed }}"
+                    data-spacing="{{ column_gap }}"
+                    data-mobile="{{ items_per_row_mobile }}"
+                    data-tablet="3"
+                    data-desktop="{{ items_per_row }}"
+                    data-pagination-progressbar="false"
+                    style="{{ col_style | strip | strip_newlines }}"
+                  >
+                    {% if show_arrow %}
+                      <div class="{% if desktop_arrows %}desktop-only{% endif %}">
+                        {%- render 'swiper-navigation',
+                          arrow_color: st.arrow_color,
+                          arrow_bg_color: st.arrow_bg_color
+                        -%}
+                      </div>
+                    {% endif %}
+                    <div class="swiper-wrapper">
+                      {%- assign placeholder_count = 4 -%}
+                      {%- for i in (1..placeholder_count) -%}
+                        <div class="swiper-slide">
+                          <div class="ph-card">
+                            <div class="ph-media-wrap">
+                              <div
+                                class="ph-media"
+                                style="background-image:url('https://artistintelligence.org/wp-content/uploads/2015/08/import_placeholder.png');"
+                                role="img"
+                                aria-label="Product Placeholder"
+                              ></div>
+                            </div>
+                            <!-- Single placeholder title only when no collection is selected -->
+                            <div class="ph-title">Product Title</div>
+                          </div>
+                        </div>
+                      {%- endfor -%}
+                    </div>
+                    {% if carousel_pagination == 'dots' or carousel_pagination == 'dots_mobile' %}
+                      <div
+                        class="swiper-pagination flex flex-wrap px-15 lh-1 bottom-30 justify-content-center {% if carousel_pagination == 'dots_mobile' %}hidden-desktop{% endif %}"
+                        style="--swiper-pagination-bottom: 3rem; --swiper-pagination-position: static;"
+                      ></div>
+                    {% endif %}
+                  </slide-section>
+                  {% if items_per_row_mobile > 1 and items_per_row_mobile < 2 %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        </div>
+      </tab-items>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Fully scoped JavaScript for Scroll Animation -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Use the unique section ID for scoping
+    var section = document.getElementById('section-{{ section.id }}');
+    if (section) {
+      var animation = '{{ section.settings.scroll_animation }}';
+      // In Theme Editor, always show section fully revealed
+      if (document.body.classList.contains('shopify-design-mode')) {
+        section.classList.add('revealed');
+      } else if (animation && animation !== 'none') {
+        // Add the scroll animation class (e.g. scroll-animation-fade-in)
+        section.classList.add('scroll-animation-' + animation);
+        var observer = new IntersectionObserver(function(entries, observer) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              section.classList.add('revealed');
+              observer.unobserve(section);
+            }
+          });
+        }, { threshold: 0.15 });
+        observer.observe(section);
+      }
+    }
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Product Tabs Navigation ",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header","footer","custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Layout & Container"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Container Width (Choose from preset styles)",
+      "info": "Determines how wide this section will be.",
+      "default": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "Fixed Container"
+        },
+        {
+          "value": "fluid_container",
+          "label": "Fluid Container"
+        },
+        {
+          "value": "stretch_width",
+          "label": "Stretch to Full"
+        },
+        {
+          "value": "full_width",
+          "label": "Edge to Edge (Full Width)"
+        }
+      ]
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "info": "Pick an overall color scheme for backgrounds & text.",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Scroll Animation"
+    },
+    {
+      "type": "select",
+      "id": "scroll_animation",
+      "label": "Section Scroll Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "fade-in", "label": "Fade In" },
+        { "value": "fade", "label": "Fade" },
+        { "value": "slide-in", "label": "Slide In" },
+        { "value": "smooth-fade-up", "label": "Smooth Fade Up" }
+      ],
+      "default": "none",
+      "info": "Choose a scroll-based animation effect for revealing this section."
+    },
+    {
+      "type": "header",
+      "content": "Main Section Title"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section Title (Shown above the tabs)",
+      "info": "Enter a short heading for this collection tab section."
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading Text",
+      "info": "Enter subheading text under the main heading."
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "info": "Control the size of the main heading text (in px).",
+      "min": 10,
+      "max": 80,
+      "step": 1,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size_mobile",
+      "label": "Heading Font Size (Mobile)",
+      "info": "Control the size of the main heading text on mobile (in px).",
+      "min": 10,
+      "max": 80,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_font_weight_heading",
+      "label": "Enable Custom Font Weight for Heading",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "font_weight_heading",
+      "label": "Heading Font Weight",
+      "info": "Select custom font weight for heading (only applies if enabled).",
+      "default": "400",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-Bold" },
+        { "value": "700", "label": "Bold" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "subheading_font_size_desktop",
+      "label": "Subheading Font Size (Desktop)",
+      "info": "Control the size of the subheading text (in px).",
+      "min": 10,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "subheading_font_size_mobile",
+      "label": "Subheading Font Size (Mobile)",
+      "info": "Control the size of the subheading text on mobile (in px).",
+      "min": 10,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading Text Color",
+      "default": "#000000"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_font_weight_subheading",
+      "label": "Enable Custom Font Weight for Subheading",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "font_weight_subheading",
+      "label": "Subheading Font Weight",
+      "info": "Select custom font weight for subheading (only applies if enabled).",
+      "default": "400",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-Bold" },
+        { "value": "700", "label": "Bold" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "vertical_gap_heading_subheading",
+      "label": "Vertical Gap: Heading to Subheading (px)",
+      "info": "Space between heading and subheading.",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "vertical_gap_subheading_section_desktop",
+      "label": "Vertical Gap: Subheading to Tabs (Desktop) (px)",
+      "info": "Space between subheading and tabs on desktop.",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "vertical_gap_subheading_section_mobile",
+      "label": "Vertical Gap: Subheading to Tabs (Mobile) (px)",
+      "info": "Space between subheading and tabs on mobile.",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_left_right_desktop",
+      "label": "Subheading Left/Right Padding (Desktop) (px)",
+      "info": "Horizontal padding for subheading on desktop.",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_left_right_mobile",
+      "label": "Subheading Left/Right Padding (Mobile) (px)",
+      "info": "Horizontal padding for subheading on mobile.",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "gap_product_cards_dots",
+      "label": "Vertical Gap: Product Cards to Navigation Dots (px)",
+      "info": "Space between product cards and pagination dots.",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Content Alignment",
+      "info": "Alignment for heading, subheading, and tabs.",
+      "default": "center",
+      "options": [
+        {
+          "value": "left",
+          "label": "Align Left"
+        },
+        {
+          "value": "center",
+          "label": "Align Center"
+        },
+        {
+          "value": "right",
+          "label": "Align Right"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Display Settings"
+    },
+    {
+      "type": "select",
+      "id": "display_mode",
+      "label": "Product Display Mode",
+      "info": "Show products in a grid or a carousel slider.",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Grid"
+        },
+        {
+          "value": "carousel",
+          "label": "Carousel"
+        }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "range",
+      "id": "items_to_show",
+      "label": "Total Products to Display",
+      "info": "Maximum number of products per tab to show initially.",
+      "min": 1,
+      "max": 24,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "items_per_row",
+      "label": "Products per Row (Desktop)",
+      "info": "How many products will fit in a single desktop row?",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "label": "Column Gap (px)",
+      "info": "Spacing between columns in the product grid/carousel.",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "default": 40,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Carousel Options"
+    },
+    {
+      "type": "checkbox",
+      "id": "infinite",
+      "label": "Infinite Loop",
+      "info": "Loop the carousel infinitely.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto-Change Slides",
+      "info": "Automatically rotate carousel slides.",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autorotate_speed",
+      "label": "Auto-Rotation Interval (seconds)",
+      "info": "Interval in seconds between each slide transition.",
+      "max": 6,
+      "min": 2,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "select",
+      "id": "pagination",
+      "label": "Carousel Pagination",
+      "info": "Choose pagination style for the carousel slider.",
+      "default": "none",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "dots", "label": "Dots" },
+        { "value": "dots_mobile", "label": "Dots Only on Mobile" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on Scroll",
+      "info": "Apply a reveal animation when scrolling into view.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Navigation Options"
+
+    },
+    {
+      "type": "header",
+      "content": "Grid Only Settings"
+    },
+    {
+      "type": "range",
+      "id": "rows",
+      "label": "Number of Rows (Desktop)",
+      "info": "Total grid rows to display (each row has items_per_row).",
+      "max": 3,
+      "min": 1,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "checkbox",
+      "id": "show_load_more_button",
+      "label": "Enable Grid Products On Mobile",
+      "info": "Allows displaying the products in grid on mobile and enables view more button.",
+      "default": true
+   
+    },
+    {
+      "type": "header",
+      "content": "Mobile Options"
+    },
+    {
+      "type": "checkbox",
+      "id": "carousel_on_mobile",
+      "label": "Enable Carousel on Mobile",
+      "info": "Convert product grid into a scrollable carousel on mobile. Disable 'Enable Grid Products On Mobile' for this to be functional.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "items_per_row_mobile",
+      "label": "Products per Row (Mobile)",
+      "info": "Number of products in a single row on smaller screens. If fractional (e.g. 1.5), free-scroll is enabled.",
+      "min": 1,
+      "max": 2,
+      "step": 0.5,
+      "default": 2
+    },
+    {
+      "type": "header",
+      "content": "Section Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding",
+      "info": "Extra space at the top of this section (in px).",
+      "default": 15,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding",
+      "info": "Extra space at the bottom of this section (in px).",
+      "default": 15,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Tab Appearance"
+    },
+    {
+      "type": "select",
+      "id": "tab_switch_animation",
+      "label": "Collection Tabs Animation",
+      "info": "Select how tabs switch content. 'Default' = original effect, 'None' = no effect, 'Fade' = simple fade, etc.",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default (Original)"
+        },
+        {
+          "value": "none",
+          "label": "No Animation"
+        },
+        {
+          "value": "fade",
+          "label": "Fade"
+        },
+        {
+          "value": "fade-in",
+          "label": "Fade In"
+        },
+        {
+          "value": "slide-up",
+          "label": "Slide Up"
+        },
+        {
+          "value": "slide-down",
+          "label": "Slide Down"
+        },
+        {
+          "value": "zoom-in",
+          "label": "Zoom In"
+        },
+        {
+          "value": "zoom-out",
+          "label": "Zoom Out"
+        },
+        {
+          "value": "flip-x",
+          "label": "Flip X"
+        },
+        {
+          "value": "flip-y",
+          "label": "Flip Y"
+        },
+        {
+          "value": "rotate-left",
+          "label": "Rotate Left"
+        },
+        {
+          "value": "rotate-right",
+          "label": "Rotate Right"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "tab_font_size",
+      "label": "Tab Font Size (px)",
+      "info": "Controls text size for the tab labels.",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "tab_unchecked_bg_color",
+      "label": "Tab Background (Unchecked)",
+      "info": "Background color of inactive tab.",
+      "default": "#EAEAEA"
+    },
+    {
+      "type": "color",
+      "id": "tab_checked_bg_color",
+      "label": "Tab Background (Checked)",
+      "info": "Background color of active tab.",
+      "default": "#2B2B2B"
+    },
+    {
+      "type": "color",
+      "id": "tab_unchecked_text_color",
+      "label": "Tab Text (Unchecked)",
+      "info": "Text color of inactive tab.",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "tab_checked_text_color",
+      "label": "Tab Text (Checked)",
+      "info": "Text color of active tab.",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "tab_border_radius",
+      "label": "Tab Border Radius",
+      "info": "Roundness of tab corners (in px).",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 8,
+      "unit": "px"
+
+       },
+    {
+
+      "type": "range",
+  "id": "tab_checked_border_thickness",
+  "label": "Tab Border Thickness (Checked)",
+  "info": "Border thickness for active tab (in px).",
+  "min": 0,
+  "max": 5,
+  "step": 1,
+  "unit": "px",
+  "default": 0
+},
+{
+  "type": "range",
+  "id": "tab_unchecked_border_thickness",
+  "label": "Tab Border Thickness (Unchecked)",
+  "info": "Border thickness for inactive tab (in px).",
+  "min": 0,
+  "max": 5,
+  "step": 1,
+  "unit": "px",
+  "default": 0
+},
+{
+  "type": "color",
+  "id": "tab_checked_border_color",
+  "label": "Tab Border Color (Checked)",
+  "info": "Border color for active tab.",
+  "default": "#000000"
+},
+{
+  "type": "color",
+  "id": "tab_unchecked_border_color",
+  "label": "Tab Border Color (Unchecked)",
+  "info": "Border color for inactive tab.",
+  "default": "#000000"
+
+
+
+
+      
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "limit": 7,
+      "name": "Collection Tab",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Pick a Collection",
+          "info": "Select the Shopify collection to display for this tab."
+        },
+        {
+          "type": "text",
+          "id": "collection_title",
+          "label": "Custom Tab Title",
+          "info": "Optional: Override the name displayed on the tab."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Tabs Navigation",
+           	"category": "Products",
+      "blocks": [
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

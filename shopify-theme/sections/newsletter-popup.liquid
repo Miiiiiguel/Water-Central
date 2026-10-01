@@ -1,0 +1,524 @@
+{% # theme-check-disable ContentForHeaderModification %}
+{%- capture content_for_query_string -%}
+  {{ content_for_header }}
+{%- endcapture -%}
+{% # theme-check-enable ContentForHeaderModification %}
+{%- assign page_url = content_for_query_string
+  | split: '"pageurl":"'
+  | last
+  | split: '"'
+  | first
+  | split: request.host
+  | last
+  | replace: '\/', '/'
+  | replace: '%20', ' '
+  | replace: '\u0026', '&'
+-%}
+{% liquid
+  assign section_st = section.settings
+  assign show_on_mobile = section_st.show_on_mobile
+  assign width = section_st.width
+  assign newsletter_heading = section_st.newsletter_heading
+  assign short_description = section_st.short_description
+  assign newsletter_email_placeholder = section_st.newsletter_email_placeholder
+  assign newsletter_button_label = section_st.newsletter_button_label
+  assign newsletter_banner = section_st.newsletter_banner
+  assign banner_width = section_st.banner_width
+  assign banner_image_width = section_st.banner_image_width
+  assign banner_image_height = section_st.banner_image_height
+  assign more_info = section_st.more_info
+
+  assign newsletter_border_color = section_st.newsletter_border_color
+  assign newsletter_border_weight = section_st.newsletter_border_weight
+
+  assign newsletter_desktop_width = section_st.newsletter_desktop_width
+  assign newsletter_desktop_height = section_st.newsletter_desktop_height
+
+  assign heading_font_size = section_st.heading_font_size
+
+  assign enable_logo = section_st.enable_logo
+  assign newsletter_logo = section_st.newsletter_logo
+  assign logo_width_desktop = section_st.logo_width_desktop
+  assign logo_width_mobile = section_st.logo_width_mobile
+
+  assign input_border_radius = section_st.input_border_radius
+  assign no_thanks_text = section_st.no_thanks_text
+  assign no_thanks_position = section_st.no_thanks_position
+  assign newsletter_border_radius = section_st.newsletter_border_radius
+
+  assign show = ''
+  if section_st.show != 'hide'
+    if section_st.show == 'show_homepage'
+      if request.page_type == 'index'
+        assign show = 'show_homepage'
+      else
+        assign show = ''
+      endif
+    else
+      assign show = 'show_all_page'
+    endif
+  endif
+  assign page_query_string = page_url | split: '?' | last
+%}
+{%- if show != blank -%}
+  {%- capture style -%}
+--popup-max-width: {{ width }}px;
+border-radius: {{ newsletter_border_radius }}px !important;
+{% if newsletter_border_weight > 0 %}
+  border: {{ newsletter_border_weight }}px solid {{ newsletter_border_color }} !important;
+{% endif %}
+  {%- endcapture -%}
+  <div class="section-newsletter-popup" style="display: none;">
+    <newsletter-popup
+      data-show="{{ show }}"
+      data-show-mb="{{ show_on_mobile }}"
+      data-section-id="{{ section.id }}"
+      data-popup-delay="10"
+      {% if show_on_mobile != blank %}
+        class="hidden block-md"
+      {% endif %}
+    >
+      {%- if page_query_string contains 'ajax=1' -%}
+        {%- comment -%}
+          The following inline <style> applies the overall newsletter width and height on desktop,
+          and adjusts the logo width on mobile if enabled.
+        {%- endcomment -%}
+        <style>
+          @media (min-width: 1025px) {
+            .newsletter-popup-{{ section.id }} {
+              width: {{ newsletter_desktop_width }}px !important;
+              height: {{ newsletter_desktop_height }}px !important;
+            }
+          }
+          {% if enable_logo %}
+          @media (max-width: 767px) {
+            .newsletter-logo-{{ section.id }} {
+              width: {{ logo_width_mobile }}px !important;
+            }
+          }
+          {% endif %}
+        </style>
+        <div
+          class="newsletter-popup popup-content flex newsletter-popup-{{ section.id }} {% if settings.rtl %} flex-row{% else %} flex-row-reverse{% endif %}"
+          style="{{ style | strip | strip_newlines }}"
+        >
+          <div class="newsletter-popup__content flex-1 relative">
+            <div class="{% if newsletter_banner != blank %}absolute-md inset-0{% endif %} overflow-y-auto custom-scrollbar p-1025-40 p-30 p-25 pt-1025-35 flex flex-column h-full w-full">
+              <div class="my-auto">
+                {% if enable_logo and newsletter_logo != blank %}
+                  <div class="newsletter-logo-wrapper" style="text-align: center; margin-bottom: 30px !important;">
+                    {% assign logo_alt = newsletter_logo.alt | default: 'Newsletter Logo' | escape %}
+                    <img
+                      src="{{ newsletter_logo | img_url: 'master' }}"
+                      alt="{{ logo_alt }}"
+                      class="newsletter-logo-{{ section.id }}"
+                      style="width: {{ logo_width_desktop }}px !important;"
+                    >
+                  </div>
+                {% endif %}
+                {%- if newsletter_heading != blank -%}
+                  <h2
+                    class="heading-letter-spacing newsletter-popup__heading mt-0 mb-10 lh-normal"
+                    style="font-size: {{ heading_font_size }}px !important;"
+                  >
+                    {{ newsletter_heading }}
+                  </h2>
+                {% endif %}
+                {%- if short_description != blank -%}
+                  <div class="newsletter-popup-des mb-25 word-break rich__text-m0 lh-small">
+                    {{ short_description }}
+                  </div>
+                {% endif %}
+                {% form 'customer', class: 'newsletter-form', id: 'newsletter-form' %}
+                  <input type="hidden" name="contact[tags]" value="newsletter">
+                  <div class="section-newsletter-form">
+                    <div class="field gap-10 justify-content-center btn-large">
+                      <input
+                        id="NewsletterEmail--{{ section.id }}"
+                        type="email"
+                        name="contact[email]"
+                        class="flex-1 w-full mb-10"
+                        value="{{ form.email }}"
+                        aria-required="true"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        autocomplete="email"
+                        {% if form.errors %}
+                          autofocus
+                          aria-invalid="true"
+                          aria-describedby="Newsletter-error--{{ section.id }}"
+                        {% elsif form.posted_successfully? %}
+                          aria-describedby="Newsletter-success--{{ section.id }}"
+                        {% endif %}
+                        placeholder="{% if newsletter_email_placeholder != blank %}{{ newsletter_email_placeholder }}{% else %}{{ 'newsletter.label' | t }}{% endif %}"
+                        required
+                        style="border-radius: {{ input_border_radius }}px !important;"
+                      >
+                      <label class="visually-hidden" for="NewsletterEmail--{{ section.id }}">
+                        {{ 'newsletter.label' | t -}}
+                      </label>
+                      <button
+                        type="submit"
+                        class="button btn-primary section-newsletter-form__button nowrap w-full"
+                        name="commit"
+                        aria-label="{{ 'subscribe.button_label' | t }}"
+                      >
+                        {% if newsletter_button_label != blank -%}
+                          {{- newsletter_button_label -}}
+                        {%- else -%}
+                          {{- 'subscribe.button_label' | t -}}
+                        {%- endif %}
+                      </button>
+                    </div>
+                    {%- if form.errors -%}
+                      <small class="visually-hidden" id="Newsletter-error--{{ section.id }}">
+                        {{- form.errors.translated_fields.email | capitalize }}
+                        {{ form.errors.messages.email -}}
+                      </small>
+                    {% endif %}
+                    {%- if form.posted_successfully? -%}
+                      <div
+                        class="visually-hidden"
+                        id="Newsletter-success--{{ section.id }}"
+                        tabindex="-1"
+                      >
+                        {{- 'newsletter.success' | t }}
+                      </div>
+                    {% endif %}
+                  </div>
+                {% endform %}
+                <div
+                  class="newsletter-popup__dont-show dont-show mt-10 fs-small pointer rich__text-mt-0 light-dark-grey lh-small"
+                  tabindex="0"
+                  style="text-align: {{ no_thanks_position }};"
+                >
+                  {% if more_info != blank %}
+                    {{ more_info }}
+                  {% endif %}
+                  <span class="text-color hover-heading-color border-bottom inline-block mt-10">
+                    {% if no_thanks_text != blank %}
+                      {{ no_thanks_text }}
+                    {% else %}
+                      {{ 'newsletter_popup.do_not_show_again' | t }}
+                    {% endif %}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% if newsletter_banner != blank %}
+            <div
+              class="newsletter-popup__banner relative hidden block-md"
+              style="width: {{ banner_image_width }}px; height: {{ banner_image_height }}px;"
+            >
+              {%- assign image_alt = newsletter_banner.alt | default: 'banner_image' | escape -%}
+              {% render 'responsive-image',
+                type: 'other',
+                image: newsletter_banner,
+                image_alt: image_alt,
+                class: 'absolute inset-0 w-full h-full object-fit-cover'
+              %}
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    </newsletter-popup>
+  </div>
+  <script>
+    (function(){
+      function setCookie(name, value, hours) {
+        var d = new Date();
+        d.setTime(d.getTime() + (hours*60*60*1000));
+        var expires = "expires="+ d.toUTCString();
+        document.cookie = name + "=" + value + ";" + expires + ";path=/";
+      }
+      function getCookie(name) {
+        var cname = name + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+          var c = ca[i].trim();
+          if (c.indexOf(cname) === 0) {
+            return c.substring(cname.length, c.length);
+          }
+        }
+        return "";
+      }
+      document.addEventListener("DOMContentLoaded", function(){
+        var dontShowElem = document.querySelector('.newsletter-popup__dont-show');
+        if(dontShowElem) {
+          dontShowElem.addEventListener('click', function(){
+            setCookie('newsletter_popup_hidden', 'true', 48);
+            var popup = document.querySelector('.section-newsletter-popup');
+            if(popup) {
+              popup.style.display = 'none';
+            }
+          });
+        }
+        if(getCookie('newsletter_popup_hidden') === 'true') {
+          var popup = document.querySelector('.section-newsletter-popup');
+          if(popup) {
+            popup.style.display = 'none';
+          }
+        }
+      });
+    })();
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "t:sections.newsletter_popup.name",
+  "tag": "section",
+  "class": "overlay-section overlay-newsletter",
+  "limit": 1,
+  "enabled_on": {
+    "groups": ["custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.newsletter_popup.header.heading"
+    },
+    {
+      "type": "select",
+      "id": "show",
+      "label": "t:sections.promotion-popup.settings.show.label",
+      "default": "show_homepage",
+      "options": [
+        {
+          "value": "show_homepage",
+          "label": "t:sections.promotion-popup.settings.show.show_homepage.label"
+        },
+        {
+          "value": "show_all_page",
+          "label": "t:sections.promotion-popup.settings.show.show_all_page.label"
+        },
+        {
+          "value": "hide",
+          "label": "t:sections.promotion-popup.settings.show.hide.label"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_on_mobile",
+      "label": "t:sections.promotion-popup.settings.show_on_mobile.label",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "width",
+      "label": "t:sections.newsletter_popup.settings.width",
+      "max": 700,
+      "min": 400,
+      "step": 10,
+      "unit": "px",
+      "default": 670
+    },
+    {
+      "type": "header",
+      "content": "t:sections.newsletter_popup.header.content"
+    },
+    {
+      "type": "text",
+      "id": "newsletter_heading",
+      "label": "t:sections.newsletter_popup.settings.heading",
+      "default": "Subscribe Our Newsletter"
+    },
+    {
+      "type": "richtext",
+      "id": "short_description",
+      "label": "t:sections.newsletter_popup.settings.short_description",
+      "default": "<p>We'll send you the occasional newsletter, with new product launches & sales, exclusive discounts and some updates from our journal. Don't worry! We not spam</p>"
+    },
+    {
+      "type": "text",
+      "id": "newsletter_email_placeholder",
+      "label": "t:sections.newsletter_popup.settings.email_placeholder",
+      "default": "Enter your email address ..."
+    },
+    {
+      "type": "text",
+      "id": "newsletter_button_label",
+      "label": "t:sections.newsletter_popup.settings.button_label",
+      "default": "subscribe"
+    },
+    {
+      "type": "richtext",
+      "id": "more_info",
+      "label": "t:sections.newsletter_popup.settings.more_info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.newsletter_popup.header.banner_image"
+    },
+    {
+      "type": "image_picker",
+      "id": "newsletter_banner",
+      "label": "t:sections.newsletter_popup.settings.banner_image",
+      "info": "t:sections.newsletter_popup.settings.info"
+    },
+    {
+      "type": "range",
+      "id": "banner_width",
+      "label": "t:sections.newsletter_popup.settings.banner_width",
+      "max": 100,
+      "min": 30,
+      "step": 5,
+      "unit": "%",
+      "default": 55
+    },
+    {
+      "type": "range",
+      "id": "banner_image_width",
+      "label": "Banner Image Width",
+      "min": 100,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "banner_image_height",
+      "label": "Banner Image Height",
+      "min": 100,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "default": 400
+    },
+    {
+      "type": "header",
+      "content": "Newsletter Style Settings"
+    },
+    {
+      "type": "color",
+      "id": "newsletter_border_color",
+      "label": "Newsletter Border Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "newsletter_border_weight",
+      "label": "Newsletter Border Weight",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "newsletter_desktop_width",
+      "label": "Overall Newsletter Width (Desktop)",
+      "min": 400,
+      "max": 1200,
+      "step": 10,
+      "unit": "px",
+      "default": 670
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size",
+      "label": "Heading Font Size",
+      "min": 14,
+      "max": 72,
+      "step": 1,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "header",
+      "content": "Logo Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_logo",
+      "label": "Enable Logo Image Above Heading",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "newsletter_logo",
+      "label": "Logo Image"
+    },
+    {
+      "type": "range",
+      "id": "logo_width_desktop",
+      "label": "Logo Image Width (Desktop)",
+      "min": 50,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "logo_width_mobile",
+      "label": "Logo Image Width (Mobile)",
+      "min": 50,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "default": 150
+    },
+    {
+      "type": "header",
+      "content": "Advanced Popup Settings"
+    },
+    {
+      "type": "range",
+      "id": "input_border_radius",
+      "label": "Input Border Radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "text",
+      "id": "no_thanks_text",
+      "label": "No, thanks! don't show again text",
+      "default": "No, thanks! don't show again"
+    },
+    {
+      "type": "select",
+      "id": "no_thanks_position",
+      "label": "No, thanks! text alignment",
+      "default": "center",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "newsletter_border_radius",
+      "label": "Newsletter Border Radius",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 10
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.newsletter_popup.name"
+    }
+  ]
+}
+{% endschema %}

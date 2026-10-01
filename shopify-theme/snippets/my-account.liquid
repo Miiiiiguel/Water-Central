@@ -1,0 +1,148 @@
+{%- liquid
+  assign section_st = section.settings
+  assign enable_login_popup = section_st.enable_login_popup
+  assign routes_login = routes.account_login_url
+  assign login_one_time = true
+
+  if routes_login contains 'login'
+    assign login_one_time = false
+  endif
+-%}
+
+<!-- SCOPED CSS for this Header Account snippet -->
+<style>
+  /*
+    Wrap all styles under a unique container class to prevent interference
+    with other page elements
+  */
+  .header-account-container {
+    /* You could add container-level styling here if desired. */
+  }
+
+  /* Hide by default; 'block-1025' will override for certain breakpoints */
+  .header-account-container .header_account {
+    display: none;
+  }
+  .header-account-container .header_account.block-1025 {
+    display: block;
+  }
+
+  /* Utility classes (formerly "inline" utility styles) */
+  .header-account-container .btn-reset {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .header-account-container .pointer {
+    cursor: pointer;
+  }
+
+  .header-account-container .header-icon {
+    /* if you had global icon styling, you could place it here */
+  }
+
+  .header-account-container .header-color {
+    /* Adjust text/icon color as desired */
+    color: #333;
+  }
+
+  .header-account-container .w-44 {
+    width: 44px;
+  }
+
+  .header-account-container .h-44 {
+    height: 44px;
+  }
+
+  .header-account-container .inline-flex {
+    display: inline-flex;
+  }
+
+  .header-account-container .content-center {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-account-container .transition {
+    transition: all 0.3s ease;
+  }
+
+  .header-account-container .lh-1 {
+    line-height: 1;
+  }
+
+  /*
+    Main icon container: give it a modern round shape,
+    a subtle background, and a hover effect
+  */
+  .header-account-container .header__icon-account {
+    border-radius: 50%;
+    background-color: #f9f9f9;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  .header-account-container .header__icon-account:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.05);
+  }
+
+  /* Additional classes for login states or popups */
+  .header-account-container .action-login-popup {
+    /* Example styling for a login popup button */
+    color: #333;
+  }
+
+  .header-account-container .action-login {
+    /* If you'd like some distinct styling when .action-login is applied */
+  }
+</style>
+
+<!--
+  Wrap everything in a "header-account-container"
+  so our scoped CSS applies only here
+-->
+<div class="header-account-container">
+  <div class="header_account hidden block-1025">
+    {% if customer %}
+      <div
+        aria-label="header icon account"
+        class="btn-reset pointer header-icon header-color w-44 h-44 inline-flex content-center header__icon-account {% if customer.email == blank %}action-login{% endif %}"
+      >
+    {% else %}
+      {% if enable_login_popup and login_one_time == false %}
+        <button
+          aria-label="account"
+          class="btn-reset pointer action-login-popup header-icon transition header-color w-44 h-44 inline-flex content-center header__icon-account"
+        >
+      {% else %}
+        <a
+          href="{{ routes.account_login_url }}"
+          aria-label="account"
+          class="btn-reset pointer header-icon transition header-color w-44 h-44 inline-flex content-center header__icon-account lh-1"
+        >
+      {% endif %}
+    {% endif %}
+
+    {% if customer %}
+      <a class="header-color lh-1" href="{{ routes.account_url }}" aria-label="{{ 'customer.account.title' | t }}">
+    {% endif %}
+    <svg width="16" height="16" fill="none">
+      <use href="#icon-account" />
+    </svg>
+    {% if customer %}
+      </a>
+    {% endif %}
+
+    {% if customer %}
+      </div>
+    {% else %}
+      {% if enable_login_popup and login_one_time == false %}
+        </button>
+      {% else %}
+        </a>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>

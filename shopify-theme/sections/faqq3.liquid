@@ -1,0 +1,656 @@
+<link rel="preconnect" href="https://fonts.googleapis.com"> 
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+  href="https://fonts.googleapis.com/css2?family={{ section.settings.title_font.family | replace: '"', ''| replace: ' ', '+'  }}&display=swap"
+  rel="stylesheet"
+>
+
+<style>
+  .body-parent-{{ section.id }} h1,
+  .body-parent-{{ section.id }} h2,
+  .body-parent-{{ section.id }} h3,
+  .body-parent-{{ section.id }} h4,
+  .body-parent-{{ section.id }} h5,
+  .body-parent-{{ section.id }} .h0,
+  .body-parent-{{ section.id }} .h1,
+  .body-parent-{{ section.id }} .h2,
+  .body-parent-{{ section.id }} .h3,
+  .body-parent-{{ section.id }} .h4,
+  .body-parent-{{ section.id }} .h5 {
+     font-family: Inter, sans-serif;
+     margin: 0;
+   }
+
+  .body-parent-{{ section.id }} a:empty,
+  .body-parent-{{ section.id }} ul:empty,
+  .body-parent-{{ section.id }} dl:empty,
+  .body-parent-{{ section.id }} div:empty,
+  .body-parent-{{ section.id }} section:empty,
+  .body-parent-{{ section.id }} article:empty,
+  .body-parent-{{ section.id }} p:empty,
+  .body-parent-{{ section.id }} h1:empty,
+  .body-parent-{{ section.id }} h2:empty,
+  .body-parent-{{ section.id }} h3:empty,
+  .body-parent-{{ section.id }} h4:empty,
+  .body-parent-{{ section.id }} h5:empty,
+  .body-parent-{{ section.id }} h6:empty {
+     display: block;
+   }
+   .body-parent-{{ section.id }} *,
+   .body-parent-{{ section.id }} *::before,
+   .body-parent-{{ section.id }} *::after {
+     box-sizing: content-box !important;
+   }
+   .body-parent-{{ section.id }} a {
+     color: #000;
+     text-decoration: none;
+   }
+   .body-parent-{{ section.id }} img {
+     max-width: 100%;
+     display: block;
+   }
+   .body-parent-{{ section.id }} {
+    font-family: {% if section.settings.check_box==true %} {{ section.settings.title_font.family | replace: '"', '' }}; {% else %}Inter, sans-serif; {% endif %};
+     font-size: 16px;
+     line-height: 26px;
+     font-weight: 400;
+     color: #000;
+     background: #fff;
+     margin: 0;
+     overflow-x: hidden;
+     background-color: {{ section.settings.body_bg_color }};
+
+   }
+   .container-{{ section.id }} {
+     max-width: 1400px;
+     margin: 0 auto;
+     padding: {{ section.settings.section_padding_top }}px {{ section.settings.section_padding_right }}px {{ section.settings.section_padding_bottom }}px {{ section.settings.section_padding_left }}px;
+   }
+
+   .hidden-desktop-{{ section.id }} {
+     display: none;
+   }
+
+
+   .faq-box-{{section.id }} {
+     padding: 90px 60px;
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     background: ;
+     border-radius: 20px;
+   }
+   .faq-heading-col-{{section.id }} {
+     width: 45%;
+   }
+
+   .faq-action-{{ section.id }} {
+     margin: 40px 0 0;
+   }
+   .btn-primary-{{section.id }} {
+     display: inline-flex;
+     padding: 20px 45px;
+     background: #000;
+     color: #fff;
+     border-radius: 100px;
+     font-size: 18px;
+     font-weight: 600;
+     transition: all 0.3s ease;
+   }
+   .btn-primary-{{section.id }}:hover {
+     filter: brightness(1.02);
+     box-shadow: 0 0 1px rgba(0,0,0,0.05);
+   }
+   .faq-content-col-{{section.id }} {
+     width: 50%;
+     display: flex;
+     flex-direction: column;
+     gap: 25px;
+   }
+   .accordion-header-{{section.id |replace:"--","_" }} {
+     padding: 20px;
+     border-radius: 100px;
+     background: #fff;
+     display: flex;
+     align-items: center;
+     
+     justify-content: space-between;
+     gap: 20px;
+     cursor: pointer;
+     transition: all 0.3s ease;
+   }
+   
+   .accordion-header-{{section.id |replace:"--","_" }}:hover {
+     filter: brightness(1.02);
+     box-shadow: 0 0 1px rgba(0,0,0,0.05);
+   }
+   .accordion-header-{{section.id |replace:"--","_" }} h3 {
+     font-size: 20px;
+     font-style: normal;
+     font-weight: 500;
+     line-height: 140%;
+   }
+   .accordion-content-{{ section.id |replace:"--","_" }} p {
+  margin-top: -12px ;           /* remove default top/bottom spacing */
+  line-height: 1.6;    /* keep text nicely readable */
+}
+   .accordion-header-{{section.id |replace:"--","_" }} .icon {
+     font-weight: 500;
+     font-size: 25px;
+     width: 25px;
+     height: 25px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+   }
+   .accordion-content-{{ section.id |replace:"--","_" }} {
+     display: none;
+     padding: 10px 20px;
+   }
+
+   @media (max-width: 1280px) {
+   }
+
+   @media (max-width: 992px) {
+     .hidden-desktop-{{ section.id }} {
+       display: block;
+     }
+     .hidden-mobile-{{  section.id }} {
+       display: none;
+     }
+   }
+
+   @media (max-width: 768px) {
+     .faq-box-{{section.id }} {
+       flex-direction: column;
+       gap: 40px;
+     }
+     .btn-primary-{{section.id }} {
+       display: flex;
+       justify-content: center;
+   }
+
+
+     .faq-heading-col-{{section.id }},
+     .faq-content-col-{{section.id }} {
+       width: 100%;
+     }
+     .container-{{ section.id }} {
+         padding: {{ section.settings.section_padding_top_mobile }}px {{ section.settings.section_padding_right_mobile }}px {{ section.settings.section_padding_bottom_mobile }}px {{ section.settings.section_padding_left_mobile }}px;
+     }
+
+   }
+
+   @media (max-width: 479px) {
+
+
+     .faq-box-{{section.id }} {
+       padding: 50px 20px;
+     }
+   }
+</style>
+
+<div
+  class="body-parent-{{ section.id }}"
+  style=""
+>
+  <section class="faq" style="padding: 0;">
+    <div
+      class="container-{{ section.id }}"
+    >
+      <div
+        class="faq-box-{{section.id }}"
+        style="padding: 0;"
+      >
+        <div class="faq-heading-col-{{section.id }}">
+          {% for block in section.blocks %}
+            {% if block.type == 'section_heading' %}
+              <style>
+                .faq-heading-col-{{section.id }}  h2 {
+
+                     color: {{ block.settings.heading_text_color }};
+                  font-size: {{ block.settings.heading_font_size }}px;
+                  font-family: {% if section.settings.check_box==true %}
+                      {{ section.settings.title_font.family | replace: '"', '' }}; {% else %}Inter, sans-serif; {% endif %};
+                     font-style: normal;
+                     font-weight: 700;
+                     line-height: 116.667%;
+
+
+                   }
+                 @media (max-width: 479px) {
+                   .faq-heading-col-{{section.id }}  h2 {
+                  font-size: {{ block.settings.heading_font_size_mobile }}px;
+                   }
+                 }
+              </style>
+              <h2
+                class="heading-{{ block.id }}"
+              >
+                {{ block.settings.heading_text }}
+              </h2>
+            {% endif %}
+            {% if block.type == 'section_subtitle' %}
+              <p style="color: {{ block.settings.subtitle_text_color }}; font-size: {{ block.settings.subtitle_font_size }}px; ">
+                {{ block.settings.description_text }}
+              </p>
+            {% endif %}
+            {% if block.type == 'button' %}
+              <div class="faq-action-{{ section.id }}">
+                <a
+                  href="{{ block.settings.button_link }}"
+                  class="btn-primary-{{section.id }}"
+                  style="color: {{ block.settings.button_text_color }}; background-color: {{ block.settings.button_background_color }}; border-radius: {{ block.settings.button_roundness }}px; border: {{ block.settings.button_border }}px solid {{ block.settings.button_border_color }}; padding: {{ block.settings.padding_vertical }}px {{ block.settings.padding_horizontal }}px; font-size: {{ block.settings.button_font_size }}px;"
+                >
+                  {{- block.settings.button_text -}}
+                </a>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <div class="faq-content-col-{{section.id }}">
+          <div class="accordion-item" style="gap: 10px;">
+            {% for block in section.blocks %}
+              {% if block.type == 'faq' %}
+                <div
+                  class="accordion-header-{{section.id |replace:"--","_" }}"
+                  style="
+                    background-color: {{ block.settings.background_color }}; border-radius: {{ block.settings.card_roundness }}px; border: {{ block.settings.card_border }}px solid {{ block.settings.card_border_color }};
+                    margin-bottom: 20px;
+                  "
+                >
+                  <h3 style=" font-size: {{ block.settings.card_text_font_size }}px; color: {{ block.settings.card_text_color }}; font-family: {% if section.settings.check_box==true %} {{ section.settings.title_font.family | replace: '"', '' }}; {% else %}Inter, sans-serif; {% endif %};">
+                    {{ block.settings.faq_question }}
+                  </h3>
+                  <span
+                    class="icon"
+                    style="
+                      font-family: {% if section.settings.check_box==true %} {{ section.settings.title_font.family | replace: '"', '' }}; {% else %}Inter, sans-serif; {% endif %};
+                      color:{{ block.settings.card_text_color  }};
+                    "
+                    >+</span
+                  >
+                </div>
+
+                <div class="accordion-content-{{ section.id |replace:"--","_" }}">
+                  <p style="font-size: {{ block.settings.card_text_font_size }}px; color: {{ block.settings.card_text_color }};font-family: {% if section.settings.check_box==true %} {{ section.settings.title_font.family | replace: '"', '' }}; {% else %}Inter, sans-serif; {% endif %};">
+                    {{ block.settings.faq_answer }}
+                  </p>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+  // FAQ ACCORDION
+  $(document).ready(function () {
+    $('.accordion-header-{{section.id |replace:"--","_" }}').on('click', function () {
+      const content = $(this).next('.accordion-content-{{ section.id |replace:"--","_" }}');
+      const icon = $(this).find('.icon');
+
+      // Fecha todos os outros itens
+      $('.accordion-content-{{ section.id |replace:"--","_" }}').not(content).slideUp();
+      $('.accordion-header-{{section.id |replace:"--","_" }} .icon').not(icon).text('+');
+
+      // Alterna o item clicado
+      content.slideToggle();
+      icon.text(icon.text() === '+' ? '-' : '+');
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "FAQ 3",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section"
+    },
+    {
+      "type": "font_picker",
+      "id": "title_font",
+      "label": "Section Font Family",
+      "default": "sans-serif"
+    },
+    {
+      "type": "checkbox",
+      "id": "check_box",
+      "label": "Use Custom Fonts",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "body_bg_color",
+      "label": "Background Color",
+      "default": "transparent"
+    },
+    {
+      "type": "header",
+      "content": "Section Padding (Desktop)"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "label": "Padding Top (Desktop)",
+      "default": 80,
+      "min": 0,
+      "step": 5,
+      "max": 200,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "label": "Padding Bottom (Desktop)",
+      "default": 80,
+      "min": 0,
+      "step": 5,
+      "max": 200,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left",
+      "label": "Padding Left (Desktop)",
+      "default": 20,
+      "min": 0,
+      "step": 10,
+      "max": 400,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_right",
+      "label": "Padding Right (Desktop)",
+      "default": 20,
+      "min": 0,
+      "step": 10,
+      "max": 400,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Section Padding (Mobile)"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "label": "Padding Top (Mobile)",
+      "default": 50,
+      "min": 0,
+      "step": 5,
+      "max": 200,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "label": "Padding Bottom (Mobile)",
+      "default": 50,
+      "min": 0,
+      "step": 5,
+      "max": 200,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left_mobile",
+      "label": "Padding Left (Mobile)",
+      "default": 20,
+      "min": 0,
+      "step": 10,
+      "max": 120,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_right_mobile",
+      "label": "Padding Right (Mobile)",
+      "default": 20,
+      "min": 0,
+      "step": 10,
+      "max": 120,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "section_heading",
+      "name": "Section Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading_text",
+          "label": "Heading Text",
+          "default": "Frequently Asked Quesions"
+        },
+        {
+          "type": "color",
+          "id": "heading_text_color",
+          "label": "Heading Color",
+          "default": "#190482"
+        },
+
+        {
+          "type": "range",
+          "id": "heading_font_size",
+          "label": "Font Size",
+          "default": 51,
+          "min": 40,
+          "max": 80,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "heading_font_size_mobile",
+          "label": "Font Size (Mobile)",
+          "default": 40,
+          "min": 30,
+          "max": 50,
+          "step": 1,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "type": "section_subtitle",
+      "name": "Section Subtitle",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "description_text",
+          "label": "Description Text",
+          "default": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the."
+        },
+        {
+          "type": "color",
+          "id": "subtitle_text_color",
+          "label": "Subtitle Color",
+          "default": "#404040"
+        },
+        {
+          "type": "range",
+          "id": "subtitle_font_size",
+          "label": "Font Size",
+          "default": 16,
+          "min": 12,
+          "max": 30,
+          "step": 1,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button Text",
+          "default": "Shop Now"
+        },
+        {
+          "type": "text",
+          "id": "button_link",
+          "label": "Button Link"
+        },
+        {
+          "type": "color",
+          "id": "button_background_color",
+          "label": "Background Color",
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "button_text_color",
+          "label": "Text Color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "range",
+          "id": "button_font_size",
+          "label": "Font Size",
+          "default": 17,
+          "min": 12,
+          "max": 32,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "button_roundness",
+          "label": "Roundness",
+          "default": 50,
+          "min": 0,
+          "max": 50,
+          "unit": "px"
+        },
+        {
+          "type": "color",
+          "id": "button_border_color",
+          "label": "Border Color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "button_border",
+          "label": "Border Thickness",
+          "default": 0,
+          "min": 0,
+          "max": 5,
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "padding_vertical",
+          "label": "Padding Vertical",
+          "default": 15,
+          "min": 0,
+          "max": 30,
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "padding_horizontal",
+          "label": "Padding Horizontal",
+          "default": 30,
+          "min": 0,
+          "max": 50,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "name": "FAQ Item",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "faq_question",
+          "label": "FAQ Question",
+          "default": "Your Question Here"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "faq_answer",
+          "label": "FAQ Answer",
+          "default": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has"
+        },
+        {
+          "type": "color",
+          "id": "background_color",
+          "label": "Background Color",
+          "default": "#F5F5F5"
+        },
+        {
+          "type": "color",
+          "id": "card_text_color",
+          "label": "Text Color",
+          "default": "#190482"
+        },
+        {
+          "type": "range",
+          "id": "card_text_font_size",
+          "label": "Font Size",
+          "default": 19,
+          "min": 12,
+          "max": 32,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "card_roundness",
+          "label": "Roundness",
+          "default": 50,
+          "min": 0,
+          "max": 50,
+          "unit": "px"
+        },
+        {
+          "type": "color",
+          "id": "card_border_color",
+          "label": "Border Color",
+          "default": "#190482"
+        },
+        {
+          "type": "range",
+          "id": "card_border",
+          "label": "Border Thickness",
+          "default": 0,
+          "min": 0,
+          "max": 5,
+          "unit": "px"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ 3",
+      "category": "FAQ",
+      "blocks": [
+        { "type": "section_heading" },
+        { "type": "section_subtitle" },
+        { "type": "faq" },
+        { "type": "faq" },
+        { "type": "faq" },
+        { "type": "faq" },
+        { "type": "button" }
+      ]
+    }
+  ]
+}
+{% endschema %}

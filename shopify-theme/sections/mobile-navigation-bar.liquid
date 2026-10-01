@@ -1,0 +1,353 @@
+{% liquid
+  assign section_st = section.settings
+  assign eb_mobile_navbar = section_st.eb_mobile_navbar
+  assign show_account = section_st.show_account
+  assign show_shop = section_st.show_shop
+  assign show_cart = section_st.show_cart
+  assign show_wishlist = section_st.show_wishlist
+  assign show_homepage = section_st.show_homepage
+  assign count = 0
+  if show_account == true
+    assign count = count | plus: 1
+  endif
+  if show_shop == true
+    assign count = count | plus: 1
+  endif
+  if show_cart == true
+    assign count = count | plus: 1
+  endif
+  if show_wishlist == true
+    assign count = count | plus: 1
+  endif
+  if show_homepage == true
+    assign count = count | plus: 1
+  endif
+%}
+{%- capture style -%}
+--number: {{ count }};
+
+{% comment %}
+  If the background glassmorphism toggle is enabled, apply a frosted glass effect.
+  Otherwise, use either a gradient or a custom color based on settings.
+{% endcomment %}
+{% if section.settings.enable_background_glassmorphism %}
+  /* Glassmorphism background style */
+  backdrop-filter: blur({{ section.settings.glass_blur }}px) brightness({{ section.settings.glass_brightness }}%);
+  -webkit-backdrop-filter: blur({{ section.settings.glass_blur }}px) brightness({{ section.settings.glass_brightness }}%);
+  background-color: {{ section.settings.glass_color }};
+  opacity: {{ section.settings.glass_opacity }};
+  filter: saturate({{ section.settings.glass_saturation }}%);
+{% else %}
+  {% if section.settings.enable_gradient %}
+    background: linear-gradient({{ section.settings.gradient_degree }}, {{ section.settings.gradient_color_1 }}, {{ section.settings.gradient_color_2 }}, {{ section.settings.gradient_color_3 }});
+  {% elsif section.settings.enable_custom_color %}
+    background-color: {{ section.settings.mobile_navbar_color }};
+  {% endif %}
+{% endif %}
+{%- endcapture -%}
+
+{% if eb_mobile_navbar %}
+  {% if show_homepage or show_shop or show_account or show_cart or show_wishlist %}
+    <mobile-navigation-bar
+      class="mobile-navigation-bar transition flex invisible align-center hidden-md fixed bottom-0 inset-x-0 z-10 px-15 py-13 color-default show"
+      style="{{ style | strip | strip_newlines }}"
+    >
+      {% if show_account %}
+        <a
+          href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}"
+          class="no-underline lh-normal inline-flex content-center flex-column text-center heading-color px-5{% if request.path == '/account/login' or request.path == '/account' %} active{% endif %}"
+          aria-label="{{ 'mobile_navbar.account' | t }}"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+              <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+              <path d="M20.5899 22C20.5899 18.13 16.7399 15 11.9999 15C7.25991 15 3.40991 18.13 3.40991 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            </g>
+          </svg>
+          <span class="block fs-small heading-style">
+            {{ 'mobile_navbar.account' | t }}
+          </span>
+        </a>
+      {% endif %}
+
+      {% if show_shop %}
+        <a
+          href="{{ collections.all.url }}"
+          class="no-underline lh-normal inline-flex content-center flex-column text-center heading-color px-5{% if request.path == '/collections/all' %} active{% endif %}"
+          aria-label="{{ 'mobile_navbar.shop' | t }}"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+              <path d="M20.485 3H16.4933L16.9933 8C16.9933 8 17.9933 9 19.4933 9C20.5703 9 21.3036 8.48445 21.6316 8.1937C21.7623 8.07782 21.8101 7.90091 21.7814 7.72861L21.0768 3.50136C21.0286 3.21205 20.7783 3 20.485 3Z" stroke="currentColor" stroke-width="1.5"></path>
+              <path d="M16.4933 3L16.9933 8C16.9933 8 15.9933 9 14.4933 9C12.9933 9 11.9933 8 11.9933 8V3H16.4933Z" stroke="currentColor" stroke-width="1.5"></path>
+              <path d="M11.9933 3V8C11.9933 8 10.9933 9 9.49329 9C7.99329 9 6.99329 8 6.99329 8L7.49329 3H11.9933Z" stroke="currentColor" stroke-width="1.5"></path>
+              <path d="M7.49331 3H3.50158C3.20828 3 2.95797 3.21205 2.90975 3.50136L2.2052 7.72862C2.17649 7.90091 2.22432 8.07782 2.35502 8.1937C2.68294 8.48445 3.41626 9 4.49329 9C5.99329 9 6.99331 8 6.99331 8L7.49331 3Z" stroke="currentColor" stroke-width="1.5"></path>
+              <path d="M3 9V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V9" stroke="currentColor" stroke-width="1.5"></path>
+              <path d="M14.8333 21V15C14.8333 13.8954 13.9379 13 12.8333 13H10.8333C9.72874 13 8.83331 13.8954 8.83331 15V21" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="16"></path>
+            </g>
+          </svg>
+          <span class="block fs-small heading-style">
+            {{ 'mobile_navbar.shop' | t }}
+          </span>
+        </a>
+      {% endif %}
+
+      {% if show_homepage %}
+        <a
+          href="{{ routes.root_url }}"
+          id="homepage-icon-bubble"
+          class="no-underline lh-normal inline-flex content-center flex-column text-center heading-color px-5{% if request.path == '/' %} active{% endif %}"
+          aria-label="{{ 'mobile_navbar.homepage' | t }}"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+              <path d="M22 12.2039V13.725C22 17.6258 22 19.5763 20.8284 20.7881C19.6569 22 17.7712 22 14 22H10C6.22876 22 4.34315 22 3.17157 20.7881C2 19.5763 2 17.6258 2 13.725V12.2039C2 9.91549 2 8.77128 2.5192 7.82274C3.0384 6.87421 3.98695 6.28551 5.88403 5.10813L7.88403 3.86687C9.88939 2.62229 10.8921 2 12 2C13.1079 2 14.1106 2.62229 16.116 3.86687L18.116 5.10812C20.0131 6.28551 20.9616 6.87421 21.4808 7.82274" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+              <path d="M15 18H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+            </g>
+          </svg>
+          <span class="block fs-small heading-style">
+            {{ 'mobile_navbar.homepage' | t }}
+          </span>
+        </a>
+      {% endif %}
+
+      {% if show_wishlist %}
+        <a
+          id="wishlist-icon-bubble-mobile"
+          href="/pages/wishlist"
+          class="wishlist-icon-bubble no-underline lh-normal inline-flex content-center flex-column text-center heading-color"
+          aria-label="{{ 'mobile_navbar.wishlist' | t }}"
+        >
+          <span class="relative inline-flex">
+            <svg width="22" height="20" fill="none">
+              <path fill="currentColor" d="M19.389 2.646C18.35 1.589 16.977 1 15.549 1s-2.801.589-3.84 1.646L11 3.375l-.71-.73C9.256 1.583 7.878.993 6.448 1 5.019.993 3.644 1.583 2.61 2.646a5.496 5.496 0 0 0-1.19 1.82A5.847 5.847 0 0 0 1 6.647c0 .75.143 1.493.42 2.182a5.497 5.497 0 0 0 1.191 1.82l7.828 8.11c.077.072.163.132.256.178a.77.77 0 0 0 .61 0c.093-.046.18-.106.256-.178l7.828-8.11a5.497 5.497 0 0 0 1.19-1.82c.278-.689.421-1.431.421-2.182 0-.75-.143-1.493-.42-2.18a5.497 5.497 0 0 0-1.191-1.821Zm0 3.984a4.149 4.149 0 0 1-.285 1.531c-.19.485-.469.923-.82 1.287L11 17.008l-7.275-7.56a3.883 3.883 0 0 1-.836-1.283 4.129 4.129 0 0 1 0-3.071c.194-.485.479-.922.836-1.283.732-.755 1.709-1.173 2.722-1.165 1.018-.009 2 .409 2.738 1.165l1.254 1.307c.077.072.163.132.256.178a.77.77 0 0 0 .61 0c.093-.046.18-.106.256-.178l1.262-1.307c.732-.755 1.709-1.173 2.722-1.165 1.018-.009 2 .409 2.738 1.165.355.363.637.8.83 1.285.193.484.293 1.006.292 1.534h-.016Z"/>
+            </svg>
+            <span class="absolute lh-1 wishlist-count h-count inline-flex align-center justify-content-center rounded-50 overflow-hidden fs-10">
+              0
+            </span>
+          </span>
+          <span class="block fs-small heading-style">
+            {{ 'mobile_navbar.wishlist' | t }}
+          </span>
+        </a>
+      {% endif %}
+
+      {% if show_cart %}
+        <a
+          id="cart-icon-bubble-mobile"
+          href="{{ routes.cart_url }}"
+          class="no-underline lh-normal inline-flex content-center flex-column text-center heading-color{% if request.path == '/cart' %} active{% endif %}"
+          aria-label="{{ 'mobile_navbar.cart' | t }}"
+        >
+          <span class="relative inline-flex">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+              <g id="SVGRepo_iconCarrier">
+                <path d="M15 11C15 12.6569 13.6569 14 12 14C10.3431 14 9 12.6569 9 11M20 7L18 3H6L4 7M20 7H4M20 7V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+              </g>
+            </svg>
+            {% if cart != empty %}
+              <span class="absolute lh-1 cart-count h-count inline-flex align-center justify-content-center rounded-50 overflow-hidden fs-10">
+                {% if cart.item_count < 100 %}
+                  {{ cart.item_count }}
+                {% else %}
+                  ~
+                {% endif %}
+                <span class="visually-hidden">{{ 'sections.header.cart_count' | t: count: cart.item_count }}</span>
+              </span>
+            {% else %}
+              <span class="absolute lh-1 cart-count h-count inline-flex align-center justify-content-center rounded-50 overflow-hidden fs-10">
+                <span aria-hidden="true">0</span>
+              </span>
+            {% endif %}
+          </span>
+          <span class="block fs-small heading-style">{{ 'mobile_navbar.cart' | t }}</span>
+        </a>
+      {% endif %}
+    </mobile-navigation-bar>
+  {% endif %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "Mobile Navigation Bar",
+  "tag": "section",
+  "limit": 1,
+  "enabled_on": {
+    "groups": ["custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "eb_mobile_navbar",
+      "label": "Show Mobile Navigation Bar Section",
+      "default": true,
+      "info": "Toggle to display or hide the mobile navigation bar."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_homepage",
+      "label": "Show Homepage Icon",
+      "default": true,
+      "info": "Display the homepage icon on the navigation bar."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shop",
+      "label": "Show Shop Icon",
+      "default": true,
+      "info": "Display the shop icon on the navigation bar."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_account",
+      "label": "Show Account Icon",
+      "default": true,
+      "info": "Display the account icon on the navigation bar."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cart",
+      "label": "Show Cart Icon",
+      "default": true,
+      "info": "Display the cart icon on the navigation bar."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_wishlist",
+      "label": "Show Wishlist Icon",
+      "default": true,
+      "info": "Display the wishlist icon on the navigation bar."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_color",
+      "label": "Enable Custom Color for Mobile Navigation Bar",
+      "default": false,
+      "info": "Toggle to enable a custom background color for the mobile navigation bar."
+    },
+    {
+      "type": "color",
+      "id": "mobile_navbar_color",
+      "label": "Mobile Navigation Bar Color",
+      "default": "#ffffff",
+      "info": "Select a custom background color for the mobile navigation bar."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_gradient",
+      "label": "Enable Gradient Color for Mobile Navigation Bar",
+      "default": false,
+      "info": "Toggle to enable a gradient background for the mobile navigation bar. This will override the custom color setting if enabled."
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_1",
+      "label": "Gradient Color 1",
+      "default": "#ffffff",
+      "info": "Select the first color for the gradient background."
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_2",
+      "label": "Gradient Color 2",
+      "default": "#ffffff",
+      "info": "Select the second color for the gradient background."
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_3",
+      "label": "Gradient Color 3",
+      "default": "#ffffff",
+      "info": "Select the third color for the gradient background."
+    },
+    {
+      "type": "select",
+      "id": "gradient_degree",
+      "label": "Gradient Angle",
+      "default": "90deg",
+      "options": [
+        { "value": "0deg", "label": "0°" },
+        { "value": "10deg", "label": "10°" },
+        { "value": "20deg", "label": "20°" },
+        { "value": "30deg", "label": "30°" },
+        { "value": "40deg", "label": "40°" },
+        { "value": "50deg", "label": "50°" },
+        { "value": "60deg", "label": "60°" },
+        { "value": "70deg", "label": "70°" },
+        { "value": "80deg", "label": "80°" },
+        { "value": "90deg", "label": "90°" },
+        { "value": "100deg", "label": "100°" },
+        { "value": "110deg", "label": "110°" }
+      ],
+      "info": "Select the angle for the gradient background."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_background_glassmorphism",
+      "label": "Enable Background Glassmorphism",
+      "default": false,
+      "info": "Toggle to enable a frosted glass effect for the navigation bar background."
+    },
+    {
+      "type": "range",
+      "id": "glass_blur",
+      "label": "Glassmorphism Blur (px)",
+      "default": 10,
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "info": "Set the amount of blur for the glassmorphism effect."
+    },
+    {
+      "type": "range",
+      "id": "glass_opacity",
+      "label": "Glassmorphism Opacity",
+      "default": 1,
+      "min": 0,
+      "max": 1,
+      "step": 0.10,
+      "info": "Set the opacity for the glassmorphism background."
+    },
+    {
+      "type": "color",
+      "id": "glass_color",
+      "label": "Glassmorphism Background Color",
+      "default": "#ffffff",
+      "info": "Select the background color for the glassmorphism effect."
+    },
+    {
+      "type": "range",
+      "id": "glass_saturation",
+      "label": "Glassmorphism Saturation (%)",
+      "default": 100,
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "info": "Set the saturation percentage for the glassmorphism effect."
+    },
+    {
+      "type": "range",
+      "id": "glass_brightness",
+      "label": "Glassmorphism Brightness (%)",
+      "default": 100,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "info": "Set the brightness for the glassmorphism background (only)."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Mobile Navigation Bar"
+    }
+  ]
+}
+{% endschema %}

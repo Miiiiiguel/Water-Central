@@ -1,0 +1,862 @@
+
+<style>
+  {%- capture loud_content -%}
+
+  {% assign headline_block = section.blocks | where: "type", "headline" | first %}
+  {% assign subheading_block = section.blocks | where: "type", "subheading" | first %}
+
+  {% if section.settings.enable_custom_font %}
+    {% if headline_block %}
+      {{ headline_block.settings.font | font_face }}
+    {% endif %}
+    {% if subheading_block %}
+      {{ subheading_block.settings.font | font_face }}
+    {% endif %}
+  {% endif %}
+
+  #loud-{{ section.id }} p {
+    font-size: {{ subheading_block.settings.size }}px;
+    font-family: inherit;
+    {% if section.settings.enable_custom_font and subheading_block %}font-family: {{ subheading_block.settings.font.family }}, {{ subheading_block.settings.font.fallback_families }};{% endif %}
+    {% if section.settings.enable_custom_font and subheading_block %}font-weight: {{ subheading_block.settings.font.weight }};{% endif %}
+    {% if subheading_block.settings.line_height != 'inherit' %}line-height: {{ subheading_block.settings.line_height }};{% endif %}
+    margin: 0 0 {{ section.settings.element_spacing }}px 0;
+    padding: 0 20px; /* Added left and right padding */
+    color: {{ subheading_block.settings.color }} !important;
+  }
+
+  #loud-{{ section.id }} ul, #loud-{{ section.id }} ol {
+    margin: 0 0 {{ section.settings.element_spacing }}px 0;
+  }
+
+  #loud-{{ section.id }} li {
+    font-size: {{ subheading_block.settings.size }}px;
+    font-family: inherit;
+    {% if section.settings.enable_custom_font and subheading_block %}font-family: {{ subheading_block.settings.font.family }}, {{ subheading_block.settings.font.fallback_families }};{% endif %}
+    {% if section.settings.enable_custom_font and subheading_block %}font-weight: {{ subheading_block.settings.font.weight }};{% endif %}
+    {% if subheading_block.settings.line_height != 'inherit' %}line-height: {{ subheading_block.settings.line_height }};{% endif %}
+    margin: 0 0 5px 0;
+    padding: 0;
+    color: {{ subheading_block.settings.color }} !important;
+  }
+
+  #loud-{{ section.id }} li:last-child {
+    margin: 0;
+  }
+
+  @media (max-width: 800px) {
+      #loud-{{ section.id }} p,
+      #loud-{{ section.id }} li {
+        font-size: {{ subheading_block.settings.mobile_size }}px;
+      }
+  }
+
+  #loud-{{ section.id }} h1,
+  #loud-{{ section.id }} h2,
+  #loud-{{ section.id }} h3,
+  #loud-{{ section.id }} h4,
+  #loud-{{ section.id }} h5 {
+      font-size: {{ headline_block.settings.size }}px;
+      font-family: inherit;
+      {% if section.settings.enable_custom_font and headline_block %}font-family: {{ headline_block.settings.font.family }}, {{ headline_block.settings.font.fallback_families }};{% endif %}
+      {% if section.settings.enable_custom_font and headline_block %}font-weight: {{ headline_block.settings.font.weight }};{% endif %}
+      {% if headline_block.settings.line_height != 'inherit' %}line-height: {{ headline_block.settings.line_height }};{% endif %}
+      margin: 0 0 {{ section.settings.element_spacing }}px 0;
+      padding: 0;
+      color: {{ headline_block.settings.color }} !important;
+  }
+
+  @media (max-width: 800px) {
+      #loud-{{ section.id }} h1,
+      #loud-{{ section.id }} h2,
+      #loud-{{ section.id }} h3,
+      #loud-{{ section.id }} h4,
+      #loud-{{ section.id }} h5 {
+        font-size: {{ headline_block.settings.mobile_size }}px;
+      }
+  }
+
+  #loud-{{ section.id }} h2 {
+      font-size: {{ headline_block.settings.size | minus:5  | at_least:13 }}px;
+  }
+
+  #loud-{{ section.id }} h3 {
+      font-size: {{ headline_block.settings.size | minus:10 | at_least:13 }}px;
+  }
+
+  #loud-{{ section.id }} h4 {
+      font-size: {{ headline_block.settings.size | minus:15 | at_least:13 }}px;
+  }
+
+  #loud-{{ section.id }} h5 {
+      font-size: {{ headline_block.settings.size | minus:20 | at_least:13 }}px;
+  }
+
+  @media (max-width: 800px) {
+      #loud-{{ section.id }} h2 {
+        font-size: {{ headline_block.settings.mobile_size | minus:5 | at_least:13 }}px;
+      }
+
+      #loud-{{ section.id }} h3 {
+        font-size: {{ headline_block.settings.mobile_size | minus:10 | at_least:13 }}px;
+      }
+
+      #loud-{{ section.id }} h4 {
+        font-size: {{ headline_block.settings.mobile_size | minus:15 | at_least:13 }}px;
+      }
+
+      #loud-{{ section.id }} h5 {
+        font-size: {{ headline_block.settings.mobile_size | minus:20 | at_least:13 }}px;
+      }
+  }
+
+  #loud-{{ section.id }} {
+      background-color: {{ section.settings.section_background_color }};
+      width: 100%;
+      box-sizing: border-box;
+      padding: {{ section.settings.section_padding_top_bottom }}px {{ section.settings.section_padding_left_right }}px;
+      overflow: hidden;
+  }
+
+  @media (max-width: 800px) {
+      #loud-{{ section.id }} {
+        padding: {{ section.settings.mobile_section_padding_top_bottom }}px {{ section.settings.mobile_section_padding_left_right }}px;
+      }
+  }
+
+  {% if section.settings.show_on_device == 'mobile' %}
+    @media (min-width: 801px) {
+        #loud-{{ section.id }} {
+            display: none;
+        }
+    }
+  {% endif %}
+
+  {% if section.settings.show_on_device == 'desktop' %}
+    @media (max-width: 800px) {
+        #loud-{{ section.id }} {
+            display: none;
+        }
+    }
+  {% endif %}
+
+  #loud-{{ section.id }} .loud-container {
+      position: relative;
+      margin: 0 auto;
+      background-color: {{ section.settings.container_background_color }};
+      border-radius: {{ section.settings.container_radius }}px;
+      {% if section.settings.container_shadow %}box-shadow: 0 0 5px 0 rgba(0,0,0,0.20);{% endif %}
+      border: {{ section.settings.container_border_size }}px solid {{ section.settings.container_border_color }};
+      max-width: {{ section.settings.container_max_width }}px;
+      padding: {{ section.settings.container_padding_top_bottom }}px {{ section.settings.container_padding_left_right }}px;
+  }
+
+  @media (max-width: 800px) {
+      #loud-{{ section.id }} .loud-container {
+        padding: {{ section.settings.mobile_container_padding_top_bottom }}px {{ section.settings.mobile_container_padding_left_right }}px;
+      }
+  }
+
+  #loud-{{ section.id }} .loud-headline {
+    margin: 0;
+    padding: 0 0 {{ section.settings.headline_spacing }}px 0;
+  }
+
+  #loud-{{ section.id }} .loud-headline * {
+    text-align: {{ section.settings.text_alignment }};
+  }
+
+  @media only screen and (max-width: 800px) {
+    #loud-{{ section.id }} .loud-headline * {
+      text-align: {{ section.settings.mobile_text_alignment }};
+    }
+  }
+
+  /* grid */
+  #loud-{{ section.id }} .loud-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    position: relative;
+    z-index: 2;
+  }
+
+  @media only screen and (max-width: 800px) {
+    #loud-{{ section.id }} .loud-grid {
+      display: grid;
+      grid-template-columns: {{ section.settings.mobile_columns }};
+    }
+  }
+
+  #loud-{{ section.id }} .loud-col {
+    text-align: center;
+  }
+
+  /* Anchor tags for icons – removing underline and keeping spacing */
+  #loud-{{ section.id }} .loud-col a {
+    display: inline-block;
+    margin: 0 {{ section.settings.icon_gap }}px 0 0;
+    transition: all 0.5s ease;
+    text-decoration: none; /* No underline */
+  }
+
+  #loud-{{ section.id }} .loud-col a:last-child {
+    margin: 0;
+  }
+
+  #loud-{{ section.id }} .loud-col img {
+    display: inline-block;
+    height: {{ section.settings.icon_height }}px;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  @media (max-width: 800px) {
+    #loud-{{ section.id }} .loud-col a {
+      margin: 0 {{ section.settings.mobile_icon_gap }}px 0 0;
+    }
+
+    #loud-{{ section.id }} .loud-col img {
+      height: {{ section.settings.mobile_icon_height }}px;
+    }
+  }
+
+  #loud-{{ section.id }} .loud-col img:hover {
+    opacity: 0.7;
+  }
+
+  {%- endcapture -%}
+
+  {%- liquid
+    assign chunks = loud_content | strip_newlines | split: ' ' | join: ' ' | split: '*/'
+    for chunk in chunks
+      assign mini = chunk | split: '/*' | first | strip | replace: ': ', ':' | replace: '; ', ';' | replace: '} ', '}' | replace: ' {', '{' | replace: ';}', '}'
+      echo mini
+    endfor
+  %}
+</style>
+
+<div id="loud-{{ section.id }}" class="loud-wrap" loud-wrap>
+  <div class="loud-container" loud-container>
+    <div class="loud-headline" loud-column>
+      {% for block in section.blocks %}
+        {% if block.type == 'headline' %}
+          <h2 {{ block.shopify_attributes }}>{{ block.settings.text }}</h2>
+        {% endif %}
+        {% if block.type == 'subheading' %}
+          <p {{ block.shopify_attributes }}>{{ block.settings.text }}</p>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="loud-grid">
+      <div class="loud-col" loud-column>
+        {% if section.settings.show_mastercard %}
+          {% if section.settings.mastercard_url != blank %}
+            <a href="{{ section.settings.mastercard_url }}" target="_blank" rel="noopener noreferrer">
+          {% endif %}
+          <img
+            loading="lazy"
+            alt="Instagram"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 15 15'%3E%3Cpath fill='none' stroke='{{ section.settings.mastercard_color | url_encode }}' d='M11 3.5H12M4.5 0.5H10.5C12.7091 0.5 14.5 2.29086 14.5 4.5V10.5C14.5 12.7091 12.7091 14.5 10.5 14.5H4.5C2.29086 14.5 0.5 12.7091 0.5 10.5V4.5C0.5 2.29086 2.29086 0.5 4.5 0.5ZM7.5 10.5C5.84315 10.5 4.5 9.15685 4.5 7.5C4.5 5.84315 5.84315 4.5 7.5 4.5C9.15685 4.5 10.5 5.84315 10.5 7.5C10.5 9.15685 9.15685 10.5 7.5 10.5Z'%3E%3C/path%3E%3C/svg%3E"
+          >
+          {% if section.settings.mastercard_url != blank %}
+            </a>
+          {% endif %}
+        {% endif %}
+
+        {% if section.settings.show_paypal %}
+          {% if section.settings.paypal_url != blank %}
+            <a href="{{ section.settings.paypal_url }}" target="_blank" rel="noopener noreferrer">
+          {% endif %}
+          <img
+            loading="lazy"
+            alt="Facebook"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24'%3E%3Cpath fill='{{ section.settings.paypal_color | url_encode }}' d='M12 2.03998C6.5 2.03998 2 6.52998 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.84998C10.44 7.33998 11.93 5.95998 14.22 5.95998C15.31 5.95998 16.45 6.14998 16.45 6.14998V8.61998H15.19C13.95 8.61998 13.56 9.38998 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96C15.9164 21.5878 18.0622 20.3855 19.6099 18.57C21.1576 16.7546 22.0054 14.4456 22 12.06C22 6.52998 17.5 2.03998 12 2.03998Z'%3E%3C/path%3E%3C/svg%3E"
+          >
+          {% if section.settings.paypal_url != blank %}
+            </a>
+          {% endif %}
+        {% endif %}
+
+        {% if section.settings.show_visa %}
+          {% if section.settings.visa_url != blank %}
+            <a href="{{ section.settings.visa_url }}" target="_blank" rel="noopener noreferrer">
+          {% endif %}
+          <img
+            loading="lazy"
+            alt="YouTube"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='{{ section.settings.visa_color | url_encode }}' d='M31.331,8.248c-0.368-1.386-1.452-2.477-2.829-2.848C25.906,4.727,15.9,4.727,15.9,4.727s-10.007,0-12.502,0.673C2.021,5.77,0.936,6.861,0.567,8.248c-0.669,2.512-0.669,7.752-0.669,7.752s0,5.24,0.669,7.752c0.368,1.386,1.453,2.477,2.83,2.847c2.495,0.673,12.501,0.673,12.501,0.673s10.007,0,12.502-0.673c1.377-0.37,2.461-1.462,2.829-2.847c0.669-2.512,0.669-7.752,0.669-7.752S32,10.76,31.331,8.248z M12.727,20.758V11.242l8.364,4.758L12.727,20.758z'%3E%3C/path%3E%3C/svg%3E"
+          >
+          {% if section.settings.visa_url != blank %}
+            </a>
+          {% endif %}
+        {% endif %}
+
+        {% if section.settings.show_apple_pay %}
+          {% if section.settings.apple_pay_url != blank %}
+            <a href="{{ section.settings.apple_pay_url }}" target="_blank" rel="noopener noreferrer">
+          {% endif %}
+          <img
+            loading="lazy"
+            alt="Tik Tok"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='{{ section.settings.apple_pay_color | url_encode }}' d='M24.562,7.613c-1.508-0.983-2.597-2.557-2.936-4.391c-0.073-0.396-0.114-0.804-0.114-1.221h-4.814l-0.008,19.292c-0.081,2.16-1.859,3.894-4.039,3.894c-0.677,0-1.315-0.169-1.877-0.465c-1.288-0.678-2.169-2.028-2.169-3.582c0-2.231,1.815-4.047,4.046-4.047c0.417,0,0.816,0.069,1.194,0.187v-4.914c-0.391-0.053-0.788-0.087-1.194-0.087c-4.886,0-8.86,3.975-8.86,8.86c0,2.998,1.498,5.65,3.783,7.254c1.439,1.01,3.19,1.606,5.078,1.606c4.886,0,8.86-3.975,8.86-8.86V11.357c1.888,1.355,4.201,2.154,6.697,2.154v-4.814c-1.345,0-2.597-0.4-3.647-1.085Z'%3E%3C/path%3E%3C/svg%3E"
+          >
+          {% if section.settings.apple_pay_url != blank %}
+            </a>
+          {% endif %}
+        {% endif %}
+
+        {% if section.settings.show_google_pay %}
+          {% if section.settings.google_pay_url != blank %}
+            <a href="{{ section.settings.google_pay_url }}" target="_blank" rel="noopener noreferrer">
+          {% endif %}
+          <img
+            loading="lazy"
+            alt="X (Twitter)"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='{{ section.settings.google_pay_color | url_encode }}' d='M18.42,14.009L27.891,3h-2.244l-8.224,9.559L10.855,3H3.28l9.932,14.455L3.28,29h2.244l8.684-10.095l6.936,10.095h7.576l-10.301-14.991h0Zm-3.074,3.573l-1.006-1.439L6.333,4.69h3.447l6.462,9.243l1.006,1.439l8.4,12.015h-3.447l-6.854-9.804h0Z'%3E%3C/path%3E%3C/svg%3E"
+          >
+          {% if section.settings.google_pay_url != blank %}
+            </a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+    <!-- /.loud-grid -->
+  </div>
+  <!-- /.loud-container -->
+</div>
+<!-- /.loud-wrap -->
+
+{% schema %}
+{
+  "name": "Social Icons Pro",
+
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content Settings",
+      "info": "Configure the headline and text content for your section."
+    },
+    {
+      "type": "text_alignment",
+      "id": "text_alignment",
+      "label": "Texts Alignment",
+      "info": "Choose the alignment for the headline and subheading on desktop.",
+      "default": "center"
+    },
+    {
+      "type": "text_alignment",
+      "id": "mobile_text_alignment",
+      "label": "Texts Alignment (Mobile)",
+      "info": "Choose the alignment for the headline and subheading on mobile devices.",
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "headline_spacing",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Spacing Between Headline and Icons",
+      "info": "Adjust the vertical spacing between the headline and the payment icons.",
+      "default": 13
+    },
+    {
+      "type": "header",
+      "content": "Text Styling",
+      "info": "Adjust the size, color, and spacing of your text."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_font",
+      "label": "Enable Custom Font",
+      "default": false,
+      "info": "Toggle to enable custom fonts for headline and subheading."
+    },
+    {
+      "type": "header",
+      "content": "Section Design",
+      "info": "Customize the overall design and layout of the section."
+    },
+    {
+      "type": "select",
+      "id": "show_on_device",
+      "label": "Display On",
+      "info": "Choose which devices to display this section on.",
+      "options": [
+        { "value": "all", "label": "All Devices" },
+        { "value": "mobile", "label": "Mobile Devices" },
+        { "value": "desktop", "label": "Desktop / Larger Screens" }
+      ],
+      "default": "all"
+    },
+    {
+      "type": "color",
+      "id": "section_background_color",
+      "default": "#FFFFFF",
+      "label": "Background Color",
+      "info": "Set the background color for the section."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Top/Bottom",
+      "info": "Adjust the top and bottom padding of the section.",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_top_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Top/Bottom (Mobile)",
+      "info": "Adjust the top and bottom padding of the section on mobile devices.",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Left/Right",
+      "info": "Adjust the left and right padding of the section.",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Left/Right (Mobile)",
+      "info": "Adjust the left and right padding of the section on mobile devices.",
+      "default": 9
+    },
+    {
+      "type": "range",
+      "id": "element_spacing",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Spacing Between Elements",
+      "info": "Set the spacing between different elements within the section.",
+      "default": 15
+    },
+    {
+      "type": "header",
+      "content": "Container Settings",
+      "info": "Customize the container within the section."
+    },
+    {
+      "type": "color",
+      "id": "container_background_color",
+      "default": "transparent",
+      "label": "Container Background Color"
+    },
+    {
+      "type": "range",
+      "id": "container_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Container Border Radius",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "container_shadow",
+      "label": "Enable Container Shadow",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "container_border_size",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Container Border Size",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "container_border_color",
+      "default": "#000000",
+      "label": "Container Border Color"
+    },
+    {
+      "type": "range",
+      "id": "container_max_width",
+      "min": 100,
+      "max": 2000,
+      "step": 100,
+      "unit": "px",
+      "label": "Container Max Width",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "container_padding_top_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Container Padding Top/Bottom",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mobile_container_padding_top_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Container Padding Top/Bottom (Mobile)",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "container_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Container Padding Left/Right",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mobile_container_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Container Padding Left/Right (Mobile)",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Icons Settings",
+      "info": "Configure the appearance and display of payment icons."
+    },
+    {
+      "type": "range",
+      "id": "icon_height",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Icon Height (Desktop)",
+      "info": "Set the height of the payment icons on desktop.",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "mobile_icon_height",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Icon Height (Mobile)",
+      "info": "Set the height of the payment icons on mobile devices.",
+      "default": 31
+    },
+    {
+      "type": "range",
+      "id": "icon_gap",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Gap Between Icons (Desktop)",
+      "info": "Set the horizontal gap between icons on desktop.",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "mobile_icon_gap",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Gap Between Icons (Mobile)",
+      "info": "Set the horizontal gap between icons on mobile devices.",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Social Icons",
+      "info": "Select which social icons to display."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_mastercard",
+      "default": true,
+      "label": "Enable Instagram Icon",
+      "info": "Toggle the display of Instagram icon."
+    },
+    {
+      "type": "color",
+      "id": "mastercard_color",
+      "default": "#252525",
+      "label": "Instagram Icon Color",
+      "info": "Choose the color for the Instagram icon."
+    },
+    {
+      "type": "url",
+      "id": "mastercard_url",
+      "label": "Instagram Icon URL",
+      "info": "Enter the URL to which the Instagram icon should link.",
+      "default": "/"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_paypal",
+      "default": true,
+      "label": "Enable Facebook Icon",
+      "info": "Toggle the display of Facebook icon."
+    },
+    {
+      "type": "color",
+      "id": "paypal_color",
+      "default": "#252525",
+      "label": "Facebook Icon Color",
+      "info": "Choose the color for the Facebook icon."
+    },
+    {
+      "type": "url",
+      "id": "paypal_url",
+      "label": "Facebook Icon URL",
+      "info": "Enter the URL to which the Facebook icon should link.",
+      "default": "/"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_visa",
+      "default": true,
+      "label": "Enable Youtube Icon",
+      "info": "Toggle the display of Youtube icon."
+    },
+    {
+      "type": "color",
+      "id": "visa_color",
+      "default": "#252525",
+      "label": "Youtube Icon Color",
+      "info": "Choose the color for the Youtube icon."
+    },
+    {
+      "type": "url",
+      "id": "visa_url",
+      "label": "Youtube Icon URL",
+      "info": "Enter the URL to which the Youtube icon should link.",
+      "default": "/"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_apple_pay",
+      "default": true,
+      "label": "Enable Tik Tok Icon",
+      "info": "Toggle the display of Tik Tok icon."
+    },
+    {
+      "type": "color",
+      "id": "apple_pay_color",
+      "default": "#252525",
+      "label": "Tik Tok Icon Color",
+      "info": "Choose the color for the Tik Tok icon."
+    },
+    {
+      "type": "url",
+      "id": "apple_pay_url",
+      "label": "Tik Tok Icon URL",
+      "info": "Enter the URL to which the Tik Tok icon should link.",
+      "default": "/"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_google_pay",
+      "default": true,
+      "label": "Enable X Icon",
+      "info": "Toggle the display of X icon."
+    },
+    {
+      "type": "color",
+      "id": "google_pay_color",
+      "default": "#252525",
+      "label": "X Icon Color",
+      "info": "Choose the color for the X icon."
+    },
+    {
+      "type": "url",
+      "id": "google_pay_url",
+      "label": "X Icon URL",
+      "info": "Enter the URL to which the X icon should link.",
+      "default": "/"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "headline",
+      "name": "Headline",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "text",
+          "label": "Headline",
+          "info": "Set the main headline text for the section.",
+          "default": "Follow us on socials"
+        },
+        {
+          "type": "font_picker",
+          "id": "font",
+          "label": "Headline Font",
+          "info": "Select the font for the headline text.",
+          "default": "sans-serif"
+        },
+        {
+          "type": "range",
+          "id": "size",
+          "min": 10,
+          "max": 75,
+          "step": 1,
+          "unit": "px",
+          "label": "Headline Size",
+          "info": "Set the font size for the headline.",
+          "default": 37
+        },
+        {
+          "type": "range",
+          "id": "mobile_size",
+          "min": 10,
+          "max": 75,
+          "step": 1,
+          "unit": "px",
+          "label": "Headline Size (Mobile)",
+          "info": "Set the font size for the headline on mobile devices.",
+          "default": 34
+        },
+        {
+          "type": "select",
+          "id": "line_height",
+          "label": "Headline Line Height",
+          "info": "Adjust the line height for the headline text.",
+          "options": [
+            { "value": "0.75", "label": "0.75" },
+            { "value": "1.0", "label": "1.0" },
+            { "value": "1.1", "label": "1.1" },
+            { "value": "1.2", "label": "1.2" },
+            { "value": "1.3", "label": "1.3" },
+            { "value": "1.4", "label": "1.4" },
+            { "value": "1.5", "label": "1.5" },
+            { "value": "1.6", "label": "1.6" },
+            { "value": "inherit", "label": "Inherit" }
+          ],
+          "default": "inherit"
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "default": "#353535",
+          "label": "Headline Color",
+          "info": "Choose the color for the headline text."
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "text",
+          "label": "Subheading Text",
+          "info": "Set the subheading or descriptive text for the section.",
+          "default": "Follow us on social media for updates, exclusive content, and more!"
+        },
+        {
+          "type": "font_picker",
+          "id": "font",
+          "label": "Subheading Font",
+          "info": "Select the font for the subheading text.",
+          "default": "sans-serif"
+        },
+        {
+          "type": "range",
+          "id": "size",
+          "min": 10,
+          "max": 50,
+          "step": 1,
+          "unit": "px",
+          "label": "Subheading Text Size",
+          "info": "Set the font size for the subheading text.",
+          "default": 15
+        },
+        {
+          "type": "range",
+          "id": "mobile_size",
+          "min": 10,
+          "max": 50,
+          "step": 1,
+          "unit": "px",
+          "label": "Subheading Text Size (Mobile)",
+          "info": "Set the font size for the subheading text on mobile devices.",
+          "default": 15
+        },
+        {
+          "type": "select",
+          "id": "line_height",
+          "label": "Subheading Text Spacing",
+          "info": "Adjust the line height for the subheading text.",
+          "options": [
+            { "value": "0.75", "label": "0.75" },
+            { "value": "1.0", "label": "1.0" },
+            { "value": "1.1", "label": "1.1" },
+            { "value": "1.2", "label": "1.2" },
+            { "value": "1.3", "label": "1.3" },
+            { "value": "1.4", "label": "1.4" },
+            { "value": "1.5", "label": "1.5" },
+            { "value": "1.6", "label": "1.6" },
+            { "value": "1.7", "label": "1.7" },
+            { "value": "inherit", "label": "Inherit" }
+          ],
+          "default": "inherit"
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "default": "#353535",
+          "label": "Subheading Color",
+          "info": "Choose the color for the subheading text."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Social Icons Pro",
+      "category": "Social",
+      "blocks": [
+        {
+          "type": "headline"
+        },
+        {
+          "type": "subheading"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

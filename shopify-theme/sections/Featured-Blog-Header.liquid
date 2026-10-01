@@ -1,0 +1,748 @@
+{%- comment -%}
+  /sections/hero-banner-2.liquid
+  WHY: `presets` removed so this section is hidden from the Theme Editor's “Add section” search.
+{%- endcomment -%}
+
+<div id="hero-banner-2-{{ section.id }}" class="loudecomz custom-blog">
+  <div class="featured_custom3">
+    <div class="featured_container3">
+      <div class="featured_wrapper3">
+        {%- for block in section.blocks limit: 1 -%}
+          <!-- Featured article -->
+          <div class="featured_main3">
+            <!-- Inner div to handle the background image + brightness, size, etc. -->
+            <div
+              class="featured_main3-image"
+              {% if block.settings.custom_image %}
+                style="
+                  background-image: url({{ block.settings.custom_image | image_url: width: block.settings.desktop_article_image_width }});
+                "
+              {% elsif block.settings.article.image %}
+                style="
+                  background-image: url({{ block.settings.article.image | image_url: width: block.settings.desktop_article_image_width }});
+                "
+              {% else %}
+                style="background-color: #e8e8e8;"
+              {% endif %}
+            ></div>
+
+            <!-- Editable label for 'Featured Article' text -->
+            <span class="featured_article3">
+              {{ section.settings.featured_article_label | default: 'Featured Article' }}
+            </span>
+
+            <!-- Title -->
+            <h3 class="featured_title3">
+              {%- liquid
+                if block.settings.article.title
+                  echo block.settings.article.title
+                else
+                  echo 'Featured Blog Title'
+                endif
+              -%}
+            </h3>
+
+            <!-- Description -->
+            <div class="featured_description3">
+              {%- liquid
+                unless section.settings.remove_description_text
+                  if block.settings.article.content
+                    echo block.settings.article.content | truncate: 200
+                  else
+                    echo 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Molestias iste corporis cumque perspiciatis tenetur reprehenderit nam, ipsum consequatur laudantium optio.'
+                  endif
+                endunless
+              -%}
+            </div>
+
+            <!-- Button -->
+            {% unless section.settings.hide_read_more_button %}
+              <a href="{{ block.settings.article.url }}" class="featured_link3">
+                {{ section.settings.button_text }}
+              </a>
+            {% endunless %}
+          </div>
+        {%- endfor -%}
+
+        <!-- Additional blocks -->
+        <div class="featured_blocks3">
+          {%- for block in section.blocks offset: 1 -%}
+            <div class="featured_blocks-block3 featured_item3">
+              {%- if block.settings.custom_image -%}
+                {{
+                  block.settings.custom_image
+                  | image_url: width: block.settings.desktop_article_image_width
+                  | image_tag: alt: block.settings.article.title
+                }}
+              {%- elsif block.settings.article.image -%}
+                {{
+                  block.settings.article.image
+                  | image_url: width: block.settings.desktop_article_image_width
+                  | image_tag: alt: block.settings.article.title
+                }}
+              {%- else -%}
+                {{ 'image' | placeholder_svg_tag }}
+              {%- endif -%}
+
+              <div class="featured_item-info3">
+                <h4>
+                  {%- liquid
+                    if block.settings.article.title
+                      echo block.settings.article.title
+                    else
+                      echo 'Article Title'
+                    endif
+                  -%}
+                </h4>
+                <p>
+                  {%- liquid
+                    unless section.settings.remove_description_text
+                      if block.settings.article.excerpt
+                        echo block.settings.article.excerpt
+                      else
+                        echo 'Intro to article'
+                      endif
+                    endunless
+                  -%}
+                </p>
+                {% unless section.settings.hide_read_more_button %}
+                  <a href="{{ block.settings.article.url }}" class="featured_link3">
+                    {{ section.settings.button_text }}
+                  </a>
+                {% endunless %}
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Hero  Banner 2",
+  "tag": "section",
+  "class": "custom-blog",
+  "max_blocks": 1,
+  "settings": [
+    { "type": "header", "content": "Content Configuration" },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Read More Button Text",
+      "default": "Read more",
+      "info": "Customize the text displayed on the 'Read More' buttons."
+    },
+    {
+      "type": "checkbox",
+      "id": "remove_description_text",
+      "default": true,
+      "label": "Disable Description Under Text",
+      "info": "Remove the description text from both the featured and additional articles."
+    },
+
+    { "type": "header", "content": "Section Spacing & Background" },
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Section Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "section_top_padding",
+      "label": "Section Top Padding (px)",
+      "default": 0,
+      "min": 0, "max": 200, "step": 10
+    },
+    {
+      "type": "range",
+      "id": "section_bottom_padding",
+      "label": "Section Bottom Padding (px)",
+      "default": 0,
+      "min": 0, "max": 200, "step": 10
+    },
+
+    { "type": "header", "content": "Section Margins (Desktop)" },
+    {
+      "type": "range",
+      "id": "section_margin_top_desktop",
+      "label": "Top Margin Desktop (px)",
+      "default": 0,
+      "min": -200, "max": 400, "step": 10
+    },
+    {
+      "type": "range",
+      "id": "section_margin_bottom_desktop",
+      "label": "Bottom Margin Desktop (px)",
+      "default": 0,
+      "min": -200, "max": 400, "step": 10
+    },
+
+    { "type": "header", "content": "Section Margins (Mobile)" },
+    {
+      "type": "range",
+      "id": "section_margin_top_mobile",
+      "label": "Top Margin Mobile (px)",
+      "default": 0,
+      "min": -200, "max": 400, "step": 10
+    },
+    {
+      "type": "range",
+      "id": "section_margin_bottom_mobile",
+      "label": "Bottom Margin Mobile (px)",
+      "default": 0,
+      "min": -200, "max": 400, "step": 10
+    },
+
+    { "type": "header", "content": "Styling & Appearance" },
+    {
+      "type": "color",
+      "id": "description_maintext_color",
+      "label": "Top Text Color",
+      "default": "#FFFFFF",
+      "info": "Color of the description text in articles."
+    },
+    {
+      "type": "font_picker",
+      "id": "title_font",
+      "default": "assistant_n4",
+      "label": "Article Title Font",
+      "info": "Select the font for article titles."
+    },
+    {
+      "type": "font_picker",
+      "id": "description_font",
+      "default": "assistant_n4",
+      "label": "Top Text Font",
+      "info": "Select the font for article descriptions."
+    },
+
+    { "type": "header", "content": "Button Customizations" },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Button Background Color",
+      "default": "#FF7A15",
+      "info": "Set the background color of the 'Read More' buttons."
+    },
+    {
+      "type": "color",
+      "id": "button_bg_hover_color",
+      "label": "Button Hover Background Color",
+      "default": "#ee6600",
+      "info": "Set the background color of the 'Read More' buttons on hover."
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff",
+      "info": "Set the text color of the 'Read More' buttons."
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Button Border Radius (px)",
+      "default": 25,
+      "min": 0, "max": 50, "step": 1,
+      "info": "Adjust the border radius of the 'Read More' buttons."
+    },
+    {
+      "type": "range",
+      "id": "read_more_button_border_weight",
+      "label": "'Read More' Button Border Thickness (px)",
+      "default": 2,
+      "min": 0, "max": 5, "step": 1,
+      "info": "Set the thickness of the border around the 'Read More' buttons."
+    },
+    {
+      "type": "color",
+      "id": "button_border_color",
+      "label": "'Read More' Button Border Color (Normal)",
+      "default": "#FF7A15",
+      "info": "Set the border color of the 'Read More' buttons in normal state."
+    },
+    {
+      "type": "color",
+      "id": "button_border_hover_color",
+      "label": "'Read More' Button Border Color (Hover)",
+      "default": "#ee6600",
+      "info": "Set the border color of the 'Read More' buttons on hover."
+    },
+    {
+      "type": "range",
+      "id": "read_more_font_size_desktop",
+      "label": "Read More Button Font Size (Desktop) (px)",
+      "default": 16,
+      "min": 10, "max": 30, "step": 1
+    },
+    {
+      "type": "range",
+      "id": "read_more_font_size_mobile",
+      "label": "Read More Button Font Size (Mobile) (px)",
+      "default": 14,
+      "min": 10, "max": 30, "step": 1
+    },
+    {
+      "type": "range",
+      "id": "read_more_font_weight",
+      "label": "Read More Button Font Weight",
+      "default": 600,
+      "min": 100, "max": 900, "step": 100
+    },
+
+    { "type": "header", "content": "Featured Article Title" },
+    {
+      "type": "range",
+      "id": "featured_title_font_size_desktop",
+      "label": "Featured Article Title Font Size (Desktop) (px)",
+      "default": 30,
+      "min": 16,
+      "max": 60,
+      "step": 1
+    },
+    {
+      "type": "range",
+      "id": "featured_title_font_size_mobile",
+      "label": "Featured Article Title Font Size (Mobile) (px)",
+      "default": 24,
+      "min": 16,
+      "max": 60,
+      "step": 1
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_read_more_button",
+      "label": "Hide Read More Button",
+      "default": false
+    },
+
+    { "type": "header", "content": "Featured Article Label" },
+    {
+      "type": "text",
+      "id": "featured_article_label",
+      "label": "Featured Article Label",
+      "default": "Featured Article"
+    },
+
+    { "type": "header", "content": "Article Image Settings" },
+    {
+      "type": "range",
+      "id": "article_image_brightness",
+      "label": "Article Image Brightness",
+      "default": 1,
+      "min": 0, "max": 2, "step": 0.1
+    },
+    {
+      "type": "range",
+      "id": "desktop_article_image_width",
+      "label": "Desktop Article Image Width (%)",
+      "default": 100,
+      "min": 10, "max": 200, "step": 10
+    },
+    {
+      "type": "range",
+      "id": "desktop_article_image_height",
+      "label": "Desktop Article Image Height (px)",
+      "default": 400,
+      "min": 50, "max": 1000, "step": 10
+    },
+    {
+      "type": "range",
+      "id": "mobile_article_image_width",
+      "label": "Mobile Article Image Width (%)",
+      "default": 100,
+      "min": 10, "max": 200, "step": 10
+    },
+    {
+      "type": "range",
+      "id": "mobile_article_image_height",
+      "label": "Mobile Article Image Height (px)",
+      "default": 300,
+      "min": 50, "max": 800, "step": 10
+    },
+    {
+      "type": "range",
+      "id": "article_image_border_radius",
+      "label": "Article Image Border Radius (px)",
+      "default": 0,
+      "min": 0, "max": 100, "step": 1
+    },
+    {
+      "type": "range",
+      "id": "article_image_z_index_mobile",
+      "label": "Mobile Article Image Z-Index",
+      "default": 0,
+      "min": 0, "max": 990, "step": 10
+    },
+    {
+      "type": "range",
+      "id": "article_image_y_index_mobile",
+      "label": "Mobile Article Image Y Offset (px)",
+      "default": 0,
+      "min": -200, "max": 200, "step": 10
+    },
+    {
+      "type": "select",
+      "id": "article_image_ratio_mobile",
+      "label": "Mobile Article Image Aspect Ratio",
+      "default": "16-9",
+      "options": [
+        { "value": "1-1", "label": "1:1" },
+        { "value": "4-3", "label": "4:3" },
+        { "value": "16-9", "label": "16:9" },
+        { "value": "3-2", "label": "3:2" },
+        { "value": "2-1", "label": "2:1" },
+        { "value": "21-9", "label": "21:9" },
+        { "value": "9-16", "label": "9:16" },
+        { "value": "3-4", "label": "3:4" },
+        { "value": "2-3", "label": "2:3" },
+        { "value": "4-5", "label": "4:5" },
+        { "value": "5-7", "label": "5:7" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "article_image_y_index_desktop",
+      "label": "Desktop Article Image Y Offset (px)",
+      "default": 0,
+      "min": -200, "max": 200, "step": 10
+    },
+    {
+      "type": "range",
+      "id": "custom_article_image_border_radius",
+      "label": "Additional Blocks Image Border Radius (px)",
+      "default": 0,
+      "min": 0, "max": 100, "step": 1
+    },
+
+    { "type": "header", "content": "Typography Settings" },
+    {
+      "type": "color",
+      "id": "featured_title_text_color",
+      "label": "Featured Article Title Color",
+      "default": "#ffffff"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "Article",
+      "name": "Blog Hero 1 ",
+      "settings": [
+        { "type": "article", "id": "article", "label": "Select Article" },
+        { "type": "image_picker", "id": "custom_image", "label": "Custom Article Image" }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+{% style %}
+  {{ section.settings.title_font | font_face: font_display: 'swap' }}
+  {{ section.settings.description_font | font_face: font_display: 'swap' }}
+
+  /* ✅ Strong, unambiguous targeting using the unique section ID */
+  #hero-banner-2-{{ section.id }} {
+    background-color: {{ section.settings.section_bg_color }} !important;
+    padding-top: {{ section.settings.section_top_padding }}px !important;
+    padding-bottom: {{ section.settings.section_bottom_padding }}px !important;
+
+    /* Desktop margins (default) */
+    margin-top: {{ section.settings.section_margin_top_desktop }}px !important;
+    margin-bottom: {{ section.settings.section_margin_bottom_desktop }}px !important;
+
+    /* Prevent margin-collapsing weirdness at the top */
+    display: block;
+    overflow: visible;
+  }
+
+  /* Mobile overrides for margins */
+  @media (max-width: 767px) {
+    #hero-banner-2-{{ section.id }} {
+      margin-top: {{ section.settings.section_margin_top_mobile }}px !important;
+      margin-bottom: {{ section.settings.section_margin_bottom_mobile }}px !important;
+    }
+  }
+
+  /* Enhance Featured Article Readability */
+  {%- if section.settings.make_more_readable -%}
+  #hero-banner-2-{{ section.id }} .featured_main3 {
+    box-shadow: inset 0 0 0 1000px rgba(0,0,0,.2);
+  }
+  {%- endif -%}
+
+  /* Legacy Reverse Setting */
+  {%- if section.settings.reverse -%}
+  #hero-banner-2-{{ section.id }} .featured_wrapper3 {
+    flex-direction: row-reverse;
+  }
+  {%- endif -%}
+
+  /* Button Styles */
+  #hero-banner-2-{{ section.id }} .featured_item-info3 a {
+    color: {{ section.settings.button_color }};
+    background-color: transparent;
+    border: {{ section.settings.read_more_button_border_weight }}px solid {{ section.settings.button_color }};
+    border-radius: {{ section.settings.button_border_radius }}px;
+    background-color: {{ section.settings.button_bg_color }};
+    color: {{ section.settings.button_text_color }};
+    transition: all 0.3s ease;
+    font-size: {{ section.settings.read_more_font_size_desktop }}px;
+    font-weight: {{ section.settings.read_more_font_weight }};
+  }
+  #hero-banner-2-{{ section.id }} .featured_item-info3 a:hover {
+    background-color: {{ section.settings.button_bg_hover_color }};
+    color: {{ section.settings.button_text_color }};
+  }
+  #hero-banner-2-{{ section.id }} .featured_link3 {
+    background-color: {{ section.settings.button_bg_color }};
+    color: {{ section.settings.button_text_color }};
+    border-radius: {{ section.settings.button_border_radius }}px;
+    border: {{ section.settings.read_more_button_border_weight }}px solid transparent;
+    transition: all 0.3s ease;
+    max-width: 180px !important;
+    max-width: 145px !important;
+    padding: 0.4em 0.1em !important;
+    font-size: {{ section.settings.read_more_font_size_desktop }}px;
+    font-weight: {{ section.settings.read_more_font_weight }};
+  }
+  #hero-banner-2-{{ section.id }} .featured_link3:hover {
+    background-color: {{ section.settings.button_bg_hover_color }};
+    color: {{ section.settings.button_text_color }};
+    border: {{ section.settings.read_more_button_border_weight }}px solid {{ section.settings.button_bg_color }};
+  }
+
+  /* Description Text Color */
+  #hero-banner-2-{{ section.id }} .featured_description3 { color: {{ section.settings.description_maintext_color }}; }
+  #hero-banner-2-{{ section.id }} .featured_item-info3 p { color: {{ section.settings.description_maintext_color }}; }
+  #hero-banner-2-{{ section.id }} .featured_article3 { color: {{ section.settings.description_maintext_color }}; }
+
+  /* Title Fonts */
+  #hero-banner-2-{{ section.id }} .featured_title3,
+  #hero-banner-2-{{ section.id }} .featured_item-info3 h4 {
+    font-family: {{ section.settings.title_font.family }};
+    font-weight: {{ section.settings.title_font.weight }};
+  }
+  #hero-banner-2-{{ section.id }} .featured_description3,
+  #hero-banner-2-{{ section.id }} .featured_item-info3 p {
+    font-family: {{ section.settings.description_font.family }};
+    font-weight: {{ section.settings.description_font.weight }};
+  }
+
+  /* Article Title Colors */
+  #hero-banner-2-{{ section.id }} .featured_title3 {
+    color: {{ section.settings.featured_title_text_color }};
+    font-size: {{ section.settings.featured_title_font_size_desktop }}px;
+  }
+  #hero-banner-2-{{ section.id }} .featured_item-info3 h4 {
+    color: {{ section.settings.blog_article_title_color }};
+    font-size: 16px;
+    padding: 10px;
+    text-transform: uppercase;
+    margin: 0;
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+
+  /* Button Customizations */
+  #hero-banner-2-{{ section.id }} .featured_item-info3 a,
+  #hero-banner-2-{{ section.id }} .featured_link3 {
+    background-color: {{ section.settings.button_bg_color }};
+    color: {{ section.settings.button_text_color }};
+    border-radius: {{ section.settings.button_border_radius }}px;
+    transition: background-color 0.3s ease, color 0.3s ease, border 0.3s ease;
+  }
+
+  /* Read More Button Border Colors */
+  #hero-banner-2-{{ section.id }} .featured_item-info3 a {
+    border-width: {{ section.settings.read_more_button_border_weight }}px;
+    border-color: {{ section.settings.button_border_color }};
+  }
+  #hero-banner-2-{{ section.id }} .featured_link3 {
+    border-width: {{ section.settings.read_more_button_border_weight }}px;
+    border-color: {{ section.settings.button_border_color }};
+  }
+  #hero-banner-2-{{ section.id }} .featured_item-info3 a:hover { border-color: {{ section.settings.button_border_hover_color }}; }
+  #hero-banner-2-{{ section.id }} .featured_link3:hover { border-color: {{ section.settings.button_border_hover_color }}; }
+
+  /* Featured Main Image Customizations */
+  #hero-banner-2-{{ section.id }} .featured_main3 {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 400px;
+  }
+
+  #hero-banner-2-{{ section.id }} .featured_main3-image {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: {{ section.settings.desktop_article_image_width }}%;
+    height: {{ section.settings.desktop_article_image_height }}px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    filter: brightness({{ section.settings.article_image_brightness }});
+    border-radius: {{ section.settings.article_image_border_radius }}px;
+    z-index: 0;
+    transition: all 0.3s ease;
+  }
+
+  #hero-banner-2-{{ section.id }} .featured_main3 > *:not(.featured_main3-image) {
+    position: relative;
+    z-index: 1;
+  }
+
+  #hero-banner-2-{{ section.id }} .featured_blocks3 {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  #hero-banner-2-{{ section.id }} .featured_item3 {
+    flex: 0 1 32%;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(164, 162, 163, .3);
+    box-shadow: 0 2px 6px #0000000d;
+  }
+
+  #hero-banner-2-{{ section.id }} .featured_item-info3 { text-align: center; }
+  #hero-banner-2-{{ section.id }} .featured_item-info3 h4 {
+    font-size: 16px;
+    padding: 10px;
+    text-transform: uppercase;
+    margin: 0;
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+  #hero-banner-2-{{ section.id }} .featured_item-info3 p {
+    padding-bottom: 10px;
+    line-height: 1.2;
+    max-width: 80%;
+    margin: 0 auto !important;
+  }
+  #hero-banner-2-{{ section.id }} .featured_item-info3 a {
+    font-size: {{ section.settings.read_more_font_size_desktop }}px;
+    font-weight: {{ section.settings.read_more_font_weight }};
+    text-decoration: none;
+    border-radius: {{ section.settings.button_border_radius }}px;
+    padding: 2px 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 120px;
+    margin: 0 auto;
+    width: 100%;
+    transition: all 0.3s ease;
+    background-color: {{ section.settings.button_bg_color }};
+    color: {{ section.settings.button_text_color }};
+    border: {{ section.settings.read_more_button_border_weight }}px solid {{ section.settings.button_border_color }};
+  }
+  #hero-banner-2-{{ section.id }} .featured_item-info3 a:hover {
+    background-color: {{ section.settings.button_bg_hover_color }};
+    color: {{ section.settings.button_text_color }};
+    border-color: {{ section.settings.button_border_hover_color }};
+  }
+
+  #hero-banner-2-{{ section.id }} .featured_item3 img {
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: {{ section.settings.custom_article_image_border_radius }}px;
+  }
+
+  #hero-banner-2-{{ section.id }} .featured_article3 {
+    font-size: 16px;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  #hero-banner-2-{{ section.id }} .featured_title3 {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: {{ section.settings.featured_title_font_size_desktop }}px;
+    margin: 0;
+    max-width: 60% !important;
+    color: {{ section.settings.featured_title_text_color }}!important;
+    padding: 10px 0;
+  }
+  #hero-banner-2-{{ section.id }} .featured_description3 {
+    font-size: 16px;
+    line-height: 1.2;
+    max-width: 80%;
+    margin: 0 auto;
+    text-align: center;
+  }
+  #hero-banner-2-{{ section.id }} .featured_link3 {
+    text-decoration: none;
+    font-size: {{ section.settings.read_more_font_size_desktop }}px;
+    font-weight: {{ section.settings.read_more_font_weight }};
+    text-transform: uppercase;
+    border-radius: {{ section.settings.button_border_radius }}px;
+    padding: 5px 0;
+    margin-top: 20px;
+    text-align: center;
+    max-width: 200px;
+    width: 100%;
+    transition: all 0.3s ease;
+    border: {{ section.settings.read_more_button_border_weight }}px solid {{ section.settings.button_border_color }};
+    display: inline-block;
+    background-color: {{ section.settings.button_bg_color }};
+    color: {{ section.settings.button_text_color }};
+  }
+  #hero-banner-2-{{ section.id }} .featured_link3:hover {
+    background-color: {{ section.settings.button_bg_hover_color }};
+    color: {{ section.settings.button_text_color }};
+    border: {{ section.settings.read_more_button_border_weight }}px solid {{ section.settings.button_border_hover_color }};
+  }
+
+  /* Mobile Responsiveness */
+  @media (max-width: 767px) {
+    #hero-banner-2-{{ section.id }} .featured_blocks3 { flex-direction: column; }
+    #hero-banner-2-{{ section.id }} .featured_container3 { padding: 0 20px; }
+    #hero-banner-2-{{ section.id }} .featured_main3 { min-height: 500px; }
+    #hero-banner-2-{{ section.id }} .featured_wrapper3 { flex-direction: column; }
+    #hero-banner-2-{{ section.id }} .featured_item3 { margin-top: 0px; }
+    #hero-banner-2-{{ section.id }} .featured_article3 { font-size: 16px; }
+    #hero-banner-2-{{ section.id }} .featured_title3 { font-size: {{ section.settings.featured_title_font_size_mobile }}px; }
+    #hero-banner-2-{{ section.id }} .featured_description3 { font-size: 16px; max-width: 90%; }
+    #hero-banner-2-{{ section.id }} .featured_item-info3 a { font-size: {{ section.settings.read_more_font_size_mobile }}px; }
+
+    #hero-banner-2-{{ section.id }} .featured_main3-image {
+      z-index: {{ section.settings.article_image_z_index_mobile }};
+      top: {{ section.settings.article_image_y_index_mobile }}px;
+
+      {% assign ratio_value = section.settings.article_image_ratio_mobile %}
+      {% assign ratio_split = ratio_value | split: '-' %}
+      {% assign ratio_w = ratio_split[0] %}
+      {% assign ratio_h = ratio_split[1] %}
+      aspect-ratio: {{ ratio_w }} / {{ ratio_h }};
+
+      width: {{ section.settings.mobile_article_image_width }}%;
+      height: {{ section.settings.mobile_article_image_height }}px;
+      /* Allow auto height if aspect-ratio applies */
+      height: auto;
+    }
+
+    {% unless section.settings.hide_read_more_button %}
+      #hero-banner-2-{{ section.id }} .featured_link3 { font-size: {{ section.settings.read_more_font_size_mobile }}px; }
+      #hero-banner-2-{{ section.id }} .featured_item-info3 a { font-size: {{ section.settings.read_more_font_size_mobile }}px; }
+    {% endunless %}
+  }
+
+  /* Desktop Y Offset for the featured image */
+  @media (min-width: 768px) {
+    #hero-banner-2-{{ section.id }} .featured_main3-image { top: {{ section.settings.article_image_y_index_desktop }}px; }
+  }
+{% endstyle %}
+
+{% javascript %}
+  /* You can add additional JS here if needed */
+{% endjavascript %}

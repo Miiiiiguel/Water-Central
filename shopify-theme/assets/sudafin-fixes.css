@@ -1,0 +1,928 @@
+/* ================================================================
+   SUDAFIN — Master Style Sheet
+   Tipografía · Colores · Responsive · Mobile · Visual · Accesibilidad
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   1. TIPOGRAFÍA — Instrument Sans (fuente oficial de Sudafin)
+   Los @font-face se sirven desde font-variables.liquid (assets/)
+   Aquí aseguramos que TODO el sitio use la fuente correcta.
+   ---------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  font-family: var(--body-font, "Instrument Sans", system-ui, -apple-system, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+.heading, [class*="heading"] {
+  font-family: var(--heading-font, "Instrument Sans", system-ui, sans-serif);
+  letter-spacing: -0.01em;
+}
+
+/* Números limpios en precios, contadores, badges */
+.price, .money, .cart-count,
+[class*="badge"], [class*="count"],
+[class*="timer"], [class*="countdown"] {
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: 'lnum' 1, 'tnum' 1;
+}
+
+/* ----------------------------------------------------------------
+   2. COLORES GLOBALES — Texto blanco en fondos oscuros
+   La marca Sudafin es negra con dorado. Todo texto debe ser legible.
+   ---------------------------------------------------------------- */
+
+/* Base: text color via CSS variable */
+body, .gradient {
+  color: var(--body-color, #ffffff);
+}
+
+/* Headings: use CSS variable so sections can override */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  color: var(--heading-color, #ffffff);
+}
+
+/* Precios */
+.price__current,
+.price .money,
+.price-item,
+.price-item--regular {
+  color: #ffffff !important;
+}
+
+.price-item--sale {
+  color: #d4af37 !important;
+}
+
+/* Links */
+a:not(.btn):not(.button):not(.btn-primary) {
+  color: #f0f0f0;
+}
+
+a:hover:not(.btn):not(.button):not(.btn-primary) {
+  color: #d4af37;
+}
+
+/* Excepciones: secciones con fondo blanco/claro usan texto oscuro */
+[class*="color-background-1"] h1,
+[class*="color-background-1"] h2,
+[class*="color-background-1"] h3,
+[class*="color-background-1"] p,
+[class*="color-background-1"] span,
+[class*="color-background-1"] a,
+[style*="background-color: #fff"] h1,
+[style*="background-color: #fff"] h2,
+[style*="background-color: #fff"] p,
+[style*="background-color: white"] h1,
+[style*="background-color: white"] p,
+.bg-white h1, .bg-white h2, .bg-white h3,
+.bg-white p, .bg-white span {
+  color: #0a0a0a !important;
+}
+
+/* SVG icons sobre fondo oscuro: blancos */
+.icon-cart svg, .icon-account svg,
+.icon-search svg, .icon-menu svg,
+nav svg, header svg {
+  color: #ffffff;
+  fill: #ffffff;
+}
+
+/* ----------------------------------------------------------------
+   3. BOTONES — Dorado o Negro, nunca texto invisible
+   ---------------------------------------------------------------- */
+.btn-primary,
+.button.button--primary,
+.product-form__submit,
+.shopify-payment-button__button--unbranded,
+[type="submit"].btn-primary {
+  background: linear-gradient(135deg, #d4af37 0%, #f9e29c 50%, #996515 100%) !important;
+  background-size: 200% auto !important;
+  color: #000000 !important;
+  border: none !important;
+  border-radius: 50px !important;
+  font-weight: 700 !important;
+  font-family: var(--heading-font, "Instrument Sans", sans-serif) !important;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1) !important;
+}
+
+.btn-primary:hover,
+.button.button--primary:hover,
+.product-form__submit:hover {
+  background-position: right center !important;
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px rgba(212, 175, 55, 0.5) !important;
+  color: #000000 !important;
+}
+
+/* Botón secundario (outline) */
+.btn-outline,
+.button.button--secondary {
+  background: transparent !important;
+  color: #d4af37 !important;
+  border: 1.5px solid #d4af37 !important;
+  border-radius: 50px !important;
+}
+
+.btn-outline:hover,
+.button.button--secondary:hover {
+  background: #d4af37 !important;
+  color: #000000 !important;
+}
+
+/* Quick-add / card ATC button */
+.add-to-cart,
+.btn-add-to-cart,
+.quick-add__submit {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+}
+
+/* Cart checkout button */
+.cart-drawer__footer .button,
+.cart__footer .button,
+button[name="checkout"] {
+  background: linear-gradient(135deg, #d4af37, #f9e29c, #996515) !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+}
+
+/* ----------------------------------------------------------------
+   4. VIDEO DEL SLIDESHOW (hero)
+   ---------------------------------------------------------------- */
+/* Contenedor del slide: posición relativa y overflow hidden */
+.banner__media,
+.slideshow__slide,
+[class*="slide-wrapper"],
+.slide-wrapper {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* El video ocupa 100% del contenedor, recortado con cover */
+video.slideshow,
+.banner__media video,
+.slideshow__slide video {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  display: block !important;
+  z-index: 0 !important;
+}
+
+/* El contenido (texto, botones) encima del video */
+.sec__content,
+.slideshow__content,
+.banner__content,
+[class*="slide-content"] {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* ----------------------------------------------------------------
+   5. VIEWPORT / SAFE AREA (iPhone notch / Dynamic Island)
+   ---------------------------------------------------------------- */
+.h-100vh, .min-h-100vh { height: 100dvh; min-height: 100dvh; }
+
+@supports not (height: 100dvh) {
+  .h-100vh, .min-h-100vh {
+    height: -webkit-fill-available;
+    min-height: -webkit-fill-available;
+  }
+}
+
+.section-header, header, #shopify-section-header {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.mobile-nav-bar, #shopify-section-mobile-navigation-bar {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* ----------------------------------------------------------------
+   6. SELECTOR IDIOMA / MONEDA — más grande y centrado en móvil
+   ---------------------------------------------------------------- */
+@media (max-width: 1024.98px) {
+  .lang__currency-mobile-fix {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 4px 0 !important;
+  }
+  .lang__currency-mobile-fix .button-localization {
+    font-size: 14px !important;
+    padding: 8px 14px !important;
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    cursor: pointer;
+  }
+  .lang__currency-mobile-fix .disclosure__list a,
+  .lang__currency-on-nav .disclosure__list a {
+    font-size: 16px !important;
+    padding: 12px 20px !important;
+    min-height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  /* Dropdown: slide-up desde abajo en móvil */
+  :where(.lang__currency-on-nav, .lang__currency-desktop) .disclosure__list {
+    position: fixed !important;
+    bottom: -100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 16px 16px 0 0 !important;
+    z-index: 9999 !important;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    background-color: #0a0a0a !important;
+    padding: 2rem 2rem env(safe-area-inset-bottom, 1rem) !important;
+    border-top: 1px solid rgba(212, 175, 55, 0.3) !important;
+  }
+  :where(.lang__currency-on-nav, .lang__currency-desktop)
+    .button-localization.open + .disclosure__list {
+    bottom: 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  :where(.lang__currency-on-nav, .lang__currency-desktop) .disclosure__list ul {
+    max-height: 60vh;
+    -webkit-overflow-scrolling: touch;
+  }
+  :where(.lang__currency-on-nav, .lang__currency-desktop)
+    .button-localization.open::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 9998;
+    pointer-events: none;
+  }
+}
+
+/* ----------------------------------------------------------------
+   7. FAQ — TODOS LOS ÍTEMS VISIBLES EN MÓVIL
+   ---------------------------------------------------------------- */
+.loudecomz-faq-wrapper {
+  width: 100% !important;
+  display: block !important;
+  overflow: visible !important;
+}
+
+.loudecomz-faq-wrapper .ecomss-faq-container-item {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 100% !important;
+}
+
+@media (max-width: 767px) {
+  .loudecomz-faq-wrapper .ecomss-faq-container {
+    max-width: 100% !important;
+    padding: 0 4px !important;
+    overflow: visible !important;
+  }
+  .loudecomz-faq-wrapper .ecomss-faq-question {
+    min-height: 52px !important;
+    font-size: 1.5rem !important;
+    padding: 14px 16px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .loudecomz-faq-wrapper .ecomss-faq-answer {
+    padding: 0 16px !important;
+    font-size: 1.3rem !important;
+  }
+}
+
+/* ----------------------------------------------------------------
+   8. PRODUCT BENEFITS PRO — diseño responsivo
+   ---------------------------------------------------------------- */
+@media (max-width: 767px) {
+  .benefits2-section { overflow: visible !important; }
+  .benefits2-section video,
+  .benefits2-section .benefits2-media {
+    width: 100% !important;
+    max-width: 340px !important;
+    height: auto !important;
+    margin: 0 auto !important;
+    display: block !important;
+    object-fit: cover !important;
+    border-radius: 12px !important;
+  }
+  .benefit-item-mobile {
+    background: rgba(255,255,255,0.04) !important;
+    border-radius: 12px !important;
+    padding: 14px !important;
+    border: 1px solid rgba(212,175,55,0.15) !important;
+  }
+}
+
+/* ----------------------------------------------------------------
+   9. RESPONSIVE GENERAL — sin overflow horizontal
+   ---------------------------------------------------------------- */
+@media (max-width: 767px) {
+  .shopify-section {
+    max-width: 100vw !important;
+    overflow-x: clip !important;
+    box-sizing: border-box !important;
+  }
+  video, img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  h1, h2, h3, h4, h5, h6, p {
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+  .container, .fluid_container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
+/* ----------------------------------------------------------------
+   10. PÁGINA DE PRODUCTO — móvil
+   ---------------------------------------------------------------- */
+@media (max-width: 767px) {
+  product-form, .product-form, .main-product {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .product__media, .product__media-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  .product__title h1, .product__title {
+    font-size: clamp(2rem, 5.5vw, 3rem) !important;
+    line-height: 1.25 !important;
+    color: #ffffff !important;
+  }
+  .price__current, .price .money {
+    font-size: clamp(1.8rem, 5vw, 2.4rem) !important;
+    color: #ffffff !important;
+  }
+  .product-form__submit, .btn-primary.add-to-cart {
+    width: 100% !important;
+    min-height: 52px !important;
+    font-size: 16px !important;
+  }
+  sticky-add-cart, .sticky-add-cart {
+    padding-bottom: env(safe-area-inset-bottom, 16px) !important;
+  }
+  .variant-picker .product-form__input label,
+  .swatch-label {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+}
+
+/* ----------------------------------------------------------------
+   11. INPUTS — sin zoom automático en iOS, legibles sobre oscuro
+   ---------------------------------------------------------------- */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="search"],
+input[type="password"],
+textarea, select {
+  font-size: max(16px, 1em) !important;
+  -webkit-appearance: none;
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(212,175,55,0.3) !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: rgba(255,255,255,0.45) !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #d4af37 !important;
+  box-shadow: 0 0 0 2px rgba(212,175,55,0.2) !important;
+  outline: none !important;
+}
+
+/* ----------------------------------------------------------------
+   12. TOUCH — sin delay de 300ms, sin highlight azul
+   ---------------------------------------------------------------- */
+a, button, [role="button"],
+.collapsible-heading, .disclosure__button,
+.button-localization, label[for],
+.ecomss-faq-question {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+button, [type="button"], [type="submit"] {
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+/* ----------------------------------------------------------------
+   13. SCROLL — momentum en iOS, contención
+   ---------------------------------------------------------------- */
+.disclosure__list ul, .minicart-content,
+.cart-items, .search-popup__results,
+.custom-scrollbar, .overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* ----------------------------------------------------------------
+   14. CART DRAWER — móvil full width + safe area
+   ---------------------------------------------------------------- */
+@media (max-width: 767px) {
+  cart-drawer, .cart-drawer {
+    width: 100vw !important;
+    max-width: 100vw !important;
+  }
+  .cart-drawer__inner, .minicart__wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+.cart-drawer__footer, .minicart__footer {
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem));
+}
+
+/* ----------------------------------------------------------------
+   15. MINICART — texto legible
+   ---------------------------------------------------------------- */
+.minicart-title, .cart-drawer__title,
+.cart-item__name, .cart-item__price,
+mini-cart h2, mini-cart p {
+  color: #ffffff !important;
+}
+
+/* ----------------------------------------------------------------
+   16. ANNOUNCEMENT / TOPBAR — legible
+   ---------------------------------------------------------------- */
+.announcement-bar, .topbar, #topbar,
+.marquee-bar, .Annoucment-Bar-Scrolling {
+  color: #ffffff !important;
+}
+
+.announcement-bar a, #topbar a, .topbar a {
+  color: #d4af37 !important;
+}
+
+/* ----------------------------------------------------------------
+   17. HEADER / NAV — legible sobre glassmorphism
+   ---------------------------------------------------------------- */
+.section-header nav a,
+header nav a,
+.header-wrapper nav a,
+.menu-parent > a,
+.nav-link {
+  color: #ffffff !important;
+}
+
+/* ----------------------------------------------------------------
+   18. FOOTER — legible
+   ---------------------------------------------------------------- */
+.footer, footer {
+  background: #000000 !important;
+  border-top: 1px solid rgba(212,175,55,0.25) !important;
+  color: #cccccc !important;
+}
+
+.footer a, footer a {
+  color: #d4af37 !important;
+}
+
+.footer h2, .footer h3, .footer h4,
+footer h2, footer h3, footer h4 {
+  color: #ffffff !important;
+}
+
+/* ----------------------------------------------------------------
+   19. STACKING CONTEXT — posición fija en iOS
+   ---------------------------------------------------------------- */
+.section-header.sticky, .mobile-nav-bar,
+age-verifier, .popup-overlay {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ----------------------------------------------------------------
+   20. GPU / PERFORMANCE
+   ---------------------------------------------------------------- */
+.main-content, .site-header, .site-footer {
+  will-change: auto !important;
+}
+
+.section-header.sticky, .minicart-drawer,
+age-verifier.active, .popup-overlay.open {
+  will-change: transform;
+}
+
+/* ----------------------------------------------------------------
+   21. ACCESIBILIDAD — reduced motion
+   ---------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ----------------------------------------------------------------
+   22. MICELÁNEA — scrollbar, images drag prevention
+   ---------------------------------------------------------------- */
+.product__media img, .banner img,
+.slideshow img, .card__media img {
+  -webkit-user-drag: none;
+  pointer-events: auto;
+}
+
+/* Search results text */
+.search-results, .predictive-search__results {
+  color: #0a0a0a !important;
+}
+
+/* Price compare (tachado) */
+.price-item--regular.price-item--last {
+  color: rgba(255,255,255,0.45) !important;
+  text-decoration: line-through;
+}
+
+/* ----------------------------------------------------------------
+   23. LOADER — desactivado completamente
+   ---------------------------------------------------------------- */
+#sudafin-loader, preload-page, .preload-page {
+  display: none !important;
+}
+
+/* ================================================================
+   SUDAFIN — Correcciones v2 (auto-aplicadas 02-Jun-2026)
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   A. BOTÓN HERO — Verde centrado garantizado
+   El botón "Comprar Ahora" del slideshow usa .custom-btn con ID inline.
+   Protegemos su color verde y centramos el contenedor.
+   ---------------------------------------------------------------- */
+.sec__content-btn {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+
+/* Proteger el color verde del botón custom del slideshow */
+a.custom-btn,
+.custom-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease !important;
+}
+
+/* Centering en desktop: el contenedor padre también centrado */
+.sec__content.text-center .sec__content-btn,
+.sec__content.text-center .sec__content-inner {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  flex-direction: column !important;
+  text-align: center !important;
+}
+
+/* ----------------------------------------------------------------
+   B. SELECTOR DE IDIOMA / MONEDA EN EL HEADER
+   El dropdown en desktop lo maneja navigation.css (regla .open + .disclosure__list)
+   Aquí solo estilos del botón visible
+   ---------------------------------------------------------------- */
+.lang__currency-desktop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+@media (max-width: 1024px) {
+  .lang__currency-desktop {
+    display: none !important;
+  }
+}
+
+.lang__currency-desktop .button-localization {
+  font-size: 13px !important;
+  color: #ffffff !important;
+  background: rgba(255,255,255,0.1) !important;
+  border: 1px solid rgba(212,175,55,0.4) !important;
+  border-radius: 20px !important;
+  padding: 5px 12px !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: background 0.2s, border-color 0.2s !important;
+}
+
+.lang__currency-desktop .button-localization:hover {
+  background: rgba(212,175,55,0.18) !important;
+  border-color: rgba(212,175,55,0.7) !important;
+}
+
+/* disclosure necesita position relative para el dropdown absoluto */
+.lang__currency-desktop .disclosure {
+  position: relative !important;
+}
+
+/* ----------------------------------------------------------------
+   C. CORRECCIÓN TRADUCCIÓN FALTANTE — Ocultar texto de error
+   Por si alguna clave de traducción aún genera "Translation missing:"
+   ---------------------------------------------------------------- */
+[class*="translation-missing"],
+.translation-missing {
+  display: none !important;
+}
+
+/* ----------------------------------------------------------------
+   D. FOOTER — Selector de idioma/moneda visible y estilizado
+   ---------------------------------------------------------------- */
+.footer__localization .button-localization,
+.lang__currency-desktop.footer-locale .button-localization {
+  font-size: 14px !important;
+  color: #cccccc !important;
+}
+
+/* ----------------------------------------------------------------
+   E. GLASSMORPHISM HEADER — mejorado
+   ---------------------------------------------------------------- */
+.section-header.glassmorphism,
+header.glassmorphism,
+.header-wrapper.glassmorphism {
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  background: rgba(0,0,0,0.55) !important;
+  border-bottom: 1px solid rgba(212,175,55,0.15) !important;
+}
+
+/* ----------------------------------------------------------------
+   F. ARROWS del selector de idioma/moneda
+   ---------------------------------------------------------------- */
+.button-localization .icon-down,
+.disclosure__button .icon-down {
+  fill: currentColor !important;
+  transition: transform 0.2s ease !important;
+}
+
+.button-localization.open .icon-down,
+.disclosure__button.open .icon-down {
+  transform: rotate(180deg) !important;
+}
+
+/* ----------------------------------------------------------------
+   G. LANG/CURRENCY EN HEADER MÓVIL (nueva zona compacta)
+   ---------------------------------------------------------------- */
+/* hidden-1025-up = visible only below 1025px */
+.lang__currency-mobile-header {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .lang__currency-mobile-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    order: -1 !important;
+  }
+  /* Compact buttons on mobile header */
+  .lang__currency-mobile-header .button-localization,
+  .lang__currency-mobile-header .disclosure__button {
+    font-size: 11px !important;
+    color: #ffffff !important;
+    background: rgba(255,255,255,0.1) !important;
+    border: 1px solid rgba(212,175,55,0.4) !important;
+    border-radius: 14px !important;
+    padding: 3px 8px !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    max-width: 80px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  /* Hide the icon-down in compact mobile version */
+  .lang__currency-mobile-header .icon-down {
+    display: none !important;
+  }
+  /* Dropdown for mobile header lang/currency */
+  .lang__currency-mobile-header .disclosure__list {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    background: #0d0d0d !important;
+    border-top: 1px solid rgba(212,175,55,0.4) !important;
+    border-radius: 16px 16px 0 0 !important;
+    padding: 20px 20px env(safe-area-inset-bottom, 16px) !important;
+    z-index: 99999 !important;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.6) !important;
+  }
+  .lang__currency-mobile-header .disclosure__list a {
+    color: #eeeeee !important;
+    padding: 12px 16px !important;
+    font-size: 15px !important;
+    display: block !important;
+    border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  }
+  .lang__currency-mobile-header .disclosure__list a:hover,
+  .lang__currency-mobile-header .disclosure__list a[aria-current="true"] {
+    color: #d4af37 !important;
+    background: rgba(212,175,55,0.08) !important;
+  }
+}
+
+/* ----------------------------------------------------------------
+   H. VARIANTES DE PRODUCTO — Selector de cantidad/precio
+   Botones tipo píldora con precio visible por variante
+   ---------------------------------------------------------------- */
+
+/* Contenedor de opciones de variante */
+.variant-picker,
+.product-form__input,
+.option-selector {
+  margin-bottom: 16px !important;
+}
+
+/* Label de la opción (ej: "Cantidad", "Presentación") */
+.product-form__input label,
+.option-selector__label,
+.form__label {
+  color: #d4af37 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  margin-bottom: 10px !important;
+  display: block !important;
+}
+
+/* Botones de variante — estilo píldora dorado */
+.swatch-item,
+.variant-button,
+.product-form__input .swatch-item label,
+fieldset.product-form__input label[for],
+.option-selector__btn {
+  border-radius: 50px !important;
+  border: 1.5px solid rgba(212,175,55,0.4) !important;
+  background: rgba(0,0,0,0.4) !important;
+  color: #cccccc !important;
+  padding: 8px 20px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+  min-width: 80px !important;
+  text-align: center !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Variante seleccionada */
+.swatch-item.active label,
+.swatch-item input:checked + label,
+.option-selector__btn.active,
+.variant-button.selected,
+.product-form__input input:checked + label {
+  border-color: #d4af37 !important;
+  background: linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.1)) !important;
+  color: #d4af37 !important;
+  box-shadow: 0 0 12px rgba(212,175,55,0.25) !important;
+}
+
+/* Hover */
+.swatch-item label:hover,
+.option-selector__btn:hover,
+.variant-button:hover {
+  border-color: rgba(212,175,55,0.7) !important;
+  color: #ffffff !important;
+  background: rgba(212,175,55,0.1) !important;
+}
+
+/* Variante agotada */
+.swatch-item.option-disabled label,
+.option-selector__btn.disabled {
+  opacity: 0.4 !important;
+  text-decoration: line-through !important;
+  cursor: not-allowed !important;
+}
+
+/* Precio actualizado dinámicamente al cambiar variante */
+.price__current,
+.price-item--regular {
+  color: #ffffff !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+}
+
+.price-item--sale {
+  color: #39ff14 !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+}
+
+/* Precio tachado (precio original) */
+.price-item--regular.price-item--last,
+.price__compare .money {
+  color: rgba(255,255,255,0.4) !important;
+  font-size: 18px !important;
+  text-decoration: line-through !important;
+}
+
+/* Selector de cantidad */
+.quantity-selector,
+.quantity__input,
+quantity-input {
+  background: rgba(0,0,0,0.5) !important;
+  border: 1px solid rgba(212,175,55,0.3) !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+}
+
+/* Botón Comprar en producto */
+.product-form__submit,
+.btn-atc-sticky {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 50px !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  min-height: 52px !important;
+  transition: transform 0.2s ease, box-shadow 0.3s ease !important;
+}
+
+.product-form__submit:hover,
+.btn-atc-sticky:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 30px rgba(34,197,94,0.4) !important;
+}
+
+/* ----------------------------------------------------------------
+   SUDAFIN LOCALE BAR — espacio para que el header no tape la barra
+   ---------------------------------------------------------------- */
+/* Desktop: la barra es pequeña (~34px), dar espacio */
+@media (min-width: 601px) {
+  /* La barra está fixed top-right, no empuja contenido.
+     Solo ajustamos si el header es transparent/absolute */
+  .section-header.transparent,
+  .section-header .header__inner {
+    margin-top: 0;
+  }
+}
+/* Mobile: la barra ocupa ancho completo (~34px) */
+@media (max-width: 600px) {
+  body {
+    padding-top: 34px;
+  }
+  .section-header.sticky,
+  #header-sticky {
+    top: 34px !important;
+  }
+}
+
+/* Fix: Instagram/TikTok centered on mobile */
+@media (max-width: 768px) {
+  .tiktok-videos__grid,.tiktok-section__container,[class*="tiktok"] iframe,[class*="instagram"] iframe {
+    display:flex !important;justify-content:center !important;
+    margin-left:auto !important;margin-right:auto !important;max-width:100% !important;
+  }
+}

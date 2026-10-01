@@ -1,0 +1,1132 @@
+{% assign sec_id = section.id | slice: -6, 6 | replace: '-', '_' %}
+{% assign sec_id = sec_id | prepend: 'loudecomz' %}
+
+{% assign brightness_diff = section.settings.accent_color | brightness_difference: '#ffffff' %}
+{% if brightness_diff > 125 %}
+  {% assign readable_text_color = '#ffffff' %}
+{% else %}
+  {% assign readable_text_color = '#242424' %}
+{% endif %}
+
+{%- style -%}
+  *, *:after, *:before {
+    box-sizing: border-box;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  .loudecomz-container,
+  .loudecomz-container-fluid {
+    width: 100%;
+    padding-right: var(--loudecomz-gutter-x, 15px);
+    padding-left: var(--loudecomz-gutter-x, 15px);
+    margin-right: auto;
+    margin-left: auto;
+  }
+  @media (min-width: 576px) {
+    .loudecomz-container { max-width: 540px; }
+  }
+  @media (min-width: 750px) {
+    .loudecomz-container { max-width: 720px; }
+  }
+  @media (min-width: 992px) {
+    .loudecomz-container { max-width: 960px; }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width <= 960 %}
+      .loudecomz-section__{{sec_id}} .loudecomz-container {
+        max-width: {{ section.settings.container_max_width }}px;
+      }
+    {% endif %}
+  }
+  @media (min-width: 1200px) {
+    .loudecomz-container { max-width: 1140px; }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width <= 1140 %}
+      .loudecomz-section__{{sec_id}} .loudecomz-container {
+        max-width: {{ section.settings.container_max_width }}px;
+      }
+    {% endif %}
+  }
+  @media (min-width: 1400px) {
+    .loudecomz-container { max-width: 1320px; }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width != 1320 %}
+      .loudecomz-section__{{sec_id}} .loudecomz-container {
+        max-width: {{ section.settings.container_max_width }}px;
+      }
+    {% endif %}
+  }
+
+  .loudecomz-section__{{sec_id}} {
+    --loudecomz-gutter-x: 20px;
+    background-color: {{ section.settings.background_color }};
+    padding-top: {{ section.settings.section_padding_top }}px;
+    padding-bottom: {{ section.settings.section_padding_bottom }}px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-title-wrapper { margin-bottom: 40px; }
+  .loudecomz-section__{{sec_id}} .loudecomz-section-title {
+    color: {{ section.settings.text_color }};
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 700;
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-section-text {
+    color: {{ section.settings.text_color }};
+    margin-top: 0;
+    margin-bottom: 0;
+    opacity: 0.6;
+  }
+  .loudecomz-product-wrapper { position: relative; }
+  /* Use CSS custom properties for product item positions */
+  .loudecomz-section__{{sec_id}} .loudecomz-product-outer {
+    width: 32px;
+    height: 32px;
+    z-index: 9;
+    position: absolute;
+    margin-left: -16px;
+    margin-top: -16px;
+  }
+  @media (min-width: 750px) {
+    .loudecomz-section__{{sec_id}} .loudecomz-product-outer {
+      top: var(--desktop-v, 50%);
+      left: var(--desktop-h, 50%);
+    }
+  }
+  @media (max-width: 749px) {
+    .loudecomz-section__{{sec_id}} .loudecomz-product-outer {
+      top: var(--mobile-v, 50%);
+      left: var(--mobile-h, 50%);
+    }
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-product-outer.popup-opened { z-index: 10; }
+  .loudecomz-section__{{sec_id}} .loudecomz-open-popup-btn {
+    width: 32px;
+    height: 32px;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    background-color: #fff;
+    display: inline-block;
+    padding: 1px 0 0 0;
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    font-size: 0;
+    transition: all 0.25s;
+    cursor: pointer;
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-open-popup-btn:hover {
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 1);
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-product {
+    --mouse-x: 0;
+    --mouse-y: 0;
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    transform: translateX(min(var(--mouse-x), calc(100vw - 100%))) translateY(min(var(--mouse-y), calc(100vh - 100%)));
+    width: 260px;
+    padding: 16px;
+    background-color: {{ section.settings.popup_bg_color }};
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-product.opened { opacity: 1; }
+  .loudecomz-section__{{sec_id}} .loudecomz-close-popup-btn {
+    width: 25px;
+    height: 25px;
+    line-height: 24px;
+    padding: 0;
+    text-align: center;
+    border: none;
+    border-radius: 50%;
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    cursor: pointer;
+    color: #242424;
+    background-color: #E4E4E4;
+    font-weight: 700;
+    line-height: 24px;
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-product-image-wrapper {
+    display: block;
+    position: relative;
+    padding-top: 100%;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: none !important;
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-product-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-product-image-wrapper img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Use custom color for product title */
+  .loudecomz-section__{{sec_id}} .loudecomz-product-title,
+  .loudecomz-section__{{sec_id}} .loudecomz-product-title a {
+    margin-top: 16px;
+    margin-bottom: 5px;
+    color: {{ section.settings.product_title_color }};
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.25s;
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-product-title a:hover {
+    color: {{ section.settings.accent_color }};
+    text-decoration: none;
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-product-price { margin-bottom: 16px; }
+  /* Use custom color for price */
+  .loudecomz-section__{{sec_id}} .loudecomz-current-price,
+  .loudecomz-section__{{sec_id}} .price__container {
+    color: {{ section.settings.price_color }};
+  }
+  .loudecomz-section__{{sec_id}} .price--on-sale .price-item--regular {
+    color: {{ section.settings.price_color }};
+    opacity: 0.5;
+  }
+  .loudecomz-section__{{sec_id}} .price.price--unavailable { visibility: hidden; }
+  .loudecomz-section__{{sec_id}} .price--sold-out .price__availability,
+  .loudecomz-section__{{sec_id}} .price__regular { display: block; }
+  .loudecomz-section__{{sec_id}} .price__sale,
+  .loudecomz-section__{{sec_id}} .price__availability,
+  .loudecomz-section__{{sec_id}} .price .price__badge-sale,
+  .loudecomz-section__{{sec_id}} .price .price__badge-sold-out,
+  .loudecomz-section__{{sec_id}} .price--on-sale .price__regular,
+  .loudecomz-section__{{sec_id}} .price--on-sale .price__availability { display: none; }
+  .loudecomz-section__{{sec_id}} .price--sold-out .price__badge-sold-out,
+  .loudecomz-section__{{sec_id}} .price--on-sale .price__badge-sale { display: inline-block; }
+  .loudecomz-section__{{sec_id}} .price--on-sale .price__sale {
+    display: initial;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .loudecomz-section__{{sec_id}} .hidden { display: none !important; }
+  .loudecomz-section__{{sec_id}} .loudecomz-product-buttons .loudecomz-btn { width: 100%; }
+  .loudecomz-section__{{sec_id}} .loudecomz-btn,
+  .rte .loudecomz-section__{{sec_id}} a:not(.btn) {
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    background-color: {{ section.settings.accent_color }};
+    border: none;
+    border-radius: 4px;
+    outline: none;
+    color: {{ readable_text_color }};
+    font-weight: 400;
+    white-space: normal;
+    text-transform: uppercase;
+    padding: 15px 25px;
+    line-height: 1.2;
+    min-width: 200px;
+    min-height: 44px;
+    transition: all 0.25s;
+    cursor: pointer;
+    box-sizing: border-box;
+    font-family: inherit;
+    margin: 0;
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-btn:hover { text-decoration: none; opacity: 0.8 !important; }
+  .loudecomz-section__{{sec_id}} .loudecomz-btn:focus { outline: none; box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5); }
+  .loudecomz-section__{{sec_id}} .loudecomz-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+  {% if section.settings.inherit_fonts == false %}
+    .loudecomz-section__{{sec_id}} .loudecomz-btn,
+    .rte .loudecomz-section__{{sec_id}} a.loudecomz-btn:not(.btn) { font-size: 16px; }
+    .loudecomz-section__{{sec_id}} .loudecomz-product-title,
+    .loudecomz-section__{{sec_id}} .loudecomz-product-title a { font-size: 18px; }
+    .loudecomz-section__{{sec_id}} .loudecomz-product-price { font-size: 18px; }
+    /* Old heading-size classes preserved (won't affect new slider, but kept for compatibility) */
+    .loudecomz-section__{{sec_id}} .loudecomz-large.loudecomz-section-title { font-size: 64px; }
+    .loudecomz-section__{{sec_id}} .loudecomz-medium.loudecomz-section-title { font-size: 48px; }
+    .loudecomz-section__{{sec_id}} .loudecomz-small.loudecomz-section-title { font-size: 32px; }
+    .loudecomz-section__{{sec_id}} .loudecomz-section-text p { font-size: 20px; }
+  {% endif %}
+  .overflow-hidden { overflow: hidden; }
+  @media only screen and (max-width: 1199px) {
+    .loudecomz-section__{{sec_id}} .loudecomz-btn,
+    .rte .loudecomz-section__{{sec_id}} a.loudecomz-btn:not(.btn) { min-width: 160px; }
+  }
+  @media only screen and (max-width: 749px) {
+    .loudecomz-section__{{sec_id}} {
+      padding-top: {{ section.settings.section_padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.section_padding_bottom_mobile }}px;
+    }
+    .loudecomz-section__{{sec_id}} .loudecomz-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 5;
+    }
+    .loudecomz-section__{{sec_id}} .loudecomz-overlay.popup-opened { display: block; }
+    .loudecomz-section__{{sec_id}} .loudecomz-product-outer {
+      width: 24px;
+      height: 24px;
+      margin-left: -12px;
+      margin-top: -12px;
+    }
+    .loudecomz-section__{{sec_id}} .loudecomz-open-popup-btn { width: 24px; height: 24px; }
+    .loudecomz-section__{{sec_id}} .loudecomz-product {
+      position: fixed;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+    }
+    {% if section.settings.inherit_fonts == false %}
+      .loudecomz-section__{{sec_id}} .loudecomz-large.loudecomz-section-title { font-size: 56px; }
+      .loudecomz-section__{{sec_id}} .loudecomz-medium.loudecomz-section-title { font-size: 40px; }
+      .loudecomz-section__{{sec_id}} .loudecomz-small.loudecomz-section-title { font-size: 28px; }
+      .loudecomz-section__{{sec_id}} .loudecomz-section-text p { font-size: 18px; margin-bottom: 24px; }
+    {% endif %}
+  }
+  /* Mobile Background Image Styles */
+  @media only screen and (max-width: 749px) {
+    .loudecomz-background-image-wrapper.desktop { display: none; }
+    .loudecomz-background-image-wrapper.mobile { display: block; }
+  }
+  @media only screen and (min-width: 750px) {
+    .loudecomz-background-image-wrapper.desktop { display: block; }
+    .loudecomz-background-image-wrapper.mobile { display: none; }
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-container-fluid {
+    {% if section.settings.is_fullwidth == true %}
+      padding-left: 0;
+      padding-right: 0;
+      overflow-x: hidden;
+    {% endif %}
+  }
+  /* Override the options button font weight */
+  .loudecomz-section__{{sec_id}} .loudecomz-product-buttons a.loudecomz-btn {
+    font-weight: {{ section.settings.choose_text_font_weight }};
+  }
+{%- endstyle -%}
+
+{% if section.settings.is_fullwidth == true %}
+  {% assign container = 'loudecomz-container-fluid' %}
+{% else %}
+  {% assign container = 'loudecomz-container' %}
+{% endif %}
+
+<div class="loudecomz-section__{{sec_id}} hotspott">
+  <div class="{{ container }}">
+    {% for block in section.blocks %}
+      {% if block.type == 'heading' %}
+        {% assign text_align = block.settings.text_align %}
+        <div class="loudecomz-title-wrapper" style="text-align: {{ text_align }};">
+          {% if block.settings.heading_text != blank %}
+            <{{ section.settings.heading_tag }}
+              class="loudecomz-section-title"
+              style="
+                font-size: {{ block.settings.heading_font_size }}px;
+                {% if block.settings.enable_custom_font_weight %}font-weight: {{ block.settings.heading_font_weight }};{% endif %}
+                color: {{ block.settings.heading_text_color }} !important;
+              "
+              {{ block.shopify_attributes }}
+            >
+              {{ block.settings.heading_text | escape }}
+            </{{ section.settings.heading_tag }}>
+          {% endif %}
+          {% if block.settings.section_text != blank %}
+            <div
+              class="loudecomz-section-text"
+              style="color: {{ block.settings.subheading_text_color }};"
+              {{ block.shopify_attributes }}
+            >
+              {{ block.settings.section_text }}
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <!-- Background Image Wrapper -->
+    <div class="loudecomz-product-wrapper">
+      <!-- Desktop Background Image -->
+      <div class="loudecomz-background-image-wrapper desktop">
+        {% if section.settings.background_image != blank %}
+          {{ section.settings.background_image | image_url: width: 1920 | image_tag: loading: loading }}
+        {% else %}
+          <img
+            src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+            alt="product name"
+            loading="{{ loading }}"
+          >
+        {% endif %}
+      </div>
+
+      <!-- Mobile Background/Custom Image -->
+      <div class="loudecomz-background-image-wrapper mobile">
+        {% if section.settings.enable_custom_mobile_image %}
+          {% if section.settings.custom_mobile_image != blank %}
+            <img
+              src="{{ section.settings.custom_mobile_image | image_url: width: section.settings.custom_mobile_image_width, height: section.settings.custom_mobile_image_height }}"
+              alt="custom mobile image"
+              loading="{{ loading }}"
+            >
+          {% else %}
+            {% if section.settings.background_image != blank %}
+              <img
+                src="{{ section.settings.background_image | image_url: width: 1920, height: section.settings.mobile_image_height }}"
+                alt="mobile background image"
+                loading="{{ loading }}"
+              >
+            {% else %}
+              <img
+                src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+                alt="mobile fallback image"
+                loading="{{ loading }}"
+              >
+            {% endif %}
+          {% endif %}
+        {% else %}
+          {% if section.settings.background_image != blank %}
+            <img
+              src="{{ section.settings.background_image | image_url: width: 1920, height: section.settings.mobile_image_height }}"
+              alt="mobile background image"
+              loading="{{ loading }}"
+            >
+          {% else %}
+            <img
+              src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+              alt="mobile fallback image"
+              loading="{{ loading }}"
+            >
+          {% endif %}
+        {% endif %}
+      </div>
+
+      {% assign product_count = 0 %}
+      {% for block in section.blocks %}
+        {% if block.type == 'product_item' %}
+          {% assign product = all_products[block.settings.product] %}
+          {% if product != blank %}
+            {% assign product_count = product_count | plus: 1 %}
+          {% endif %}
+          {% if product != blank or request.design_mode == true %}
+            <div
+              class="loudecomz-product-outer mobile-pos-{{ forloop.index }}"
+              style="--desktop-h: {{ block.settings.desktop_h_position }}%; --desktop-v: {{ block.settings.desktop_v_position }}%; --mobile-h: {{ block.settings.mobile_h_position }}%; --mobile-v: {{ block.settings.mobile_v_position }}%;"
+            >
+              <button
+                class="loudecomz-open-popup-btn js-open-popup-btn"
+                data-target="popup-{{ forloop.index }}"
+                {{ block.shopify_attributes }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-eye"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+                  <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+                </svg>
+              </button>
+
+              <div id="popup-{{ forloop.index }}" class="loudecomz-product" {{ block.shopify_attributes }}>
+                <button class="loudecomz-close-popup-btn js-close-popup-btn">✕</button>
+                <div class="loudecomz-product-inner">
+                  <a href="{{ product.url }}" class="loudecomz-product-image-wrapper">
+                    {% if product == blank %}
+                      <div class="loudecomz-product-image">
+                        <img
+                          src="https://static.cropp.com/media/catalog/product/cache/1200/a4e40ebdc3e371adff845072e1c73f37/1/2/124AS-00X-050-1-864898_4.jpg"
+                          alt="product name"
+                          loading="{{ loading }}"
+                        >
+                      </div>
+                    {% else %}
+                      {% assign featured_media = product.featured_media %}
+                      {% case featured_media.media_type %}
+                        {% when 'image' %}
+                          <div class="loudecomz-product-image" data-media-id="{{ featured_media.id }}">
+                            {{ featured_media | image_url: width: 500 | image_tag: loading: loading }}
+                          </div>
+                        {% when 'external_video' %}
+                          <div class="loudecomz-product-video" data-media-id="{{ featured_media.id }}">
+                            {{ featured_media | external_video_tag }}
+                          </div>
+                        {% when 'video' %}
+                          <div class="loudecomz-product-video" data-media-id="{{ featured_media.id }}">
+                            {{ featured_media | video_tag: controls: true }}
+                          </div>
+                        {% when 'model' %}
+                          <div class="loudecomz-product-model" data-media-id="{{ featured_media.id }}">
+                            {{ featured_media | model_viewer_tag }}
+                          </div>
+                        {% else %}
+                          <div class="loudecomz-product-image" data-media-id="{{ featured_media.id }}">
+                            {{ featured_media | media_tag }}
+                          </div>
+                      {% endcase %}
+                    {% endif %}
+                  </a>
+                  <div class="loudecomz-product-content">
+                    {% if product == blank %}
+                      <h3 class="loudecomz-product-title">Accessories</h3>
+                    {% else %}
+                      <h3 class="loudecomz-product-title">
+                        <a href="{{ product.url }}">{{ product.title | escape | truncatewords: 10 }}</a>
+                      </h3>
+                    {% endif %}
+                    <div class="loudecomz-product-price">
+                      {% if product == blank %}
+                        <div id="price" class="loudecomz-current-price">$99.99</div>
+                      {% else %}
+                        {%- liquid
+                          assign target = product
+                          assign compare_at_price = target.compare_at_price
+                          assign price = target.price | default: 1999
+                          assign available = target.available | default: false
+                          assign money_price = price | money
+                          if settings.currency_code_enabled
+                            assign money_price = price | money_with_currency
+                          endif
+                          if target == product and product.price_varies
+                            assign money_price = section.settings.from_text | append: ' ' | append: money_price
+                          endif
+                        -%}
+                        <div
+                          id="{{ sec_id }}_price"
+                          class="
+                            price
+                            {%- if available == false %} price--sold-out {% endif -%}
+                            {%- if compare_at_price > price %} price--on-sale {% endif -%}
+                            {%- if product.price_varies == false and product.compare_at_price_varies %} price--no-compare {% endif -%}
+                          "
+                        >
+                          <div class="price__container">
+                            <div class="price__regular">
+                              <span class="visually-hidden visually-hidden--inline">Regular price</span>
+                              <span class="price-item price-item--regular">
+                                {{ money_price }}
+                              </span>
+                            </div>
+                            <div class="price__sale">
+                              {%- unless product.price_varies == false and product.compare_at_price_varies %}
+                                <span class="visually-hidden visually-hidden--inline">Regular price</span>
+                                <span>
+                                  <s class="price-item price-item--regular">
+                                    {% if settings.currency_code_enabled %}
+                                      {{ compare_at_price | money_with_currency }}
+                                    {% else %}
+                                      {{ compare_at_price | money }}
+                                    {% endif %}
+                                  </s>
+                                </span>
+                              {%- endunless -%}
+                              <span class="visually-hidden visually-hidden--inline">{{ 'products.price.sale_price' | t }}</span>
+                              <span class="price-item price-item--sale price-item--last">
+                                {{ money_price }}
+                              </span>
+                            </div>
+                            <small class="unit-price caption{% if product.selected_or_first_available_variant.unit_price_measurement == nil %} hidden{% endif %}">
+                              <span class="visually-hidden">Unit price</span>
+                              <span class="price-item price-item--last">
+                                <span>{{- product.selected_or_first_available_variant.unit_price | money -}}</span>
+                                <span aria-hidden="true">/</span>
+                                <span class="visually-hidden">&nbsp;-&nbsp;</span>
+                                <span>
+                                  {%- if product.selected_or_first_available_variant.unit_price_measurement.reference_value
+                                      != 1
+                                  -%}
+                                    {{- product.selected_or_first_available_variant.unit_price_measurement.reference_value -}}
+                                  {%- endif -%}
+                                  {{ product.selected_or_first_available_variant.unit_price_measurement.reference_unit }}
+                                </span>
+                              </span>
+                            </small>
+                          </div>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  {% if product != blank %}
+                    {% if product.has_only_default_variant == true %}
+                      <form action="/cart/add" method="post" class="loudecomz-product-form">
+                        <input
+                          type="hidden"
+                          name="id"
+                          id="{{ sec_id }}_product-select"
+                          value="{{ product.selected_or_first_available_variant.id }}"
+                        >
+                        <div class="loudecomz-product-buttons">
+                          <input
+                            type="submit"
+                            id="{{ sec_id }}_loudecomz-product-submit"
+                            value="{%- if product.selected_or_first_available_variant.available -%} {{ section.settings.button_text }}{%- else -%}{{ section.settings.sold_out_text }}{%- endif -%}"
+                            class="loudecomz-btn"
+                            style="background-color: {{ section.settings.accent_color }};"
+                            {% if product.selected_or_first_available_variant.available == false %}
+                              disabled
+                            {% endif %}
+                          >
+                        </div>
+                      </form>
+                    {% else %}
+                      <div class="loudecomz-product-buttons">
+                        <a href="{{ product.url }}" class="loudecomz-btn">{{ section.settings.choose_text }}</a>
+                      </div>
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+      <div class="loudecomz-overlay"></div>
+    </div>
+  </div>
+</div>
+
+{% if product_count == 0 and request.design_mode != true %}
+  <style>
+    .loudecomz-section__{{ sec_id }} { display: none; }
+  </style>
+{% endif %}
+
+{% if request.design_mode %}
+  <link
+    rel="stylesheet"
+    href="https://cdn.shopify.com/s/files/1/0511/2465/files/design-mode.css"
+    onload="var htspott_script = document.createElement('script'); htspott_script.setAttribute('src','https://htspott-sections-assets.pages.dev/assets/js/loudz-lookbook.min.js'); document.head.appendChild(htspott_script);"
+  >
+{% endif %}
+
+<script>
+  {
+    let sectionName = 'htspott-lookbook-loudz';
+    var _obj = _obj || {};
+    _obj['loader_' + sectionName] = true;
+    document.addEventListener('DOMContentLoaded', function() {
+      let section_name = sectionName;
+      let sec_id = '{{ sec_id }}';
+      _obj[section_name + sec_id] = function(id) {
+        let section = '.loudecomz-section__' + '{{ sec_id }}';
+        let buttons = document.querySelectorAll(section + ' .js-open-popup-btn');
+        let closeButtons = document.querySelectorAll(section + ' .js-close-popup-btn');
+        let popups = document.querySelectorAll(section + ' .loudecomz-product');
+        let overlay = document.querySelector(section + ' .loudecomz-overlay');
+        let scrollBarWidth = window.innerWidth - document.body.offsetWidth;
+
+        // Add both click and hover events on the eye buttons
+        buttons.forEach(function (button) {
+          button.addEventListener('click', togglePopup);
+          button.addEventListener('mouseenter', openPopupOnHover);
+        });
+
+        // Close popups when clicking outside
+        closeButtons.forEach(function (button) {
+          button.addEventListener('click', closeAllPopups);
+        });
+        document.body.addEventListener('click', function(e){
+          e.stopPropagation();
+          let isButton = e.target.classList.contains('js-open-popup-btn') || e.target.closest('.js-open-popup-btn');
+          let isCard = e.target.classList.contains('loudecomz-product') || e.target.closest('.loudecomz-product');
+          if (!isButton && !isCard) {
+            closeAllPopups();
+          }
+        }, false);
+
+        // Close popups when mouse leaves the entire product outer area (with a slight delay)
+        document.querySelectorAll(section + ' .loudecomz-product-outer').forEach(function(outer) {
+          outer.addEventListener('mouseleave', function(e) {
+            setTimeout(function(){
+              if (!outer.matches(':hover')) {
+                closeAllPopups();
+              }
+            }, 100);
+          });
+        });
+
+        function togglePopup(e) {
+          e.preventDefault();
+          let button = this;
+          let popupOuter = button.closest('.loudecomz-product-outer');
+          if (button.classList.contains('opened')) {
+            closeAllPopups();
+          } else {
+            closeAllPopups();
+            let popup = popupOuter.querySelector('.loudecomz-product');
+            // Trigger as click so body scroll lock is applied
+            openPopup(popup, e, true);
+            button.classList.add('opened');
+          }
+        }
+
+        // Hover function: open without applying body overflow or padding changes
+        function openPopupOnHover(e) {
+          let button = this;
+          let popupOuter = button.closest('.loudecomz-product-outer');
+          if (!button.classList.contains('opened')) {
+            let popup = popupOuter.querySelector('.loudecomz-product');
+            openPopup(popup, e, false);
+            button.classList.add('opened');
+          }
+        }
+
+        function closeAllPopups() {
+          buttons.forEach(function (button) { button.classList.remove('opened'); });
+          popups.forEach(function (popup_item) {
+            closePopup(popup_item);
+            popup_item.closest('.loudecomz-product-outer').classList.remove('popup-opened');
+          });
+          document.body.classList.remove('overflow-hidden');
+          document.body.style.paddingRight = '';
+          overlay.classList.remove('popup-opened');
+        }
+        function closePopup(elem) {
+          if (elem.classList.contains('opened')) {
+            elem.classList.remove('opened');
+            setTimeout(function(){ elem.style.display = 'none'; }, 300);
+          }
+        }
+        // The openPopup function now accepts a third parameter (isClick)
+        function openPopup(elem, e, isClick) {
+          if (!elem.classList.contains('opened')) {
+            elem.style.setProperty('--mouse-x', e.clientX + 'px');
+            elem.style.setProperty('--mouse-y', e.clientY + 'px');
+            elem.style.display = 'block';
+            setTimeout(function() { elem.classList.add('opened'); }, 10);
+            if (isClick) {
+              document.body.classList.add('overflow-hidden');
+              document.body.style.paddingRight = scrollBarWidth + 'px';
+              overlay.classList.add('popup-opened');
+              elem.closest('.loudecomz-product-outer').classList.add('popup-opened');
+            }
+          }
+        }
+      };
+      _obj[section_name + sec_id](sec_id);
+    });
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Hotspot Image Product",
+  "tag": "section",
+  "class": "hotspot-image",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Desktop Spacing",
+      "info": "Set the top and bottom padding for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Desktop Top Padding",
+      "default": 50,
+      "info": "Padding above the section on desktop screens."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Desktop Bottom Padding",
+      "default": 50,
+      "info": "Padding below the section on desktop screens."
+    },
+    {
+      "type": "header",
+      "content": "Mobile Spacing",
+      "info": "Set the top and bottom padding for mobile view."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile Top Padding",
+      "default": 50,
+      "info": "Padding above the section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile Bottom Padding",
+      "default": 50,
+      "info": "Padding below the section on mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Mobile Image Options",
+      "info": "Configure the mobile background image."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_mobile_image",
+      "default": false,
+      "label": "Use Custom Mobile Image",
+      "info": "Toggle to display a custom image for mobile devices."
+    },
+    {
+      "type": "image_picker",
+      "id": "custom_mobile_image",
+      "label": "Select Custom Mobile Image",
+      "info": "Choose a custom image specifically for mobile view."
+    },
+    {
+      "type": "range",
+      "id": "custom_mobile_image_height",
+      "min": 100,
+      "max": 1000,
+      "step": 10,
+      "unit": "px",
+      "label": "Custom Mobile Image Height",
+      "default": 400,
+      "info": "Set the height for the custom mobile image."
+    },
+    {
+      "type": "range",
+      "id": "custom_mobile_image_width",
+      "min": 100,
+      "max": 1000,
+      "step": 10,
+      "unit": "px",
+      "label": "Custom Mobile Image Width",
+      "default": 400,
+      "info": "Set the width for the custom mobile image."
+    },
+    {
+      "type": "header",
+      "content": "Layout Customization",
+      "info": "Settings for overall layout and popup appearance."
+    },
+    {
+      "type": "number",
+      "id": "container_max_width",
+      "label": "Max Container Width",
+      "default": 1350,
+      "info": "Maximum width of the content container in pixels."
+    },
+    {
+      "type": "color",
+      "id": "popup_bg_color",
+      "label": "Popup Background Color",
+      "default": "#ffffff",
+      "info": "Background color for the product popup."
+    },
+    {
+      "type": "color",
+      "id": "product_title_color",
+      "label": "Product Title Color",
+      "default": "#262626",
+      "info": "Customize the color of product titles."
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price Color",
+      "default": "#262626",
+      "info": "Customize the color for current price and price container."
+    },
+    {
+      "type": "select",
+      "id": "choose_text_font_weight",
+      "label": "Options Button Font Weight",
+      "options": [
+        { "value": "normal", "label": "Normal" },
+        { "value": "bold", "label": "Bold" }
+      ],
+      "default": "normal",
+      "info": "Select the font weight for the options button label."
+    },
+    {
+      "type": "header",
+      "content": "General Settings",
+      "info": "Basic section options."
+    },
+    {
+      "type": "checkbox",
+      "id": "inherit_fonts",
+      "default": false,
+      "label": "Use Theme Font Sizes",
+      "info": "Toggle to inherit font sizes from your active theme."
+    },
+    {
+      "type": "checkbox",
+      "id": "is_fullwidth",
+      "default": false,
+      "label": "Enable Full Width Layout",
+      "info": "Allow the section to span the full width of the page."
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Section Background Image",
+      "info": "Select an image for the section background."
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Primary Text Color",
+      "default": "#262424",
+      "info": "Color used for headings and primary text."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section Background Color",
+      "default": "#ffffff",
+      "info": "Background color for the section."
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Highlight Color",
+      "default": "#222222",
+      "info": "Used for buttons, links, and accents."
+    },
+    {
+      "type": "header",
+      "content": "Text Customization",
+      "info": "Customize button and pricing labels."
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Purchase Button Label",
+      "default": "Buy now",
+      "info": "Label on the purchase button when the product is available."
+    },
+    {
+      "type": "text",
+      "id": "sold_out_text",
+      "label": "Out of Stock Label",
+      "default": "Sold out",
+      "info": "Label on the button when the product is sold out."
+    },
+    {
+      "type": "text",
+      "id": "choose_text",
+      "label": "Options Button Label",
+      "default": "Choose options",
+      "info": "Label on the button when multiple options are available."
+    },
+    {
+      "type": "text",
+      "id": "from_text",
+      "label": "Starting Price Label",
+      "default": "From:",
+      "info": "Prefix used for variable pricing."
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Section Heading HTML Tag",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" }
+      ],
+      "default": "h2",
+      "info": "HTML tag for the section heading."
+    },
+    {
+      "type": "checkbox",
+      "id": "lazyload",
+      "default": true,
+      "label": "Enable Image Lazy Loading",
+      "info": "Toggle to enable lazy loading for improved performance."
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Heading Text",
+      "type": "heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading_text",
+          "label": "Section Heading Text",
+          "default": "Heading text",
+          "info": "Enter the main heading for the section."
+        },
+        {
+          "type": "range",
+          "id": "heading_font_size",
+          "label": "Heading Font Size",
+          "min": 10,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "default": 32,
+          "info": "Control the heading text size with a slider."
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_custom_font_weight",
+          "default": false,
+          "label": "Enable Custom Font Weight",
+          "info": "Toggle to set a custom font weight for the heading text."
+        },
+        {
+          "type": "select",
+          "id": "heading_font_weight",
+          "label": "Heading Font Weight",
+          "default": "400",
+          "options": [
+            { "value": "300", "label": "Light" },
+            { "value": "400", "label": "Normal" },
+            { "value": "700", "label": "Bold" }
+          ],
+          "info": "Select the heading text font weight."
+        },
+        {
+          "type": "color",
+          "id": "heading_text_color",
+          "label": "Heading Text Color",
+          "default": "#262626",
+          "info": "Choose the color for the heading text."
+        },
+        {
+          "type": "text",
+          "id": "section_text",
+          "label": "Subheading / Description",
+          "default": "Section text",
+          "info": "Enter additional descriptive text for the section."
+        },
+        {
+          "type": "color",
+          "id": "subheading_text_color",
+          "label": "Subheading Text Color",
+          "default": "#262626",
+          "info": "Choose the color for the subheading text."
+        },
+        {
+          "type": "select",
+          "id": "text_align",
+          "label": "Text Alignment",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "center",
+          "info": "Choose how the text should be aligned."
+        }
+      ]
+    },
+    {
+      "name": "Product Item",
+      "type": "product_item",
+      "limit": 12,
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Select Product",
+          "info": "Choose the product to display."
+        },
+        {
+          "type": "range",
+          "id": "desktop_h_position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Desktop Horizontal Button Position (%)",
+          "default": 50,
+          "info": "Set the horizontal placement of the button on desktop screens."
+        },
+        {
+          "type": "range",
+          "id": "desktop_v_position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Desktop Vertical Button Position (%)",
+          "default": 50,
+          "info": "Set the vertical placement of the button on desktop screens."
+        },
+        {
+          "type": "range",
+          "id": "mobile_h_position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Mobile Horizontal Button Position (%)",
+          "default": 50,
+          "info": "Set the horizontal placement of the button on mobile devices."
+        },
+        {
+          "type": "range",
+          "id": "mobile_v_position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Mobile Vertical Button Position (%)",
+          "default": 50,
+          "info": "Set the vertical placement of the button on mobile devices."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hotspot Image Product",
+      "category": "Other",
+      "settings": {},
+      "blocks": [
+        {
+          "type": "product_item",
+          "settings": {
+            "desktop_h_position": 53,
+            "desktop_v_position": 16,
+            "mobile_h_position": 53,
+            "mobile_v_position": 16
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "desktop_h_position": 40,
+            "desktop_v_position": 65,
+            "mobile_h_position": 40,
+            "mobile_v_position": 65
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

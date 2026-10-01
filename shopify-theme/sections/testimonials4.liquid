@@ -1,0 +1,883 @@
+{% comment %}
+  Section Name: Testimonial Grid (70k+ Users)
+  Preset Identifier: testimonial-grid-70k
+{% endcomment %}
+
+<section class="shopify-section testimonial-grid-70k">
+  <div class="testimonial-section">
+    <div class="testimonial-container">
+      {% assign heading_block = section.blocks | where: "type", "heading" | first %}
+      {% assign subheading_block = section.blocks | where: "type", "subheading" | first %}
+
+      <!-- TITLE -->
+      {% if heading_block %}
+        <h2 class="testimonial-heading testimonial-main-title">
+          {{ heading_block.settings.title_text }}
+        </h2>
+      {% endif %}
+
+      <!-- SUBHEADING -->
+      {% if subheading_block %}
+        <div class="testimonial-subheading">
+          {{ subheading_block.settings.subheading_text }}
+        </div>
+      {% endif %}
+
+      <div class="testimonial-grid">
+        {% for block in section.blocks %}
+          {% if block.type == 'testimonial' %}
+            <div class="testimonial-card">
+              <p class="testimonial-name">
+                {{ block.settings.name }}
+                {% if block.settings.verified %}
+                  <span class="verified">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 19px; height: 19px; vertical-align: middle;">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12ZM16.0303 8.96967C16.3232 9.26256 16.3232 9.73744 16.0303 10.0303L11.0303 15.0303C10.7374 15.3232 10.2626 15.3232 9.96967 15.0303L7.96967 13.0303C7.67678 12.7374 7.67678 12.2626 7.96967 11.9697C8.26256 11.6768 8.73744 11.6768 9.03033 11.9697L10.5 13.4393L12.7348 11.2045L14.9697 8.96967C15.2626 8.67678 15.7374 8.67678 16.0303 8.96967Z" fill="{{ section.settings.verified_icon_color }}"></path>
+                    </svg>
+                  </span>
+                {% endif %}
+              </p>
+              <div class="testimonial-stars">
+                {% assign max_stars = 5 %}
+                {% assign rating = block.settings.star_rating %}
+                {% for i in (1..max_stars) %}
+                  {% if i <= rating %}
+                    <span class="star filled">★</span>
+                  {% else %}
+                    <span class="star unfilled">★</span>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <p class="testimonial-text">{{ block.settings.review_text }}</p>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% if section.settings.enable_cta_button %}
+        <div class="testimonial-cta-button-wrapper">
+          <a
+            href="{{ section.settings.cta_button_url | default: '#' }}"
+            class="testimonial-cta-button">
+            {{ section.settings.cta_button_text }}
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+    <div
+      class="testimonial-fade"
+      style="
+        height: {{ section.settings.fade_stretch | default: 80 }}px;
+      ">
+    </div>
+  </div>
+</section>
+
+<style>
+/* Wrap everything in .testimonial-grid-70k so it won’t interfere with other sections */
+.testimonial-grid-70k {
+  /* SECTION STYLING */
+}
+.testimonial-grid-70k .testimonial-section {
+  /* Background & Gradient */
+  {% if section.settings.enable_section_gradient %}
+    background: linear-gradient({{ section.settings.section_gradient_degrees | default: '90' }}deg, {{ section.settings.section_gradient_color1 | default: '#EBEFFF' }}, {{ section.settings.section_gradient_color2 | default: '#FFFFFF' }}, {{ section.settings.section_gradient_color3 | default: '#FFFFFF' }});
+  {% else %}
+    background-color: {{ section.settings.section_background_color | default: '#FFFFFF' }};
+  {% endif %}
+
+  /* Top/Bottom padding */
+  padding-top: {{ section.settings.section_padding_top | default: 20 }}px;
+  padding-bottom: {{ section.settings.section_padding_bottom | default: 20 }}px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Desktop Left/Right padding */
+@media screen and (min-width: 1024px) {
+  .testimonial-grid-70k .testimonial-section {
+    padding-left: {{ section.settings.section_padding_left_desktop | default: 0 }}px;
+    padding-right: {{ section.settings.section_padding_right_desktop | default: 0 }}px;
+    margin-top: -40px; /* from original code, left intact */
+  }
+}
+
+/* Mobile Left/Right padding */
+@media screen and (max-width: 1023px) {
+  .testimonial-grid-70k .testimonial-section {
+    padding-left: {{ section.settings.section_padding_left_mobile | default: 20 }}px;
+    padding-right: {{ section.settings.section_padding_right_mobile | default: 20 }}px;
+  }
+}
+
+.testimonial-grid-70k .testimonial-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* -------------------- */
+/* TITLE & SUBHEADING   */
+/* -------------------- */
+
+/* Title */
+{% if heading_block %}
+.testimonial-grid-70k .testimonial-main-title {
+  {% if heading_block.settings.enable_title_gradient %}
+    background: linear-gradient({{ heading_block.settings.title_gradient_degrees | default: '90' }}deg, {{ heading_block.settings.title_gradient_color1 | default: '#5956f5' }}, {{ heading_block.settings.title_gradient_color2 | default: '#5956f5' }}, {{ heading_block.settings.title_gradient_color3 | default: '#5956f5' }});
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  {% else %}
+    color: #000000;
+  {% endif %}
+
+  font-weight: {{ heading_block.settings.font_weight | default: 500 }};
+  font-size: {{ heading_block.settings.desktop_title_font_size | default: 32 }}px;
+  margin-bottom: {{ section.settings.vertical_space_heading_subheading | default: 10 }}px;
+}
+{% endif %}
+
+{% if heading_block %}
+@media (max-width: 767px) {
+  .testimonial-grid-70k .testimonial-main-title {
+    font-size: {{ heading_block.settings.mobile_title_font_size | default: 24 }}px;
+    margin-bottom: {{ section.settings.vertical_space_heading_subheading | default: 10 }}px;
+  }
+}
+{% endif %}
+
+/* Subheading */
+{% if subheading_block %}
+.testimonial-grid-70k .testimonial-subheading {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: {{ subheading_block.settings.subheading_padding_left_desktop | default: 0 }}px;
+  padding-right: {{ subheading_block.settings.subheading_padding_right_desktop | default: 0 }}px;
+  font-size: {{ subheading_block.settings.desktop_subheading_font_size | default: 18 }}px;
+  margin-top: {{ section.settings.vertical_space_heading_subheading | default: 10 }}px;
+}
+{% endif %}
+
+{% if subheading_block %}
+@media (max-width: 767px) {
+  .testimonial-grid-70k .testimonial-subheading {
+    padding-left: {{ subheading_block.settings.subheading_padding_left_mobile | default: 0 }}px;
+    padding-right: {{ subheading_block.settings.subheading_padding_right_mobile | default: 0 }}px;
+    font-size: {{ subheading_block.settings.mobile_subheading_font_size | default: 16 }}px;
+  }
+}
+{% endif %}
+
+/* -------------- */
+/* TESTIMONIALS   */
+/* -------------- */
+
+/* Testimonial grid and spacing */
+.testimonial-grid-70k .testimonial-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  margin-top: {{ section.settings.vertical_space_subheading_testimonials | default: 20 }}px;
+}
+
+@media (max-width: 767px) {
+  .testimonial-grid-70k .testimonial-grid {
+    gap: {{ section.settings.vertical_gap_mobile | default: 20 }}px;
+  }
+}
+
+/* Testimonial Card */
+.testimonial-grid-70k .testimonial-card {
+  {% if section.settings.enable_card_gradient %}
+    background: linear-gradient({{ section.settings.card_gradient_degrees | default: '90' }}deg, {{ section.settings.card_gradient_color1 | default: '#FFFFFF' }}, {{ section.settings.card_gradient_color2 | default: '#FFFFFF' }}, {{ section.settings.card_gradient_color3 | default: '#FFFFFF' }});
+  {% else %}
+    background-color: {{ section.settings.card_bg_color | default: '#FFFFFF' }};
+  {% endif %}
+  border-radius: {{ section.settings.card_border_radius | default: 20 }}px;
+  padding: 24px;
+  text-align: left;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+  font-size: 14px;
+}
+
+.testimonial-grid-70k .testimonial-name {
+  font-weight: 600;
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+
+.testimonial-grid-70k .verified {
+  margin-left: 4px;
+  margin-top: -5px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.testimonial-grid-70k .testimonial-stars {
+  margin-bottom: 13px;
+}
+
+.testimonial-grid-70k .star {
+  font-size: 18px;
+}
+
+.testimonial-grid-70k .star.filled {
+  color: {{ section.settings.filled_star_color | default: '#ffc107' }};
+}
+
+.testimonial-grid-70k .star.unfilled {
+  color: {{ section.settings.unfilled_star_color | default: '#d1d5db' }};
+}
+
+.testimonial-grid-70k .testimonial-text {
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+/* Bottom fade, color-customizable */
+.testimonial-grid-70k .testimonial-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(0deg, {{ section.settings.bottom_fade_color | default: '#ffffff' }}, transparent);
+  pointer-events: none;
+  transition: height 0.3s ease;
+  z-index: 1; /* Below the button */
+}
+
+/* CTA Button */
+.testimonial-grid-70k .testimonial-cta-button-wrapper {
+  text-align: center;
+  margin-top: {{ section.settings.vertical_space_testimonials_button | default: 20 }}px;
+  position: relative;
+  z-index: 10; /* Above the fade */
+}
+
+.testimonial-grid-70k .testimonial-cta-button {
+  display: inline-block;
+  background-color: {{ section.settings.cta_button_bg_color | default: '#5956f5' }};
+  color: {{ section.settings.cta_button_text_color | default: '#ffffff' }};
+  border-radius: {{ section.settings.cta_button_border_radius | default: 8 }}px;
+  padding: 10px 20px;
+  text-decoration: none;
+  font-weight: 600;
+  border: {{ section.settings.cta_button_border_thickness | default: 1 }}px solid {{ section.settings.cta_button_border_color | default: '#5956f5' }};
+  transition: all 0.3s ease;
+}
+
+.testimonial-grid-70k .testimonial-cta-button:hover {
+  opacity: 0.9; /* subtle fade on hover */
+}
+</style>
+
+{% schema %}
+{
+  "name": "Testimonial 3",
+  "tag": "section",
+  "class": "shopify-section testimonial-grid-70k",
+  "settings": [
+    {
+      "type": "range",
+      "id": "fade_stretch",
+      "label": "Bottom White Fade Stretch (px)",
+      "default": 240,
+      "min": 0,
+      "max": 700,
+      "step": 10,
+      "info": "Controls how tall the white fade appears at the bottom of the section."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "label": "Section Top Padding (px)",
+      "default": 50,
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "info": "Controls the top padding of the entire testimonial section."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "label": "Section Bottom Padding (px)",
+      "default": 50,
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "info": "Controls the bottom padding of the entire testimonial section."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left_desktop",
+      "label": "Section Left Padding (Desktop) (px)",
+      "default": 0,
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "info": "Controls the left padding for large screens (desktop)."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_right_desktop",
+      "label": "Section Right Padding (Desktop) (px)",
+      "default": 0,
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "info": "Controls the right padding for large screens (desktop)."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left_mobile",
+      "label": "Section Left Padding (Mobile) (px)",
+      "default": 20,
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "info": "Controls the left padding on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_right_mobile",
+      "label": "Section Right Padding (Mobile) (px)",
+      "default": 20,
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "info": "Controls the right padding on mobile devices."
+    },
+    {
+      "type": "color",
+      "id": "section_background_color",
+      "label": "Section Background Color",
+      "default": "#ffffff",
+      "info": "Sets a solid background color for the testimonial section (if gradient is disabled)."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_section_gradient",
+      "label": "Enable Gradient Background",
+      "default": true,
+      "info": "Toggles whether the section uses a gradient background instead of a solid color."
+    },
+    {
+      "type": "color",
+      "id": "section_gradient_color1",
+      "label": "Gradient Color 1",
+      "default": "#EBEFFF",
+      "info": "First color for the section background gradient."
+    },
+    {
+      "type": "color",
+      "id": "section_gradient_color2",
+      "label": "Gradient Color 2",
+      "default": "#FFFFFF",
+      "info": "Second color for the section background gradient."
+    },
+    {
+      "type": "color",
+      "id": "section_gradient_color3",
+      "label": "Gradient Color 3",
+      "default": "#FFFFFF",
+      "info": "Third color for the section background gradient."
+    },
+    {
+      "type": "select",
+      "id": "section_gradient_degrees",
+      "label": "Gradient Degrees",
+      "default": "0",
+      "options": [
+        {"value": "0", "label": "0°"},
+        {"value": "45", "label": "45°"},
+        {"value": "90", "label": "90°"},
+        {"value": "135", "label": "135°"},
+        {"value": "180", "label": "180°"},
+        {"value": "270", "label": "270°"}
+      ],
+      "info": "Controls the angle of the background gradient."
+    },
+    {
+      "type": "color",
+      "id": "bottom_fade_color",
+      "label": "Bottom Fade Color",
+      "default": "#ffffff",
+      "info": "Sets the color used to fade out the bottom of the section."
+    },
+    {
+      "type": "range",
+      "id": "vertical_gap_mobile",
+      "label": "Vertical Gap Between Testimonials (Mobile) (px)",
+      "default": 20,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "info": "Controls the spacing between testimonial cards on mobile devices."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_cta_button",
+      "label": "Enable Button At Bottom Center",
+      "default": false,
+      "info": "Toggles the display of a call-to-action button below the testimonials."
+    },
+    {
+      "type": "text",
+      "id": "cta_button_text",
+      "label": "Button Text",
+      "default": "Read More ",
+      "info": "Sets the text displayed on the call-to-action button."
+    },
+    {
+      "type": "color",
+      "id": "cta_button_bg_color",
+      "label": "Button Background Color",
+      "default": "#5956f5",
+      "info": "Sets the background color of the call-to-action button."
+    },
+    {
+      "type": "color",
+      "id": "cta_button_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff",
+      "info": "Sets the text color for the call-to-action button."
+    },
+    {
+      "type": "range",
+      "id": "cta_button_border_radius",
+      "label": "Button Border Radius (px)",
+      "default": 8,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "info": "Controls how rounded the corners of the call-to-action button are."
+    },
+    {
+      "type": "url",
+      "id": "cta_button_url",
+      "label": "Button Link URL",
+      "default": "/",
+      "info": "Specifies the URL or page link the call-to-action button goes to."
+    },
+    {
+      "type": "range",
+      "id": "vertical_space_testimonials_button",
+      "label": "Vertical Space Between Testimonials & Button (px)",
+      "default": 20,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "info": "Controls the margin between the bottom of the testimonials and the call-to-action button."
+    },
+    {
+      "type": "range",
+      "id": "cta_button_border_thickness",
+      "label": "Button Border Thickness (1-5)",
+      "default": 1,
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "info": "Controls the thickness of the border around the call-to-action button."
+    },
+    {
+      "type": "color",
+      "id": "cta_button_border_color",
+      "label": "Button Border Color",
+      "default": "#5956f5",
+      "info": "Sets the border color of the call-to-action button."
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Testimonial Card Background Color",
+      "default": "#ffffff",
+      "info": "Sets the solid background color for each testimonial card (if gradient is disabled)."
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Testimonial Card Border Radius (px)",
+      "default": 20,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "info": "Controls how rounded the corners of the testimonial cards are."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_card_gradient",
+      "label": "Enable Testimonial Card Background Gradient",
+      "default": true,
+      "info": "Toggles the use of a gradient background for each testimonial card."
+    },
+    {
+      "type": "color",
+      "id": "card_gradient_color1",
+      "label": "Card Gradient Color 1",
+      "default": "#FAFAFA",
+      "info": "First color for the testimonial card background gradient."
+    },
+    {
+      "type": "color",
+      "id": "card_gradient_color2",
+      "label": "Card Gradient Color 2",
+      "default": "#ffffff",
+      "info": "Second color for the testimonial card background gradient."
+    },
+    {
+      "type": "color",
+      "id": "card_gradient_color3",
+      "label": "Card Gradient Color 3",
+      "default": "#ffffff",
+      "info": "Third color for the testimonial card background gradient."
+    },
+    {
+      "type": "select",
+      "id": "card_gradient_degrees",
+      "label": "Card Gradient Degrees",
+      "default": "135",
+      "options": [
+        {"value": "0", "label": "0°"},
+        {"value": "45", "label": "45°"},
+        {"value": "90", "label": "90°"},
+        {"value": "135", "label": "135°"},
+        {"value": "180", "label": "180°"},
+        {"value": "270", "label": "270°"}
+      ],
+      "info": "Controls the angle of the background gradient on testimonial cards."
+    },
+    {
+      "type": "color",
+      "id": "filled_star_color",
+      "label": "Filled Stars Color",
+      "default": "#ffc107"
+    },
+    {
+      "type": "color",
+      "id": "unfilled_star_color",
+      "label": "Unfilled Stars Color",
+      "default": "#d1d5db"
+    },
+    {
+      "type": "color",
+      "id": "verified_icon_color",
+      "label": "Verified Icon Color",
+      "default": "#030303"
+    },
+    {
+      "type": "range",
+      "id": "vertical_space_heading_subheading",
+      "label": "Vertical Space Between Heading & Subheading (px)",
+      "default": 10,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "info": "Controls the margin between the heading and the subheading."
+    },
+    {
+      "type": "range",
+      "id": "vertical_space_subheading_testimonials",
+      "label": "Vertical Space Between Subheading & Testimonials (px)",
+      "default": 37,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "info": "Controls the margin between the subheading and the testimonial grid."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "title_text",
+          "label": "Title Text",
+          "default": "4.8 / 5 Based On 320 + Reviews",
+          "info": "Sets the main heading text displayed at the top of the section."
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_title_gradient",
+          "label": "Enable Title Gradient",
+          "default": false,
+          "info": "Toggles whether the title uses a gradient color effect."
+        },
+        {
+          "type": "color",
+          "id": "title_gradient_color1",
+          "label": "Title Gradient Color 1",
+          "default": "#5956f5",
+          "info": "First color for the title gradient."
+        },
+        {
+          "type": "color",
+          "id": "title_gradient_color2",
+          "label": "Title Gradient Color 2",
+          "default": "#5956f5",
+          "info": "Second color for the title gradient."
+        },
+        {
+          "type": "color",
+          "id": "title_gradient_color3",
+          "label": "Title Gradient Color 3",
+          "default": "#5956f5",
+          "info": "Third color for the title gradient."
+        },
+        {
+          "type": "select",
+          "id": "title_gradient_degrees",
+          "label": "Title Gradient Degrees",
+          "default": "90",
+          "options": [
+            {"value": "0", "label": "0°"},
+            {"value": "45", "label": "45°"},
+            {"value": "90", "label": "90°"},
+            {"value": "135", "label": "135°"},
+            {"value": "180", "label": "180°"},
+            {"value": "270", "label": "270°"}
+          ],
+          "info": "Controls the angle of the gradient in the title."
+        },
+        {
+          "type": "range",
+          "id": "desktop_title_font_size",
+          "label": "Title Font Size (Desktop) (px)",
+          "default": 32,
+          "min": 10,
+          "max": 72,
+          "step": 1,
+          "info": "Sets the size of the title text on desktop devices."
+        },
+        {
+          "type": "range",
+          "id": "mobile_title_font_size",
+          "label": "Title Font Size (Mobile) (px)",
+          "default": 24,
+          "min": 10,
+          "max": 72,
+          "step": 1,
+          "info": "Sets the size of the title text on mobile devices."
+        },
+        {
+          "type": "select",
+          "id": "font_weight",
+          "label": "Font Weight",
+          "default": "600",
+          "options": [
+            {"value": "100", "label": "100"},
+            {"value": "200", "label": "200"},
+            {"value": "300", "label": "300"},
+            {"value": "400", "label": "400"},
+            {"value": "500", "label": "500"},
+            {"value": "600", "label": "600"},
+            {"value": "700", "label": "700"},
+            {"value": "800", "label": "800"},
+            {"value": "900", "label": "900"}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "subheading_text",
+          "label": "Subheading Text",
+          "default": "<p>Lorem Ipsumis simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s</p>",
+          "info": "Sets the subheading text displayed underneath the main title. Supports rich text formatting."
+        },
+        {
+          "type": "range",
+          "id": "desktop_subheading_font_size",
+          "label": "Subheading Font Size (Desktop) (px)",
+          "default": 16,
+          "min": 10,
+          "max": 36,
+          "step": 1,
+          "info": "Sets the size of the subheading text on desktop devices."
+        },
+        {
+          "type": "range",
+          "id": "mobile_subheading_font_size",
+          "label": "Subheading Font Size (Mobile) (px)",
+          "default": 16,
+          "min": 10,
+          "max": 36,
+          "step": 1,
+          "info": "Sets the size of the subheading text on mobile devices."
+        },
+        {
+          "type": "range",
+          "id": "subheading_padding_left_desktop",
+          "label": "Subheading Left Padding (Desktop) (px)",
+          "default": 130,
+          "min": 0,
+          "max": 200,
+          "step": 5,
+          "info": "Adds left padding to the subheading on desktop devices."
+        },
+        {
+          "type": "range",
+          "id": "subheading_padding_right_desktop",
+          "label": "Subheading Right Padding (Desktop) (px)",
+          "default": 130,
+          "min": 0,
+          "max": 200,
+          "step": 5,
+          "info": "Adds right padding to the subheading on desktop devices."
+        },
+        {
+          "type": "range",
+          "id": "subheading_padding_left_mobile",
+          "label": "Subheading Left Padding (Mobile) (px)",
+          "default": 0,
+          "min": 0,
+          "max": 200,
+          "step": 5,
+          "info": "Adds left padding to the subheading on mobile devices."
+        },
+        {
+          "type": "range",
+          "id": "subheading_padding_right_mobile",
+          "label": "Subheading Right Padding (Mobile) (px)",
+          "default": 0,
+          "min": 0,
+          "max": 200,
+          "step": 5,
+          "info": "Adds right padding to the subheading on mobile devices."
+        }
+      ]
+    },
+    {
+      "type": "testimonial",
+      "name": "Testimonial ",
+      "settings": [
+        {
+          "id": "name",
+          "type": "text",
+          "label": "Name",
+          "default": "Lorem Ipsum",
+          "info": "Sets the name/title shown on this testimonial."
+        },
+        {
+          "id": "verified",
+          "type": "checkbox",
+          "label": "Verified",
+          "default": true,
+          "info": "Displays a verified checkmark next to the testimonial name."
+        },
+        {
+          "id": "star_rating",
+          "type": "range",
+          "label": "Star Rating",
+          "default": 5,
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "info": "Controls the number of stars shown for this testimonial."
+        },
+        {
+          "id": "review_text",
+          "type": "textarea",
+          "label": "Review Text",
+          "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+          "info": "The main body of the testimonial."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonial 3",
+      "category": "Testimonials",
+      "blocks": [
+        {
+          "type": "heading",
+          "settings": {
+            "title_text": "4.8 / 5 Based On 320 + Reviews",
+            "enable_title_gradient": false,
+            "title_gradient_color1": "#5956f5",
+            "title_gradient_color2": "#5956f5",
+            "title_gradient_color3": "#5956f5",
+            "title_gradient_degrees": "90",
+            "desktop_title_font_size": 32,
+            "mobile_title_font_size": 24,
+            "font_weight": "500"
+          }
+        },
+        {
+          "type": "subheading",
+          "settings": {
+            "subheading_text": "<p>Lorem Ipsumis simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s</p>",
+            "desktop_subheading_font_size": 16,
+            "mobile_subheading_font_size": 16,
+            "subheading_padding_left_desktop": 130,
+            "subheading_padding_right_desktop": 130,
+            "subheading_padding_left_mobile": 0,
+            "subheading_padding_right_mobile": 0
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "name": "Lorem Ipsum",
+            "verified": true,
+            "star_rating": 5,
+            "review_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "name": "Lorem Ipsum",
+            "verified": true,
+            "star_rating": 5,
+            "review_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "name": "Lorem Ipsum",
+            "verified": true,
+            "star_rating": 5,
+            "review_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "name": "Lorem Ipsum",
+            "verified": true,
+            "star_rating": 4,
+            "review_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "name": "Lorem Ipsum",
+            "verified": true,
+            "star_rating": 4,
+            "review_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "name": "Lorem Ipsum",
+            "verified": true,
+            "star_rating": 5,
+            "review_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

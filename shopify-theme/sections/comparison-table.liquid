@@ -1,0 +1,1564 @@
+{% schema %}
+{
+  "name": "Comparison Table",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Top Spacing",
+      "default": 100,
+      "info": "Adjust the top padding inside this section."
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Bottom Spacing",
+      "default": 100,
+      "info": "Adjust the bottom padding inside this section."
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal_mobile",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "rem",
+      "label": "Section Left/Right Padding (Mobile)",
+      "default": 1,
+      "info": "Horizontal padding for mobile, in rem."
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "rem",
+      "label": "Section Left/Right Padding (Desktop)",
+      "default": 5,
+      "info": "Horizontal padding for desktop, in rem."
+    },
+    {
+      "type": "header",
+      "content": "Heading (Section Title)"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section Title",
+      "default": "Comparison Table",
+      "info": "Main heading text displayed above the table."
+    },
+    {
+      "type": "checkbox",
+      "id": "heading_custom",
+      "label": "Use Custom Font for Heading",
+      "default": false,
+      "info": "Enable if you want a specific font for the main heading."
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "Section Title Font Family",
+      "default": "assistant_n4",
+      "info": "Choose the font for your main heading."
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 0,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Section Title Font Size",
+      "default": 34,
+      "info": "Adjust the size of the main heading text."
+    },
+    {
+      "type": "range",
+      "id": "heading_height",
+      "min": 50,
+      "max": 200,
+      "step": 10,
+      "unit": "%",
+      "label": "Section Title Line Height",
+      "default": 100,
+      "info": "Sets line height for the main heading."
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Section Title Alignment",
+      "default": "center",
+      "options": [
+        {
+          "label": "Center",
+          "value": "center"
+        },
+        {
+          "label": "Left",
+          "value": "left"
+        },
+        {
+          "label": "Right",
+          "value": "right"
+        }
+      ],
+      "info": "Align the main heading text left, center, or right."
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Section Title Font Weight",
+      "default": "bold",
+      "options": [
+        { "label": "Light", "value": "lighter" },
+        { "label": "Normal", "value": "normal" },
+        { "label": "Bold", "value": "bold" }
+      ],
+      "info": "Select the font weight for the main heading."
+    },
+    {
+      "type": "header",
+      "content": "Subheading"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading_text",
+      "label": "Subheading Text",
+      "default": "Easily Compare Features, Pricing, and Benefits Side by Side to Find the Perfect Option for Your Needs",
+      "info": "Text for the subheading that appears under the main heading."
+    },
+    {
+      "type": "range",
+      "id": "subheading_font_size",
+      "min": 8,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading Font Size (Desktop)",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "subheading_font_size_mobile",
+      "min": 8,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading Font Size (Mobile)",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_horizontal",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Subheading Desktop Side Padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_horizontal_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Subheading Mobile Side Padding",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Table Header Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_logo_column_one",
+      "label": "Enable Logo Image For Column One",
+      "default": false,
+      "info": "We recommend 400 x 300px. When enabled, hides the heading text in column one and displays a logo."
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_image_column_one",
+      "label": "Logo Image for Column One",
+      "info": "We recommend 400 x 300px. Upload the logo image for Column One (shown if toggle is ON)."
+    },
+    {
+      "type": "text",
+      "id": "first_heading",
+      "label": "Heading for Column One",
+      "default": "Our Brand",
+      "info": "Title used for the first comparison column."
+    },
+    {
+      "type": "select",
+      "id": "first_heading_weight",
+      "label": "Column One Heading Font Weight",
+      "default": "normal",
+      "options": [
+        { "label": "Light", "value": "lighter" },
+        { "label": "Normal", "value": "normal" },
+        { "label": "Bold", "value": "bold" }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "first_heading_color_custom",
+      "label": "Column One Heading Color",
+      "default": "#fff"
+    },
+    {
+      "type": "text",
+      "id": "second_heading",
+      "label": "Heading for Column Two",
+      "default": "Others",
+      "info": "Title used for the second comparison column."
+    },
+    {
+      "type": "select",
+      "id": "second_heading_weight",
+      "label": "Column Two Heading Font Weight",
+      "default": "normal",
+      "options": [
+        { "label": "Light", "value": "lighter" },
+        { "label": "Normal", "value": "normal" },
+        { "label": "Bold", "value": "bold" }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "second_heading_color_custom",
+      "label": "Column Two Heading Color",
+      "default": "#000000"
+    },
+    {
+      "type": "text",
+      "id": "third_heading",
+      "label": "Heading for Column Three",
+      "info": "Title used for the third comparison column. Leave empty for only two columns."
+    },
+    {
+      "type": "select",
+      "id": "third_heading_weight",
+      "label": "Column Three Heading Font Weight",
+      "default": "normal",
+      "options": [
+        { "label": "Light", "value": "lighter" },
+        { "label": "Normal", "value": "normal" },
+        { "label": "Bold", "value": "bold" }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "third_heading_color_custom",
+      "label": "Column Three Heading Color",
+      "default": "#000000"
+    },
+    {
+      "type": "checkbox",
+      "id": "table_heading_custom",
+      "label": "Use Custom Font for Table Header",
+      "default": false,
+      "info": "Enable if you want a specific font for table headers."
+    },
+    {
+      "type": "font_picker",
+      "id": "table_heading_font",
+      "label": "Table Header Font Family",
+      "default": "assistant_n4",
+      "info": "Choose the font for the table headers."
+    },
+    {
+      "type": "range",
+      "id": "table_heading_size",
+      "min": 0,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Table Header Font Size",
+      "default": 24,
+      "info": "Set the font size for table column headers."
+    },
+    {
+      "type": "range",
+      "id": "table_heading_size_mobile",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Table Header Font Size (Mobile)",
+      "default": 10,
+      "info": "Adjust the header font size on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "table_heading_height",
+      "min": 50,
+      "max": 200,
+      "step": 10,
+      "unit": "%",
+      "label": "Table Header Line Height",
+      "default": 100,
+      "info": "Sets the line height for the table column headers."
+    },
+    {
+      "type": "select",
+      "id": "table_heading_align",
+      "label": "Table Header Text Align",
+      "default": "center",
+      "options": [
+        {
+          "label": "Center",
+          "value": "center"
+        },
+        {
+          "label": "Left",
+          "value": "left"
+        },
+        {
+          "label": "Right",
+          "value": "right"
+        }
+      ],
+      "info": "Choose alignment for the table headers."
+    },
+    {
+      "type": "range",
+      "id": "table_heading_padding_horizontal",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Table Header Padding (Side)",
+      "default": 20,
+      "info": "Horizontal padding for each table header cell."
+    },
+    {
+      "type": "range",
+      "id": "table_heading_padding_horizontal_mobile",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Table Header Padding (Side) - Mobile",
+      "default": 4,
+      "info": "Horizontal padding for header cells on mobile."
+    },
+    {
+      "type": "range",
+      "id": "table_heading_padding_vertical",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Table Header Padding (Top/Bottom)",
+      "default": 20,
+      "info": "Vertical padding for each table header cell."
+    },
+    {
+      "type": "range",
+      "id": "table_heading_padding_vertical_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Table Header Padding (Top/Bottom) - Mobile",
+      "default": 10,
+      "info": "Vertical padding for table headers on mobile."
+    },
+    {
+      "type": "header",
+      "content": "Table Icons Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_icon_color_customizers",
+      "label": "Enable Color Customizers for the Icons",
+      "default": true,
+      "info": "Toggle this to allow customizing the icons' default/active colors."
+    },
+    {
+      "type": "image_picker",
+      "id": "table_icon_check",
+      "label": "Check Icon (Image)",
+      "info": "Optional: upload an image for the Check icon."
+    },
+    {
+      "type": "textarea",
+      "id": "table_icon_check_svg",
+      "label": "Check Icon (SVG Code)",
+      "info": "Paste your custom SVG code for the Check icon."
+    },
+    {
+      "type": "image_picker",
+      "id": "table_icon_x",
+      "label": "X Icon (Image)",
+      "info": "Optional: upload an image for the X icon."
+    },
+    {
+      "type": "textarea",
+      "id": "table_icon_x_svg",
+      "label": "X Icon (SVG Code)",
+      "info": "Paste your custom SVG code for the X icon."
+    },
+    {
+      "type": "range",
+      "id": "table_icon_size",
+      "min": 20,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Icon Size (Desktop)",
+      "default": 26,
+      "info": "The width & height of icons on desktop."
+    },
+    {
+      "type": "range",
+      "id": "table_icon_size_mobile",
+      "min": 10,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Icon Size (Mobile)",
+      "default": 20,
+      "info": "The width & height of icons on mobile."
+    },
+    {
+      "type": "header",
+      "content": "Section Width Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full Width Section",
+      "info": "Check to stretch this section to full browser width."
+    },
+    {
+      "type": "range",
+      "id": "content_width",
+      "min": 0,
+      "max": 400,
+      "step": 10,
+      "unit": "rem",
+      "label": "Max Content Width",
+      "default": 150,
+      "info": "Controls how wide the content can stretch (in rem)."
+    },
+    {
+      "type": "header",
+      "content": "Table Settings"
+    },
+    {
+      "type": "range",
+      "id": "table_mt",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Spacing Above Table",
+      "default": 82,
+      "info": "Adds space above the table."
+    },
+    {
+      "type": "range",
+      "id": "table_radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Table Corner Rounding",
+      "default": 10,
+      "info": "Controls the table’s overall border radius."
+    },
+    {
+      "type": "range",
+      "id": "table_border_thickness",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Table Border Thickness",
+      "default": 2,
+      "info": "Specifies how thick the table’s border is."
+    },
+    {
+      "type": "select",
+      "id": "table_column_active",
+      "label": "Which Column is Highlighted?",
+      "default": "1",
+      "options": [
+        {
+          "label": "Column 1",
+          "value": "1"
+        },
+        {
+          "label": "Column 2",
+          "value": "2"
+        },
+        {
+          "label": "Column 3",
+          "value": "3"
+        }
+      ],
+      "info": "Choose which column you want to highlight."
+    },
+    {
+      "type": "range",
+      "id": "table_column_active_radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Active Column Corner Rounding",
+      "default": 10,
+      "info": "Corner rounding for the highlighted column’s top and bottom."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_active_column_gradient",
+      "label": "Enable Gradient Background for Active Column",
+      "default": true,
+      "info": "Toggle to allow the active column to use a gradient instead of a solid color."
+    },
+    {
+      "type": "color",
+      "id": "active_col_gradient_color_1",
+      "label": "Active Column Gradient Color #1",
+      "default": "#3D3D3D"
+    },
+    {
+      "type": "color",
+      "id": "active_col_gradient_color_2",
+      "label": "Active Column Gradient Color #2",
+      "default": "#303030"
+    },
+    {
+      "type": "color",
+      "id": "active_col_gradient_color_3",
+      "label": "Active Column Gradient Color #3",
+      "default": "#202020"
+    },
+    {
+      "type": "select",
+      "id": "active_col_gradient_degrees",
+      "label": "Active Column Gradient Degrees",
+      "default": "315deg",
+      "options": [
+        { "label": "0°", "value": "0deg" },
+        { "label": "45°", "value": "45deg" },
+        { "label": "90°", "value": "90deg" },
+        { "label": "135°", "value": "135deg" },
+        { "label": "180°", "value": "180deg" },
+        { "label": "225°", "value": "225deg" },
+        { "label": "270°", "value": "270deg" },
+        { "label": "315°", "value": "315deg" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Table Row Settings"
+    },
+    {
+      "type": "range",
+      "id": "table_row_padding_horizontal",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Row Horizontal Padding",
+      "default": 20,
+      "info": "Left & right padding for each table cell (rows)."
+    },
+    {
+      "type": "range",
+      "id": "table_row_padding_horizontal_mobile",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Row Horizontal Padding (Mobile)",
+      "default": 22,
+      "info": "Left & right padding for table cells on mobile."
+    },
+    {
+      "type": "range",
+      "id": "table_row_padding_vertical",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Row Vertical Padding",
+      "default": 20,
+      "info": "Top & bottom padding for each table cell (rows)."
+    },
+    {
+      "type": "range",
+      "id": "table_row_padding_vertical_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Row Vertical Padding (Mobile)",
+      "default": 12,
+      "info": "Top & bottom padding for table cells on mobile."
+    },
+    {
+      "type": "header",
+      "content": "Table Row Heading Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "table_row_heading_custom",
+      "label": "Use Custom Font for Row Headings",
+      "default": false,
+      "info": "Enable if you want a specific font for the row headings."
+    },
+    {
+      "type": "font_picker",
+      "id": "table_row_heading_font",
+      "label": "Row Heading Font Family",
+      "default": "assistant_n4",
+      "info": "Choose the font for the row heading text."
+    },
+    {
+      "type": "range",
+      "id": "table_row_heading_size",
+      "min": 0,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Row Heading Font Size",
+      "default": 26,
+      "info": "Controls how large the row headings appear."
+    },
+    {
+      "type": "range",
+      "id": "table_row_heading_size_mobile",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Row Heading Font Size (Mobile)",
+      "default": 10,
+      "info": "Adjust the row heading size for mobile."
+    },
+    {
+      "type": "range",
+      "id": "table_row_heading_height",
+      "min": 50,
+      "max": 200,
+      "step": 10,
+      "unit": "%",
+      "label": "Row Heading Line Height",
+      "default": 100,
+      "info": "Sets the line height for row headings."
+    },
+    {
+      "type": "select",
+      "id": "table_row_heading_align",
+      "label": "Row Heading Alignment",
+      "default": "center",
+      "options": [
+        {
+          "label": "Center",
+          "value": "center"
+        },
+        {
+          "label": "Left",
+          "value": "left"
+        },
+        {
+          "label": "Right",
+          "value": "right"
+        }
+      ],
+      "info": "Align the row heading text."
+    },
+    {
+      "type": "header",
+      "content": "Section Colors"
+    },
+    {
+      "type": "color",
+      "label": "Main Heading Color",
+      "id": "heading_color",
+      "default": "#000",
+      "info": "Choose the color for the main heading text."
+    },
+    {
+      "type": "color",
+      "label": "Table Border Color",
+      "id": "table_border_color",
+      "default": "#D7D8D5",
+      "info": "Specifies the border color around table cells."
+    },
+    {
+      "type": "color",
+      "label": "Table Header Text",
+      "id": "table_heading_color",
+      "default": "#fff",
+      "info": "Color for the table column headings."
+    },
+    {
+      "type": "color",
+      "label": "Table Header Text (Active)",
+      "id": "table_heading_active_color",
+      "default": "#FFFFFF",
+      "info": "Text color for the highlighted column header."
+    },
+    {
+      "type": "color",
+      "label": "Active Column Background (solid)",
+      "id": "table_column_active_bg_color",
+      "default": "#000",
+      "info": "Background color for the highlighted column (when gradient is off)."
+    },
+    {
+      "type": "color",
+      "label": "Row Heading Color",
+      "id": "table_row_heading_color",
+      "default": "#040200",
+      "info": "Text color for the row headings (first cell)."
+    },
+    {
+      "type": "color",
+      "label": "Icon Default Color",
+      "id": "table_icon_color",
+      "default": "#ACACAC",
+      "info": "Normal color of the Check/X icons."
+    },
+    {
+      "type": "color",
+      "label": "Icon Active Color",
+      "id": "table_icon_active_color",
+      "default": "#4594FF",
+      "info": "Icon color for the highlighted column."
+    },
+    {
+      "type": "color",
+      "label": "Section Background",
+      "id": "background_color",
+      "default": "transparent",
+      "info": "Background color behind the entire section."
+    },
+    {
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Section Background Gradient",
+      "info": "Optional: add a gradient overlay behind the section."
+    },
+    {
+      "type": "header",
+      "content": "Entire Table Background"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_table_bg_gradient",
+      "label": "Enable Background Gradient for Entire Table",
+      "default": false,
+      "info": "Use a gradient for the entire table background."
+    },
+    {
+      "type": "color",
+      "id": "table_bg_color",
+      "label": "Table Background (Color #1)",
+      "default": "#ffffff",
+      "info": "Primary color for the table background."
+    },
+    {
+      "type": "color",
+      "id": "table_bg_color_2",
+      "label": "Table Background (Color #2)",
+      "default": "#ffffff",
+      "info": "Second color for gradient (if enabled)."
+    },
+    {
+      "type": "select",
+      "id": "table_bg_gradient_degrees",
+      "label": "Table Background Gradient Degrees",
+      "default": "90deg",
+      "options": [
+        { "label": "0°", "value": "0deg" },
+        { "label": "45°", "value": "45deg" },
+        { "label": "90°", "value": "90deg" },
+        { "label": "135°", "value": "135deg" },
+        { "label": "180°", "value": "180deg" },
+        { "label": "225°", "value": "225deg" },
+        { "label": "270°", "value": "270deg" },
+        { "label": "315°", "value": "315deg" }
+      ],
+      "info": "Choose the angle for the table's gradient background."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Row block",
+      "settings": [
+        {
+          "type": "text",
+          "id": "row_heading",
+          "label": "Row Heading",
+          "info": "Text for this row’s title (first cell)."
+        },
+        {
+          "type": "select",
+          "id": "row_heading_font_weight",
+          "label": "Row Heading Font Weight",
+          "default": "normal",
+          "options": [
+            { "label": "Light", "value": "lighter" },
+            { "label": "Normal", "value": "normal" },
+            { "label": "Bold", "value": "bold" }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "first_icon",
+          "label": "Icon for Column One",
+          "default": "check",
+          "options": [
+            {
+              "label": "Check",
+              "value": "check"
+            },
+            {
+              "label": "X",
+              "value": "x"
+            }
+          ],
+          "info": "Choose Check or X for column one."
+        },
+        {
+          "type": "select",
+          "id": "second_icon",
+          "label": "Icon for Column Two",
+          "default": "check",
+          "options": [
+            {
+              "label": "Check",
+              "value": "check"
+            },
+            {
+              "label": "X",
+              "value": "x"
+            }
+          ],
+          "info": "Choose Check or X for column two."
+        },
+        {
+          "type": "select",
+          "id": "third_icon",
+          "label": "Icon for Column Three",
+          "default": "check",
+          "options": [
+            {
+              "label": "Check",
+              "value": "check"
+            },
+            {
+              "label": "X",
+              "value": "x"
+            }
+          ],
+          "info": "Choose Check or X for column three."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Comparison Table",
+            "category": "Comparisons",
+      "blocks": [
+        {
+          "type": "item",
+          "settings": {
+            "row_heading": "Feature 1",
+            "row_heading_font_weight": "normal",
+            "first_icon": "check",
+            "second_icon": "check",
+            "third_icon": "check"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "row_heading": "Feature 2",
+            "row_heading_font_weight": "normal",
+            "first_icon": "check",
+            "second_icon": "check",
+            "third_icon": "check"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "row_heading": "Feature 3",
+            "row_heading_font_weight": "normal",
+            "first_icon": "check",
+            "second_icon": "check",
+            "third_icon": "x"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "row_heading": "Feature 4",
+            "row_heading_font_weight": "normal",
+            "first_icon": "check",
+            "second_icon": "x",
+            "third_icon": "x"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "row_heading": "Feature 5",
+            "row_heading_font_weight": "normal",
+            "first_icon": "check",
+            "second_icon": "x",
+            "third_icon": "x"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "row_heading": "Feature 6",
+            "row_heading_font_weight": "normal",
+            "first_icon": "check",
+            "second_icon": "x",
+            "third_icon": "x"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+{%- liquid
+  assign padding_horizontal = section.settings.padding_horizontal
+  assign padding_horizontal_mobile = section.settings.padding_horizontal_mobile
+  assign padding_top = section.settings.padding_top
+  assign padding_bottom = section.settings.padding_bottom
+  assign border_color = section.settings.border_color
+  assign border_thickness = section.settings.border_thickness
+  assign margin_top = section.settings.margin_top
+  assign margin_bottom = section.settings.margin_bottom
+  assign background_color = section.settings.background_color
+  assign background_gradient = section.settings.background_gradient
+  assign full_width = section.settings.full_width
+  assign content_width = section.settings.content_width
+
+  assign heading = section.settings.heading
+  assign heading_size = section.settings.heading_size
+  assign heading_color = section.settings.heading_color
+  assign heading_custom = section.settings.heading_custom
+  assign heading_font = section.settings.heading_font
+  assign heading_height = section.settings.heading_height
+  assign heading_align = section.settings.heading_align
+  assign heading_font_weight = section.settings.heading_font_weight
+
+  assign subheading_text = section.settings.subheading_text
+  assign subheading_font_size = section.settings.subheading_font_size
+  assign subheading_font_size_mobile = section.settings.subheading_font_size_mobile
+  assign subheading_padding_horizontal = section.settings.subheading_padding_horizontal
+  assign subheading_padding_horizontal_mobile = section.settings.subheading_padding_horizontal_mobile
+
+  assign table_mt = section.settings.table_mt
+  assign table_column_active = section.settings.table_column_active
+  assign table_border_thickness = section.settings.table_border_thickness
+  assign table_border_color = section.settings.table_border_color
+  assign table_radius = section.settings.table_radius
+
+  assign first_heading = section.settings.first_heading
+  assign second_heading = section.settings.second_heading
+  assign third_heading = section.settings.third_heading
+
+  assign first_heading_weight = section.settings.first_heading_weight
+  assign second_heading_weight = section.settings.second_heading_weight
+  assign third_heading_weight = section.settings.third_heading_weight
+
+  assign first_heading_color_custom = section.settings.first_heading_color_custom
+  assign second_heading_color_custom = section.settings.second_heading_color_custom
+  assign third_heading_color_custom = section.settings.third_heading_color_custom
+
+  assign table_heading_size = section.settings.table_heading_size
+  assign table_heading_size_mobile = section.settings.table_heading_size_mobile
+  assign table_heading_color = section.settings.table_heading_color
+  assign table_heading_active_color = section.settings.table_heading_active_color
+  assign table_heading_custom = section.settings.table_heading_custom
+  assign table_heading_font = section.settings.table_heading_font
+  assign table_heading_height = section.settings.table_heading_height
+  assign table_heading_align = section.settings.table_heading_align
+  assign table_heading_padding_horizontal = section.settings.table_heading_padding_horizontal
+  assign table_heading_padding_horizontal_mobile = section.settings.table_heading_padding_horizontal_mobile
+  assign table_heading_padding_vertical = section.settings.table_heading_padding_vertical
+  assign table_heading_padding_vertical_mobile = section.settings.table_heading_padding_vertical_mobile
+  assign table_column_active_radius = section.settings.table_column_active_radius
+
+  assign table_row_padding_horizontal = section.settings.table_row_padding_horizontal
+  assign table_row_padding_horizontal_mobile = section.settings.table_row_padding_horizontal_mobile
+  assign table_row_padding_vertical = section.settings.table_row_padding_vertical
+  assign table_row_padding_vertical_mobile = section.settings.table_row_padding_vertical_mobile
+
+  assign table_row_heading_size = section.settings.table_row_heading_size
+  assign table_row_heading_size_mobile = section.settings.table_row_heading_size_mobile
+  assign table_row_heading_color = section.settings.table_row_heading_color
+  assign table_row_heading_custom = section.settings.table_row_heading_custom
+  assign table_row_heading_font = section.settings.table_row_heading_font
+  assign table_row_heading_height = section.settings.table_row_heading_height
+  assign table_row_heading_align = section.settings.table_row_heading_align
+
+  assign table_icon_check = section.settings.table_icon_check
+  assign table_icon_x = section.settings.table_icon_x
+
+  assign table_icon_check_svg = section.settings.table_icon_check_svg
+  assign table_icon_x_svg = section.settings.table_icon_x_svg
+
+  assign enable_icon_color_customizers = section.settings.enable_icon_color_customizers
+  assign table_icon_color = section.settings.table_icon_color
+  assign table_icon_active_color = section.settings.table_icon_active_color
+  assign table_icon_size = section.settings.table_icon_size
+  assign table_icon_size_mobile = section.settings.table_icon_size_mobile
+
+  assign enable_active_column_gradient = section.settings.enable_active_column_gradient
+  assign active_col_gradient_color_1 = section.settings.active_col_gradient_color_1
+  assign active_col_gradient_color_2 = section.settings.active_col_gradient_color_2
+  assign active_col_gradient_color_3 = section.settings.active_col_gradient_color_3
+  assign active_col_gradient_degrees = section.settings.active_col_gradient_degrees
+
+  assign enable_logo_column_one = section.settings.enable_logo_column_one
+  assign logo_image_column_one = section.settings.logo_image_column_one
+
+  assign enable_table_bg_gradient = section.settings.enable_table_bg_gradient
+  assign table_bg_color = section.settings.table_bg_color
+  assign table_bg_color_2 = section.settings.table_bg_color_2
+  assign table_bg_gradient_degrees = section.settings.table_bg_gradient_degrees
+-%}
+
+{% capture icon_check %}
+  {% if table_icon_check_svg != blank %}
+    {{ table_icon_check_svg }}
+  {% elsif table_icon_check != blank %}
+    <img src="{{ table_icon_check | image_url }}" alt="{{ table_icon_check.alt }}">
+  {% else %}
+    <!-- Default CHECK icon -->
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12ZM16.0303 8.96967C16.3232 9.26256 16.3232 9.73744 16.0303 10.0303L11.0303 15.0303C10.7374 15.3232 10.2626 15.3232 9.96967 15.0303L7.96967 13.0303C7.67678 12.7374 7.67678 12.2626 7.96967 11.9697C8.26256 11.6768 8.73744 11.6768 9.03033 11.9697L10.5 13.4393L12.7348 11.2045L14.9697 8.96967C15.2626 8.67678 15.7374 8.67678 16.0303 8.96967Z" fill="#04ff00"></path> </g></svg>
+  {% endif %}
+{% endcapture %}
+
+{% capture icon_x %}
+  {% if table_icon_x_svg != blank %}
+    {{ table_icon_x_svg }}
+  {% elsif table_icon_x != blank %}
+    <img src="{{ table_icon_x | image_url }}" alt="{{ table_icon_x.alt }}">
+  {% else %}
+    <!-- Default X icon -->
+    <svg width="180px" height="180px" viewBox="-3.6 -3.6 31.20 31.20" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M20.7457 3.32851C20.3552 2.93798 19.722 2.93798 19.3315 3.32851L12.0371 10.6229L4.74275 3.32851C4.35223 2.93798 3.71906 2.93798 3.32854 3.32851C2.93801 3.71903 2.93801 4.3522 3.32854 4.74272L10.6229 12.0371L3.32856 19.3314C2.93803 19.722 2.93803 20.3551 3.32856 20.7457C3.71908 21.1362 4.35225 21.1362 4.74277 20.7457L12.0371 13.4513L19.3315 20.7457C19.722 21.1362 20.3552 21.1362 20.7457 20.7457C21.1362 20.3551 21.1362 19.722 20.7457 19.3315L13.4513 12.0371L20.7457 4.74272C21.1362 4.3522 21.1362 3.71903 20.7457 3.32851Z" fill="#a8a8a8"></path> </g></svg>
+  {% endif %}
+{% endcapture %}
+
+{%- style -%}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ table_heading_font | font_face: font_display: 'swap' }}
+
+  .section-{{ section.id }} {
+    border-top: solid {{ border_color }} {{ border_thickness }}px !important;
+    border-bottom: solid {{ border_color }} {{ border_thickness }}px !important;
+    margin-top: {{ margin_top | times: 0.75 | round: 0 }}px !important;
+    margin-bottom: {{ margin_bottom | times: 0.75 | round: 0 }}px !important;
+  }
+
+  .section-{{ section.id }}-settings {
+    margin: 0 auto !important;
+    padding-top: {{ padding_top | times: 0.75 | round: 0 }}px !important;
+    padding-bottom: {{ padding_bottom | times: 0.75 | round: 0 }}px !important;
+    /* Mobile left/right padding */
+    justify-content: center;
+    padding-left: {{ padding_horizontal_mobile }}rem !important;
+    padding-right: {{ padding_horizontal_mobile }}rem !important;
+  }
+
+  .loudecoms-heading-{{ section.id }} {
+    margin: 0 !important;
+    font-size: {{ heading_size | times: 0.85 }}px !important;
+    /* Font Weight from new setting */
+    font-weight: {{ heading_font_weight }} !important;
+    color: {{ heading_color }} !important;
+    line-height: {{ heading_height }}% !important;
+    text-transform: unset !important;
+    text-align: {{ heading_align }} !important;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  /* Subheading styles */
+  .subheading-{{ section.id }} {
+    font-size: {{ subheading_font_size_mobile }}px !important;
+    text-align: {{ heading_align }} !important;
+    padding-left: {{ subheading_padding_horizontal_mobile }}px !important;
+    padding-right: {{ subheading_padding_horizontal_mobile }}px !important;
+    margin: 10px auto 0 auto !important;
+    line-height: 140% !important;
+    display: block !important;
+    width: 100% !important;
+  }
+  @media (min-width: 768px) {
+    .subheading-{{ section.id }} {
+      font-size: {{ subheading_font_size }}px !important;
+      padding-left: {{ subheading_padding_horizontal }}px !important;
+      padding-right: {{ subheading_padding_horizontal }}px !important;
+    }
+  }
+
+  .loudecoms-body-{{ section.id }} {
+    margin-top: {{ table_mt | times: 0.75 | round: 0 }}px !important;
+  }
+
+  .loudecoms-grid-{{ section.id }} {
+    display: grid !important;
+    {% if third_heading != blank %}
+      grid-template-columns: 29% 24% 23.5% 23.5% !important;
+    {% else %}
+      grid-template-columns: 40% 30% 30% !important;
+    {% endif %}
+  }
+
+  .loudecoms-item-{{ section.id }} {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Active column gradient or solid color */
+  .loudecoms-item-{{ section.id }}.active {
+    {% if enable_active_column_gradient %}
+      background: linear-gradient(
+        {{ active_col_gradient_degrees }},
+        {{ active_col_gradient_color_1 }},
+        {{ active_col_gradient_color_2 }},
+        {{ active_col_gradient_color_3 }}
+      ) !important;
+    {% else %}
+      background-color: {{ table_column_active_bg_color }} !important;
+    {% endif %}
+  }
+
+  .loudecoms-grid-header-{{ section.id }} .loudecoms-item-{{ section.id }} {
+    padding: {{ table_heading_padding_vertical_mobile }}px {{ table_heading_padding_horizontal_mobile }}px !important;
+  }
+
+  .loudecoms-grid-header-{{ section.id }} .loudecoms-item-{{ section.id }}.active {
+    border-top-left-radius: {{ table_column_active_radius }}px !important;
+    border-top-right-radius: {{ table_column_active_radius }}px !important;
+  }
+
+  /* HEADINGS inside columns (by default) */
+  .loudecoms-grid-header-{{ section.id }} .loudecoms-item-{{ section.id }} h3 {
+    margin: 0 !important;
+    font-size: {{ table_heading_size_mobile }}px !important;
+    color: {{ table_heading_color }} !important;
+    line-height: {{ table_heading_height }}% !important;
+    text-transform: unset !important;
+    text-align: {{ table_heading_align }} !important;
+    display: block !important;
+    width: 100% !important;
+    font-weight: 700 !important;
+  }
+
+  /* Active column heading color */
+  .loudecoms-grid-header-{{ section.id }} .loudecoms-item-{{ section.id }}.active h3 {
+    color: {{ table_heading_active_color }} !important;
+  }
+
+  .loudecoms-grid-header-{{ section.id }} + .loudecoms-grid-{{ section.id }} .loudecoms-item-{{ section.id }}:first-child {
+    border-top-left-radius: {{ table_radius }}px !important;
+  }
+
+  .loudecoms-grid-header-{{ section.id }} + .loudecoms-grid-{{ section.id }} .loudecoms-item-{{ section.id }}:last-child {
+    border-top-right-radius: {{ table_radius }}px !important;
+  }
+
+  .loudecoms-grid-header-{{ section.id }} + .loudecoms-grid-{{ section.id }} .loudecoms-item-{{ section.id }}.active:last-child {
+    border-top-right-radius: 0px !important;
+  }
+
+  .loudecoms-grid-rows-{{ section.id }} .loudecoms-item-{{ section.id }} {
+    padding: {{ table_row_padding_vertical_mobile }}px {{ table_row_padding_horizontal_mobile }}px !important;
+    border-top: {{ table_border_thickness }}px solid {{ table_border_color }} !important;
+  }
+
+  .loudecoms-grid-rows-{{ section.id }} .loudecoms-item-{{ section.id }}:first-child {
+    border-left: {{ table_border_thickness }}px solid {{ table_border_color }} !important;
+  }
+
+  .loudecoms-grid-rows-{{ section.id }} .loudecoms-item-{{ section.id }}:last-child {
+    border-right: {{ table_border_thickness }}px solid {{ table_border_color }} !important;
+  }
+
+  /* Active column border color override */
+  .loudecoms-grid-rows-{{ section.id }} .loudecoms-item-{{ section.id }}.active {
+    position: relative !important;
+    border-color: {% if enable_active_column_gradient %}transparent{% else %}{{ table_column_active_bg_color }}{% endif %} !important;
+  }
+
+  .loudecoms-grid-rows-{{ section.id }} .loudecoms-item-{{ section.id }}.active::after {
+    content: '' !important;
+    position: absolute !important;
+    width: 100% !important;
+    height: 15px !important;
+    left: 0 !important;
+    bottom: -15px !important;
+    {% if enable_active_column_gradient %}
+      background: linear-gradient(
+        {{ active_col_gradient_degrees }},
+        {{ active_col_gradient_color_1 }},
+        {{ active_col_gradient_color_2 }},
+        {{ active_col_gradient_color_3 }}
+      ) !important;
+    {% else %}
+      background-color: {{ table_column_active_bg_color }} !important;
+    {% endif %}
+    border-bottom-left-radius: {{ table_column_active_radius }}px !important;
+    border-bottom-right-radius: {{ table_column_active_radius }}px !important;
+  }
+
+  .loudecoms-grid-rows-{{ section.id }}:last-child .loudecoms-item-{{ section.id }} {
+    border-bottom: {{ table_border_thickness }}px solid {{ table_border_color }} !important;
+  }
+
+  .loudecoms-grid-rows-{{ section.id }}:last-child .loudecoms-item-{{ section.id }}.active {
+    border-color: {% if enable_active_column_gradient %}transparent{% else %}{{ table_column_active_bg_color }}{% endif %} !important;
+  }
+
+  .loudecoms-grid-rows-{{ section.id }}:last-child .loudecoms-item-{{ section.id }}:first-child {
+    border-bottom-left-radius: {{ table_radius }}px !important;
+  }
+
+  .loudecoms-grid-rows-{{ section.id }}:last-child .loudecoms-item-{{ section.id }}:last-child {
+    border-bottom-right-radius: {{ table_radius }}px !important;
+  }
+
+  .loudecoms-grid-rows-{{ section.id }}:last-child .loudecoms-item-{{ section.id }}.active:last-child {
+    border-bottom-right-radius: 0px !important;
+  }
+
+  .loudecoms-grid-rows-{{ section.id }}:last-child .loudecoms-item-{{ section.id }}.active:last-child::after {
+    border-right: {{ table_border_thickness }}px solid {% if enable_active_column_gradient %}transparent{% else %}{{ table_column_active_bg_color }}{% endif %} !important;
+    box-sizing: content-box !important;
+  }
+
+  /* Row heading (first cell in each row) */
+  .loudecoms-grid-rows-{{ section.id }} .loudecoms-item-{{ section.id }}:first-child h3 {
+    margin: 0 !important;
+    font-size: {{ table_row_heading_size_mobile }}px !important;
+    color: {{ table_row_heading_color }} !important;
+    line-height: {{ table_row_heading_height }}% !important;
+    text-transform: unset !important;
+    text-align: {{ table_row_heading_align }} !important;
+    display: block !important;
+    width: 100% !important;
+    font-weight: 700 !important;
+  }
+
+  /* ICONS */
+  .loudecoms-icon-{{ section.id }} {
+    width: {{ table_icon_size_mobile }}px !important;
+    height: {{ table_icon_size_mobile }}px !important;
+  }
+
+  /* Only apply custom colors if the toggle is enabled */
+  {% if enable_icon_color_customizers %}
+    .loudecoms-icon-{{ section.id }}.icon-check-{{ section.id }} svg path,
+    .loudecoms-icon-{{ section.id }}.icon-x-{{ section.id }} svg path {
+      fill: {{ table_icon_color }} !important;
+    }
+
+    .loudecoms-item-{{ section.id }}.active .loudecoms-icon-{{ section.id }}.icon-check-{{ section.id }} svg path,
+    .loudecoms-item-{{ section.id }}.active .loudecoms-icon-{{ section.id }}.icon-x-{{ section.id }} svg path {
+      fill: {{ table_icon_active_color }} !important;
+    }
+  {% endif %}
+
+  .loudecoms-icon-{{ section.id }} svg,
+  .loudecoms-icon-{{ section.id }} img {
+    display: block !important;
+    object-fit: contain !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Single background color/gradient for entire table (all rows) */
+  .loudecoms-grid-rows-{{ section.id }} {
+    {% if enable_table_bg_gradient %}
+      background: linear-gradient(
+        {{ table_bg_gradient_degrees }},
+        {{ table_bg_color }},
+        {{ table_bg_color_2 }}
+      ) !important;
+    {% else %}
+      background-color: {{ table_bg_color }} !important;
+    {% endif %}
+  }
+
+  /* Logo Image (Column One) */
+  .logo-image-col1-{{ section.id }} img.logo-image-col1-img-{{ section.id }} {
+    max-width: 100% !important;
+    text-align: center;
+    object-fit: cover !important;
+    display: block !important;
+    height: 75px !important;
+    justify-content: center;
+  }
+
+  @media(min-width: 350px) {
+    .loudecoms-grid-{{ section.id }} {
+      {% if third_heading != blank %}
+        grid-template-columns: 38% 22% 20% 20% !important;
+      {% else %}
+        grid-template-columns: 40% 30% 30% !important;
+      {% endif %}
+    }
+  }
+
+  @media (max-width: 768px) {
+    .logo-image-col1-{{ section.id }} img.logo-image-col1-img-{{ section.id }} {
+      max-width: 100% !important;
+      text-align: center;
+      object-fit: cover !important;
+      display: block !important;
+      height: 45px !important;
+    }
+  }
+
+  @media(min-width: 768px) {
+    .section-{{ section.id }} {
+      margin-top: {{ margin_top }}px !important;
+      margin-bottom: {{ margin_bottom }}px !important;
+    }
+
+    /* Desktop left/right padding now driven by user setting */
+    .section-{{ section.id }}-settings {
+      padding-top: {{ padding_top }}px !important;
+      padding-bottom: {{ padding_bottom }}px !important;
+      padding-left: {{ padding_horizontal }}rem !important;
+      padding-right: {{ padding_horizontal }}rem !important;
+    }
+
+    .loudecoms-grid-{{ section.id }} {
+      {% if third_heading != blank %}
+        grid-template-columns: 30% 22% 24% 24% !important;
+      {% else %}
+        grid-template-columns: 40% 28% 32% !important;
+      {% endif %}
+    }
+
+    .loudecoms-heading-{{ section.id }} {
+      font-size: {{ heading_size }}px !important;
+    }
+
+    .loudecoms-body-{{ section.id }} {
+      margin-top: {{ table_mt }}px !important;
+    }
+
+    .loudecoms-grid-header-{{ section.id }} .loudecoms-item-{{ section.id }} {
+      padding: {{ table_heading_padding_vertical }}px {{ table_heading_padding_horizontal }}px !important;
+    }
+
+    .loudecoms-grid-header-{{ section.id }} .loudecoms-item-{{ section.id }} h3 {
+      font-size: {{ table_heading_size }}px !important;
+    }
+
+    .loudecoms-grid-rows-{{ section.id }} .loudecoms-item-{{ section.id }} {
+      padding: {{ table_row_padding_vertical }}px {{ table_row_padding_horizontal }}px !important;
+    }
+
+    .loudecoms-grid-rows-{{ section.id }} .loudecoms-item-{{ section.id }}.active::after {
+      height: 25px !important;
+      bottom: -25px !important;
+    }
+
+    .loudecoms-grid-rows-{{ section.id }} .loudecoms-item-{{ section.id }}:first-child h3 {
+      font-size: {{ table_row_heading_size }}px !important;
+    }
+
+    .loudecoms-icon-{{ section.id }} {
+      width: {{ table_icon_size }}px !important;
+      height: {{ table_icon_size }}px !important;
+    }
+  }
+{%- endstyle -%}
+
+{% unless full_width %}
+  <style>
+    .section-{{ section.id }}-settings {
+      max-width: {{ content_width }}rem !important;
+    }
+  </style>
+{% endunless %}
+
+{% if heading_custom %}
+  <style>
+    .loudecoms-heading-{{ section.id }} {
+      font-family: {{ heading_font.family }}, {{ heading_font.fallback_families }} !important;
+      font-weight: {{ heading_font.weight }} !important;
+      font-style: {{ heading_font.style }} !important;
+    }
+  </style>
+{% endif %}
+
+{% if table_heading_custom %}
+  <style>
+    .loudecoms-grid-header-{{ section.id }} .loudecoms-item-{{ section.id }} h3 {
+      font-family: {{ table_heading_font.family }}, {{ table_heading_font.fallback_families }} !important;
+      font-weight: {{ table_heading_font.weight }} !important;
+      font-style: {{ table_heading_font.style }} !important;
+    }
+  </style>
+{% endif %}
+
+{% if table_row_heading_custom %}
+  <style>
+    .loudecoms-grid-rows-{{ section.id }} .loudecoms-item-{{ section.id }}:first-child h3 {
+      font-family: {{ table_row_heading_font.family }}, {{ table_row_heading_font.fallback_families }} !important;
+      font-weight: {{ table_row_heading_font.weight }} !important;
+      font-style: {{ table_row_heading_font.style }} !important;
+    }
+  </style>
+{% endif %}
+
+<div
+  class="section-{{ section.id }} loudecoms-{{ section.id }}"
+  style="background-color:{{ background_color }} !important; background-image: {{ background_gradient }} !important;"
+>
+  <div class="section-{{ section.id }}-settings">
+    {% if heading != blank %}
+      <h2 class="loudecoms-heading-{{ section.id }}">{{ heading }}</h2>
+    {% endif %}
+    {% if subheading_text != blank %}
+      <div class="subheading-{{ section.id }}">
+        {{ subheading_text }}
+      </div>
+    {% endif %}
+
+    <div class="loudecoms-body-{{ section.id }}">
+      <div class="loudecoms-grid-{{ section.id }} loudecoms-grid-header-{{ section.id }}">
+        <!-- Empty top-left cell -->
+        <div class="loudecoms-item-{{ section.id }}"></div>
+
+        <!-- Column 1 Heading or Logo -->
+        <div class="loudecoms-item-{{ section.id }} {% if table_column_active == '1' %}active{% endif %}">
+          {% if enable_logo_column_one and logo_image_column_one != blank %}
+            <!-- Show Logo -->
+            <div class="logo-image-col1-{{ section.id }}">
+              <img
+                src="{{ logo_image_column_one | image_url }}"
+                alt="Logo Column One"
+                class="logo-image-col1-img-{{ section.id }}"
+              >
+            </div>
+          {% else %}
+            <!-- Show Heading Text -->
+            <h3
+              style="
+                font-weight: {{ first_heading_weight }} !important;
+                color: {{ first_heading_color_custom }} !important;
+              "
+            >
+              {{ first_heading }}
+            </h3>
+          {% endif %}
+        </div>
+
+        <!-- Column 2 Heading -->
+        <div class="loudecoms-item-{{ section.id }} {% if table_column_active == '2' %}active{% endif %}">
+          <h3
+            style="
+              font-weight: {{ second_heading_weight }} !important;
+              color: {{ second_heading_color_custom }} !important;
+            "
+          >
+            {{ second_heading }}
+          </h3>
+        </div>
+
+        <!-- Column 3 Heading (if any) -->
+        {% if third_heading != blank %}
+          <div class="loudecoms-item-{{ section.id }} {% if table_column_active == '3' %}active{% endif %}">
+            <h3
+              style="
+                font-weight: {{ third_heading_weight }} !important;
+                color: {{ third_heading_color_custom }} !important;
+              "
+            >
+              {{ third_heading }}
+            </h3>
+          </div>
+        {% endif %}
+      </div>
+
+      {% for block in section.blocks %}
+        {% assign row_weight = block.settings.row_heading_font_weight %}
+        <div class="loudecoms-grid-{{ section.id }} loudecoms-grid-rows-{{ section.id }}">
+          <!-- Row heading cell -->
+          <div class="loudecoms-item-{{ section.id }}">
+            <h3 style="font-weight: {{ row_weight }} !important;">
+              {{ block.settings.row_heading }}
+            </h3>
+          </div>
+
+          <!-- Column 1 cell -->
+          <div class="loudecoms-item-{{ section.id }} {% if table_column_active == '1' %}active{% endif %}">
+            <div class="loudecoms-icon-{{ section.id }} icon-{{ block.settings.first_icon }}-{{ section.id }}">
+              {% if block.settings.first_icon == 'check' %}
+                {{ icon_check }}
+              {% else %}
+                {{ icon_x }}
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Column 2 cell -->
+          <div class="loudecoms-item-{{ section.id }} {% if table_column_active == '2' %}active{% endif %}">
+            <div class="loudecoms-icon-{{ section.id }} icon-{{ block.settings.second_icon }}-{{ section.id }}">
+              {% if block.settings.second_icon == 'check' %}
+                {{ icon_check }}
+              {% else %}
+                {{ icon_x }}
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Column 3 cell (if any) -->
+          {% if third_heading != blank %}
+            <div class="loudecoms-item-{{ section.id }} {% if table_column_active == '3' %}active{% endif %}">
+              <div class="loudecoms-icon-{{ section.id }} icon-{{ block.settings.third_icon }}-{{ section.id }}">
+                {% if block.settings.third_icon == 'check' %}
+                  {{ icon_check }}
+                {% else %}
+                  {{ icon_x }}
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>

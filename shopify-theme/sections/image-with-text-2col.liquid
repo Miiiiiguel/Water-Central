@@ -1,0 +1,1196 @@
+{% if section.settings.enable_custom_fonts %}
+  {% if section.settings.font_url != blank %}
+    <style>
+      @import url('{{ section.settings.font_url }}');
+    </style>
+  {% endif %}
+  {% if section.settings.section_title_font != blank %}
+    <style>
+      {{ section.settings.section_title_font | font_face }}
+    </style>
+  {% endif %}
+  {% if section.settings.section_description_font != blank %}
+    <style>
+      {{ section.settings.section_description_font | font_face }}
+    </style>
+  {% endif %}
+{% endif %}
+
+<section
+  id="brand-perception-{{ section.id }}"
+  class="brand-perception-unique {{ section.settings.section_animation }}"
+  style="background-color: {{ section.settings.background_color }};"
+>
+  <div class="content-wrapper">
+    <div class="flex-container {% if section.settings.layout_order == 'image_left' %}image_left{% else %}image_right{% endif %}">
+      {% if section.settings.layout_order == 'image_left' %}
+        <div class="image-column">
+          <div class="media-wrapper {{ section.settings.image_video_shape }}">
+            <img
+              loading="lazy"
+              src="{% if section.settings.brand_image %}{{ section.settings.brand_image | img_url: 'master' }}{% else %}data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E{% endif %}"
+              alt="Brand perception illustration"
+            >
+          </div>
+        </div>
+        <div class="text-column">
+          <div class="text-content" style="background-color: {{ section.settings.text_container_background_color }};">
+            <div class="text-wrapper">
+              <h2 class="section-title {{ section.settings.headline_text_animation }} {% if section.settings.enable_section_title_gradient %}title-gradient{% endif %}">
+                {{ section.settings.section_title }}
+              </h2>
+              <p class="section-description {% if section.settings.enable_section_description_gradient %}description-gradient{% endif %}">
+                {{ section.settings.section_description }}
+              </p>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="text-column">
+          <div class="text-content" style="background-color: {{ section.settings.text_container_background_color }};">
+            <div class="text-wrapper">
+              <h2 class="section-title {{ section.settings.headline_text_animation }} {% if section.settings.enable_section_title_gradient %}title-gradient{% endif %}">
+                {{ section.settings.section_title }}
+              </h2>
+              <p class="section-description {% if section.settings.enable_section_description_gradient %}description-gradient{% endif %}">
+                {{ section.settings.section_description }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="image-column">
+          <div class="media-wrapper {{ section.settings.image_video_shape }}">
+            <img
+              loading="lazy"
+              src="{% if section.settings.brand_image %}{{ section.settings.brand_image | img_url: 'master' }}{% else %}data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E{% endif %}"
+              alt="Brand perception illustration"
+            >
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Scoped CSS for #brand-perception-{{ section.id }} */
+  #brand-perception-{{ section.id }} {
+    --scale: {{ section.settings.section_scale | default: 1 }};
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    padding-top: calc({{ section.settings.section_padding_top | default: 120 }}px * var(--scale));
+    padding-bottom: calc({{ section.settings.section_padding_bottom | default: 120 }}px * var(--scale));
+    padding-left: calc(60px * var(--scale));
+    padding-right: calc(60px * var(--scale));
+
+    /* If custom font is enabled */
+    {% if section.settings.enable_custom_fonts and section.settings.custom_font_family != blank %}
+      font-family: '{{ section.settings.custom_font_family }}', sans-serif;
+    {% endif %}
+  }
+
+  /* Section Animations (Scoping with unique IDs to prevent conflicts) */
+  #brand-perception-{{ section.id }}.fade_in {
+    opacity: 0;
+    animation: sectionFadeIn-{{ section.id }} 1s forwards;
+  }
+  @keyframes sectionFadeIn-{{ section.id }} {
+    to { opacity: 1; }
+  }
+
+  #brand-perception-{{ section.id }}.fade_in_left {
+    opacity: 0;
+    transform: translateX(-50px);
+    animation: sectionFadeInLeft-{{ section.id }} 1s forwards;
+  }
+  @keyframes sectionFadeInLeft-{{ section.id }} {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  #brand-perception-{{ section.id }}.slide_in_right {
+    opacity: 0;
+    transform: translateX(50px);
+    animation: sectionSlideInRight-{{ section.id }} 1s forwards;
+  }
+  @keyframes sectionSlideInRight-{{ section.id }} {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  #brand-perception-{{ section.id }}.zoom_in {
+    opacity: 0;
+    transform: scale(0.8);
+    animation: sectionZoomIn-{{ section.id }} 1s forwards;
+  }
+  @keyframes sectionZoomIn-{{ section.id }} {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  #brand-perception-{{ section.id }}.rotate {
+    opacity: 0;
+    transform: rotate(-10deg);
+    animation: sectionRotate-{{ section.id }} 1s forwards;
+  }
+  @keyframes sectionRotate-{{ section.id }} {
+    to {
+      opacity: 1;
+      transform: rotate(0deg);
+    }
+  }
+
+  /* Content Wrapper: controls overall width with a slider (section_width) */
+  #brand-perception-{{ section.id }} .content-wrapper {
+    width: 100%;
+    max-width: calc({{ section.settings.section_width | default: 1036 }}px * var(--scale));
+    margin: 0 auto;
+  }
+
+  /* Flex Container: We'll use the new desktop gap controls for each layout */
+  #brand-perception-{{ section.id }} .flex-container {
+    display: flex;
+  }
+
+  /* Desktop-only Gaps via media query */
+  @media (min-width: 992px) {
+    #brand-perception-{{ section.id }} .flex-container.image_left {
+      gap: calc({{ section.settings.image_left_gap | default: 10 }}px * var(--scale));
+    }
+    #brand-perception-{{ section.id }} .flex-container.image_right {
+      gap: calc({{ section.settings.image_right_gap | default: 10 }}px * var(--scale));
+    }
+  }
+
+  #brand-perception-{{ section.id }} .image-column,
+  #brand-perception-{{ section.id }} .text-column {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+  }
+
+  /* Media Wrapper */
+  #brand-perception-{{ section.id }} .media-wrapper {
+    position: relative;
+    width: calc(540px * var(--scale));
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+  }
+
+  /* Image Shapes */
+  #brand-perception-{{ section.id }} .media-wrapper.normal {
+    border-radius: 0;
+  }
+  #brand-perception-{{ section.id }} .media-wrapper.circle {
+    border-radius: 50%;
+  }
+  #brand-perception-{{ section.id }} .media-wrapper.rounded {
+    border-radius: 15px;
+  }
+  #brand-perception-{{ section.id }} .media-wrapper.square {
+    border-radius: 0;
+  }
+  #brand-perception-{{ section.id }} .media-wrapper.rounded_corners {
+    border-radius: 25px;
+  }
+  #brand-perception-{{ section.id }} .media-wrapper.diamond {
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  }
+  #brand-perception-{{ section.id }} .media-wrapper.hexagon {
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  }
+
+  #brand-perception-{{ section.id }} .media-wrapper img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.3s ease-in-out;
+  }
+
+  /* Brand Image Hover Animation */
+  {% if section.settings.brand_image_hover_animation == 'fade_in' %}
+    #brand-perception-{{ section.id }} .media-wrapper img {
+      opacity: 0.7;
+    }
+    #brand-perception-{{ section.id }} .media-wrapper:hover img {
+      opacity: 1;
+    }
+  {% elsif section.settings.brand_image_hover_animation == 'fade' %}
+    #brand-perception-{{ section.id }} .media-wrapper:hover img {
+      opacity: 0.5;
+    }
+  {% elsif section.settings.brand_image_hover_animation == 'smooth_zoomin' %}
+    #brand-perception-{{ section.id }} .media-wrapper:hover img {
+      transform: scale(1.05);
+    }
+  {% elsif section.settings.brand_image_hover_animation == 'smooth_shadow' %}
+    #brand-perception-{{ section.id }} .media-wrapper:hover img {
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+  {% endif %}
+
+  /* Text Content: alignment controlled by desktop setting by default */
+  #brand-perception-{{ section.id }} .text-content {
+    background-color: {{ section.settings.text_container_background_color }};
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: center;
+    text-align: {{ section.settings.text_content_alignment_desktop | default: 'center' }};
+    width: 100%;
+    padding: calc(137px * var(--scale)) calc(57px * var(--scale));
+  }
+
+  #brand-perception-{{ section.id }} .text-wrapper {
+    display: flex;
+    height: calc(268px * var(--scale));
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* Section Title */
+  #brand-perception-{{ section.id }} .section-title {
+    font-size: calc({{ section.settings.section_title_size_desktop | default: 56 }}px * var(--scale));
+    margin-top: calc({{ section.settings.section_title_margin_top | default: 0 }}px * var(--scale));
+     line-height: {{ section.settings.section_title_line_height_desktop | default: 1.2 }};
+
+
+    {% if section.settings.enable_custom_fonts %}
+      {% if section.settings.section_title_font != blank %}
+        font-family: {{ section.settings.section_title_font.family }};
+        font-weight: {{ section.settings.section_title_font.weight }};
+      {% else %}
+        font-weight: 700;
+      {% endif %}
+    {% else %}
+      font-weight: 700;
+    {% endif %}
+
+    padding-left: calc({{ section.settings.section_title_padding_left_desktop | default: 0 }}px);
+    padding-right: calc({{ section.settings.section_title_padding_right_desktop | default: 0 }}px);
+
+    {% unless section.settings.enable_section_title_gradient %}
+      color: {{ section.settings.section_title_color }} !important;
+    {% endunless %}
+  }
+
+  /* Section Title Gradient */
+  #brand-perception-{{ section.id }} .section-title.title-gradient {
+    background: linear-gradient({{ section.settings.section_title_gradient_degree | default: 90 }}deg, {{ section.settings.section_title_gradient_start_color }}, {{ section.settings.section_title_gradient_end_color }});
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Section Description */
+  #brand-perception-{{ section.id }} .section-description {
+    font-size: calc({{ section.settings.section_description_size_desktop | default: 24 }}px * var(--scale));
+    line-height: calc(36px * var(--scale));
+    margin-top: calc(20px * var(--scale));
+
+    {% if section.settings.enable_custom_fonts %}
+      {% if section.settings.section_description_font != blank %}
+        font-family: {{ section.settings.section_description_font.family }};
+        font-weight: {{ section.settings.section_description_font.weight }};
+      {% else %}
+        font-weight: 400;
+      {% endif %}
+    {% else %}
+      font-weight: 400;
+    {% endif %}
+
+    padding-left: calc({{ section.settings.section_description_padding_left_desktop | default: 0 }}px);
+    padding-right: calc({{ section.settings.section_description_padding_right_desktop | default: 0 }}px);
+
+    {% unless section.settings.enable_section_description_gradient %}
+      color: {{ section.settings.section_description_color }};
+    {% endunless %}
+  }
+
+  /* Section Description Gradient */
+  #brand-perception-{{ section.id }} .section-description.description-gradient {
+    background: linear-gradient({{ section.settings.section_description_gradient_degree | default: 90 }}deg, {{ section.settings.section_description_gradient_start_color }}, {{ section.settings.section_description_gradient_end_color }});
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Responsive Styles */
+  @media (max-width: 991px) {
+    #brand-perception-{{ section.id }} {
+      padding-top: calc({{ section.settings.section_padding_top_mobile | default: 100 }}px * var(--scale));
+      padding-bottom: calc({{ section.settings.section_padding_bottom_mobile | default: 100 }}px * var(--scale));
+      padding-left: calc(20px * var(--scale));
+      padding-right: calc(20px * var(--scale));
+    }
+
+    #brand-perception-{{ section.id }} .content-wrapper {
+      max-width: 100%;
+    }
+
+    #brand-perception-{{ section.id }} .flex-container {
+      flex-direction: column;
+      align-items: stretch;
+      /* Vertical gap for mobile only */
+      gap: calc({{ section.settings.vertical_gap_between_image_text_mobile | default: 10 }}px * var(--scale));
+    }
+
+    /* Reverse order for image_left layout on mobile */
+    #brand-perception-{{ section.id }} .flex-container.image_left {
+      flex-direction: column-reverse;
+    }
+
+    #brand-perception-{{ section.id }} .image-column,
+    #brand-perception-{{ section.id }} .text-column {
+      width: 100%;
+      margin: 0;
+    }
+
+    /* Center the image in image-column on mobile */
+    #brand-perception-{{ section.id }} .image-column {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #brand-perception-{{ section.id }} .media-wrapper {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+    }
+
+    /* Mobile text alignment override */
+    #brand-perception-{{ section.id }} .text-content {
+      padding: calc(100px * var(--scale)) calc(20px * var(--scale));
+      text-align: {{ section.settings.text_content_alignment_mobile | default: 'center' }};
+    }
+
+    #brand-perception-{{ section.id }} .section-title {
+      font-size: calc({{ section.settings.section_title_size_mobile | default: 40 }}px * var(--scale));
+     line-height: {{ section.settings.section_title_line_height_mobile | default: 1.2 }};
+      margin-top: 0; /* ensure consistent spacing on mobile */
+      padding-left: calc({{ section.settings.section_title_padding_left_mobile | default: 0 }}px);
+      padding-right: calc({{ section.settings.section_title_padding_right_mobile | default: 0 }}px);
+    }
+
+    #brand-perception-{{ section.id }} .section-description {
+      font-size: calc({{ section.settings.section_description_size_mobile | default: 18 }}px * var(--scale));
+      line-height: calc(28px * var(--scale));
+      padding-left: calc({{ section.settings.section_description_padding_left_mobile | default: 0 }}px);
+      padding-right: calc({{ section.settings.section_description_padding_right_mobile | default: 0 }}px);
+    }
+  }
+
+  @media (max-width: 640px) {
+    #brand-perception-{{ section.id }} {
+      padding-top: calc({{ section.settings.section_padding_top_mobile | default: 54 }}px * var(--scale));
+      padding-bottom: calc({{ section.settings.section_padding_bottom_mobile | default: 54 }}px * var(--scale));
+    }
+
+    #brand-perception-{{ section.id }} .text-content {
+      padding-top: calc(52px * var(--scale));
+    }
+
+    #brand-perception-{{ section.id }} .text-wrapper {
+      height: calc(246px * var(--scale));
+    }
+
+    #brand-perception-{{ section.id }} .section-title {
+      margin-top: calc(-4px * var(--scale));
+    }
+  }
+
+  /* Headline Text Animations (Scoped) */
+
+  /* Blurry to Clear */
+  #brand-perception-{{ section.id }} .section-title.blurry_to_clear {
+    filter: blur(4px);
+    opacity: 0;
+    animation: blurryToClear-{{ section.id }} 3s forwards;
+  }
+  @keyframes blurryToClear-{{ section.id }} {
+    to {
+      filter: blur(0);
+      opacity: 1;
+    }
+  }
+
+  /* Neon Flicker */
+  #brand-perception-{{ section.id }} .section-title.neon_flicker {
+    color: #fff;
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff,
+                 0 0 20px #00e6ff, 0 0 30px #00e6ff,
+                 0 0 40px #00e6ff, 0 0 55px #00e6ff,
+                 0 0 75px #00e6ff;
+    animation: neonFlicker-{{ section.id }} 1.5s infinite alternate;
+  }
+  @keyframes neonFlicker-{{ section.id }} {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+      text-shadow: none;
+    }
+    20%, 24%, 55% {
+      text-shadow: 0 0 5px #fff, 0 0 10px #fff,
+                   0 0 20px #00e6ff, 0 0 30px #00e6ff,
+                   0 0 40px #00e6ff, 0 0 55px #00e6ff,
+                   0 0 75px #00e6ff;
+    }
+  }
+
+  /* Shimmer Gradient */
+  #brand-perception-{{ section.id }} .section-title.shimmer_gradient {
+    background: linear-gradient(90deg, #000, #fff, #000);
+    background-size: 200% 100%;
+    animation: shimmer-{{ section.id }} 2s infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  @keyframes shimmer-{{ section.id }} {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /* Glow White */
+  #brand-perception-{{ section.id }} .section-title.glow_white {
+    color: #fff;
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff;
+  }
+
+  /* Pulsing Subtle White Glow */
+  #brand-perception-{{ section.id }} .section-title.pulsing_subtle_white_glow {
+    color: #fff;
+    animation: pulsingGlow-{{ section.id }} 2s infinite;
+  }
+  @keyframes pulsingGlow-{{ section.id }} {
+    0%, 100% {
+      text-shadow: 0 0 5px #fff;
+    }
+    50% {
+      text-shadow: 0 0 10px #fff;
+    }
+  }
+
+  /* Typing Effect */
+  #brand-perception-{{ section.id }} .section-title.typing_effect {
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 0.15em solid orange;
+    animation: typing-{{ section.id }} 3.5s steps(40, end), blinkCaret-{{ section.id }} 0.75s step-end infinite;
+  }
+  @keyframes typing-{{ section.id }} {
+    from { width: 0 }
+    to { width: 100% }
+  }
+  @keyframes blinkCaret-{{ section.id }} {
+    from, to { border-color: transparent }
+    50% { border-color: orange; }
+  }
+
+  /* Fade In */
+  #brand-perception-{{ section.id }} .section-title.fade_in {
+    opacity: 0;
+    animation: fadeIn-{{ section.id }} 2s forwards;
+  }
+  @keyframes fadeIn-{{ section.id }} {
+    to { opacity: 1; }
+  }
+
+  /* Slide In Left */
+  #brand-perception-{{ section.id }} .section-title.slide_in_left {
+    transform: translateX(-100%);
+    animation: slideInLeft-{{ section.id }} 0.5s forwards;
+  }
+  @keyframes slideInLeft-{{ section.id }} {
+    to { transform: translateX(0); }
+  }
+
+  /* Bounce */
+  #brand-perception-{{ section.id }} .section-title.bounce {
+    animation: bounce-{{ section.id }} 2s infinite;
+  }
+  @keyframes bounce-{{ section.id }} {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% { transform: translateY(-30px);}
+    60% { transform: translateY(-15px);}
+  }
+
+  /* Shimmer Black Gray */
+  #brand-perception-{{ section.id }} .section-title.shimmer_black_gray {
+    background: linear-gradient(90deg, black, gray, black);
+    background-size: 200% 100%;
+    animation: shimmerBlackGray-{{ section.id }} 2s infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  @keyframes shimmerBlackGray-{{ section.id }} {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Shimmer White Light Gray */
+  #brand-perception-{{ section.id }} .section-title.shimmer_white_lightgray {
+    background: linear-gradient(90deg, white, lightgray, white);
+    background-size: 200% 100%;
+    animation: shimmerWhiteLightGray-{{ section.id }} 2s infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  @keyframes shimmerWhiteLightGray-{{ section.id }} {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Rainbow Gradient Animation */
+  #brand-perception-{{ section.id }} .section-title.rainbow_gradient {
+    background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbowAnimation-{{ section.id }} 5s ease infinite;
+  }
+  @keyframes rainbowAnimation-{{ section.id }} {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Gradient Slide */
+  #brand-perception-{{ section.id }} .section-title.gradient_slide {
+    background: linear-gradient(to right, {{ section.settings.section_title_color }}, {{ section.settings.section_description_color }});
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientSlide-{{ section.id }} 3s linear infinite;
+  }
+  @keyframes gradientSlide-{{ section.id }} {
+    to {
+      background-position: 200% center;
+    }
+  }
+
+  /* Pulsating Gradient */
+  #brand-perception-{{ section.id }} .section-title.pulsating_gradient {
+    background: linear-gradient(45deg, {{ section.settings.section_title_color }}, {{ section.settings.section_description_color }});
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: pulsateGradient-{{ section.id }} 3s ease-in-out infinite;
+  }
+  @keyframes pulsateGradient-{{ section.id }} {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* Gradient Fill Text */
+  #brand-perception-{{ section.id }} .section-title.gradient_fill_text {
+    background: linear-gradient(to right, {{ section.settings.section_title_color }}, {{ section.settings.section_description_color }});
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Gradient Sweep Glow */
+  #brand-perception-{{ section.id }} .section-title.gradient_sweep_glow {
+    position: relative;
+    color: {{ section.settings.section_title_color }};
+  }
+  #brand-perception-{{ section.id }} .section-title.gradient_sweep_glow::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(120deg, transparent, {{ section.settings.section_description_color }}, transparent);
+    animation: sweep-{{ section.id }} 3s infinite;
+  }
+  @keyframes sweep-{{ section.id }} {
+    to { left: 100%; }
+  }
+
+  /* Additional Headline Animations */
+  #brand-perception-{{ section.id }} .section-title.wave {
+    display: inline-block;
+    animation: waveAnimation-{{ section.id }} 2s infinite;
+  }
+  @keyframes waveAnimation-{{ section.id }} {
+    0% { transform: rotate(0deg); }
+    20% { transform: rotate(14deg); }
+    40% { transform: rotate(-8deg); }
+    60% { transform: rotate(14deg); }
+    80% { transform: rotate(-4deg); }
+    100% { transform: rotate(0deg); }
+  }
+
+  #brand-perception-{{ section.id }} .section-title.zoom {
+    animation: zoomAnimation-{{ section.id }} 2s infinite alternate;
+  }
+  @keyframes zoomAnimation-{{ section.id }} {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+  }
+
+  #brand-perception-{{ section.id }} .section-title.pulse {
+    animation: pulseAnimation-{{ section.id }} 2s infinite;
+  }
+  @keyframes pulseAnimation-{{ section.id }} {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Image With Text Pro 2",
+  "settings": [
+    {
+      "type": "header",
+      "content": "General Settings"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title",
+      "default": "WE LOVE INTENSE FEELINGS",
+      "info": "Enter the main title for this section."
+    },
+    {
+      "type": "textarea",
+      "id": "section_description",
+      "label": "Section Description",
+      "default": "Without a doubt, a basic, mediocre website won't leave a lasting impression on your audience.",
+      "info": "Provide a description that elaborates on the section title."
+    },
+
+    {
+      "type": "header",
+      "content": "Fonts and Typography"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_fonts",
+      "label": "Enable Custom Fonts",
+      "default": false,
+      "info": "Check to use custom fonts for the section title and description."
+    },
+    {
+      "type": "font_picker",
+      "id": "section_title_font",
+      "label": "Section Title Font",
+      "default": "sans-serif",
+      "info": "Select a custom font for the section title."
+    },
+    {
+      "type": "font_picker",
+      "id": "section_description_font",
+      "label": "Section Description Font",
+      "default": "sans-serif",
+      "info": "Select a custom font for the section description."
+
+
+      },
+    {
+
+
+
+
+       "type": "range",
+  "id": "section_title_line_height_desktop",
+  "label": "Section Title Line Height (Desktop)",
+  "min": 1,
+  "max": 2,
+  "step": 0.1,
+  "default": 1.2,
+  "info": "Adjust the line height for the section title on desktop."
+},
+{
+  "type": "range",
+  "id": "section_title_line_height_mobile",
+  "label": "Section Title Line Height (Mobile)",
+  "min": 1,
+  "max": 2,
+  "step": 0.1,
+  "default": 1.2,
+  "info": "Adjust the line height for the section title on mobile."
+    },
+    {
+      "type": "textarea",
+      "id": "font_url",
+      "label": "Font URL",
+      "info": "Enter the URL of the font you want to import. This is typically provided by font services like Google Fonts."
+    },
+    {
+      "type": "text",
+      "id": "custom_font_family",
+      "label": "Custom Font Family Name",
+      "info": "Specify the name of the custom font family to be used in the section."
+    },
+
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff",
+      "info": "Choose the background color for the entire section."
+    },
+    {
+      "type": "color",
+      "id": "section_title_color",
+      "label": "Section Title Color",
+      "default": "#000000",
+      "info": "Select the color for the section title. (This will be applied as !important)"
+    },
+    {
+      "type": "color",
+      "id": "section_description_color",
+      "label": "Section Description Color",
+      "default": "#020202",
+      "info": "Choose the color for the section description."
+    },
+    {
+      "type": "color",
+      "id": "text_container_background_color",
+      "label": "Text Container Background Color",
+      "default": "#F7F7F7",
+      "info": "Set the background color for the text container."
+    },
+
+    {
+      "type": "header",
+      "content": "Gradients"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_section_title_gradient",
+      "label": "Enable Section Title Gradient",
+      "default": false,
+      "info": "Check to apply a gradient to the section title text."
+    },
+    {
+      "type": "color",
+      "id": "section_title_gradient_start_color",
+      "label": "Section Title Gradient Start Color",
+      "default": "#000000",
+      "info": "Choose the starting color for the section title gradient."
+    },
+    {
+      "type": "color",
+      "id": "section_title_gradient_end_color",
+      "label": "Section Title Gradient End Color",
+      "default": "#FFFFFF",
+      "info": "Choose the ending color for the section title gradient."
+    },
+    {
+      "type": "range",
+      "id": "section_title_gradient_degree",
+      "label": "Section Title Gradient Degree",
+      "min": 0,
+      "max": 360,
+      "step": 3.6,
+      "default": 90,
+      "info": "Set the angle for the section title gradient."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_section_description_gradient",
+      "label": "Enable Section Description Gradient",
+      "default": false,
+      "info": "Check to apply a gradient to the section description text."
+    },
+    {
+      "type": "color",
+      "id": "section_description_gradient_start_color",
+      "label": "Section Description Gradient Start Color",
+      "default": "#000000",
+      "info": "Choose the starting color for the section description gradient."
+    },
+    {
+      "type": "color",
+      "id": "section_description_gradient_end_color",
+      "label": "Section Description Gradient End Color",
+      "default": "#FFFFFF",
+      "info": "Choose the ending color for the section description gradient."
+    },
+    {
+      "type": "range",
+      "id": "section_description_gradient_degree",
+      "label": "Section Description Gradient Degree",
+      "min": 0,
+      "max": 360,
+      "step": 3.6,
+      "default": 360,
+      "info": "Set the angle for the section description gradient."
+    },
+
+    {
+      "type": "header",
+      "content": "Media (Images)"
+    },
+    {
+      "type": "image_picker",
+      "id": "brand_image",
+      "label": "Brand Image",
+      "info": "Upload or select the image to display in this section."
+    },
+    {
+      "type": "select",
+      "id": "image_video_shape",
+      "label": "Image Shape",
+      "options": [
+        { "value": "normal", "label": "Normal" },
+        { "value": "circle", "label": "Circle" },
+        { "value": "rounded", "label": "Rounded" },
+        { "value": "square", "label": "Square" },
+        { "value": "rounded_corners", "label": "Rounded Corners" },
+        { "value": "diamond", "label": "Diamond" },
+        { "value": "hexagon", "label": "Hexagon" }
+      ],
+      "default": "normal",
+      "info": "Choose the shape of the image."
+    },
+    {
+      "type": "select",
+      "id": "brand_image_hover_animation",
+      "label": "Brand Image Hover Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "fade", "label": "Fade" },
+        { "value": "smooth_zoomin", "label": "Smooth Zoom In" }
+      ],
+      "default": "none",
+      "info": "Select an animation effect for the brand image on hover."
+    },
+
+    {
+      "type": "header",
+      "content": "Layout Options"
+    },
+    {
+      "type": "select",
+      "id": "layout_order",
+      "label": "Layout Order",
+      "options": [
+        { "value": "image_left", "label": "Image Left, Text Right" },
+        { "value": "image_right", "label": "Image Right, Text Left" }
+      ],
+      "default": "image_left",
+      "info": "Select the order of image and text."
+    },
+    {
+      "type": "range",
+      "id": "image_left_gap",
+      "label": "Image Left Gap (Desktop px)",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 10,
+      "info": "Controls spacing on larger screens when layout is 'Image Left'."
+    },
+    {
+      "type": "range",
+      "id": "image_right_gap",
+      "label": "Image Right Gap (Desktop px)",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 10,
+      "info": "Controls spacing on larger screens when layout is 'Image Right'."
+    },
+    {
+      "type": "range",
+      "id": "vertical_gap_between_image_text_mobile",
+      "label": "Vertical Gap Between Image and Texts (Mobile)",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 10,
+      "info": "Controls the vertical gap on mobile devices."
+    },
+
+    {
+      "type": "header",
+      "content": "Texts Content Alignment"
+    },
+    {
+      "type": "select",
+      "id": "text_content_alignment_desktop",
+      "label": "Texts Content Alignment (Desktop)",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center",
+      "info": "Controls text alignment on desktop."
+    },
+    {
+      "type": "select",
+      "id": "text_content_alignment_mobile",
+      "label": "Texts Content Alignment (Mobile)",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center",
+      "info": "Controls text alignment on mobile devices."
+    },
+
+    {
+      "type": "header",
+      "content": "Width and Animations"
+    },
+    {
+      "type": "range",
+      "id": "section_width",
+      "label": "Section Max Width (Desktop px)",
+      "min": 400,
+      "max": 2000,
+      "step": 100,
+      "default": 1100,
+      "info": "Controls the max width of the section content on desktop."
+    },
+    {
+      "type": "select",
+      "id": "headline_text_animation",
+      "label": "Headline Text Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "blurry_to_clear", "label": "Blurry to Clear" },
+        { "value": "shimmer_gradient", "label": "Shimmer Gradient" },
+        { "value": "glow_white", "label": "Glow White" },
+        { "value": "pulsing_subtle_white_glow", "label": "Pulsing Subtle White Glow" },
+        { "value": "fade_in", "label": "Fade In" },
+        { "value": "slide_in_left", "label": "Slide In Left" },
+        { "value": "bounce", "label": "Bounce" },
+        { "value": "shimmer_black_gray", "label": "Shimmer Black and Gray" },
+        { "value": "shimmer_white_lightgray", "label": "Shimmer White and Light Gray" },
+        { "value": "rainbow_gradient", "label": "Rainbow Gradient Animation" },
+        { "value": "wave", "label": "Wave" },
+        { "value": "zoom", "label": "Zoom" },
+        { "value": "pulse", "label": "Pulse" }
+      ],
+      "default": "none",
+      "info": "Select an animation effect for the section title."
+    },
+    {
+      "type": "select",
+      "id": "section_animation",
+      "label": "Section Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "fade_in", "label": "Fade In" },
+        { "value": "fade_in_left", "label": "Fade In Left" },
+        { "value": "slide_in_right", "label": "Slide In Right" },
+        { "value": "zoom_in", "label": "Zoom In" },
+        { "value": "rotate", "label": "Rotate" }
+      ],
+      "default": "none",
+      "info": "Choose an animation for the entire section."
+    },
+
+    {
+      "type": "header",
+      "content": "Scaling and Padding"
+    },
+    {
+      "type": "range",
+      "id": "section_scale",
+      "label": "Section Scale",
+      "min": 0.5,
+      "max": 1.5,
+      "step": 0.1,
+      "default": 0.9,
+      "info": "Adjust the overall scale of the section."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "label": "Section Top Padding (Desktop)",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "default": 60,
+      "info": "Top padding for the section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "label": "Section Bottom Padding (Desktop)",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "default": 60,
+      "info": "Bottom padding for the section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "label": "Section Top Padding (Mobile)",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "default": 40,
+      "info": "Top padding for the section on mobile."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "label": "Section Bottom Padding (Mobile)",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "default": 40,
+      "info": "Bottom padding for the section on mobile."
+    },
+
+    {
+      "type": "header",
+      "content": "Font Sizes and Padding"
+    },
+    {
+      "type": "range",
+      "id": "section_title_size_desktop",
+      "label": "Section Title Size (Desktop)",
+      "min": 20,
+      "max": 100,
+      "step": 1,
+      "default": 58,
+      "info": "Adjust the font size of the section title on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_title_size_mobile",
+      "label": "Section Title Size (Mobile)",
+      "min": 20,
+      "max": 100,
+      "step": 1,
+      "default": 31,
+      "info": "Adjust the font size of the section title on mobile."
+    },
+    {
+      "type": "range",
+      "id": "section_description_size_desktop",
+      "label": "Section Description Size (Desktop)",
+      "min": 12,
+      "max": 48,
+      "step": 1,
+      "default": 21,
+      "info": "Adjust the font size of the section description on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_description_size_mobile",
+      "label": "Section Description Size (Mobile)",
+      "min": 12,
+      "max": 48,
+      "step": 1,
+      "default": 22,
+      "info": "Adjust the font size of the section description on mobile."
+    },
+    {
+      "type": "range",
+      "id": "section_title_padding_left_desktop",
+      "label": "Section Title Left Padding (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 0,
+      "info": "Left padding for the section title on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_title_padding_right_desktop",
+      "label": "Section Title Right Padding (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 0,
+      "info": "Right padding for the section title on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_title_padding_left_mobile",
+      "label": "Section Title Left Padding (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 0,
+      "info": "Left padding for the section title on mobile."
+    },
+    {
+      "type": "range",
+      "id": "section_title_padding_right_mobile",
+      "label": "Section Title Right Padding (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 0,
+      "info": "Right padding for the section title on mobile."
+    },
+    {
+      "type": "range",
+      "id": "section_description_padding_left_desktop",
+      "label": "Section Description Left Padding (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 0,
+      "info": "Left padding for the section description on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_description_padding_right_desktop",
+      "label": "Section Description Right Padding (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 0,
+      "info": "Right padding for the section description on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_description_padding_left_mobile",
+      "label": "Section Description Left Padding (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 0,
+      "info": "Left padding for the section description on mobile."
+    },
+    {
+      "type": "range",
+      "id": "section_description_padding_right_mobile",
+      "label": "Section Description Right Padding (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 0,
+      "info": "Right padding for the section description on mobile."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image With Text 2 Pro",
+         "category": "Image With Text"
+    }
+  ]
+}
+{% endschema %}

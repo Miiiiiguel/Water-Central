@@ -1,0 +1,269 @@
+<style>
+     /* Container for search results */
+     .search-list-item-custom {
+       --col-width: 27rem;
+
+     }
+
+     /* Search results list with responsive columns */
+     .search-results-list-custom {
+       --col-number: 1;
+       --col-tablet: 1;
+       --col-desktop-small: 4;
+       --col-desktop: 5;
+     }
+  .search-empty-icon {
+    color: var(--color-heading) !important;
+  }
+
+       .quick-search .quick-search-title {
+       color: #000;  /* Change to desired color */
+
+       font-size: 52px;
+    }
+     /* Additional styling for search results empty state */
+     .search-results-empty p {
+       font-size: 16px;
+       color: #555555;
+       margin-top: 10px;
+     }
+
+     /* SVG styling if needed */
+     .search-results-empty svg {
+       margin-bottom: 15px;
+     }
+
+     /* Button styling override if necessary */
+     .view-all a.btn-primary {
+       /* Example: Change button color */
+
+     background-color: var(--view-all-button-bg);
+      color: var(--view-all-button-text);
+      border-radius: var(--view-all-button-radius);
+       border: none;
+        transition: all 0.3s ease, transform 0.3s ease;
+       padding: 10px 20px;
+
+       text-decoration: none;
+     }
+
+     .view-all a.btn-primary:hover {
+       background-color: var(--view-all-button-hover-bg) !important;
+      color: var(--view-all-button-hover-text) !important;
+      border-radius: var(--view-all-button-hover-radius) !important;
+      transform: translateY(-3px) !important;
+     }
+
+     /* Responsive grid adjustments */
+     .search-results-list.grid {
+       display: grid;
+       grid-template-columns: repeat(var(--col-number), 1fr);
+       gap: var(--gap, 15px);
+     }
+
+     @media (min-width: 768px) {
+       .search-results-list.grid {
+         grid-template-columns: repeat(var(--col-tablet), 1fr);
+          }
+
+
+       .quick-search .quick-search-title {
+       color: #000;  /* Change to desired color */
+
+       font-size: 22px;
+       }
+
+     }
+
+     @media (min-width: 1024px) {
+       .search-results-list.grid {
+         grid-template-columns: repeat(var(--col-desktop-small), 1fr);
+          }
+
+
+       .quick-search .quick-search-title {
+       color: #000;  /* Change to desired color */
+
+       font-size: 23px;
+       }
+     }
+
+     @media (min-width: 1440px) {
+       .search-results-list.grid {
+         grid-template-columns: repeat(var(--col-desktop), 1fr);
+       }
+     }
+</style>
+
+{% liquid
+  assign theme_st = settings
+  assign show_search_price = theme_st.show_search_price
+  assign search_type = theme_st.search_type
+  assign predictive_type = predictive_search
+  assign results_count = predictive_type.resources.products.size
+  assign results = predictive_type.resources.products
+  assign product_grid_list = ''
+  if search_type == 'default' or search_type == 'popup'
+    assign product_grid_list = 'normal'
+  else
+    assign product_grid_list = 'list'
+  endif
+-%}
+{%- if predictive_type.performed -%}
+  {%- liquid
+    assign theme_st = settings
+    assign search_terms = predictive_type.terms
+    assign key_terms = search_terms
+    if search_terms contains 'product_type:'
+      assign arr_terms = search_terms | remove: 'product_type:' | split: ' AND '
+      assign product_type = arr_terms[0] | strip
+      assign search_terms = arr_terms[1] | strip
+      if search_terms == blank
+        assign key_terms = key_terms | remove: ' AND '
+        assign search_terms = product_type
+      endif
+    endif
+    assign search_result = theme_st.search_result
+  -%}
+  <div
+    class="search-list-item search-list-item-custom{% if search_type == 'default' or search_type == 'popup' %} mt-25{% endif %}{% if search_result == 'all' and search_type != 'drawer' %}{% if predictive_search.resources.pages.size > 0 or predictive_search.resources.articles.size > 0 or predictive_search.resources.collections.size > 0 %} flex gap-30 flex-wrap{% endif %}{% endif %}"
+  >
+    {%- if results_count > 0 -%}
+      {% if search_result == 'all' and search_type != 'drawer' %}
+        {% # theme-check-disable UnclosedHTMLElement %}
+        {%- if predictive_search.resources.pages.size > 0 or predictive_search.resources.articles.size > 0 -%}
+          <div class="search_product w-full col-md-remaining">
+        {% endif %}
+        {% # theme-check-disable UnclosedHTMLElement %}
+      {% endif %}
+      <div class="fs-18 subheading_weight mb-22 heading-letter-spacing lh-normal">
+        {{ 'templates.search.search_for_html' | t: terms: search_terms }}
+      </div>
+
+      <div id="search-results">
+        <div
+          id="search-results-list"
+          class="search-results-list grid{% if search_type == 'default' or search_type == 'popup' %} grid-cols gap-15 gap-lg-20 search-results-list-custom{% endif %}"
+        >
+          {%- for product in results limit: 5 -%}
+            {% render 'product-item',
+              card_product: product,
+              section_id: section.id,
+              template_enable_action: false,
+              template_enable_product_vendor: false,
+              template_enable_rate: true,
+              template_enable_price: show_search_price,
+              template_enable_product_short_description: false,
+              template_enable_color_swatches: false,
+              type: product_grid_list
+            %}
+          {%- endfor -%}
+        </div>
+      </div>
+      {% # theme-check-disable UnclosedHTMLElement %}
+      {% if search_result == 'all' and search_type != 'drawer' %}
+        {%- if predictive_search.resources.pages.size > 0
+          or predictive_search.resources.articles.size > 0
+          or predictive_search.resources.collections.size > 0
+        -%}
+          </div>
+        {% endif %}
+      {% endif %}
+      {% # theme-check-disable UnclosedHTMLElement %}
+      {% if search_result == 'all' %}
+        {%- if predictive_search.resources.pages.size > 0
+          or predictive_search.resources.articles.size > 0
+          or predictive_search.resources.collections.size > 0
+        -%}
+          <div class="w-full{% if search_type == 'default' or search_type == 'popup' %} col-md-w-custom{% else %} mt-30{% endif %}">
+            {%- if predictive_search.resources.pages.size > 0 -%}
+              <div class="mb-20">
+                <h3 class="h5 mt-0 mb-8 heading-letter-spacing">
+                  {{ 'templates.search.pages' | t }}
+                </h3>
+                {%- for page in predictive_search.resources.pages -%}
+                  <a
+                    class="predictive-search__item no-underline heading-color subheading_weight block"
+                    href="{{ page.url }}"
+                    aria-label="{{ page.title }}"
+                    aria-selected="false"
+                    role="option"
+                  >
+                    {{ page.title }}
+                  </a>
+                {%- endfor -%}
+              </div>
+            {% endif %}
+            {%- if predictive_search.resources.articles.size > 0 -%}
+              <div class="mb-20">
+                <h3 class="h5 mt-0 mb-8 heading-letter-spacing">
+                  {{ 'templates.search.article' | t }}
+                </h3>
+                {%- for articles in predictive_search.resources.articles -%}
+                  <a
+                    class="predictive-search__item no-underline heading-color subheading_weight block"
+                    href="{{ articles.url }}"
+                    aria-label="{{ articles.title }}"
+                    aria-selected="false"
+                    role="option"
+                  >
+                    {{ articles.title }}
+                  </a>
+                {%- endfor -%}
+              </div>
+            {% endif %}
+            {%- if predictive_search.resources.collections.size > 0 -%}
+              <div class="mb-20">
+                <h3 class="h5 mt-0 mb-8 heading-letter-spacing">
+                  {{ 'templates.search.pages' | t }}
+                </h3>
+
+                {%- for collection in predictive_search.resources.collections -%}
+                  <a
+                    class="predictive-search__item no-underline heading-color subheading_weight block"
+                    href="{{ collection.url }}"
+                    aria-label="{{ collection.title }}"
+                    aria-selected="false"
+                    role="option"
+                  >
+                    {{ collection.title }}
+                  </a>
+                {%- endfor -%}
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endif %}
+      {% if results_count > 0 %}
+        <div class="view-all text-center mt-30 w-full">
+          <a
+            class="btn btn-primary no-underline inline-block"
+            href="{{ routes.search_url }}?type=product&options%5Bfields%5D=title,vendor,product_type,variants.title,variants.sku&options%5Bunavailable_products%5D=last&options%5Bprefix%5D=last&q={{ key_terms | url_escape }}"
+          >
+            View All
+          </a>
+        </div>
+      {% endif %}
+    {%- else -%}
+      <div id="search-results-empty" class="text-center search-results-empty">
+        <svg
+          width="26"
+          height="25"
+          viewBox="0 0 26 25"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          class="search-empty-icon"
+        >
+          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+          <g id="SVGRepo_iconCarrier">
+            <path d="M9 11H11H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M16 16L20 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M4 11C4 14.866 7.13401 18 11 18C12.9363 18 14.6891 17.2138 15.9563 15.9432C17.2192 14.6769 18 12.9296 18 11C18 7.13401 14.866 4 11 4C7.13401 4 4 7.13401 4 11Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </g>
+        </svg>
+        <p>No results were found for your search.</p>
+      </div>
+    {% endif %}
+  </div>
+{% endif %}

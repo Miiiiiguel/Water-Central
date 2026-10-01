@@ -1,0 +1,854 @@
+{% style %}
+:root {
+--loudz-neutral-100: #222;
+--loudz-neutral-70: #5e5e5e;
+--loudz-neutral-01: #fff;
+--loudz-alpha-black-10: rgba(34, 34, 34, 0.1);
+--loudz-size-0: 0px;
+--loudz-size-1: 1px;
+--loudz-size-2: 2px;
+--loudz-size-4: 4px;
+--loudz-size-6: 6px;
+--loudz-size-8: 8px;
+--loudz-size-12: 12px;
+--loudz-size-14: 14px;
+--loudz-size-16: 16px;
+--loudz-size-20: 20px;
+--loudz-size-24: 24px;
+--loudz-size-32: 32px;
+--loudz-size-40: 40px;
+--loudz-font-weight-400: 400;
+--loudz-font-weight-600: 600;
+--loudz-line-height-140: 1.4;
+--loudz-text-decoration-none: none;
+--loudz-text-decoration-underline: underline;
+--loudz-text-decoration-line-through: line-through;
+--loudz-border-width-1: var(--loudz-size-1);
+--loudz-color-bg-fill-default-on-light: var(--loudz-neutral-100);
+--loudz-color-bg-fill-inverse-on-light: var(--loudz-neutral-01);
+--loudz-color-text-default-on-light: var(--loudz-neutral-100);
+--loudz-color-text-disable-on-light: var(--loudz-neutral-70);
+--loudz-color-text-on-bg-fill-on-light: var(--loudz-neutral-01);
+--loudz-color-border-hover-on-dark: var(--loudz-alpha-black-10);
+--loudz-space-0: var(--loudz-size-0);
+--loudz-space-2: var(--loudz-size-2);
+--loudz-space-4: var(--loudz-size-4);
+--loudz-space-6: var(--loudz-size-6);
+--loudz-space-8: var(--loudz-size-8);
+--loudz-space-12: var(--loudz-size-12);
+--loudz-space-16: var(--loudz-size-16);
+--loudz-space-20: var(--loudz-size-20);
+--loudz-space-24: var(--loudz-size-24);
+--loudz-space-32: var(--loudz-size-32);
+--loudz-space-40: var(--loudz-size-40);
+--loudz-font-size-14: var(--loudz-size-14);
+}
+
+
+{% endstyle %}
+
+<!-- --UUID-32557de6-- -->
+
+<section class="loudz-{{ section.id | handle }}">
+	{%- capture card_has_bg_color -%}
+		{%- case section.settings.product_card_background_color -%}
+			{%- when '' or 'rgba(0,0,0,0)' -%}
+				false
+			{%- else -%}
+				true
+		{%- endcase -%}
+	{%- endcapture -%}
+	{%- capture card_has_border_color -%}
+		{%- case section.settings.product_card_border_color -%}
+			{%- when '' or 'rgba(0,0,0,0)' -%}
+				false
+			{%- else -%}
+				true
+		{%- endcase -%}
+	{%- endcapture -%}
+
+	{% for block in section.blocks %}
+		{% case block.type %}
+			{% when "heading" %}
+				{% assign heading_block = block %}
+			{% when "products" %}
+				{% assign products_block = block %}
+			{% when "banner" %}
+				{% assign banner_block = block %}
+		{% endcase %}
+	{% endfor %}
+
+	<div class="loudzProductsGridBanner
+						{% if section.settings.section_width == 100 %}loudzProductsGridBanner--fullWidth{% endif %}">
+		{%- if heading_block.settings.heading != blank -%}
+			<h2
+				class="
+					loudzProductsGridBanner__Heading
+					loudzProductsGridBanner__Heading--style-{{ heading_block.settings.heading_style }}
+					loudzProductsGridBanner__Heading--alignment-{{ heading_block.settings.heading_alignment }}
+				"
+				{{ heading_block.shopify_attributes }}
+			>
+				{{ heading_block.settings.heading }}
+			</h2>
+		{%- endif -%}
+		<div class="loudzProductsGridBanner__Content 
+				loudzProductsGridBanner__Content--bannerPlacement-{{ banner_block.settings.banner_placement }}">
+			<div class="loudzProductsGridBanner__Banner" {{ banner_block.shopify_attributes }}>
+				<div class="loudzProductsGridBannerImage">
+					{%- if banner_block.settings.banner_image != blank -%}
+						<div class="loudzProductsGridBannerImage__ImageContainer">
+							{{-
+								banner_block.settings.banner_image
+								| image_url: width: section.settings.image_desktop.width
+								| image_tag:
+									sizes: "100vw",
+									widths: "400, 600, 800, 1200, 1600, 1800, 2400, 2800, 3200",
+									fetchpriority: "low",
+									loading: "lazy",
+									class: "loudzProductsGridBannerImage__Image"
+							-}}
+						</div>
+					{%- else -%}
+						<img
+							src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+							alt="Image with an abstract figure"
+							width="580"
+							height="580"
+							loading="lazy"
+							sizes="100vw"
+							fetchpriority="low"
+							class="loudzProductsGridBannerImage__Image"
+						>
+					{%- endif -%}
+				</div>
+				<div
+					class="
+						loudzProductsGridBannerTextContent
+						loudzProductsGridBannerTextContent--desktopPosition-{{ banner_block.settings.desktop_content_position }}
+						loudzProductsGridBannerTextContent--mobilePosition-{{ banner_block.settings.mobile_content_position }}
+						{% if products_block.settings.product_list.count <= 3 and section.settings.image_aspect_ratio == 'landscape' %}loudzProductsGridBannerTextContent--smallPadding{% endif %}
+					"
+				>
+					{%- if banner_block.settings.banner_heading != blank -%}
+						<h2 class="loudzProductsGridBannerTextContent__Heading loudzProductsGridBannerTextContent__Heading--style-{{ banner_block.settings.banner_heading_style }}">
+							{{ banner_block.settings.banner_heading }}
+						</h2>
+					{%- endif -%}
+					{%- if banner_block.settings.banner_description != blank -%}
+						<div class="loudzProductsGridBannerTextContent__Description">
+							{{ banner_block.settings.banner_description }}
+						</div>
+					{%- endif -%}
+					{% if banner_block.settings.banner_button_label != blank %}
+						<div class="loudzProductsGridBannerTextContent__Button">
+							<a
+								class="loudzProductsGridBannerTextContentButton loudzProductsGridBannerTextContentButton--{{ banner_block.settings.banner_button_style }}"
+								href="{{ banner_block.settings.banner_button_link | default: "#" }}"
+							>
+								{{- banner_block.settings.banner_button_label | escape -}}
+							</a>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+			<div class="loudzProductsGridBanner__Products" {{ products_block.shopify_attributes }}>
+				{% if products_block.settings.product_list.count > 0 %}
+					{% for product in products_block.settings.product_list %}
+						<div
+							class="
+								loudzProductsGridProdCard
+								{% if card_has_border_color == 'true' %}loudzProductsGridProdCard--hasBorder{% endif %}
+								{% if card_has_bg_color == 'true' %}loudzProductsGridProdCard--hasBackground{% endif %}"
+						>
+							<div class="loudzProductsGridProdCard__Container">
+								<div class="loudzProductsGridProdCardImageContainer 
+										 loudzProductsGridProdCardImageContainer--{{ section.settings.image_aspect_ratio }}
+										 {% if section.settings.show_second_image_on_hover == false %}
+											loudzProductsGridProdCardImageContainer--defaultHover
+										 {% endif %}">
+									<a href="{{ product.url }}">
+										<img
+											class="loudzProductsGridProdCardImage primary-image"
+											src="{{ product.images[0].src | image_url }}"
+											alt="{{ product.images[0].alt }}"
+											width="100%"
+											height="100%"
+										>
+										{%- if section.settings.show_second_image_on_hover and product.images[1] -%}
+											<img
+												class="loudzProductsGridProdCardImage secondary-image"
+												src="{{ product.images[1].src | image_url }}"
+												alt="{{ product.images[1].alt }}"
+												width="100%"
+												height="100%"
+											>
+										{%- endif -%}
+									</a>
+								</div>
+								<div class="loudzProductsGridProdCardTextContainer">
+									{% if section.settings.show_vendor %}
+										<div class="loudzProductsGridProdCardTextContainer__Vendor">
+											{{ product.vendor }}
+										</div>
+									{% endif %}
+									<p
+										class="loudzProductsGridProdCardTextContainer__ProductTitle"
+										title="{{ product.title }}"
+									>
+										<a href="{{ product.url }}">{{ product.title }}</a>
+									</p>
+									<div class="loudzProductsGridProdCardTextContainer__Prices">
+										{% if product.compare_at_price %}
+											<span class="loudzProductsGridProdCardInitialPrice">
+												{{- product.compare_at_price | money -}}
+											</span>
+										{% endif %}
+										<span class="loudzProductsGridProdCardPrice {% if product.compare_at_price %}price-with-red{% endif %}">
+											{{ product.price | money }}
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				{% endif %}
+
+				{% comment %}  ***** This block is generated as sample to allow user changes until the products are added to the list ***** {% endcomment %}
+				{% if products_block.settings.product_list.count == 0 %}
+					{% for i in (1..6) %}
+						<div
+							class="
+								loudzProductsGridProdCard
+								{% if card_has_border_color == 'true' %}loudzProductsGridProdCard--hasBorder{% endif %}
+								{% if card_has_bg_color == 'true' %}loudzProductsGridProdCard--hasBackground{% endif %}
+							"
+						>
+							<div class="loudzProductsGridProdCard__Container">
+								<div class="loudzProductsGridProdCardImageContainer loudzProductsGridProdCardImageContainer--{{ section.settings.image_aspect_ratio }}
+								 {% if section.settings.show_second_image_on_hover == false %}
+									loudzProductsGridProdCardImageContainer--defaultHover
+								 {% endif %}">
+									<a href="#">
+										<img
+											class="loudzProductsGridProdCardImage primary-image"
+											src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+											alt="Image with an abstract figure"
+											width="580"
+											height="580"
+											loading="lazy"
+											sizes="100vw"
+											fetchpriority="low"
+										>
+									</a>
+								</div>
+								<div class="loudzProductsGridProdCardTextContainer">
+									{% if section.settings.show_vendor %}
+										<div class="loudzProductsGridProdCardTextContainer__Vendor">VENDOR</div>
+									{% endif %}
+									<p
+										class="loudzProductsGridProdCardTextContainer__ProductTitle"
+										title="Product title"
+									>
+										<a href="#">Product title</a>
+									</p>
+									<div class="loudzProductsGridProdCardTextContainer__Prices">
+										<span class="loudzProductsGridProdCardPrice"> $100.00 </span>
+									</div>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</section>
+
+{% schema %}
+{
+	"name": "Featured Products",
+	"max_blocks": 3,
+	"disabled_on": {
+		"groups": ["header", "footer"]
+	},
+	"settings": [
+		{
+			"type": "range",
+			"id": "vertical_padding",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Top - bottom padding (desktop)",
+			"default": 30
+		},
+		{
+			"type": "range",
+			"id": "vertical_margin",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Top - bottom margin (desktop)",
+			"default": 30
+		},
+		{
+			"type": "range",
+			"id": "vertical_padding_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Top - bottom padding (mobile)",
+			"default": 30
+		},
+		{
+			"type": "range",
+			"id": "vertical_margin_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Top - bottom margin (mobile)",
+			"default": 30
+		},
+		{
+			"type": "header",
+			"content": "Product card settings"
+		},
+		{
+			"type": "select",
+			"id": "image_aspect_ratio",
+			"options": [
+				{
+					"value": "square",
+					"label": "Square"
+				},
+				{
+					"value": "portrait",
+					"label": "Portrait"
+				},
+				{
+					"value": "landscape",
+					"label": "Landscape"
+				}
+			],
+			"default": "square",
+			"label": "Product image aspect ratio"
+		},
+		{
+			"type": "color",
+			"id": "product_card_background_color",
+			"label": "Product card background color"
+		},
+		{
+			"type": "color",
+			"id": "product_card_border_color",
+			"label": "Product card border color"
+		},
+		{
+			"type": "range",
+			"id": "product_card_gap",
+			"label": "Space between product cards",
+			"min": 4,
+			"max": 40,
+			"step": 2,
+			"default": 28,
+			"unit": "px"
+		},
+		{
+			"type": "range",
+			"id": "cards_radius",
+			"label": "Corner radius",
+			"min": 0,
+			"max": 40,
+			"step": 2,
+			"default": 8,
+			"unit": "px"
+		},
+		{
+			"type": "checkbox",
+			"id": "show_second_image_on_hover",
+			"label": "Show second image on hover",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "show_vendor",
+			"label": "Show vendor",
+			"default": false
+		},
+		{
+			"type": "checkbox",
+			"id": "show_product_rating",
+			"label": "Show product rating",
+			"default": false,
+			"info": "Show reviews."
+		},
+		{
+			"type": "select",
+			"id": "product_text_alignment",
+			"options": [
+				{
+					"value": "left",
+					"label": "Left"
+				},
+				{
+					"value": "center",
+					"label": "Center"
+				},
+				{
+					"value": "right",
+					"label": "Right"
+				}
+			],
+			"default": "center",
+			"label": "Text alignment"
+		},
+		{
+			"type": "range",
+			"id": "product_name_vendor_size",
+			"label": "Product name and Vendor size",
+			"min": 12,
+			"max": 16,
+			"step": 2,
+			"unit": "px",
+			"default": 16
+		},
+		{
+			"type": "range",
+			"id": "price_size",
+			"label": "Price size",
+			"min": 12,
+			"max": 16,
+			"step": 2,
+			"unit": "px",
+			"default": 16
+		},
+		{
+			"type": "color",
+			"id": "product_card_text_color",
+			"label": "Text color",
+			"default": "#222222"
+		},
+		{
+			"type": "color",
+			"id": "product_card_discounted_price_color",
+			"label": "Discounted price color",
+			"default": "#FF4B4B"
+		},
+		{
+			"type": "header",
+			"content": "Design"
+		},
+		{
+			"type": "color",
+			"id": "section_background",
+			"label": "Section background"
+		},
+		{
+			"type": "range",
+			"id": "section_width",
+			"min": 80,
+			"max": 100,
+			"step": 1,
+			"unit": "%",
+			"label": "Section width",
+			"default": 80
+
+		}
+	],
+	"blocks": [
+		{
+			"type": "heading",
+			"limit": 1,
+			"name": "Heading",
+			"settings": [
+				{
+					"type": "text",
+					"id": "heading",
+					"label": "Heading"				
+				},
+				{
+					"type": "select",
+					"id": "heading_alignment",
+					"label": "Heading alignment",
+					"options": [
+						{
+							"value": "left",
+							"label": "Left"
+						},
+						{
+							"value": "center",
+							"label": "Center"
+						},
+						{
+							"value": "right",
+							"label": "Right"
+						}
+					],
+					"default": "center"
+				},
+				{
+					"type": "range",
+					"id": "heading_size",
+					"label": "Heading size",
+					"min": 24,
+					"max": 48,
+					"step": 4,
+					"unit": "px",
+					"default": 32
+				},
+				{
+					"type": "select",
+					"id": "heading_style",
+					"label": "Heading style",
+					"options": [
+						{
+							"value": "bold",
+							"label": "Bold"
+						},
+						{
+							"value": "regular",
+							"label": "Regular"
+						}
+					],
+					"default": "bold"
+				},
+				{
+					"type": "color",
+					"id": "heading_color",
+					"label": "Heading color",
+					"default": "#222222"
+				}
+			]
+		},
+		{
+			"type": "products",
+			"limit": 1,
+			"name": "Products",
+			"settings": [
+				{
+					"type": "product_list",
+					"id": "product_list",
+					"label": "Products",
+					"limit": 6,
+					"info": "Choose up to 6 products"
+				}
+			]
+		},
+		{
+			"type": "banner",
+			"limit": 1,
+			"name": "Image Banner",
+			"settings": [
+				{
+					"type": "header",
+					"content": "Image settings"
+				},
+				{
+					"type": "image_picker",
+					"id": "banner_image",
+					"label": "Image"
+				},
+				{
+					"type": "color",
+					"id": "banner_overlay_color",
+					"label": "Banner overlay color",
+					"default": "#222222"
+				},
+				{
+					"type": "range",
+					"id": "bannner_overlay_opacity",
+					"label": "Banner opacity",
+					"min": 0,
+					"max": 100,
+					"step": 2,
+					"unit": "%",
+					"default": 0
+				},
+				{
+					"type": "select",
+					"id": "banner_placement",
+					"label": "Banner position",
+					"options": [
+						{
+							"value": "left",
+							"label": "Left"
+						},
+						{
+							"value": "right",
+							"label": "Right"
+						}
+					],
+					"default": "left"
+				},
+				{
+					"type": "header",
+					"content": "Text settings"
+				},
+				{
+					"type": "select",
+					"id": "desktop_content_position",
+					"label": "Position on desktop",
+					"options": [
+						{
+							"value": "top-left",
+							"label": "Top left"
+						},
+						{
+							"value": "top-center",
+							"label": "Top center"
+						},
+						{
+							"value": "top-right",
+							"label": "Top right"
+						},
+						{
+							"value": "center-left",
+							"label": "Center left"
+						},
+						{
+							"value": "center-center",
+							"label": "Center center"
+						},
+						{
+							"value": "center-right",
+							"label": "Center right"
+						},
+						{
+							"value": "bottom-left",
+							"label": "Bottom left"
+						},
+						{
+							"value": "bottom-center",
+							"label": "Bottom center"
+						},
+						{
+							"value": "bottom-right",
+							"label": "Bottom right"
+						}
+					],
+					"default": "bottom-center"
+				},
+				{
+					"type": "select",
+					"id": "mobile_content_position",
+					"label": "Position on mobile",
+					"options": [
+						{
+							"value": "top",
+							"label": "Top"
+						},
+						{
+							"value": "center",
+							"label": "Center"
+						},
+						{
+							"value": "bottom",
+							"label": "Bottom"
+						}
+					],
+					"default": "center"
+				},
+				{
+					"type": "text",
+					"id": "banner_heading",
+					"label": "Heading",
+					"default": "Banner Text "
+				},
+				{
+					"type": "range",
+					"id": "banner_heading_size",
+					"label": "Heading size",
+					"min": 24,
+					"max": 48,
+					"step": 4,
+					"unit": "px",
+					"default": 32
+				},
+				{
+					"type": "select",
+					"id": "banner_heading_style",
+					"label": "Heading style",
+					"options": [
+						{
+							"value": "regular",
+							"label": "Regular"
+						},
+						{
+							"value": "bold",
+							"label": "Bold"
+						}
+					],
+					"default": "regular"
+				},
+				{
+					"type": "richtext",
+					"id": "banner_description",
+					"label": "Description",
+					"default": "<p>Eat em lroes m ipsum this lenght ; Lorem ipsum dolor sit amet consectetur adipiscing elit.</p>"
+				},
+				{
+					"type": "range",
+					"id": "banner_description_size",
+					"label": "Description size",
+					"min": 14,
+					"max": 20,
+					"step": 2,
+					"unit": "px",
+					"default": 16
+				},
+				{
+					"type": "color",
+					"id": "banner_text_color",
+					"label": "Text color",
+					"default": "#222222"
+				},
+				{
+					"type": "header",
+					"content": "Button settings"
+				},
+				{
+					"type": "text",
+					"id": "banner_button_label",
+					"label": "Label",
+					"default": "Shop Now"
+				},
+				{
+					"type": "url",
+					"id": "banner_button_link",
+					"label": "Button URL"
+				},
+				{
+					"type": "select",
+					"id": "banner_button_style",
+					"label": "Button style",
+					"options": [
+						{
+							"value": "solid",
+							"label": "Filled"
+						},
+						{
+							"value": "outline",
+							"label": "Outline"
+						},
+						{
+							"value": "link",
+							"label": "Link"
+						}
+					],
+					"default": "solid"
+				},
+				{
+					"type": "color",
+					"id": "banner_button_text_color",
+					"label": "Text color",
+					"default": "#ffffff"
+				},
+				{
+					"type": "color",
+					"id": "banner_button_background_color",
+					"label": "Background color",
+					"default": "#222222",
+					"visible_if": "{{ block.settings.banner_button_style == 'solid' }}"
+				},
+
+				{
+					"type": "color",
+					"id": "banner_button_border_color",
+					"label": "Border color",
+					"default": "#222222",
+					"visible_if": "{{ block.settings.banner_button_style == 'outline' }}"
+				},
+				{
+					"type": "range",
+					"id": "banner_button_corner_radius",
+					"min": 0,
+					"max": 100,
+					"step": 2,
+					"unit": "px",
+					"label": "Corner radius",
+					"visible_if": "{{ block.settings.banner_button_style != 'link' }}",
+					"default": 6
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Multiple Featured Products",
+			"category": "Products",
+			"blocks": [
+				{
+					"type": "heading",
+					"settings": {}
+				},
+				{
+					"type": "products",
+					"settings": {}
+				},
+				{
+					"type": "banner",
+					"settings": {}
+				}
+			]
+		}
+	]
+}
+{% endschema %}
+
+{% style %}
+	.loudz-{{ section.id | handle }} {
+		--section-vertical-padding: {{- section.settings.vertical_padding -}}px;
+		--section-vertical-padding-mobile: {{- section.settings.vertical_padding_mobile -}}px;
+		--section-vertical-margin: {{- section.settings.vertical_margin -}}px;
+		--section-vertical-margin-mobile: {{- section.settings.vertical_margin_mobile -}}px;
+		--section-background-color: {{ section.settings.section_background }};
+		--section-max-width: {{- section.settings.section_max_width -}}px;
+		--section-width: {{- section.settings.section_width -}}%;
+
+		--cards-radius: {{ section.settings.cards_radius }}px;
+
+		--section-heading-color: {{ heading_block.settings.heading_color }};
+		--section-heading-alignment: {{ heading_block.settings.heading_alignment }};
+		--section-heading-size: {{ heading_block.settings.heading_size }}px;
+
+		--product-card-background-color: {{ section.settings.product_card_background_color }};
+		--product-card-text-alignment: {{ section.settings.product_text_alignment }};
+		--product-card-border-color: {{ section.settings.product_card_border_color }};
+		--product-card-discounted-price-color: {{ section.settings.product_card_discounted_price_color }};
+		--product-card-space-between: {{ section.settings.product_card_gap }}px;
+		--product-card-text-color: {{ section.settings.product_card_text_color }};
+		--product-name-and-vendor-size: {{ section.settings.product_name_vendor_size }}px;
+		--product-price-size: {{ section.settings.price_size }}px;
+		--product-card-rating: {%- if section.settings.show_product_rating != true -%}none{%- else -%}block{%- endif -%};
+
+		--banner-overlay-color: {{ banner_block.settings.banner_overlay_color }};
+		--banner-overlay-opacity: {{ banner_block.settings.bannner_overlay_opacity }}%;
+		--banner-heading: {{ banner_block.settings.banner_heading }};
+		--banner-heading-size: {{ banner_block.settings.banner_heading_size }}px;
+		--banner-description: {{ banner_block.settings.banner_description }};
+		--banner-description-size: {{ banner_block.settings.banner_description_size }}px;
+		--banner-text-color: {{ banner_block.settings.banner_text_color }};
+		--banner-button-text-color: {{ banner_block.settings.banner_button_text_color }};
+		--banner-button-corner-radius: {{ banner_block.settings.banner_button_corner_radius }}px;
+		--banner-button-background-color: {{ banner_block.settings.banner_button_background_color }};
+		--banner-button-border-color: {{ banner_block.settings.banner_button_border_color }};
+	}
+
+	
+
+.loudz-{{ section.id | handle }}{background-color:var(--section-background-color)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner{margin:var(--section-vertical-margin-mobile) auto;padding:var(--section-vertical-padding-mobile) 0;list-style-type:none;gap:var(--loudz-space-32);display:flex;flex-direction:column;max-width:var(--section-max-width);width:var(--section-width)}@media(min-width: 992px){.loudz-{{ section.id | handle }} .loudzProductsGridBanner{margin:var(--section-vertical-margin) auto;padding:var(--section-vertical-padding) 0 var(--section-vertical-padding) 0;gap:var(--loudz-space-40);max-width:var(--section-max-width);width:var(--section-width)}}.loudz-{{ section.id | handle }} .loudzProductsGridBanner--fullWidth .loudzProductsGridBanner__Content,.loudz-{{ section.id | handle }} .loudzProductsGridBanner--fullWidth .loudzProductsGridBanner__Heading{padding:0 var(--loudz-space-20)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Heading{margin:0;font-size:calc(var(--section-heading-size)*.75);text-decoration:none;color:var(--section-heading-color);display:block;text-align:var(--section-heading-alignment);width:100%;pointer-events:auto}@media(min-width: 992px){.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Heading{font-size:var(--section-heading-size)}}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Heading--style-regular{font-weight:var(--loudz-font-weight-400)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Heading--style-bold{font-weight:var(--loudz-font-weight-600)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Banner{width:100%;max-width:100%;position:relative;overflow:hidden;border-radius:var(--cards-radius)}@media(min-width: 992px){.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Banner{width:40%}}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Banner::before{position:absolute;top:0;left:0;z-index:1;display:block;width:100%;height:100%;content:"";background-color:var(--banner-overlay-color);opacity:var(--banner-overlay-opacity)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerImage{aspect-ratio:3/4}@media(min-width: 992px){.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerImage{aspect-ratio:unset}}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerImage img{display:block;position:absolute;top:0;left:0;height:100%;width:100%;object-fit:cover}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Content{display:flex;gap:var(--product-card-space-between);flex-direction:column}@media(min-width: 992px){.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Content--bannerPlacement-left{flex-direction:row}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Content--bannerPlacement-right{flex-direction:row-reverse}}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent{position:absolute;display:flex;flex-direction:column;gap:var(--loudz-space-8);max-width:480px;width:100%;padding:var(--loudz-space-24);z-index:2}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent--mobilePosition-top{top:0;left:50%;transform:translate(-50%, 0);text-align:center;align-items:center}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent--mobilePosition-center{top:50%;left:50%;transform:translate(-50%, -50%);text-align:center;align-items:center}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent--mobilePosition-bottom{top:unset;bottom:0;left:50%;transform:translate(-50%, 0);text-align:center;align-items:center}@media(min-width: 992px){.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent{padding:var(--loudz-space-40)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent--smallPadding{padding:var(--loudz-space-16)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent--desktopPosition-top-left{top:0;left:0;text-align:left;transform:unset;align-items:flex-start;justify-content:flex-start}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent--desktopPosition-top-center{top:0;left:50%;transform:translate(-50%, 0);text-align:center;align-items:center;justify-content:center;height:fit-content}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent--desktopPosition-top-right{top:0;right:0;height:fit-content;left:unset;text-align:right;transform:unset;align-items:flex-end;justify-content:flex-end}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent--desktopPosition-center-left{top:50%;bottom:unset;left:0;transform:translate(0, -50%);text-align:left;align-items:flex-start;justify-content:flex-start}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent--desktopPosition-center-center{top:50%;left:50%;transform:translate(-50%, -50%);text-align:center;align-items:center;justify-content:center}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent--desktopPosition-center-right{top:50%;right:0;bottom:unset;left:unset;transform:translate(0, -50%);text-align:right;align-items:flex-end;justify-content:flex-end}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent--desktopPosition-bottom-left{bottom:0;left:0;text-align:left;top:unset;transform:unset;align-items:flex-start;justify-content:flex-start}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent--desktopPosition-bottom-center{top:unset;bottom:0;left:50%;transform:translate(-50%, 0);text-align:center;align-items:center;justify-content:center}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent--desktopPosition-bottom-right{bottom:0;right:0;top:unset;left:unset;transform:unset;text-align:right;align-items:flex-end;justify-content:flex-end}}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Heading{margin:0;z-index:1;font-size:calc(var(--banner-heading-size)*.75);color:var(--banner-text-color)}@media(min-width: 992px){.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Heading{font-size:var(--banner-heading-size)}}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Heading--style-regular{font-weight:var(--loudz-font-weight-400)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Heading--style-bold{font-weight:var(--loudz-font-weight-600)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description{z-index:1}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description p,.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description ul,.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description ol{margin:0;font-size:calc(var(--banner-description-size)*.88);color:var(--banner-text-color)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description h1,.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description h2,.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description h3,.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description h4,.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description h5,.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description h6{color:var(--banner-text-color);margin:0;padding:0}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description a{color:var(--block-description-color);margin:0;padding:0;text-decoration:underline;text-underline-offset:var(--loudz-space-2);transition:opacity .3s ease-in}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description a:hover{opacity:.85}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description ul,.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description ol{padding-left:var(--loudz-space-20)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description--alignment-center ul,.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description--alignment-center ol,.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description--alignment-right ul,.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description--alignment-right ol{list-style-position:inside}@media(min-width: 992px){.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description p,.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description ul,.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent__Description ol{font-size:var(--banner-description-size)}}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent .loudzProductsGridBannerTextContent__Button{z-index:1;display:flex;gap:var(--loudz-space-24);padding-top:var(--loudz-space-8);flex-wrap:wrap}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent .loudzProductsGridBannerTextContent__Button .loudzProductsGridBannerTextContentButton{display:inline-flex;justify-content:center;align-items:center;cursor:pointer;font:inherit;font-size:var(--loudz-font-size-14);text-decoration:var(--loudz-text-decoration-none);-webkit-appearance:none;appearance:none;width:fit-content;padding:var(--loudz-space-16) var(--loudz-space-20);transition:all .3s ease-in;line-height:1}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent .loudzProductsGridBannerTextContent__Button .loudzProductsGridBannerTextContentButton:hover{opacity:.85}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent .loudzProductsGridBannerTextContent__Button .loudzProductsGridBannerTextContentButton--solid{color:var(--banner-button-text-color, var(--loudz-color-text-on-bg-fill-on-light));background-color:var(--banner-button-background-color, var(--loudz-color-bg-fill-default-on-light));border-radius:var(--banner-button-corner-radius)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent .loudzProductsGridBannerTextContent__Button .loudzProductsGridBannerTextContentButton--outline{color:var(--banner-button-text-color);background-color:rgba(0,0,0,0);border:var(--loudz-border-width-1) solid var(--banner-button-border-color);border-radius:var(--banner-button-corner-radius)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner .loudzProductsGridBannerTextContent .loudzProductsGridBannerTextContent__Button .loudzProductsGridBannerTextContentButton--link{color:var(--banner-button-text-color);background-color:rgba(0,0,0,0);padding:var(--loudz-space-2) 0;border:var(--loudz-space-0);border-radius:var(--loudz-space-0);text-decoration:var(--loudz-text-decoration-underline);text-underline-offset:var(--loudz-space-4)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products{display:flex;flex-wrap:wrap;gap:var(--product-card-space-between);width:100%;justify-content:center;align-items:stretch}@media(min-width: 992px){.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products{width:60%}}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard{box-sizing:border-box;padding:0;overflow:hidden;height:auto;display:flex;flex-direction:column;justify-content:space-between;background-color:var(--product-card-background-color);border-radius:var(--cards-radius);width:calc((100% - var(--product-card-space-between))/2)}@media(min-width: 992px){.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard{width:calc((100% - var(--product-card-space-between)*2)/3)}}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard--ShowCursorPointer:hover{cursor:pointer}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardImageContainer--square,.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardImageContainer--portrait,.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardImageContainer--landscape{position:relative;overflow:hidden}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardImageContainer--square img,.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardImageContainer--portrait img,.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardImageContainer--landscape img{position:absolute;object-fit:cover;border-radius:var(--cards-radius) var(--cards-radius) 0 0;top:0;left:0;width:100%;height:100%;transition:opacity .3s ease-in-out, transform .3s ease-in-out}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardImageContainer--defaultHover:hover img{transform:scale(1.03)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardImageContainer--square{aspect-ratio:1/1;height:auto}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardImageContainer--portrait::before{content:"";display:block;padding-top:120%}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardImageContainer--landscape::before{content:"";display:block;padding-top:75%}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardTextContainer{padding-top:var(--loudz-space-12);display:flex;text-align:var(--product-card-text-alignment);flex-direction:column;row-gap:var(--loudz-space-6)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardTextContainer__Vendor{font-size:var(--product-name-and-vendor-size);text-transform:uppercase;line-height:var(--loudz-line-height-140);opacity:.5;color:var(--product-card-text-color)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardTextContainer__Vendor:empty{display:none}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardTextContainer__ProductTitle{font-size:var(--product-name-and-vendor-size);line-height:var(--loudz-line-height-140);color:var(--product-card-text-color);margin:0;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardTextContainer__ProductTitle:empty{display:none}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardTextContainer__ProductTitle a{color:inherit;text-decoration:var(--loudz-text-decoration-none)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardTextContainer__Prices{display:flex;column-gap:var(--loudz-space-8);flex-wrap:wrap;justify-content:var(--product-card-text-alignment);align-items:center}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardTextContainer__Prices .loudzProductsGridProdCardPrice{font-size:var(--product-price-size);line-height:var(--loudz-line-height-140);color:var(--product-card-text-color)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardTextContainer__Prices .loudzProductsGridProdCardPrice.price-with-red{color:var(--product-card-discounted-price-color)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardTextContainer__Prices .loudzProductsGridProdCardPrice:empty{display:none}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardTextContainer__Prices .loudzProductsGridProdCardInitialPrice{font-size:var(--product-price-size);line-height:var(--loudz-line-height-140);text-decoration:var(--loudz-text-decoration-line-through);opacity:.5;color:var(--product-card-text-color)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardTextContainer__Prices .loudzProductsGridProdCardInitialPrice:empty{display:none}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardTextContainer .vtl-pr-review-stars-snippet{justify-content:var(--product-card-text-alignment) !important;font-size:var(--loudz-font-space-16) !important;color:var(--loudz-color-text-default-on-light) !important;padding-top:var(--loudz-space-6)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardTextContainer .vtl-pr-review-stars-snippet-container{display:var(--product-card-rating)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard--hasShadow{position:relative;overflow:visible}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard--hasShadow::after{position:absolute;top:0;left:0;right:0;bottom:0;content:"";box-shadow:0 0 var(--loudz-space-24) 0 var(--loudz-color-border-hover-on-dark)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard--hasBorder{border:var(--loudz-border-width-1) solid var(--product-card-border-color)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard--hasBorder .loudzProductsGridProdCardImageContainer{padding:var(--loudz-space-12)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard--hasBackground .loudzProductsGridProdCardTextContainer,.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard--hasBorder .loudzProductsGridProdCardTextContainer,.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard--hasShadow .loudzProductsGridProdCardTextContainer{padding:var(--loudz-space-12)}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardImageContainer .primary-image{opacity:1;z-index:2}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardImageContainer .secondary-image{opacity:0;z-index:1}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardImageContainer:hover .primary-image{opacity:0}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard__Container .loudzProductsGridProdCardImageContainer:hover .secondary-image{opacity:1}.loudz-{{ section.id | handle }} .loudzProductsGridBanner__Products .loudzProductsGridProdCard:hover .loudzProductsGridProdCardTextContainer .loudzProductsGridProdCardTextContainer__ProductTitle a{text-decoration:var(--loudz-text-decoration-none)}
+
+{% endstyle %}
+
+
+
+{% style %}
+	
+
+.loudzUninstallBG{background-color:var(--loudz-color-bg-fill-inverse-on-light);background-image:url("data:image/avif;base64,iVBORw0KGgoAAAANSUhEUgAABOcAAABkCAQAAABnAJxfAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAACYktHRAD/h4/MvwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+gLFQgmAgUXFkMAAARaSURBVHja7daxbSRBEATB8ZzvKw0h1dcIlJS4jl25Azlavffn9/3v++e//+vvCwqFQqFQKBRKSklEUCgUCoVCoVAMOgqFQqFQKJSzSiKCQqFQKBQKhWLQUSgUCoVCoZxVEhEUCoVCoVAoFIOOQqFQKBQK5VOURASFQqFQKBQKZVUSERQKhUKhUCiUVUlEUCgUCoVCoVBWZbtOPoVCoVAoFArlovIKERQKhUKhUCiUVXmFCAqFQqFQKBTKqrxCBIVCoVAoFAplVV4hgkKhUCgUCoUyK4kICoVCoVAoFMqqJCIoFAqFQqFQKKuSiKBQKBQKhUKhrEoigkKhUCgUCoVi0FEoFAqFQqGcVRIRFAqFQqFQKBSDjkKhUCgUCuWskoigUCgUCoVCoRh0FAqFQqFQKGeVRASFQqFQKBQKxaCjUCgUCoVCOaskIigUCoVCoVAoBh2FQqFQKBTKWSURQaFQKBQKhUIx6CgUCoVCoVDOKokICoVCoVAoFIpBR6FQKBQKhXJWSURQKBQKhUKhUAw6CoVCoVAolLNKIoJCoVAoFAqFYtBRKBQKhUKhnFUSERQKhUKhUCgUg45CoVAoFArlrJKIoFAoFAqFQqEYdBQKhUKhUChnlUQEhUKhUCgUCsWgo1AoFAqFQvkUJRFBoVAoFAqFQlmVRASFQqFQKBQKZVUSERQKhUKhUCiUVdmuk0+hUCgUCoVCuai8QgSFQqFQKBQKZVVeIYJCoVAoFAqFsiqvEEGhUCgUCoVCWZVXiKBQKBQKhUKhzEoigkKhUCgUCoWyKokICoVCoVAoFMqqJCIoFAqFQqFQKAYdhUKhUCgUylklEUGhUCgUCoVCMegoFAqFQqFQziqJCAqFQqFQKBSKQUehUCgUCoVyVklEUCgUCoVCoVAMOgqFQqFQKJSzSiKCQqFQKBQKhWLQUSgUCoVCoZxVEhEUCoVCoVAoFIOOQqFQKBQK5dOVX5nMB52iezhxAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI0LTExLTIxVDA4OjM4OjAyKzAwOjAw30WrCwAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNC0xMS0yMVQwODozODowMiswMDowMK4YE7cAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjQtMTEtMjFUMDg6Mzg6MDIrMDA6MDD5DTJoAAAAAElFTkSuQmCC");background-position:center;background-size:cover;text-align:center;padding:var(--loudz-space-32);margin:0}.loudzUninstallBG__Text{color:var(--loudz-color-text-disable-on-light);font-family:Inter,sans-serif;font-size:var(--loudz-font-size-14);font-weight:var(--loudz-font-weight-400);line-height:var(--loudz-line-height-140);padding:var(--loudz-space-16) var(--loudz-space-16) var(--loudz-space-16) var(--loudz-space-40);background-color:var(--loudz-color-bg-fill-inverse-on-light);display:inline-block}.loudzUninstallBG__Text::before{content:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%0A%09%09%09%3Cpath%20d%3D%22M9.99994%206.75C10.4142%206.75%2010.7499%207.08579%2010.7499%207.5V11C10.7499%2011.4142%2010.4142%2011.75%209.99994%2011.75C9.58573%2011.75%209.24994%2011.4142%209.24994%2011V7.5C9.24994%207.08579%209.58573%206.75%209.99994%206.75Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%09%3Cpath%20d%3D%22M11%2013.5C11%2014.0523%2010.5523%2014.5%2010%2014.5C9.44772%2014.5%209%2014.0523%209%2013.5C9%2012.9477%209.44772%2012.5%2010%2012.5C10.5523%2012.5%2011%2012.9477%2011%2013.5Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%09%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M10%203.5C8.95471%203.5%208.21616%204.20232%207.84762%204.94672C7.65565%205.33448%206.75984%207.0441%205.84305%208.79353L5.81531%208.84646C4.9229%2010.5493%204.01714%2012.2777%203.80716%2012.702C3.4351%2013.4537%203.32931%2014.4519%203.89953%2015.316C4.46911%2016.1791%205.44222%2016.5%206.36356%2016.5L13.6364%2016.5C14.5577%2016.5%2015.5308%2016.1791%2016.1004%2015.316C16.6707%2014.4519%2016.5649%2013.4537%2016.1928%2012.702C15.9832%2012.2784%2015.08%2010.555%2014.1889%208.85476L14.1569%208.79352C13.24%207.044%2012.3443%205.33454%2012.1524%204.94693C11.784%204.20242%2011.0454%203.5%2010%203.5ZM9.1919%205.61225C9.59605%204.79592%2010.4041%204.79592%2010.8081%205.61225C11.0102%206.02061%2011.9201%207.75686%2012.8296%209.49243C13.7383%2011.2262%2014.6466%2012.9594%2014.8485%2013.3673C15.2525%2014.1837%2014.8485%2015%2013.6364%2015L6.36356%2015C5.1515%2015%204.74746%2014.1837%205.1515%2013.3673C5.35376%2012.9587%206.26468%2011.2205%207.1748%209.4838C8.08283%207.75111%208.99005%206.01994%209.1919%205.61225Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%3C%2Fsvg%3E");position:absolute;width:var(--loudz-space-20);height:var(--loudz-space-20);margin-left:calc(-1*var(--loudz-space-24))}.loudzUninstallBG__Text a{color:var(--loudz-color-text-disable-on-light)}.loudzUninstallBG__Text a:hover{text-decoration:none}
+
+{% endstyle %}

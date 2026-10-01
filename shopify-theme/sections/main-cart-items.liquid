@@ -1,0 +1,1920 @@
+{{ 'cart-page.css' | asset_url | stylesheet_tag }}
+{{ 'minicart.css' | asset_url | stylesheet_tag }}
+{{ 'critical.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign theme_st = settings
+  assign section_st = section.settings
+  assign free_shipping = theme_st.show_on_minicart_cart_page
+  assign show_currency_code = theme_st.show_currency_code
+  assign shipping_rate = theme_st.free_shipping_minimum | times: 1 | default: 0
+  assign shipping_rate_price = shipping_rate | money
+  assign cart_duration_show = theme_st.show_duration_on_minicart_cart_page
+  assign cart_duration = theme_st.cart_duration
+  assign enable_cart_note = section_st.enable_cart_note
+  assign section_width = section_st.section_width
+  assign disable_free_shipping_bar = section_st.disable_free_shipping_bar
+  assign disable_countdown_timer = section_st.disable_countdown_timer
+assign show_countdown = cart_duration_show
+if disable_countdown_timer
+  assign show_countdown = false
+endif
+  assign enable_slim_dividers = section_st.enable_slim_dividers
+  assign enable_payment_support = section_st.enable_payment_support
+  assign enable_estimated_delivery = section_st.enable_estimated_delivery
+  assign use_custom_delivery_text = section_st.use_custom_delivery_text
+
+  assign heading_payment = section_st.heading_payment
+  assign payment_width = section_st.payment_width
+  assign heading_delivery = section_st.heading_delivery
+  assign description_delivery = section_st.description_delivery
+  assign heading_guarantee = section_st.heading_guarantee
+  assign description_guarantee = section_st.description_guarantee
+  assign show_estimate_shipping = section_st.show_estimate_shipping
+
+if use_custom_delivery_text and section_st.custom_delivery_text != blank
+  assign estimated_delivery_text = section_st.custom_delivery_text
+else
+  assign estimated_delivery_text = 'Estimated delivery in 3-5 business days'
+endif
+
+%}
+
+<script src="{{ 'cart.js' | asset_url }}" defer="defer"></script>
+
+{%- capture style -%}
+  --section-pt-desktop: {{ section_st.padding_top_desktop | default: 50 }}px;
+  --section-pb-desktop: {{ section_st.padding_bottom_desktop | default: 50 }}px;
+  --section-pt-mobile: {{ section_st.padding_top_mobile | default: 20 }}px;
+  --section-pb-mobile: {{ section_st.padding_bottom_mobile | default: 20 }}px;
+  --col-gap-desktop: 5rem;
+  --col-width: 45rem;
+
+  /* X Remove Icon customizers */
+  --x-remove-icon-color: {{ section_st.x_remove_icon_color }};
+  --x-remove-icon-hover-color: {{ section_st.x_remove_icon_hover_color }};
+  --x-remove-icon-size: {{ section_st.x_remove_icon_size | append: 'px' }};
+  --remove-text-color: {{ section_st.remove_text_color }};
+  --remove-text-hover_color: {{ section_st.remove_text_hover_color }};
+
+  /* Original requested custom properties */
+  --order-note-svg-color: {{ section_st.order_note_svg_color }};
+  --add_order_note_text_color: {{ section_st.add_order_note_text_color }};
+  --cart-item-totals-price-bg: {{ section_st.cart_item_totals_price_bg }};
+  --cart-item-totals-price-br: {{ section_st.cart_item_totals_price_br | append: 'px' }};
+  --product-option-bg: {{ section_st.product_option_bg }};
+  --product-option-border-radius: {{ section_st.product_option_border_radius | append: 'px' }};
+  --cart-page-countdown-bg: {{ section_st.cart_page_countdown_bg }};
+  --cart-page-countdown-br: {{ section_st.cart_page_countdown_border_radius | append: 'px' }};
+  --cart-page-countdown-text-color: {{ section_st.cart_page_countdown_text_color }};
+  --countdown-inner-color: {{ section_st.countdown_inner_color }};
+
+  /* NEW custom properties for the cart note textarea */
+  --cart-note-bg: {{ section_st.cart_note_bg }};
+  --cart-note-border-radius: {{ section_st.cart_note_br | append: 'px' }};
+  --cart-note-width: {{ section_st.cart_note_width | append: '%' }};
+  --cart-note-border-color: {{ section_st.cart_note_border_color }};
+  --cart-note-border-color-focus: {{ section_st.cart_note_border_color_focus }};
+
+  /* NEW background & radius for the .cart-info box */
+  --cart-info-bg: {{ section_st.cart_info_bg }};
+  --cart-info-br: {{ section_st.cart_info_br | append: 'px' }};
+
+  /* NEW heading color customizers for Delivery & Guarantee headings */
+  --heading-delivery-text-color: {{ section_st.heading_delivery_text_color }};
+  --heading-guarantee-text-color: {{ section_st.heading_guarantee_text_color }};
+
+  /* NEW Countdown Timer Styles */
+  --countdown-slider-minutes: {{ section_st.countdown_start_minutes | default: 5 }};
+  --countdown-slider-seconds: {{ section_st.countdown_start_seconds | default: 0 }};
+
+  /* NEW for card backgrounds/text and gap */
+  --cards-gap: {{ section_st.cards_gap_slider | default: 20 }}px;
+
+  /* NEW for controlling icons (desktop vs. mobile) */
+  --svg-icons-gap-desktop: {{ section_st.svg_icons_gap | default: 10 }}px;
+  --svg-icons-gap-mobile: {{ section_st.svg_icons_gap_mobile | default: 10 }}px;
+  --svg-icons-overall-width-mobile: {{ section_st.overall_svg_icons_width_mobile | default: 20 }}px;
+
+  /* NEW Slim Top Bar Color */
+  --slim-top-bar-color: {{ section_st.slim_top_bar_color | default: '#E9E9E9' }};
+
+  /* NEW Slim Dividers Color */
+  --slim-dividers-color: {{ section_st.slim_dividers_color | default: '#E9E9E9' }};
+
+  /* NEW for Estimated Delivery Badge */
+  --delivery-badge-bg: {{ section_st.delivery_badge_bg | default: '#f0f0f0' }};
+  --delivery-badge-text: {{ section_st.delivery_badge_text | default: '#000000' }};
+
+  /* NEW card text font size */
+  --card-text-font-size: {{ section_st.card_text_font_size | default: 14 }}px;
+{%- endcapture -%}
+
+<div
+  class="page-cart section{% if cart == empty %} is-empty{% endif %}{% if enable_slim_dividers %} has-slim-dividers{% endif %}"
+  id="main-cart-items"
+  data-id="{{ section.id }}"
+  style="{{ style | strip | strip_newlines }}"
+>
+  <div class="{{ section_width }}">
+    <!-- Icon Trash definition -->
+    <svg hidden>
+      <symbol id="icon-trash">
+        <path fill="currentColor" d="M10.5 4.25h-7v7.588c0 .073.014.146.041.219a.727.727 0 0 0 .137.191.416.416 0 0 0 .177.123c.073.027.15.041.233.041h5.824c.082 0 .16-.014.232-.04a.416.416 0 0 0 .178-.124.53.53 0 0 0 .123-.191.485.485 0 0 0 .055-.22V4.25Zm-.588-1.162h2.338c.164 0 .3.06.41.178a.52.52 0 0 1 .178.396c0 .164-.06.305-.178.424a.557.557 0 0 1-.41.164h-.588v7.588c0 .237-.046.465-.137.684-.09.21-.214.391-.369.546a1.615 1.615 0 0 1-.56.383c-.21.091-.438.137-.684.137H4.088c-.246 0-.474-.05-.684-.15a1.931 1.931 0 0 1-.56-.37 1.755 1.755 0 0 1-.37-.546 1.76 1.76 0 0 1-.136-.684V4.25H1.75a.603.603 0 0 1-.424-.164.603.603 0 0 1-.164-.424.54.54 0 0 1 .164-.396.579.579 0 0 1 .424-.178h2.338V2.5c0-.237.045-.46.137-.67.09-.219.214-.406.369-.56.155-.165.337-.292.547-.383.218-.091.45-.137.697-.137h2.324c.246 0 .474.046.684.137.21.09.396.218.56.383.155.154.278.341.37.56.09.21.136.433.136.67v.588Zm0 3.5c0-.164.055-.3.164-.41A.579.a579 0 0 1 5.838 6.a52.a52 0 0 1 .396.178c.119.11.178.246.178.41v3.5c0 .155-.06.292-.178.41a.54.a54 0 0 1-.396.164.a603.a603 0 0 1-.424-.164.a587.a587 0 0 1-.164-.41v-3.5Zm2.338 0c0-.164.055-.3.164-.41a.563.a563 0 0 1 .82 0c.119.11.178.246.178.41v3.5c0 .155-.06.292-.178.41a.556.a556 0 0 1-.41.164.a587.a587 0 0 1-.41-.164.a587.a587 0 0 1-.164-.41v-3.5Z"/>
+      </symbol>
+    </svg>
+    <!-- /Icon Trash -->
+
+    {% comment %}
+      ================
+      CONDITIONAL COUNTDOWN POSITION
+      ================
+    {% endcomment %}
+    {% if cart != empty %}
+      {% if section_st.position_countdown_above_cart == false %}
+        <!-- Original position (top of cart) for countdown timer -->
+        <div class="page-title text-center mb-80">
+          {%- if show_countdown -%}
+            <countdown-timer
+              data-minutes-left="{{ cart_duration }}"
+              data-timeout-message="{{ section_st.countdown_text }}"
+              class="cart_page-countdown heading-style flex flex-wrap content-center pt-17 pb-15 btn-rounded mx-auto w-full max-w-custom px-15"
+              style="--max-width: 80.3rem"
+            >
+              <span class="me-5">{{ section_st.countdown_text }}</span>
+              <div class="countdown-inner inline-flex align-center"></div>
+            </countdown-timer>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endif %}
+
+    <div class="main-cart flex flex-wrap flex-1025-nowrap gap-40 justify-between mt-50">
+      <div class="cart-left w-full{% if cart != empty %} col-1025-remaining{% endif %}">
+        <div class="sticky-1025 top-30">
+          <cart-items class="js-contents{% if cart == empty %} is-empty{% endif %}">
+            {% if cart == empty %}
+              <div class="cart__warnings text-center">
+                <h1 class="heading-letter-spacing cart__empty-title mb-20" style="font-size: 35px;">
+                  {{ 'general.cart.empty' | t }}
+                </h1>
+                 <a href="{{ section.settings.continue_shopping_url }}" class="btn-primary no-underline inline-block">
+  {{ 'general.continue_shopping' | t }}
+</a>
+                {%- if shop.customer_accounts_enabled and customer == null -%}
+                  <h2 class="heading-letter-spacing cart__login-title" style="font-size: 25px;">
+                    {{ 'general.cart.login.title' | t }}
+                  </h2>
+                  <p class="cart__login-paragraph">
+                    {{ 'general.cart.login.paragraph_html' | t: link: routes.account_login_url }}
+                  </p>
+                {% endif %}
+              </div>
+            {% endif %}
+            {%- if cart != empty -%}
+              <form action="{{ routes.cart_url }}" class="cart__contents critical-hidden" method="post" id="cart">
+                <table class="cart-items w-full border-0">
+                  <caption class="visually-hidden">
+                    {{ 'general.cart.title' | t }}
+                  </caption>
+               
+                  <tbody>
+                    {%- for item in cart.items -%}
+                      <tr
+                        class="cart-item page__cart-item"
+                        id="CartItem-{{ item.index | plus: 1 }}"
+                        style="--custom-width: 8rem"
+                      >
+                        <td
+                          class="cart-item__media border-0 px-0 border-bottom py-30 w-custom"
+                        >
+                          <a
+                            href="{{ item.url }}"
+                            class="cart-item__link fs-0 rounded-5 overflow-hidden block w-custom"
+                            aria-hidden="true"
+                            tabindex="-1"
+                          >
+                            {% if item.image != blank %}
+                              {%- assign image_alt = item.image.alt | default: 'product' -%}
+                              {% render 'responsive-image',
+                                type: 'other',
+                                container: section_width,
+                                image: item.image,
+                                image_alt: image_alt,
+                                class: 'rounded-5'
+                              %}
+                            {% else %}
+                              {% render 'placeholder-render', class: 'rounded-5' %}
+                            {% endif %}
+                          </a>
+                        </td>
+                        <td
+                          class="cart-item__details px-0 border-0 border-bottom py-30 pe-10"
+                          data-title="{{ 'general.cart.headings.product' | t }}"
+                        >
+                          <div class="cart_info ms-md-20 relative">
+                            <a
+                              href="{{ item.url }}"
+                              class="product-item__name unset heading-style no-underline fs-custom block lh-normal pe-20 pe-md-0 word-break"
+                            >
+                              {{- item.product.title | escape -}}
+                            </a>
+
+                            <!-- Mobile remove text link -->
+                            <a href="{{ item.url_to_remove }}" class="cart-remove-text">{{ 'sections.cart.remove' | t }}</a>
+                            <!-- /Mobile remove text -->
+
+             {%- if item.product.has_only_default_variant == false
+  or item.properties.size != 0
+  or item.selling_plan_allocation != null
+-%}
+  {%- if item.product.has_only_default_variant == false -%}
+   {%- for option in item.options_with_values -%}
+  <div class="cart-option-line">{{ option.name }}: {{ option.value }}</div>
+{%- endfor -%}
+  {%- endif -%}
+                                {%- if item.properties.size != 0 -%}
+                                  <div class="product-option-property flex flex-wrap flex-column">
+                                {% endif %}
+                                {%- for property in item.properties -%}
+                                  {%- assign property_first_char = property.first | slice: 0 -%}
+                                  {%- if property.last != blank and property_first_char != '_' -%}
+                                    <div class="product-option inline-flex">
+                                      <span class="ml-1">{{ property.first }}:</span>
+                                      <span class="m-0">
+                                        {%- if property.last contains '/uploads/' -%}
+                                          <a href="{{ property.last }}" class="link" target="_blank">
+                                            {{ property.last | split: '/' | last }}
+                                          </a>
+                                        {%- else -%}
+                                          {{ property.last }}
+                                        {% endif %}
+                                      </span>
+                                    </div>
+                                  {% endif %}
+                                {%- endfor -%}
+                                {%- if item.properties.size != 0 -%}</div>{% endif %}
+                              </dl>
+                              <p class="product-option my-0">{{ item.selling_plan_allocation.selling_plan.name }}</p>
+                            {% endif %}
+                            <ul
+                              class="discounts list-unstyled fs-small light-dark-grey"
+                              role="list"
+                              aria-label="{{ 'customer.order.discount' | t }}"
+                            >
+                              {%- for discount in item.line_level_discount_allocations -%}
+                                <li class="discounts__discount fs-14 d-inline-flex align-center">
+                                  {{ discount.discount_application.title }}
+                                </li>
+                              {%- endfor -%}
+                            </ul>
+                          </div>
+                        </td>
+
+                     
+                        <!-- Quantity -->
+                        <td
+                          class="cart-item__quantity border-0 border-bottom py-30 px-10"
+                          data-title="{{ 'general.cart.headings.quantity' | t }}"
+                        >
+                          <div class="cart-item__quantity-wrapper">
+                            <quantity-input class="quantity btn-rounded border inline-flex text-center grey-bg overflow-hidden">
+                              <button
+                                class="quantity__button pointer border-0 no-js-hidden w-custom grey-bg ps-20"
+                                name="minus"
+                                type="button"
+                                data-id="{{- item.key -}}"
+                                style="--custom-width: 4rem"
+                                aria-label="minus"
+                              >
+                                <svg width="11" height="12" viewBox="0 0 11 2" fill="none">
+                                  <path d="M11 0.5L11 1.5L-4.37114e-08 1.5L0 0.5L11 0.5Z" fill="currentColor"></path>
+                                </svg>
+                              </button>
+                              <label class="visually-hidden" for="{{- item.quantity -}}">
+                                {{ 'general.cart.headings.quantity' | t }}
+                              </label>
+                              <input
+                                class="quantity-input bg-unset text-center appearance-none p-0-important w-custom"
+                                type="number"
+                                name="updates[]"
+                                data-id="{{- item.key -}}"
+                                value="{{- item.quantity -}}"
+                                data-value="{{ item.quantity }}"
+                                data-index="{{ item.index | plus: 1 }}"
+                                min="0"
+                                style="--input-padding: 0;--inputs-border-width: 0;--input-height: 43px;--custom-width: 3.8rem;--input-border-radius: 0;--input-bg: transparent"
+                              >
+                              <button
+                                class="quantity__button pointer border-0 no-js-hidden w-custom grey-bg pe-20"
+                                name="plus"
+                                type="button"
+                                data-id="{{- item.key -}}"
+                                style="--custom-width: 4rem"
+                                aria-label="plus"
+                              >
+                                <svg width="11" height="12" viewBox="0 0 11 12" fill="none">
+                                  <path fill-rule="evenodd" clip-rule="evenodd" d="M5 11.5H6L6 6.5H11V5.5H6L6 0.5H5L5 5.5H0V6.5H5L5 11.5Z" fill="currentColor"></path>
+                                </svg>
+                              </button>
+                            </quantity-input>
+                          </div>
+                        </td>
+                        <!-- /Quantity -->
+
+                       <!-- Totals (qty × total) -->
+<td class="cart-item__totals text-md-end small-hide border-0 border-bottom-lg py-30 px-10">
+  <div class="cart-item__price-wrapper heading-style">
+    <span class="qtyxprice" data-unit-price-cents="{{ item.final_price }}">
+      <span class="js-qty">{{ item.quantity }}</span>
+      &nbsp;×&nbsp;
+      <span class="js-line-total">
+        {% if settings.currency_code_enabled %}
+          {{ item.final_line_price | money_with_currency }}
+        {% else %}
+          {{ item.final_line_price | money }}
+        {% endif %}
+      </span>
+    </span>
+  </div>
+</td>
+<!-- /Totals (qty × total) -->
+                      </tr>
+                    {%- endfor -%}
+                  </tbody>
+                </table>
+              </form>
+            {% endif %}
+
+            {%- if cart != empty -%}
+              <div
+                class="loading-overlay absolute inset-0 invisible transition pointer-none z-2 gradient color-default"
+              ></div>
+            {% endif %}
+          </cart-items>
+
+          {%- if cart != empty -%}
+            {% for block in section.blocks %}
+              {% case block.type %}
+                {% when 'recommendations' %}
+                  {%- liquid
+                    assign recommendations_heading = block.settings.recommendations_heading
+                    assign product_recommendations_type = block.settings.product_recommendations_type
+                    assign select_product_recommendations = block.settings.select_product_recommendations
+                  -%}
+                  <div class="cart_page-recommend cart-recommend mt-60 inside" id="{{ block.id }}">
+                    <style>
+                      .cart_page-recommend#{{ block.id }} .product-item__wrapper {
+                        background-color: {{ block.settings.product_recommendations_bg_color | default: "#F8F8F8" }} !important;
+                        border: {{ block.settings.product_recommendations_border_weight | default: 1 }}px solid {{ block.settings.product_recommendations_border_color | default: "#E8E8E8" }} !important;
+                        border-radius: {{ block.settings.product_recommendations_card_border_radius | default: 8 }}px !important;
+                        transition: all 0.3s ease;
+                      }
+                      .cart_page-recommend#{{ block.id }} .product-item__wrapper:hover {
+                        background-color: {{ block.settings.product_recommendations_hover_bg_color | default: "#FFFFFF" }} !important;
+                      }
+                      .cart_page-recommend#{{ block.id }} .bls-add-cart-list {
+                        color: {{ block.settings.add_to_cart_text_color | default: "#000000" }} !important;
+                        text-decoration: none;
+                        border-bottom: {{ block.settings.add_to_cart_underline_thickness | default: 0 }}px solid transparent !important;
+                      }
+                      .cart_page-recommend#{{ block.id }} .bls-add-cart-list:hover {
+                        color: {{ block.settings.add_to_cart_text_hover_color | default: "#FF0000" }} !important;
+                        border-bottom: {{ block.settings.add_to_cart_underline_thickness | default: 0 }}px solid {{ block.settings.add_to_cart_underline_color | default: "#007BFF" }} !important;
+                      }
+                      .cart_page-recommend#{{ block.id }} .add-to-cart-hover-button {
+                        display: none !important;
+                      }
+                      .cart_page-recommend#{{ block.id }} .bls-add-cart-list {
+                        position: static !important;
+                        margin-top: 8px;
+                        display: block !important;
+                        text-align: left;
+                      }
+                      .cart_page-recommend#{{ block.id }} .bls__product {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: flex-start;
+                      }
+                    </style>
+                    {%- if product_recommendations_type == 'auto' -%}
+                      <minicart-recommendations
+                        data-url="{{ routes.product_recommendations_url }}?product_id={{ cart.items.first.product_id }}&limit=6&section_id=cart-upsell"
+                        class="block no-js-hidden"
+                        id="{{ block.id }}"
+                      >
+                        {%- if recommendations_heading -%}
+                          <h4 class="minicart-heading mt-0 mb-15 fs-18 heading-letter-spacing">
+                            {{ recommendations_heading }}
+                          </h4>
+                        {% endif %}
+                    {%- else -%}
+                      {% if select_product_recommendations != blank %}
+                        <div id="{{ block.id }}">
+                          {%- if recommendations_heading -%}
+                            <h4 class="minicart-heading mt-0 mb-15 fs-18 heading-letter-spacing">
+                              {{ recommendations_heading }}
+                            </h4>
+                          {% endif %}
+                      {% endif %}
+                    {% endif %}
+
+                    <slide-section
+                      class="swiper swiper swiper-cart-upsell"
+                      id="swiper-cart-upsell"
+                      data-section-id="cart-upsell"
+                      data-autoplay="false"
+                      data-loop="false"
+                      data-mobile="1"
+                      data-tablet="2"
+                      data-desktop="2"
+                      data-item-mobile="1"
+                      data-spacing="20"
+                    >
+                      <div class="swiper-wrapper">
+                        {%- if product_recommendations_type != 'auto' -%}
+                          {%- for item in select_product_recommendations -%}
+                            <div class="swiper-slide">
+                              {% render 'product-item',
+                                card_product: item,
+                                template_enable_price: true,
+                                template_enable_add_cart: true,
+                                template_enable_options: false,
+                                template_enable_product_vendor: false,
+                                template_enable_rate: false,
+                                template_enable_product_short_description: false,
+                                template_enable_color_swatches: false,
+                                type: 'list'
+                              %}
+                            </div>
+                          {%- endfor -%}
+                        {% endif %}
+                      </div>
+                      <div class="swiper-pagination"></div>
+                    </slide-section>
+
+                    {%- if product_recommendations_type == 'auto' -%}
+                      </minicart-recommendations>
+                    {%- else -%}
+                      {% if select_product_recommendations != blank %}
+                        </div>
+                      {% endif %}
+                    {%- endif %}
+                  </div>
+              {% endcase %}
+            {% endfor %}
+
+            {%- comment %}
+              ADD 3(4) MODERN CARDS UNDER LEFT COLUMN (after recommendations)
+            {%- endcomment %}
+            <div class="custom-cards-container mt-30{% if section_st.disable_custom_cards_mobile %} disable-mobile{% endif %}">
+              <!-- Horizontal scroll (slider) on mobile -->
+              <div class="custom-cards-slider flex overflow-x-auto" style="scroll-snap-type: x mandatory;">
+                {% for block in section.blocks %}
+                  {% if block.type == 'custom_card' %}
+<div
+  id="card-{{ block.id }}"
+  class="custom-card min-w-[240px] p-15 rounded"
+  style="
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    --card-text-color: {{ block.settings.text_color }};
+  "
+>
+                      {% if block.settings.svg_icon != blank %}
+                        <div class="card-icon mb-10" style="width: {{ block.settings.icon_size | default: 40 }}px; height: {{ block.settings.icon_size | default: 40 }}px;">
+                          {{ block.settings.svg_icon }}
+                        </div>
+                      {% elsif block.settings.image != blank %}
+                        <div class="card-image mb-10">
+                          <img
+                            src="{{ block.settings.image | img_url: '100x' }}"
+                            alt="{{ block.settings.title | escape }} Icon"
+                            style="max-width: 60px; height: auto;"
+                          >
+                        </div>
+                      {% endif %}
+                      {% if block.settings.title != blank %}
+                        <h4 class="card-title mb-5" style="color: var(--card-text-color) !important;">
+  {{ block.settings.title }}
+</h4>
+                      {% endif %}
+        {% if block.settings.text != blank %}
+  <div class="card-text">
+    {{ block.settings.text }}
+  </div>
+{% endif %}
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+
+          {% endif %}
+        </div>
+      </div>
+
+      {%- if cart != empty -%}
+        <div class="cart-right w-full col-1025-w-custom mt-15">
+          <div class="sticky-1025 top-30">
+            {%- comment %}
+              If toggle is ON, show the countdown here (above .cart-info)
+            {%- endcomment %}
+            {% if section_st.position_countdown_above_cart == true %}
+              <div class="page-title text-center mb-80">
+                {%- if show_countdown -%}
+                  <countdown-timer
+                    data-minutes-left="{{ cart_duration }}"
+                    data-timeout-message="{{ section_st.countdown_text }}"
+                    class="cart_page-countdown heading-style flex flex-wrap content-center pt-17 pb-15 btn-rounded mx-auto w-full max-w-custom px-15"
+                    style="--max-width: 80.3rem"
+                  >
+                    <span class="me-5">{{ section_st.countdown_text }}</span>
+                    <div class="countdown-inner inline-flex align-center"></div>
+                  </countdown-timer>
+                {% endif %}
+              </div>
+            {% endif %}
+
+            <!-- .cart-info with custom background & border radius -->
+            <div
+              class="cart-info p-30 rounded"
+              style="background-color: var(--cart-info-bg); border-radius: var(--cart-info-br);"
+            >
+              {%- if free_shipping and shipping_rate > 0 and disable_free_shipping_bar == false -%}
+                {% liquid
+                  assign items_subtotal_price = cart.items_subtotal_price
+                  assign shipping_price = shipping_rate
+                %}
+                <free-ship-progress-bar
+                  data-order="{{ cart.items_subtotal_price }}"
+                  data-fe-amount="{{ shipping_rate }}"
+                  data-fe-unavaiable="{{ 'general.cart.free_shipping' | t }}"
+                  data-fe-avaiable="{{ 'general.cart.free_shipping_avaiable' | t }}"
+                  class="block cart_shipping cart_threshold border-0 border-bottom mt-15 pb-25{% if items_subtotal_price >= shipping_price %} cart_shipping_free{% endif %}"
+                >
+                  <div class="progress-bar cart_bar_w relative rounded-10">
+                    <span
+                      class="progress percent_shipping_bar transition relative primary-color rounded-10"
+                      style="width: 0%;"
+                    >
+                      <!-- shipping cart icon removed for brevity -->
+                    </span>
+                  </div>
+
+                  <!-- This block is what prints the "Spend €xx more..." or the new text -->
+                  <div class="free-shipping-message mt-17 cart-thres cart_thres_1 heading-color opacity-0">
+                    {{ 'general.cart.cart_thres1_html' | t: price: shipping_rate_price }}
+                  </div>
+                </free-ship-progress-bar>
+              {% endif %}
+
+              {%- if enable_cart_note -%}
+                <cart-note class="cart__note field block gap-0 border-0 border-bottom lh-1{% if free_shipping and shipping_rate > 0 and disable_free_shipping_bar == false %} pt-25 pb-30{% else %} pb-30{% endif %} mb-25">
+                  <h6 class="add-order-note">
+                    {{ 'Custom Order Note' }}
+                    <svg
+                      fill="var(--order-note-svg-color)"
+                      width="18px"
+                      height="18px"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M19,14.5 L19,5.5 C19,4.67157288 18.3284271,4 17.5,4 L6.5,4 C5.67157288,4 5,4.67157288 5,5.5 L5,18.5 C5,19.3284271 5.67157288,20 6.5,20 L13.5,20 C14.3284271,20 15,19.3284271 15,18.5 C15,17.1192881 16.1192881,16 17.5,16 C18.3284271,16 19,15.3284271 19,14.5 L19,14.5 Z M18.5014408,16.7913481 C18.1948298,16.9255432 17.8561101,17 17.5,17 C16.6715729,17 16,17.6715729 16,18.5 C16,18.8561101 15.9255432,19.1948298 15.7913481,19.5014408 C16.9873685,18.9526013 17.9526013,17.9873685 18.5014408,16.7913481 L18.5014408,16.7913481 Z M4,5.5 C4,4.11928813 5.11928813,3 6.5,3 L17.5,3 C18.8807119,3 20,4.11928813 20,5.5 L20,14.5 C20,18.0898509 17.0898509,21 13.5,21 L6.5,21 C5.11928813,21 4,19.8807119 4,18.5 L4,5.5 Z M8.5,9 C8.22385763,9 8,8.77614237 8,8.5 C8,8.22385763 8.22385763,8 8.5,8 L15.5,8 C15.7761424,8 16,8.22385763 16,8.5 C16,8.77614237 15.7761424,9 15.5,9 L8.5,9 Z M8.5,12 C8.22385763,12 8,11.7761424 8,11.5 C8,11.2238576 8.22385763,11 8.5,11 L15.5,11 C15.7761424,11 16,11.2238576 16,11.5 C16,11.7761424 15.7761424,12 15.5,12 L8.5,12 Z M8.5,15 C8.22385763,15 8,14.7761424 8,14.5 C8,14.2238576 8.22385763,14 8.5,14 L13.5,14 C13.7761424,14 14,14.2238576 14,14.5 C14,14.7761424 13.7761424,15 13.5,15 Z"/>
+                    </svg>
+                  </h6>
+
+                  <!-- Textarea styling with new custom properties -->
+                  <textarea
+                    class="text-area field__input"
+                    style="
+                      width: var(--cart-note-width);
+                      background-color: var(--cart-note-bg);
+                      border-radius: var(--cart-note-border-radius);
+                      border: 1px solid var(--cart-note-border-color);
+                    "
+                    onfocus="this.style.borderColor = getComputedStyle(this).getPropertyValue('--cart-note-border-color-focus');"
+                    onblur="this.style.borderColor = getComputedStyle(this).getPropertyValue('--cart-note-border-color');"
+                    name="note"
+                    form="cart"
+                    id="Cart-note"
+                    placeholder="Enter custom note for your order..."
+                  >{{ cart.note }}</textarea>
+                </cart-note>
+              {% endif %}
+
+              <div class="totals flex flex-wrap gap-5 align-center justify-between mb-10 h5 mt-20 pt-25 border-top">
+                <span class="totals__subtotal"> {{ 'general.cart.subtotal' | t }}:</span>
+                {{ cart.total_price | money_with_currency }}
+              </div>
+              <div class="js-contents">
+                {%- if cart.cart_level_discount_applications.size > 0 -%}
+                  <ul
+                    class="discounts list-none pl-0 ml-0 mb-5"
+                    role="list"
+                    aria-label="{{ 'customer.order.discount' | t }}"
+                  >
+                    {%- for discount in cart.cart_level_discount_applications -%}
+                      <li class="discounts__discount discounts__discount--position">
+                        {{ discount.title }}
+                        (-{{ discount.total_allocated_amount | money }})
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {% endif %}
+
+                <p class="caption-large rte mt-8">
+                  {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
+                    {{ 'general.cart.taxes_included_and_shipping_policy_html' | t: link: shop.shipping_policy.url }}
+                  {%- elsif cart.taxes_included -%}
+                    {{ 'general.cart.taxes_included_but_shipping_at_checkout' | t }}
+                  {%- elsif shop.shipping_policy.body != blank -%}
+                    {{ 'general.cart.taxes_and_shipping_policy_at_checkout_html' | t: link: shop.shipping_policy.url }}
+                  {%- else -%}
+                    {{ 'general.cart.taxes_and_shipping_at_checkout' | t }}
+                  {% endif %}
+                </p>
+              </div>
+
+              {%- if theme_st.enable_catalog_mode == false -%}
+                <div class="cart__ctas mt-25 pt-25 border-top">
+                  {%- if theme_st.show_check_box_in_cart -%}
+                    <terms-conditions class="terms-conditions flex mb-25" data-custom-class="term-and-condition">
+                      <div class="checkbox-group relative">
+                        <input
+                          class="input w-20 h-20 m-0 opacity-0 absolute inset-0 pointer conditions_form_minicart"
+                          type="checkbox"
+                          name="conditions"
+                          id="conditions_form_minicart"
+                        >
+                        <span class="checkmark relative me-10 pointer-none pointer inline-flex"></span>
+                      </div>
+                      <label
+                        class="label pointer rich__text-m0"
+                        for="conditions_form_minicart"
+                        style="--color-link: var(--color-heading);"
+                      >
+                        {{ theme_st.text_terms_conditions }}
+                      </label>
+                    </terms-conditions>
+                  {% endif %}
+                  <button
+                    type="submit"
+                    id="checkout"
+                    class="btn-checkout cart__checkout-button button w-full btn-primary"
+                    name="checkout"
+                    {% if cart == empty or theme_st.show_check_box_in_cart %}
+                      disabled
+                    {% endif %}
+                    form="cart"
+                  >
+                    <span id="cart-live-region-text" aria-live="polite" role="status">
+                      {{ 'general.page_cart.checkout' | t }}
+                    </span>
+                  </button>
+                </div>
+                {%- if additional_checkout_buttons -%}
+                  <div class="cart__dynamic-checkout-buttons mt-10 additional-checkout-buttons">
+                    {{ content_for_additional_checkout_buttons }}
+                  </div>
+                {% endif %}
+<!-- Payment Icons -->
+                {%- if enable_payment_support -%}
+  <div class="cart__payment-icons flex items-center justify-center" 
+     style="margin-top: 30px; margin-bottom: 30px; gap: var(--svg-icons-gap-desktop);">
+                    {%- if section_st.enable_visa -%}
+                      <svg width="38" height="24" viewBox="0 0 57 39" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="0.5" y="0.5" width="57" height="39" rx="3.5" fill="white" stroke="#F3F3F3"></rect> <path d="M25.7516 27.4332H21.8901L24.3054 13.4325H28.1667L25.7516 27.4332Z" fill="#15195A"></path> <path d="M39.7499 13.7748C38.9882 13.4915 37.7802 13.1787 36.2865 13.1787C32.4731 13.1787 29.7878 15.0851 29.7713 17.8106C29.7396 19.8215 31.6939 20.9384 33.1556 21.6089C34.6495 22.2941 35.1574 22.7413 35.1574 23.352C35.1422 24.29 33.9502 24.7223 32.8384 24.7223C31.2967 24.7223 30.4707 24.4994 29.2153 23.9776L28.7069 23.7539L28.1665 26.8967C29.0722 27.2835 30.7408 27.6268 32.4731 27.6419C36.5249 27.6419 39.1627 25.765 39.1939 22.8605C39.2093 21.2667 38.1774 20.0454 35.9526 19.0475C34.602 18.4069 33.7749 17.9749 33.7749 17.3195C33.7908 16.7236 34.4745 16.1133 35.9991 16.1133C37.2544 16.0834 38.1768 16.3663 38.8755 16.6494L39.2247 16.7981L39.7499 13.7748V13.7748V13.7748Z" fill="#15195A"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M46.6618 13.4325H49.6486L52.7639 27.433H49.1885C49.1885 27.433 48.8386 25.8244 48.7278 25.3328H43.7699C43.6266 25.705 42.9595 27.433 42.9595 27.433H38.9078L44.6435 14.5941C45.0409 13.6855 45.7407 13.4325 46.6618 13.4325ZM46.4238 18.556C46.4238 18.556 45.2001 21.6689 44.8821 22.4732H48.0918C47.933 21.7733 47.2017 18.4219 47.2017 18.4219L46.9319 17.2156C46.8182 17.5262 46.6539 17.9533 46.543 18.2414C46.4679 18.4366 46.4173 18.568 46.4238 18.556Z" fill="#15195A"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M5.1589 13.4325H11.3716C12.2138 13.462 12.8971 13.7152 13.1194 14.6094L14.4696 21.0422C14.4697 21.0426 14.4699 21.043 14.47 21.0434L14.8832 22.9796L18.6649 13.4325H22.7481L16.6785 27.4184H12.5951L9.15337 15.253C7.96587 14.6021 6.6106 14.0786 5.09534 13.7154L5.1589 13.4325Z" fill="#15195A"></path> </g></svg>
+                    {%- endif -%}
+                    {%- if section_st.enable_mastercard -%}
+                      <svg width="38" height="24" viewBox="0 0 57 39" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="0.5" y="0.5" width="57" height="39" rx="3.5" fill="white" stroke="#F3F3F3"></rect> <path d="M34.3102 28.9765H23.9591V10.5122H34.3102V28.9765Z" fill="#FF5F00"></path> <path d="M24.6223 19.7429C24.6223 15.9973 26.3891 12.6608 29.1406 10.5107C27.1285 8.93843 24.5892 7.99998 21.8294 7.99998C15.2961 7.99998 10 13.2574 10 19.7429C10 26.2283 15.2961 31.4857 21.8294 31.4857C24.5892 31.4857 27.1285 30.5473 29.1406 28.975C26.3891 26.8249 24.6223 23.4884 24.6223 19.7429" fill="#EB001B"></path> <path d="M48.2706 19.7429C48.2706 26.2283 42.9745 31.4857 36.4412 31.4857C33.6814 31.4857 31.1421 30.5473 29.1293 28.975C31.8815 26.8249 33.6483 23.4884 33.6483 19.7429C33.6483 15.9973 31.8815 12.6608 29.1293 10.5107C31.1421 8.93843 33.6814 7.99998 36.4412 7.99998C42.9745 7.99998 48.2706 13.2574 48.2706 19.7429" fill="#F79E1B"></path> </g></svg>
+                    {%- endif -%}
+                    {%- if section_st.enable_amex -%}
+                      <svg width="38" height="24" viewBox="0 0 57 39" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="0.5" y="0.5" width="57" height="39" rx="3.5" fill="#006FCF" stroke="#F3F3F3"></rect> <path fill-rule="evenodd" clip-rule="evenodd" d="M11.8632 28.8937V20.6592H21.1869L22.1872 21.8787L23.2206 20.6592H57.0632V28.3258C57.0632 28.3258 56.1782 28.8855 55.1546 28.8937H36.4152L35.2874 27.5957V28.8937H31.5916V26.6779C31.5916 26.6779 31.0867 26.9872 29.9953 26.9872H28.7373V28.8937H23.1415L22.1426 27.6481L21.1284 28.8937H11.8632ZM1 14.4529L3.09775 9.86914H6.7256L7.9161 12.4368V9.86914H12.4258L13.1346 11.7249L13.8216 9.86914H34.0657V10.8021C34.0657 10.8021 35.1299 9.86914 36.8789 9.86914L43.4474 9.89066L44.6173 12.4247V9.86914H48.3913L49.43 11.3247V9.86914H53.2386V18.1037H49.43L48.4346 16.6434V18.1037H42.8898L42.3321 16.8056H40.8415L40.293 18.1037H36.5327C35.0277 18.1037 34.0657 17.1897 34.0657 17.1897V18.1037H28.3961L27.2708 16.8056V18.1037H6.18816L5.63093 16.8056H4.14505L3.59176 18.1037H1V14.4529ZM1.01082 17.05L3.84023 10.8843H5.98528L8.81199 17.05H6.92932L6.40997 15.8154H3.37498L2.85291 17.05H1.01082ZM5.81217 14.4768L4.88706 12.3192L3.95925 14.4768H5.81217ZM9.00675 17.049V10.8832L11.6245 10.8924L13.147 14.8676L14.6331 10.8832H17.2299V17.049H15.5853V12.5058L13.8419 17.049H12.3996L10.6514 12.5058V17.049H9.00675ZM18.3552 17.049V10.8832H23.7219V12.2624H20.0171V13.3171H23.6353V14.6151H20.0171V15.7104H23.7219V17.049H18.3552ZM24.674 17.05V10.8843H28.3339C29.5465 10.8843 30.6331 11.5871 30.6331 12.8846C30.6331 13.9938 29.717 14.7082 28.8289 14.7784L30.9929 17.05H28.9831L27.0111 14.8596H26.3186V17.05H24.674ZM28.1986 12.2635H26.3186V13.5615H28.223C28.5526 13.5615 28.9776 13.3221 28.9776 12.9125C28.9776 12.5941 28.6496 12.2635 28.1986 12.2635ZM32.9837 17.049H31.3045V10.8832H32.9837V17.049ZM36.9655 17.049H36.603C34.8492 17.049 33.7844 15.754 33.7844 13.9915C33.7844 12.1854 34.8373 10.8832 37.052 10.8832H38.8698V12.3436H36.9856C36.0865 12.3436 35.4507 13.0012 35.4507 14.0067C35.4507 15.2008 36.1777 15.7023 37.2251 15.7023H37.6579L36.9655 17.049ZM37.7147 17.05L40.5441 10.8843H42.6892L45.5159 17.05H43.6332L43.1139 15.8154H40.0789L39.5568 17.05H37.7147ZM42.5161 14.4768L41.591 12.3192L40.6632 14.4768H42.5161ZM45.708 17.049V10.8832H47.7989L50.4687 14.7571V10.8832H52.1134V17.049H50.09L47.3526 13.0737V17.049H45.708ZM12.9885 27.8391V21.6733H18.3552V23.0525H14.6504V24.1072H18.2686V25.4052H14.6504V26.5005H18.3552V27.8391H12.9885ZM39.2853 27.8391V21.6733H44.6519V23.0525H40.9472V24.1072H44.5481V25.4052H40.9472V26.5005H44.6519V27.8391H39.2853ZM18.5635 27.8391L21.1765 24.7942L18.5012 21.6733H20.5733L22.1665 23.6026L23.7651 21.6733H25.756L23.1159 24.7562L25.7338 27.8391H23.6621L22.1151 25.9402L20.6057 27.8391H18.5635ZM25.9291 27.8401V21.6744H29.5619C31.0525 21.6744 31.9234 22.5748 31.9234 23.7482C31.9234 25.1647 30.8131 25.893 29.3482 25.893H27.617V27.8401H25.9291ZM29.4402 23.0687H27.617V24.4885H29.4348C29.9151 24.4885 30.2517 24.1901 30.2517 23.7786C30.2517 23.3406 29.9134 23.0687 29.4402 23.0687ZM32.6375 27.8391V21.6733H36.2973C37.51 21.6733 38.5966 22.3761 38.5966 23.6736C38.5966 24.7828 37.6805 25.4972 36.7923 25.5675L38.9563 27.8391H36.9465L34.9746 25.6486H34.2821V27.8391H32.6375ZM36.1621 23.0525H34.2821V24.3505H36.1864C36.5161 24.3505 36.9411 24.1112 36.9411 23.7015C36.9411 23.3831 36.6131 23.0525 36.1621 23.0525ZM45.4137 27.8391V26.5005H48.7051C49.1921 26.5005 49.403 26.2538 49.403 25.9833C49.403 25.7241 49.1928 25.462 48.7051 25.462H47.2177C45.9249 25.462 45.2048 24.7237 45.2048 23.6153C45.2048 22.6267 45.8642 21.6733 47.7854 21.6733H50.9881L50.2956 23.0606H47.5257C46.9962 23.0606 46.8332 23.321 46.8332 23.5697C46.8332 23.8253 47.0347 24.1072 47.4392 24.1072H48.9972C50.4384 24.1072 51.0638 24.8734 51.0638 25.8768C51.0638 26.9555 50.367 27.8391 48.9188 27.8391H45.4137ZM51.2088 27.8391V26.5005H54.5002C54.9873 26.5005 55.1981 26.2538 55.1981 25.9833C55.1981 25.7241 54.9879 25.462 54.5002 25.462H53.0129C51.72 25.462 51 24.7237 51 23.6153C51 22.6267 51.6594 21.6733 53.5806 21.6733H56.7833L56.0908 23.0606H53.3209C52.7914 23.0606 52.6284 23.321 52.6284 23.5697C52.6284 23.8253 52.8298 24.1072 53.2343 24.1072H54.7924C56.2336 24.1072 56.859 24.8734 56.859 25.8768C56.859 26.9555 56.1621 27.8391 54.7139 27.8391H51.2088Z" fill="white"></path> </g></svg>
+                    {%- endif -%}
+                    {%- if section_st.enable_paypal -%}
+                      <svg width="38" height="24" viewBox="0 0 57 39" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="0.5" y="0.5" width="57" height="39" rx="3.5" fill="white" stroke="#F3F3F3"></rect> <path fill-rule="evenodd" clip-rule="evenodd" d="M26.4388 20.2562L26.6913 18.6477L26.1288 18.6346H23.4429L25.3095 6.76505C25.3153 6.72911 25.3341 6.69575 25.3616 6.67201C25.3892 6.64827 25.4243 6.63525 25.4611 6.63525H29.9901C31.4937 6.63525 32.5313 6.94897 33.073 7.56826C33.327 7.85879 33.4887 8.16246 33.567 8.49653C33.6491 8.84713 33.6505 9.26596 33.5704 9.77689L33.5646 9.81405V10.1415L33.8186 10.2858C34.0324 10.3996 34.2024 10.5298 34.3328 10.6788C34.55 10.9273 34.6905 11.2431 34.7499 11.6173C34.8113 12.0022 34.791 12.4604 34.6905 12.979C34.5746 13.5755 34.3873 14.0951 34.1343 14.5202C33.9016 14.9119 33.6052 15.2369 33.2531 15.4886C32.9171 15.7279 32.5178 15.9095 32.0664 16.0257C31.6288 16.1399 31.1301 16.1975 30.583 16.1975H30.2305C29.9786 16.1975 29.7338 16.2886 29.5416 16.4517C29.3489 16.6183 29.2215 16.8459 29.1824 17.0947L29.1558 17.2396L28.7096 20.0747L28.6894 20.1787C28.684 20.2117 28.6748 20.2281 28.6613 20.2392C28.6493 20.2494 28.632 20.2562 28.615 20.2562H26.4388" fill="#28356A"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M34.0589 9.85181C34.0455 9.93848 34.03 10.027 34.0126 10.1181C33.4154 13.1934 31.372 14.2558 28.7623 14.2558H27.4335C27.1143 14.2558 26.8453 14.4881 26.7957 14.8038L25.9227 20.3573C25.8904 20.5647 26.0497 20.7514 26.2582 20.7514H28.615C28.894 20.7514 29.1311 20.5481 29.1751 20.2721L29.1982 20.1521L29.6419 17.3281L29.6705 17.1732C29.7139 16.8962 29.9515 16.6928 30.2305 16.6928H30.583C32.8663 16.6928 34.6538 15.7632 35.1763 13.0728C35.3944 11.9489 35.2815 11.0105 34.704 10.3505C34.5293 10.1516 34.3125 9.98635 34.0589 9.85181" fill="#298FC2"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M33.4342 9.60206C33.3429 9.57534 33.2488 9.5512 33.1522 9.52936C33.0551 9.50807 32.9557 9.48922 32.8533 9.47267C32.4951 9.41462 32.1025 9.38708 31.682 9.38708H28.1322C28.0447 9.38708 27.9617 9.40689 27.8874 9.44269C27.7236 9.52163 27.602 9.67707 27.5726 9.86736L26.8174 14.6641L26.7957 14.8039C26.8454 14.4882 27.1144 14.2558 27.4335 14.2558H28.7623C31.372 14.2558 33.4154 13.1929 34.0127 10.1181C34.0305 10.0271 34.0455 9.93856 34.0589 9.85189C33.9078 9.77146 33.7442 9.7027 33.568 9.64411C33.5244 9.62959 33.4795 9.61562 33.4342 9.60206" fill="#22284F"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M27.5726 9.86737C27.6021 9.67708 27.7236 9.52165 27.8874 9.44325C27.9622 9.40731 28.0447 9.38751 28.1322 9.38751H31.682C32.1025 9.38751 32.4951 9.41518 32.8534 9.47323C32.9557 9.48964 33.0551 9.50863 33.1522 9.52992C33.2488 9.55162 33.3429 9.5759 33.4342 9.60248C33.4795 9.61605 33.5244 9.63015 33.5684 9.64412C33.7446 9.70272 33.9084 9.77202 34.0595 9.85191C34.2372 8.71545 34.058 7.94168 33.4453 7.241C32.7698 6.46953 31.5507 6.1394 29.9906 6.1394H25.4615C25.1429 6.1394 24.8711 6.37174 24.8218 6.68803L22.9354 18.6796C22.8982 18.9168 23.0807 19.1309 23.3193 19.1309H26.1153L27.5726 9.86737" fill="#28356A"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M13.0946 23.5209H9.79248C9.56648 23.5209 9.3743 23.6855 9.339 23.9093L8.00345 32.4009C7.97695 32.5686 8.10638 32.7195 8.27584 32.7195H9.85225C10.0782 32.7195 10.2704 32.555 10.3057 32.3308L10.6659 30.0404C10.7006 29.8162 10.8932 29.6516 11.1188 29.6516H12.1641C14.3393 29.6516 15.5946 28.5959 15.9226 26.5042C16.0703 25.589 15.9288 24.87 15.5014 24.3664C15.0321 23.8134 14.1997 23.5209 13.0946 23.5209ZM13.4755 26.6224C13.2949 27.8106 12.3896 27.8106 11.5143 27.8106H11.0159L11.3655 25.5914C11.3863 25.4573 11.5021 25.3585 11.6374 25.3585H11.8658C12.4621 25.3585 13.0246 25.3585 13.3152 25.6994C13.4886 25.9027 13.5416 26.2049 13.4755 26.6224Z" fill="#28356A"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M23.0496 26.5199H21.4683C21.3336 26.5199 21.2171 26.6187 21.1964 26.7528L21.1264 27.1963L21.0159 27.0356C20.6736 26.5373 19.9101 26.3707 19.1483 26.3707C17.4008 26.3707 15.9084 27.698 15.6177 29.5598C15.4666 30.4885 15.6814 31.3766 16.2068 31.9959C16.6887 32.5653 17.3782 32.8026 18.1985 32.8026C19.6065 32.8026 20.3871 31.8947 20.3871 31.8947L20.3167 32.3354C20.2902 32.5038 20.4196 32.6549 20.5881 32.6549H22.0124C22.2389 32.6549 22.4301 32.4903 22.4659 32.2661L23.3205 26.8385C23.3475 26.6714 23.2185 26.5199 23.0496 26.5199ZM20.8453 29.6064C20.6928 30.5122 19.9759 31.1204 19.0613 31.1204C18.6022 31.1204 18.2353 30.9727 17.9995 30.6929C17.7658 30.415 17.6771 30.0194 17.7513 29.5787C17.8939 28.6805 18.6229 28.0524 19.5235 28.0524C19.9725 28.0524 20.3375 28.2022 20.578 28.4843C20.8188 28.7695 20.9145 29.1676 20.8453 29.6064Z" fill="#28356A"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M31.3495 26.6556H29.7604C29.6088 26.6556 29.4664 26.7312 29.3805 26.8576L27.1888 30.095L26.2598 26.9839C26.2014 26.7892 26.0223 26.6556 25.8195 26.6556H24.2581C24.0682 26.6556 23.9365 26.8416 23.9968 27.0208L25.7471 32.1718L24.1016 34.5014C23.9722 34.6849 24.1025 34.9372 24.3261 34.9372H25.9132C26.0639 34.9372 26.2048 34.8635 26.2903 34.7397L31.5754 27.089C31.702 26.906 31.572 26.6556 31.3495 26.6556" fill="#28356A"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M36.6469 23.5209H33.3444C33.1189 23.5209 32.9267 23.6855 32.8914 23.9093L31.5559 32.4009C31.5294 32.5686 31.6588 32.7195 31.8273 32.7195H33.5221C33.6794 32.7195 33.8141 32.6044 33.8387 32.4475L34.2178 30.0404C34.2525 29.8162 34.4453 29.6516 34.6707 29.6516H35.7156C37.8912 29.6516 39.1461 28.5959 39.4745 26.5042C39.6227 25.589 39.4803 24.87 39.0529 24.3664C38.584 23.8134 37.7521 23.5209 36.6469 23.5209ZM37.0279 26.6224C36.8478 27.8106 35.9424 27.8106 35.0666 27.8106H34.5689L34.9189 25.5914C34.9396 25.4573 35.0545 25.3585 35.1902 25.3585H35.4186C36.0144 25.3585 36.5774 25.3585 36.868 25.6994C37.0414 25.9027 37.094 26.2049 37.0279 26.6224Z" fill="#298FC2"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M46.5999 26.5199H45.0195C44.8839 26.5199 44.7685 26.6187 44.7482 26.7528L44.6782 27.1963L44.5671 27.0356C44.2248 26.5373 43.4619 26.3707 42.6999 26.3707C40.9526 26.3707 39.4607 27.698 39.1701 29.5598C39.0194 30.4885 39.2332 31.3766 39.7585 31.9959C40.2415 32.5653 40.9299 32.8026 41.7503 32.8026C43.1582 32.8026 43.9389 31.8947 43.9389 31.8947L43.8685 32.3354C43.842 32.5038 43.9713 32.6549 44.1408 32.6549H45.5647C45.7902 32.6549 45.9823 32.4903 46.0176 32.2661L46.8727 26.8385C46.8988 26.6714 46.7693 26.5199 46.5999 26.5199ZM44.3958 29.6064C44.2442 30.5122 43.5262 31.1204 42.6116 31.1204C42.1534 31.1204 41.7856 30.9727 41.5498 30.6929C41.3163 30.415 41.2283 30.0194 41.3016 29.5787C41.4451 28.6805 42.1732 28.0524 43.0738 28.0524C43.5228 28.0524 43.8878 28.2022 44.1283 28.4843C44.3701 28.7695 44.4657 29.1676 44.3958 29.6064Z" fill="#298FC2"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M48.3324 23.7543L46.9771 32.4013C46.9506 32.569 47.0799 32.7199 47.2484 32.7199H48.611C48.8375 32.7199 49.0296 32.5554 49.0643 32.3312L50.4008 23.84C50.4275 23.6724 50.298 23.5209 50.1295 23.5209H48.6038C48.4691 23.5213 48.3532 23.6202 48.3324 23.7543" fill="#298FC2"></path> </g></svg>
+                    {%- endif -%}
+                    {%- if section_st.enable_apple_pay -%}
+                      <svg width="38" height="24" viewBox="0 0 57 39" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="0.5" y="0.5" width="57" height="39" rx="3.5" fill="white" stroke="#F3F3F3"></rect> <path fill-rule="evenodd" clip-rule="evenodd" d="M17.5771 14.9265C17.1553 15.4313 16.4803 15.8294 15.8053 15.7725C15.7209 15.09 16.0513 14.3649 16.4381 13.9171C16.8599 13.3981 17.5982 13.0284 18.1959 13C18.2662 13.7109 17.992 14.4076 17.5771 14.9265ZM18.1888 15.9076C17.5942 15.873 17.0516 16.0884 16.6133 16.2624C16.3313 16.3744 16.0924 16.4692 15.9107 16.4692C15.7068 16.4692 15.4581 16.3693 15.1789 16.2571C14.813 16.1102 14.3947 15.9422 13.956 15.9502C12.9506 15.9645 12.0154 16.5403 11.5021 17.4573C10.4474 19.2915 11.2279 22.0071 12.2474 23.5C12.7467 24.2393 13.3443 25.0498 14.1318 25.0213C14.4783 25.0081 14.7275 24.9012 14.9854 24.7905C15.2823 24.6631 15.5908 24.5308 16.0724 24.5308C16.5374 24.5308 16.8324 24.6597 17.1155 24.7834C17.3847 24.9011 17.6433 25.014 18.0271 25.0071C18.8428 24.9929 19.356 24.2678 19.8553 23.5284C20.394 22.7349 20.6307 21.9605 20.6667 21.843L20.6709 21.8294C20.67 21.8285 20.6634 21.8254 20.6516 21.82C20.4715 21.7366 19.095 21.0995 19.0818 19.391C19.0686 17.957 20.1736 17.2304 20.3476 17.116C20.3582 17.109 20.3653 17.1043 20.3685 17.1019C19.6654 16.0498 18.5685 15.936 18.1888 15.9076ZM23.8349 24.9289V13.846H27.9482C30.0717 13.846 31.5553 15.3246 31.5553 17.4858C31.5553 19.6469 30.0435 21.1398 27.892 21.1398H25.5365V24.9289H23.8349ZM25.5365 15.2962H27.4982C28.9748 15.2962 29.8185 16.0924 29.8185 17.4929C29.8185 18.8934 28.9748 19.6967 27.4912 19.6967H25.5365V15.2962ZM37.1732 23.5995C36.7232 24.4668 35.7318 25.0142 34.6631 25.0142C33.081 25.0142 31.9771 24.0616 31.9771 22.6256C31.9771 21.2038 33.0459 20.3863 35.0217 20.2654L37.1451 20.1374V19.5261C37.1451 18.6232 36.5615 18.1327 35.5209 18.1327C34.6631 18.1327 34.0373 18.5806 33.9107 19.263H32.3779C32.4271 17.827 33.7631 16.782 35.5701 16.782C37.5177 16.782 38.7834 17.8128 38.7834 19.4123V24.9289H37.2084V23.5995H37.1732ZM35.1201 23.6991C34.2131 23.6991 33.6365 23.2583 33.6365 22.5829C33.6365 21.8863 34.192 21.481 35.2537 21.4171L37.1451 21.2962V21.9218C37.1451 22.9597 36.2732 23.6991 35.1201 23.6991ZM44.0076 25.3626C43.3256 27.3033 42.5451 27.9431 40.8857 27.9431C40.7592 27.9431 40.3373 27.9289 40.2388 27.9005V26.5711C40.3443 26.5853 40.6045 26.5995 40.7381 26.5995C41.4904 26.5995 41.9123 26.2796 42.1724 25.4479L42.3271 24.9573L39.4443 16.8886H41.2232L43.2271 23.436H43.2623L45.2662 16.8886H46.9959L44.0076 25.3626Z" fill="#000000"></path> </g></svg>
+                    {%- endif -%}
+                    {%- if section_st.enable_google_pay -%}
+                      <svg width="38" height="24" viewBox="0 0 57 39" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="0.5" y="0.5" width="57" height="39" rx="3.5" fill="white" stroke="#F3F3F3"></rect> <path fill-rule="evenodd" clip-rule="evenodd" d="M27.9174 24.1182V19.6071V19.6062H30.3578C31.3639 19.6068 32.2095 19.2907 32.8945 18.6578C33.5868 18.0571 33.9738 17.1935 33.9541 16.2934C33.9678 15.3982 33.5815 14.541 32.8945 13.9422C32.2155 13.3059 31.3023 12.9587 30.3578 12.9778H26.4404V24.1182H27.9174ZM27.9174 18.2382V14.3494V14.3485H30.3945C30.9466 14.3334 31.4788 14.5487 31.856 14.9396C32.2355 15.2971 32.4496 15.7881 32.4496 16.3009C32.4496 16.8137 32.2355 17.3048 31.856 17.6622C31.4741 18.0449 30.9436 18.254 30.3945 18.2382H27.9174Z" fill="#5F6368"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M39.9431 17.0951C39.3113 16.5297 38.4496 16.2471 37.3578 16.2471C35.9554 16.2471 34.8963 16.7448 34.1807 17.7404L35.4817 18.5342C35.9624 17.8598 36.6153 17.5226 37.4404 17.5226C37.9664 17.5167 38.4755 17.703 38.8661 18.0444C39.2555 18.3564 39.4795 18.8215 39.4762 19.3111V19.6382C38.9086 19.3271 38.1863 19.1715 37.3092 19.1715C36.2817 19.1727 35.4603 19.4062 34.845 19.872C34.2297 20.3377 33.922 20.965 33.922 21.7537C33.9086 22.4719 34.2302 23.1577 34.7973 23.6204C35.3807 24.1182 36.1058 24.3671 36.9725 24.3671C37.9878 24.3671 38.8012 23.9315 39.4129 23.0604H39.4771V24.1182H40.8899V19.4204C40.8905 18.4355 40.5749 17.6604 39.9431 17.0951ZM35.9367 22.7182C35.6273 22.5021 35.4448 22.1544 35.4468 21.7848C35.4468 21.3697 35.6477 21.024 36.0523 20.7395C36.4529 20.4592 36.9532 20.3191 37.5532 20.3191C38.3771 20.3191 39.0193 20.4968 39.4798 20.8524C39.4798 21.4533 39.2352 21.9768 38.7459 22.4231C38.3052 22.8501 37.7077 23.0905 37.0844 23.0915C36.6689 23.099 36.2634 22.9672 35.9367 22.7182Z" fill="#5F6368"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M49 16.496L44.0679 27.4782H42.5431L44.3734 23.6355L41.1303 16.496H42.7358L45.0798 21.9715H45.1119L47.3917 16.496H49Z" fill="#5F6368"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M21.9486 18.6347C21.9492 18.1986 21.9111 17.7632 21.8349 17.3334H15.6055V19.7983H19.1734C19.0259 20.5938 18.5493 21.2964 17.8541 21.7432V23.3432H19.9835C21.2303 22.2294 21.9486 20.5823 21.9486 18.6347Z" fill="#4285F4"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M15.6055 24.8889C17.3881 24.8889 18.889 24.3217 19.9835 23.344L17.8541 21.744C17.2615 22.1333 16.4982 22.3555 15.6055 22.3555C13.8826 22.3555 12.4202 21.2302 11.8973 19.7137H9.70367V21.3626C10.8249 23.5244 13.1085 24.8887 15.6055 24.8889Z" fill="#34A853"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M11.8973 19.7138C11.6208 18.9192 11.6208 18.0586 11.8973 17.264V15.6151H9.70367C8.76585 17.4232 8.76585 19.5546 9.70367 21.3627L11.8973 19.7138Z" fill="#FBBC04"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M15.6055 14.6223C16.5475 14.6073 17.4577 14.9522 18.1395 15.5823V15.5823L20.0248 13.7556C18.8293 12.6677 17.2455 12.0704 15.6055 12.0889C13.1085 12.089 10.8249 13.4534 9.70367 15.6151L11.8973 17.264C12.4202 15.7476 13.8826 14.6223 15.6055 14.6223Z" fill="#EA4335"></path> </g></svg>
+                    {%- endif -%}
+                    {%- if section_st.enable_maestro -%}
+                      <svg width="38" height="24" viewBox="0 0 57 39" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="0.5" y="0.5" width="57" height="39" rx="3.5" fill="white" stroke="#F3F3F3"></rect> <path d="M34.3102 28.9765H23.9591V10.5122H34.3102V28.9765Z" fill="#6C6BBD"></path> <path d="M24.6223 19.7429C24.6223 15.9973 26.3891 12.6608 29.1406 10.5107C27.1285 8.93843 24.5892 7.99998 21.8294 7.99998C15.2961 7.99998 10 13.2574 10 19.7429C10 26.2283 15.2961 31.4857 21.8294 31.4857C24.5892 31.4857 27.1285 30.5473 29.1406 28.975C26.3891 26.8249 24.6223 23.4884 24.6223 19.7429" fill="#EB001B"></path> <path d="M48.2706 19.7429C48.2706 26.2283 42.9745 31.4857 36.4412 31.4857C33.6814 31.4857 31.1421 30.5473 29.1293 28.975C31.8815 26.8249 33.6483 23.4884 33.6483 19.7429C33.6483 15.9973 31.8815 12.6608 29.1293 10.5107C31.1421 8.93843 33.6814 7.99998 36.4412 7.99998C42.9745 7.99998 48.2706 13.2574 48.2706 19.7429" fill="#0099DF"></path> </g></svg>
+                    {%- endif -%}
+                  </div>
+                {%- endif %}
+                <!-- /Payment Icons --> 
+          
+
+                <!-- Estimated Delivery Badge -->
+                {%- if enable_estimated_delivery -%}
+                  <div class="estimated-delivery-badge mt-10 p-10 rounded text-center" style="background-color: var(--delivery-badge-bg); color: var(--delivery-badge-text);">
+                    {{ estimated_delivery_text }}
+                  </div>
+                {%- endif %}
+                <!-- /Estimated Delivery Badge -->
+              {% endif %}
+
+              <div id="cart-errors"></div>
+            </div>
+
+            <!-- Additional Info Boxes: Delivery & Guarantee -->
+            <div
+              class="cart-content mt-30 p-30 rounded"
+              style="background-color: var(--cart-info-bg); border-radius: var(--cart-info-br);"
+            >
+              {%- if heading_delivery or description_delivery -%}
+                <div class="cart-block">
+                  <span
+                    class="heading mb-10 block fs-big-1 flex items-center"
+                    style="color: var(--heading-delivery-text-color); gap: 8px;"
+                  >
+                    <!-- Delivery Icon from user textarea code -->
+                    <span
+                      class="delivery-info-icon"
+                      style="color: {{ section_st.heading_delivery_icon_svg_color }}; "
+                    >
+                      {{ section_st.heading_delivery_icon_svg_code }}
+                    </span>
+                    {% if heading_delivery != blank %}
+                      {{ heading_delivery }}
+                    {% else %}
+                      {{ 'general.cart.heading_delivery' | t }}
+                    {% endif %}
+                  </span>
+                  <div class="content rich__text-mt-0">
+                    {{ description_delivery }}
+                  </div>
+                </div>
+              {% endif %}
+
+              {%- if heading_guarantee or description_guarantee -%}
+                <div class="cart-block">
+                  <span
+                    class="heading mb-10 block fs-big-1 flex items-center"
+                    style="color: var(--heading-guarantee-text-color); gap: 8px;"
+                  >
+                    <!-- Guarantee Icon from user textarea code -->
+                    <span
+                      class="guarantee-info-icon"
+                      style="color: {{ section_st.heading_guarantee_icon_svg_color }}"
+                    >
+                      {{ section_st.heading_guarantee_icon_svg_code }}
+                    </span>
+                    {% if heading_guarantee != blank %}
+                      {{ heading_guarantee }}
+                    {% else %}
+                      {{ 'general.cart.heading_guarantee' | t }}
+                    {% endif %}
+                  </span>
+                  <div class="content rich__text-mt-0">
+                    {{ description_guarantee }}
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+            <!-- /Additional Info Boxes -->
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+{%- schema -%}
+{"name":"Cart Items","settings":[],"presets":[{"name":"Cart Items"}]}
+{%- endschema -%}
+<style>
+                                          :root {
+                                             --checkout-button-bg-color: {{ section.settings.checkout_button_bg_color }};
+                                             --checkout-button-bg-hover-color: {{ section.settings.checkout_button_bg_hover_color }};
+                                             --checkout-button-border-radius: {{ section.settings.checkout_button_border_radius }}px;
+                                             --free-shipping-price-color: {{ section.settings.free_shipping_price_color | default: '#000000' }};
+                                             --checkout-button-text-color: {{ section.settings.checkout_button_text_color }};
+                                              --free-shipping-price-color: {{ section.settings.free_shipping_price_color | default: '#000000' }} !important;
+                                             --shipping-bar-color: {{ section.settings.shipping_bar_color | default: '#C8C8C8' }} !important;
+                                       --shipping-bar-border-radius: {{ section.settings.shipping_bar_border_radius | default: 2 }}px;
+                                       --shipping-bar-height: {{ section.settings.shipping_bar_height | default: 7 }}px;
+                                         --free-shipping-price-color: {{ settings.free_shipping_price_color }};
+                                             --checkout-button-text-hover-color: {{ section.settings.checkout_button_text_hover_color }};
+                                             --shipping-bar-fill-color: {{ section.settings.shipping_bar_fill_color | default: '#000000' }} !important;
+                                             --checkout-button-shadow-strength: {{ section.settings.checkout_button_shadow_strength }}px;
+                                           }
+
+                                        .cart-recommend.inside .product-item__wrapper {
+                                           background-color: {{ section.settings.product_recommendations_bg_color | default: "#F8F8F8" }};
+                                           border: {{ section.settings.product_recommendations_border_weight | default: 1 }}px solid {{ section.settings.product_recommendations_border_color | default: "#E8E8E8" }};
+                                           border-radius: {{ section.settings.product_recommendations_card_border_radius | default: 8 }}px;
+                                           transition: all 0.3s ease; /* Smooth transitions */
+                                         }
+
+                                         .cart-recommend.inside .product-item__wrapper:hover {
+                                           background-color: {{ section.settings.product_recommendations_hover_bg_color | default: "#FFFFFF" }};
+                                         }
+
+
+.cart-item__final-price,
+.cart-item__price-wrapper .price,
+.cart__page-price .product-option,
+.cart-item__discounted-prices .cart-item__final-price {
+  font-size: 17px !important; /* adjust as needed */
+  font-weight: 550 !important; /* makes it bold */
+
+}
+.custom-card .card-text,
+.custom-card .card-text * {
+  color: var(--card-text-color) !important;
+  font-size: var(--card-text-font-size, 14px);
+
+}
+
+/* Totals on the right side */
+.cart-item__totals .price,
+.totals__subtotal + span,
+.totals .price {
+  font-size: 17px !important;
+  font-weight: 550 !important;
+
+}
+.cart-items thead { display: none !important; }
+
+/* Clean inline layout: product (left), qty (middle), total (right) */
+.cart-item__media { width: var(--custom-width, 8rem); }
+.cart-item__details { width: auto; }
+.cart-item__quantity { width: 140px; text-align: center; vertical-align: middle; }
+.cart-item__totals  { width: 145px; text-align: right; vertical-align: middle; }
+
+/* Pill style for qty × total */
+.cart-item__totals .qtyxprice{
+  display: inline-block;
+  background-color: var(--cart-item-totals-price-bg);
+  padding: 8px 18px;
+  border-radius: var(--cart-item-totals-price-br);
+  font-weight: 500;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+/* Make sure the old Price column never shows (if any leftover) */
+.cart__page-price { display: none !important; }
+
+
+                         .add-to-cart-hover-button {
+
+                                   display: none !important;
+
+
+                      }
+
+
+                    .gift-wrap-message {
+                  display: flex !important; /* Force flex alignment */
+                  align-items: center !important; /* Align vertically */
+                  flex-wrap: wrap !important; /* Allow wrapping for smaller screens */
+                  max-width: 110% !important; /* Prevent clipping */
+                  text-align: left !important; /* Ensure text is aligned */
+                  gap: 8px !important; /* Add spacing */
+                        background-color: var(--safe-delivery-bg-color) !important;
+         border-radius: var(--safe-delivery-border-radius) !important;
+         color: var(--safe-delivery-text-color) !important;
+                  white-space: normal !important; /* Ensure text wraps naturally */
+                  word-break: break-word !important; /* Break long words */
+                  margin: -15px 5px !important; /* Add vertical spacing */
+                  padding: 14px !important; /* Adjust inner spacing */
+                }
+
+
+             .safe-icon {
+               color: #007BFF; /* Adjust to your preferred icon color */
+               width: 18px;
+               height: 18px;
+                }
+               .safe-icon {
+          fill: var(--safe-delivery-icon-color) !important;
+       }
+             }
+                .gift-wrap-message input {
+                  margin-right: -4px !important; /* Ensure spacing between checkbox and text */
+                  flex-shrink: 0 !important; /* Prevent checkbox from resizing */
+                }
+
+                .gift-wrap-message span {
+                  display: inline !important; /* Ensure text is inline */
+                  word-wrap: break-word !important; /* Break long text */
+                  white-space: normal !important; /* Allow text wrapping */
+                  overflow-wrap: break-word !important; /* Ensure modern browser compatibility */
+
+
+}
+/* Desktop-only top gray separator ABOVE the cart list (no row borders used) */
+@media (min-width: 1025px) {
+  form.cart__contents {
+    position: relative;
+    padding-top: 18px;           /* space under the line */
+  }
+  form.cart__contents::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: var(--slim-top-bar-color);        /* the gray line */
+  }
+}
+
+/* Ensure it does NOT show on smaller screens */
+@media (max-width: 1024.98px) {
+  form.cart__contents { padding-top: 0; }
+  form.cart__contents::before { content: none; }
+}
+
+           .gift-wrap-message {
+               display: flex;
+               align-items: center;
+               gap: 8px; /* Space between elements */
+               padding: 10px;
+               border-radius: 10px;
+               background-color: #f5f5f5;
+               word-break: break-word; /* Prevent text overflow */
+               flex-wrap: wrap; /* Allow wrapping on mobile */
+           }
+
+           .gift-wrap-message label {
+               flex: 1; /* Take up the remaining space */
+               margin-bottom: 0px !important; /* Add spacing for smaller screens */
+           }
+
+           .safe-icon {
+               margin-left: auto; /* Push to the far right */
+               width: 16px; /* Adjust the size of the icon */
+               height: 16px;
+
+               fill: #000; /* Icon color */
+               flex-shrink: 0; /* Prevent resizing */
+           }
+
+           .gift-wrap-message input[type="checkbox"] {
+               flex-shrink: 0; /* Keep checkbox size fixed */
+               margin-right: 8px; /* Space between checkbox and text */
+           }
+
+
+  #card-{{ block.id }} .card-text,
+  #card-{{ block.id }} .card-text * {
+    color: var(--card-text-color) !important;
+  }
+  /* Make pasted SVG icons inherit color (works whether they use fill or stroke) */
+  #card-{{ block.id }} .card-icon svg {
+    color: var(--card-text-color) !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+  }
+
+
+
+
+                                     .free-shipping-message span.price {
+                                       color: var(--free-shipping-price-color) !important;
+                                       font-weight: bold;
+                                     }
+                                          .cart-recommend.inside .product-item__wrapper {
+                                            border-radius: var(--product-card-border-radius); /* Dynamic border-radius */
+                                            transition: border-radius 0.3s ease; /* Smooth transition effect */
+                                         }
+                                             /* Base cart note styles are now controlled by CSS variables inlined above */
+                                             .main-cart .checkmark:before {
+                                               --grey-color: var(--color-white);
+                                             }
+
+                                             /* Make sure the mobile version can hide & show the appropriate images */
+                                             .show-on-mobile {
+                                               display: none;
+                                             }
+
+                                           .btn-checkout {
+                                              background-color: var(--checkout-button-bg-color, #007BFF) !important;
+                                           color: var(--checkout-button-text-color, #FFFFFF) !important;
+                                           border-radius: var(--checkout-button-border-radius, 8px) !important;
+                                           box-shadow: 0 var(--checkout-button-shadow-strength, 10px) 20px rgba(0, 0, 0, 0.1) !important;
+                                             border: none; /* Remove borders */
+
+                                             padding: 12px 20px; /* Adjust padding for a modern look */
+                                             font-size: 16px; /* Increase font size for better readability */
+                                             font-weight: bold; /* Make the text bold */
+                                             cursor: pointer; /* Change cursor to pointer for clickability */
+                                             transition: all 0.3s ease; /* Smooth transition effect */
+
+                                           }
+
+                                           .btn-checkout:hover {
+                                              background-color: var(--checkout-button-bg-hover-color, #0056b3) !important;
+                                          color: var(--checkout-button-text-hover-color, #FFFFFF) !important;
+                                          box-shadow: 0 var(--checkout-button-shadow-strength, 20px) 30px rgba(0, 0, 0, 0.2) !important;
+                                           }
+/* ===== CART ROW CLEANUP / ALIGNMENT ===== */
+
+/* Top gray separator line above the list (like your ref screenshot) */
+
+
+/* Compact option lines (small, neutral, no pills) */
+.page__cart-item .cart-option-line{
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: #6F6F6F;
+  margin: 2px 0 0;
+  padding: 0;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* Make sure we don't still show the old pill style in this area */
+.page__cart-item .cart-item__price-wrapper .product-option{ 
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-size: 12.5px !important;
+  color: #6F6F6F !important;
+}
+
+/* Keep the layout like: product (left) → qty (middle) → total (right) */
+.cart-item__quantity,
+.cart-item__totals {
+  padding: 0 10px;
+  vertical-align: middle !important;
+}
+
+/* The wrappers act as one flex row */
+.cart-item__quantity .cart-item__quantity-wrapper,
+.cart-item__totals .cart-item__price-wrapper {
+  display: flex;
+  align-items: center;      /* <-- aligns pill text with qty buttons */
+  justify-content: center;  /* optional: can be flex-end if you prefer */
+  gap: 8px;                 /* spacing between qty and pill */
+  height: 100%;
+}
+@media (max-width: 1024px) {
+  /* Option A: add space under the recommendations block */
+  .cart_page-recommend.inside {
+    margin-bottom: 60px !important;  /* tweak value */
+  }
+
+  /* (Optional) If you prefer pushing the cards instead, use this instead of A */
+  /* .cart_page-recommend.inside + .custom-cards-container {
+    margin-top: 90px !important;
+  } */
+}
+@media screen and (max-width: 767.98px) {
+  /* Push the whole bullet row further down from the product cards */
+  .swiper-horizontal > .swiper-pagination-bullets,
+  .swiper-pagination-horizontal.swiper-pagination-bullets {
+    margin-top: 30px !important; /* adjust this value */
+
+  }
+}
+/* Desktop: increase gap between bullets and product cards */
+@media screen and (min-width: 1025px) {
+  .swiper-horizontal > .swiper-pagination-bullets,
+  .swiper-pagination-horizontal.swiper-pagination-bullets {
+    margin-top: 30px !important; /* tweak for desktop */
+  }
+}
+/* The pill itself */
+.cart-item__totals .qtyxprice {
+  display: flex;
+  align-items: center;   /* text always centered vertically */
+  justify-content: center;
+  margin: 0 !important;
+  padding: 0 14px;
+  border-radius: var(--cart-item-totals-price-br);
+  background-color: var(--cart-item-totals-price-bg);
+  font-weight: 500;
+  font-size: 15px;
+        /* match input height */
+
+}
+/* ---------- MOBILE CART CLEANUP ---------- */
+@media screen and (max-width: 767px) {
+
+  /* Move gray border higher so it doesn’t touch product */
+  .cart__contents .cart-items 
+    margin-top: 20px; /* adjust spacing from border */
+    padding-top: 10px;
+  }
+
+  /* On mobile, show only the price (remove qty and "×") */
+  .cart-item__totals .qtyxprice {
+    font-size: 15px;
+    padding: 10px 16px;
+     font-weight: 500 !important;
+    display: inline-block;
+  }
+  .cart-item__totals .qtyxprice .js-qty,
+  .cart-item__totals .qtyxprice::before,
+  .cart-item__totals .qtyxprice::after {
+    display: none !important;
+    content: none !important;
+  }
+}
+/* One rule to rule them all */
+#card-{{ block.id }} .card-text,
+#card-{{ block.id }} .card-text * {
+  color: var(--card-text-color) !important;
+}
+
+/* Make pasted SVGs inherit too */
+#card-{{ block.id }} .card-icon svg {
+  color: var(--card-text-color) !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+/* Column widths to keep spacing consistent */
+.cart-item__quantity { width: 140px; text-align: center; }
+.cart-item__totals  { width: 145px; text-align: right; }
+
+/* Ensure the old Price column never sneaks back in */
+.cart__page-price { display: none !important; }
+
+@media screen and (min-width: 1025px) {
+  .cart-item__totals {
+    display: table-cell !important; /* behave like the other <td> */
+    vertical-align: middle !important; /* center with price & qty */
+    margin-top: 0 !important;
+     font-weight: 500 !important;
+    padding-top: 0 !important;
+  }
+
+  .cart-item__totals .price {
+    margin-top: 0 !important; /* remove extra push */
+  }
+
+  /* optional: keep remove button aligned neatly */
+  .cart-item__totals cart-remove-button {
+    position: static !important;
+    margin-top: 0 !important;
+  }
+}
+@media screen and (min-width: 768px) {
+  .cart-item__totals {
+    display: table-cell !important;   /* behave like the other <td> */
+    vertical-align: middle !important; /* center with price & qty */
+   padding-top: -20px !important;
+
+  }
+
+  .cart-item__totals .price {
+    margin-top: 0 !important; /* remove extra push */
+  }
+
+  /* optional: keep remove button aligned neatly */
+  .cart-item__totals cart-remove-button {
+    position: static !important;
+    margin-top: 0 !important;
+  }
+}
+
+                                             .hidden-on-mobile {
+                                               display: block;
+                                             }
+                                             @media screen and (max-width: 767.98px) {
+                                               .show-on-mobile {
+                                                 display: block;
+                                               }
+                                               .hidden-on-mobile {
+                                                 display: none;
+
+                                               }
+                                               /* Custom Cards: Display vertically on mobile */
+                                               .custom-cards-slider {
+                                                 flex-direction: column;
+                                                 align-items: center;
+                                                 overflow-x: hidden; /* Hide horizontal scrollbar */
+                                                 gap: 3px !important;
+                                               }
+                                               .custom-card {
+                                                 min-width: 100%;
+                                                 max-width: 100%;
+                                                 margin-bottom: var(--cards-gap); /* Current margin setting */
+                                                 scroll-snap-align: none; /* Disable snap on mobile */
+                                               }
+
+                                               /* Adjust scrollbar for vertical layout if needed */
+                                               .custom-cards-slider::-webkit-scrollbar {
+                                                 width: 6px; /* Slim track */
+                                                 height: 6px; /* Adjust if vertical scrollbar appears */
+                                                 background-color: #e2e2e2; /* Light gray track */
+                                               }
+                                               .custom-cards-slider::-webkit-scrollbar-thumb {
+                                                 background-color: #a8a8a8; /* Gray thumb */
+                                                 border-radius: 4px;
+                                               }
+                                               /* For Firefox (optional) */
+                                               .custom-cards-slider {
+                                                 scrollbar-color: #a8a8a8 #e2e2e2;
+                                                 scrollbar-width: thin;
+                                               }
+                                             }
+@media screen and (max-width: 768px) {
+  .cart-item__media,
+  .cart-item__details,
+  .cart-item__quantity,
+  .cart-item__totals {
+    border-bottom: none !important;
+  }
+}
+  #card-{{ block.id }} .card-text,
+  #card-{{ block.id }} .card-text * {
+    color: var(--card-subheading-color) !important;
+  }
+                                             /* Add Order Note text color */
+                                             .add-order-note {
+                                               display: inline-flex;
+                                               align-items: center;
+                                               gap: 8px;
+                                               color: var(--add_order_note_text_color);
+                                             }
+
+                                             /* Countdown box */
+                                             .cart_page-countdown {
+                                               border: none !important;
+                                               background-color: var(--cart-page-countdown-bg) !important;
+                                               border-radius: var(--cart-page-countdown-br) !important;
+                                               color: var(--cart-page-countdown-text-color) !important;
+                                               margin-bottom: 22px !important;
+                                             }
+                                             :is(.cart-countdown-time,.page-cart) .countdown-inner {
+                                               color: var(--countdown-inner-color) !important;
+                                             }
+
+                                             /* Price pill on totals */
+                                             .cart-item__totals .price {
+                                               display: inline-block;
+                                               background-color: var(--cart-item-totals-price-bg);
+                                               color: #333;
+
+                                               padding: 8px 18px;
+                                               border-radius: var(--cart-item-totals-price-br);
+                                               font-weight: bold;
+                                               font-size: 1.4rem;
+                                             }
+                                             .cart-item__totals {
+                                               position: relative;
+                                             }
+                                             .cart-item__totals cart-remove-button {
+                                               position: absolute;
+                                               top: 0;
+                                               right: -25px;
+                                               margin-top: 61px;
+                                               background: none;
+                                               border: none;
+                                               cursor: pointer;
+                                             }
+
+                                             /* Product options pill style */
+                                             .cart-item__price-wrapper .product-option {
+                                               display: inline-block;
+                                               background-color: var(--product-option-bg);
+                                               color: #333;
+                                               padding: 8px 18px;
+                                               border-radius: var(--product-option-border-radius);
+                                               font-weight: 500;
+                                               font-size: 1.37rem;
+                                             }
+
+                                             /* Remove text link (mobile) */
+                                             .cart-remove-text {
+                                               display: block;
+                                               margin-top: 0.6rem;
+                                               color: var(--remove-text-color);
+                                               text-decoration: underline;
+                                               cursor: pointer;
+                                               font-size: 1.3rem;
+                                             }
+                                             .cart-remove-text:hover {
+                                               color: var(--remove-text-hover_color);
+                                             }
+
+                                             /* X remove icon states */
+                                             .cart-remove-icon {
+                                               stroke: var(--x-remove-icon-color) !important;
+                                               width: var(--x-remove-icon-size) !important;
+                                               height: var(--x-remove-icon-size) !important;
+                                             }
+                                             .cart-remove:hover .cart-remove-icon {
+                                               stroke: var(--x-remove-icon-hover-color) !important;
+                                             }
+
+                                             /* Link styling for typical cart disclaimers */
+                                             .js-contents .caption-large a {
+                                               text-decoration: none;
+                                             }
+                                             .js-contents .caption-large a:not(:hover) {
+                                               color: var(--color-heading);
+                                             }
+
+                                             /* Delivery & Guarantee heading icons use the parent's color */
+                                             .delivery-info-icon svg,
+                                             .guarantee-info-icon svg {
+                                               fill: currentColor;
+                                               width: 2rem;
+                                               height: 2rem;
+                                               margin-right: 4px;
+                                               margin-bottom: -4px;
+                                               justify-content: center;
+                                             }
+
+                                             /* Layout tweaks for larger screens */
+                                             @media screen and (min-width: 1025px) {
+                                               .cart-item__details {
+                                                 width: 35%;
+
+  }
+
+                                             /* Price pill on totals */
+                                             .cart-item__totals .price {
+                                               display: inline-block;
+                                               background-color: var(--cart-item-totals-price-bg);
+                                               color: #333;
+                                               margin-top: 21px !important;
+                                               padding: 8px 18px;
+                                               border-radius: var(--cart-item-totals-price-br);
+                                               font-weight: bold;
+                                               font-size: 1.4rem;
+
+
+
+
+
+                                               }
+                                               .custom-cards-slider {
+                                                 display: flex;
+                                                 margin-left: 30px;
+                                                 margin-right: 40px;
+                                                 flex-wrap: wrap; /* Ensure wrapping */
+                                                 justify-content: space-between; /* Align cards neatly */
+                                                 gap: var(--cards-gap); /* Use the same gap variable */
+                                               }
+
+
+                    .gift-wrap-message {
+                  display: flex !important; /* Force flex alignment */
+                  align-items: center !important; /* Align vertically */
+                  flex-wrap: wrap !important; /* Allow wrapping for smaller screens */
+                  max-width: 120% !important; /* Prevent clipping */
+                  text-align: left !important; /* Ensure text is aligned */
+                  gap: 8px !important; /* Add spacing */
+
+                     background-color: var(--safe-delivery-bg-color) !important;
+         border-radius: var(--safe-delivery-border-radius) !important;
+         color: var(--safe-delivery-text-color) !important;
+                  white-space: normal !important; /* Ensure text wraps naturally */
+                  word-break: break-word !important; /* Break long words */
+                      margin: -15px 15px !important; /* Add vertical spacing */
+                       margin-left: -2px !important; /* Add vertical spacing *
+                  padding: 12px !important; /* Adjust inner spacing */
+
+         }
+         /* Desktop-only: increase vertical gap between "People also bought" and Custom Cards */
+@media (min-width: 1025px) {
+  /* Option A: add space under the recommendations block */
+  .cart_page-recommend.inside {
+    margin-bottom: 75px !important;  /* tweak value */
+  }
+
+  /* (Optional) If you prefer pushing the cards instead, use this instead of A */
+  /* .cart_page-recommend.inside + .custom-cards-container {
+    margin-top: 90px !important;
+  } */
+}
+
+
+         .gift-wrap-message label {
+             flex: 1; /* Take up the remaining space */
+             margin-bottom: 0px; /* Add spacing for smaller screens */
+           }
+                .gift-wrap-message input {
+                  margin-right: 4px !important; /* Ensure spacing between checkbox and text */
+                  flex-shrink: 0 !important; /* Prevent checkbox from resizing */
+                }
+
+                .gift-wrap-message span {
+                  display: inline !important; /* Ensure text is inline */
+                  word-wrap: break-word !important; /* Break long text */
+                  white-space: normal !important; /* Allow text wrapping */
+                  overflow-wrap: break-word !important; /* Ensure modern browser compatibility */
+
+
+
+
+
+
+                            }
+
+                    @media screen and (max-width: 768px) {
+                      .gift-wrap-message {
+                        font-size: 0.9em; /* Slightly smaller font size */
+                        padding: 8px 12px; /* Reduce padding */
+          }
+
+           .gift-wrap-message label {
+               flex: 1; /* Take up the remaining space */
+               margin-bottom: 5px !important; /* Add spacing for smaller screens */
+                      }
+                    }
+
+                    @media screen and (max-width: 480px) {
+                      .gift-wrap-message {
+                        font-size: 0.85em; /* Smaller font size */
+                        padding: 6px 10px; /* Compact padding */
+                      }
+                    }
+
+
+
+
+                                               .custom-card {
+                                                 flex: 1 1 calc(25% - var(--cards-gap)); /* 4 cards per row with space */
+                                                 max-width: calc(25% - var(--cards-gap));
+                                                 box-sizing: border-box; /* Avoid overflow issues */
+                                                 width: 300px;
+                                                 min-height: 215px;
+                                                 max-height: auto;
+                                               }
+                                               .cart__page-price {
+                                                 width: 20%;
+                                               }
+                                             }
+                                             @media (min-width: 1025px) and (max-width: 1200px) {
+                                               .page-cart {
+                                                 --col-width: 38rem !important;
+                                               }
+                                             }
+                                             @media screen and (min-width: 1024px) and (max-width: 1280px) {
+
+
+
+
+                              .gift-wrap-message {
+                               display: inline-flex;
+                          align-items: center;
+                          justify-content: center;
+      background-color: var(--safe-delivery-bg-color) !important;
+         border-radius: var(--safe-delivery-border-radius) !important;
+         color: var(--safe-delivery-text-color) !important;
+                          padding: 10px 19px; /* Slightly smaller padding for responsiveness */
+                          font-size: 1em; /* Adjust font size for better responsiveness */
+
+                            margin-top: -8px;
+                          font-weight: 500; /* Bold text */
+                          border: 0px solid #ddd; /* Optional: Add a light border */
+                          text-align: center; /* Center-align the text */
+                          max-width: 100%; /* Ensure it adapts to the container */
+                          box-sizing: border-box; /* Include padding and border in width/height */
+                          white-space: nowrap; /* Prevent wrapping of text */
+
+
+                          }
+
+
+
+                                               .custom-card {
+                                                 flex: 1 1 calc(25% - var(--cards-gap)); /* 4 cards per row with space */
+                                                 max-width: calc(25% - var(--cards-gap));
+                                                 box-sizing: border-box;
+                                                 width: 300px;
+                                                 min-height: 215px;
+                                                 max-height: auto;
+                                               }
+                                             }
+
+
+
+
+
+
+
+
+                                             /* Mobile layout adjustments */
+                                             @media screen and (max-width: 767.98px) {
+                                               .cart-item__totals {
+                                                 display: none;
+                                               }
+                                               thead.hidden-on-small {
+                                                 display: none;
+
+
+
+                             }
+                        .gift-wrap-message {
+                         border-radius: 8px;
+                          padding: 15px;
+
+                          margin-top: -12px;
+                          background-color: #f5f5f5; /* Light gray background */
+
+                        }
+
+                                               .custom-cards-container.disable-mobile {
+                                                 display: none;
+                                               }
+                                               .custom-cards-slider {
+                                                 display: flex;
+                                                 flex-direction: column; /* Stack cards vertically */
+                                                 align-items: center;
+                                                 gap: 18px !important; /* Set fixed gap */
+                                                 overflow-x: hidden; /* Prevent horizontal scrolling */
+                                               }
+                                               .custom-card {
+                                                 width: 100%; /* Ensure cards take full width on mobile */
+                                                 max-width: 100%;
+                                                 margin-bottom: 0; /* Override any margin settings */
+                                                 scroll-snap-align: none; /* Disable snap on mobile */
+                                               }
+                                               .page__cart-item {
+                                                 display: grid;
+                                                 padding-bottom: 2rem;
+                                                 margin-bottom: 2rem;
+                                                 border-bottom: 1px solid var(--color-border);
+                                                 --custom-width: 10rem !important;
+                                                 position: relative;
+                                                 grid-template-columns: 10rem 1fr;
+                                                 column-gap: 1.5rem;
+                                               }
+                                               .page__cart-item:last-child {
+                                                 margin-bottom: 0;
+                                               }
+                                               .page__cart-item td {
+                                                 padding: 0;
+                                                 border: 0 !important;
+                                               }
+                                               .page__cart-item .cart-remove {
+                                                 display: none;
+                                               }
+                                               .cart-item__media {
+                                                 grid-row: 1 / 3;
+                                               }
+                                               .cart__page-price {
+                                                 display: none;
+                                               }
+                                               .page__cart-item td:not(.cart-item__media, .cart__page-price, .cart-item__totals) {
+                                                 display: block;
+                                               }
+                                               .cart-item__quantity {
+                                                 position: absolute;
+    bottom: 2rem;
+    right: 0;
+    z-index: 10; /* Ensure it's above other elements */
+
+                                               }
+
+                                                 .cart-item__quantity button {
+    pointer-events: auto; /* Ensure buttons can receive click events */
+  }
+                                               }
+                                               .cart-item__quantity .ps-20 {
+                                                 padding-inline-start: 1rem;
+                                               }
+                                               .cart-item__quantity .pe-20 {
+                                                 padding-inline-end: 1rem;
+                                               }
+                                               .cart-item__quantity input {
+                                                 --input-height: 30px !important;
+                                                 width: 3rem;
+                                               }
+                                               .rounded-style .cart-item__quantity {
+                                                 --btn-radius: 3px;
+                                               }
+                                               .cart-item__totals {
+                                                 display: flex;
+                                                 align-items: end;
+                                               }
+                                             }
+
+                                             body:has(cart-items.is-empty) .page-title {
+                                               display: none;
+                                             }
+
+                                             /* SVG Icons styling: separate gap for desktop vs. mobile, plus overall width on mobile */
+                                             .cart__payment-icons {
+                                               display: flex;
+                                               align-items: center;
+                                               justify-content: center;
+                                             }
+                                             @media screen and (max-width: 767.98px) {
+                                               .cart__payment-icons {
+                                                 gap: var(--svg-icons-gap-mobile) !important;
+                                               }
+                                             }
+
+                                             /* 4 custom cards slider styling */
+                                             .custom-cards-slider {
+                                               gap: var(--cards-gap);
+                                             }
+                                             .custom-card {
+                                               scroll-snap-align: start;
+                                                }
+
+           .gift-wrap-message label {
+               flex: 1; /* Take up the remaining space */
+               margin-bottom: 0px !important; /* Add spacing for smaller screens */
+
+             }
+@media (min-width: 1025px) {
+   
+  
+ .cart-item__totals cart-remove-button,
+  .cart-item__totals a.cart-remove {
+    display: none !important;
+     }
+  /* optional: keep remove button aligned neatly */
+  .cart-item__totals cart-remove-button {
+    position: static !important;
+    margin-top: -4px !important;
+  }
+}
+                         .gift-wrap-message {
+                               display: inline-flex;
+                          align-items: center;
+                          justify-content: center;
+
+
+                          padding: 10px 16px; /* Slightly smaller padding for responsiveness */
+                          font-size: 1em; /* Adjust font size for better responsiveness */
+                            background-color: var(--safe-delivery-bg-color) !important;
+         border-radius: var(--safe-delivery-border-radius) !important;
+         color: var(--safe-delivery-text-color) !important;
+                            margin-top: -8px;
+                                left: 20px;
+                          font-weight: 500; /* Bold text */
+                          border: 0px solid #ddd; /* Optional: Add a light border */
+                          text-align: center; /* Center-align the text */
+                          max-width: 100%; /* Ensure it adapts to the container */
+                          box-sizing: border-box; /* Include padding and border in width/height */
+                          white-space: nowrap; /* Prevent wrapping of text */
+                                }
+                                             /* Modern, lighter horizontal scrollbar for cards */
+                                             .custom-cards-slider::-webkit-scrollbar {
+                                               height: 6px; /* Slim track */
+                                               background-color: #e2e2e2; /* Light gray track */
+                                             }
+                                             .custom-cards-slider::-webkit-scrollbar-thumb {
+                                               background-color: #a8a8a8; /* Gray thumb */
+                                               border-radius: 4px;
+                                             }
+                                             /* For Firefox (optional) */
+                                             .custom-cards-slider {
+                                               scrollbar-color: #a8a8a8 #e2e2e2;
+                                               scrollbar-width: thin;
+                                             }
+
+                                             /* +++++++ NEW STYLES for Card Title color & font sizes, plus icon/image size +++++++ */
+                                             .card-title {
+                                               color: #000000 !important;
+                                               font-size: 18px !important;
+                                             }
+                                             .card-text {
+                                               font-size: var(--card-text-font-size) !important;
+                                             }
+      .card-icon {
+      color: var(--card-svg-icon-color);
+    }
+                                             .card-icon,
+                                             .card-icon svg {
+                                               width: 100%;
+                                               height: 100%;
+
+    stroke: #000000;
+                                             }
+                                             .card-image img {
+                                               max-width: 60px;
+                                               height: auto;
+                                             }
+                                             @media (max-width: 767.98px) {
+  /* Make the cart row a small grid so we can place things cleanly */
+  .page__cart-item {
+    display: grid !important;
+    grid-template-columns: 10rem 1fr;
+    grid-template-areas:
+      "media details"
+      "media qty"
+      "media total";
+    column-gap: 1.5rem;
+    row-gap: 8px;
+    position: relative;
+  }
+
+  .page__cart-item .cart-item__media   { grid-area: media; }
+  .page__cart-item .cart-item__details { grid-area: details; }
+
+  /* Qty: left aligned (no absolute) */
+  .page__cart-item .cart-item__quantity{
+    grid-area: qty;
+    position: static !important;
+    justify-self: start;
+    padding: 0 !important;
+  }
+  .page__cart-item .cart-item__quantity .cart-item__quantity-wrapper{
+    justify-content: flex-start !important;
+  }
+
+  /* Totals: show below qty, left aligned */
+  .page__cart-item .cart-item__totals{
+    grid-area: total;
+    display: block !important;                 /* unhide on mobile */
+    text-align: left !important;
+    padding: 0 !important;
+    margin: 6px 0 0 !important;                /* gap under qty */
+  }
+  .page__cart-item .cart-item__totals.small-hide{
+    display: block !important;                 /* override theme's small-hide */
+  }
+
+  /* Show only the total number (hide qty and the ×) */
+  .page__cart-item .cart-item__totals .qtyxprice{
+    display: block;
+    margin-left: -65px !important; /* adjust this number until it lines up perfectly */
+    font-size: 0;                               /* hides stray × text */
+    line-height: 1.4;
+  }
+  .page__cart-item .cart-item__totals .qtyxprice .js-qty{ display: none !important; }
+  .page__cart-item .cart-item__totals .qtyxprice .js-line-total{
+    display: inline-block;
+    font-size: 15px;                            /* restore font size */
+    font-weight: 500;
+  }
+}
+/* Fix Add to Cart overlapping product image in recommendations */
+.cart-recommend .bls-add-cart-list {
+  position: static !important;       /* remove absolute positioning */
+  margin-top: 8px;                   /* space above the button */
+  display: block !important;         /* ensure it sits as a block */
+  text-align: left;                  /* or center if you prefer */
+}
+
+/* Make sure the card stacks properly */
+.cart-recommend .bls__product {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.page-cart {
+  padding-top: var(--section-pt-desktop);
+  padding-bottom: var(--section-pb-desktop);
+}
+
+@media (max-width: 767px) {
+  .page-cart {
+    padding-top: var(--section-pt-mobile);
+    padding-bottom: var(--section-pb-mobile);
+  }
+}
+
+.custom-card {
+  background-color: transparent;
+}
+
+.payment-img {
+  width: {{ section.settings.payment_replacement_image_width_desktop }}px;
+  height: {{ section.settings.payment_replacement_image_height_desktop }}px;
+}
+
+@media (max-width: 767px) {
+  .payment-img {
+    width: {{ section.settings.payment_replacement_image_width_mobile }}px !important;
+    height: {{ section.settings.payment_replacement_image_height_mobile }}px !important;
+  }
+}
+
+/* Slim Dividers */
+.has-slim-dividers .cart-item {
+  border-bottom: 1px solid var(--slim-dividers-color);
+}
+
+@media (max-width: 767.98px) {
+  .has-slim-dividers .page__cart-item {
+    border-bottom: 1px solid var(--slim-dividers-color);
+  }
+}
+
+</style>
+
+<script>
+  // Countdown Timer Script
+  document.addEventListener('DOMContentLoaded', function() {
+    const countdownElement = document.querySelector('.countdown-inner');
+    if (!countdownElement) return;
+
+    const countdownText = "{{ section_st.countdown_text }}";
+    const startMinutes = parseInt("{{ section_st.countdown_start_minutes | default: 5 }}");
+    const startSeconds = parseInt("{{ section_st.countdown_start_seconds | default: 0 }}");
+
+    let countdown;
+
+    function initializeCountdown() {
+      const savedTime = localStorage.getItem('cartCountdown');
+      let timeLeft;
+      if (savedTime) {
+        timeLeft = parseInt(savedTime);
+      } else {
+        timeLeft = startMinutes * 60 + startSeconds;
+        localStorage.setItem('cartCountdown', timeLeft);
+      }
+      return timeLeft;
+    }
+
+    let timeLeft = initializeCountdown();
+
+    countdown = setInterval(function() {
+      if (timeLeft <= 0) {
+        clearInterval(countdown);
+        countdownElement.innerHTML = "{{ section_st.countdown_timeout_message | default: 'Time offer expired!' }}";
+        localStorage.removeItem('cartCountdown');
+        return;
+      }
+
+      let minutes = Math.floor(timeLeft / 60);
+      let seconds = timeLeft % 60;
+
+      countdownElement.innerHTML = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+      timeLeft--;
+      localStorage.setItem('cartCountdown', timeLeft);
+    }, 1000);
+  });
+
+document.querySelectorAll('.cart-remove-text').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault(); // prevent the default link action
+    const removeUrl = this.getAttribute('href');
+    fetch(removeUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Option 1: reload the page to reflect the updated cart
+      location.reload();
+      // Option 2: Update the cart UI dynamically based on data
+    })
+    .catch(error => console.error('Error removing item:', error));
+  });
+});
+</script>
+<script>
+(function () {
+  // Formats money using Shopify's formatter if present, otherwise a light fallback
+  const MONEY_FORMAT = {{ shop.money_format | json }};
+  const MONEY_WITH_CURRENCY_FORMAT = {{ shop.money_with_currency_format | json }};
+  const USE_CURRENCY = {{ settings.currency_code_enabled | json }};
+  const FMT = USE_CURRENCY ? MONEY_WITH_CURRENCY_FORMAT : MONEY_FORMAT;
+
+  function formatMoney(cents) {
+    if (window.Shopify && typeof Shopify.formatMoney === 'function') {
+      return Shopify.formatMoney(cents, FMT);
+    }
+    // naive fallback for {{amount}} only
+    const amount = (cents / 100).toFixed(2);
+    return FMT.replace('{{amount}}', amount).replace('{{ amount }}', amount);
+  }
+
+  function wireRow(row) {
+    const unitWrap = row.querySelector('.qtyxprice');
+    const qtySpan = unitWrap && unitWrap.querySelector('.js-qty');
+    const totalSpan = unitWrap && unitWrap.querySelector('.js-line-total');
+    const qtyInput = row.querySelector('input.quantity-input');
+    if (!unitWrap || !qtySpan || !totalSpan || !qtyInput) return;
+
+    const unitCents = parseInt(unitWrap.getAttribute('data-unit-price-cents'), 10) || 0;
+
+    const repaint = () => {
+      const q = Math.max(0, parseInt(qtyInput.value, 10) || 0);
+      qtySpan.textContent = q;
+      totalSpan.textContent = formatMoney(unitCents * q);
+    };
+
+    // direct typing
+    qtyInput.addEventListener('input', repaint);
+
+    // +/- buttons
+    row.querySelectorAll('.quantity__button').forEach(btn => {
+      btn.addEventListener('click', () => setTimeout(repaint, 0));
+    });
+
+    // initial paint
+    repaint();
+  }
+
+  function wireAll() {
+    document.querySelectorAll('tr.cart-item').forEach(wireRow);
+  }
+
+  document.addEventListener('DOMContentLoaded', wireAll);
+
+  // If your theme re-renders the cart via AJAX, listen and re-bind
+  document.addEventListener('cart:updated', wireAll);
+})();
+</script>

@@ -1,0 +1,561 @@
+{% schema %}
+{
+  "name": "Discount Price  ",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading Settings",
+      "info": "Configure the main headings of the discount section."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "original_price",
+      "label": "Original Price",
+      "default": "119,99$",
+      "info": "Enter the original price before discount."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "discounted_price",
+      "label": "Discounted Price",
+      "default": "<strong>85$</strong>",
+      "info": "Enter the price after applying the discount."
+    },
+    {
+      "type": "header",
+      "content": "Color Settings",
+      "info": "Customize the colors of various elements in the discount section."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#FFFFFF",
+      "info": "Set the background color of the discount section."
+    },
+    {
+      "type": "color",
+      "id": "original_price_color",
+      "label": "Original Price Color",
+      "default": "#8A8A8A",
+      "info": "Choose the color for the original price text."
+    },
+    {
+      "type": "color",
+      "id": "original_price_line_color",
+      "label": "Original Price Line Color",
+      "default": "#FF2020",
+      "info": "Select the color for the line striking through the original price."
+    },
+    {
+      "type": "color",
+      "id": "discounted_price_color",
+      "label": "Discounted Price Color",
+      "default": "#181818",
+      "info": "Choose the color for the discounted price text."
+    },
+    {
+      "type": "color",
+      "id": "currency_color",
+      "label": "Currency Color",
+      "default": "#171717",
+      "info": "Set the color for the currency symbol."
+    },
+    {
+      "type": "header",
+      "content": "Typography",
+      "info": "Customize the fonts used in the discount section."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_fonts",
+      "label": "Enable Custom Fonts",
+      "default": false,
+      "info": "Toggle the use of custom fonts for text elements."
+    },
+    {
+      "type": "select",
+      "id": "custom_font",
+      "label": "Select Custom Font",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "PT Sans", "label": "PT Sans" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Lora", "label": "Lora" },
+        { "value": "Nunito", "label": "Nunito" },
+        { "value": "Arial", "label": "Arial" },
+        { "value": "Helvetica", "label": "Helvetica" },
+        { "value": "Georgia", "label": "Georgia" },
+        { "value": "Times New Roman", "label": "Times New Roman" },
+        { "value": "Courier New", "label": "Courier New" },
+        { "value": "Verdana", "label": "Verdana" },
+        { "value": "Trebuchet MS", "label": "Trebuchet MS" },
+        { "value": "Fira Sans", "label": "Fira Sans" },
+        { "value": "Bebas Neue", "label": "Bebas Neue" },
+        { "value": "Rubik", "label": "Rubik" },
+        { "value": "DM Sans", "label": "DM Sans" },
+        { "value": "Cabin", "label": "Cabin" },
+        { "value": "Josefin Sans", "label": "Josefin Sans" },
+        { "value": "Karla", "label": "Karla" },
+        { "value": "Work Sans", "label": "Work Sans" },
+        { "value": "Titillium Web", "label": "Titillium Web" },
+        { "value": "Quicksand", "label": "Quicksand" },
+        { "value": "Signika", "label": "Signika" },
+        { "value": "Teko", "label": "Teko" },
+        { "value": "Pacifico", "label": "Pacifico" },
+        { "value": "Varela Round", "label": "Varela Round" },
+        { "value": "Fjalla One", "label": "Fjalla One" },
+        { "value": "Amatic SC", "label": "Amatic SC" },
+        { "value": "Raleway Dots", "label": "Raleway Dots" },
+        { "value": "Abril Fatface", "label": "Abril Fatface" },
+        { "value": "Dancing Script", "label": "Dancing Script" },
+        { "value": "Shadows Into Light", "label": "Shadows Into Light" },
+        { "value": "Anton", "label": "Anton" },
+        { "value": "Righteous", "label": "Righteous" },
+        { "value": "Barlow", "label": "Barlow" },
+        { "value": "Alfa Slab One", "label": "Alfa Slab One" },
+        { "value": "Exo 2", "label": "Exo 2" },
+        { "value": "Bitter", "label": "Bitter" },
+        { "value": "Zilla Slab", "label": "Zilla Slab" },
+        { "value": "Cormorant Garamond", "label": "Cormorant Garamond" },
+        { "value": "Crimson Text", "label": "Crimson Text" },
+        { "value": "Alegreya", "label": "Alegreya" },
+        { "value": "Bree Serif", "label": "Bree Serif" },
+        { "value": "Asap", "label": "Asap" },
+        { "value": "Play", "label": "Play" },
+        { "value": "Hind", "label": "Hind" },
+        { "value": "Mukta", "label": "Mukta" },
+        { "value": "Overpass", "label": "Overpass" },
+        { "value": "Heebo", "label": "Heebo" },
+        { "value": "Muli", "label": "Muli" },
+        { "value": "Arvo", "label": "Arvo" },
+        { "value": "Archivo", "label": "Archivo" },
+        { "value": "Manrope", "label": "Manrope" },
+        { "value": "Vollkorn", "label": "Vollkorn" },
+        { "value": "Proza Libre", "label": "Proza Libre" },
+        { "value": "Public Sans", "label": "Public Sans" },
+        { "value": "Libre Baskerville", "label": "Libre Baskerville" },
+        { "value": "Nanum Gothic", "label": "Nanum Gothic" },
+        { "value": "Tinos", "label": "Tinos" },
+        { "value": "Caveat", "label": "Caveat" },
+        { "value": "Spectral", "label": "Spectral" },
+        { "value": "Chivo", "label": "Chivo" },
+        { "value": "Sen", "label": "Sen" },
+        { "value": "Acme", "label": "Acme" },
+        { "value": "Advent Pro", "label": "Advent Pro" },
+        { "value": "Allura", "label": "Allura" },
+        { "value": "Andika", "label": "Andika" },
+        { "value": "Archivo Narrow", "label": "Archivo Narrow" }
+      ],
+      "default": "Roboto",
+      "info": "Select a custom font for the text elements."
+    },
+    {
+      "type": "select",
+      "id": "original_price_font_weight",
+      "label": "Original Price Font Weight",
+      "options": [
+        { "value": "300", "label": "300" },
+        { "value": "400", "label": "400" },
+        { "value": "450", "label": "450" },
+        { "value": "500", "label": "500" },
+        { "value": "550", "label": "550" },
+        { "value": "600", "label": "600" },
+        { "value": "700", "label": "700" }
+      ],
+      "default": "500",
+      "info": "Select the font weight for the original price."
+    },
+    {
+      "type": "select",
+      "id": "discounted_price_font_weight",
+      "label": "Discounted Price Font Weight",
+      "options": [
+        { "value": "300", "label": "300" },
+        { "value": "400", "label": "400" },
+        { "value": "450", "label": "450" },
+        { "value": "500", "label": "500" },
+        { "value": "550", "label": "550" },
+        { "value": "600", "label": "600" },
+        { "value": "700", "label": "700" }
+      ],
+      "default": "500",
+      "info": "Select the font weight for the discounted price."
+    },
+    {
+      "type": "header",
+      "content": "Line Settings",
+      "info": "Adjust the appearance of the line striking through the original price."
+    },
+    {
+      "type": "range",
+      "id": "original_price_line_weight",
+      "label": "Original Price Line Weight (px)",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 6,
+      "info": "Set the thickness of the line over the original price."
+    },
+    {
+      "type": "range",
+      "id": "original_price_line_length",
+      "label": "Original Price Line Length (%)",
+      "min": 10,
+      "max": 200,
+      "step": 10,
+      "default": 100,
+      "info": "Adjust the length of the line as a percentage of the original price text."
+    },
+    {
+      "type": "range",
+      "id": "original_price_line_vertical_offset",
+      "label": "Original Price Line Vertical Offset (px)",
+      "min": -50,
+      "max": 50,
+      "step": 1,
+      "default": 0,
+      "info": "Adjust the vertical position of the line over the original price."
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings",
+      "info": "Configure the layout and spacing of the discount section."
+    },
+    {
+      "type": "range",
+      "id": "section_height",
+      "label": "Section Height (Desktop px)",
+      "min": 100,
+      "max": 800,
+      "step": 10,
+      "default": 100,
+      "info": "Set the height of the section on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "section_height_mobile",
+      "label": "Section Height (Mobile px)",
+      "min": 50,
+      "max": 800,
+      "step": 10,
+      "default": 70,
+      "info": "Set the height of the section on mobile devices."
+    },
+    {
+      "type": "select",
+      "id": "display_on_devices",
+      "label": "Display Section On",
+      "options": [
+        { "value": "no_devices", "label": "No Devices" },
+        { "value": "all_devices", "label": "All Devices" },
+        { "value": "mobile_only", "label": "Mobile Devices Only" },
+        { "value": "desktop_only", "label": "Desktop / Larger Screens Only" }
+      ],
+      "default": "all_devices",
+      "info": "Choose which devices the discount section should be visible on."
+    },
+    {
+      "type": "header",
+      "content": "Positioning",
+      "info": "Adjust the positioning of the discounted price within the section."
+    },
+    {
+      "type": "range",
+      "id": "discounted_price_vertical_position",
+      "label": "Discounted Price Vertical Position (px)",
+      "min": -50,
+      "max": 100,
+      "step": 2,
+      "default": 0,
+      "info": "Move the discounted price up or down within the section."
+    },
+    {
+      "type": "header",
+      "content": "Price Size Settings",
+      "info": "Adjust the font sizes for discounted and original prices on different devices."
+    },
+    {
+      "type": "range",
+      "id": "discounted_price_size_desktop",
+      "label": "Discounted Price Size (Desktop, rem)",
+      "min": 1,
+      "max": 10,
+      "step": 0.5,
+      "default": 6,
+      "info": "Set the font size for the discounted price on desktop devices in rem units."
+    },
+    {
+      "type": "range",
+      "id": "discounted_price_size_mobile",
+      "label": "Discounted Price Size (Mobile, rem)",
+      "min": 1,
+      "max": 10,
+      "step": 0.5,
+      "default": 3,
+      "info": "Set the font size for the discounted price on mobile devices in rem units."
+    },
+    {
+      "type": "range",
+      "id": "original_price_size_desktop",
+      "label": "Original Price Size (Desktop, rem)",
+      "min": 1,
+      "max": 10,
+      "step": 0.5,
+      "default": 5,
+      "info": "Set the font size for the original price on desktop devices in rem units."
+    },
+    {
+      "type": "range",
+      "id": "original_price_size_mobile",
+      "label": "Original Price Size (Mobile, rem)",
+      "min": 1,
+      "max": 10,
+      "step": 0.5,
+      "default": 4.5,
+      "info": "Set the font size for the original price on mobile devices in rem units."
+    },
+    {
+      "type": "header",
+      "content": "Sizing",
+      "info": "Control the overall size of the discount section on different devices."
+    },
+    {
+      "type": "range",
+      "id": "overall_size_desktop",
+      "label": "Overall Size (Desktop %)",
+      "min": 50,
+      "max": 150,
+      "step": 10,
+      "default": 140,
+      "info": "Scale the size of the section on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "overall_size_mobile",
+      "label": "Overall Size (Mobile %)",
+      "min": 50,
+      "max": 150,
+      "step": 10,
+      "default": 100,
+      "info": "Scale the size of the section on mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Padding",
+      "info": "Set the padding around the discount section for better spacing."
+    },
+    {
+      "type": "range",
+      "id": "left_padding_desktop",
+      "label": "Left Padding (Desktop px)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 20,
+      "info": "Define the left padding on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "right_padding_desktop",
+      "label": "Right Padding (Desktop px)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 20,
+      "info": "Define the right padding on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "left_padding_mobile",
+      "label": "Left Padding (Mobile px)",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "default": 0,
+      "info": "Define the left padding on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "right_padding_mobile",
+      "label": "Right Padding (Mobile px)",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "default": 0,
+      "info": "Define the right padding on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding",
+      "label": "Section Top/Bottom Padding (Desktop px)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 0,
+      "info": "Set the top and bottom padding for the section on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding",
+      "label": "Section Top/Bottom Padding (Mobile px)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 0,
+      "info": "Set the top and bottom padding for the section on mobile devices."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Discount Price ",
+      	"category": "Other"
+    }
+  ]
+}
+{% endschema %}
+
+{% if section.settings.enable_custom_fonts %}
+  <link
+    href="https://fonts.googleapis.com/css2?family={{ section.settings.custom_font | replace: ' ', '+' }}&display=swap"
+    rel="stylesheet"
+  >
+{% endif %}
+
+<div class="discount-price-section">
+  <div class="price-container">
+    <div class="original-price">
+      <span>{{ section.settings.original_price }}</span>
+    </div>
+    <div class="discounted-price">
+      {{ section.settings.discounted_price }}
+    </div>
+    {% if section.settings.show_currency_symbol %}
+      <div class="currency">
+        {{ section.settings.currency }}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  .discount-price-section {
+      margin: 0 !important;
+      padding-top: {{ section.settings.desktop_padding }}px !important;
+      padding-bottom: {{ section.settings.desktop_padding }}px !important;
+      padding-left: {{ section.settings.left_padding_desktop }}px !important;
+      padding-right: {{ section.settings.right_padding_desktop }}px !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      height: {{ section.settings.section_height }}px !important;
+      background-color: {{ section.settings.background_color }} !important;
+      font-family: {% if section.settings.enable_custom_fonts %}'{{ section.settings.custom_font }}', sans-serif{% else %}{{ section.settings.font_family }}{% endif %} !important;
+      transform: scale({{ section.settings.overall_size_desktop | divided_by: 100.0 }}) !important;
+      transition: transform 0.3s ease !important;
+  }
+
+  {% if section.settings.display_on_devices == 'no_devices' %}
+  .discount-price-section {
+      display: none !important;
+  }
+  {% elsif section.settings.display_on_devices == 'mobile_only' %}
+  @media (min-width: 768px) {
+      .discount-price-section {
+          display: none !important;
+      }
+  }
+  {% elsif section.settings.display_on_devices == 'desktop_only' %}
+  @media (max-width: 767px) {
+      .discount-price-section {
+          display: none !important;
+      }
+  }
+  {% endif %}
+
+  .price-container {
+      display: flex !important;
+      align-items: center !important;
+      color: {{ section.settings.discounted_price_color }} !important;
+      font-size: 5rem !important;
+  }
+
+  .original-price {
+      color: {{ section.settings.original_price_color }} !important;
+      position: relative !important;
+      margin-right: 1rem !important;
+  }
+
+  .original-price::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 50% !important;
+      transform: translateY(calc(-50% + {{ section.settings.original_price_line_vertical_offset }}px)) rotate(-5deg) !important;
+      left: 0 !important;
+      right: 0 !important;
+      height: {{ section.settings.original_price_line_weight }}px !important;
+      background-color: {{ section.settings.original_price_line_color }} !important;
+      z-index: 2 !important;
+      width: {{ section.settings.original_price_line_length }}% !important;
+      border-radius: 1px !important;
+      box-shadow: none !important;
+  }
+
+  .original-price span {
+      position: relative !important;
+      z-index: 1 !important;
+      font-size: {{ section.settings.original_price_size_desktop }}rem !important;
+      font-weight: {{ section.settings.original_price_font_weight }} !important;
+  }
+
+  .discounted-price {
+      font-size: {{ section.settings.discounted_price_size_desktop }}rem !important;
+      color: {{ section.settings.discounted_price_color }} !important;
+      top: {{ section.settings.discounted_price_vertical_position }}px !important;
+      position: relative !important;
+      font-weight: {{ section.settings.discounted_price_font_weight }} !important;
+  }
+
+  .currency {
+      font-size: 5rem !important;
+      margin-left: 0.5rem !important;
+      color: {{ section.settings.currency_color }} !important;
+  }
+
+  @media (max-width: 768px) {
+      .discount-price-section {
+          padding-top: {{ section.settings.mobile_padding }}px !important;
+          padding-bottom: {{ section.settings.mobile_padding }}px !important;
+          padding-left: {{ section.settings.left_padding_mobile }}px !important;
+          padding-right: {{ section.settings.right_padding_mobile }}px !important;
+          height: {{ section.settings.section_height_mobile }}px !important;
+          transform: scale({{ section.settings.overall_size_mobile | divided_by: 100.0 }}) !important;
+      }
+      .price-container {
+          flex-direction: row !important;
+          justify-content: center !important;
+          align-items: center !important;
+          font-size: 3rem !important;
+      }
+      .original-price,
+      .currency {
+          margin: 0 0.7rem !important;
+      }
+      .original-price span {
+          font-size: {{ section.settings.original_price_size_mobile }}rem !important;
+      }
+      .discounted-price {
+          font-size: {{ section.settings.discounted_price_size_mobile }}rem !important;
+      }
+  }
+</style>

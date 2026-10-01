@@ -1,0 +1,125 @@
+<!-- HTML -->
+<div
+  data-action="toggle-nav"
+  class="action nav-toggle overlay inline-flex pointer w-42 h-42 hidden-1025 header-color align-center{% if settings.rtl %} justify-content-start{% endif %}"
+  onclick="toggleMenu(this)"
+>
+  <svg
+    width="36px"
+    height="36px"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    class="toggle-icon"
+  >
+    <g>
+      <path
+        class="line"
+        d="M4 7H20"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></path>
+      <path
+        class="line"
+        d="M4 12H20"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></path>
+      <path
+        class="line"
+        d="M4 17H20"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></path>
+    </g>
+  </svg>
+</div>
+
+<!-- CSS -->
+<style>
+  /* Base hover effect for toggle-icon with scale */
+  .toggle-icon {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .toggle-icon:hover {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+
+  /* Smooth fade transition for lines */
+  .toggle-icon .line {
+    transition: opacity 0.5s ease;
+    opacity: 1;
+  }
+
+  /* Default state: lines fully visible */
+  .action.nav-toggle .line {
+    opacity: 1;
+  }
+
+  /* Active state: lines remain fully visible */
+  .action.nav-toggle.active .line {
+    opacity: 1;
+  }
+
+  /* Keyframes for the fade effect: fade out then fade in */
+  @keyframes fadeLine {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* Trigger the fade effect when .animate is added */
+  .action.nav-toggle.active.animate .line {
+    animation: fadeLine 0.5s ease forwards;
+  }
+
+  /* Inherit parent color with increased tap area */
+  .nav-toggle {
+    color: var(--transparent-color, #000);
+    /* Increase the clickable/tap area without changing the visible size */
+    padding: 10px;
+    margin: -10px;
+  }
+</style>
+
+<!-- JavaScript -->
+<script>
+  function toggleMenu(element) {
+    const isActive = element.classList.toggle('active');
+
+    if (isActive) {
+      // Add the animate class to trigger the fade effect.
+      element.classList.add('animate');
+      // Remove the animation class after the animation completes (500ms).
+      setTimeout(() => {
+        element.classList.remove('animate');
+      }, 500);
+      document.addEventListener('click', handleOutsideClick);
+    } else {
+      // On closing, simply remove the active state.
+      document.removeEventListener('click', handleOutsideClick);
+    }
+  }
+
+  // Close the toggle if the user clicks outside of it.
+  function handleOutsideClick(e) {
+    const toggleEl = document.querySelector('[data-action="toggle-nav"]');
+    if (toggleEl && !toggleEl.contains(e.target)) {
+      toggleEl.classList.remove('active');
+      document.removeEventListener('click', handleOutsideClick);
+    }
+  }
+</script>

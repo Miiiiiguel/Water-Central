@@ -1,0 +1,342 @@
+{%- comment -%}SUDAFIN — Selector idioma/moneda premium v3{%- endcomment -%}
+{%- if localization.available_languages.size > 1 or localization.available_countries.size > 1 -%}
+
+<div id="sdlb" role="navigation" aria-label="Idioma y moneda">
+
+  {%- if localization.available_languages.size > 1 -%}
+  <div class="sdlb-pill" id="sdlb-lang">
+    <button class="sdlb-trigger" id="sdlb-lang-btn" type="button"
+            aria-expanded="false" aria-haspopup="listbox" aria-controls="sdlb-lang-menu">
+      <span class="sdlb-globe" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </span>
+      <span class="sdlb-label" id="sdlb-lang-lbl">{{ localization.language.endonym_name | capitalize }}</span>
+      <span class="sdlb-arrow" aria-hidden="true">
+        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </span>
+    </button>
+
+    <div class="sdlb-menu" id="sdlb-lang-menu" role="listbox" hidden>
+      <div class="sdlb-menu-header">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Idioma
+      </div>
+      {%- form 'localization' -%}
+        <input type="hidden" name="language_code" id="sdlb-lang-val" value="{{ localization.language.iso_code }}">
+        <input type="hidden" name="return_to" id="sdlb-lang-ret" value="{{ request.path }}">
+        {%- for lang in localization.available_languages -%}
+          <button type="button" role="option"
+                  class="sdlb-option{% if lang.iso_code == localization.language.iso_code %} sdlb-current{% endif %}"
+                  data-val="{{ lang.iso_code }}" data-input="sdlb-lang-val">
+            <span class="sdlb-opt-name">{{ lang.endonym_name | capitalize }}</span>
+            {%- if lang.iso_code == localization.language.iso_code -%}
+              <span class="sdlb-check" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+            {%- endif -%}
+          </button>
+        {%- endfor -%}
+      {%- endform -%}
+    </div>
+  </div>
+  {%- endif -%}
+
+  {%- if localization.available_languages.size > 1 and localization.available_countries.size > 1 -%}
+    <span class="sdlb-divider" aria-hidden="true"></span>
+  {%- endif -%}
+
+  {%- if localization.available_countries.size > 1 -%}
+  <div class="sdlb-pill" id="sdlb-curr">
+    <button class="sdlb-trigger" id="sdlb-curr-btn" type="button"
+            aria-expanded="false" aria-haspopup="listbox" aria-controls="sdlb-curr-menu">
+      <span class="sdlb-currency-sym" aria-hidden="true">{{ localization.country.currency.symbol }}</span>
+      <span class="sdlb-label" id="sdlb-curr-lbl">{{ localization.country.currency.iso_code }}</span>
+      <span class="sdlb-arrow" aria-hidden="true">
+        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </span>
+    </button>
+
+    <div class="sdlb-menu" id="sdlb-curr-menu" role="listbox" hidden>
+      <div class="sdlb-menu-header">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Moneda
+      </div>
+      {%- form 'localization' -%}
+        <input type="hidden" name="country_code" id="sdlb-curr-val" value="{{ localization.country.iso_code }}">
+        <input type="hidden" name="return_to" id="sdlb-curr-ret" value="{{ request.path }}">
+        {%- for country in localization.available_countries -%}
+          <button type="button" role="option"
+                  class="sdlb-option{% if country.iso_code == localization.country.iso_code %} sdlb-current{% endif %}"
+                  data-val="{{ country.iso_code }}" data-input="sdlb-curr-val">
+            <span class="sdlb-opt-name">
+              {{ country.name }}
+              <small>{{ country.currency.iso_code }} {{ country.currency.symbol }}</small>
+            </span>
+            {%- if country.iso_code == localization.country.iso_code -%}
+              <span class="sdlb-check" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+            {%- endif -%}
+          </button>
+        {%- endfor -%}
+      {%- endform -%}
+    </div>
+  </div>
+  {%- endif -%}
+
+</div>
+
+<style>
+/* ─── Contenedor principal ─── */
+#sdlb {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  background: rgba(6, 6, 6, 0.72);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-radius: 50px;
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  box-shadow:
+    0 4px 24px rgba(0,0,0,0.5),
+    0 1px 0 rgba(255,255,255,0.04) inset,
+    0 0 0 0 rgba(212,175,55,0);
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
+}
+#sdlb:hover {
+  border-color: rgba(212,175,55,0.45);
+  box-shadow:
+    0 6px 32px rgba(0,0,0,0.6),
+    0 1px 0 rgba(255,255,255,0.05) inset,
+    0 0 20px rgba(212,175,55,0.08);
+}
+
+/* ─── Divider ─── */
+.sdlb-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(212,175,55,0.25);
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+/* ─── Pill ─── */
+.sdlb-pill { position: relative; }
+
+/* ─── Trigger button ─── */
+.sdlb-trigger {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  color: rgba(230,230,230,0.9);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 50px;
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  font-family: inherit;
+  transition: background 0.2s ease, color 0.2s ease;
+  line-height: 1;
+}
+.sdlb-trigger:hover,
+.sdlb-trigger[aria-expanded="true"] {
+  background: rgba(212,175,55,0.14);
+  color: #fff;
+}
+.sdlb-trigger[aria-expanded="true"] { color: #d4af37; }
+.sdlb-trigger[aria-expanded="true"] .sdlb-arrow { transform: rotate(180deg); }
+
+/* Icons inside trigger */
+.sdlb-globe { display: flex; align-items: center; opacity: 0.7; }
+.sdlb-currency-sym {
+  font-size: 13px;
+  font-weight: 700;
+  color: #d4af37;
+  opacity: 0.9;
+  line-height: 1;
+}
+.sdlb-label { font-size: 12px; font-weight: 500; }
+.sdlb-arrow { display: flex; align-items: center; opacity: 0.55; transition: transform 0.22s ease, opacity 0.2s; }
+.sdlb-trigger:hover .sdlb-arrow,
+.sdlb-trigger[aria-expanded="true"] .sdlb-arrow { opacity: 1; }
+
+/* ─── Dropdown menu ─── */
+.sdlb-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 200px;
+  background: #0a0a0a;
+  border: 1px solid rgba(212,175,55,0.28);
+  border-radius: 14px;
+  padding: 6px;
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.8),
+    0 1px 0 rgba(255,255,255,0.04) inset;
+  z-index: 100001;
+  animation: sdlb-in 0.18s cubic-bezier(0.16,1,0.3,1) both;
+  transform-origin: top right;
+}
+@keyframes sdlb-in {
+  from { opacity: 0; transform: scale(0.94) translateY(-6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Menu header */
+.sdlb-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(212,175,55,0.6);
+  padding: 6px 10px 8px;
+  border-bottom: 1px solid rgba(212,175,55,0.12);
+  margin-bottom: 4px;
+}
+
+/* Menu form reset */
+.sdlb-menu form { margin: 0; padding: 0; }
+
+/* ─── Option buttons ─── */
+.sdlb-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: rgba(210,210,210,0.85);
+  font-size: 13px;
+  font-weight: 400;
+  padding: 9px 10px;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: background 0.15s ease, color 0.15s ease;
+  gap: 8px;
+}
+.sdlb-option:hover {
+  background: rgba(212,175,55,0.1);
+  color: #fff;
+}
+.sdlb-option.sdlb-current {
+  color: #d4af37;
+  font-weight: 600;
+}
+.sdlb-opt-name {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.sdlb-opt-name small {
+  font-size: 10px;
+  font-weight: 400;
+  opacity: 0.55;
+  letter-spacing: 0.04em;
+}
+.sdlb-check {
+  display: flex;
+  align-items: center;
+  color: #d4af37;
+  flex-shrink: 0;
+}
+
+/* ─── Responsive móvil ─── */
+@media (max-width: 600px) {
+  #sdlb {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: 0;
+    border-top: 1px solid rgba(212,175,55,0.22);
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    justify-content: center;
+    padding: 6px 16px;
+    gap: 8px;
+  }
+  .sdlb-menu {
+    top: auto;
+    bottom: calc(100% + 8px);
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    transform-origin: bottom center;
+  }
+  @keyframes sdlb-in {
+    from { opacity: 0; transform: translateX(-50%) scale(0.94) translateY(6px); }
+    to   { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
+  }
+  body { padding-bottom: 46px; }
+}
+</style>
+
+<script>
+(function(){
+  var pairs = [
+    { btn:'sdlb-lang-btn', menu:'sdlb-lang-menu', input:'sdlb-lang-val', ret:'sdlb-lang-ret' },
+    { btn:'sdlb-curr-btn', menu:'sdlb-curr-menu', input:'sdlb-curr-val', ret:'sdlb-curr-ret' }
+  ];
+
+  function closeAll(){
+    pairs.forEach(function(p){
+      var b=document.getElementById(p.btn), m=document.getElementById(p.menu);
+      if(b){ b.setAttribute('aria-expanded','false'); }
+      if(m){ m.hidden=true; }
+    });
+  }
+
+  pairs.forEach(function(p){
+    var btn=document.getElementById(p.btn);
+    var menu=document.getElementById(p.menu);
+    var ret=document.getElementById(p.ret);
+    if(!btn||!menu) return;
+
+    // Update return_to with full URL
+    if(ret) ret.value = window.location.pathname + window.location.search;
+
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      var open = btn.getAttribute('aria-expanded')==='true';
+      closeAll();
+      if(!open){ menu.hidden=false; btn.setAttribute('aria-expanded','true'); }
+    });
+  });
+
+  // Option click: update hidden input and submit form
+  document.querySelectorAll('.sdlb-option').forEach(function(opt){
+    opt.addEventListener('click',function(){
+      var inp = document.getElementById(opt.getAttribute('data-input'));
+      if(inp){ inp.value = opt.getAttribute('data-val'); inp.closest('form').submit(); }
+    });
+  });
+
+  document.addEventListener('click', closeAll);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeAll(); });
+})();
+</script>
+
+{%- endif -%}

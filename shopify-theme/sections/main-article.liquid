@@ -1,0 +1,441 @@
+{{ 'blog.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign section_st = section.settings
+  assign section_width = section_st.section_width
+  assign scroll_animation = settings.scroll_animation
+-%}
+
+{%- capture style -%}
+  --section-pt: {{ section_st.padding_top }}; 
+  --section-pb: {{ section_st.padding_bottom }};
+{%- endcapture -%}
+
+<!-- Desktop Content-Width Control -->
+<style>
+  .lh-normal.flex.flex-wrap.gap-10.justify-content-center.mt-30.container-min {
+    margin-bottom: 4.5px;
+  }
+
+  @media (min-width: 992px) {
+    .content-desktop-width {
+      max-width: {{ section_st.content_width_desktop }}px;
+      margin: 0 auto;
+    }
+    .author-highlight {
+      margin-left: {{ section_st.author_margin_left }}px;
+      margin-right: {{ section_st.author_margin_right }}px;
+    }
+  }
+</style>
+
+<div
+  id="singleBlogPost"
+  class="section{% if section_st.padding_top < 30 %} pt-min{% endif %}{% if section_st.padding_bottom < 30 %} pb-min{% endif %} sec__article"
+  style="{{ style | strip | strip_newlines }}"
+>
+  <div class="{{ section_width }}">
+    <!-- BEGIN: Main Article Content (No Sidebar) -->
+    <article class="article-template single__post-content" itemscope itemtype="http://schema.org/BlogPosting">
+      {%- for block in section.blocks -%}
+        {% assign block_st = block.settings %}
+        {%- case block.type -%}
+          {%- when 'title' -%}
+            <div {{ block.shopify_attributes }} class="single__post-header text-center page-title container-min">
+              <h1
+                class="heading-letter-spacing article-template__title mb-15 h0 mt-15"
+                itemprop="headline"
+                style="font-size: {{ block_st.blog_title_font_size }}px !important;"
+              >
+                {{ article.title | escape }}
+              </h1>
+            </div>
+
+          {%- when 'category' -%}
+            <div class="lh-normal flex flex-wrap gap-10 justify-content-center mt-30 container-min">
+              {% assign blog_name = article.handle | split: '/' | first %}
+              {% if blog_name != blank %}
+                <a
+                  href="{{ blog.url }}"
+                  aria-label="{{ blog_name | capitalize }}"
+                  class="inline-flex fs-13 btn-rounded py-8 px-20 lh-normal no-underline heading-color"
+                  style="
+                    background-color: {{ block_st.category_background_color }} !important;
+                    border-radius: {{ block_st.category_border_radius }}px !important;
+                  "
+                >
+                  <span>{{ blog_name | capitalize }}</span>
+                </a>
+              {% endif %}
+            </div>
+
+          {%- when 'blog_meta' -%}
+            <div
+              class="article_meta lh-normal flex flex-wrap align-center justify-content-center mt-15 container-min blog-meta-pill"
+              style="
+                background-color: {{ block_st.blog_meta_background_color }} !important;
+                border-radius: {{ block_st.blog_meta_border_radius }}px !important;
+                padding: 15px !important;
+                margin: 0 auto;
+                gap: 3px;
+              "
+            >
+              <div class="article-card-author inline-flex align-center">
+                {{- 'blog_post.post_by' | t }}
+                <span class="primary-color heading_weight ms-5">{{ article.author }}</span>
+              </div>
+              <div
+                class="article-card-date inline-flex align-center date-pill"
+                itemprop="dateCreated pubdate datePublished"
+                style="
+                  background-color: {{ block_st.date_pill_background_color }} !important;
+                  padding: 3px 8px;
+                  border-radius: 999px;
+                "
+              >
+                {{ article.published_at | date: '%b %d %Y' }}
+              </div>
+            </div>
+
+          {%- when 'featured_image' -%}
+            {%- if article.image -%}
+              <div
+                class="text-center mb-40"
+                itemprop="image"
+                style="
+                  padding-top: {{ block_st.featured_image_top_padding }}px;
+                  padding-bottom: {{ block_st.featured_image_bottom_padding }}px;
+                "
+              >
+                <!-- Mobile-specific aspect ratio and padding -->
+                <style>
+                  @media (max-width: 767px) {
+                    .article-template__hero-{{ block_st.image_height }} {
+                      --aspect-ratio: 16/9 !important;
+                      padding-left: 10px !important;
+                      padding-right: 10px !important;
+                    }
+                    .article-template__hero-{{ block_st.image_height }} img {
+                      object-fit: cover !important;
+                      width: 100% !important;
+                      height: 100% !important;
+                    }
+                  }
+                </style>
+
+                <div
+                  class="rounded-corner-item relative article-template__hero-{{ block_st.image_height }} overflow-hidden media"
+                  style="
+                    border-radius: {{ block_st.featured_image_border_radius }}px !important;
+                    {% if block_st.image_height == 'adapt' %}
+                      --aspect-ratio: adapt;
+                    {% endif %}
+                  "
+                >
+                  {%- assign image_alt = article.image.alt | default: 'article' -%}
+                  {% render 'responsive-image',
+                    type: 'banner',
+                    class: 'absolute h-full inset-0 object-fit-cover',
+                    container: section_width,
+                    image: article.image,
+                    image_alt: image_alt,
+                    width: 1920,
+                    height: 1080
+                  %}
+                </div>
+              </div>
+            {% endif %}
+
+          {%- when 'content_article' -%}
+            <div
+              class="container-min article-template__content mt-40 rte content-desktop-width"
+              itemprop="articleBody"
+              {{ block.shopify_attributes }}
+            >
+              {{ article.content }}
+            </div>
+
+          {%- when 'author_highlight' -%}
+            <div class="single__post-content-inner container-min">
+              <div class="author-highlight" style="display: flex; align-items: center; gap: 10px; margin-top: 40px;">
+                <img
+                  src="{% if block_st.author_image %}{{ block_st.author_image | img_url: 'original' }}{% else %}https://mastertondental.co.nz/wp-content/uploads/2022/12/team-profile-placeholder.jpg{% endif %}"
+                  alt="{{ article.author }}"
+                  style="border-radius: 50%; width: {{ block_st.author_image_size }}px; height: {{ block_st.author_image_size }}px;"
+                >
+                <div>
+                  <p style="margin: 0 0 5px;">{{ block_st.author_text }}</p>
+                  <p style="margin: 0;">
+                    Written by <strong>{{ article.author }}</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </article>
+    <!-- END: Main Article Content (No Sidebar) -->
+  </div>
+</div>
+
+<script src="{{ 'blog.js' | asset_url }}" defer="defer"></script>
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "articleBody": {{ article.content | strip_html | json }},
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": {{ request.origin | append: page.url | json }}
+    },
+    "headline": {{ article.title | json }},
+    {% if article.excerpt != blank %}
+      "description": {{ article.excerpt | strip_html | json }},
+    {% endif %}
+    {% if article.image %}
+      "image": [
+        {{ article | image_url: width: 1920 | prepend: "https:" | json }}
+      ],
+    {% endif %}
+    "datePublished": {{ article.published_at | date: '%Y-%m-%dT%H:%M:%SZ' | json }},
+    "dateCreated": {{ article.created_at | date: '%Y-%m-%dT%H:%M:%SZ' | json }},
+    "author": {
+      "@type": "Person",
+      "name": {{ article.author | json }}
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": {{ shop.name | json }}
+    }
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Main Blog Article",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "options": [
+        { "value": "container", "label": "Fixed Container Width" },
+        { "value": "fluid_container", "label": "Fluid Container" },
+        { "value": "stretch_width", "label": "Stretch to Full Width" },
+        { "value": "full_width", "label": "Full Width" }
+      ],
+      "default": "stretch_width",
+      "label": "Section Width"
+    },
+    {
+      "type": "header",
+      "content": "Section Padding Settings"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding (px)",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding (px)",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "content_width_desktop",
+      "label": "Content Width for Desktop (px)",
+      "default": 800,
+      "min": 600,
+      "max": 2000,
+      "step": 100,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "author_margin_left",
+      "label": "Author Highlight Left Margin (px)",
+      "default": 0,
+      "min": -200,
+      "max": 100,
+      "step": 10,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "author_margin_right",
+      "label": "Author Highlight Right Margin (px)",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "name": "Article Title",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "range",
+          "id": "blog_title_font_size",
+          "label": "Title Font Size (px)",
+          "default": 40,
+          "min": 10,
+          "max": 100,
+          "step": 1,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "name": "Category Display",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "color",
+          "id": "category_background_color",
+          "label": "Category Background Color",
+          "default": "#f5f5f5"
+        },
+        {
+          "type": "range",
+          "id": "category_border_radius",
+          "label": "Category Border Radius (px)",
+          "default": 20,
+          "min": 0,
+          "max": 50,
+          "step": 1,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "type": "blog_meta",
+      "name": "Blog Metadata",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "color",
+          "id": "blog_meta_background_color",
+          "label": "Metadata Background Color",
+          "default": "#f5f5f5"
+        },
+        {
+          "type": "range",
+          "id": "blog_meta_border_radius",
+          "label": "Metadata Border Radius (px)",
+          "default": 20,
+          "min": 0,
+          "max": 50,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "type": "color",
+          "id": "date_pill_background_color",
+          "label": "Date Pill Background Color",
+          "default": "#e0e0e0"
+        }
+      ]
+    },
+    {
+      "type": "content_article",
+      "name": "Article Content",
+      "limit": 1
+    },
+    {
+      "type": "featured_image",
+      "name": "Featured Image",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "image_height",
+          "options": [
+            { "value": "adapt", "label": "Adapt Height" },
+            { "value": "small", "label": "Small Height" },
+            { "value": "medium", "label": "Medium Height" },
+            { "value": "large", "label": "Large Height" }
+          ],
+          "default": "adapt",
+          "label": "Image Height"
+        },
+        {
+          "type": "range",
+          "id": "featured_image_border_radius",
+          "label": "Image Border Radius (px)",
+          "default": 0,
+          "min": 0,
+          "max": 50,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "featured_image_top_padding",
+          "label": "Top Padding for Image (px)",
+          "default": 0,
+          "min": 0,
+          "max": 100,
+          "step": 2,
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "featured_image_bottom_padding",
+          "label": "Bottom Padding for Image (px)",
+          "default": 0,
+          "min": 0,
+          "max": 100,
+          "step": 2,
+          "unit": "px"
+        }
+      ]
+    },
+    {
+      "type": "author_highlight",
+      "name": "Author Highlight",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "author_image",
+          "label": "Author Profile Picture"
+        },
+        {
+          "type": "range",
+          "id": "author_image_size",
+          "label": "Author Image Size (px)",
+          "default": 80,
+          "min": 40,
+          "max": 200,
+          "step": 5,
+          "unit": "px"
+        },
+        {
+          "type": "text",
+          "id": "author_text",
+          "label": "Author Message",
+          "default": "Hope you enjoyed this article and stay tuned!"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

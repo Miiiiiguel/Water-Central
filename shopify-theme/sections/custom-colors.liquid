@@ -1,0 +1,60 @@
+{% capture colors %}
+    <style>
+        {%- for block in section.blocks -%}
+          {% assign block_st = block.settings %}
+            {%- if block_st.heading != blank -%}
+             {% assign color_name = block_st.heading | downcase | replace: ' ', '-' %}
+                .custom__color-swatches--{{ color_name }}{
+                    {% if block_st.color_image == blank %}
+                        background-color:{{ block_st.color_code }} !important;
+                        background-image: initial !important;
+                    {% else  %}
+                        background:{{ block_st.color_code }} url({{ block_st.color_image | image_url: width: 80 }}) no-repeat 50% 50%/cover !important;
+                    {% endif %}
+                }
+            {% endif %}
+        {%- endfor -%} 
+    </style>
+{% endcapture %}
+{{ colors | strip_newlines | remove: '  ' | remove: '	' }}
+{% schema %}
+{
+   "name": "Custom Color Swatches",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "This section allows you to create and manage custom color swatches. You can personalize colors using hex codes or upload representative images for better visualization."
+    },
+    {
+      "type": "paragraph",
+      "content": "To enable custom color swatches, go to Theme Settings > Color Swatches > Swatch Item Type. Keep in mind that color images take priority over color codes when both are provided."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "color",
+      "name": "Custom Color Options",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Custom Color Name",
+          "info": "Enter the name of the custom color swatch to help identify it."
+        },
+        {
+          "type": "color",
+          "id": "color_code",
+          "label": "Color Hex Code",
+          "info": "Select a color using the picker or input a hex code manually."
+        },
+        {
+          "type": "image_picker",
+          "id": "color_image",
+          "label": "Color Swatch Image",
+          "info": "Upload an image to represent the color visually. If an image is uploaded, it will be prioritized over the hex code."
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

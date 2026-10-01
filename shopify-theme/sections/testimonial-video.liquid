@@ -1,0 +1,1118 @@
+<section
+  id="community-stories-slider"
+  class="community-stories-slider"
+  style="
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    background-color: {{ section.settings.background_color }};
+    text-align: center;
+  "
+>
+  <!-- Container with desktop left/right padding -->
+  <div
+    class="container"
+    style="padding-left: {{ section.settings.desktop_padding_left }}px; padding-right: {{ section.settings.desktop_padding_right }}px;"
+  >
+    {% if section.settings.enable_custom_fonts and section.settings.selected_custom_font != blank %}
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family={{ section.settings.selected_custom_font | replace: ' ', '+' }}&display=swap');
+        /* Apply the selected Google font to all text elements within the section */
+        #community-stories-slider * {
+          font-family: '{{ section.settings.selected_custom_font }}', sans-serif !important;
+        }
+      </style>
+    {% elsif section.settings.custom_font_url != blank %}
+      <style>
+        @import url('{{ section.settings.custom_font_url }}');
+        /* Apply the custom font to all text elements within the section */
+        #community-stories-slider * {
+          font-family: 'CustomFont', sans-serif !important;
+        }
+      </style>
+    {% endif %}
+
+    <!-- Assign RGB components based on the selected overlay color -->
+    {% assign overlay_color_option = section.settings.video_overlay_color_selector %}
+    {% case overlay_color_option %}
+      {% when 'none' %}
+        {% assign overlay_r = 0 %}
+        {% assign overlay_g = 0 %}
+        {% assign overlay_b = 0 %}
+        {% assign overlay_opacity = 0 %}
+      {% when 'black' %}
+        {% assign overlay_r = 0 %}
+        {% assign overlay_g = 0 %}
+        {% assign overlay_b = 0 %}
+        {% assign overlay_opacity = section.settings.video_overlay_opacity %}
+      {% when 'white' %}
+        {% assign overlay_r = 255 %}
+        {% assign overlay_g = 255 %}
+        {% assign overlay_b = 255 %}
+        {% assign overlay_opacity = section.settings.video_overlay_opacity %}
+      {% when 'gray' %}
+        {% assign overlay_r = 128 %}
+        {% assign overlay_g = 128 %}
+        {% assign overlay_b = 128 %}
+        {% assign overlay_opacity = section.settings.video_overlay_opacity %}
+      {% when 'light-gray' %}
+        {% assign overlay_r = 211 %}
+        {% assign overlay_g = 211 %}
+        {% assign overlay_b = 211 %}
+        {% assign overlay_opacity = section.settings.video_overlay_opacity %}
+      {% when 'dark-gray' %}
+        {% assign overlay_r = 169 %}
+        {% assign overlay_g = 169 %}
+        {% assign overlay_b = 169 %}
+        {% assign overlay_opacity = section.settings.video_overlay_opacity %}
+    {% endcase %}
+
+    <h2
+      class="community-stories-title"
+      style="
+        color: {{ section.settings.title_color }} !important;
+        font-size: {{ section.settings.title_font_size }}px;
+        font-weight: {{ section.settings.title_font_weight }};
+        margin-bottom: {{ section.settings.space_between_title_tagline_desktop }}px;
+      "
+    >
+      {{ section.settings.title }}
+    </h2>
+    <p
+      class="community-stories-tagline"
+      style="
+        color: {{ section.settings.tagline_color }};
+        font-size: {{ section.settings.tagline_font_size }}px;
+        margin-bottom: {{ section.settings.space_between_tagline_video_desktop }}px;
+      "
+    >
+      {{ section.settings.tagline }}
+    </p>
+
+    <!-- Desktop and Tablet View -->
+    <div
+      class="video-cards-wrapper desktop-view"
+      style="gap: {{ section.settings.video_cards_gap_desktop }}px;"
+    >
+      {% for block in section.blocks %}
+        <a href="{{ block.settings.product_link }}" class="video-card-link">
+          <div class="video-card {{ section.settings.hover_animation }}">
+            {% if block.settings.image %}
+              <img
+                src="{{ block.settings.image | img_url: 'master' }}"
+                alt="{{ block.settings.product_name }}"
+                class="media-content"
+              >
+            {% else %}
+              <video class="media-content" autoplay muted loop playsinline>
+                {% if block.settings.shopify_video %}
+                  <source src="{{ block.settings.shopify_video | video_url }}" type="video/mp4">
+                {% elsif block.settings.video_url %}
+                  <source src="{{ block.settings.video_url }}" type="video/mp4">
+                {% endif %}
+                Your browser does not support the video tag.
+              </video>
+            {% endif %}
+
+            {% unless section.settings.hide_addons %}
+              <div
+                class="video-overlay"
+                style="
+                  background-color: rgba(
+                    {{ overlay_r }},
+                    {{ overlay_g }},
+                    {{ overlay_b }},
+                    {{ overlay_opacity }}
+                  );
+                "
+              >
+                <div class="product-info">
+                  <span class="username" style="color: {{ section.settings.product_name_color }};">
+                    {{ block.settings.username }}
+                  </span>
+                  <span class="product-name" style="color: {{ section.settings.product_name_color }};">
+                    {{ block.settings.product_name }}
+                  </span>
+                  <div class="stars" style="color: {{ section.settings.product_price_color }};">
+                    {% for i in (1..5) %}
+                      {% if i <= block.settings.rating %}
+                        <span class="star filled">★</span>
+                      {% else %}
+                        <span class="star">☆</span>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            {% endunless %}
+
+            {% if section.settings.enable_button %}
+              <a href="{{ block.settings.button_link }}" class="custom-button">
+                {{ section.settings.button_text }}
+              </a>
+            {% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+
+    <!-- Mobile Slider View -->
+    <div class="swiper-container mobile-view">
+      <div class="swiper-wrapper">
+        {% for block in section.blocks %}
+          <div class="swiper-slide">
+            <a href="{{ block.settings.product_link }}" class="video-card-link">
+              <div class="video-card {{ section.settings.hover_animation }}">
+                {% if block.settings.image %}
+                  <img
+                    src="{{ block.settings.image | img_url: 'master' }}"
+                    alt="{{ block.settings.product_name }}"
+                    class="media-content"
+                  >
+                {% else %}
+                  <video class="media-content" autoplay muted loop playsinline>
+                    {% if block.settings.shopify_video %}
+                      <source src="{{ block.settings.shopify_video | video_url }}" type="video/mp4">
+                    {% elsif block.settings.video_url %}
+                      <source src="{{ block.settings.video_url }}" type="video/mp4">
+                    {% endif %}
+                    Your browser does not support the video tag.
+                  </video>
+                {% endif %}
+
+                {% unless section.settings.hide_addons %}
+                  <div
+                    class="video-overlay"
+                    style="
+                      background-color: rgba(
+                        {{ overlay_r }},
+                        {{ overlay_g }},
+                        {{ overlay_b }},
+                        {{ overlay_opacity }}
+                      );
+                    "
+                  >
+                    <div class="product-info">
+                      <span class="username" style="color: {{ section.settings.product_name_color }};">
+                        {{ block.settings.username }}
+                      </span>
+                      <span class="product-name" style="color: {{ section.settings.product_name_color }};">
+                        {{ block.settings.product_name }}
+                      </span>
+                      <div class="stars" style="color: {{ section.settings.product_price_color }};">
+                        {% for i in (1..5) %}
+                          {% if i <= block.settings.rating %}
+                            <span class="star filled">★</span>
+                          {% else %}
+                            <span class="star">☆</span>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                {% endunless %}
+
+                {% if section.settings.enable_button %}
+                  <a href="{{ block.settings.button_link }}" class="custom-button">
+                    {{ section.settings.button_text }}
+                  </a>
+                {% endif %}
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if section.settings.show_arrows %}
+        <!-- Add Navigation Buttons -->
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+      {% endif %}
+
+      <!-- Add Pagination Dots -->
+      <div class="swiper-pagination"></div>
+    </div>
+  </div>
+
+  <!-- Swiper.js CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+
+  <style>
+        /* Container Styles */
+        #community-stories-slider {
+          position: relative;
+          overflow: hidden;
+        }
+        /* Adjust container padding for mobile via media query */
+        @media (max-width: 768px) {
+          .container {
+            padding-left: {{ section.settings.mobile_padding_left }}px !important;
+            padding-right: {{ section.settings.mobile_padding_right }}px !important;
+          }
+        }
+
+        #community-stories-slider .community-stories-title,
+        #community-stories-slider .community-stories-tagline {
+          font-family: inherit;
+        }
+
+        /* Video Cards Wrapper - Desktop View */
+        #community-stories-slider .video-cards-wrapper.desktop-view {
+          display: flex;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        /* Video Card Link */
+        #community-stories-slider .video-card-link {
+          text-decoration: none;
+          color: inherit;
+        }
+
+        /* Video Card Styles */
+        #community-stories-slider .video-card {
+          position: relative;
+          width: {{ section.settings.video_card_size }}px;
+          height: calc({{ section.settings.video_card_size }}px * 1.6);
+          border-radius: 12px;
+          overflow: hidden;
+          transition: transform 0.3s, box-shadow 0.3s;
+          cursor: pointer;
+          background-color: #f9f9f9;
+        }
+
+        /* Hover Animations */
+        #community-stories-slider .video-card.none:hover { }
+        #community-stories-slider .video-card.smooth-zoom:hover {
+          transform: scale(1.05);
+        }
+        #community-stories-slider .video-card.scale-in:hover {
+          transform: scale(1.1);
+        }
+        #community-stories-slider .video-card.scale-in-up:hover {
+          transform: scale(1.1) translateY(-5px);
+        }
+        #community-stories-slider .video-card.subtle-shadow:hover {
+          box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+        #community-stories-slider .video-card.subtle-white-glow-pulse:hover {
+          box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+          animation: pulseWhiteGlow 1.5s infinite;
+        }
+        #community-stories-slider .video-card.subtle-gray-glow-pulse:hover {
+          box-shadow: 0 0 10px rgba(128, 128, 128, 0.7);
+          animation: pulseGrayGlow 1.5s infinite;
+        }
+        @keyframes pulseWhiteGlow {
+          0% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.7); }
+          50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.9); }
+          100% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.7); }
+        }
+        @keyframes pulseGrayGlow {
+          0% { box-shadow: 0 0 10px rgba(128, 128, 128, 0.7); }
+          50% { box-shadow: 0 0 20px rgba(128, 128, 128, 0.9); }
+          100% { box-shadow: 0 0 10px rgba(128, 128, 128, 0.7); }
+        }
+
+        #community-stories-slider .media-content {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        /* Overlay Styles */
+        #community-stories-slider .video-overlay {
+          position: absolute;
+          bottom: 0;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          padding: 10px;
+          backdrop-filter: blur(3px);
+        }
+        #community-stories-slider .product-info {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          width: 100%;
+        }
+        #community-stories-slider .username {
+          font-size: 12px;
+          font-weight: bold;
+          font-family: inherit;
+          margin-bottom: 2px;
+        }
+        #community-stories-slider .product-name {
+          font-size: 14px;
+          font-weight: bold;
+          font-family: inherit;
+          margin-bottom: 2px;
+        }
+        #community-stories-slider .stars {
+          display: flex;
+          font-size: 14px;
+          font-family: inherit;
+        }
+        #community-stories-slider .star {
+          color: #808080;
+        }
+        #community-stories-slider .star.filled {
+          color: #ffd700;
+        }
+
+        /* Button Styles */
+        #community-stories-slider .custom-button {
+        position: absolute;
+        bottom: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: {{ section.settings.button_background_color }};
+        color: {{ section.settings.button_text_color }};
+        border: none;
+        border-radius: {{ section.settings.button_border_radius }}px;
+        padding: 8px 16px;
+        text-decoration: none;
+        transition: background-color 0.3s ease, filter 0.3s ease;
+        font-size: 14px;
+        white-space: nowrap;
+        display: inline-block;
+        will-change: filter; /* Optimizes hover effect */
+    }
+
+    #community-stories-slider .custom-button:hover {
+        filter: brightness(0.94);
+
+
+        }
+
+        /* Swiper Styles - Mobile View */
+        #community-stories-slider .swiper-container.mobile-view {
+          display: none;
+          width: 100%;
+          padding-bottom: 60px; /* increased to give dots more room */
+          position: relative;
+        }
+        #community-stories-slider .swiper-slide {
+          display: flex;
+          justify-content: center;
+        }
+
+        /* Swiper Navigation Buttons Styles */
+        #community-stories-slider .swiper-button-prev,
+        #community-stories-slider .swiper-button-next {
+          color: {{ section.settings.arrow_color }};
+          width: {{ section.settings.arrow_size }}px;
+          height: {{ section.settings.arrow_size }}px;
+          transition: color 0.3s ease;
+          display: block;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 10;
+        }
+        #community-stories-slider .swiper-button-prev:hover,
+        #community-stories-slider .swiper-button-next:hover {
+          color: {{ section.settings.arrow_hover_color }};
+        }
+        #community-stories-slider .swiper-button-prev::after,
+        #community-stories-slider .swiper-button-next::after {
+          font-size: {{ section.settings.arrow_size }}px;
+        }
+        #community-stories-slider .swiper-button-prev { left: 10px; }
+        #community-stories-slider .swiper-button-next { right: 10px; }
+
+        /* Swiper Pagination Dots Styles */
+        #community-stories-slider .swiper-pagination {
+          position: absolute;
+          bottom: -18px; /* moved a little further down */
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 10;
+          text-align: center;
+          transition: opacity 0.3s ease;
+        }
+        #community-stories-slider .swiper-pagination-bullet {
+          width: 6px !important ;   /* very small like 16px */
+          height: 6px !important ;  /* very small like 16px */
+          display: inline-block;
+          border-radius: 50%;
+          background: {{ section.settings.pagination_bullet_color }};
+          opacity: 0.5;
+           transform: scale(0.2) !important;
+          transition: opacity 0.3s ease, background-color 0.3s ease;
+          margin: -0 01px;
+          cursor: pointer;
+        }
+        #community-stories-slider .swiper-pagination-bullet-active {
+          opacity: 1;
+          background: {{ section.settings.pagination_bullet_active_color }};
+        }
+        #community-stories-slider .swiper-pagination-bullet:hover {
+          opacity: 0.7;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+          #community-stories-slider .video-cards-wrapper.desktop-view {
+            display: none;
+          }
+          #community-stories-slider .swiper-container.mobile-view {
+            display: block;
+          }
+          #community-stories-slider .community-stories-title {
+            font-size: {{ section.settings.title_font_size | minus: 4 }}px;
+            margin-bottom: {{ section.settings.space_between_title_tagline_mobile }}px !important;
+          }
+          #community-stories-slider .community-stories-tagline {
+            font-size: {{ section.settings.tagline_font_size | minus: 2 }}px;
+            margin-bottom: {{ section.settings.space_between_tagline_video_mobile }}px !important;
+          }
+          #community-stories-slider .swiper-container.mobile-view .swiper-slide .video-card {
+            width: {{ section.settings.mobile_video_card_width }}px;
+            height: calc({{ section.settings.mobile_video_card_width }}px * 1.8);
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.smooth-zoom:hover {
+            transform: scale(1.03);
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.scale-in:hover {
+            transform: scale(1.05);
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.scale-in-up:hover {
+            transform: scale(1.05) translateY(0);
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.subtle-shadow:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.subtle-white-glow-pulse:hover {
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+            animation: pulseWhiteGlow 1.5s infinite;
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.subtle-gray-glow-pulse:hover {
+            box-shadow: 0 0 8px rgba(128, 128, 128, 0.7);
+            animation: pulseGrayGlow 1.5s infinite;
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card {
+            touch-action: manipulation;
+          }
+        }
+        @media (max-width: 480px) {
+          #community-stories-slider .community-stories-title {
+            font-size: {{ section.settings.title_font_size | minus: 6 }}px;
+          }
+          #community-stories-slider .community-stories-tagline {
+            font-size: {{ section.settings.tagline_font_size | minus: 4 }}px;
+          }
+          #community-stories-slider .swiper-container.mobile-view .swiper-slide .video-card {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.smooth-zoom:hover {
+            transform: scale(1.02);
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.scale-in:hover {
+            transform: scale(1.03);
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.scale-in-up:hover {
+            transform: scale(1.03) translateY(0);
+          }
+        }
+  </style>
+
+  <!-- Swiper.js JS -->
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+  <script>
+    (function() {
+      const section = document.getElementById('community-stories-slider');
+      if (!section) return;
+      let swiperInstance = null;
+
+      function initSwiper() {
+        if (window.innerWidth <= 768) {
+          if (!swiperInstance) {
+            const swiperOptions = {
+              loop: true,
+              autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+              },
+              slidesPerView: {{ section.settings.mobile_column_count }},
+              spaceBetween: {{ section.settings.video_cards_gap_mobile }},
+              effect: 'slide',
+              grabCursor: true,
+              speed: 600,
+              pagination: {
+                el: '#community-stories-slider .swiper-pagination',
+                clickable: true
+              }
+            };
+            {% if section.settings.show_arrows %}
+              swiperOptions.navigation = {
+                nextEl: '#community-stories-slider .swiper-button-next',
+                prevEl: '#community-stories-slider .swiper-button-prev',
+              };
+            {% endif %}
+            swiperInstance = new Swiper(section.querySelector('.swiper-container.mobile-view'), swiperOptions);
+          }
+        } else {
+          if (swiperInstance) {
+            swiperInstance.destroy(true, true);
+            swiperInstance = null;
+          }
+        }
+      }
+
+      function handleSectionLoad() {
+        initSwiper();
+      }
+
+      function handleSectionUnload() {
+        if (swiperInstance) {
+          swiperInstance.destroy(true, true);
+          swiperInstance = null;
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        initSwiper();
+      });
+
+      window.addEventListener('resize', function() {
+        initSwiper();
+      });
+
+      document.addEventListener('shopify:section:load', handleSectionLoad);
+      document.addEventListener('shopify:section:unload', handleSectionUnload);
+
+      document.addEventListener('shopify:block:select', function() {
+        initSwiper();
+      });
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Video Testimonials 5",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Background and Overlay Settings",
+      "info": "Customize the background and overlay colors for the section."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "video_overlay_color_selector",
+      "label": "Video Overlay Color",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "black", "label": "Black" },
+        { "value": "white", "label": "White" },
+        { "value": "gray", "label": "Gray" },
+        { "value": "light-gray", "label": "Light Gray" },
+        { "value": "dark-gray", "label": "Dark Gray" }
+      ],
+      "default": "black"
+    },
+    {
+      "type": "range",
+      "id": "video_overlay_opacity",
+      "label": "Video Overlay Opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.3
+    },
+    {
+      "type": "header",
+      "content": "Title and Tagline Settings",
+      "info": "Adjust the main text and tagline settings."
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Our customers love it."
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "title_font_weight",
+      "label": "Title Font Weight",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "label": "Title Font Size (px)",
+      "min": 16,
+      "max": 48,
+      "step": 1,
+      "default": 29
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline",
+      "default": "Express your style with our standout collection—fashion meets sophistication."
+    },
+    {
+      "type": "color",
+      "id": "tagline_color",
+      "label": "Tagline Color",
+      "default": "#555555"
+    },
+    {
+      "type": "range",
+      "id": "tagline_font_size",
+      "label": "Tagline Font Size (px)",
+      "min": 12,
+      "max": 36,
+      "step": 1,
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings",
+      "info": "Customize padding, spacing, and layout for desktop and mobile."
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding (px)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding (px)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_left",
+      "label": "Section Left Padding (Desktop) (px)",
+      "min": -100,
+      "max": 200,
+      "step": 5,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_right",
+      "label": "Section Right Padding (Desktop) (px)",
+      "min": -100,
+      "max": 200,
+      "step": 5,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_left",
+      "label": "Section Left Padding (Mobile) (px)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_right",
+      "label": "Section Right Padding (Mobile) (px)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "space_between_title_tagline_desktop",
+      "label": "Space Between Title and Tagline (Desktop) (px)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "space_between_title_tagline_mobile",
+      "label": "Space Between Title and Tagline (Mobile) (px)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "space_between_tagline_video_desktop",
+      "label": "Space Between Tagline and Video Cards (Desktop) (px)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "space_between_tagline_video_mobile",
+      "label": "Space Between Tagline and Video Cards (Mobile) (px)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 35
+    },
+    {
+      "type": "range",
+      "id": "video_cards_gap_desktop",
+      "label": "Video Cards Gap (Desktop) (px)",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "video_cards_gap_mobile",
+      "label": "Video Cards Gap (Mobile) (px)",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "mobile_column_count",
+      "label": "Mobile Column Count",
+      "min": 1,
+      "max": 2,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "type": "header",
+      "content": "Video Card Customization",
+      "info": "Control video card size, animations, and specific settings."
+    },
+    {
+      "type": "range",
+      "id": "video_card_size",
+      "label": "Video Card Width (px)",
+      "min": 150,
+      "max": 300,
+      "step": 10,
+      "default": 240
+    },
+    {
+      "type": "range",
+      "id": "mobile_video_card_width",
+      "label": "Mobile Video Card Width (px)",
+      "min": 150,
+      "max": 300,
+      "step": 10,
+      "default": 200
+    },
+    {
+      "type": "select",
+      "id": "hover_animation",
+      "label": "Video Card Hover Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "smooth-zoom", "label": "Smooth Zoom" },
+        { "value": "scale-in", "label": "Scale In" },
+        { "value": "scale-in-up", "label": "Scale In Up" },
+        { "value": "subtle-shadow", "label": "Subtle Shadow" },
+        { "value": "subtle-white-glow-pulse", "label": "Subtle White Glow Pulse" },
+        { "value": "subtle-gray-glow-pulse", "label": "Subtle Gray Glow Pulse" }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "header",
+      "content": "Navigation Settings",
+      "info": "Control navigation arrow display and color for mobile."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show Navigation Arrows",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Arrow Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "arrow_size",
+      "label": "Arrow Size (px)",
+      "min": 20,
+      "max": 50,
+      "step": 1,
+      "default": 30
+    },
+    {
+      "type": "color",
+      "id": "arrow_hover_color",
+      "label": "Arrow Hover Color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "pagination_bullet_color",
+      "label": "Pagination Bullet Color (Unfilled)",
+      "default": "#999999"
+    },
+    {
+      "type": "color",
+      "id": "pagination_bullet_active_color",
+      "label": "Pagination Bullet Active Color (Filled)",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Product Text Customization",
+      "info": "Set colors for product name and price text."
+    },
+    {
+      "type": "color",
+      "id": "product_name_color",
+      "label": "Product Name Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "product_price_color",
+      "label": "Product Price Color",
+      "default": "#EDEDED"
+    },
+    {
+      "type": "header",
+      "content": "Addons and Button Settings",
+      "info": "Toggle addons and customize button options."
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_addons",
+      "label": "Hide Addons",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_button",
+      "label": "Enable Button",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "button_background_color",
+      "label": "Button Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Learn More"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Button Border Radius (px)",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 25
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Font Settings",
+      "info": "Customize the fonts used in your video player section."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_fonts",
+      "label": "Enable Custom Fonts",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "selected_custom_font",
+      "label": "Select Font",
+      "options": [
+          { "value": "Roboto", "label": "Roboto" },
+          { "value": "Open Sans", "label": "Open Sans" },
+          { "value": "Lato", "label": "Lato" },
+          { "value": "Montserrat", "label": "Montserrat" },
+          { "value": "Oswald", "label": "Oswald" },
+          { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+          { "value": "Raleway", "label": "Raleway" },
+          { "value": "Yanone Kaffeesatz", "label": "Yanone Kaffeesatz" },
+          { "value": "Merriweather", "label": "Merriweather" },
+          { "value": "PT Sans", "label": "PT Sans" },
+          { "value": "Noto Sans", "label": "Noto Sans" },
+          { "value": "Nunito", "label": "Nunito" },
+          { "value": "Ubuntu", "label": "Ubuntu" },
+          { "value": "Poppins", "label": "Poppins" },
+          { "value": "Playfair Display", "label": "Playfair Display" },
+          { "value": "Slabo 27px", "label": "Slabo 27px" },
+          { "value": "Lora", "label": "Lora" },
+          { "value": "Fira Sans", "label": "Fira Sans" },
+          { "value": "Libre Baskerville", "label": "Libre Baskerville" },
+          { "value": "Indie Flower", "label": "Indie Flower" },
+          { "value": "Bebas Neue", "label": "Bebas Neue" },
+          { "value": "Cabin", "label": "Cabin" },
+          { "value": "Cinzel", "label": "Cinzel" },
+          { "value": "Dosis", "label": "Dosis" },
+          { "value": "Exo 2", "label": "Exo 2" },
+          { "value": "Fjalla One", "label": "Fjalla One" },
+          { "value": "Gilda Display", "label": "Gilda Display" },
+          { "value": "Heebo", "label": "Heebo" },
+          { "value": "Karla", "label": "Karla" },
+          { "value": "Muli", "label": "Muli" },
+          { "value": "Noto Serif", "label": "Noto Serif" },
+          { "value": "Quicksand", "label": "Quicksand" },
+          { "value": "Roboto Slab", "label": "Roboto Slab" },
+          { "value": "Signika", "label": "Signika" },
+          { "value": "Titillium Web", "label": "Titillium Web" },
+          { "value": "Varela Round", "label": "Varela Round" },
+          { "value": "Work Sans", "label": "Work Sans" },
+          { "value": "Zilla Slab", "label": "Zilla Slab" }
+      ],
+      "default": "Roboto"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_font_url",
+      "label": "Custom Font URL",
+      "info": "Enter the URL of the custom font you want to use. Ensure that the font-family is correctly referenced in the imported CSS."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "video_card",
+      "name": "Video Card",
+      "settings": [
+        {
+          "type": "url",
+          "id": "video_url",
+          "label": "External Video URL",
+          "info": "Enter the URL of the video (e.g., YouTube, Vimeo). Add the video to the Shopify content, copy link, and paste it here."
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Upload an image to display instead of a video."
+        },
+        {
+          "type": "text",
+          "id": "username",
+          "label": "Username",
+          "default": "@user"
+        },
+        {
+          "type": "text",
+          "id": "product_name",
+          "label": "Product Name",
+          "default": "Product Name"
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Rating (1-5)",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "url",
+          "id": "product_link",
+          "label": "Product Link",
+          "default": "/"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button Link",
+          "default": "/"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 5,
+  "presets": [
+    {
+      "name": "Video Testimonials 5",
+      "category": "Testimonials",
+      "blocks": [
+        {
+          "type": "video_card",
+          "settings": {
+            "username": "@user1",
+            "product_name": "Product 1",
+            "rating": 5,
+            "video_url": "https://v1.pinimg.com/videos/iht/720p/30/d9/a4/30d9a48417647dda7bb6c615e798cf94.mp4"
+          }
+        },
+        {
+          "type": "video_card",
+          "settings": {
+            "username": "@user2",
+            "product_name": "Product 2",
+            "rating": 4,
+            "video_url": "https://media.uplifted.ai/website/Godice/GoDice.mp4"
+          }
+        },
+        {
+          "type": "video_card",
+          "settings": {
+            "username": "@user3",
+            "product_name": "Product 3",
+            "rating": 5,
+            "video_url": "https://billo.app/wp-content/uploads/2024/07/Brickster_2_1-1.mp4"
+          }
+        },
+        {
+          "type": "video_card",
+          "settings": {
+            "username": "@user4",
+            "product_name": "Product 4",
+            "rating": 3,
+            "video_url": "https://v1.pinimg.com/videos/mc/720p/10/d7/02/10d7029d70efdad6c89a93aa4c22441b.mp4"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

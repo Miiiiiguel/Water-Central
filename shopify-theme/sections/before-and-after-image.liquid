@@ -1,0 +1,782 @@
+{% schema %}
+{
+  "name": "Before/After Images",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading Text",
+      "info": "Configure the texts displayed above the images."
+    },
+    {
+      "type": "text",
+      "id": "before_text",
+      "label": "Before Text",
+      "default": "Before",
+      "info": "Text label for the before image."
+    },
+    {
+      "type": "text",
+      "id": "after_text",
+      "label": "After Text",
+      "default": "After",
+      "info": "Text label for the after image."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_text",
+      "label": "Show Before/After Texts",
+      "default": true,
+      "info": "Toggle the visibility of the before and after text labels."
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text Size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 57,
+      "info": "Adjust the size of the before and after text labels."
+    },
+    {
+      "type": "color",
+      "id": "before_text_color",
+      "label": "Before Text Color",
+      "default": "#ffffff",
+      "info": "Select the color for the before text label."
+    },
+    {
+      "type": "color",
+      "id": "after_text_color",
+      "label": "After Text Color",
+      "default": "#ffffff",
+      "info": "Select the color for the after text label."
+    },
+    {
+      "type": "range",
+      "id": "desktop_text_vertical_position",
+      "label": "Before/After Text Vertical Position (Desktop)",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 30,
+      "info": "Adjust the vertical position of the text labels on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "mobile_text_vertical_position",
+      "label": "Before/After Text Vertical Position (Mobile)",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 20,
+      "info": "Adjust the vertical position of the text labels on mobile devices."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_fonts",
+      "label": "Enable Custom Fonts",
+      "default": false,
+      "info": "Allow the use of custom fonts for the text labels."
+    },
+    {
+      "type": "select",
+      "id": "selected_font",
+      "label": "Select Font",
+      "options": [
+           { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+         { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "Yanone Kaffeesatz", "label": "Yanone Kaffeesatz" },
+         { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "PT Sans", "label": "PT Sans" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Nunito", "label": "Nunito" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Slabo 27px", "label": "Slabo 27px" },
+        { "value": "Lora", "label": "Lora" },
+        { "value": "Fira Sans", "label": "Fira Sans" },
+        { "value": "Libre Baskerville", "label": "Libre Baskerville" },
+        { "value": "Indie Flower", "label": "Indie Flower" },
+        { "value": "Bebas Neue", "label": "Bebas Neue" },
+        { "value": "Cabin", "label": "Cabin" },
+        { "value": "Cinzel", "label": "Cinzel" },
+        { "value": "Dosis", "label": "Dosis" },
+        { "value": "Exo 2", "label": "Exo 2" },
+        { "value": "Fjalla One", "label": "Fjalla One" },
+        { "value": "Gilda Display", "label": "Gilda Display" },
+        { "value": "Heebo", "label": "Heebo" },
+        { "value": "Karla", "label": "Karla" },
+        { "value": "Muli", "label": "Muli" },
+        { "value": "Noto Serif", "label": "Noto Serif" },
+        { "value": "Quicksand", "label": "Quicksand" },
+        { "value": "Roboto Slab", "label": "Roboto Slab" },
+        { "value": "Signika", "label": "Signika" },
+        { "value": "Titillium Web", "label": "Titillium Web" },
+        { "value": "Varela Round", "label": "Varela Round" },
+        { "value": "Work Sans", "label": "Work Sans" },
+        { "value": "Zilla Slab", "label": "Zilla Slab" },
+        { "value": "Asap", "label": "Asap" },
+        { "value": "Cairo", "label": "Cairo" },
+        { "value": "DM Sans", "label": "DM Sans" },
+        { "value": "Eczar", "label": "Eczar" },
+        { "value": "Fira Mono", "label": "Fira Mono" },
+        { "value": "Gentium Basic", "label": "Gentium Basic" },
+        { "value": "Hind", "label": "Hind" },
+        { "value": "Jost", "label": "Jost" },
+        { "value": "Kreon", "label": "Kreon" },
+        { "value": "Lexend", "label": "Lexend" },
+        { "value": "Mukta", "label": "Mukta" },
+        { "value": "Noto Sans JP", "label": "Noto Sans JP" },
+        { "value": "Overpass", "label": "Overpass" },
+        { "value": "Qwigley", "label": "Qwigley" },
+        { "value": "Sen", "label": "Sen" },
+        { "value": "Teko", "label": "Teko" },
+        { "value": "Ultra", "label": "Ultra" },
+        { "value": "Vollkorn", "label": "Vollkorn" },
+        { "value": "ZCOOL XiaoWei", "label": "ZCOOL XiaoWei" },
+        { "value": "ABeeZee", "label": "ABeeZee" },
+        { "value": "Acme", "label": "Acme" },
+        { "value": "Balsamiq Sans", "label": "Balsamiq Sans" },
+        { "value": "Caveat", "label": "Caveat" },
+        { "value": "Engagement", "label": "Engagement" },
+        { "value": "Fredoka One", "label": "Fredoka One" },
+        { "value": "Gloria Hallelujah", "label": "Gloria Hallelujah" },
+        { "value": "Irish Grover", "label": "Irish Grover" },
+        { "value": "Kalam", "label": "Kalam" },
+        { "value": "Marck Script", "label": "Marck Script" },
+        { "value": "Neucha", "label": "Neucha" },
+        { "value": "Patrick Hand", "label": "Patrick Hand" },
+        { "value": "Rock Salt", "label": "Rock Salt" },
+        { "value": "Tangerine", "label": "Tangerine" },
+        { "value": "Unica One", "label": "Unica One" },
+        { "value": "Vibur", "label": "Vibur" },
+        { "value": "Wallpoet", "label": "Wallpoet" },
+        { "value": "Yellowtail", "label": "Yellowtail" },
+        { "value": "Zilla Slab Highlight", "label": "Zilla Slab Highlight" },
+        { "value": "Alice", "label": "Alice" },
+        { "value": "Alfa Slab One", "label": "Alfa Slab One" },
+        { "value": "Amatic SC", "label": "Amatic SC" },
+        { "value": "Archivo Narrow", "label": "Archivo Narrow" },
+        { "value": "Baloo 2", "label": "Baloo 2" },
+        { "value": "Bangers", "label": "Bangers" },
+        { "value": "Bellefair", "label": "Bellefair" },
+        { "value": "Big Shoulders Display", "label": "Big Shoulders Display" },
+        { "value": "Black Han Sans", "label": "Black Han Sans" },
+        { "value": "Bowlby One SC", "label": "Bowlby One SC" },
+        { "value": "Bungee", "label": "Bungee" },
+        { "value": "Cardo", "label": "Cardo" },
+        { "value": "Chonburi", "label": "Chonburi" },
+        { "value": "Cinzel Decorative", "label": "Cinzel Decorative" },
+        { "value": "Contrail One", "label": "Contrail One" },
+        { "value": "Cormorant Garamond", "label": "Cormorant Garamond" },
+        { "value": "Courgette", "label": "Courgette" },
+        { "value": "Crimson Pro", "label": "Crimson Pro" },
+        { "value": "Cuprum", "label": "Cuprum" },
+        { "value": "Delius", "label": "Delius" },
+        { "value": "Delius Swash Caps", "label": "Delius Swash Caps" },
+        { "value": "Doppio One", "label": "Doppio One" },
+        { "value": "EB Garamond SC", "label": "EB Garamond SC" },
+        { "value": "Expletus Sans", "label": "Expletus Sans" },
+        { "value": "Faustina", "label": "Faustina" },
+        { "value": "Fjord One", "label": "Fjord One" },
+        { "value": "Frank Ruhl Libre", "label": "Frank Ruhl Libre" },
+        { "value": "Frijole", "label": "Frijole" },
+        { "value": "Glegoo", "label": "Glegoo" },
+        { "value": "Goblin One", "label": "Goblin One" },
+        { "value": "Grenze Gotisch", "label": "Grenze Gotisch" },
+        { "value": "Habibi", "label": "Habibi" },
+        { "value": "Henny Penny", "label": "Henny Penny" },
+        { "value": "IM Fell DW Pica", "label": "IM Fell DW Pica" },
+        { "value": "IM Fell English", "label": "IM Fell English" },
+        { "value": "IM Fell French Canon", "label": "IM Fell French Canon" },
+        { "value": "IM Fell Great Primer", "label": "IM Fell Great Primer" },
+        { "value": "Irregular Hand", "label": "Irregular Hand" },
+        { "value": "Judson", "label": "Judson" },
+        { "value": "Lekton", "label": "Lekton" },
+        { "value": "Mate", "label": "Mate" },
+        { "value": "Michroma", "label": "Michroma" },
+        { "value": "Milonga", "label": "Milonga" },
+        { "value": "Monoton", "label": "Monoton" },
+        { "value": "Neuton", "label": "Neuton" },
+        { "value": "Nixie One", "label": "Nixie One" },
+        { "value": "Nova Cut", "label": "Nova Cut" },
+        { "value": "Nova Flat", "label": "Nova Flat" },
+        { "value": "Nova Mono", "label": "Nova Mono" },
+        { "value": "Nova Oval", "label": "Nova Oval" },
+        { "value": "Nova Round", "label": "Nova Round" },
+        { "value": "Nova Script", "label": "Nova Script" },
+        { "value": "Nova Slim", "label": "Nova Slim" },
+        { "value": "Nova Square", "label": "Nova Square" },
+        { "value": "Noto Sans TC", "label": "Noto Sans TC" },
+        { "value": "Noto Serif SC", "label": "Noto Serif SC" },
+        { "value": "Poiret One", "label": "Poiret One" },
+        { "value": "Poller One", "label": "Poller One" },
+        { "value": "Prata", "label": "Prata" },
+        { "value": "Ruslan Display", "label": "Ruslan Display" },
+        { "value": "Saira Condensed", "label": "Saira Condensed" },
+        { "value": "Saira Extra Condensed", "label": "Saira Extra Condensed" },
+        { "value": "Saira Semi Condensed", "label": "Saira Semi Condensed" },
+        { "value": "Salsa", "label": "Salsa" },
+        { "value": "Satisfy", "label": "Satisfy" },
+        { "value": "Seaweed Script", "label": "Seaweed Script" },
+        { "value": "Simonetta", "label": "Simonetta" },
+        { "value": "Sirin Stencil", "label": "Sirin Stencil" },
+        { "value": "Six Caps", "label": "Six Caps" },
+        { "value": "Slabo 13px", "label": "Slabo 13px" },
+        { "value": "Sniglet", "label": "Sniglet" },
+        { "value": "Staatliches", "label": "Staatliches" },
+        { "value": "Stint Ultra Condensed", "label": "Stint Ultra Condensed" },
+        { "value": "Syncopate", "label": "Syncopate" },
+        { "value": "Terminal Dosis", "label": "Terminal Dosis" },
+        { "value": "Tienne", "label": "Tienne" },
+        { "value": "Titan One", "label": "Titan One" },
+        { "value": "Trade Winds", "label": "Trade Winds" },
+        { "value": "Trocchi", "label": "Trocchi" },
+        { "value": "Tulpen One", "label": "Tulpen One" },
+        { "value": "Vidaloka", "label": "Vidaloka" },
+        { "value": "Viga", "label": "Viga" },
+        { "value": "Volkhov", "label": "Volkhov" },
+         { "value": "Alata", "label": "Alata" },
+    { "value": "Anton", "label": "Anton" },
+    { "value": "Arimo", "label": "Arimo" },
+    { "value": "Arvo", "label": "Arvo" },
+    { "value": "Bitter", "label": "Bitter" },
+    { "value": "Bodoni Moda", "label": "Bodoni Moda" },
+    { "value": "Cedarville Cursive", "label": "Cedarville Cursive" },
+    { "value": "Coda", "label": "Coda" },
+    { "value": "Concert One", "label": "Concert One" },
+    { "value": "Dancing Script", "label": "Dancing Script" },
+    { "value": "Domine", "label": "Domine" },
+    { "value": "El Messiri", "label": "El Messiri" },
+    { "value": "Fahkwang", "label": "Fahkwang" },
+    { "value": "Gloock", "label": "Gloock" },
+    { "value": "Itim", "label": "Itim" },
+    { "value": "Josefin Sans", "label": "Josefin Sans" },
+    { "value": "Kanit", "label": "Kanit" },
+    { "value": "Lemonada", "label": "Lemonada" },
+    { "value": "Maitree", "label": "Maitree" },
+    { "value": "Margarine", "label": "Margarine" },
+    { "value": "Markazi Text", "label": "Markazi Text" },
+    { "value": "Notable", "label": "Notable" },
+    { "value": "Oranienbaum", "label": "Oranienbaum" },
+    { "value": "Pathway Gothic One", "label": "Pathway Gothic One" },
+    { "value": "Quattrocento", "label": "Quattrocento" },
+    { "value": "Red Hat Display", "label": "Red Hat Display" },
+    { "value": "Sansita", "label": "Sansita" },
+    { "value": "Sarpanch", "label": "Sarpanch" },
+    { "value": "Secular One", "label": "Secular One" },
+    { "value": "Shrikhand", "label": "Shrikhand" },
+    { "value": "Sora", "label": "Sora" },
+    { "value": "Suez One", "label": "Suez One" },
+
+    { "value": "Taviraj", "label": "Taviraj" },
+    { "value": "Unna", "label": "Unna" },
+    { "value": "Varta", "label": "Varta" },
+    { "value": "Yrsa", "label": "Yrsa" },
+      { "value": "Almarai", "label": "Almarai" },
+    { "value": "Antic", "label": "Antic" },
+    { "value": "Armata", "label": "Armata" },
+    { "value": "BioRhyme", "label": "BioRhyme" },
+    { "value": "Charmonman", "label": "Charmonman" },
+    { "value": "Creepster", "label": "Creepster" },
+    { "value": "DM Serif Text", "label": "DM Serif Text" },
+    { "value": "Eagle Lake", "label": "Eagle Lake" },
+    { "value": "Fascinate", "label": "Fascinate" },
+    { "value": "Geostar Fill", "label": "Geostar Fill" },
+    { "value": "Gravitas One", "label": "Gravitas One" },
+    { "value": "Homemade Apple", "label": "Homemade Apple" },
+    { "value": "IBM Plex Sans", "label": "IBM Plex Sans" },
+    { "value": "Inconsolata", "label": "Inconsolata" },
+    { "value": "Jaldi", "label": "Jaldi" },
+    { "value": "Knewave", "label": "Knewave" },
+    { "value": "Libre Caslon Text", "label": "Libre Caslon Text" },
+    { "value": "Magra", "label": "Magra" },
+    { "value": "MedievalSharp", "label": "MedievalSharp" },
+    { "value": "Nanum Gothic", "label": "Nanum Gothic" },
+    { "value": "Odibee Sans", "label": "Odibee Sans" },
+    { "value": "Pacifico", "label": "Pacifico" },
+    { "value": "Quando", "label": "Quando" },
+    { "value": "Reenie Beanie", "label": "Reenie Beanie" },
+    { "value": "Seymour One", "label": "Seymour One" },
+    { "value": "Solway", "label": "Solway" },
+    { "value": "Spinnaker", "label": "Spinnaker" },
+    { "value": "Stylish", "label": "Stylish" },
+    { "value": "Tajawal", "label": "Tajawal" },
+    { "value": "Unbounded", "label": "Unbounded" },
+
+    { "value": "Zeyada", "label": "Zeyada" },
+    { "value": "Alike Angular", "label": "Alike Angular" },
+    { "value": "Be Vietnam", "label": "Be Vietnam" },
+    { "value": "Corben", "label": "Corben" },
+    { "value": "Denk One", "label": "Denk One" },
+    { "value": "Encode Sans", "label": "Encode Sans" },
+    { "value": "Flamenco", "label": "Flamenco" },
+    { "value": "Gotu", "label": "Gotu" },
+    { "value": "Halant", "label": "Halant" },
+    { "value": "Ibarra Real Nova", "label": "Ibarra Real Nova" },
+
+    { "value": "Koulen", "label": "Koulen" },
+    { "value": "Libre Barcode 39", "label": "Libre Barcode 39" },
+    { "value": "Manjari", "label": "Manjari" },
+    { "value": "Marmelad", "label": "Marmelad" },
+    { "value": "Mitr", "label": "Mitr" },
+    { "value": "Niramit", "label": "Niramit" },
+    { "value": "PT Serif", "label": "PT Serif" },
+    { "value": "Rozha One", "label": "Rozha One" }
+      ],
+      "default": "Roboto",
+      "info": "Choose a font for the text labels. Requires 'Enable Custom Fonts' to be turned on."
+    },
+
+    {
+      "type": "header",
+      "content": "Image Settings",
+      "info": "Configure the images, their appearance, and positioning."
+    },
+    {
+      "type": "image_picker",
+      "id": "before_image",
+      "label": "Before Image",
+      "info": "Select the image to display before the comparison."
+    },
+    {
+      "type": "image_picker",
+      "id": "after_image",
+      "label": "After Image",
+      "info": "Select the image to display after the comparison."
+    },
+    {
+      "type": "checkbox",
+      "id": "bw_before_image",
+      "label": "Make Before Image Black And White",
+      "default": true,
+      "info": "Display the before image in black and white."
+    },
+    {
+      "type": "number",
+      "id": "before_image_width",
+      "label": "Image Width (px)",
+      "default": 570,
+      "info": "Set the width for the images in pixels."
+    },
+    {
+      "type": "number",
+      "id": "before_image_height",
+      "label": "Image Height (px)",
+      "default": 460,
+      "info": "Set the height for the images in pixels."
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Image Border Radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 6,
+      "info": "Adjust the border radius of the images for rounded corners."
+    },
+
+    {
+      "type": "header",
+      "content": "Appearance Settings",
+      "info": "Customize the visual aspects of the comparison section."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff",
+      "info": "Set the background color of the comparison section."
+    },
+    {
+      "type": "select",
+      "id": "image_shadow",
+      "label": "Images Shadow",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "low", "label": "Low Shadow" },
+        { "value": "medium", "label": "Medium Shadow" },
+        { "value": "high", "label": "High Shadow" }
+      ],
+      "default": "none",
+      "info": "Choose the shadow intensity for the images."
+    },
+    {
+      "type": "range",
+      "id": "overlay_strength",
+      "label": "Bottom Overlay Strength",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.4,
+      "info": "Adjust the opacity of the bottom overlay."
+    },
+    {
+      "type": "select",
+      "id": "hover_animation",
+      "label": "Image Hover Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "fade_in", "label": "Fade In" },
+        { "value": "scale_in", "label": "Subtle Smooth Scale In" },
+        { "value": "zoom_in", "label": "Subtle Smooth Zoom In" },
+        { "value": "shadow", "label": "Shadow" }
+      ],
+      "default": "fade_in",
+      "info": "Select an animation effect when hovering over the images."
+    },
+
+    {
+      "type": "header",
+      "content": "Layout Settings",
+      "info": "Define the spacing and padding for different devices."
+    },
+    {
+      "type": "range",
+      "id": "desktop_horizontal_gap",
+      "label": "Horizontal Gap Between Images (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 20,
+      "info": "Set the horizontal spacing between images on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "mobile_vertical_gap",
+      "label": "Vertical Gap Between Images (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 15,
+      "info": "Set the vertical spacing between images on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding",
+      "label": "Padding Top/Bottom (Desktop)",
+      "min": 0,
+      "max": 300,
+      "step": 5,
+      "unit": "px",
+      "default": 70,
+      "info": "Adjust the top and bottom padding for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding",
+      "label": "Padding Top/Bottom (Mobile)",
+      "min": 0,
+      "max": 300,
+      "step": 5,
+      "unit": "px",
+      "default": 30,
+      "info": "Adjust the top and bottom padding for mobile view."
+
+    }
+  ],
+  "presets": [
+    {
+      "name": "Before After Comparison Images",
+            "category": "Comparisons"
+   
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  /* Import Google Fonts if Custom Fonts are Enabled */
+  {% if section.settings.enable_custom_fonts %}
+  @import url('https://fonts.googleapis.com/css2?family={{ section.settings.selected_font | replace: ' ', '+' }}&display=swap');
+  {% endif %}
+
+  /* Scoped CSS using unique class based on section id */
+  .before-after-container-{{ section.id }} {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .before-after-container-{{ section.id }} .comparison-wrapper {
+    background-color: {{ section.settings.background_color }};
+    z-index: 10;
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    padding: {{ section.settings.desktop_padding }}px 70px;
+    box-sizing: border-box;
+  }
+
+  .before-after-container-{{ section.id }} .comparison-content {
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .before-after-container-{{ section.id }} .comparison-content h2 {
+    margin-bottom: 60px;
+    text-align: center;
+    font-size: 2em;
+    color: #333;
+    {% if section.settings.enable_custom_fonts %}
+    font-family: '{{ section.settings.selected_font }}', sans-serif;
+    {% endif %}
+  }
+
+  .before-after-container-{{ section.id }} .comparison-grid {
+    display: flex;
+    gap: {{ section.settings.desktop_horizontal_gap }}px;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .before-after-container-{{ section.id }} .comparison-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: normal;
+    position: relative;
+    justify-content: center;
+  }
+
+  .before-after-container-{{ section.id }} .before-image,
+  .before-after-container-{{ section.id }} .after-image {
+    box-shadow: {% case section.settings.image_shadow %}
+      {% when 'none' %}
+        none;
+      {% when 'low' %}
+        0 2px 4px rgba(0, 0, 0, 0.1);
+      {% when 'medium' %}
+        0 4px 8px rgba(0, 0, 0, 0.2);
+      {% when 'high' %}
+        0 6px 12px rgba(0, 0, 0, 0.3);
+      {% else %}
+        0 4px 4px rgba(0, 0, 0, 0.25);
+    {% endcase %}
+    flex-grow: 1;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    width: {{ section.settings.before_image_width }}px;
+    height: {{ section.settings.before_image_height }}px;
+    border-radius: {{ section.settings.border_radius }}px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  {% if section.settings.bw_before_image %}
+  .before-after-container-{{ section.id }} .before-image {
+    filter: grayscale(100%);
+  }
+  {% endif %}
+
+  .before-after-container-{{ section.id }} .before-image::before,
+  .before-after-container-{{ section.id }} .after-image::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30%;
+    background: linear-gradient(to top, rgba(0, 0, 0, {{ section.settings.overlay_strength }}), transparent);
+    border-radius: {{ section.settings.border_radius }}px;
+  }
+
+  .before-after-container-{{ section.id }} .before-image::after,
+  .before-after-container-{{ section.id }} .after-image::after {
+    content: attr(data-text);
+    position: absolute;
+    bottom: {{ section.settings.desktop_text_vertical_position }}px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: {{ section.settings.text_size }}px;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    {% if section.settings.enable_custom_fonts %}
+    font-family: '{{ section.settings.selected_font }}', sans-serif;
+    {% endif %}
+  }
+
+  .before-after-container-{{ section.id }} .before-image::after {
+    color: {{ section.settings.before_text_color }};
+  }
+
+  .before-after-container-{{ section.id }} .after-image::after {
+    color: {{ section.settings.after_text_color }};
+  }
+
+  .before-after-container-{{ section.id }} .before-image:hover,
+  .before-after-container-{{ section.id }} .after-image:hover {
+    {% case section.settings.hover_animation %}
+      {% when 'fade_in' %}
+        opacity: 0.8;
+      {% when 'scale_in' %}
+        transform: scale(1.05);
+      {% when 'zoom_in' %}
+        transform: scale(1.1);
+      {% when 'shadow' %}
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      {% else %}
+        /* No hover animation */
+    {% endcase %}
+  }
+
+  /* Text Hover Animation */
+  {% case section.settings.text_hover_animation %}
+    {% when 'underline_reveal' %}
+  .before-after-container-{{ section.id }} .before-image::after,
+  .before-after-container-{{ section.id }} .after-image::after {
+    text-decoration: none;
+    transition: text-decoration 0.3s ease;
+  }
+
+  .before-after-container-{{ section.id }} .before-image:hover::after,
+  .before-after-container-{{ section.id }} .after-image:hover::after {
+    text-decoration: underline;
+  }
+    {% when 'fade_in' %}
+  .before-after-container-{{ section.id }} .before-image::after,
+  .before-after-container-{{ section.id }} .after-image::after {
+    opacity: 0;
+  }
+
+  .before-after-container-{{ section.id }} .before-image:hover::after,
+  .before-after-container-{{ section.id }} .after-image:hover::after {
+    opacity: 1;
+  }
+    {% when 'zoom_out' %}
+  .before-after-container-{{ section.id }} .before-image::after,
+  .before-after-container-{{ section.id }} .after-image::after {
+    transform: scale(1.2);
+  }
+
+  .before-after-container-{{ section.id }} .before-image:hover::after,
+  .before-after-container-{{ section.id }} .after-image:hover::after {
+    transform: scale(1);
+  }
+    {% when 'none' %}
+      /* No additional styles */
+  {% endcase %}
+
+  /* Hide Texts if Show Text Toggle is Off */
+  {% unless section.settings.show_text %}
+  .before-after-container-{{ section.id }} .before-image::after,
+  .before-after-container-{{ section.id }} .after-image::after {
+    display: none;
+  }
+  {% endunless %}
+
+  @media (max-width: 991px) {
+    .before-after-container-{{ section.id }} .comparison-wrapper {
+      padding: {{ section.settings.mobile_padding }}px 20px;
+    }
+
+    .before-after-container-{{ section.id }} .comparison-content {
+      max-width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .before-after-container-{{ section.id }} .comparison-grid {
+      flex-direction: column;
+      align-items: center;
+      gap: {{ section.settings.mobile_vertical_gap }}px;
+    }
+
+    .before-after-container-{{ section.id }} .comparison-col {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .before-after-container-{{ section.id }} .before-image,
+    .before-after-container-{{ section.id }} .after-image {
+      width: 100%;
+      height: auto;
+      max-width: 400px;
+      border-radius: {{ section.settings.border_radius }}px;
+      aspect-ratio: 5 / 4;
+      min-height: 200px;
+    }
+
+    .before-after-container-{{ section.id }} .before-image::after,
+    .before-after-container-{{ section.id }} .after-image::after {
+      font-size: {{ section.settings.text_size | divided_by: 1.5 }}px;
+      bottom: {{ section.settings.mobile_text_vertical_position }}px;
+    }
+
+    .before-after-container-{{ section.id }} .comparison-content h2 {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
+  }
+</style>
+
+<div class="before-after-container before-after-container-{{ section.id }}">
+  <div class="comparison-wrapper">
+    <div class="comparison-content">
+      {% if section.settings.section_title != blank %}
+        <h2>{{ section.settings.section_title }}</h2>
+      {% endif %}
+      <div class="comparison-grid">
+        <div class="comparison-col">
+          {% if section.settings.before_image %}
+            <div
+              class="before-image"
+              style="background-image: url({{ section.settings.before_image | img_url: 'original' }});"
+              data-text="{{ section.settings.before_text }}"
+            ></div>
+          {% else %}
+            <div
+              class="before-image"
+              style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E');"
+              data-text="{{ section.settings.before_text }}"
+            ></div>
+          {% endif %}
+        </div>
+        <div class="comparison-col">
+          {% if section.settings.after_image %}
+            <div
+              class="after-image"
+              style="background-image: url({{ section.settings.after_image | img_url: 'original' }});"
+              data-text="{{ section.settings.after_text }}"
+            ></div>
+          {% else %}
+            <div
+              class="after-image"
+              style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E');"
+              data-text="{{ section.settings.after_text }}"
+            ></div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

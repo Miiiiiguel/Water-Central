@@ -1,0 +1,173 @@
+{%- liquid
+  assign section_st = section.settings
+  assign section_width = section_st.section_width
+  assign border_height = section_st.border_height
+  assign border_color = section_st.border_color
+  if section_st.reset_spacing
+    assign reset_spacing = ' remove_spacing'
+  endif
+
+  assign enable_gradient = section_st.enable_gradient
+  assign gradient_color_1 = section_st.gradient_color_1
+  assign gradient_color_2 = section_st.gradient_color_2
+  assign gradient_color_3 = section_st.gradient_color_3
+  assign gradient_degree = section_st.gradient_degree
+-%}
+{%- style -%}
+  .sec__divider-inner {
+    border-bottom-width: {{ border_height }}px;
+    border-bottom-style: solid;
+    {% if enable_gradient %}
+      border-image: linear-gradient({{ gradient_degree }}deg, {{ gradient_color_1 }}, {{ gradient_color_2 }}, {{ gradient_color_3 }}) 1;
+    {% else %}
+      border-bottom-color: {{ border_color }};
+    {% endif %}
+  }
+{%- endstyle -%}
+<div class="section sec__divider{{ reset_spacing }}">
+  <div class="{{ section_width }}">
+    <div class="sec__divider-inner"></div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Divider 1",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer", "custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section Width",
+      "default": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "Container"
+        },
+        {
+          "value": "fluid_container",
+          "label": "Fluid Container"
+        },
+        {
+          "value": "stretch_width",
+          "label": "Stretch Width"
+        },
+        {
+          "value": "full_width",
+          "label": "Full Width"
+        }
+      ],
+      "info": "Choose the layout width for the section container."
+    },
+    {
+      "type": "range",
+      "id": "border_height",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 1,
+      "label": "Divider Border Thickness",
+      "info": "Adjust the thickness of the divider border in pixels."
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Divider Border Color",
+      "default": "#ebebeb",
+      "info": "Select a solid color for the divider border."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_gradient",
+      "label": "Enable Color Gradient",
+      "default": false,
+      "info": "Toggle to apply a multi-color gradient to the divider border instead of a solid color."
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_1",
+      "label": "Gradient Color 1",
+      "default": "#ff0000",
+      "info": "Choose the first color for the gradient effect."
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_2",
+      "label": "Gradient Color 2",
+      "default": "#00ff00",
+      "info": "Choose the second color for the gradient effect."
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_3",
+      "label": "Gradient Color 3",
+      "default": "#0000ff",
+      "info": "Choose the third color for the gradient effect."
+    },
+    {
+      "type": "select",
+      "id": "gradient_degree",
+      "label": "Gradient Angle",
+      "default": "90",
+      "options": [
+        {
+          "value": "0",
+          "label": "0°"
+        },
+        {
+          "value": "45",
+          "label": "45°"
+        },
+        {
+          "value": "90",
+          "label": "90°"
+        },
+        {
+          "value": "135",
+          "label": "135°"
+        },
+        {
+          "value": "180",
+          "label": "180°"
+        },
+        {
+          "value": "225",
+          "label": "225°"
+        },
+        {
+          "value": "270",
+          "label": "270°"
+        },
+        {
+          "value": "315",
+          "label": "315°"
+        }
+      ],
+      "info": "Select the angle for the gradient effect."
+    },
+    {
+      "type": "header",
+      "content": "Section Spacing",
+      "info": "Configure the padding and spacing for the section."
+    },
+    {
+      "type": "checkbox",
+      "id": "reset_spacing",
+      "label": "Reset Section Padding",
+      "default": false,
+      "info": "Enable this option to remove the default spacing around the section."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Divider 1 ",
+      			"category": "Dividers"
+    }
+  ]
+}
+{% endschema %}

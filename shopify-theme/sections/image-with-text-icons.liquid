@@ -1,0 +1,1379 @@
+<style>
+  /* Scoped Styles for #hd-{{ section.id }} */
+
+  /* Apply Custom Fonts if Override is Enabled */
+  {% if section.settings.override_fonts %}
+    {{ section.settings.text_font | font_face }}
+    {{ section.settings.headline_font | font_face }}
+  {% endif %}
+
+  /* Import and Apply Custom Font if URL is Provided */
+  {% if section.settings.custom_font_url != blank and section.settings.custom_font_family != blank %}
+    @import url('{{ section.settings.custom_font_url }}');
+
+    /* Apply Custom Font to Text Elements */
+    #hd-{{ section.id }} p,
+    #hd-{{ section.id }} h1,
+    #hd-{{ section.id }} h2,
+    #hd-{{ section.id }} h3,
+    #hd-{{ section.id }} h4,
+    #hd-{{ section.id }} h5 {
+      font-family: '{{ section.settings.custom_font_family }}', {{ section.settings.text_font.family }}, sans-serif;
+    }
+  {% endif %}
+
+  /* Section Styles */
+  #hd-{{ section.id }} {
+    background: {{ section.settings.section_background_color }};
+    width: 100%;
+    box-sizing: border-box;
+    /* Updated desktop padding: Top, Right, Bottom, Left */
+    padding: {{ section.settings.section_padding_top_desktop }}px {{ section.settings.desktop_section_padding_left_right }}px {{ section.settings.section_padding_bottom_desktop }}px {{ section.settings.desktop_section_padding_left_right }}px;
+    overflow: hidden;
+    {% if section.settings.section_animation != 'none' %}
+      opacity: 0;
+      animation: {{ section.settings.section_animation }} 1s forwards;
+    {% endif %}
+  }
+
+  /* Responsive Padding for Mobile Devices */
+  @media (max-width: 800px) {
+    #hd-{{ section.id }} {
+      padding: {{ section.settings.mobile_section_padding_top_bottom }}px {{ section.settings.mobile_section_padding_left_right }}px;
+    }
+  }
+
+  /* Container Styles */
+  #hd-{{ section.id }} .hd-container {
+    position: relative;
+    margin: 0 auto;
+    background: {{ section.settings.container_background_color }};
+    border-radius: {{ section.settings.container_radius }}px;
+    {% if section.settings.container_shadow %}
+      box-shadow: 0 0 5px 0 rgba(0,0,0,0.20);
+    {% endif %}
+    border: {{ section.settings.container_border_size }}px solid {{ section.settings.container_border_color }};
+    max-width: {{ section.settings.container_max_width }}px;
+    padding: {{ section.settings.container_padding_top_bottom }}px {{ section.settings.container_padding_left_right }}px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Responsive Container Padding for Mobile Devices */
+  @media (max-width: 800px) {
+    #hd-{{ section.id }} .hd-container {
+      padding: {{ section.settings.mobile_container_padding_top_bottom }}px {{ section.settings.mobile_container_padding_left_right }}px;
+    }
+  }
+
+  /* Grid Layout for Content and Image */
+  #hd-{{ section.id }} .hd-grid-left,
+  #hd-{{ section.id }} .hd-grid-right {
+    display: grid;
+    grid-template-columns: {{ section.settings.grid_display }};
+    gap: {{ section.settings.grid_gap }}px;
+    align-items: center;
+  }
+
+  /* Responsive Grid Layout */
+  @media (max-width: 900px) {
+    #hd-{{ section.id }} .hd-grid-left,
+    #hd-{{ section.id }} .hd-grid-right {
+      display: block;
+    }
+    #hd-{{ section.id }} .hd-column:nth-of-type(1) {
+      display: none;
+    }
+  }
+
+  /* Hide duplicate grid content on mobile except the dedicated mobile block */
+  @media (max-width: 900px) {
+    #hd-{{ section.id }} .hd-grid-left > *:not(.hd-mobile-text),
+    #hd-{{ section.id }} .hd-grid-right > *:not(.hd-mobile-text) {
+      display: none !important;
+    }
+  }
+
+  /* Column Text Alignment - Desktop */
+  #hd-{{ section.id }} .hd-column-text {
+    margin: 0;
+    padding: 0;
+    text-align: {{ section.settings.desktop_text_alignment }};
+    transition: none;
+  }
+
+  /* Responsive Text Alignment for Mobile Devices */
+  @media only screen and (max-width: 800px) {
+    #hd-{{ section.id }} .hd-column-text {
+      text-align: {{ section.settings.mobile_text_alignment }};
+    }
+    #hd-{{ section.id }} .hd-mobile-text {
+      text-align: {{ section.settings.mobile_text_alignment }};
+    }
+    #hd-{{ section.id }} .hd-mobile-text h2.heading {
+      margin-top: {{ section.settings.spacing_between_image_and_headline_mobile }}px;
+    }
+  }
+
+  /* Typography Styles */
+  #hd-{{ section.id }} p {
+    font-size: {{ section.settings.text_size }}px;
+    {% if section.settings.override_fonts and section.settings.custom_font_url == blank %}
+      font-family: {{ section.settings.text_font.family }}, {{ section.settings.text_font.fallback_families }};
+      font-weight: {{ section.settings.text_font.weight }};
+    {% endif %}
+    {% if section.settings.text_line_height != 'inherit' %}
+      line-height: {{ section.settings.text_line_height }};
+    {% endif %}
+    margin: 0 0 {{ section.settings.element_spacing }}px 0;
+    padding: 0;
+    color: {{ section.settings.text_color }};
+  }
+
+  /* Subheading Specific Styles */
+  #hd-{{ section.id }} .subheading {
+    font-size: {{ section.settings.subheading_text_size }}px;
+    color: {{ section.settings.subheading_color }} !important;
+  }
+  #hd-{{ section.id }} .subheading *,
+  #hd-{{ section.id }} .subheading *::before,
+  #hd-{{ section.id }} .subheading *::after {
+    color: {{ section.settings.subheading_color }} !important;
+  }
+  #hd-{{ section.id }} .subheading p,
+  #hd-{{ section.id }} .subheading li {
+    font-size: inherit !important;
+  }
+
+  /* List Styles */
+  #hd-{{ section.id }} ul,
+  #hd-{{ section.id }} ol {
+    margin: 0 0 {{ section.settings.element_spacing }}px 0;
+  }
+  #hd-{{ section.id }} li {
+    font-size: {{ section.settings.text_size }}px;
+    {% if section.settings.override_fonts and section.settings.custom_font_url == blank %}
+      font-family: {{ section.settings.text_font.family }}, {{ section.settings.text_font.fallback_families }};
+      font-weight: {{ section.settings.text_font.weight }};
+    {% endif %}
+    {% if section.settings.text_line_height != 'inherit' %}
+      line-height: {{ section.settings.text_line_height }};
+    {% endif %}
+    margin: 0 0 5px 0;
+    padding: 0;
+    color: {{ section.settings.text_color }};
+  }
+  #hd-{{ section.id }} li:last-child {
+    margin: 0;
+  }
+
+  /* Link Styles */
+  #hd-{{ section.id }} p a,
+  #hd-{{ section.id }} p a:visited,
+  #hd-{{ section.id }} li a,
+  #hd-{{ section.id }} li a:visited {
+    color: {{ section.settings.link_color }};
+  }
+
+  /* Responsive Text Sizes for Mobile Devices */
+  @media (max-width: 800px) {
+    #hd-{{ section.id }} p,
+    #hd-{{ section.id }} li {
+      font-size: {{ section.settings.mobile_text_size }}px;
+    }
+    #hd-{{ section.id }} .subheading {
+      font-size: {{ section.settings.mobile_subheading_text_size }}px;
+    }
+    #hd-{{ section.id }} .subheading p,
+    #hd-{{ section.id }} .subheading li {
+      font-size: inherit !important;
+    }
+  }
+
+  /* Heading Styles */
+  #hd-{{ section.id }} h1,
+  #hd-{{ section.id }} h2,
+  #hd-{{ section.id }} h3,
+  #hd-{{ section.id }} h4,
+  #hd-{{ section.id }} h5 {
+    font-size: {{ section.settings.headline_size }}px;
+    {% if section.settings.override_fonts and section.settings.custom_font_url == blank %}
+      font-family: {{ section.settings.headline_font.family }}, {{ section.settings.headline_font.fallback_families }};
+    {% endif %}
+    {% if section.settings.headline_line_height != 'inherit' %}
+      line-height: {{ section.settings.headline_line_height }};
+    {% endif %}
+    font-weight: {{ section.settings.headline_font_weight }};
+    margin: 0 0 {{ section.settings.element_spacing }}px 0;
+    padding: 0;
+    color: {{ section.settings.headline_color }} !important;
+  }
+  #hd-{{ section.id }} h2 {
+    font-size: {{ section.settings.headline_size | minus:5 | at_least:13 }}px;
+    {% if section.settings.spacing_between_headline_and_subheading %}
+      margin-bottom: {{ section.settings.spacing_between_headline_and_subheading }}px;
+    {% endif %}
+  }
+  #hd-{{ section.id }} h3 {
+    font-size: {{ section.settings.headline_size | minus:10 | at_least:13 }}px;
+  }
+  #hd-{{ section.id }} h4 {
+    font-size: {{ section.settings.headline_size | minus:15 | at_least:13 }}px;
+  }
+  #hd-{{ section.id }} h5 {
+    font-size: {{ section.settings.headline_size | minus:20 | at_least:13 }}px;
+  }
+
+  /* Responsive Heading Sizes for Mobile Devices */
+  @media (max-width: 800px) {
+    #hd-{{ section.id }} h1,
+    #hd-{{ section.id }} h2,
+    #hd-{{ section.id }} h3,
+    #hd-{{ section.id }} h4,
+    #hd-{{ section.id }} h5 {
+      font-size: {{ section.settings.mobile_headline_size }}px;
+    }
+    #hd-{{ section.id }} h2 {
+      font-size: {{ section.settings.mobile_headline_size | minus:5 | at_least:13 }}px;
+    }
+    #hd-{{ section.id }} h3 {
+      font-size: {{ section.settings.mobile_headline_size | minus:10 | at_least:13 }}px;
+    }
+    #hd-{{ section.id }} h4 {
+      font-size: {{ section.settings.mobile_headline_size | minus:15 | at_least:13 }}px;
+    }
+    #hd-{{ section.id }} h5 {
+      font-size: {{ section.settings.mobile_headline_size | minus:20 | at_least:13 }}px;
+    }
+  }
+
+  /* Image Styles */
+  #hd-{{ section.id }} .hd-container img,
+  #hd-{{ section.id }} .hd-container video {
+    aspect-ratio: {{ section.settings.image_aspect_ratio }};
+    object-fit: cover;
+    width: 100%;
+    display: block;
+    border-radius: {{ section.settings.border_radius }}px;
+    transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
+    {% if section.settings.image_shadow != 'none' %}
+      /* Image Shadow will be applied via classes */
+    {% endif %}
+  }
+  #hd-{{ section.id }} .hd-container video {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Image Shadow Classes */
+  #hd-{{ section.id }} .image-shadow-none { box-shadow: none; }
+  #hd-{{ section.id }} .image-shadow-subtle { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+  #hd-{{ section.id }} .image-shadow-medium { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+  #hd-{{ section.id }} .image-shadow-heavy { box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); }
+  #hd-{{ section.id }} .image-shadow-custom { box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); }
+
+  /* Image and Video Hover Effects */
+  {% if section.settings.image_video_hover_animation != 'none' %}
+  #hd-{{ section.id }} .hd-container img:hover,
+  #hd-{{ section.id }} .hd-container video:hover {
+    transform: scale(1.02);
+    opacity: 0.9;
+  }
+  {% endif %}
+
+  /* --- New Hover Animation Selector Styles --- */
+  #hd-{{ section.id }} .hover-animation-none:hover {}
+  #hd-{{ section.id }} .hover-animation-fade:hover {
+    transition: opacity 0.7s ease;
+    opacity: 0.7;
+  }
+  #hd-{{ section.id }} .hover-animation-smooth-zoomin:hover {
+    transition: transform 0.7s ease;
+    transform: scale(1.05);
+  }
+  #hd-{{ section.id }} .hover-animation-smooth-shadow:hover {
+    transition: box-shadow 0.7s ease;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  }
+  #hd-{{ section.id }} .hover-animation-smooth-fade-in-up:hover {
+    transition: transform 0.7s ease, opacity 0.7s ease;
+    transform: translateY(-5px);
+    opacity: 0.7;
+  }
+  #hd-{{ section.id }} .hover-animation-smooth-blink:hover {
+    transition: opacity 0.7s ease;
+    opacity: 0.5;
+  }
+  #hd-{{ section.id }} .hover-animation-smooth-zoomin-inner:hover {
+    transition: transform 0.7s ease;
+    transform: scale(1.1);
+  }
+  #hd-{{ section.id }} .hover-animation-very-smooth:hover {
+    transition: all 0.7s ease;
+  }
+  /* --- End New Hover Animation Styles --- */
+
+  /* Remove margin from last paragraph inside the container */
+  #hd-{{ section.id }} .hd-container p:last-child {
+    margin: 0 !important;
+    padding: 0;
+  }
+
+  /* --- New Icon Grid Styles --- */
+  .icon-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: {{ section.settings.spacing_between_subheading_and_icons }}px;
+  }
+  @media (max-width: 800px) {
+    .icon-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .icon-item { text-align: center; }
+  .icon-circle {
+    border-radius: 50%;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+  .icon-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    margin: 0;
+    padding: 0;
+  }
+  .icon-label {
+    margin-top: 8px;
+    font-size: 14px;
+    color: {{ section.settings.text_color }};
+  }
+  /* --- End New Icon Grid Styles --- */
+
+  /* --- Headline Animation Styles Scoped to Section --- */
+  .blurry-to-clear { animation: blurryToClear 1s forwards; }
+  @keyframes blurryToClear {
+    0% { filter: blur(5px); opacity: 0; }
+    100% { filter: blur(0); opacity: 1; }
+  }
+  .shimmer-gradient {
+    background: linear-gradient(120deg, #f6f7f8, #edeef1, #f6f7f8);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmerGradient 1.5s linear infinite;
+  }
+  @keyframes shimmerGradient {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  .glow-white { animation: glowWhite 2s infinite; }
+  @keyframes glowWhite {
+    0%, 100% { text-shadow: 0 0 10px rgba(255,255,255,0.8); }
+    50% { text-shadow: 0 0 20px rgba(255,255,255,1); }
+  }
+  .pulsing-subtle-white-glow { animation: pulsingSubtleWhiteGlow 2s infinite; }
+  @keyframes pulsingSubtleWhiteGlow {
+    0%, 100% { text-shadow: 0 0 5px rgba(255,255,255,0.5); }
+    50% { text-shadow: 0 0 10px rgba(255,255,255,0.7); }
+  }
+  .shimmer-gradient-black-gray {
+    background: linear-gradient(120deg, #000, #555, #000);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmerGradientBlackGray 2.5s linear infinite;
+  }
+  @keyframes shimmerGradientBlackGray {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  .shimmer-gradient-white-lightgray {
+    background: linear-gradient(120deg, #fff, #ccc, #fff);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmerGradientWhiteLightgray 2.5s linear infinite;
+  }
+  @keyframes shimmerGradientWhiteLightgray {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  /* --- End New Headline Animation Styles Scoped to Section --- */
+
+  /* Section Animations */
+  @keyframes fadeIn { to { opacity: 1; } }
+  @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeInRight { to { opacity: 1; transform: translateX(0); } }
+  @keyframes fadeInLeft { to { opacity: 1; transform: translateX(0); } }
+  @keyframes zoomIn { to { opacity: 1; transform: scale(1); } }
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+  }
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+  }
+  {% if section.settings.section_animation != 'none' %}
+    #hd-{{ section.id }}.animation-fade-in { animation: fadeIn 1s forwards; }
+    #hd-{{ section.id }}.animation-fade-in-up { opacity: 0; transform: translateY(20px); animation: fadeInUp 1s forwards; }
+    #hd-{{ section.id }}.animation-fade-in-right { opacity: 0; transform: translateX(20px); animation: fadeInRight 1s forwards; }
+    #hd-{{ section.id }}.animation-fade-in-left { opacity: 0; transform: translateX(-20px); animation: fadeInLeft 1s forwards; }
+    #hd-{{ section.id }}.animation-zoom-in { opacity: 0; transform: scale(0.95); animation: zoomIn 1s forwards; }
+  {% endif %}
+
+  /* Responsive Display Settings */
+  {% if section.settings.show_on_device == 'mobile' %}
+    @media (min-width: 801px) {
+      #hd-{{ section.id }} { display: none; }
+    }
+  {% endif %}
+  {% if section.settings.show_on_device == 'desktop' %}
+    @media (max-width: 800px) {
+      #hd-{{ section.id }} { display: none; }
+    }
+  {% endif %}
+
+  /* Mobile Text Visibility */
+  #hd-{{ section.id }} .hd-mobile-text { display: none; }
+  @media only screen and (max-width: 900px) {
+    #hd-{{ section.id }} .hd-column { padding: 5px 0; }
+    #hd-{{ section.id }} .hd-column-text { display: none; }
+    #hd-{{ section.id }} .hd-mobile-text { display: block; }
+  }
+
+  /* Spacing between Headline and Subheading */
+  #hd-{{ section.id }} .hd-column-text h2.heading + p.subheading {
+    margin-top: {{ section.settings.spacing_between_headline_and_subheading }}px;
+  }
+  #hd-{{ section.id }} .hd-column-text .icon-grid {
+    margin-top: {{ section.settings.spacing_between_subheading_and_icons }}px;
+  }
+
+  /* --- New Second Image Overlay Styles --- */
+  #hd-{{ section.id }} .main-image-wrapper {
+    position: relative;
+  }
+  #hd-{{ section.id }} .second-image-overlay {
+    position: absolute;
+  }
+  @media (max-width: 800px) {
+    #hd-{{ section.id }} .second-image-overlay {
+      width: calc({{ section.settings.second_image_width }}px * 0.7);
+      height: calc({{ section.settings.second_image_height }}px * 0.7);
+      right: calc(-({{ section.settings.second_image_width | divided_by: 2 }}px) * 0.7 + {{ section.settings.second_image_horizontal_position }}px);
+      top: calc(50% + {{ section.settings.second_image_vertical_position }}px);
+      transform: translateY(-50%);
+    }
+  }
+  /* --- End New Second Image Overlay Styles --- */
+</style>
+
+<div
+  id="hd-{{ section.id }}"
+  class="hd-section{% if section.settings.section_animation != 'none' %} animation-{{ section.settings.section_animation }}{% endif %}"
+  hd-section
+>
+  <div class="hd-container" hd-container>
+    <div class="hd-grid-{{ section.settings.image_location }}">
+      {%- if section.settings.image_location == 'left' -%}
+        <div class="hd-column" hd-column>
+          <div class="main-image-wrapper">
+            {% if section.settings.video_url != blank %}
+              <video class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}" autoplay muted loop playsinline>
+                <source src="{{ section.settings.video_url }}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            {% elsif section.settings.image %}
+              <img class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}" src="{{ section.settings.image | image_url: width: 600 }}" srcset="{{ section.settings.image | image_url: width: 600 }} 600w, {{ section.settings.image | image_url: width: 1100 }} 1100w">
+            {% else %}
+              <img class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}" src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" srcset="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E">
+            {% endif %}
+            {% if section.settings.enable_second_image and section.settings.second_image != blank %}
+              <img class="second-image-overlay" src="{{ section.settings.second_image | image_url: width: section.settings.second_image_width }}" style="width: {{ section.settings.second_image_width }}px; height: {{ section.settings.second_image_height }}px; top: calc(50% + {{ section.settings.second_image_vertical_position }}px); right: calc(-{{ section.settings.second_image_width | divided_by: 2 }}px + {{ section.settings.second_image_horizontal_position }}px); transform: translateY(-50%);">
+            {% endif %}
+          </div>
+        </div>
+        <div class="hd-column hd-column-text" hd-column>
+          {% if section.settings.headline != '' %}
+            <h2 class="heading {{ section.settings.headline_animation }}" {% if section.settings.headline_animation == 'text-reflection-water-rainbow' %} data-text="{{ section.settings.headline }}" {% endif %}>
+              {{ section.settings.headline }}
+            </h2>
+          {% endif %}
+          {% if section.settings.content != '' %}
+            <div class="subheading">{{ section.settings.content }}</div>
+          {% endif %}
+          <!-- Icon Grid -->
+          <div class="icon-grid">
+            <!-- Icon 1 -->
+            <div class="icon-item">
+              <div class="icon-circle" style="width: {% if section.settings.icon_svg_1 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %}; height: {% if section.settings.icon_svg_1 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %};">
+                {% if section.settings.icon_svg_1 != blank %}
+                  {{ section.settings.icon_svg_1 }}
+                {% elsif section.settings.icon_1 != blank %}
+                  <img src="{{ section.settings.icon_1 | image_url: width: 100 }}" alt="{{ section.settings.icon_label_1 }}">
+                {% else %}
+                  <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Icon 1">
+                {% endif %}
+              </div>
+              <div class="icon-label">{{ section.settings.icon_label_1 }}</div>
+            </div>
+            <!-- Icon 2 -->
+            <div class="icon-item">
+              <div class="icon-circle" style="width: {% if section.settings.icon_svg_2 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %}; height: {% if section.settings.icon_svg_2 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %};">
+                {% if section.settings.icon_svg_2 != blank %}
+                  {{ section.settings.icon_svg_2 }}
+                {% elsif section.settings.icon_2 != blank %}
+                  <img src="{{ section.settings.icon_2 | image_url: width: 100 }}" alt="{{ section.settings.icon_label_2 }}">
+                {% else %}
+                  <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Icon 2">
+                {% endif %}
+              </div>
+              <div class="icon-label">{{ section.settings.icon_label_2 }}</div>
+            </div>
+            <!-- Icon 3 -->
+            <div class="icon-item">
+              <div class="icon-circle" style="width: {% if section.settings.icon_svg_3 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %}; height: {% if section.settings.icon_svg_3 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %};">
+                {% if section.settings.icon_svg_3 != blank %}
+                  {{ section.settings.icon_svg_3 }}
+                {% elsif section.settings.icon_3 != blank %}
+                  <img src="{{ section.settings.icon_3 | image_url: width: 100 }}" alt="{{ section.settings.icon_label_3 }}">
+                {% else %}
+                  <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Icon 3">
+                {% endif %}
+              </div>
+              <div class="icon-label">{{ section.settings.icon_label_3 }}</div>
+            </div>
+            <!-- Icon 4 -->
+            <div class="icon-item">
+              <div class="icon-circle" style="width: {% if section.settings.icon_svg_4 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %}; height: {% if section.settings.icon_svg_4 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %};">
+                {% if section.settings.icon_svg_4 != blank %}
+                  {{ section.settings.icon_svg_4 }}
+                {% elsif section.settings.icon_4 != blank %}
+                  <img src="{{ section.settings.icon_4 | image_url: width: 100 }}" alt="{{ section.settings.icon_label_4 }}">
+                {% else %}
+                  <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Icon 4">
+                {% endif %}
+              </div>
+              <div class="icon-label">{{ section.settings.icon_label_4 }}</div>
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.image_location == 'right' -%}
+        <div class="hd-column hd-column-text" hd-column>
+          {% if section.settings.headline != '' %}
+            <h2 class="heading {{ section.settings.headline_animation }}" {% if section.settings.headline_animation == 'text-reflection-water-rainbow' %} data-text="{{ section.settings.headline }}" {% endif %}>
+              {{ section.settings.headline }}
+            </h2>
+          {% endif %}
+          {% if section.settings.content != '' %}
+            <div class="subheading">{{ section.settings.content }}</div>
+          {% endif %}
+          <!-- Icon Grid -->
+          <div class="icon-grid">
+            <!-- Icon 1 -->
+            <div class="icon-item">
+              <div class="icon-circle" style="width: {% if section.settings.icon_svg_1 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %}; height: {% if section.settings.icon_svg_1 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %};">
+                {% if section.settings.icon_svg_1 != blank %}
+                  {{ section.settings.icon_svg_1 }}
+                {% elsif section.settings.icon_1 != blank %}
+                  <img src="{{ section.settings.icon_1 | image_url: width: 100 }}" alt="{{ section.settings.icon_label_1 }}">
+                {% else %}
+                  <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Icon 1">
+                {% endif %}
+              </div>
+              <div class="icon-label">{{ section.settings.icon_label_1 }}</div>
+            </div>
+            <!-- Icon 2 -->
+            <div class="icon-item">
+              <div class="icon-circle" style="width: {% if section.settings.icon_svg_2 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %}; height: {% if section.settings.icon_svg_2 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %};">
+                {% if section.settings.icon_svg_2 != blank %}
+                  {{ section.settings.icon_svg_2 }}
+                {% elsif section.settings.icon_2 != blank %}
+                  <img src="{{ section.settings.icon_2 | image_url: width: 100 }}" alt="{{ section.settings.icon_label_2 }}">
+                {% else %}
+                  <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Icon 2">
+                {% endif %}
+              </div>
+              <div class="icon-label">{{ section.settings.icon_label_2 }}</div>
+            </div>
+            <!-- Icon 3 -->
+            <div class="icon-item">
+              <div class="icon-circle" style="width: {% if section.settings.icon_svg_3 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %}; height: {% if section.settings.icon_svg_3 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %};">
+                {% if section.settings.icon_svg_3 != blank %}
+                  {{ section.settings.icon_svg_3 }}
+                {% elsif section.settings.icon_3 != blank %}
+                  <img src="{{ section.settings.icon_3 | image_url: width: 100 }}" alt="{{ section.settings.icon_label_3 }}">
+                {% else %}
+                  <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Icon 3">
+                {% endif %}
+              </div>
+              <div class="icon-label">{{ section.settings.icon_label_3 }}</div>
+            </div>
+            <!-- Icon 4 -->
+            <div class="icon-item">
+              <div class="icon-circle" style="width: {% if section.settings.icon_svg_4 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %}; height: {% if section.settings.icon_svg_4 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %};">
+                {% if section.settings.icon_svg_4 != blank %}
+                  {{ section.settings.icon_svg_4 }}
+                {% elsif section.settings.icon_4 != blank %}
+                  <img src="{{ section.settings.icon_4 | image_url: width: 100 }}" alt="{{ section.settings.icon_label_4 }}">
+                {% else %}
+                  <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Icon 4">
+                {% endif %}
+              </div>
+              <div class="icon-label">{{ section.settings.icon_label_4 }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="hd-column" hd-column>
+          <div class="main-image-wrapper">
+            {% if section.settings.video_url != blank %}
+              <video class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}" autoplay muted loop playsinline>
+                <source src="{{ section.settings.video_url }}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            {% elsif section.settings.image %}
+              <img class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}" src="{{ section.settings.image | image_url: width: 600 }}" srcset="{{ section.settings.image | image_url: width: 600 }} 600w, {{ section.settings.image | image_url: width: 1100 }} 1100w">
+            {% else %}
+              <img class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}" src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" srcset="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E 600w, data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E 1100w">
+            {% endif %}
+            {% if section.settings.enable_second_image and section.settings.second_image != blank %}
+              <img class="second-image-overlay" src="{{ section.settings.second_image | image_url: width: section.settings.second_image_width }}" style="width: {{ section.settings.second_image_width }}px; height: {{ section.settings.second_image_height }}px; top: calc(50% + {{ section.settings.second_image_vertical_position }}px); right: calc(-{{ section.settings.second_image_width | divided_by: 2 }}px + {{ section.settings.second_image_horizontal_position }}px); transform: translateY(-50%);">
+            {% endif %}
+          </div>
+        </div>
+      {%- endif -%}
+
+      <div class="hd-mobile-text">
+        {% if section.settings.video_url != blank %}
+          <video class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}" autoplay muted loop playsinline>
+            <source src="{{ section.settings.video_url }}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        {% elsif section.settings.image %}
+          <img class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}" src="{{ section.settings.image | image_url: width: 600 }}" srcset="{{ section.settings.image | image_url: width: 600 }} 600w, {{ section.settings.image | image_url: width: 1100 }} 1100w">
+        {% else %}
+          <img class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}" src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" srcset="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E">
+        {% endif %}
+        {% if section.settings.headline != '' %}
+          <h2 class="heading {{ section.settings.headline_animation }}" {% if section.settings.headline_animation == 'text-reflection-water-rainbow' %} data-text="{{ section.settings.headline }}" {% endif %}>
+            {{ section.settings.headline }}
+          </h2>
+        {% endif %}
+        {% if section.settings.content != '' %}
+          <div class="subheading">{{ section.settings.content }}</div>
+        {% endif %}
+        <!-- Icon Grid for Mobile -->
+        <div class="icon-grid">
+          <!-- Icon 1 -->
+          <div class="icon-item">
+            <div class="icon-circle" style="width: {% if section.settings.icon_svg_1 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %}; height: {% if section.settings.icon_svg_1 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %};">
+              {% if section.settings.icon_svg_1 != blank %}
+                {{ section.settings.icon_svg_1 }}
+              {% elsif section.settings.icon_1 != blank %}
+                <img src="{{ section.settings.icon_1 | image_url: width: 100 }}" alt="{{ section.settings.icon_label_1 }}">
+              {% else %}
+                <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Icon 1">
+              {% endif %}
+            </div>
+            <div class="icon-label">{{ section.settings.icon_label_1 }}</div>
+          </div>
+          <!-- Icon 2 -->
+          <div class="icon-item">
+            <div class="icon-circle" style="width: {% if section.settings.icon_svg_2 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %}; height: {% if section.settings.icon_svg_2 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %};">
+              {% if section.settings.icon_svg_2 != blank %}
+                {{ section.settings.icon_svg_2 }}
+              {% elsif section.settings.icon_2 != blank %}
+                <img src="{{ section.settings.icon_2 | image_url: width: 100 }}" alt="{{ section.settings.icon_label_2 }}">
+              {% else %}
+                <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Icon 2">
+              {% endif %}
+            </div>
+            <div class="icon-label">{{ section.settings.icon_label_2 }}</div>
+          </div>
+          <!-- Icon 3 -->
+          <div class="icon-item">
+            <div class="icon-circle" style="width: {% if section.settings.icon_svg_3 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %}; height: {% if section.settings.icon_svg_3 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %};">
+              {% if section.settings.icon_svg_3 != blank %}
+                {{ section.settings.icon_svg_3 }}
+              {% elsif section.settings.icon_3 != blank %}
+                <img src="{{ section.settings.icon_3 | image_url: width: 100 }}" alt="{{ section.settings.icon_label_3 }}">
+              {% else %}
+                <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Icon 3">
+              {% endif %}
+            </div>
+            <div class="icon-label">{{ section.settings.icon_label_3 }}</div>
+          </div>
+          <!-- Icon 4 -->
+          <div class="icon-item">
+            <div class="icon-circle" style="width: {% if section.settings.icon_svg_4 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %}; height: {% if section.settings.icon_svg_4 != blank %}{{ section.settings.svg_icon_size }}px{% else %}{{ section.settings.image_icon_size }}px{% endif %};">
+              {% if section.settings.icon_svg_4 != blank %}
+                {{ section.settings.icon_svg_4 }}
+              {% elsif section.settings.icon_4 != blank %}
+                <img src="{{ section.settings.icon_4 | image_url: width: 100 }}" alt="{{ section.settings.icon_label_4 }}">
+              {% else %}
+                <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Icon 4">
+              {% endif %}
+            </div>
+            <div class="icon-label">{{ section.settings.icon_label_4 }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /hd-grid -->
+  </div>
+  <!-- /hd-container -->
+</div>
+<!-- /hd-section -->
+
+<!-- Scoped JavaScript -->
+<script>
+  (function() {
+    const sectionId = 'hd-{{ section.id }}';
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+    // Toggle video play on click
+    const videos = section.querySelectorAll('video');
+    videos.forEach(video => {
+      video.addEventListener('click', () => {
+        if (video.paused) { video.play(); } else { video.pause(); }
+      });
+    });
+    // Additional JavaScript functionalities can be added here
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Image With Icons",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Padding",
+      "info": "Adjust the padding around the section"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Top (Desktop, px)",
+      "default": 44,
+      "info": "Set the top padding for the section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Bottom (Desktop, px)",
+      "default": 44,
+      "info": "Set the bottom padding for the section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "desktop_section_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Left/Right (Desktop, px)",
+      "default": 81,
+      "info": "Set the left and right padding for the section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_top_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Padding Top/Bottom (px)",
+      "default": 36,
+      "info": "Set the top and bottom padding for mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Section Padding Left/Right (Mobile, px)",
+      "default": 20,
+      "info": "Set the left and right padding for mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Layout Alignment",
+      "info": "Customize the alignment"
+    },
+    {
+      "type": "range",
+      "id": "container_max_width",
+      "min": 300,
+      "max": 2000,
+      "step": 20,
+      "unit": "px",
+      "label": "GRID Max Width (px)",
+      "default": 1240,
+      "info": "Set the maximum width for the grid."
+    },
+    {
+      "type": "select",
+      "id": "desktop_text_alignment",
+      "label": "Desktop Text Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left",
+      "info": "Set the alignment for headline, subheading, and icons on desktop/larger screens."
+    },
+    {
+      "type": "header",
+      "content": "Mobile Settings",
+      "info": "Customize settings for mobile devices"
+    },
+    {
+      "type": "range",
+      "id": "spacing_between_image_and_headline_mobile",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Spacing Between Image and Headline (Mobile)",
+      "default": 21,
+      "info": "Set the spacing between the image and headline on mobile devices."
+    },
+    {
+      "type": "select",
+      "id": "mobile_text_alignment",
+      "label": "Mobile Text Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left",
+      "info": "Set the alignment for headline, subheading, and icons on mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Font Settings",
+      "info": "Customize the font settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "override_fonts",
+      "label": "Enable Custom Fonts",
+      "default": false,
+      "info": "Enable Custom Fonts."
+    },
+    {
+      "type": "font_picker",
+      "id": "text_font",
+      "label": "Text Font",
+      "default": "sans-serif",
+      "info": "Select the font for the body text."
+    },
+    {
+      "type": "font_picker",
+      "id": "headline_font",
+      "label": "Headline Font",
+      "default": "sans-serif",
+      "info": "Select the font for the headlines."
+    },
+    {
+      "type": "range",
+      "id": "headline_size",
+      "min": 10,
+      "max": 75,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading Size",
+      "default": 60,
+      "info": "Set the font size for headlines."
+    },
+    {
+      "type": "range",
+      "id": "mobile_headline_size",
+      "min": 10,
+      "max": 75,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Headline Size",
+      "default": 49,
+      "info": "Set the font size for headlines on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "subheading_text_size",
+      "min": 12,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading Text Size (Desktop)",
+      "default": 16,
+      "info": "Set the font size for subheading on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "mobile_subheading_text_size",
+      "min": 12,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading Text Size (Mobile)",
+      "default": 16,
+      "info": "Set the font size for subheading on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "headline_line_height",
+      "min": 0.7,
+      "max": 2.0,
+      "step": 0.1,
+      "unit": "em",
+      "label": "Headline Line Height",
+      "default": 1.2,
+      "info": "Set the line height for headlines."
+    },
+    {
+      "type": "select",
+      "id": "headline_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "inherit", "label": "Inherit" },
+        { "value": "100", "label": "100 (Thin)" },
+        { "value": "300", "label": "300 (Light)" },
+        { "value": "400", "label": "400 (Normal)" },
+        { "value": "700", "label": "700 (Bold)" }
+      ],
+      "default": "inherit",
+      "info": "Select the font weight for headlines."
+    },
+    {
+      "type": "range",
+      "id": "spacing_between_headline_and_subheading",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Spacing Between Headline and Subheading",
+      "default": 13,
+      "info": "Set the spacing between the headline and the subheading (content)."
+    },
+    {
+      "type": "range",
+      "id": "spacing_between_subheading_and_icons",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Spacing Between Subheading and Icons",
+      "default": 20,
+      "info": "Set the spacing between the subheading and the icon grid."
+    },
+    {
+      "type": "color",
+      "id": "headline_color",
+      "default": "#000000",
+      "label": "Headline Color",
+      "info": "Set the color for the headline text."
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "default": "#353535",
+      "label": "Subheading Color",
+      "info": "Set the color for the subheading text."
+    },
+    {
+      "type": "color",
+      "id": "section_background_color",
+      "default": "#FFFFFF",
+      "label": "Section Background Color",
+      "info": "Set the background color for the entire section."
+    },
+    {
+      "type": "text",
+      "id": "custom_font_family",
+      "label": "Custom Font Family",
+      "info": "Enter the custom font URL."
+    },
+    {
+      "type": "header",
+      "content": "Grid Settings",
+      "info": "Configure the grid layout"
+    },
+    {
+      "type": "select",
+      "id": "grid_display",
+      "label": "Column Spaces",
+      "options": [
+        { "value": "1fr 1fr", "label": "1 / 1" },
+        { "value": "6fr 4fr", "label": "6 / 4" },
+        { "value": "4fr 6fr", "label": "4 / 6" },
+        { "value": "3fr 2fr", "label": "3 / 2" },
+        { "value": "2fr 3fr", "label": "2 / 3" },
+        { "value": "7fr 5fr", "label": "7 / 5" },
+        { "value": "5fr 7fr", "label": "5 / 7" }
+      ],
+      "default": "1fr 1fr",
+      "info": "Choose the proportion of columns in the grid layout."
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Grid Gap (px)",
+      "default": 100,
+      "info": "Set the gap between grid items."
+    },
+    {
+      "type": "range",
+      "id": "mobile_horizontal_position",
+      "min": -100,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile Horizontal Position",
+      "default": 0,
+      "info": "Adjust the horizontal position of the headline text and icons for mobile devices."
+    },
+    {
+      "type": "select",
+      "id": "image_shadow",
+      "label": "Image Shadow",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "subtle", "label": "Subtle Shadow" },
+        { "value": "medium", "label": "Medium Shadow" },
+        { "value": "heavy", "label": "Heavy Shadow" },
+        { "value": "custom", "label": "Custom Shadow" }
+      ],
+      "default": "none",
+      "info": "Choose a shadow effect for the image."
+    },
+    {
+      "type": "select",
+      "id": "image_video_hover_animation",
+      "label": "Image/Video Hover Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "fade", "label": "Fade" },
+        { "value": "smooth-zoomin", "label": "Smooth Zoom In" },
+        { "value": "smooth-shadow", "label": "Smooth Shadow" },
+        { "value": "smooth-fade-in-up", "label": "Smooth Fade In Up" },
+        { "value": "smooth-blink", "label": "Smooth Blink" },
+        { "value": "smooth-zoomin-inner", "label": "Smooth Zoom In Inner" },
+        { "value": "very-smooth", "label": "Very Smooth 0.7s" }
+      ],
+      "default": "none",
+      "info": "Select an animation effect for image/video hover."
+    },
+    {
+      "type": "header",
+      "content": "Section Animations",
+      "info": "Select an animation for the entire section"
+    },
+    {
+      "type": "select",
+      "id": "section_animation",
+      "label": "Section Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "fade-in", "label": "Fade In" },
+        { "value": "fade-in-up", "label": "Fade In Up" },
+        { "value": "fade-in-right", "label": "Fade In Right" },
+       
+        { "value": "zoom-in", "label": "Zoom In" }
+      ],
+      "default": "none",
+      "info": "Select an animation to apply to the entire section."
+    },
+    {
+      "type": "header",
+      "content": "Headline Animation",
+      "info": "Select an animation effect for the headline text."
+    },
+    {
+      "type": "select",
+      "id": "headline_animation",
+      "label": "Headline Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "blurry-to-clear", "label": "Blurry to Clear" },
+        { "value": "shimmer-gradient", "label": "Shimmer Gradient" },
+        { "value": "glow-white", "label": "Glow White" },
+        { "value": "pulsing-subtle-white-glow", "label": "Pulsing Subtle White Glow Text" },
+        { "value": "shimmer-gradient-black-gray", "label": "Shimmer Gradient with Black and Gray" },
+        { "value": "shimmer-gradient-white-lightgray", "label": "Shimmer Gradient With White And Light Gray" }
+      ],
+      "default": "none",
+      "info": "Select an animation to apply to the headline text."
+    },
+    {
+      "type": "header",
+      "content": "Content Settings",
+      "info": "Set up image, video, and text content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "Choose an image to display."
+    },
+    {
+      "type": "text",
+      "id": "video_url",
+      "label": "Video URL",
+      "info": "Enter the URL of the video to display. If provided, the image will be hidden."
+    },
+    {
+      "type": "select",
+      "id": "image_location",
+      "label": "Image Location",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left",
+      "info": "Choose the position of the image/video relative to the text."
+    },
+    {
+      "type": "select",
+      "id": "image_aspect_ratio",
+      "label": "Image/Video Aspect Ratio",
+      "options": [
+        { "value": "21 / 9", "label": "21:9" },
+        { "value": "16 / 9", "label": "16:9" },
+        { "value": "4 / 3", "label": "4:3" },
+        { "value": "1 / 1", "label": "1:1" },
+        { "value": "auto", "label": "Auto" },
+        { "value": "3 / 2", "label": "3:2" },
+        { "value": "5 / 4", "label": "5:4" },
+        { "value": "16 / 10", "label": "16:10" }
+      ],
+      "default": "4 / 3",
+      "info": "Select the aspect ratio for the image or video."
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Image/Video Border Radius (px)",
+      "default": 8,
+      "info": "Set the border radius for the image or video."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "headline",
+      "label": "Headline",
+      "default": "Why is better?",
+      "info": "Enter the headline text."
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "Content",
+      "default": "<p>Lorem ipsum odor amet, consectetuer adipiscing elit. Rhoncus ut sociosqu hac nam imperdiet cubilia morbi. Ut malesuada eu sed imperdiet conubia inceptos fringilla donec. Vestibulum nostra mus molestie maximus class ex.</p>",
+      "info": "Enter the body content."
+    },
+    {
+      "type": "header",
+      "content": "Second Image Settings",
+      "info": "Customize the overlay second image"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_second_image",
+      "label": "Enable Second Image",
+      "default": false,
+      "info": "Toggle to enable the overlay second image."
+    },
+    {
+      "type": "image_picker",
+      "id": "second_image",
+      "label": "Second Image",
+      "info": "Choose the second image to overlay on the main image."
+    },
+    {
+      "type": "range",
+      "id": "second_image_width",
+      "label": "Second Image Width (px)",
+      "min": 50,
+      "max": 500,
+      "step": 10,
+      "default": 200,
+      "info": "Adjust the width of the second image."
+    },
+    {
+      "type": "range",
+      "id": "second_image_height",
+      "label": "Second Image Height (px)",
+      "min": 50,
+      "max": 500,
+      "step": 10,
+      "default": 200,
+      "info": "Adjust the height of the second image."
+    },
+    {
+      "type": "range",
+      "id": "second_image_vertical_position",
+      "label": "Second Image Vertical Position (px)",
+      "min": -200,
+      "max": 200,
+      "step": 10,
+      "default": 0,
+      "info": "Adjust the vertical position of the second image."
+    },
+    {
+      "type": "range",
+      "id": "second_image_horizontal_position",
+      "label": "Second Image Horizontal Position (px)",
+      "min": -200,
+      "max": 200,
+      "step": 10,
+      "default": 0,
+      "info": "Adjust how far the second image extends beyond the main image's right edge."
+    },
+    {
+      "type": "header",
+      "content": "Icon Settings",
+      "info": "Customize the icons for the product features. You can use an image or enter SVG code for each icon."
+    },
+    {
+      "type": "image_picker",
+      "id": "icon_1",
+      "label": "Icon 1",
+      "info": "Choose an image for Icon 1"
+    },
+    {
+      "type": "textarea",
+      "id": "icon_svg_1",
+      "label": "Icon 1 SVG Code",
+      "info": "Enter SVG code for Icon 1. This will override the image if provided."
+    },
+    {
+      "type": "textarea",
+      "id": "icon_label_1",
+      "label": "Icon 1 Label",
+      "default": "Feature 1",
+      "info": "Enter label for Icon 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "icon_2",
+      "label": "Icon 2",
+      "info": "Choose an image for Icon 2"
+    },
+    {
+      "type": "textarea",
+      "id": "icon_svg_2",
+      "label": "Icon 2 SVG Code",
+      "info": "Enter SVG code for Icon 2. This will override the image if provided."
+    },
+    {
+      "type": "text",
+      "id": "icon_label_2",
+      "label": "Icon 2 Label",
+      "default": "Feature 2",
+      "info": "Enter label for Icon 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "icon_3",
+      "label": "Icon 3",
+      "info": "Choose an image for Icon 3"
+    },
+    {
+      "type": "textarea",
+      "id": "icon_svg_3",
+      "label": "Icon 3 SVG Code",
+      "info": "Enter SVG code for Icon 3. This will override the image if provided."
+    },
+    {
+      "type": "text",
+      "id": "icon_label_3",
+      "label": "Icon 3 Label",
+      "default": "Feature 3",
+      "info": "Enter label for Icon 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "icon_4",
+      "label": "Icon 4",
+      "info": "Choose an image for Icon 4"
+    },
+    {
+      "type": "textarea",
+      "id": "icon_svg_4",
+      "label": "Icon 4 SVG Code",
+      "info": "Enter SVG code for Icon 4. This will override the image if provided."
+    },
+    {
+      "type": "text",
+      "id": "icon_label_4",
+      "label": "Icon 4 Label",
+      "default": "Feature 4",
+      "info": "Enter label for Icon 4"
+    },
+    {
+      "type": "range",
+      "id": "svg_icon_size",
+      "min": 20,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "SVG Icon Size",
+      "default": 60,
+      "info": "Set the size for SVG icons."
+    },
+    {
+      "type": "range",
+      "id": "image_icon_size",
+      "min": 20,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Image Icon Size",
+      "default": 60,
+      "info": "Set the size for image icons."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image With Icons",
+      "category": "Image With Text"
+    }
+  ]
+}
+{% endschema %}

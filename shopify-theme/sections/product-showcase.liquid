@@ -1,0 +1,738 @@
+<style>
+  lookbook-item {
+    left: var(--left);
+    top: var(--top);
+    right: var(--right);
+    bottom: var(--bottom);
+    transform: var(--transform);
+  }
+  lookbook-item .product-item__inner {
+    flex: 0 0 auto;
+    width: 6rem;
+  }
+  .lookbook-item__popup {
+    min-width: 29rem;
+    top: calc(100% + 27px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .vertical-bottom {
+    top: auto;
+    bottom: calc(100% + 27px);
+  }
+  .horizontal-left {
+    left: 0;
+    transform: translateX(0);
+  }
+  .horizontal-right {
+    right: 0;
+    left: auto;
+    transform: translateX(0);
+  }
+  .rounded-style .lookbook-item__popup {
+    --rounded-radius: 5px;
+  }
+  .lookbook-item__popup::after {
+    content: "";
+    height: 0;
+    position: absolute;
+    width: 0;
+    top: 1px;
+    left: 50%;
+    -webkit-transform: translateX(-50%) translateY(-100%);
+    transform: translateX(-50%) translateY(-100%);
+    border: solid transparent;
+    border-width: 7px;
+    border-bottom-color: var(--color-white);
+    will-change: transform;
+  }
+  .vertical-bottom:after {
+    top: auto;
+    bottom: 0;
+    -webkit-transform: translateX(-50%) translateY(91%);
+    transform: translateX(-50%) translateY(91%);
+    border-top-color: var(--color-white);
+    border-bottom-color: transparent;
+  }
+  .horizontal-left::after {
+    left: 15px;
+  }
+  .horizontal-right::after {
+    right: 15px;
+    left: auto;
+  }
+  lookbook-item.open {
+    z-index: 4;
+  }
+  lookbook-item .lookbook-animation > span {
+    color: var(--color-heading);
+    transition: var(--transition);
+  }
+  lookbook-item.open .lookbook-animation > span {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+  }
+  lookbook-item.open .lookbook-animation > span :is(svg, path) {
+    color: var(--color-white);
+  }
+  lookbook-item.open .lookbook-item__popup {
+    top: calc(100% + 12px);
+  }
+  lookbook-item.open .lookbook-item__popup.vertical-bottom {
+    top: auto;
+    bottom: calc(100% + 12px);
+  }
+  lookbook-item svg {
+    transition: all 0.2s linear;
+  }
+  lookbook-item.open svg {
+    transform: rotate(45deg);
+  }
+  .lookbook-animation:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: block;
+    -webkit-animation: ripple 1s ease infinite;
+    animation: ripple 2s ease infinite;
+    border-radius: 50%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 800px;
+    perspective: 800px;
+    background-color: #ffffff80;
+    z-index: -1;
+  }
+  @keyframes ripple {
+    0% {
+      opacity: 0;
+      -webkit-transform: scale(0.2);
+      transform: scale(0.2);
+    }
+    50% {
+      opacity: 0.8;
+    }
+    100% {
+      opacity: 0;
+      -webkit-transform: scale(1.1);
+      transform: scale(1.1);
+    }
+  }
+  .lookbook-modal {
+    --popup-max-width: 39rem;
+    --tingle-padding: 1.5rem;
+  }
+  /* -------- Placeholder card visual styles -------- */
+  .sec__lookbook-product .ph-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  /* Soft tile background like the screenshot, but keep image clear */
+  .sec__lookbook-product .ph-media-wrap {
+    background: #F6EFEA; /* light warm tile */
+    border-radius: 6px;
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Instagram-style 4:5 image area */
+  .sec__lookbook-product .ph-media {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  /* Placeholder title (shown only when no collection selected) */
+  .sec__lookbook-product .ph-title {
+    margin: 8px 6px 0;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.35;
+    color: #1b1b1b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Tighter gap ONLY when placeholders are showing */
+  .sec__lookbook-product .placeholder-mode .swiper-wrapper {
+    gap: 10px;
+  }
+  @media (min-width: 992px) {
+    .sec__lookbook-product .placeholder-mode .swiper-wrapper {
+      gap: 16px;
+    }
+  }
+  /* --- End of Inlined lookbook.csss --- */
+</style>
+
+{%- liquid
+  assign section_st = section.settings
+  assign section_width = section_st.section_width
+  assign color_scheme = section_st.color_scheme
+  assign heading = section_st.heading
+  assign description = section_st.description
+  assign position = section_st.position
+
+  assign column_gap = section_st.column_gap
+  assign items_per_row_mobile = section_st.items_per_row_mobile
+  assign items_per_row = section_st.items_per_row
+
+  assign image = section_st.image
+  assign image_ratio = section_st.image_ratio
+  assign custom_ratio = section_st.custom_ratio
+
+  assign carousel_pagination = section_st.carousel_pagination
+  assign infinite = section_st.infinite
+  assign autoplay = section_st.autoplay
+  assign autorotate_speed = section_st.autorotate_speed
+
+  assign ratio = ''
+  if image_ratio != 'adapt'
+    case image_ratio
+      when 'square'
+        assign ratio = '1/1'
+      when 'landscape'
+        assign ratio = '4/3'
+      when 'portrait'
+        assign ratio = '3/4'
+      else
+        if custom_ratio != empty
+          assign ratio = custom_ratio | replace: ':', '/'
+        else
+          assign ratio = '3/4'
+        endif
+    endcase
+  else
+    assign ratio = '3/4'
+  endif
+
+  if section_st.items_per_row_mobile > 1 and section_st.items_per_row_mobile < 2
+    assign data_free_scroll = 'true'
+  endif
+
+  assign scroll_animation = settings.scroll_animation
+
+  # helper: whether we actually have products
+  assign has_products = false
+  if section.blocks.size > 0
+    for block in section.blocks
+      if block.settings.product
+        assign has_products = true
+      endif
+    endfor
+  endif
+-%}
+
+{%- capture style -%}
+--col-desktop: 2;
+--col-tablet: 2;
+--col-number: 1;
+--section-pt: {{ section_st.padding_top }};
+--section-pb: {{ section_st.padding_bottom }};
+{%- endcapture -%}
+
+<section
+  class="section{% if section_st.padding_top < 30 %} pt-min{% endif %}{% if section_st.padding_bottom < 30 %} pb-min{% endif %} sec__lookbook-product color-{{ color_scheme }} gradient"
+  style="{{ style | strip | strip_newlines }}"
+>
+  <div class="{{ section_width }}">
+    <svg hidden>
+      <symbol id="icon-lookbook-plus">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 0C4.44772 0 4 0.447715 4 1V4L1 4C0.447715 4 0 4.44771 0 5C0 5.55228 0.447715 6 1 6H4V9C4 9.55229 4.44772 10 5 10C5.55228 10 6 9.55228 6 9V6H9C9.55228 6 10 5.55229 10 5C10 4.44772 9.55228 4 9 4L6 4V1C6 0.447715 5.55228 0 5 0Z" fill="currentColor"></path>
+      </symbol>
+    </svg>
+
+    <div
+      class="flex flex-cols flex-wrap align-center gap{% if position == 'right' %} flex-row-reverse{% endif %}"
+      style="--col-gap: {{ column_gap }}px;"
+    >
+      <div class="lookbook-product__media relative" style="--aspect-ratio: {{ ratio }};">
+        {% if image != blank %}
+          {%- assign image_alt = image.alt | default: 'product' -%}
+          {% render 'responsive-image', class: '', type: 'banner', image: image, image_alt: image_alt, styles: 'border-radius: ', append: 'px;' %}
+        {% else %}
+          {%- render 'placeholder-render', class: '', styles: 'border-radius: ', append: 'px;' %}
+        {% endif %}
+
+        {% if section.blocks.size > 0 %}
+          {% for block in section.blocks %}
+            {% liquid
+              assign block_st = block.settings
+            %}
+            <lookbook-item
+              data-type="slide"
+              {{ block.shopify_attributes }}
+              data-product-position="{{ forloop.index }}"
+              class="z-3 absolute pointer{% if forloop.index == 1 %} active{% endif %}{% if scroll_animation != 'none' %} scroll-trigger {{ scroll_animation }}{% endif %}"
+            >
+              <a
+                class="lookbook-animation heading-color w-44 h-44 inline-flex content-center relative"
+                role="link"
+                aria-disabled="true"
+                aria-label="Hotspot"
+              >
+                <span
+                  class="rounded-50 bg-white w-custom h-custom inline-flex content-center"
+                  style="--custom-height: 31px; --custom-width: 31px;"
+                >
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 10 10"
+                    fill="none"
+                  >
+                    <use href="#icon-lookbook-plus" />
+                  </svg>
+                </span>
+              </a>
+            </lookbook-item>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <div class="lookbook-product__product">
+        {% if heading != blank or description != blank %}
+          <div
+            class="section__header mb-33 mb-sm-20 text-{{ section_st.header_alignment }}{% if section_st.section_width == 'full_width' %} px-20{% endif %}"
+          >
+            {% if heading != blank %}
+              <h2
+                class="section__header-heading heading-letter-spacing mt-0{% if description != blank %} mb-10{% else %} mb-0{% endif %}{% if scroll_animation != 'none' %} scroll-trigger {{ scroll_animation }}{% endif %}"
+                style="
+                  font-size: {{ section_st.header_size_slider }}px;
+                  --animation-order: 0
+                "
+              >
+                {{ heading }}
+              </h2>
+            {% endif %}
+            {% if description != blank %}
+              <div
+                class="section__header-des rich__text-m0{% if scroll_animation != 'none' %} scroll-trigger {{ scroll_animation }}{% endif %}"
+                style="                  --animation-order: 1"
+              >
+                {{ description }}
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% if section.blocks.size > 0 %}
+          {% if items_per_row_mobile > 1 and items_per_row_mobile < 2 %}
+            <div class="free-scroll">
+          {% endif %}
+
+          <slide-section-lookbook
+            class="swiper {% unless has_products %}placeholder-mode{% endunless %}"
+            data-section-id="{{ section.id }}"
+            data-autoplay="{{ autoplay }}"
+            data-effect="slide"
+            data-loop="{{ infinite }}"
+            data-speed="500"
+            data-autoplay-speed="{{ autorotate_speed }}"
+            data-spacing="30"
+            data-mobile="{{ items_per_row_mobile }}"
+            data-tablet="2"
+            data-desktop="{{ items_per_row }}"
+            data-pagination-progressbar="{% if carousel_pagination == 'show_progress_bar' %}true{% else %}false{% endif %}"
+            data-free-scroll="{{ data_free_scroll }}"
+            data-arrow-centerimage="1"
+          >
+            <div class="swiper-wrapper">
+              {% for block in section.blocks %}
+                {% assign block_st = block.settings %}
+                <div class="lookbook-item swiper-slide">
+                  {% if block_st.product %}
+                    {% render 'product-item',
+                      card_product: block_st.product,
+                      section_id: section.id,
+                      template_enable_action: true,
+                      template_enable_product_vendor: true,
+                      template_enable_rate: true,
+                      template_enable_product_short_description: true,
+                      template_enable_color_swatches: true,
+                      template_enable_price: true,
+                      indexFor: forloop.index,
+                      scroll_animation: scroll_animation,
+                      template_enable_product_badges: true,
+                      template_enable_add_cart: true
+                    %}
+                  {% else %}
+                    <div class="ph-card">
+                      <div class="ph-media-wrap">
+                        <div
+                          class="ph-media"
+                          style="background-image:url('https://artistintelligence.org/wp-content/uploads/2015/08/import_placeholder.png');"
+                          role="img"
+                          aria-label="Product Placeholder"
+                        ></div>
+                      </div>
+                      <!-- Single placeholder title only when no collection is selected -->
+                      <div class="ph-title">Product Title</div>
+                    </div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+
+            {% if carousel_pagination == 'show_dots'
+              or carousel_pagination == 'show_dots_on_mobile'
+              or carousel_pagination == 'show_progress_bar'
+            %}
+              <div
+                class="
+                  swiper-pagination flex flex-wrap px-15 lh-1 bottom-30
+                  {% if carousel_pagination == 'show_dots_on_mobile' %} hidden-md{% endif %}
+                  justify-content-center
+                "
+                style="--swiper-pagination-bottom: 3rem; --swiper-pagination-position: static;"
+              ></div>
+            {% endif %}
+          </slide-section-lookbook>
+
+          {% if items_per_row_mobile > 1 and items_per_row_mobile < 2 %}
+            </div>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product Showcase",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer", "custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Padding Sliders"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding Slider",
+      "info": "Use this slider to control the top padding (in px).",
+      "default": 50,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding Slider",
+      "info": "Use this slider to control the bottom padding (in px).",
+      "default": 50,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Section Width & Color"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section Width",
+      "info": "Select how wide this section appears on the page.",
+      "default": "fluid_container",
+      "options": [
+        {
+          "value": "container",
+          "label": "Container"
+        },
+        {
+          "value": "fluid_container",
+          "label": "Fluid Container"
+        },
+        {
+          "value": "stretch_width",
+          "label": "Stretch Width"
+        },
+        {
+          "value": "full_width",
+          "label": "Full Width"
+        }
+      ]
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "info": "Select a color scheme for this section.",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Section Heading & Description"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section Heading",
+      "info": "Main heading text for this section.",
+      "default": "RECOMMENDED"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Section Description",
+      "info": "Additional descriptive text for this section.",
+      "default": "<p>Explore yourself and explore your style<p>"
+
+    },
+    {
+      "type": "range",
+      "id": "header_size_slider",
+      "label": "Header Size Slider",
+      "info": "Adjust the heading font size in pixels.",
+      "default": 24,
+      "min": 14,
+      "max": 60,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Heading Alignment",
+      "info": "Choose the heading alignment.",
+      "default": "center",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Image & Layout Settings"
+    },
+    {
+      "type": "range",
+      "id": "items_per_row",
+      "label": "Number of Items per Row",
+      "info": "Choose how many products to show per row on larger screens.",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "label": "Gap between Columns",
+      "info": "Adjust spacing between columns (in px).",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "default": 50,
+      "unit": "px"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Main Image",
+      "info": "Upload or select an image ."
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image Ratio",
+      "info": "Control the aspect ratio of the image area.",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "Adapt to image"
+        },
+        {
+          "value": "square",
+          "label": "Square"
+        },
+        {
+          "value": "portrait",
+          "label": "Portrait"
+        },
+        {
+          "value": "landscape",
+          "label": "Landscape"
+        },
+        {
+          "value": "custom",
+          "label": "Custom ratio"
+        }
+      ],
+      "default": "square"
+    },
+    {
+      "type": "text",
+      "id": "custom_ratio",
+      "label": "Custom Ratio",
+      "info": "If 'Custom ratio' is selected, use this format (width:height)."
+
+    },
+    {
+      "type": "select",
+      "id": "position",
+      "label": "Layout Position",
+      "info": "Choose whether the image is on the left or right.",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Carousel Settings"
+    },
+    {
+      "type": "select",
+      "id": "carousel_pagination",
+      "label": "Pagination Style",
+      "info": "Select how to show pagination for the product carousel.",
+      "options": [
+        {
+          "value": "disable",
+          "label": "No Pagination"
+        },
+        {
+          "value": "show_dots",
+          "label": "Show Dots"
+        },
+        {
+          "value": "show_dots_on_mobile",
+          "label": "Show Dots on Mobile Only"
+
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "infinite",
+      "label": "Enable Infinite Loop",
+      "info": "Carousel loops back around after the last slide.",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Enable Autoplay",
+      "info": "Automatically rotate carousel slides.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autorotate_speed",
+      "label": "Autoplay Interval (seconds)",
+      "info": "Set how often slides switch automatically.",
+      "max": 6,
+      "min": 2,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Mobile Options"
+    },
+    {
+      "type": "range",
+      "id": "items_per_row_mobile",
+      "label": "Items per Row (Mobile)",
+      "info": "Number of products per row on mobile screens.",
+      "min": 1,
+      "max": 2,
+      "step": 0.5,
+      "default": 1.5
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product Block",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Select Product for this Hotspot"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Showcase",
+      	"category": "Products",
+      "blocks": [
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}{%- comment -%}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{%\r\n            render 'responsive-image',\r\n            class: '',\r\n
+    \           type: 'banner',\r\n            image: image,\r\n            image_alt:
+    image_alt,\r\n            styles: 'border-radius: ' | append: section_st.image_border_radius
+    | append: 'px;'\r\n          %}"
+  to: "{% render 'responsive-image', class: '', type: 'banner', image: image, image_alt:
+    image_alt, styles: 'border-radius: ', append: 'px;' %}"
+  position: 7391..7527
+- from: "{%-\r\n            render 'placeholder-render',\r\n            class: '',\r\n
+    \           styles: 'border-radius: ' | append: section_st.image_border_radius
+    | append: 'px;'\r\n          %}"
+  to: "{%- render 'placeholder-render', class: '', styles: 'border-radius: ', append:
+    'px;' %}"
+  position: 7559..7646
+{%- endcomment -%}

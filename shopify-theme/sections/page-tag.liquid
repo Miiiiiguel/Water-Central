@@ -1,0 +1,462 @@
+{% schema %}
+{
+  "name": "Page Tag",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Spacing Options",
+      "info": "Define the padding for the tag element."
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding (px)",
+      "info": "Set the top padding in pixels.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding (px)",
+      "info": "Set the bottom padding in pixels.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "label": "Left Padding (px)",
+      "info": "Set the left padding in pixels.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 25
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "label": "Right Padding (px)",
+      "info": "Set the right padding in pixels.",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 25
+    },
+    {
+      "type": "header",
+      "content": "Background Customization",
+      "info": "Adjust the background style of your tag."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Solid Background Color",
+      "info": "Choose a solid color for the tag background. (Gradient option available if enabled.)",
+      "default": "#000000"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_gradient_background",
+      "label": "Activate Gradient Background",
+      "info": "Enable this to use a gradient background.",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_1",
+      "label": "Gradient Color 1",
+      "info": "Pick the first color for the gradient.",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_2",
+      "label": "Gradient Color 2",
+      "info": "Pick the second color for the gradient.",
+      "default": "#222222"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_3",
+      "label": "Gradient Color 3",
+      "info": "Pick the third color for the gradient.",
+      "default": "#333333"
+    },
+    {
+      "type": "select",
+      "id": "gradient_angle",
+      "label": "Gradient Angle",
+      "info": "Select the angle for the gradient effect.",
+      "options": [
+        { "value": "0", "label": "0°" },
+        { "value": "30", "label": "30°" },
+        { "value": "45", "label": "45°" },
+        { "value": "60", "label": "60°" },
+        { "value": "90", "label": "90°" },
+        { "value": "120", "label": "120°" },
+        { "value": "180", "label": "180°" }
+      ],
+      "default": "90"
+    },
+    {
+      "type": "header",
+      "content": "Typography Options",
+      "info": "Customize font settings for the tag."
+    },
+    {
+      "type": "checkbox",
+      "id": "override_fonts",
+      "label": "Activate Custom Font",
+      "info": "Enable to override the default theme fonts.",
+      "default": false
+    },
+    {
+      "type": "font_picker",
+      "id": "text_font",
+      "label": "Choose Font Family",
+      "info": "Select a custom font for the tag text.",
+      "default": "sans-serif"
+    },
+    {
+      "type": "header",
+      "content": "Text Options",
+      "info": "Set up the text appearance for your tag."
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text Size (px)",
+      "info": "Set the text size in pixels (forced with !important).",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "default": 15,
+      "unit": "px"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "info": "Select the color for the text.",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Text Alignment",
+      "info": "Choose the alignment (affects rotation and positioning).",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        },
+        {
+          "value": "top-left",
+          "label": "Top Left"
+        },
+        {
+          "value": "top-right",
+          "label": "Top Right"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "right"
+    },
+    {
+      "type": "header",
+      "content": "Display Settings",
+      "info": "Select the devices on which the tag will appear."
+    },
+    {
+      "type": "select",
+      "id": "show_on_device",
+      "label": "Device Selection",
+      "info": "Choose which devices can view the tag.",
+      "options": [
+        {
+          "value": "all",
+          "label": "All Devices"
+        },
+        {
+          "value": "mobile",
+          "label": "Mobile Only"
+        },
+        {
+          "value": "desktop",
+          "label": "Desktop Only"
+        }
+      ],
+      "default": "all"
+    },
+    {
+      "type": "header",
+      "content": "Custom Desktop Position",
+      "info": "Set custom offsets for desktop view when using 'Custom' alignment."
+    },
+    {
+      "type": "number",
+      "id": "custom_top",
+      "label": "Desktop Top Offset (px)",
+      "info": "Specify the top offset for desktop view in pixels."
+    },
+    {
+      "type": "number",
+      "id": "custom_left",
+      "label": "Desktop Left Offset (px)",
+      "info": "Specify the left offset for desktop view in pixels."
+    },
+    {
+      "type": "number",
+      "id": "custom_right",
+      "label": "Desktop Right Offset (px)",
+      "info": "Specify the right offset for desktop view in pixels."
+    },
+    {
+      "type": "number",
+      "id": "custom_bottom",
+      "label": "Desktop Bottom Offset (px)",
+      "info": "Specify the bottom offset for desktop view in pixels."
+    },
+    {
+      "type": "header",
+      "content": "Custom Mobile Position",
+      "info": "Set custom offsets for mobile view when using 'Custom' alignment."
+    },
+    {
+      "type": "number",
+      "id": "custom_top_mobile",
+      "label": "Mobile Top Offset (px)",
+      "info": "Specify the top offset for mobile view in pixels."
+    },
+    {
+      "type": "number",
+      "id": "custom_left_mobile",
+      "label": "Mobile Left Offset (px)",
+      "info": "Specify the left offset for mobile view in pixels."
+    },
+    {
+      "type": "number",
+      "id": "custom_right_mobile",
+      "label": "Mobile Right Offset (px)",
+      "info": "Specify the right offset for mobile view in pixels."
+    },
+    {
+      "type": "number",
+      "id": "custom_bottom_mobile",
+      "label": "Mobile Bottom Offset (px)",
+      "info": "Specify the bottom offset for mobile view in pixels."
+    },
+    {
+      "type": "header",
+      "content": "Content Settings",
+      "info": "Define the tag's content and destination URL."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "text",
+      "label": "Tag Content",
+      "info": "Enter the content to display on the tag.",
+      "default": "20% OFF"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Tag URL",
+      "info": "Enter the URL that the tag should link to."
+    },
+    {
+      "type": "header",
+      "content": "SVG Icon Options",
+      "info": "Customize the SVG icon shown next to the tag text."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_svg_icon",
+      "label": "Activate SVG Icon",
+      "info": "Enable to display an SVG icon next to the tag text.",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "svg_code",
+      "label": "SVG Icon Code",
+      "info": "Insert your custom SVG code here. For inspiration or to use your own SVG, visit https://icons.getbootstrap.com/ .",
+      "default": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-wechat\" viewBox=\"0 0 16 16\">\n  <path d=\"M11.176 14.429c-2.665 0-4.826-1.8-4.826-4.018 0-2.22 2.159-4.02 4.824-4.02S16 8.191 16 10.411c0 1.21-.65 2.301-1.666 3.036a.32.32 0 0 0-.12.366l.218.81a.6.6 0 0 1 .029.117.166.166 0 0 1-.162.162.2.2 0 0 1-.092-.03l-1.057-.61a.5.5 0 0 0-.256-.074.5.5 0 0 0-.142.021 5.7 5.7 0 0 1-1.576.22M9.064 9.542a.647.647 0 1 0 .557-1 .645.645 0 0 0-.646.647.6.6 0 0 0 .09.353Zm3.232.001a.646.646 0 1 0 .546-1 .645.645 0 0 0-.644.644.63.63 0 0 0 .098.356\"/>\n  <path d=\"M0 6.826c0 1.455.781 2.765 2.001 3.656a.385.385 0 0 1 .143.439l-.161.6-.1.373a.5.5 0 0 0-.032.14.19.19 0 0 0 .193.193q.06 0 .111-.029l1.268-.733a.6.6 0 0 1 .308-.088q.088 0 .171.025a6.8 6.8 0 0 0 1.625.26 4.5 4.5 0 0 1-.177-1.251c0-2.936 2.785-5.02 5.824-5.02l.150.002C10.587 3.429 8.392 2 5.796 2 2.596 2 0 4.16 0 6.826m4.632-1.555a.77.77 0 1 1-1.54 0 .77.77 0 0 1 1.54 0m3.875 0a.77.77 0 1 1-1.54 0 .77.77 0 0 1 1.54 0\"/>\n</svg>"
+    },
+    {
+      "type": "range",
+      "id": "svg_icon_size_desktop",
+      "label": "SVG Icon Size - Desktop (px)",
+      "info": "Set the size of the SVG icon for desktop view.",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "svg_icon_size_mobile",
+      "label": "SVG Icon Size - Mobile (px)",
+      "info": "Set the size of the SVG icon for mobile view.",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "default": 20
+    }
+  ],
+  "blocks": [],
+  "presets": [
+    {
+      "name": "Page Tag",
+      "category": "Other"
+    }
+  ]
+}
+{% endschema %}
+<style>
+  {% if section.settings.override_fonts %}
+    {{ section.settings.text_font | font_face }}
+  {% endif %}
+
+  #loudecoms-{{ section.id }} {
+    position: fixed;
+    {% if section.settings.enable_gradient_background %}
+      background-image: linear-gradient({{ section.settings.gradient_angle }}deg, {{ section.settings.gradient_color_1 }}, {{ section.settings.gradient_color_2 }}, {{ section.settings.gradient_color_3 }});
+    {% else %}
+      background-color: {{ section.settings.background_color }};
+    {% endif %}
+    color: {{ section.settings.text_color }} !important;
+    margin: 0 auto;
+    padding: {{ section.settings.padding_top }}px {{ section.settings.padding_right }}px {{ section.settings.padding_bottom }}px {{ section.settings.padding_left }}px;
+    font-size: {{ section.settings.text_size }}px !important;
+    {% if section.settings.override_fonts %}
+      font-family: {{ section.settings.text_font.family }}, {{ section.settings.text_font.fallback_families }};
+      font-weight: {{ section.settings.text_font.weight }};
+    {% endif %}
+    line-height: 1.15;
+    cursor: pointer;
+    text-decoration: none;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    transition: all .25s;
+    z-index: 10;
+  }
+
+  {% if section.settings.show_on_device == 'mobile' %}
+    @media (min-width: 801px) {
+      #loudecoms-{{ section.id }} {
+        display: none;
+      }
+    }
+  {% endif %}
+
+  {% if section.settings.show_on_device == 'desktop' %}
+    @media (max-width: 800px) {
+      #loudecoms-{{ section.id }} {
+        display: none;
+      }
+    }
+  {% endif %}
+
+  #loudecoms-{{ section.id }}:hover {
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    transform: scale(1.02);
+  }
+
+  #loudecoms-{{ section.id }}.loudecoms-ptag-left {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    -webkit-transform-origin: 0 50%;
+       -moz-transform-origin: 0 50%;
+        -ms-transform-origin: 0 50%;
+         -o-transform-origin: 0 50%;
+            transform-origin: 0 50%;
+    -webkit-transform: rotate(-90deg) translate(-50%, 50%);
+       -moz-transform: rotate(-90deg) translate(-50%, 50%);
+        -ms-transform: rotate(-90deg) translate(-50%, 50%);
+         -o-transform: rotate(-90deg) translate(-50%, 50%);
+            transform: rotate(-90deg) translate(-50%, 50%);
+  }
+
+  #loudecoms-{{ section.id }}.loudecoms-ptag-right {
+    top: 50%;
+    right: 0;
+    -webkit-transform-origin: 100% 50%;
+       -moz-transform-origin: 100% 50%;
+        -ms-transform-origin: 100% 50%;
+         -o-transform-origin: 100% 50%;
+            transform-origin: 100% 50%;
+    -webkit-transform: rotate(90deg) translate(50%, 50%);
+       -moz-transform: rotate(90deg) translate(50%, 50%);
+        -ms-transform: rotate(90deg) translate(50%, 50%);
+         -o-transform: rotate(90deg) translate(50%, 50%);
+            transform: rotate(90deg) translate(50%, 50%);
+  }
+
+  #loudecoms-{{ section.id }}.loudecoms-ptag-top-left {
+    top: 0;
+    left: 10px;
+  }
+
+  #loudecoms-{{ section.id }}.loudecoms-ptag-top-right {
+    top: 0;
+    right: 10px;
+  }
+
+  @media only screen and (min-width: 801px) {
+    #loudecoms-{{ section.id }}.loudecoms-ptag-custom {
+      {% if section.settings.custom_top %}top: {{ section.settings.custom_top }}px;{% endif %}
+      {% if section.settings.custom_bottom %}bottom: {{ section.settings.custom_bottom }}px;{% endif %}
+      {% if section.settings.custom_left %}left: {{ section.settings.custom_left }}px;{% endif %}
+      {% if section.settings.custom_right %}right: {{ section.settings.custom_right }}px;{% endif %}
+    }
+  }
+
+  @media only screen and (max-width: 800px) {
+    #loudecoms-{{ section.id }}.loudecoms-ptag-custom {
+      {% if section.settings.custom_top_mobile %}top: {{ section.settings.custom_top_mobile }}px;{% endif %}
+      {% if section.settings.custom_bottom_mobile %}bottom: {{ section.settings.custom_bottom_mobile }}px;{% endif %}
+      {% if section.settings.custom_left_mobile %}left: {{ section.settings.custom_left_mobile }}px;{% endif %}
+      {% if section.settings.custom_right_mobile %}right: {{ section.settings.custom_right_mobile }}px;{% endif %}
+    }
+  }
+
+  #loudecoms-{{ section.id }} .loudecoms-svg-icon {
+    font-size: {{ section.settings.svg_icon_size_desktop }}px;
+    vertical-align: middle;
+    margin-right: 5px;
+  }
+
+  @media only screen and (max-width: 800px) {
+    #loudecoms-{{ section.id }} .loudecoms-svg-icon {
+      font-size: {{ section.settings.svg_icon_size_mobile }}px;
+    }
+  }
+</style>
+
+<a
+  id="loudecoms-{{ section.id }}"
+  class="loudecoms-ptag loudecoms-ptag-{{ section.settings.alignment }}"
+  href="{{ section.settings.link }}"
+>
+  {% if section.settings.enable_svg_icon %}
+    <span class="loudecoms-svg-icon">
+      {{ section.settings.svg_code }}
+    </span>
+  {% endif %}
+  {{ section.settings.text }}
+</a>

@@ -1,0 +1,802 @@
+
+
+{% liquid
+  assign container = section.settings.container
+  if container == 'w-full'
+    assign container = 'container-full'
+  endif
+
+  assign classes = 'm-section m-scrolling-image-section'
+  if section.settings.custom_class != blank
+    assign classes = classes | append: ' ' | append: section.settings.custom_class
+  endif
+  assign classes = classes | append: ' m-color-' | append: section.settings.color_scheme
+
+  if section.settings.make_images_square
+    assign classes = classes | append: ' make-images-square'
+  endif
+%}
+
+<style>
+  /* Dynamically import the selected Google Font if custom font is enabled */
+  {% if section.settings.enable_custom_font and section.settings.font_family != blank %}
+    {% assign first_font = section.settings.font_family | split: ',' | first | strip | remove: "'" | remove: '"' | replace: ' ', '+' %}
+    @import url('https://fonts.googleapis.com/css2?family={{ first_font }}&display=swap');
+  {% endif %}
+
+  /* Scoped CSS: All styles are prefixed with the unique section ID */
+  #m-section--{{ section.id }} {
+    /* CSS Variables */
+    --section-padding-top: {{ section.settings.padding_top }}px;
+    --section-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --item-gap: {{ section.settings.item_gap }}px;
+    --item-gap-mobile: {{ section.settings.item_gap_mobile }}px;
+    --duration: {{ section.settings.speed }}s;
+    --duration_second: {{ section.settings.speed_second_scrolling }}s; /* Added for second scrolling */
+    --slider-scale: {{ section.settings.slider_scale }};
+    --gradient-start-color: {{ section.settings.gradient_start_color }};
+    --gradient-middle-color: {{ section.settings.gradient_middle_color }};
+    --gradient-end-color: {{ section.settings.gradient_end_color }};
+    --gradient-degree: {{ section.settings.gradient_degree }};
+    --image-border-radius: {{ section.settings.image_border_radius }}px !important;
+    --slider-scale-mobile: {{ section.settings.overall_size_mobile }};
+    --duration-mobile: {{ section.settings.speed_mobile }}s;
+    --duration-second-mobile: {{ section.settings.speed_second_scrolling_mobile | default: section.settings.speed_second_scrolling }}s; /* Added for second scrolling mobile */
+    --scroll-gap: {{ section.settings.scroll_gap }}px; /* New CSS variable for gap between scrollings */
+
+    /* Font Family Handling */
+    {% if section.settings.enable_custom_font %}
+      --font-family: "{{ section.settings.font_family }}";
+    {% else %}
+      --font-family: inherit;
+    {% endif %}
+    font-family: var(--font-family); /* Apply font family to the entire section */
+
+    background-color: {{ section.settings.background_color }};
+    padding-top: var(--section-padding-top);
+    padding-bottom: var(--section-padding-bottom);
+    width: 100%; /* Ensure full width */
+    box-sizing: border-box;
+    text-align: center; /* Center content by default */
+    position: relative; /* Needed for fading panels */
+  }
+
+  /* Container for the scrolling image section */
+  #m-section--{{ section.id }} .m-scrolling-image {
+    display: flex; /* Aligns items horizontally */
+    border-radius: var(--image-border-radius, 10px) !important; /* Default is 10px */
+    align-items: center; /* Vertically centers the items */
+    overflow: hidden; /* Hides content that overflows the container */
+    position: relative; /* Ensure fading panels are positioned correctly */
+    transform: scale(var(--slider-scale));
+  }
+
+  /* Apply margin between scrolling images if second scrolling is enabled */
+  #m-section--{{ section.id }} .m-scrolling-image + .m-scrolling-image {
+    margin-top: var(--scroll-gap);
+    border-radius: var(--image-border-radius, 10px) !important; /* Default is 10px */
+  }
+
+  /* Removed Headline Title and Subheading Styles */
+
+  /* Responsive Adjustments for Headline and Subheading Sizes */
+  /* Removed related media queries */
+
+  /* Applies scrolling animation to the image items based on scroll direction */
+  #m-section--{{ section.id }} .m-scrolling-image--left .m-image--animated {
+    animation-name: scrolling-left-{{ section.id }}; /* Uses the unique keyframe animation */
+    animation-duration: var(--duration); /* Desktop speed */
+  }
+
+  #m-section--{{ section.id }} .m-scrolling-image--right .m-image--animated {
+    animation-name: scrolling-right-{{ section.id }}; /* Uses the unique keyframe animation */
+    animation-duration: var(--duration); /* Desktop speed */
+  }
+
+  /* Second Scrolling Image Animation */
+  #m-section--{{ section.id }} .m-scrolling-image-second--left .m-image--animated {
+    animation-name: scrolling-left-{{ section.id }}; /* Uses the unique keyframe animation */
+    animation-duration: var(--duration_second); /* Desktop speed for second scrolling */
+  }
+
+  #m-section--{{ section.id }} .m-scrolling-image-second--right .m-image--animated {
+    animation-name: scrolling-right-{{ section.id }}; /* Uses the unique keyframe animation */
+    animation-duration: var(--duration_second); /* Desktop speed for second scrolling */
+  }
+
+  /* Controls animation play state based on hover and paused state */
+  #m-section--{{ section.id }} .m-scrolling-image--pause-on-hover:hover .m-image--animated {
+    animation-play-state: paused; /* Pauses animation on hover if enabled */
+  }
+
+  #m-section--{{ section.id }} .m-scrolling-image--paused .m-image--animated {
+    animation-play-state: paused; /* Pauses animation when manually paused */
+  }
+
+  /* Keeps animation running continuously when not paused */
+  #m-section--{{ section.id }} .m-scrolling-image .m-image--animated {
+    animation-play-state: running;
+  }
+
+  /* Removes padding for the full container inside the scrolling image section */
+  #m-section--{{ section.id }} .container-full {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* Image container styles */
+  #m-section--{{ section.id }} .m-image-container {
+    display: flex;
+    border-radius: var(--image-border-radius, 10px) !important; /* Default is 10px */
+    gap: var(--item-gap, 50px); /* Desktop gap */
+  }
+
+  /* Styles for individual image items */
+  #m-section--{{ section.id }} .m-image__item {
+    width: {{ section.settings.image_width | default: 340 }}px;
+    height: {{ section.settings.image_height | default: 250 }}px;
+    display: flex; /* Aligns items horizontally */
+    box-sizing: border-box;
+    padding: 20px;
+    border-radius: var(--image-border-radius, 10px) !important;
+    margin: 0 calc(var(--item-gap) / 2); /* Adds consistent spacing */
+  }
+
+  /* Image styling */
+  #m-section--{{ section.id }} .m-image__item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--image-border-radius, 10px) !important;
+    transition: transform 0.3s ease-in-out; /* Smooth transition for zoom effect */
+    margin: 0px calc(var(--item-gap) / 2); /* Adds consistent spacing */
+  }
+
+  /* Media query: Adjusts styles for mobile devices */
+  @media screen and (max-width: 749px) {
+    #m-section--{{ section.id }} .m-image-container {
+      gap: var(--item-gap-mobile, 20px); /* Mobile item gap */
+    }
+
+    #m-section--{{ section.id }} .m-image__item {
+      width: calc({{ section.settings.image_width }}px * var(--slider-scale-mobile));
+      height: calc({{ section.settings.image_height }}px * var(--slider-scale-mobile));
+      margin: 0 calc(var(--item-gap-mobile) / 2); /* Adjusts margin based on mobile gap */
+    }
+
+    /* Adjust image size based on the slider */
+    #m-section--{{ section.id }} .m-image__item img {
+      transform: scale(var(--image_scale_mobile, 1)); /* Applies mobile scaling */
+    }
+
+    /* Animation duration for mobile */
+    #m-section--{{ section.id }} .m-image--animated {
+      animation-duration: var(--duration-mobile) !important;
+    }
+
+    /* Second Scrolling Image Animation for Mobile */
+    #m-section--{{ section.id }} .m-scrolling-image-second--left .m-image--animated,
+    #m-section--{{ section.id }} .m-scrolling-image-second--right .m-image--animated {
+      animation-duration: var(--duration-second-mobile) !important;
+    }
+
+    /* If Make Images Square is enabled, override mobile image sizes */
+    #m-section--{{ section.id }}.make-images-square .m-image__item {
+      width: calc(200px * var(--slider-scale-mobile));
+      height: calc(200px * var(--slider-scale-mobile));
+    }
+  }
+
+  /* Animation properties for animated image items */
+  #m-section--{{ section.id }} .m-image--animated {
+    animation-iteration-count: infinite; /* Animation repeats indefinitely */
+    animation-timing-function: linear; /* Creates a smooth animation */
+    animation-duration: var(--duration); /* Sets animation duration */
+    animation-play-state: running; /* Keeps animation running */
+    width: max-content; /* Adjusts width based on content */
+    will-change: transform, width; /* Optimizes animation performance */
+    display: flex;
+    gap: var(--item-gap, 50px); /* Ensures gap consistency */
+  }
+
+  /* Keyframe animation for scrolling left */
+  @keyframes scrolling-left-{{ section.id }} {
+    0% {
+      transform: translate3d(0, 0, 0); /* Starts at original position */
+      visibility: visible; /* Ensures visibility */
+    }
+    100% {
+      transform: translate3d(-100%, 0, 0); /* Moves the content left by 100% */
+    }
+  }
+
+  /* Keyframe animation for scrolling right */
+  @keyframes scrolling-right-{{ section.id }} {
+    0% {
+      transform: translate3d(-100%, 0, 0); /* Starts off-screen to the left */
+      visibility: visible; /* Ensures visibility */
+    }
+    100% {
+      transform: translate3d(0, 0, 0); /* Moves the content right to its original position */
+    }
+  }
+
+  /* Image Format Styles */
+  /* Original - No restrictions, no specific styles */
+  #m-section--{{ section.id }} .image-format-original {
+    /* No changes */
+  }
+
+  /* 200x300 */
+  #m-section--{{ section.id }} .image-format-200x300 {
+    width: 200px;
+    height: 300px;
+  }
+
+  /* Square (1:1 Ratio) */
+  #m-section--{{ section.id }} .image-format-square {
+    aspect-ratio: 1 / 1;
+  }
+
+  /* Circle */
+  #m-section--{{ section.id }} .image-format-circle {
+    border-radius: 50%;
+  }
+
+  /* Full-Width */
+  #m-section--{{ section.id }} .image-format-full-width {
+    width: 100%;
+    height: auto;
+  }
+
+  /* Contain */
+  #m-section--{{ section.id }} .image-format-contain {
+    object-fit: contain;
+  }
+
+  /* Cover */
+  #m-section--{{ section.id }} .image-format-cover {
+    object-fit: cover;
+  }
+
+  /* Landscape (16:9) */
+  #m-section--{{ section.id }} .image-format-landscape {
+    aspect-ratio: 16 / 9;
+  }
+
+  /* Portrait (4:5) */
+  #m-section--{{ section.id }} .image-format-portrait {
+    aspect-ratio: 4 / 5;
+  }
+
+  /* Thumbnail (150x150) */
+  #m-section--{{ section.id }} .image-format-thumbnail {
+    width: 150px;
+    height: 150px;
+  }
+
+  /* Wide (4:3 Ratio) */
+  #m-section--{{ section.id }} .image-format-wide {
+    aspect-ratio: 4 / 3;
+  }
+
+  /* Tall (3:4 Ratio) */
+  #m-section--{{ section.id }} .image-format-tall {
+    aspect-ratio: 3 / 4;
+  }
+
+  /* Hexagon */
+  #m-section--{{ section.id }} .image-format-hexagon {
+    clip-path: polygon(
+      25% 5%,
+      75% 5%,
+      100% 50%,
+      75% 95%,
+      25% 95%,
+      0% 50%
+    );
+  }
+
+  /* Rounded Corners */
+  #m-section--{{ section.id }} .image-format-rounded-corners {
+    border-radius: 15px;
+  }
+
+  /* Hover Flip */
+  #m-section--{{ section.id }} .image-format-hover-flip {
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+  }
+
+  #m-section--{{ section.id }} .image-format-hover-flip:hover {
+    transform: rotateY(180deg);
+  }
+
+  /* Make Images Square Styles */
+  #m-section--{{ section.id }}.make-images-square .m-image__item {
+    width: 200px;
+    height: 200px;
+  }
+
+  #m-section--{{ section.id }}.make-images-square .m-image__item img {
+    width: 100%;
+    border-radius: var(--image-border-radius, 10px); /* Default is 10px */
+    height: 100%;
+    object-fit: cover;
+  }
+
+  #m-section--{{ section.id }}.make-images-square .m-image__item {
+    width: calc(200px * var(--slider-scale));
+    height: calc(200px * var(--slider-scale));
+    border-radius: var(--image-border-radius, 10px); /* Default is 10px */
+  }
+
+  @media screen and (max-width: 749px) {
+    #m-section--{{ section.id }}.make-images-square .m-image__item {
+      width: calc(200px * var(--slider-scale-mobile));
+      height: calc(200px * var(--slider-scale-mobile));
+      border-radius: var(--image-border-radius, 10px); /* Default is 10px */
+    }
+  }
+</style>
+
+<section
+  id="m-section--{{ section.id }}"
+  class="{{ classes }}"
+  data-section-type="scrolling-image"
+  data-section-id="{{ section.id }}"
+  data-pause-on-hover="{{ section.settings.pause_on_hover }}"
+>
+  <div class="{{ container }} m-section-py">
+    <!-- Headline Title Removed -->
+    <!-- Subheading Removed -->
+
+    <!-- First Scrolling Image -->
+    <m-scrolling-image
+      class="m-scrolling-image m-scrolling-image--{{ section.settings.direction }}{% if section.settings.pause_on_hover %} m-scrolling-image--pause-on-hover{% endif %}"
+      data-pause-on-hover="{{ section.settings.pause_on_hover }}"
+    >
+      <div class="m-image-container">
+        {% assign first_limit = section.settings.enable_second_scrolling %}
+        {% if section.settings.enable_second_scrolling %}
+          {% assign first_limit = 5 %}
+        {% else %}
+          {% assign first_limit = section.blocks.size %}
+        {% endif %}
+
+        {% for block in section.blocks limit: first_limit %}
+          {%- case block.type -%}
+            {%- when 'image_block' -%}
+              <div class="m-image__item">
+                {% if block.settings.image %}
+                  <img
+                    class="image-format-{{ section.settings.image_format | handleize }}"
+                    src="{{ block.settings.image | img_url: '800x600' }}"
+                    alt="Scrolling Image"
+                  >
+                {% else %}
+                  <img
+                    class="image-format-{{ section.settings.image_format | handleize }}"
+                    src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+                    alt="Placeholder Image"
+                  >
+                {% endif %}
+              </div>
+          {%- endcase -%}
+        {% endfor %}
+      </div>
+    </m-scrolling-image>
+
+    <!-- Second Scrolling Image (if enabled) -->
+    {% if section.settings.enable_second_scrolling %}
+      <m-scrolling-image
+        class="m-scrolling-image m-scrolling-image--{{ section.settings.second_direction }} m-scrolling-image-second m-scrolling-image-second--{{ section.settings.second_direction }}{% if section.settings.pause_on_hover %} m-scrolling-image--pause-on-hover{% endif %}"
+        data-pause-on-hover="{{ section.settings.pause_on_hover }}"
+      >
+        <div class="m-image-container">
+          {% assign second_limit = 5 %}
+          {% assign second_offset = 5 %}
+          {% for block in section.blocks offset: second_offset limit: second_limit %}
+            {%- case block.type -%}
+              {%- when 'image_block' -%}
+                <div class="m-image__item">
+                  {% if block.settings.image %}
+                    <img
+                      class="image-format-{{ section.settings.image_format | handleize }}"
+                      src="{{ block.settings.image | img_url: '800x600' }}"
+                      alt="Scrolling Image"
+                    >
+                  {% else %}
+                    <img
+                      class="image-format-{{ section.settings.image_format | handleize }}"
+                      src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+                      alt="Placeholder Image"
+                    >
+                  {% endif %}
+                </div>
+            {%- endcase -%}
+          {% endfor %}
+        </div>
+      </m-scrolling-image>
+    {% endif %}
+
+    <!-- Fading Panels Removed -->
+  </div>
+</section>
+
+<script>
+  // Scoped JavaScript: Ensures scripts target only elements within this section
+  (function() {
+    const sectionId = "{{ section.id }}";
+    const section = document.getElementById("m-section--" + sectionId);
+
+    if (!section) return;
+
+    // Check if the custom element "m-scrolling-image" is already defined
+    if (!customElements.get("m-scrolling-image")) {
+
+      /**
+       * Class definition for the custom HTML element <m-scrolling-image>.
+       */
+      class MScrollingImage extends HTMLElement {
+
+        // Constructor for the MScrollingImage class
+        constructor() {
+          super();
+        }
+
+        /**
+         * Called when the element is connected to the DOM.
+         * Initializes the image element and its functionality.
+         */
+        connectedCallback() {
+          this.imageContainer = this.querySelector(".m-image-container");
+          this.pauseOnHover = this.getAttribute('data-pause-on-hover') === 'true';
+          this.init();
+        }
+
+        /**
+         * Initializes the image element.
+         * If there is only one child element, it adds multiple clones
+         * to create a continuous scrolling effect.
+         */
+        init() {
+          if (this.imageContainer && this.imageContainer.children.length > 0) {
+            // Add a class to start animation on the image container
+            this.imageContainer.classList.add("m-image--animated");
+
+            // Create multiple clones of the image container for smooth scrolling
+            this.createClones();
+
+            // Setup pause on hover functionality if enabled
+            if (this.pauseOnHover) {
+              this.setupPauseOnHover();
+            }
+
+            // Start scrolling the image container
+            this.scrollingPlay();
+          }
+        }
+
+        /**
+         * Creates multiple clones of the image container to ensure continuous scrolling.
+         */
+        createClones() {
+          const cloneCount = 10; // Adjust the number of clones as needed
+          for (let index = 0; index < cloneCount; index++) {
+            // Clone the image container
+            const clone = this.imageContainer.cloneNode(true);
+
+            // Mark the clone as hidden for accessibility purposes
+            clone.setAttribute("aria-hidden", true);
+
+            // Append the clone to the image container
+            this.appendChild(clone);
+          }
+        }
+
+        /**
+         * Keeps the scrolling functionality always active by removing any paused state.
+         */
+        scrollingPlay() {
+          this.classList.remove("m-scrolling-image--paused");
+        }
+
+        /**
+         * A placeholder function for pausing scrolling.
+         * It is intentionally left empty to prevent pausing.
+         */
+        scrollingPause() {
+          // This function is intentionally empty
+        }
+
+        /**
+         * Sets up event listeners to pause and resume scrolling on hover.
+         */
+        setupPauseOnHover() {
+          this.addEventListener('mouseenter', () => {
+            this.classList.add('m-scrolling-image--paused');
+          });
+
+          this.addEventListener('mouseleave', () => {
+            this.classList.remove('m-scrolling-image--paused');
+          });
+        }
+      }
+
+      // Define the custom HTML element <m-scrolling-image> with the MScrollingImage class
+      customElements.define("m-scrolling-image", MScrollingImage);
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Scrolling Images",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Settings",
+      "info": "Configure the overall section settings including layout and appearance."
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "Custom CSS Classes",
+      "info": "Add custom CSS classes for additional styling."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "info": "Select a color scheme for the section."
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding Top",
+      "default": 30,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "info": "Set the top padding of the section."
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding Bottom",
+      "default": 30,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "info": "Set the bottom padding of the section."
+    },
+    {
+      "type": "range",
+      "id": "slider_scale",
+      "label": "Overall Images Size (Desktop)",
+      "default": 1,
+      "min": 0.5,
+      "max": 2,
+      "step": 0.1,
+      "info": "Adjust the overall size of the images on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "overall_size_mobile",
+      "label": "Overall Images Size (Mobile)",
+      "min": 0.5,
+      "max": 2,
+      "step": 0.1,
+      "default": 0.9,
+      "info": "Adjust the overall size of the images on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "scroll_gap",
+      "label": "Gap Between Scrollings",
+      "min": -50,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "default": -20,
+      "info": "Set the gap between the first and second scrolling images."
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "Pause images on hover",
+      "default": true,
+      "info": "Pause the scrolling animation when a user hovers over the images."
+    },
+    {
+      "type": "header",
+      "content": "Animation Settings",
+      "info": "Configure the animation speed and directions for scrolling images."
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Speed Values (First Scrolling)",
+      "min": 0,
+      "max": 200,
+      "unit": "s",
+      "step": 2,
+      "default": 176,
+      "info": "Set the animation speed for the first scrolling images."
+    },
+    {
+      "type": "range",
+      "id": "speed_mobile",
+      "label": "Speed Values (Mobile Version)",
+      "min": 0,
+      "max": 200,
+      "unit": "s",
+      "step": 2,
+      "default": 26,
+      "info": "Set the animation speed for the first scrolling images on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "image_width",
+      "label": "Image Width",
+      "default": 170,
+      "min": 100,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "info": "Adjust the width of the images."
+    },
+    {
+      "type": "range",
+      "id": "image_height",
+      "label": "Image Height",
+      "default": 110,
+      "min": 100,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "info": "Adjust the height of the images."
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "label": "Image Border Radius",
+      "default": 10,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "info": "Adjust the border radius of images."
+    },
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "Scroll Direction",
+      "options": [
+        {
+          "label": "Left direction",
+          "value": "left"
+        },
+        {
+          "label": "Right direction",
+          "value": "right"
+        }
+      ],
+      "default": "right",
+      "info": "Select the scroll direction for the first scrolling images."
+    },
+    {
+      "type": "range",
+      "id": "speed_second_scrolling",
+      "label": "Speed Values (Second Scrolling)",
+      "min": 1,
+      "max": 100,
+      "unit": "s",
+      "step": 1,
+      "default": 47,
+      "info": "Set the animation speed for the second scrolling images."
+    },
+    {
+      "type": "select",
+      "id": "second_direction",
+      "label": "Scroll Direction for Second Scrolling",
+      "options": [
+        {
+          "label": "Left direction",
+          "value": "left"
+        },
+        {
+          "label": "Right direction",
+          "value": "right"
+        }
+      ],
+      "default": "left",
+      "info": "Select the scroll direction for the second scrolling images."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_second_scrolling",
+      "label": "Enable Second Scrolling",
+      "default": false,
+      "info": "Enable a second set of scrolling images."
+    },
+    {
+      "type": "header",
+      "content": "Gap Settings",
+      "info": "Configure the gaps between items and sections."
+    },
+    {
+      "type": "range",
+      "id": "item_gap",
+      "label": "Desktop Device Item Gap",
+      "default": 20,
+      "min": -20,
+      "max": 180,
+      "step": 2,
+      "unit": "px",
+      "info": "Set the gap between image items on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "item_gap_mobile",
+      "label": "Mobile Device Item Gap",
+      "default": -20,
+      "min": -40,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "info": "Set the gap between image items on mobile devices."
+    },
+    {
+      "type": "checkbox",
+      "id": "make_images_square",
+      "label": "Make Images Square",
+      "default": false,
+      "info": "Toggle to make all images square (200x200)."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image_block",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Upload an image to display in the carousel. If left blank, a default placeholder image will be used."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Scrolling Images",
+      "category": "Other",
+      "blocks": [
+        {
+          "type": "image_block"
+        },
+        {
+          "type": "image_block"
+        },
+        {
+          "type": "image_block"
+        },
+        {
+          "type": "image_block"
+        },
+        {
+          "type": "image_block"
+        },
+        {
+          "type": "image_block"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

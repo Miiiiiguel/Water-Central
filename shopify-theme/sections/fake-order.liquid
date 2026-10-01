@@ -1,0 +1,833 @@
+{%- liquid
+  assign st = section.settings
+  assign list_product_fake = st.fake_product
+  assign product_available = list_product_fake | where: 'available'
+  assign products = product_available.first
+
+  assign delay_time = st.delay_time
+  assign display_time = st.display_time
+
+  assign hidden_mobile = st.hidden_mobile_fake_order
+  assign show_fake_order = st.show_fake_order
+  assign background_color = st.background_color
+  assign text_color = st.text_color
+  assign progress_bar_color = st.progress_bar_color
+
+  assign animation_duration = st.animation_duration
+  assign position = st.position
+  assign show_gap_seconds = st.show_gap_seconds
+  assign border_radius = st.border_radius
+
+  assign show_on_mobile = st.show_on_mobile_fake_order
+  assign disable_progress_bar = st.disable_progress_bar
+  assign notification_animation = st.notification_animation
+
+  assign enable_gradient = st.enable_gradient
+  assign gradient_start_color = st.gradient_start_color
+  assign gradient_middle_color = st.gradient_middle_color
+  assign gradient_end_color = st.gradient_end_color
+  assign gradient_degrees = st.gradient_degrees
+
+  assign verify_text_url = st.verify_text_url
+
+  if hidden_mobile == null
+    assign hidden_mobile = false
+  endif
+  if show_fake_order == null
+    assign show_fake_order = false
+  endif
+
+  assign list_user = st.fake_user
+  assign list_user = list_user | replace: ' | ', '|'
+  assign list_user = list_user | replace: ' |', '|'
+  assign list_user = list_user | replace: '| ', '|'
+  assign list_user = list_user | split: '|'
+-%}
+
+{%- if product_available.size > 0 -%}
+  <style>
+    /* Scoped Styles for Fake Order Section */
+    .bls-fake-order-section-{{ section.id }} {
+      position: fixed;
+      z-index: 999;
+      padding: 10px;
+      border-radius: {{ border_radius }}px;
+      font-size: calc(var(--base-font-size) - 2px);
+      box-shadow: 0px 5px 30px rgba(0, 0, 0, 0.05);
+      transition: all {{ animation_duration }}ms ease;
+      color: {{ text_color }};
+
+      {% if st.enable_glassmorphism %}
+        background: rgba(255, 255, 255, 0.4);
+        filter: brightness({{ st.glassmorphism_brightness }});
+        backdrop-filter: blur({{ st.glassmorphism_blur }}px);
+        -webkit-backdrop-filter: blur({{ st.glassmorphism_blur }}px);
+        border: {{ st.glassmorphism_border_width }}px solid {{ st.glassmorphism_border_color }};
+      {% elsif enable_gradient %}
+        background: linear-gradient({{ gradient_degrees }}deg, {{ gradient_start_color }}, {{ gradient_middle_color }}, {{ gradient_end_color }});
+      {% else %}
+        background-color: {{ background_color }};
+      {% endif %}
+
+      width: 42rem;
+      max-width: 120%;
+      min-height: 10rem;
+      left: {% if position == 'right' %}unset{% else %}30px{% endif %};
+      right: {% if position == 'right' %}35px{% else %}unset{% endif %};
+      bottom: 33px;
+      display: none; /* Initially hidden */
+
+      {% if notification_animation == 'None' %}
+        /* No animation */
+      {% elsif notification_animation == 'Fade-in Fade Out' %}
+        animation: fadeInFadeOut {{ animation_duration }}ms forwards;
+      {% elsif notification_animation == 'Zoom in - Zoom Out' %}
+        animation: zoomInZoomOut {{ animation_duration }}ms forwards;
+      {% elsif notification_animation == 'Fade Up - Fade Down' %}
+        animation: fadeUpFadeDown {{ animation_duration }}ms forwards;
+      {% elsif notification_animation == 'Slide In - Slide Out' %}
+        animation: slideInSlideOut {{ animation_duration }}ms forwards;
+      {% elsif notification_animation == 'Normal Original Animation' %}
+        /* Original animation */
+        animation: bls-fake-order-{{ section.id }} {{ animation_duration }}ms ease;
+      {% elsif notification_animation == 'Reveal In - Reveal Out' %}
+        animation: revealInRevealOut {{ animation_duration }}ms forwards;
+      {% endif %}
+    }
+
+    .bls-fake-order-section-{{ section.id }}.hidden-mobile {
+      display: none;
+    }
+
+    .bls-fake-order-section-{{ section.id }} .fake-order-close path {
+      fill: {{ st.close_button_color }};
+      transition: fill 0.3s ease-in-out;
+    }
+    .bls-fake-order-section-{{ section.id }} .fake-order-close:hover path {
+      fill: darken({{ st.close_button_color }}, 20%);
+    }
+
+    .bls-fake-order-section-{{ section.id }} .product-fake-order {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    /* Ensure the SVG icon color updates dynamically */
+    .bls-fake-order-section-{{ section.id }} .verify-arrow path {
+      stroke: {{ st.verify_text_color }};
+      transition: stroke 0.3s ease-in-out;
+    }
+    .bls-fake-order-section-{{ section.id }} .text-verify:hover .verify-arrow path {
+      stroke: {{ st.verify_text_hover_color }};
+    }
+    .verify-arrow {
+      width: 15px;
+      height: 15px;
+      margin-bottom: 1px;
+      margin-right: 3px;
+    }
+
+    /* Product Name Title underline toggle */
+    .bls-fake-order-section-{{ section.id }} .product-order-title a {
+      text-decoration: {% if st.enable_underline_product_name_title %}underline{% else %}none{% endif %};
+      display: block;
+      font-size: var(--base-font-size);
+      line-height: 1.5;
+      width: 100%;
+      text-align: left;
+      margin: 0 0 0.7rem;
+      font-weight: 600 !important;
+      color: var(--heading-color);
+    }
+
+    .bls-fake-order-section-{{ section.id }} .minutes-ago {
+      display: inline-flex;
+      margin-bottom: 0;
+      margin-right: 15px;
+      color: {{ text_color }};
+    }
+
+    /* VERIFY TEXT */
+    .bls-fake-order-section-{{ section.id }} .text-verify {
+      text-transform: capitalize;
+      display: inline-flex;
+      align-items: center;
+      gap: 0 4px;
+      text-decoration: none !important;
+      color: {{ st.verify_text_color }};
+      cursor: pointer;
+    }
+    .bls-fake-order-section-{{ section.id }} .text-verify:hover {
+      color: {{ st.verify_text_hover_color }};
+      text-decoration: none;
+    }
+
+    /* Close button */
+    .bls-fake-order-section-{{ section.id }} .fake-order-close {
+      position: absolute;
+      top: 10px;
+      right: 8px;
+      cursor: pointer;
+      width: 17px;
+      height: 17px;
+    }
+    .bls-fake-order-section-{{ section.id }} .fake-order-close svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .bls-fake-order-section-{{ section.id }} [data-img] {
+      border-radius: 5px;
+      width: 60px;
+      height: 80px;
+      object-fit: cover;
+    }
+
+    .bls-fake-order-section-{{ section.id }} .user-purchase {
+      color: #111111;
+    }
+
+    .bls-fake-order-section-{{ section.id }} .fake-list {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+    }
+
+    {% unless disable_progress_bar %}
+      .bls-fake-order-section-{{ section.id }} .fake-order-progressbar {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 2px;
+        width: 100%;
+        z-index: 1;
+        box-shadow: 0px 7px 30px rgba(0, 0, 0, 0.05);
+        border-radius: 5px;
+        overflow: hidden;
+        background: #e0e0e0;
+      }
+      .bls-fake-order-section-{{ section.id }} .fake-order-progressbar span {
+        display: block;
+        height: 100%;
+        width: 0;
+        border-radius: 0 0 3px 3px;
+        background: {{ progress_bar_color }};
+        animation: bls-progressbar-{{ section.id }} linear forwards;
+      }
+    {% endunless %}
+
+    .bls-fake-order-section-{{ section.id }} .w-60 {
+      width: 60px;
+    }
+    .bls-fake-order-section-{{ section.id }} .h-80 {
+      height: 80px;
+    }
+
+    @keyframes bls-progressbar-{{ section.id }} {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+
+    /* Notification Animations */
+    @keyframes fadeInFadeOut {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    @keyframes zoomInZoomOut {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(0); opacity: 0; }
+    }
+    @keyframes fadeUpFadeDown {
+      0% { opacity: 0; transform: translateY(20px); }
+      10% { opacity: 1; transform: translateY(0); }
+      90% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(20px); }
+    }
+    @keyframes slideInSlideOut {
+      0% { transform: translateX(100%); opacity: 0; }
+      10% { transform: translateX(0); opacity: 1; }
+      90% { transform: translateX(0); opacity: 1; }
+      100% { transform: translateX(100%); opacity: 0; }
+    }
+    @keyframes revealInRevealOut {
+      0% { clip-path: inset(0 100% 0 0); opacity: 0; }
+      10% { clip-path: inset(0 0 0 0); opacity: 1; }
+      90% { clip-path: inset(0 0 0 0); opacity: 1; }
+      100% { clip-path: inset(0 100% 0 0); opacity: 0; }
+    }
+
+    @media (max-width: 767px) {
+      .bls-fake-order-section-{{ section.id }} {
+        left: {% if position == 'right' %}unset{% else %}1.4px{% endif %};
+        right: {% if position == 'right' %}20px{% else %}unset{% endif %};
+        transform: scale(0.85);
+        transform-origin: bottom center;
+        bottom: 73px;
+      }
+    }
+
+    @media (max-width: 575px) {
+      {% if show_on_mobile == false %}
+        .bls-fake-order-section-{{ section.id }} {
+          display: none !important;
+        }
+      {% endif %}
+    }
+  </style>
+
+  <div
+    id="bls__fake-order-{{ section.id }}"
+    class="bls-fake-order-section-{{ section.id }} fake-order {% unless show_on_mobile %}hidden-mobile{% endunless %}"
+    data-section-id="{{ section.id }}"
+    data-time-delay="{{ delay_time }}"
+    data-show-gap="{{ show_gap_seconds }}"
+    data-anim-duration="{{ animation_duration }}"
+  >
+    {%- if st.enable_close_button %}
+      <a role="button" class="fake-order-close" aria-label="close fake order">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g id="SVGRepo_iconCarrier">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M5.29289 5.29289C5.68342 4.90237 6.31658 4.90237 6.70711 5.29289L12 10.5858L17.2929 5.29289C17.6834 4.90237 18.3166 4.90237 18.7071 5.29289C19.0976 5.68342 19.0976 6.31658 18.7071 6.70711L13.4142 12L18.7071 17.2929C19.0976 17.6834 19.0976 18.3166 18.7071 18.7071C18.3166 19.0976 17.6834 19.0976 17.2929 18.7071L12 13.4142L6.70711 18.7071C6.31658 19.0976 5.68342 19.0976 5.29289 18.7071C4.90237 18.3166 4.90237 17.6834 5.29289 17.2929L10.5858 12L5.29289 6.70711C4.90237 6.31658 4.90237 5.68342 5.29289 5.29289Z" fill="{{ st.close_button_color }}"></path>
+          </g>
+        </svg>
+      </a>
+    {%- endif %}
+
+    <div class="product-fake-order">
+      <div class="fake-order-image">
+        {%- if products.featured_image != blank -%}
+          <a href="{{ products.url }}" data-url>
+            <img
+              data-img
+              src="{{ products.featured_image | image_url }}"
+              alt="{{ products.title }}"
+              loading="lazy"
+            >
+          </a>
+        {%- else -%}
+          <a href="#" data-url>
+            {%- render 'responsive-image', cls: 'w-60 h-80' -%}
+          </a>
+        {%- endif -%}
+      </div>
+
+      <div class="fake-order-info">
+        <div class="fake-list">
+          <span data-user class="user-purchase">{{ list_user[0] }}</span>
+          <span style="color: #666666;">{{ 'fake_order.purchased' | t }}</span>
+        </div>
+
+        <div class="product-order-title">
+          <a href="#" data-url data-title-fake>{{ 'general.product_name' | t }}</a>
+        </div>
+
+        <div class="flex">
+          <div class="minutes-ago">
+            <span><span data-time class="minutes-number">8</span> {{ 'fake_order.time_minutes' | t }}</span>
+          </div>
+          <a href="{{ verify_text_url }}" class="text-verify" data-url>
+            <span class="lnr lnr-checkmark-circle mr-5"></span>
+            {{ st.text_verify }}
+            {%- if st.enable_verify_arrow -%}
+              <svg class="verify-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 17L17 7M17 7H8M17 7V16" stroke="{{ st.verify_text_color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            {%- endif -%}
+          </a>
+        </div>
+      </div>
+
+      {% unless disable_progress_bar %}
+        <div class="fake-order-progressbar">
+          <span data-progressbar></span>
+        </div>
+      {% endunless %}
+    </div>
+
+    <script type="application/json" id="bls__data-title-{{ section.id }}">
+      {{- product_available | map: 'title' | json -}}
+    </script>
+    <script type="application/json" id="bls__data-url-{{ section.id }}">
+      {{- product_available | map: 'url' | json -}}
+    </script>
+    <script type="application/json" id="bls__data-img-{{ section.id }}">
+      {{- product_available | map: 'featured_image' | json -}}
+    </script>
+    <script type="application/json" id="bls__data-user-{{ section.id }}">
+      {{- list_user | json -}}
+    </script>
+
+    <script>
+      (function() {
+        var BlsFakeOrder = {
+          init: function() {
+            this.showFakeOrderSequence();
+          },
+          showFakeOrderSequence: function() {
+            var sectionId = '{{ section.id }}';
+            var prd = document.querySelector('#bls__fake-order-' + sectionId);
+            if (!prd) return;
+
+            // Time before the first notification shows
+            var delayTime = parseInt(prd.dataset.timeDelay) || 5000;
+            // The interval between notifications (in seconds)
+            var showGap = parseInt(prd.dataset.showGap) || 10;
+            // The progress duration (in ms) – how long the notification stays and the progress bar fills.
+            var animDuration = parseInt(prd.dataset.animDuration) || {{ animation_duration }};
+            var lastRandomNumber = -1;
+            var isManuallyClosed = false;
+
+            // Data
+            var u = JSON.parse(document.querySelector('#bls__data-url-' + sectionId).textContent);
+            var t = JSON.parse(document.querySelector('#bls__data-title-' + sectionId).textContent);
+            var i = JSON.parse(document.querySelector('#bls__data-img-' + sectionId).textContent);
+            var c = JSON.parse(document.querySelector('#bls__data-user-' + sectionId).textContent);
+
+            // Elements
+            var title = prd.querySelector('[data-title-fake]');
+            var urls = prd.querySelectorAll('[data-url]');
+            var image = prd.querySelector('[data-img]');
+            var user = prd.querySelector('[data-user]');
+            var time = prd.querySelector('[data-time]');
+            {% unless disable_progress_bar %}
+              var prog = prd.querySelector('[data-progressbar]');
+            {% endunless %}
+            var close = prd.querySelector('.fake-order-close');
+
+            if (close) {
+              close.addEventListener('click', function() {
+                isManuallyClosed = true;
+                clearTimeout(displayTimeout);
+                clearTimeout(currentTimeout);
+                prd.style.display = 'none';
+                {% unless disable_progress_bar %}
+                  prog.style.animation = '';
+                  prog.style.background = '';
+                {% endunless %}
+              });
+            }
+
+            function randomData() {
+              if (isManuallyClosed) return;
+
+              if (u.length > 0) {
+                prd.style.display = 'block';
+
+                // Handle animation classes based on the chosen animation style
+                {% if notification_animation == 'None' %}
+                  // No animation
+                {% elsif notification_animation == 'Fade-in Fade Out' %}
+                  prd.classList.remove('animate__fadeInDown','animate__zoomIn','animate__fadeUp','animate__slideIn','animate__revealIn');
+                  prd.classList.add('animate__fadeInUp');
+                {% elsif notification_animation == 'Zoom in - Zoom Out' %}
+                  prd.classList.remove('animate__fadeInDown','animate__fadeInUp','animate__fadeUp','animate__slideIn','animate__revealIn');
+                  prd.classList.add('animate__zoomIn');
+                {% elsif notification_animation == 'Fade Up - Fade Down' %}
+                  prd.classList.remove('animate__fadeInDown','animate__fadeInUp','animate__zoomIn','animate__slideIn','animate__revealIn');
+                  prd.classList.add('animate__fadeUp');
+                {% elsif notification_animation == 'Slide In - Slide Out' %}
+                  prd.classList.remove('animate__fadeInDown','animate__fadeInUp','animate__zoomIn','animate__fadeUp','animate__revealIn');
+                  prd.classList.add('animate__slideIn');
+                {% elsif notification_animation == 'Normal Original Animation' %}
+                  prd.classList.remove('animate__fadeInDown','animate__fadeInUp','animate__zoomIn','animate__fadeUp','animate__slideIn');
+                  prd.classList.add('animate__original');
+                {% elsif notification_animation == 'Reveal In - Reveal Out' %}
+                  prd.classList.remove('animate__fadeInDown','animate__fadeInUp','animate__zoomIn','animate__fadeUp','animate__slideIn');
+                  prd.classList.add('animate__revealIn');
+                {% endif %}
+
+                var randomNumber, randomImg;
+                do {
+                  randomNumber = Math.floor(Math.random() * c.length);
+                  randomImg = Math.floor(Math.random() * i.length);
+                } while (randomNumber === lastRandomNumber && randomImg === lastRandomNumber);
+                lastRandomNumber = randomNumber;
+
+                // Update content
+                title.textContent = t[randomImg];
+                user.textContent = c[randomNumber];
+                if (image) {
+                  image.src = i[randomImg];
+                  image.alt = t[randomImg];
+                }
+                urls.forEach(function(link) {
+                  link.href = u[randomImg];
+                });
+
+                // Fake minutes
+                var fakeTimeOrder = Math.floor(Math.random() * 60 + randomNumber);
+                time.textContent = fakeTimeOrder;
+
+                // Set up the progress bar duration to be controlled solely by the animation duration
+                {% unless disable_progress_bar %}
+                  var barDuration = animDuration;
+                  prog.style.animationDuration = barDuration + 'ms';
+                  prog.style.animationName = 'bls-progressbar-' + sectionId;
+                  prog.style.animationFillMode = 'forwards';
+                  prog.style.animationTimingFunction = 'linear';
+                  prog.style.background = '{{ progress_bar_color }}';
+                {% endunless %}
+
+                // Hide notification after animDuration ms and then schedule the next notification after showGap seconds
+                displayTimeout = setTimeout(function() {
+                  {% if notification_animation != 'None' %}
+                    prd.classList.remove('animate__fadeInUp','animate__zoomIn','animate__fadeUp','animate__slideIn','animate__revealIn');
+                    prd.classList.add('animate__fadeInDown');
+                  {% endif %}
+                  {% unless disable_progress_bar %}
+                    prog.style.animation = '';
+                    prog.style.background = '';
+                  {% endunless %}
+                  prd.style.display = 'none';
+
+                  // Schedule the next notification after the specified show popup gap (in seconds)
+                  currentTimeout = setTimeout(randomData, showGap * 1000);
+                }, animDuration);
+              }
+            }
+
+            // First appearance after the initial delayTime
+            var displayTimeout;
+            var currentTimeout = setTimeout(randomData, delayTime);
+          }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+          BlsFakeOrder.init();
+        });
+      })();
+    </script>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Order Notification Pro 1",
+  "settings": [
+    {
+      "type": "header",
+      "content": "General Settings",
+      "info": "Configure the overall display and behavior of the order notifications."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_on_mobile_fake_order",
+      "label": "Show Section On Mobile Device",
+      "default": true,
+      "info": "Toggle the visibility of the notification section on mobile devices."
+    },
+    {
+      "type": "checkbox",
+      "id": "disable_progress_bar",
+      "label": "Disable Progress Bar",
+      "default": false,
+      "info": "Disable the progress bar that indicates notification display duration."
+    },
+    {
+      "type": "select",
+      "id": "position",
+      "label": "Position",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left",
+      "info": "Choose the position of the notification on the screen."
+    },
+    {
+      "type": "range",
+      "id": "show_gap_seconds",
+      "label": "Show Popup Every (Seconds)",
+      "min": 10,
+      "max": 1000,
+      "step": 10,
+      "default": 10,
+      "unit": "s",
+      "info": "Set how often the notification popup appears (this only sets the interval between notifications)."
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Notification Border Radius (px)",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 5,
+      "unit": "px",
+      "info": "Adjust the border radius of the notification for rounded corners."
+    },
+    {
+      "type": "header",
+      "content": "Heading Settings",
+      "info": "Customize the heading text and its appearance."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading_text",
+      "label": "Heading Text",
+      "default": "Latest Orders",
+      "info": "Set the main heading text for the notification section."
+    },
+    {
+      "type": "header",
+      "content": "Animation Settings",
+      "info": "Customize the notification's animation effects."
+    },
+    {
+      "type": "select",
+      "id": "notification_animation",
+      "label": "Notification Animation",
+      "options": [
+        { "value": "None", "label": "None" },
+        { "value": "Fade-in Fade Out", "label": "Fade-in Fade Out" },
+        { "value": "Zoom in - Zoom Out", "label": "Zoom in - Zoom Out" },
+        { "value": "Fade Up - Fade Down", "label": "Fade Up - Fade Down" },
+        { "value": "Slide In - Slide Out", "label": "Slide In - Slide Out" },
+        { "value": "Normal Original Animation", "label": "Normal Original Animation" },
+        { "value": "Reveal In - Reveal Out", "label": "Reveal In - Reveal Out" }
+      ],
+      "default": "Fade-in Fade Out",
+      "info": "Select the animation style for the notification."
+    },
+    {
+      "type": "number",
+      "id": "animation_duration",
+      "label": "Progress Animation / Transition Duration (ms)",
+      "default": 15000,
+      "info": "Set the duration of the popup's entrance/exit and how long the notification stays (which also controls the progress bar fill)."
+    },
+    {
+      "type": "header",
+      "content": "Gradient Settings",
+      "info": "Configure gradient background colors and their orientation."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_gradient",
+      "label": "Enable Gradient Background Color Notification",
+      "default": true,
+      "info": "Toggle the gradient background for the notification."
+    },
+    {
+      "type": "color",
+      "id": "gradient_start_color",
+      "label": "Gradient Start Color",
+      "default": "#FAFAFA",
+      "info": "First color of the gradient."
+    },
+    {
+      "type": "color",
+      "id": "gradient_middle_color",
+      "label": "Gradient Middle Color",
+      "default": "#F7F7F7",
+      "info": "Middle color of the gradient."
+    },
+    {
+      "type": "color",
+      "id": "gradient_end_color",
+      "label": "Gradient End Color",
+      "default": "#E6E6E6",
+      "info": "Last color of the gradient."
+    },
+    {
+      "type": "select",
+      "id": "gradient_degrees",
+      "label": "Gradient Degrees",
+      "options": [
+        { "value": "0", "label": "0°" },
+        { "value": "30", "label": "30°" },
+        { "value": "45", "label": "45°" },
+        { "value": "60", "label": "60°" },
+        { "value": "90", "label": "90°" },
+        { "value": "135", "label": "135°" },
+        { "value": "180", "label": "180°" },
+        { "value": "225", "label": "225°" },
+        { "value": "270", "label": "270°" },
+        { "value": "315", "label": "315°" },
+        { "value": "360", "label": "360°" }
+      ],
+      "default": "45",
+      "info": "Set the angle for the gradient direction."
+    },
+    {
+      "type": "header",
+      "content": "Glassmorphism Settings",
+      "info": "Customize the glassmorphism background effect for the notification."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_glassmorphism",
+      "label": "Enable Glassmorphism",
+      "default": false,
+      "info": "Toggle a glassmorphism background effect on the notification."
+    },
+    {
+      "type": "range",
+      "id": "glassmorphism_blur",
+      "label": "Glassmorphism Blur (px)",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "default": 10,
+      "unit": "px",
+      "info": "The blur amount for the glassmorphism effect."
+    },
+    {
+      "type": "range",
+      "id": "glassmorphism_brightness",
+      "label": "Glassmorphism Brightness",
+      "min": 0.5,
+      "max": 10,
+      "step": 0.1,
+      "default": 0.9,
+      "info": "Adjust the brightness of the glassmorphism effect (1 is normal, <1 is darker, >1 is brighter)."
+    },
+    {
+      "type": "range",
+      "id": "glassmorphism_border_width",
+      "label": "Glassmorphism Border Width (px)",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "default": 1,
+      "unit": "px",
+      "info": "Border width for the glassmorphism effect."
+    },
+    {
+      "type": "color",
+      "id": "glassmorphism_border_color",
+      "label": "Glassmorphism Border Color",
+      "default": "#ffffff",
+      "info": "Border color for the glassmorphism effect."
+    },
+    {
+      "type": "header",
+      "content": "Product & User Settings",
+      "info": "Manage the products and user information displayed in notifications."
+    },
+    {
+      "type": "product_list",
+      "id": "fake_product",
+      "label": "Products To Show - Products List",
+      "info": "Select the products to display in the fake order notifications."
+    },
+    {
+      "type": "textarea",
+      "id": "fake_user",
+      "label": "Users Names / Info",
+      "default": "Liam (USA) | Ethan (USA) | Matteo (USA) | Owen (Canada) | Lucas (Canada) | Rafael (USA) | Mason (USA) | Alex (UK) | Luca (Italy) | Hugo (France) | Elias (Germany) | Sofia (Spain) | Jakob (Sweden) | Matei (Romania) | Ivan (Russia) | Niko (Greece) | Marko (Croatia) | Erik (Norway) | Felix (Denmark) | Tomáš (Czech Republic) | Arnaud (Belgium) | Finn (Ireland)",
+      "info": "Enter user names and their locations separated by a pipe (|)."
+    },
+    {
+      "type": "header",
+      "content": "Text Settings",
+      "info": "Customize text elements within the notification."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "text_verify",
+      "label": "Verify Text",
+      "default": "Verify",
+      "info": "Set the text for the verification link or button."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_verify_arrow",
+      "label": "Enable Verify Arrow",
+      "default": true,
+      "info": "Toggle to show or hide the arrow next to the Verify text."
+    },
+    {
+      "type": "url",
+      "id": "verify_text_url",
+      "label": "Verify Text URL",
+      "default": "/",
+      "info": "Link URL for the verify text."
+    },
+    {
+      "type": "color",
+      "id": "verify_text_color",
+      "label": "Verify Text Color",
+      "default": "#0000FF",
+      "info": "Customize the color of the 'Verify' text."
+    },
+    {
+      "type": "color",
+      "id": "verify_text_hover_color",
+      "label": "Verify Text Hover Color",
+      "default": "#00008B",
+      "info": "Customize the hover color of the 'Verify' text."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_underline_product_name_title",
+      "label": "Enable Underline Product Name Title",
+      "default": false,
+      "info": "Toggle underline on the product title."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_close_button",
+      "label": "Enable X Close Button",
+      "default": true,
+      "info": "Toggle the top-right close (X) button in the notification."
+    },
+    {
+      "type": "color",
+      "id": "close_button_color",
+      "label": "Close Button Color",
+      "default": "#0F1729",
+      "info": "Customize the color of the close (X) button."
+    },
+    {
+      "type": "header",
+      "content": "Timing Settings",
+      "info": "Adjust the timing for when notifications first appear."
+    },
+    {
+      "type": "text",
+      "id": "delay_time",
+      "label": "Page Loads Notification Time To Show (ms)",
+      "default": "500",
+      "info": "Time in milliseconds before the notification appears after the page loads. (e.g., 1000ms = 1 second)"
+    },
+    {
+      "type": "header",
+      "content": "Color Settings",
+      "info": "Customize the colors used in the notification."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#EFEFEF",
+      "info": "Set the background color of the notification."
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#111111",
+      "info": "Choose the color of the text within the notification."
+    },
+    {
+      "type": "color",
+      "id": "progress_bar_color",
+      "label": "Progress Bar Color",
+      "default": "#303030",
+      "info": "Select the color of the progress bar indicating display duration."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Order Notification Pro 1",
+            "category": "Other"
+    }
+  ]
+}
+{% endschema %}

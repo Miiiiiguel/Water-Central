@@ -1,0 +1,971 @@
+{% assign heading_block = section.blocks | where: 'type', 'heading' | first %}
+{% assign subheading_block = section.blocks | where: 'type', 'subheading' | first %}
+{% assign button_block = section.blocks | where: 'type', 'button' | first %}
+{% assign text_color = '#ffffff' %}
+{% if button_block.settings.btn_bg_1 %}
+  {% assign background_color_btn = button_block.settings.btn_bg_1 %}
+{% else %}
+  {% assign background_color_btn = '#0F0F0F' %}
+{% endif %}
+{% assign brightness_diff_2 = background_color_btn | brightness_difference: text_color %}
+{% if brightness_diff_2 > 125 %}
+  {% assign readable_text_color_2 = '#ffffff' %}
+{% else %}
+  {% assign readable_text_color_2 = '#242424' %}
+{% endif %}
+
+{%- style -%}
+  /* Import Custom Font if Enabled */
+  {% if section.settings.enable_custom_fonts %}
+    @import url('https://fonts.googleapis.com/css2?family={{ section.settings.custom_font | replace: ' ', '+' }}&display=swap');
+  {% endif %}
+
+  /* Import Font Picker Font if Selected */
+  {% if section.settings.font_picker != blank %}
+    @import url('https://fonts.googleapis.com/css2?family={{ section.settings.font_picker | replace: ' ', '+' }}&display=swap');
+  {% endif %}
+
+  *, *:after, *:before {
+    box-sizing: border-box;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Display Section On */
+  .loudecoms-section__{{ sec_id }} {
+    --loudecoms-gutter-x: 20px;
+    padding-left: var(--loudecoms-gutter-x);
+    padding-right: var(--loudecoms-gutter-x);
+    padding-top: {{ section.settings.section_padding_top }}px;
+    padding-bottom: {{ section.settings.section_padding_bottom }}px;
+    margin-top: {{ section.settings.section_margin_top }}px;
+    margin-bottom: {{ section.settings.section_margin_bottom }}px;
+    line-height: 1.5;
+    position: relative;
+
+    {% if section.settings.is_fullwidth != true %}
+      max-width: 1250px;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 16px;
+    {% endif %}
+    {% if section.settings.section_height == true %}
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    {% endif %}
+
+    background-color: {{ section.settings.background_color }};
+  }
+
+  {% if section.settings.display_section_on == "no-devices" %}
+    .loudecoms-section__{{ sec_id }} { display: none !important; }
+  {% elsif section.settings.display_section_on == "mobile-only" %}
+    @media (min-width: 750px) {
+      .loudecoms-section__{{ sec_id }} { display: none !important; }
+    }
+  {% elsif section.settings.display_section_on == "desktop-only" %}
+    @media (max-width: 749px) {
+      .loudecoms-section__{{ sec_id }} { display: none !important; }
+    }
+  {% endif %}
+  /* If all-devices, do nothing special */
+
+  .loudecoms-section__{{ sec_id }} .loudecoms-content {
+    max-width: 825px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .loudecoms-section__{{ sec_id }} .loudecoms-title-wrapper {
+    margin-bottom: 35px;
+  }
+
+  .loudecoms-section__{{ sec_id }} .loudecoms-section-title {
+    color: {{ heading_block.settings.heading_text_color }} !important;
+    font-weight: {{ heading_block.settings.heading_font_weight }};
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: {{ heading_block.settings.heading_size_desktop }}px; /* Desktop size */
+    line-height: 1.2;
+  }
+
+  .loudecoms-section__{{ sec_id }} .loudecoms-section-subtitle {
+    color: {{ subheading_block.settings.sub_heading_text_color }};
+    opacity: 0.65;
+    margin-top: 0px;
+    margin-bottom: 0;
+    font-size: {{ subheading_block.settings.sub_heading_size_desktop }}px; /* Desktop size */
+  }
+
+  .loudecoms-section__{{ sec_id }} .form-message {
+    display: block;
+    margin-top: 12px;
+    font-weight: 400;
+    color: {{ section.settings.text_color }};
+    outline: none;
+    box-shadow: none;
+    text-align: left;
+    font-size: 12px;
+  }
+
+  /* Email Input & Form Group */
+  .loudecoms-section__{{ sec_id }} .loudecoms-form-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: {{ section.settings.form_background_color }};
+    padding: 10px;
+    border-radius: {{ section.settings.email_border_radius }}px;
+    width: fit-content;
+    margin: 0 auto;
+    {% case section.settings.email_input_shadow %}
+      {% when "low" %}
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      {% when "medium" %}
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      {% when "high" %}
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    {% endcase %}
+  }
+
+  .loudecoms-section__{{ sec_id }} .field-group .field-input {
+    flex: none;
+    width: {{ section.settings.email_input_width_desktop }}px;
+    padding: 18px 30px !important;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: {{ section.settings.email_border_radius }}px;
+    background-color: {{ section.settings.email_input_color }};
+    margin-right: 16px;
+    font-size: 14px;
+    height: 60px;
+    color: {{ section.settings.placeholder_text_color }};
+  }
+
+  /* Placeholder Text Color */
+  .loudecoms-section__{{ sec_id }} .field-group .field-input::placeholder {
+    color: {{ section.settings.placeholder_text_color }};
+    opacity: 1;
+  }
+
+  /* Button */
+  .loudecoms-section__{{ sec_id }} .loudecoms-btn,
+  .rte .loudecoms-section__{{ sec_id }} a.loudecoms-btn:not(.btn) {
+    flex: none;
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    border: none;
+    outline: none;
+    border-radius: {{ button_block.settings.btn_border_radius }}px;
+    background-color: {{ button_block.settings.btn_bg_1 }};
+    color: {{ button_block.settings.btn_text_color }};
+    font-size: {{ button_block.settings.btn_text_size }}px;
+    font-weight: {{ button_block.settings.btn_font_weight }};
+    white-space: normal;
+    text-transform: none;
+    padding: {{ button_block.settings.btn_overall_size }}px {{ button_block.settings.btn_overall_size | times: 2 }}px;
+    margin: 0;
+    line-height: 1.5;
+    min-width: 214px;
+    transition: all 0.25s;
+    cursor: pointer;
+    box-sizing: border-box;
+    vertical-align: middle;
+  }
+
+  /* Button Hover Animations */
+  .loudecoms-section__{{ sec_id }} .loudecoms-btn:hover {
+    opacity: 0.9 !important;
+  }
+
+  {% if button_block.settings.btn_hover_animation != "none" %}
+    .loudecoms-section__{{ sec_id }} .loudecoms-btn.{{ button_block.settings.btn_hover_animation }}:hover {
+      {% case button_block.settings.btn_hover_animation %}
+        {% when "smooth-fade-in" %}
+          transition: all 0.3s ease;
+          opacity: 1;
+          filter: brightness(1.1);
+        {% when "smooth-scale-up" %}
+          transition: all 0.3s ease;
+          transform: scale(1.05);
+        {% when "smooth-fade-up" %}
+          transition: all 0.3s ease;
+          transform: translateY(-5px);
+          opacity: 1;
+        {% when "smooth-shadow" %}
+          transition: all 0.3s ease;
+          box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        {% when "smooth-glow" %}
+          transition: all 0.3s ease;
+          box-shadow: 0 0 10px {{ button_block.settings.btn_bg_1 }};
+        {% when "smooth-zoom-out" %}
+          transition: all 0.3s ease;
+          transform: scale(0.95);
+      {% endcase %}
+    }
+  {% endif %}
+
+  .loudecoms-section__{{ sec_id }} .heading-icon {
+    display: block;
+    margin: 0 auto {{ heading_block.settings.icon_gap }}px auto;
+    width: {{ heading_block.settings.icon_size_desktop }}px;
+    height: auto;
+  }
+
+  @media only screen and (max-width: 1290px) {
+    .loudecoms-section__{{ sec_id }} {
+      {% if section.settings.is_fullwidth != true %}
+        margin-left: var(--loudecoms-gutter-x, auto);
+        margin-right: var(--loudecoms-gutter-x, auto);
+      {% endif %}
+    }
+  }
+
+  @media only screen and (max-width: 749px) {
+    .loudecoms-section__{{ sec_id }} {
+      padding-top: {{ section.settings.section_padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.section_padding_bottom_mobile }}px;
+      margin-top: {{ section.settings.section_margin_top_mobile }}px;
+      margin-bottom: {{ section.settings.section_margin_bottom_mobile }}px;
+      padding-left: {{ section.settings.section_padding_left_mobile }}px;
+      padding-right: {{ section.settings.section_padding_right_mobile }}px;
+      min-height: auto;
+      display: block;
+    }
+
+    .loudecoms-section__{{ sec_id }} .loudecoms-content {
+      max-width: 100%;
+    }
+
+    .loudecoms-section__{{ sec_id }} .loudecoms-btn,
+    .rte .loudecoms-section__{{ sec_id }} a.loudecoms-btn:not(.btn) {
+      min-width: auto;
+    }
+
+    .loudecoms-section__{{ sec_id }} .loudecoms-section-title {
+      font-size: {{ heading_block.settings.heading_size_mobile }}px; /* Mobile size */
+    }
+    .loudecoms-section__{{ sec_id }} .loudecoms-section-subtitle {
+      font-size: {{ subheading_block.settings.sub_heading_size_mobile }}px; /* Mobile size */
+    }
+
+    .loudecoms-section__{{ sec_id }} .loudecoms-title-wrapper {
+      margin-bottom: {{ section.settings.subheading_to_form_gap_mobile }}px;
+    }
+
+    .loudecoms-section__{{ sec_id }} .heading-icon {
+      width: {{ heading_block.settings.icon_size_mobile }}px;
+    }
+  }
+
+  @media only screen and (max-width: 490px) {
+    .loudecoms-section__{{ sec_id }} .loudecoms-form-group {
+      display: block;
+      width: 100%;
+      justify-content: unset;
+    }
+    .loudecoms-section__{{ sec_id }} .field-group .field-input {
+       width: 100% !important;
+       margin-right: 0;
+       margin-bottom: 20px;
+     }
+     .loudecoms-section__{{ sec_id }} .loudecoms-btn,
+     .rte .loudecoms-section__{{ sec_id }} a.loudecoms-btn:not(.btn) {
+       width: 100%;
+       min-width: 100%;
+     }
+  }
+{%- endstyle -%}
+
+{% if section.settings.custom_css != blank %}
+  {%- style -%}
+    {{ section.settings.custom_css }}
+  {%- endstyle -%}
+{% endif %}
+
+<div class="loudecoms-section__{{ sec_id }} {{ section.settings.custom_class }}">
+  <div class="loudecoms-content">
+    {% if heading_block or subheading_block %}
+      <div class="loudecoms-title-wrapper">
+        {% if heading_block.settings.enable_svg_icon %}
+          {% if heading_block.settings.enable_image_instead and heading_block.settings.icon_image %}
+            <img
+              src="{{ heading_block.settings.icon_image | image_url: width: 400 }}"
+              alt="Icon above heading"
+              class="heading-icon"
+              loading="lazy"
+              width="{{ heading_block.settings.icon_size_desktop }}"
+              height="{{ heading_block.settings.icon_image.height | divided_by: heading_block.settings.icon_image.aspect_ratio | round }}"
+            >
+          {% elsif heading_block.settings.svg_code != blank %}
+            {{ heading_block.settings.svg_code | replace: '<svg', '<svg class="heading-icon"' | replace: '#474747', heading_block.settings.icon_color }}
+          {% endif %}
+        {% endif %}
+        {% if heading_block %}
+          <{{ heading_block.settings.heading_tag }}
+            class="loudecoms-section-title"
+          >
+            {{ heading_block.settings.heading_text }}
+          </{{ heading_block.settings.heading_tag }}>
+        {% endif %}
+        {% if subheading_block %}
+          <p class="loudecoms-section-subtitle" {{ section.shopify_attributes }}>
+            {{ subheading_block.settings.sub_heading_text | escape }}
+          </p>
+        {% endif %}
+      </div>
+    {% endif %}
+    <div class="loudecoms-form-wrapper">
+      {% form 'customer', class: 'newsletter-form-contact' %}
+        <input type="hidden" name="contact[tags]" value="newsletter">
+        <div class="newsletter-form-field-wrapper">
+          <div class="field-group loudecoms-form-group">
+            <input
+              id="NewsletterForm--{{ section.id }}"
+              type="email"
+              name="contact[email]"
+              class="field-input"
+              value="{{ form.email }}"
+              aria-required="true"
+              autocorrect="off"
+              autocapitalize="off"
+              autocomplete="email"
+              {% if form.errors %}
+                autofocus
+                aria-invalid="true"
+                aria-describedby="Newsletter-error--{{ section.id }}"
+              {% elsif form.posted_successfully? %}
+                aria-describedby="Newsletter-success--{{ section.id }}"
+              {% endif %}
+              placeholder="{{ section.settings.placeholder_text }}"
+              required
+            >
+            <button
+              type="submit"
+              class="newsletter-form-button field-button loudecoms-btn {% if button_block.settings.btn_hover_animation != 'none' %}{{ button_block.settings.btn_hover_animation }}{% endif %}"
+              name="commit"
+              id="Subscribe"
+              aria-label="{{ button_block.settings.form_btn_label }}"
+            >
+              {{ button_block.settings.form_btn_label }}
+            </button>
+          </div>
+          {%- if form.errors -%}
+            <small class="newsletter-form-message form-message" id="Newsletter-error--{{ section.id }}">
+              {{ form.errors.translated_fields.email | capitalize }}
+              {{ form.errors.messages.email }}
+            </small>
+          {%- endif -%}
+        </div>
+        {%- if form.posted_successfully? -%}
+          <h3
+            class="newsletter-form-message newsletter-form-message--success form-message"
+            id="Newsletter-success--{{ section.id }}"
+            tabindex="-1"
+            autofocus
+          >
+            {{ section.settings.success_text }}
+          </h3>
+        {%- endif -%}
+      {% endform %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Newsletter Banner 2",
+  "tag": "section",
+  "class": "loudecoms-subscribe-loudecoms-subscribe",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Form Settings",
+      "info": "Configure the email subscription form."
+    },
+    {
+      "type": "text",
+      "id": "placeholder_text",
+      "label": "Email Input Placeholder Text",
+      "default": "Email address",
+      "info": "Placeholder text displayed inside the email input field."
+    },
+    {
+      "type": "color",
+      "id": "email_input_color",
+      "label": "Email Input Background Color",
+      "default": "#F6F6F6",
+      "info": "Sets the background color of the email input field."
+    },
+    {
+      "type": "color",
+      "id": "placeholder_text_color",
+      "label": "Form Placeholder Text Color",
+      "default": "#5D5D5D",
+      "info": "Sets the color of the placeholder text in the email input."
+    },
+    {
+      "type": "color",
+      "id": "form_background_color",
+      "label": "Form Background Color",
+      "default": "transparent",
+      "info": "Sets the background color of the form."
+    },
+    {
+      "type": "range",
+      "id": "email_border_radius",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "label": "Email Input Border Radius",
+      "default": 6,
+      "info": "Controls the border radius of the email input field."
+    },
+    {
+      "type": "range",
+      "id": "email_input_width_desktop",
+      "min": 200,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "label": "Email Input Width (Desktop)",
+      "default": 400,
+      "info": "Controls the width of the email input on desktop view."
+    },
+    {
+      "type": "range",
+      "id": "subheading_to_form_gap_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Vertical Gap Between Subheading and Form (Mobile)",
+      "default": 35,
+      "info": "Controls the vertical gap between the subheading and the form on mobile view."
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings",
+      "info": "Adjust the overall layout and spacing of the newsletter banner."
+    },
+    {
+      "type": "checkbox",
+      "id": "is_fullwidth",
+      "default": false,
+      "label": "Enable Full Width",
+      "info": "Toggle to make the section span the full width of the page."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#FFFFFF",
+      "info": "Sets the background color of the entire section."
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#8F8F8F",
+      "info": "Sets the default text color for the section."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Top Padding (Desktop)",
+      "default": 60,
+      "info": "Controls the top padding of the section for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Bottom Padding (Desktop)",
+      "default": 60,
+      "info": "Controls the bottom padding of the section for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "section_margin_top",
+      "min": 0,
+      "max": 150,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Top Margin (Desktop)",
+      "default": 0,
+      "info": "Sets the top margin of the section for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "section_margin_bottom",
+      "min": 0,
+      "max": 150,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Bottom Margin (Desktop)",
+      "default": 0,
+      "info": "Sets the bottom margin of the section for desktop view."
+    },
+    {
+      "type": "header",
+      "content": "Responsive Settings",
+      "info": "Adjust padding and margins for mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Top Padding (Mobile)",
+      "default": 30,
+      "info": "Controls the top padding of the section for mobile view."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Bottom Padding (Mobile)",
+      "default": 30,
+      "info": "Controls the bottom padding of the section for mobile view."
+    },
+    {
+      "type": "range",
+      "id": "section_margin_top_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Top Margin (Mobile)",
+      "default": 0,
+      "info": "Sets the top margin of the section for mobile view."
+    },
+    {
+      "type": "range",
+      "id": "section_margin_bottom_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Bottom Margin (Mobile)",
+      "default": 0,
+      "info": "Sets the bottom margin of the section for mobile view."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Section Left Padding (Mobile)",
+      "default": 0,
+      "info": "Controls the left padding of the section for mobile view."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_right_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Section Right Padding (Mobile)",
+      "default": 0,
+      "info": "Controls the right padding of the section for mobile view."
+    },
+    {
+      "type": "header",
+      "content": "Display Settings",
+      "info": "Control the visibility of the section on different devices."
+    },
+    {
+      "type": "select",
+      "id": "display_section_on",
+      "label": "Display Section On",
+      "options": [
+        { "value": "all-devices", "label": "All Devices" },
+        { "value": "no-devices", "label": "No Devices" },
+        { "value": "mobile-only", "label": "Mobile Device Only" },
+        { "value": "desktop-only", "label": "Desktop / Larger Screen Only" }
+      ],
+      "default": "all-devices",
+      "info": "Choose on which devices the section should be displayed."
+    },
+    {
+      "type": "header",
+      "content": "Customization",
+      "info": "Add custom styles to further customize the section."
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS",
+      "info": "Add your custom CSS here to override default styles."
+    },
+    {
+      "type": "header",
+      "content": "Texts & Localization",
+      "info": "Manage text content and localization settings."
+    },
+    {
+      "type": "text",
+      "id": "success_text",
+      "label": "Success Message",
+      "default": "Thank You For Subscribing!",
+      "info": "Message displayed after a successful subscription."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Heading Settings",
+          "info": "Configure the main heading of the newsletter banner."
+        },
+        {
+          "type": "inline_richtext",
+          "id": "heading_text",
+          "default": "Join Our Community!",
+          "label": "Heading Text",
+          "info": "The main headline encouraging users to subscribe."
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "Heading Tag",
+          "options": [
+            {
+              "value": "h1",
+              "label": "H1"
+            },
+            {
+              "value": "h2",
+              "label": "H2"
+            }
+          ],
+          "default": "h2",
+          "info": "Choose the HTML tag for the heading."
+        },
+        {
+          "type": "range",
+          "id": "heading_size_desktop",
+          "min": 24,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "label": "Heading Size (Desktop)",
+          "default": 34,
+          "info": "Controls the heading size for desktop view."
+        },
+        {
+          "type": "range",
+          "id": "heading_size_mobile",
+          "min": 18,
+          "max": 60,
+          "step": 1,
+          "unit": "px",
+          "label": "Heading Size (Mobile)",
+          "default": 34,
+          "info": "Controls the heading size for mobile view."
+        },
+        {
+          "type": "color",
+          "id": "heading_text_color",
+          "label": "Heading Text Color",
+          "default": "#1C1C1C",
+          "info": "Sets the color of the heading text."
+        },
+        {
+          "type": "select",
+          "id": "heading_font_weight",
+          "label": "Heading Font Weight",
+          "options": [
+            { "value": "300", "label": "Light" },
+            { "value": "400", "label": "Normal" },
+            { "value": "450", "label": "Medium" },
+            { "value": "500", "label": "Semi-Bold" },
+            { "value": "550", "label": "Medium-Bold" },
+            { "value": "600", "label": "Bold" },
+            { "value": "700", "label": "Extra Bold" }
+          ],
+          "default": "550",
+          "info": "Controls the font weight of the heading text."
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_svg_icon",
+          "label": "Enable SVG Icon Above Heading",
+          "default": true
+        },
+        {
+          "type": "textarea",
+          "id": "svg_code",
+          "label": "SVG Icon Code",
+          "default": "<svg viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><g id=\"SVGRepo_bgCarrier\" stroke-width=\"0\"></g><g id=\"SVGRepo_tracerCarrier\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></g><g id=\"SVGRepo_iconCarrier\"> <path d=\"M4 9.00005L10.2 13.65C11.2667 14.45 12.7333 14.45 13.8 13.65L20 9\" stroke=\"#474747\" stroke-width=\"0.8640000000000001\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path> <path d=\"M3 9.17681C3 8.45047 3.39378 7.78123 4.02871 7.42849L11.0287 3.5396C11.6328 3.20402 12.3672 3.20402 12.9713 3.5396L19.9713 7.42849C20.6062 7.78123 21 8.45047 21 9.17681V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V9.17681Z\" stroke=\"#474747\" stroke-width=\"0.8640000000000001\" stroke-linecap=\"round\"></path> </g></svg>"
+        },
+        {
+          "type": "range",
+          "id": "icon_size_desktop",
+          "min": 20,
+          "max": 200,
+          "step": 5,
+          "unit": "px",
+          "label": "Icon Size (Desktop)",
+          "default": 60
+        },
+        {
+          "type": "range",
+          "id": "icon_size_mobile",
+          "min": 20,
+          "max": 200,
+          "step": 5,
+          "unit": "px",
+          "label": "Icon Size (Mobile)",
+          "default": 40
+        },
+        {
+          "type": "color",
+          "id": "icon_color",
+          "label": "Icon Color",
+          "default": "#474747"
+        },
+        {
+          "type": "range",
+          "id": "icon_gap",
+          "min": 0,
+          "max": 50,
+          "step": 1,
+          "unit": "px",
+          "label": "Vertical Gap Between Icon/Image and Heading Text",
+          "default": 10
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_image_instead",
+          "label": "Enable Image Instead of SVG Icon",
+          "default": false
+        },
+        {
+          "type": "image_picker",
+          "id": "icon_image",
+          "label": "Icon Image"
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Subheading Settings",
+          "info": "Configure the subheading of the newsletter banner."
+        },
+        {
+          "type": "textarea",
+          "id": "sub_heading_text",
+          "default": "Stay updated with our latest news, special offers, and new arrivals delivered straight to your inbox.",
+          "label": "Subheading Text",
+          "info": "The subheading text providing additional information."
+        },
+        {
+          "type": "range",
+          "id": "sub_heading_size_desktop",
+          "min": 14,
+          "max": 36,
+          "step": 1,
+          "unit": "px",
+          "label": "Subheading Size (Desktop)",
+          "default": 16,
+          "info": "Controls the subheading size for desktop view."
+        },
+        {
+          "type": "range",
+          "id": "sub_heading_size_mobile",
+          "min": 12,
+          "max": 30,
+          "step": 1,
+          "unit": "px",
+          "label": "Subheading Size (Mobile)",
+          "default": 16,
+          "info": "Controls the subheading size for mobile view."
+        },
+        {
+          "type": "color",
+          "id": "sub_heading_text_color",
+          "label": "Subheading Text Color",
+          "default": "#353535",
+          "info": "Sets the color of the subheading text."
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Button Settings",
+          "info": "Customize the appearance and behavior of the subscription button."
+        },
+        {
+          "type": "text",
+          "id": "form_btn_label",
+          "label": "Button Label",
+          "default": "Subscribe",
+          "info": "Text displayed on the subscription button."
+        },
+        {
+          "type": "color",
+          "id": "btn_bg_1",
+          "label": "Button Background Color",
+          "default": "#0F0F0F",
+          "info": "Sets the background color of the button."
+        },
+        {
+          "type": "color",
+          "id": "btn_text_color",
+          "label": "Button Text Color",
+          "default": "#ffffff",
+          "info": "Sets the color of the button text."
+        },
+        {
+          "type": "range",
+          "id": "btn_text_size",
+          "min": 10,
+          "max": 40,
+          "step": 1,
+          "unit": "px",
+          "label": "Button Text Size",
+          "default": 16,
+          "info": "Controls the size of the button text."
+        },
+        {
+          "type": "select",
+          "id": "btn_font_weight",
+          "label": "Button Font Weight",
+          "options": [
+            { "value": "400", "label": "400" },
+            { "value": "500", "label": "500" },
+            { "value": "550", "label": "550" },
+            { "value": "600", "label": "600" },
+            { "value": "700", "label": "700" },
+            { "value": "inherit", "label": "Inherit" }
+          ],
+          "default": "inherit",
+          "info": "Controls the font weight of the button text."
+        },
+        {
+          "type": "range",
+          "id": "btn_overall_size",
+          "min": 15,
+          "max": 60,
+          "step": 1,
+          "unit": "px",
+          "label": "Button Overall Size (Padding)",
+          "default": 15,
+          "info": "Controls the padding inside the button."
+        },
+        {
+          "type": "range",
+          "id": "btn_border_radius",
+          "min": 0,
+          "max": 60,
+          "step": 1,
+          "unit": "px",
+          "label": "Button Border Radius",
+          "default": 9,
+          "info": "Controls the border radius of the button."
+        },
+        {
+          "type": "select",
+          "id": "btn_hover_animation",
+          "label": "Button Hover Animation",
+          "options": [
+            { "value": "none", "label": "None" },
+            { "value": "smooth-fade-in", "label": "Smooth Fade In" },
+            { "value": "smooth-scale-up", "label": "Smooth Scale Up" },
+            { "value": "smooth-fade-up", "label": "Smooth Fade Up" },
+            { "value": "smooth-shadow", "label": "Smooth Shadow" },
+            { "value": "smooth-glow", "label": "Smooth Glow" },
+            { "value": "smooth-zoom-out", "label": "Smooth Zoom Out" }
+          ],
+          "default": "smooth-fade-in",
+          "info": "Select the hover animation effect for the button."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Newsletter Banner 2",
+      "category": "Newsletter Banners",
+      "blocks": [
+        {
+          "type": "heading",
+          "settings": {
+            "heading_text": "Subscribe to our newsletter!",
+            "heading_tag": "h2",
+            "heading_size_desktop": 34,
+            "heading_size_mobile": 34,
+            "heading_text_color": "#383838",
+            "heading_font_weight": "550",
+            "enable_svg_icon": true,
+            "svg_code": "<svg viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><g id=\"SVGRepo_bgCarrier\" stroke-width=\"0\"></g><g id=\"SVGRepo_tracerCarrier\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></g><g id=\"SVGRepo_iconCarrier\"> <path d=\"M4 9.00005L10.2 13.65C11.2667 14.45 12.7333 14.45 13.8 13.65L20 9\" stroke=\"#474747\" stroke-width=\"0.8640000000000001\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path> <path d=\"M3 9.17681C3 8.45047 3.39378 7.78123 4.02871 7.42849L11.0287 3.5396C11.6328 3.20402 12.3672 3.20402 12.9713 3.5396L19.9713 7.42849C20.6062 7.78123 21 8.45047 21 9.17681V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V9.17681Z\" stroke=\"#474747\" stroke-width=\"0.8640000000000001\" stroke-linecap=\"round\"></path> </g></svg>",
+            "icon_size_desktop": 60,
+            "icon_size_mobile": 40,
+            "icon_color": "#474747",
+            "icon_gap": 10,
+            "enable_image_instead": false
+          }
+        },
+        {
+          "type": "subheading",
+          "settings": {
+            "sub_heading_text": "Stay updated with our latest news, special offers, and new arrivals delivered straight to your inbox.",
+            "sub_heading_size_desktop": 16,
+            "sub_heading_size_mobile": 16,
+            "sub_heading_text_color": "#353535"
+          }
+        },
+        {
+          "type": "button",
+          "settings": {
+            "form_btn_label": "Subscribe",
+            "btn_bg_1": "#0F0F0F",
+            "btn_text_color": "#ffffff",
+            "btn_text_size": 16,
+            "btn_font_weight": "inherit",
+            "btn_overall_size": 15,
+            "btn_border_radius": 9,
+            "btn_hover_animation": "smooth-fade-in"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

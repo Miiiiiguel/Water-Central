@@ -1,0 +1,475 @@
+<section
+  id="nike-vaporfly-section-{{ section.id }}"
+  data-speed="{{ section.settings.speed_progress }}"
+  data-endurance="{{ section.settings.endurance_progress }}"
+  data-comfort="{{ section.settings.comfort_progress }}"
+  data-lasting="{{ section.settings.lasting_progress }}"
+>
+  <div class="container">
+    <!-- Inline editable heading -->
+    <div class="header">
+      <div class="inline-richtext" contenteditable="true">
+        {{ section.settings.heading_text }}
+      </div>
+    </div>
+    <div class="circles">
+      <div class="circle-item circle-speed">
+        <div class="circle-svg">
+          <svg viewBox="0 0 100 100">
+            <circle class="circle-bg" cx="50" cy="50" r="48"></circle>
+            <circle class="circle-progress"
+                    cx="50" cy="50" r="48"
+                    stroke-dasharray="301"
+                    stroke-dashoffset="0"></circle>
+          </svg>
+          <!-- Editable progress value -->
+          <div class="circle-text inline-richtext" contenteditable="true">
+            {{ section.settings.speed_progress }}
+          </div>
+        </div>
+        <div class="circle-label">{{ section.settings.speed_label }}</div>
+      </div>
+      <div class="circle-item circle-endurance">
+        <div class="circle-svg">
+          <svg viewBox="0 0 100 100">
+            <circle class="circle-bg" cx="50" cy="50" r="48"></circle>
+            <circle class="circle-progress"
+                    cx="50" cy="50" r="48"
+                    stroke-dasharray="301"
+                    stroke-dashoffset="0"></circle>
+          </svg>
+          <div class="circle-text inline-richtext" contenteditable="true">
+            {{ section.settings.endurance_progress }}
+          </div>
+        </div>
+        <div class="circle-label">{{ section.settings.endurance_label }}</div>
+      </div>
+      <div class="circle-item circle-comfort">
+        <div class="circle-svg">
+          <svg viewBox="0 0 100 100">
+            <circle class="circle-bg" cx="50" cy="50" r="48"></circle>
+            <circle class="circle-progress"
+                    cx="50" cy="50" r="48"
+                    stroke-dasharray="301"
+                    stroke-dashoffset="0"></circle>
+          </svg>
+          <div class="circle-text inline-richtext" contenteditable="true">
+            {{ section.settings.comfort_progress }}
+          </div>
+        </div>
+        <div class="circle-label">{{ section.settings.comfort_label }}</div>
+      </div>
+      <div class="circle-item circle-lasting">
+        <div class="circle-svg">
+          <svg viewBox="0 0 100 100">
+            <circle class="circle-bg" cx="50" cy="50" r="48"></circle>
+            <circle class="circle-progress"
+                    cx="50" cy="50" r="48"
+                    stroke-dasharray="301"
+                    stroke-dashoffset="0"></circle>
+          </svg>
+          <div class="circle-text inline-richtext" contenteditable="true">
+            {{ section.settings.lasting_progress }}
+          </div>
+        </div>
+        <div class="circle-label">{{ section.settings.lasting_label }}</div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* Scoped CSS for Nike Vaporfly Section */
+    #nike-vaporfly-section-{{ section.id }} {
+      background-color: {{ section.settings.section_bg_color }};
+      text-align: center;
+      /* Desktop side padding */
+      padding-left: {{ section.settings.padding_desktop }}px;
+      padding-right: {{ section.settings.padding_desktop }}px;
+      /* Top & Bottom padding */
+      padding-top: {{ section.settings.top_padding }}px;
+      padding-bottom: {{ section.settings.bottom_padding }}px;
+    }
+    /* Header and instruction styling */
+    #nike-vaporfly-section-{{ section.id }} .header {
+      margin-bottom: {{ section.settings.vertical_spacing }}px;
+    }
+    #nike-vaporfly-section-{{ section.id }} .header .inline-richtext {
+      color: {{ section.settings.heading_text_color }};
+      font-size: 2rem;
+      margin: 0;
+    }
+    #nike-vaporfly-section-{{ section.id }} .instruction {
+      font-size: 0.9rem;
+      color: #666;
+      margin-top: 4px;
+    }
+    #nike-vaporfly-section-{{ section.id }} .circles {
+      display: flex;
+      justify-content: center;
+      gap: {{ section.settings.circle_spacing_desktop }}px;
+    }
+    #nike-vaporfly-section-{{ section.id }} .circle-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    /* Circle SVG dimensions for desktop */
+    #nike-vaporfly-section-{{ section.id }} .circle-svg {
+      position: relative;
+      width: {{ section.settings.circle_scale_desktop }}px;
+      height: {{ section.settings.circle_scale_desktop }}px;
+    }
+    #nike-vaporfly-section-{{ section.id }} .circle-svg svg {
+      width: 100%;
+      height: 100%;
+    }
+    /* Unfilled circle */
+    #nike-vaporfly-section-{{ section.id }} .circle-bg {
+      stroke: {{ section.settings.circle_bg_color }};
+      stroke-width: {{ section.settings.circle_thickness }};
+      fill: transparent;
+    }
+    /* Filled circle */
+    #nike-vaporfly-section-{{ section.id }} .circle-progress {
+      stroke: {{ section.settings.circle_progress_color }};
+      stroke-width: calc({{ section.settings.circle_thickness }} + 0.35) !important;
+      stroke-linecap: round;
+      fill: transparent;
+      transition: stroke-dashoffset 0.3s ease;
+    }
+    /* Editable progress number */
+    #nike-vaporfly-section-{{ section.id }} .circle-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: {{ section.settings.number_font_size }}px;
+      font-weight: 600;
+      color: {{ section.settings.number_text_color }};
+      outline: none;
+    }
+    /* Label texts */
+    #nike-vaporfly-section-{{ section.id }} .circle-label {
+      margin-top: 1rem;
+      font-size: {{ section.settings.label_font_size }}px;
+      color: {{ section.settings.label_text_color }};
+    }
+    /* Mobile Responsive Styles */
+    @media (max-width: 767px) {
+      #nike-vaporfly-section-{{ section.id }} {
+        padding-left: {{ section.settings.padding_mobile }}px;
+        padding-right: {{ section.settings.padding_mobile }}px;
+      }
+      #nike-vaporfly-section-{{ section.id }} .circles {
+        gap: {{ section.settings.circle_spacing_mobile }}px;
+        flex-wrap: wrap;
+        row-gap: {{ section.settings.vertical_gap_mobile }}px;
+      }
+      #nike-vaporfly-section-{{ section.id }} .circle-svg {
+        width: {{ section.settings.circle_scale_mobile }}px;
+        height: {{ section.settings.circle_scale_mobile }}px;
+      }
+    }
+  </style>
+
+  <script>
+    (function(){
+      // Get the section element by its unique id.
+      var sectionElement = document.getElementById('nike-vaporfly-section-{{ section.id }}');
+      if (!sectionElement) return;
+      
+      // Update a single progress circle based on its inline editable text.
+      function updateCircle(circleElement) {
+        var progressTextElement = circleElement.querySelector('.circle-text');
+        var percentage = parseInt(progressTextElement.textContent) || 0;
+        var circle = circleElement.querySelector('.circle-progress');
+        var dasharray = 301;
+        var offset = (100 - percentage) * dasharray / 100;
+        circle.setAttribute('stroke-dashoffset', offset);
+        progressTextElement.textContent = percentage + '%';
+      }
+      // Update all progress circles within this section.
+      function updateAllCircles() {
+        var circles = sectionElement.querySelectorAll('.circle-item');
+        circles.forEach(function(circle) {
+          updateCircle(circle);
+        });
+      }
+      // Listen for input changes on inline-richtext elements within this section.
+      function addRichtextListeners() {
+        var richtextElements = sectionElement.querySelectorAll('.inline-richtext');
+        richtextElements.forEach(function(el) {
+          el.addEventListener('input', function() {
+            updateAllCircles();
+          });
+        });
+      }
+      document.addEventListener("DOMContentLoaded", function(){
+        updateAllCircles();
+        addRichtextListeners();
+        // Observe changes in the section attributes (for theme editor live updates)
+        var observer = new MutationObserver(function(mutationsList) {
+          mutationsList.forEach(function(mutation) {
+            if (mutation.type === 'attributes') {
+              updateAllCircles();
+            }
+          });
+        });
+        observer.observe(sectionElement, { attributes: true });
+      });
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Progress Circles",
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "heading_text",
+      "label": "Section Heading",
+      "info": "Edit the main heading. Save the section after changes to reload the progress bars."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "speed_progress",
+      "label": "Speed Progress (Editable)",
+      "default": "85",
+      "info": "Enter the progress value for speed. You can connect dynamic values for different products."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "endurance_progress",
+      "label": "Endurance Progress (Editable)",
+      "default": "60",
+      "info": "Enter the progress value for endurance. You can connect dynamic values for different products."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "comfort_progress",
+      "label": "Comfort Progress (Editable)",
+      "default": "70",
+      "info": "Enter the progress value for comfort. You can connect dynamic values for different products."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "lasting_progress",
+      "label": "Lasting Progress (Editable)",
+      "default": "45",
+      "info": "Enter the progress value for lasting durability. You can connect dynamic values for different products."
+    },
+    {
+      "type": "text",
+      "id": "speed_label",
+      "label": "Label 1",
+      "default": "Eco-Friendly",
+      "info": "Edit the label text for speed."
+    },
+    {
+      "type": "text",
+      "id": "endurance_label",
+      "label": "Label 2",
+      "default": "Durability",
+      "info": "Edit the label text for endurance."
+    },
+    {
+      "type": "text",
+      "id": "comfort_label",
+      "label": "Label 3",
+      "default": "Comfort",
+      "info": "Edit the label text for comfort."
+    },
+    {
+      "type": "text",
+      "id": "lasting_label",
+      "label": "Label 4",
+      "default": "Softness ",
+      "info": "Edit the label text for lasting durability."
+    },
+    {
+      "type": "color",
+      "id": "circle_bg_color",
+      "label": "Unfilled Circle Color",
+      "default": "#d1d5db",
+      "info": "Set the color for the background (unfilled) portion of the circles."
+    },
+    {
+      "type": "color",
+      "id": "circle_progress_color",
+      "label": "Filled Circle Color",
+      "default": "#000000",
+      "info": "Set the color for the filled portion of the circles."
+    },
+    {
+      "type": "color",
+      "id": "label_text_color",
+      "label": "Label Text Color",
+      "default": "#000000",
+      "info": "Choose the color for the labels (Speed, Endurance, etc.)."
+    },
+    {
+      "type": "color",
+      "id": "number_text_color",
+      "label": "Number Text Color",
+      "default": "#000000",
+      "info": "Choose the color for the progress numbers inside the circles."
+    },
+    {
+      "type": "header",
+      "content": "Container Design",
+      "info": "Style the inner content container."
+    },
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Section Background Color",
+      "default": "#ffffff",
+      "info": "Set the background color for the entire section."
+    },
+    {
+      "type": "color",
+      "id": "heading_text_color",
+      "label": "Heading Text Color",
+      "default": "#000000",
+      "info": "Set the color for the section heading."
+    },
+    {
+      "type": "range",
+      "id": "vertical_spacing",
+      "label": "Spacing between Heading and Circles (px)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 16,
+      "info": "Adjust the vertical space from the heading to the circles."
+    },
+    {
+      "type": "range",
+      "id": "padding_desktop",
+      "label": "Desktop Side Padding (px)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 40,
+      "info": "Set left and right padding for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "padding_mobile",
+      "label": "Mobile Side Padding (px)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 20,
+      "info": "Set left and right padding for mobile view."
+    },
+    {
+      "type": "range",
+      "id": "top_padding",
+      "label": "Top Padding (px)",
+      "min": -50,
+      "max": 100,
+      "step": 10,
+      "default": 20,
+      "info": "Adjust the top padding of the section."
+    },
+    {
+      "type": "range",
+      "id": "bottom_padding",
+      "label": "Bottom Padding (px)",
+      "min": -50,
+      "max": 100,
+      "step": 10,
+      "default": 20,
+      "info": "Adjust the bottom padding of the section."
+    },
+    {
+      "type": "range",
+      "id": "circle_spacing_desktop",
+      "label": "Circle Gap (Desktop, px)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 32,
+      "info": "Set the horizontal gap between circles on desktop."
+    },
+    {
+      "type": "range",
+      "id": "circle_spacing_mobile",
+      "label": "Circle Gap (Mobile, px)",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 16,
+      "info": "Set the horizontal gap between circles on mobile."
+    },
+    {
+      "type": "range",
+      "id": "vertical_gap_mobile",
+      "label": "Vertical Gap Between Circles (Mobile, px)",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 16,
+      "info": "Adjust the vertical gap when circles wrap in mobile view."
+    },
+    {
+      "type": "range",
+      "id": "circle_scale_desktop",
+      "label": "Circle Size (Desktop, px)",
+      "min": 50,
+      "max": 300,
+      "step": 10,
+      "default": 130,
+      "info": "Set the diameter of the circles on desktop."
+    },
+    {
+      "type": "range",
+      "id": "circle_scale_mobile",
+      "label": "Circle Size (Mobile, px)",
+      "min": 30,
+      "max": 200,
+      "step": 10,
+      "default": 100,
+      "info": "Set the diameter of the circles on mobile."
+    },
+    {
+      "type": "range",
+      "id": "label_font_size",
+      "label": "Label Font Size (px)",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "default": 20,
+      "info": "Define the font size for the circle labels."
+    },
+    {
+      "type": "range",
+      "id": "number_font_size",
+      "label": "Number Font Size (px)",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "default": 24,
+      "info": "Define the font size for the progress numbers inside the circles."
+    },
+    {
+      "type": "range",
+      "id": "circle_thickness",
+      "label": "Circle Stroke Thickness (1-5)",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 4,
+      "info": "Control the stroke thickness for both filled and unfilled circles."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Progress Circles",
+      "category": "Other"
+    }
+  ]
+}
+{% endschema %}

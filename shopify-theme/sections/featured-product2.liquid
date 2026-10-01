@@ -1,0 +1,983 @@
+{% comment %} 
+  Product Spotlight Hero — 3-column PDP
+  - Left: title + description
+  - Center: large product image (variant image when selected)
+  - Right: Color selector (if present) above Size (if present) + Add to Cart
+  - Disables impossible combos, updates image & price on select
+  - Placeholder if product/media missing:
+    data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E
+{% endcomment %}
+
+{% assign st = section.settings %}
+{% assign product = all_products[st.product] %}
+{% assign has_product = false %}
+{% if product %}
+  {% assign has_product = true %}
+{% endif %}
+
+{% assign color_index = -1 %}
+{% assign size_index  = -1 %}
+{% if has_product %}
+  {% for opt in product.options_with_values %}
+    {% assign down = opt.name | downcase %}
+    {% if down contains 'color' or down contains 'colour' %}
+      {% assign color_index = forloop.index0 %}
+    {% endif %}
+    {% if down contains 'size' %}
+      {% assign size_index = forloop.index0 %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% assign desktop_ratio = st.desktop_ratio | default: 'landscape' %}
+{% assign mobile_ratio = st.mobile_ratio | default: 'landscape' %}
+
+{% assign desktop_aspect = '' %}
+{% assign desktop_height = '' %}
+{% case desktop_ratio %}
+  {% when 'landscape' %}
+    {% assign desktop_aspect = '16/9' %}
+    {% assign desktop_height = 'auto' %}
+  {% when 'portrait' %}
+    {% assign desktop_aspect = '9/16' %}
+    {% assign desktop_height = 'auto' %}
+  {% when 'square' %}
+    {% assign desktop_aspect = '1/1' %}
+    {% assign desktop_height = 'auto' %}
+  {% when 'auto' %}
+    {% assign desktop_aspect = 'unset' %}
+    {% assign desktop_height = 'var(--psh-img-height)' %}
+  {% when 'wide' %}
+    {% assign desktop_aspect = '21/9' %}
+    {% assign desktop_height = 'auto' %}
+{% endcase %}
+
+{% assign mobile_aspect = '' %}
+{% assign mobile_height = '' %}
+{% case mobile_ratio %}
+  {% when 'landscape' %}
+    {% assign mobile_aspect = '16/9' %}
+    {% assign mobile_height = 'auto' %}
+  {% when 'portrait' %}
+    {% assign mobile_aspect = '9/16' %}
+    {% assign mobile_height = 'auto' %}
+  {% when 'square' %}
+    {% assign mobile_aspect = '1/1' %}
+    {% assign mobile_height = 'auto' %}
+  {% when 'auto' %}
+    {% assign mobile_aspect = 'unset' %}
+    {% assign mobile_height = 'var(--psh-img-height)' %}
+  {% when 'wide' %}
+    {% assign mobile_aspect = '21/9' %}
+    {% assign mobile_height = 'auto' %}
+{% endcase %}
+
+{% assign place_src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E' %}
+{% assign placeholder_title = 'Product Title' %}
+{% assign placeholder_desc = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.' %}
+{% assign placeholder_price_cents = 4900 %}
+{% assign placeholder_compare_cents = 7900 %}
+
+{% assign title_block = section.blocks | where: 'type', 'title' | first %}
+{% assign desc_block = section.blocks | where: 'type', 'description' | first %}
+{% assign variants_block = section.blocks | where: 'type', 'variants' | first %}
+{% assign button_block = section.blocks | where: 'type', 'button' | first %}
+
+<section
+  id="product-spotlight-hero-{{ section.id }}"
+  class="psh {{ st.section_width }}{% if st.reset_spacing %} psh--no-padding{% endif %}"
+  style="
+    --psh-pad-top: {{ st.pad_top }}px;
+    --psh-pad-bottom: {{ st.pad_bottom }}px;
+    --psh-overlay: {{ st.overlay_opacity | times: 0.01 }};
+    --psh-bg: {{ st.bg | default: '#ffffff' }};
+    --psh-text: {{ st.text | default: '#111111' }};
+    --psh-title-size: {{ title_block.settings.title_size | default: 42 }}px;
+    --psh-title-weight: {{ title_block.settings.title_weight | default: 'inherit' }};
+    --psh-desc-weight: {{ desc_block.settings.desc_weight | default: '400' }};
+    --psh-price-size: {{ button_block.settings.price_size | default: 16 }}px;
+    --psh-price-weight: {{ button_block.settings.price_weight | default: '400' }};
+    --psh-button-size: {{ button_block.settings.button_size | default: 14 }}px;
+    --psh-button-weight: {{ button_block.settings.button_weight | default: '500' }};
+    --psh-button-bg: {{ button_block.settings.button_bg | default: 'transparent' }};
+    --psh-button-text: {{ button_block.settings.button_text | default: '#ffffff' }};
+    --psh-button-border: {{ button_block.settings.button_border | default: '#000000' }};
+    --psh-button-radius: {{ button_block.settings.button_radius | default: 0 }}px;
+    --psh-variant-bg-unsel: {{ variants_block.settings.variant_bg_unsel | default: '#ffffff' }};
+    --psh-variant-bg-sel: {{ variants_block.settings.variant_bg_sel | default: '#2e5cff' }};
+    --psh-variant-border-unsel: {{ variants_block.settings.variant_border_unsel | default: '#111111' }};
+    --psh-variant-border-sel: {{ variants_block.settings.variant_border_sel | default: '#2e5cff' }};
+    --psh-variant-text-unsel: {{ variants_block.settings.variant_text_unsel | default: '#111111' }};
+    --psh-variant-text-sel: {{ variants_block.settings.variant_text_sel | default: '#ffffff' }};
+    --psh-variant-radius: {{ variants_block.settings.variant_radius | default: 0 }}px;
+    --psh-img-border-radius: {{ st.img_border_radius | default: 0 }}px;
+    --psh-img-height: {{ st.image_height | default: 500 }}px;
+    --aspect-desktop: {{ desktop_aspect }};
+    --height-desktop: {{ desktop_height }};
+    --aspect-mobile: {{ mobile_aspect }};
+    --height-mobile: {{ mobile_height }};
+    --psh-arrow-size: {{ st.arrow_size | default: 24 }}px;
+    --psh-arrow-color: {{ st.arrow_color | default: '#111111' }};
+    --psh-low-color: {{ st.low_stock_color | default: '#c10000' }};
+    --psh-compare-color: {{ button_block.settings.compare_color | default: '#999999' }};
+  "
+>
+  <div class="psh__inner">
+    <div class="psh__col psh__col--left">
+      {% for block in section.blocks %}
+        {% if block.type == 'title' %}
+          <h1 class="psh__title">
+            {% if block.settings.enable_custom_title and block.settings.custom_title != blank %}
+              {{ block.settings.custom_title }}
+            {% else %}
+              {{ product.title | default: placeholder_title }}
+            {% endif %}
+          </h1>
+        {% elsif block.type == 'description' %}
+          <div class="psh__desc rte">
+            {% assign clean_desc = product.description | strip_html %}
+            {% if block.settings.enable_custom_desc and block.settings.custom_desc != blank %}
+              {{ block.settings.custom_desc | strip_html | newline_to_br }}
+            {% elsif clean_desc != blank %}
+              {{ clean_desc | newline_to_br }}
+            {% else %}
+              {{ placeholder_desc }}
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="psh__col psh__col--media">
+      <div class="psh-media{% if st.blue_tint %} psh-media--tinted{% endif %}">
+        <div class="psh-gallery">
+          {% if has_product and product.images.size > 0 %}
+            {% for image in product.images %}
+              <img 
+                class="psh-media__img" 
+                src="{{ image | image_url: width: 1500 }}" 
+                alt="{{ product.title | default: placeholder_title | escape }} - Image {{ forloop.index }}"
+                loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                style="opacity:{% if forloop.first %}1{% else %}0{% endif %};"
+              >
+            {% endfor %}
+          {% else %}
+            <img class="psh-media__img" src="{{ place_src }}" alt="Placeholder" loading="lazy" style="opacity:1;">
+          {% endif %}
+        </div>
+        {% if st.enable_arrows and has_product and product.images.size > 1 %}
+          <div class="psh-arrows">
+            <button class="psh-arrow psh-arrow--prev" aria-label="Previous image">‹</button>
+            <button class="psh-arrow psh-arrow--next" aria-label="Next image">›</button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if has_product %}
+      <div class="psh__col psh__col--right">
+        <product-spotlight-form
+          data-section-id="{{ section.id }}"
+          data-product-handle="{{ product.handle }}"
+          data-product-title="{{ product.title | escape }}"
+          data-money-format="{{ shop.money_format | escape }}"
+          data-add-url="{{ routes.cart_add_url | default: '/cart/add' }}"
+        >
+          <form method="post" action="{{ routes.cart_add_url | default: '/cart/add' }}" class="psh-form" novalidate data-add-behavior="{{ st.add_cart_behavior | default: 'instant' }}">
+            {% assign sel_var = product.selected_or_first_available_variant %}
+            {% if sel_var %}
+              <input type="hidden" name="id" value="{{ sel_var.id }}">
+            {% endif %}
+            <input type="hidden" name="quantity" value="1">
+ 
+
+            {% for block in section.blocks %}
+              {% if block.type == 'variants' %}
+                {% if color_index > -1 %}
+                  {% assign color_option = product.options_with_values[color_index] %}
+                  <div class="psh-group" data-option-index="{{ color_index }}">
+                    <div class="psh-group__label">{{ color_option.name }}</div>
+                    <div class="psh-swatches" role="radiogroup" aria-label="{{ color_option.name }}">
+                      {% for val in color_option.values %}
+                        <button
+                          type="button"
+                          class="psh-swatch"
+                          data-option-index="{{ color_index }}"
+                          data-value="{{ val | escape }}"
+                          aria-pressed="false"
+                          aria-label="{{ val }}"
+                        >
+                          <span class="psh-swatch__chip" style="
+                            {% assign lower = val | downcase %}
+                            {% if lower contains '#' or lower contains 'rgb' or lower == 'black' or lower == 'white' or lower == 'red' or lower == 'blue' or lower == 'green' or lower == 'brown' or lower == 'grey' or lower == 'gray' or lower == 'beige' or lower == 'navy' or lower == 'pink' or lower == 'purple' or lower == 'yellow' or lower == 'orange' %}
+                              background: {{ val }};
+                            {% endif %}
+                          "></span>
+                          <span class="psh-swatch__name">{{ val }}</span>
+                        </button>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endif %}
+
+                {% if size_index > -1 %}
+                  {% assign size_option = product.options_with_values[size_index] %}
+                  <div class="psh-group" data-option-index="{{ size_index }}">
+                    <div class="psh-group__label">{{ size_option.name }}</div>
+                    <div class="psh-sizes" role="radiogroup" aria-label="{{ size_option.name }}">
+                      {% for val in size_option.values %}
+                        <button
+                          type="button"
+                          class="psh-size"
+                          data-option-index="{{ size_index }}"
+                          data-value="{{ val | escape }}"
+                          aria-pressed="false"
+                        >{{ val }}</button>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endif %}
+
+                {% for opt in product.options_with_values %}
+                  {% assign idx0 = forloop.index0 %}
+                  {% if idx0 != color_index and idx0 != size_index %}
+                    <div class="psh-group" data-option-index="{{ idx0 }}">
+                      <div class="psh-group__label">{{ opt.name }}</div>
+                      <div class="psh-sizes" role="radiogroup" aria-label="{{ opt.name }}">
+                        {% for val in opt.values %}
+                          <button
+                            type="button"
+                            class="psh-size"
+                            data-option-index="{{ idx0 }}"
+                            data-value="{{ val | escape }}"
+                            aria-pressed="false"
+                          >{{ val }}</button>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+
+            {% for block in section.blocks %}
+              {% if block.type == 'button' %}
+                <div class="psh-price" data-price>
+                  {% if sel_var %}
+                    <span class="psh-compare" style="color:var(--psh-compare-color)">{% if sel_var.compare_at_price > sel_var.price %}{{ sel_var.compare_at_price | money }}{% endif %}</span>
+                    <span data-price-main>{{ sel_var.price | money }}</span>
+                  {% else %}
+                    <span class="psh-compare">{{ placeholder_compare_cents | money }}</span>
+                    <span data-price-main>{{ placeholder_price_cents | money }}</span>
+                  {% endif %}
+                </div>
+
+                <button type="submit" class="psh-add" {% if sel_var %}{% unless sel_var.available %}disabled{% endunless %}{% else %}disabled{% endif %}>
+                  <span class="psh-add__label">ADD TO CART — </span>
+                  {% if block.settings.show_price_in_button %}
+                    {% if sel_var %}
+                      <span class="psh-add__price" data-price-inline>{{ sel_var.price | money }}</span>
+                    {% else %}
+                      <span class="psh-add__price" data-price-inline">{{ placeholder_price_cents | money }}</span>
+                    {% endif %}
+                  {% endif %}
+                </button>
+
+                {% if st.show_low_stock and sel_var and sel_var.inventory_management and sel_var.inventory_quantity > 0 and sel_var.inventory_policy != 'continue' %}
+                  <p class="psh-low">{{ sel_var.inventory_quantity }} left in stock</p>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+
+          </form>
+
+          <script type="application/json" data-psh-variants>
+            {{ product.variants | json }}
+          </script>
+          <script type="application/json" data-psh-options>
+            {{ product.options | json }}
+          </script>
+        </product-spotlight-form>
+      </div>
+    {% else %}
+      <div class="psh__col psh__col--right">
+        <div class="psh-form">
+          {% for block in section.blocks %}
+            {% if block.type == 'variants' %}
+              <!-- Example Color group -->
+              <div class="psh-group">
+                <div class="psh-group__label">{{ 'products.product.color' | t }}</div>
+                <div class="psh-swatches" role="radiogroup" aria-label="Color">
+                  <button type="button" class="psh-swatch is-selected" aria-pressed="true">
+                    <span class="psh-swatch__chip" style="background:black;"></span>
+                    <span class="psh-swatch__name">Black</span>
+                  </button>
+                  <button type="button" class="psh-swatch" aria-pressed="false">
+                    <span class="psh-swatch__chip" style="background:white;"></span>
+                    <span class="psh-swatch__name">White</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Example Size group -->
+              <div class="psh-group">
+                <div class="psh-group__label">Talla</div>
+                <div class="psh-sizes" role="radiogroup" aria-label="Size">
+                  <button class="psh-size">S</button>
+                  <button class="psh-size is-selected" aria-pressed="true">M</button>
+                  <button class="psh-size">L</button>
+                </div>
+              </div>
+            {% elsif block.type == 'button' %}
+              <!-- Placeholder price with compare-at -->
+              <div class="psh-price">
+                <span class="psh-compare">{{ placeholder_compare_cents | money }}</span>
+                <span data-price-main>{{ placeholder_price_cents | money }}</span>
+              </div>
+
+              <!-- Placeholder add button (disabled) -->
+              <button class="psh-add" disabled>
+                <span class="psh-add__label">ADD TO CART — </span>
+                {% if block.settings.show_price_in_button %}
+                  <span class="psh-add__price" data-price-inline>{{ placeholder_price_cents | money }}</span>
+                {% endif %}
+              </button>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <style>
+    .psh { background: var(--psh-bg); color: var(--psh-text); padding-top: var(--psh-pad-top); padding-bottom: var(--psh-pad-bottom); }
+    .psh.container { max-width: 1200px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+    .psh.full-width { width: 100%; }
+
+    .psh__inner {
+      display: grid;
+      grid-template-columns: 1fr minmax(0, 1.6fr) 0.9fr;
+      gap: 48px;
+      align-items: start;
+    }
+    @media (max-width: 990px) {
+      .psh__inner { grid-template-columns: 1fr; gap: 24px; }
+    }
+
+    .psh__col--left { align-self: center; }
+    .psh__title { font-size: var(--psh-title-size); line-height: 1.05; letter-spacing: .01em; margin: 0 0 12px; text-transform: uppercase; font-weight: var(--psh-title-weight); }
+    .psh__desc { font-size: 14px; line-height: 1.75; opacity: .9; font-weight: var(--psh-desc-weight); }
+
+    .psh__col--media { position: relative; }
+    .psh-media { 
+      position: relative; 
+      overflow: hidden; 
+      width: 100%;
+      height: var(--height-desktop);
+      aspect-ratio: var(--aspect-desktop);
+      border-radius: var(--psh-img-border-radius);
+      cursor: default;
+    }
+    @media (max-width: 990px) {
+      .psh-media { 
+        height: var(--height-mobile);
+        aspect-ratio: var(--aspect-mobile);
+      }
+    }
+    .psh-media--tinted::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: #2e5cff;
+      opacity: var(--psh-overlay, .6);
+      pointer-events: none;
+      mix-blend-mode: multiply;
+    }
+    .psh-gallery { position: relative; height: 100%; width: 100%; }
+    .psh-media__img { 
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+      display: block; object-fit: cover; 
+      transition: opacity 0.3s ease; 
+    }
+
+    .psh-arrows {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+    .psh-arrow {
+      background: none;
+      border: none;
+      color: var(--psh-arrow-color);
+      font-size: var(--psh-arrow-size);
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+      pointer-events: all;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .psh-arrow:hover { opacity: 1; }
+
+    .psh__col--right { align-self: center; }
+    .psh-form.is-disabled { opacity: .6; pointer-events: none; }
+    .psh-group { margin-bottom: 18px; }
+    .psh-group__label { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 10px; opacity: .8; }
+
+    .psh-sizes, .psh-swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    .psh-size {
+      border: 1px solid var(--psh-variant-border-unsel);
+      min-width: 40px; height: 40px; padding: 0 10px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; line-height: 1; text-transform: uppercase;
+      background: var(--psh-variant-bg-unsel); color: var(--psh-variant-text-unsel); cursor: pointer;
+      border-radius: var(--psh-variant-radius);
+      transition: transform .12s ease, background .12s ease, color .12s ease, border-color .12s ease;
+    }
+    .psh-size[disabled], .psh-size.is-disabled { opacity: .35; cursor: not-allowed; }
+    .psh-size.is-selected { 
+      background: var(--psh-variant-bg-sel); 
+      color: var(--psh-variant-text-sel); 
+      border-color: var(--psh-variant-border-sel); 
+    }
+
+    .psh-swatch {
+      border: 1px solid var(--psh-variant-border-unsel);
+      height: 40px; padding: 0 10px; display: inline-flex; align-items: center; gap: 8px;
+      background: var(--psh-variant-bg-unsel); color: var(--psh-variant-text-unsel); cursor: pointer; text-transform: uppercase; font-size: 13px;
+      border-radius: var(--psh-variant-radius);
+      transition: transform .12s ease, background .12s ease, color .12s ease, border-color .12s ease;
+    }
+    .psh-swatch.is-selected { 
+      background: var(--psh-variant-bg-sel); 
+      color: var(--psh-variant-text-sel); 
+      border-color: var(--psh-variant-border-sel); 
+    }
+    .psh-swatch[disabled], .psh-swatch.is-disabled { opacity: .35; cursor: not-allowed; }
+    .psh-swatch__chip { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(0,0,0,.2); background: #e5e5e5; }
+
+    .psh-price { margin: 8px 0 14px; font-size: var(--psh-price-size); letter-spacing: .02em; font-weight: var(--psh-price-weight); }
+    .psh-compare { text-decoration: line-through; margin-right: 8px; color: var(--psh-compare-color); }
+
+    .psh-add {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 14px 18px;
+      background: var(--psh-button-bg); color: var(--psh-button-text); border: 2px solid var(--psh-button-border);
+      font-size: var(--psh-button-size); line-height: 1; text-transform: uppercase; letter-spacing: .06em;
+      cursor: pointer; width: 100%; max-width: 280px; font-weight: var(--psh-button-weight);
+      border-radius: var(--psh-button-radius);
+      transition: filter .2s ease, transform .12s ease, background .12s ease, color .12s ease;
+    }
+    .psh-add:disabled { opacity: .45; cursor: not-allowed; }
+    .psh-add:hover:not(:disabled) { filter: brightness(0.9); }
+
+    .psh-low { margin-top: 8px; font-size: 12px; letter-spacing: .04em; color: var(--psh-low-color); }
+
+    .psh--no-padding { padding-top: 0; padding-bottom: 0; }
+  </style>
+
+  {% if has_product %}
+    <script>
+      (function() {
+        var root = document.querySelector('#product-spotlight-hero-{{ section.id }}');
+        if (!root) return;
+        var formWrap = root.querySelector('product-spotlight-form');
+        if (!formWrap) return;
+
+        var variants = [];
+        var optionsNames = [];
+        try { variants = JSON.parse(formWrap.querySelector('[data-psh-variants]').textContent || '[]'); } catch(e) {}
+        try { optionsNames = JSON.parse(formWrap.querySelector('[data-psh-options]').textContent || '[]'); } catch(e) {}
+
+        var form = formWrap.querySelector('form.psh-form');
+        if (!form) return;
+
+        var hiddenInput = form.querySelector('input[name="id"]');
+        var priceEl = form.querySelector('[data-price]');
+        var priceMain = priceEl ? priceEl.querySelector('[data-price-main]') : null;
+        var priceInline = form.querySelector('[data-price-inline]');
+        var addBtn = form.querySelector('.psh-add');
+        var addLabel = form.querySelector('.psh-add__label');
+        var galleryImgs = root.querySelectorAll('.psh-media__img');
+        var currentImgIndex = 0;
+
+        function showImg(idx) {
+          if (galleryImgs.length === 0) return;
+          galleryImgs.forEach((img, i) => {
+            img.style.opacity = i === idx ? '1' : '0';
+          });
+          currentImgIndex = idx;
+        }
+
+        var mediaContainer = root.querySelector('.psh-media');
+        if ({{ st.enable_hover_image | json }} && galleryImgs.length > 1) {
+          let originalIndex;
+          mediaContainer.addEventListener('mouseenter', () => {
+            originalIndex = currentImgIndex;
+            showImg(1);
+          });
+          mediaContainer.addEventListener('mouseleave', () => {
+            showImg(originalIndex);
+          });
+        }
+
+        if (galleryImgs.length > 1) {
+          mediaContainer.style.cursor = 'pointer';
+          mediaContainer.addEventListener('click', (e) => {
+            if (e.target.closest('.psh-arrow')) return;
+            currentImgIndex = (currentImgIndex + 1) % galleryImgs.length;
+            showImg(currentImgIndex);
+          });
+        }
+
+        var prevBtn = root.querySelector('.psh-arrow--prev');
+        var nextBtn = root.querySelector('.psh-arrow--next');
+        if (prevBtn && galleryImgs.length > 1) {
+          prevBtn.addEventListener('click', () => {
+            currentImgIndex = (currentImgIndex - 1 + galleryImgs.length) % galleryImgs.length;
+            showImg(currentImgIndex);
+          });
+        }
+        if (nextBtn && galleryImgs.length > 1) {
+          nextBtn.addEventListener('click', () => {
+            currentImgIndex = (currentImgIndex + 1) % galleryImgs.length;
+            showImg(currentImgIndex);
+          });
+        }
+
+        if (galleryImgs.length > 1) {
+          var startX = 0;
+          var startY = 0;
+          const minSwipeDistance = 50;
+          mediaContainer.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+          }, { passive: true });
+          mediaContainer.addEventListener('touchend', (e) => {
+            if (startX === 0) return;
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
+            if (Math.abs(deltaY) > Math.abs(deltaX)) {
+              startX = 0;
+              return;
+            }
+            if (Math.abs(deltaX) > minSwipeDistance) {
+              if (deltaX > 0) {
+                currentImgIndex = (currentImgIndex - 1 + galleryImgs.length) % galleryImgs.length;
+              } else {
+                currentImgIndex = (currentImgIndex + 1) % galleryImgs.length;
+              }
+              showImg(currentImgIndex);
+            }
+            startX = 0;
+            startY = 0;
+          }, { passive: true });
+        }
+
+        var currentVariant = (variants.find(function(v){ return v.available; }) || variants[0]) || null;
+        var selection = currentVariant ? [currentVariant.option1, currentVariant.option2, currentVariant.option3].filter(Boolean) : [];
+
+        function fmtMoney(cents) {
+          var n = (cents || 0) / 100;
+          try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: '{{ shop.currency }}' }).format(n); }
+          catch(e) { return n.toFixed(2); }
+        }
+
+        var buttons = Array.prototype.slice.call(form.querySelectorAll('.psh-size, .psh-swatch'));
+
+        function variantBySelection(sel) {
+          return variants.find(function(v){
+            var opts = [v.option1, v.option2, v.option3].filter(function(x){return !!x;});
+            for (var i=0;i<sel.length;i++){
+              if (sel[i] && sel[i] !== opts[i]) return false;
+            }
+            return true;
+          });
+        }
+
+        function availabilityFor(index, value, partialSel) {
+          var trial = partialSel.slice();
+          trial[index] = value;
+          return variants.some(function(v){
+            if (!v.available) return false;
+            var opts = [v.option1, v.option2, v.option3];
+            for (var i=0;i<trial.length;i++){
+              if (!trial[i]) continue;
+              if (trial[i] !== opts[i]) return false;
+            }
+            return true;
+          });
+        }
+
+        function updateDisabledStates() {
+          var partial = selection.slice();
+          buttons.forEach(function(btn){
+            var idx = Number(btn.getAttribute('data-option-index'));
+            var val = btn.getAttribute('data-value');
+            var can = availabilityFor(idx, val, partial);
+            btn.classList.toggle('is-disabled', !can);
+            btn.disabled = !can;
+          });
+        }
+
+        function selectButtonUI(idx, val) {
+          buttons.forEach(function(btn){
+            var bIdx = Number(btn.getAttribute('data-option-index'));
+            if (bIdx !== idx) return;
+            var bVal = btn.getAttribute('data-value');
+            var isSel = (bVal === val);
+            btn.classList.toggle('is-selected', isSel);
+            btn.setAttribute('aria-pressed', String(isSel));
+          });
+        }
+
+        function updateUIFromVariant(variant) {
+          if (!variant) return;
+          if (hiddenInput) hiddenInput.value = variant.id;
+          if (priceMain) priceMain.textContent = fmtMoney(variant.price);
+          if (priceInline) priceInline.textContent = fmtMoney(variant.price);
+          if (addBtn) addBtn.disabled = !variant.available;
+
+          // Handle compare at price
+          if (priceEl) {
+            var compEl = priceEl.querySelector('.psh-compare');
+            if (variant.compare_at_price > variant.price) {
+              if (!compEl) {
+                compEl = document.createElement('span');
+                compEl.className = 'psh-compare';
+                compEl.style.color = 'var(--psh-compare-color)';
+                compEl.style.textDecoration = 'line-through';
+                compEl.style.marginRight = '8px';
+                priceEl.insertBefore(compEl, priceMain);
+              }
+              compEl.textContent = fmtMoney(variant.compare_at_price);
+            } else if (compEl) {
+              compEl.remove();
+            }
+          }
+
+          // Update image for variant
+          if (galleryImgs.length > 0 && variant.featured_image && variant.featured_image.src) {
+            var targetSrc = variant.featured_image.src.split('?')[0];
+            var targetFile = targetSrc.split('/').pop();
+            for (var i = 0; i < galleryImgs.length; i++) {
+              if (galleryImgs[i].src.includes(targetFile)) {
+                showImg(i);
+                break;
+              }
+            }
+          } else {
+            showImg(0);
+          }
+        }
+
+        function initDefaultButtonStates() {
+          selection.forEach(function(val, idx){
+            if (!val) return;
+            selectButtonUI(idx, val);
+          });
+          updateDisabledStates();
+          if (galleryImgs.length > 0) showImg(0);
+        }
+
+        buttons.forEach(function(btn){
+          btn.addEventListener('click', function(){
+            if (btn.disabled) return;
+            var idx = Number(btn.getAttribute('data-option-index'));
+            var val = btn.getAttribute('data-value');
+            selection[idx] = val;
+            selectButtonUI(idx, val);
+
+            var v = variantBySelection(selection) || variants.find(function(x){
+              var opts = [x.option1, x.option2, x.option3];
+              for (var i=0;i<selection.length;i++){
+                if (selection[i] && selection[i] !== opts[i]) return false;
+              }
+              return true;
+            }) || variants[0];
+
+            if (v) {
+              selection = [v.option1, v.option2, v.option3].filter(Boolean);
+              selection.forEach(function(val2, i2){ selectButtonUI(i2, val2); });
+              updateDisabledStates();
+              updateUIFromVariant(v);
+            }
+          });
+        });
+
+        var behavior = form.getAttribute('data-add-behavior') || 'instant';
+
+        if (!currentVariant && variants.length) currentVariant = variants[0];
+        if (!selection.length && currentVariant) selection = [currentVariant.option1, currentVariant.option2, currentVariant.option3].filter(Boolean);
+
+        initDefaultButtonStates();
+        updateUIFromVariant(currentVariant);
+
+        // Submit handler (AJAX in both modes; 'redirect' waits 3s then navigates)
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          var behaviorNow = form.getAttribute('data-add-behavior') || 'instant';
+
+          if (addBtn && addBtn.disabled) return;
+
+          var formData = new FormData(form);
+          var originalLabel = addLabel ? addLabel.textContent : '';
+
+          if (addLabel) addLabel.textContent = 'ADDING...';
+          if (addBtn) addBtn.disabled = true;
+
+          fetch(form.action + '.js', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+            body: formData
+          })
+          .then(function(response) { return response.json().catch(function(){ return {}; }); })
+          .then(function(data) {
+            // Fire a global event for any cart UI listeners
+            try { document.dispatchEvent(new CustomEvent('cart:updated', { detail: data })); } catch(e) {}
+
+            // Success UI
+            if (behaviorNow === 'redirect') {
+              if (addLabel) addLabel.textContent = 'ADDED! Redirecting…';
+              setTimeout(function() {
+                window.location.href = '{{ routes.cart_url }}';
+              }, 1000);
+            } else {
+              if (addLabel) addLabel.textContent = 'ADDED!';
+              if (addBtn) {
+                setTimeout(function() {
+                  if (addLabel) addLabel.textContent = originalLabel;
+                  addBtn.disabled = false;
+                }, 1200);
+              }
+            }
+          })
+          .catch(function(err) {
+            console.error('Add to cart error:', err);
+            if (addLabel) addLabel.textContent = 'ERROR';
+            if (addBtn) {
+              setTimeout(function() {
+                if (addLabel) addLabel.textContent = originalLabel;
+                addBtn.disabled = false;
+              }, 1200);
+            }
+          });
+        });
+      })();
+    </script>
+  {% endif %}
+</section>
+
+{% schema %} 
+{
+  "name": "Product Spotlight",
+  "settings": [
+    { "type": "product", "id": "product", "label": "Product" },
+
+    { "type": "header", "content": "Add to Cart Behavior" },
+    {
+      "type": "select",
+      "id": "add_cart_behavior",
+      "label": "Add to cart action",
+      "default": "redirect",
+      "options": [
+        { "value": "instant", "label": "Add to cart instantly" },
+        { "value": "redirect", "label": "Add to cart and redirect to the shopping cart" }
+      ]
+    },
+
+    { "type": "header", "content": "Layout" },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "default": "container",
+      "options": [
+        { "value": "container", "label": "Contained" },
+        { "value": "full-width", "label": "Full width" }
+      ]
+    },
+    { "type": "range", "id": "pad_top", "label": "Top padding", "min": 0, "max": 160, "step": 4, "default": 64 },
+    { "type": "range", "id": "pad_bottom", "label": "Bottom padding", "min": 0, "max": 160, "step": 4, "default": 64 },
+    { "type": "checkbox", "id": "reset_spacing", "label": "Remove section padding", "default": false },
+
+    { "type": "header", "content": "Colors & Overlay" },
+    { "type": "color", "id": "bg", "label": "Background", "default": "#ffffff" },
+    { "type": "color", "id": "text", "label": "Text color", "default": "#111111" },
+    { "type": "checkbox", "id": "blue_tint", "label": "Enable blue image tint", "default": false },
+    { "type": "range", "id": "overlay_opacity", "label": "Tint opacity (%)", "min": 0, "max": 100, "step": 5, "default": 70 },
+
+    { "type": "header", "content": "Product Image" },
+    { "type": "range", "id": "img_border_radius", "label": "Border radius (px)", "min": 0, "max": 50, "step": 1, "default": 0 },
+    { "type": "range", "id": "image_height", "label": "Height (px)", "min": 300, "max": 800, "step": 20, "default": 500 },
+    {
+      "type": "select",
+      "id": "desktop_ratio",
+      "label": "Desktop image ratio",
+      "default": "square",
+      "options": [
+        { "value": "landscape", "label": "Landscape (16:9)" },
+        { "value": "portrait", "label": "Portrait (9:16)" },
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "auto", "label": "Auto" },
+        { "value": "wide", "label": "Wide (21:9)" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "mobile_ratio",
+      "label": "Mobile image ratio",
+      "default": "square",
+      "options": [
+        { "value": "landscape", "label": "Landscape (16:9)" },
+        { "value": "portrait", "label": "Portrait (9:16)" },
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "auto", "label": "Auto" },
+        { "value": "wide", "label": "Wide (21:9)" }
+      ]
+    },
+    { "type": "checkbox", "id": "enable_hover_image", "label": "Enable smooth second image when hover over product image", "default": true },
+
+    { "type": "header", "content": "Image Navigation" },
+    { "type": "checkbox", "id": "enable_arrows", "label": "Enable minimal arrows navigation", "default": true },
+    { "type": "range", "id": "arrow_size", "label": "Arrow size (px)", "min": 12, "max": 32, "step": 2, "default": 24 },
+    { "type": "color", "id": "arrow_color", "label": "Arrow color", "default": "#111111" },
+
+    { "type": "header", "content": "Badges" },
+    { "type": "checkbox", "id": "show_low_stock", "label": "Show low-stock note when limited", "default": false },
+    { "type": "color", "id": "low_stock_color", "label": "Low stock color", "default": "#c10000" }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "name": "Title",
+      "settings": [
+        { "type": "range", "id": "title_size", "label": "Font size (px)", "min": 24, "max": 72, "step": 2, "default": 42 },
+        {
+          "type": "select",
+          "id": "title_weight",
+          "label": "Font weight",
+          "default": "inherit",
+          "options": [
+            { "value": "inherit", "label": "Inherit" },
+            { "value": "300", "label": "Light" },
+            { "value": "400", "label": "Normal" },
+            { "value": "500", "label": "Medium" },
+            { "value": "600", "label": "Semi-bold" },
+            { "value": "700", "label": "Bold" },
+            { "value": "800", "label": "Extra bold" },
+            { "value": "900", "label": "Black" }
+          ]
+        },
+        { "type": "checkbox", "id": "enable_custom_title", "label": "Enable custom title", "default": false },
+        { "type": "text", "id": "custom_title", "label": "Custom title", "default": "Product Title" }
+      ]
+    },
+    {
+      "type": "description",
+      "name": "Description",
+      "settings": [
+        {
+          "type": "select",
+          "id": "desc_weight",
+          "label": "Font weight",
+          "default": "400",
+          "options": [
+            { "value": "inherit", "label": "Inherit" },
+            { "value": "300", "label": "Light" },
+            { "value": "400", "label": "Normal" },
+            { "value": "500", "label": "Medium" },
+            { "value": "600", "label": "Semi-bold" },
+            { "value": "700", "label": "Bold" },
+            { "value": "800", "label": "Extra bold" },
+            { "value": "900", "label": "Black" }
+          ]
+        },
+        { "type": "checkbox", "id": "enable_custom_desc", "label": "Enable custom description", "default": false },
+        { "type": "textarea", "id": "custom_desc", "label": "Custom description", "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam." }
+      ]
+    },
+    {
+      "type": "variants",
+      "name": "Variant selectors",
+      "settings": [
+        { "type": "range", "id": "variant_radius", "label": "Border radius (px)", "min": 0, "max": 50, "step": 1, "default": 0 },
+        { "type": "color", "id": "variant_bg_unsel", "label": "Background unselected", "default": "#ffffff" },
+        { "type": "color", "id": "variant_bg_sel", "label": "Background selected", "default": "#2e5cff" },
+        { "type": "color", "id": "variant_border_unsel", "label": "Border unselected", "default": "#111111" },
+        { "type": "color", "id": "variant_border_sel", "label": "Border selected", "default": "#2e5cff" },
+        { "type": "color", "id": "variant_text_unsel", "label": "Text unselected", "default": "#111111" },
+        { "type": "color", "id": "variant_text_sel", "label": "Text selected", "default": "#ffffff" }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Add to cart button",
+      "settings": [
+        { "type": "range", "id": "price_size", "label": "Price font size (px)", "min": 12, "max": 24, "step": 1, "default": 16 },
+        {
+          "type": "select",
+          "id": "price_weight",
+          "label": "Price font weight",
+          "default": "400",
+          "options": [
+            { "value": "inherit", "label": "Inherit" },
+            { "value": "300", "label": "Light" },
+            { "value": "400", "label": "Normal" },
+            { "value": "500", "label": "Medium" },
+            { "value": "600", "label": "Semi-bold" },
+            { "value": "700", "label": "Bold" },
+            { "value": "800", "label": "Extra bold" },
+            { "value": "900", "label": "Black" }
+          ]
+        },
+        { "type": "checkbox", "id": "show_price_in_button", "label": "Show price in button", "default": true },
+        { "type": "color", "id": "compare_color", "label": "Compare at price color", "default": "#999999" },
+        { "type": "range", "id": "button_size", "label": "Button font size (px)", "min": 12, "max": 18, "step": 1, "default": 14 },
+        {
+          "type": "select",
+          "id": "button_weight",
+          "label": "Button font weight",
+          "default": "500",
+          "options": [
+            { "value": "inherit", "label": "Inherit" },
+            { "value": "300", "label": "Light" },
+            { "value": "400", "label": "Normal" },
+            { "value": "500", "label": "Medium" },
+            { "value": "600", "label": "Semi-bold" },
+            { "value": "700", "label": "Bold" },
+            { "value": "800", "label": "Extra bold" },
+            { "value": "900", "label": "Black" }
+          ]
+        },
+        { "type": "color", "id": "button_bg", "label": "Button background", "default": "#000" },
+        { "type": "color", "id": "button_text", "label": "Button text", "default": "#ffffff" },
+        { "type": "color", "id": "button_border", "label": "Button border", "default": "#000000" },
+        { "type": "range", "id": "button_radius", "label": "Border radius (px)", "min": 0, "max": 50, "step": 1, "default": 7 }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Spotlight Hero",
+      "category": "Products",
+      "blocks": [
+        { "type": "title" },
+        { "type": "description" },
+        { "type": "variants" },
+        { "type": "button" }
+      ]
+    }
+  ]
+}
+{% endschema %}

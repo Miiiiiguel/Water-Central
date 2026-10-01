@@ -1,0 +1,671 @@
+{% comment %}
+  COMMUNITY FEEDBACK SECTION
+  - Name: Community Feedback
+  - Purpose: Displays a 5-star average rating, total reviews, and several slider-based feedback items
+  - Mobile-responsive
+  - Allows adjusting slider percentages (now via text inputs) and many styling options in the Shopify customizer
+  - Includes color customizers for labels, filled stars, and unfilled stars
+  - Includes a desktop-only horizontal position slider for the “BASED ON X REVIEWS / All reviews are verified purchasers” text
+{% endcomment %}
+
+<section class="community-feedback-section" data-section-id="{{ section.id }}" data-section-type="community-feedback">
+  <style>
+    /* SCOPE EVERYTHING TO THIS SPECIFIC SECTION INSTANCE */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .community-feedback-container {
+      max-width: 800px;
+      margin: 0 auto;
+      /* We'll dynamically handle top/bottom padding via settings */
+      /* We'll keep left/right padding at 20px to maintain layout */
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    /* Header (rating + review info) */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .community-feedback-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .community-feedback-section[data-section-id="{{ section.id }}"] .community-feedback-header > * {
+      flex: 1 1 100%;
+    }
+
+    /* Rating container */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .rating-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .community-feedback-section[data-section-id="{{ section.id }}"] .rating-value {
+      /* Font size will be dynamic via settings */
+      font-weight: bold;
+      margin-right: 10px;
+      line-height: 1;
+    }
+
+    /* Stars */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .stars {
+      display: flex;
+      align-items: center;
+    }
+    .community-feedback-section[data-section-id="{{ section.id }}"] .star {
+      display: inline-block;
+      position: relative;
+      /* Width/Height will be dynamic via settings */
+      margin-right: 4px;
+    }
+    .community-feedback-section[data-section-id="{{ section.id }}"] .star svg {
+      width: 100%;
+      height: 100%;
+    }
+    /* Empty star (unfilled) */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .star.empty svg {
+      /* color set via dynamic unfilled_star_color */
+    }
+    /* Full star */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .star.full svg {
+      /* color set via dynamic filled_star_color */
+    }
+    /* Partial star approach */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .star.partial svg.star-outline {
+      /* color set via dynamic unfilled_star_color */
+    }
+    .community-feedback-section[data-section-id="{{ section.id }}"] .star.partial .star-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      overflow: hidden;
+    }
+    .community-feedback-section[data-section-id="{{ section.id }}"] .star.partial .star-fill svg {
+      /* color set via dynamic filled_star_color */
+    }
+
+    /* Reviews info text */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .reviews-info p {
+      margin: 0;
+    }
+
+    /* Sliders container (feedback items) */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .community-feedback-sliders {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .community-feedback-section[data-section-id="{{ section.id }}"] .feedback-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .community-feedback-section[data-section-id="{{ section.id }}"] .feedback-question {
+      /* Font size dynamic via settings */
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .community-feedback-section[data-section-id="{{ section.id }}"] .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      /* color handled by label_text_color */
+    }
+    .community-feedback-section[data-section-id="{{ section.id }}"] .slider-container {
+      width: 100%;
+      height: 6px;
+      position: relative;
+      /* background color & border-radius dynamic via settings */
+    }
+    .community-feedback-section[data-section-id="{{ section.id }}"] .slider-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      /* fill color & border-radius dynamic via settings */
+    }
+
+    /* Desktop vs Mobile font-size for review info text */
+    @media (min-width: 600px) {
+      .community-feedback-section[data-section-id="{{ section.id }}"] .reviews-info p {
+        font-size: {{ section.settings.reviews_info_font_size_desktop }}px;
+      }
+      .community-feedback-section[data-section-id="{{ section.id }}"] .community-feedback-header > * {
+        flex: 1 1 auto;
+      }
+      .community-feedback-section[data-section-id="{{ section.id }}"] .community-feedback-header {
+        flex-wrap: nowrap;
+      }
+      /* Desktop-only horizontal offset for .reviews-info */
+      .community-feedback-section[data-section-id="{{ section.id }}"] .reviews-info {
+        transform: translateX({{ section.settings.review_info_desktop_offset_x }}px);
+      }
+    }
+    @media (max-width: 599px) {
+      .community-feedback-section[data-section-id="{{ section.id }}"] .reviews-info p {
+        font-size: {{ section.settings.reviews_info_font_size_mobile }}px;
+      }
+    }
+
+    /* Dynamic styles based on section settings */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .community-feedback-container {
+      color: {{ section.settings.text_color }};
+      background-color: {{ section.settings.background_color }};
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+    .community-feedback-section[data-section-id="{{ section.id }}"] .rating-value {
+      font-size: {{ section.settings.average_rating_font_size }}px;
+    }
+    .community-feedback-section[data-section-id="{{ section.id }}"] .star {
+      width: {{ section.settings.star_size }}px;
+      height: {{ section.settings.star_size }}px;
+    }
+
+    /* Labels text color (forced) */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .feedback-question,
+    .community-feedback-section[data-section-id="{{ section.id }}"] .slider-labels span {
+      color: {{ section.settings.labels_text_color }} !important;
+    }
+
+    /* Unfilled star color */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .star.empty svg,
+    .community-feedback-section[data-section-id="{{ section.id }}"] .star.partial svg.star-outline {
+      fill: {{ section.settings.unfilled_star_color }} !important;
+    }
+
+    /* Filled star color (full and partial fill) */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .star.full svg,
+    .community-feedback-section[data-section-id="{{ section.id }}"] .star.partial .star-fill svg {
+      fill: {{ section.settings.filled_star_color }} !important;
+    }
+
+    /* Feedback question */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .feedback-question {
+      font-size: {{ section.settings.feedback_question_font_size }}px;
+    }
+
+    /* Slider label font size */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .slider-labels {
+      font-size: {{ section.settings.slider_label_font_size }}px;
+    }
+
+    /* Slider bar colors and border radius */
+    .community-feedback-section[data-section-id="{{ section.id }}"] .slider-container {
+      background-color: {{ section.settings.unfilled_bar_color }};
+      border-radius: {{ section.settings.bars_border_radius }}px;
+    }
+    .community-feedback-section[data-section-id="{{ section.id }}"] .slider-fill {
+      background-color: {{ section.settings.fill_bar_color }};
+      border-radius: {{ section.settings.bars_border_radius }}px;
+    }
+  </style>
+
+  <div class="community-feedback-container">
+    <!-- HEADER -->
+    <div class="community-feedback-header">
+      <!-- Left: Rating + Stars -->
+      <div class="rating-container">
+        <div class="rating-value">
+          {{ section.settings.average_rating }}
+        </div>
+        <div class="stars">
+          {% assign rating_float = section.settings.average_rating | plus: 0 %}
+          {% assign rating_floor = rating_float | floor %}
+          {% assign rating_fraction = rating_float | minus: rating_floor %}
+          {% assign rating_floor_plus_one = rating_floor | plus: 1 %}
+
+          {% for i in (1..5) %}
+            {% if i <= rating_floor %}
+              <!-- Full Star -->
+              <div class="star full">
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 .587l3.668 7.431 8.2 1.193-5.934 5.78 1.403 8.178L12 18.896l-7.337 3.853
+                           1.403-8.178L.132 9.211l8.2-1.193z"/>
+                </svg>
+              </div>
+            {% elsif i == rating_floor_plus_one %}
+              <!-- Partial Star -->
+              <div class="star partial">
+                <div class="star-fill" style="width: {{ rating_fraction | times: 100 }}%;">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M12 .587l3.668 7.431 8.2 1.193-5.934 5.78 1.403 8.178L12 18.896l-7.337 3.853
+                             1.403-8.178L.132 9.211l8.2-1.193z"/>
+                  </svg>
+                </div>
+                <svg class="star-outline" viewBox="0 0 24 24">
+                  <path d="M12 .587l3.668 7.431 8.2 1.193-5.934 5.78 1.403 8.178L12 18.896l-7.337 3.853
+                           1.403-8.178L.132 9.211l8.2-1.193z"/>
+                </svg>
+              </div>
+            {% else %}
+              <!-- Empty Star -->
+              <div class="star empty">
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 .587l3.668 7.431 8.2 1.193-5.934 5.78 1.403 8.178L12 18.896l-7.337 3.853
+                           1.403-8.178L.132 9.211l8.2-1.193z"/>
+                </svg>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Right: Review info -->
+      <div class="reviews-info">
+        <p>BASED ON {{ section.settings.total_reviews }} REVIEWS</p>
+        <p>All reviews are verified purchasers</p>
+      </div>
+    </div>
+
+    <!-- BODY: Sliders -->
+    <div class="community-feedback-sliders">
+      <!-- Value for Money -->
+      <div class="feedback-item">
+        <div class="feedback-question">
+          {{ section.settings.value_for_money_title }}
+        </div>
+        <div class="slider-labels">
+          <span>{{ section.settings.value_for_money_left_label }}</span>
+          <span>{{ section.settings.value_for_money_right_label }}</span>
+        </div>
+        <div class="slider-container">
+          <div class="slider-fill" style="width: {{ section.settings.value_for_money }}%;"></div>
+        </div>
+      </div>
+
+      <!-- Length -->
+      <div class="feedback-item">
+        <div class="feedback-question">
+          {{ section.settings.length_title }}
+        </div>
+        <div class="slider-labels">
+          <span>{{ section.settings.length_left_label }}</span>
+          <span>{{ section.settings.length_right_label }}</span>
+        </div>
+        <div class="slider-container">
+          <div class="slider-fill" style="width: {{ section.settings.length }}%;"></div>
+        </div>
+      </div>
+
+      <!-- Sizing -->
+      <div class="feedback-item">
+        <div class="feedback-question">
+          {{ section.settings.sizing_title }}
+        </div>
+        <div class="slider-labels">
+          <span>{{ section.settings.sizing_left_label }}</span>
+          <span>{{ section.settings.sizing_right_label }}</span>
+        </div>
+        <div class="slider-container">
+          <div class="slider-fill" style="width: {{ section.settings.sizing }}%;"></div>
+        </div>
+      </div>
+
+      <!-- Quality -->
+      <div class="feedback-item">
+        <div class="feedback-question">
+          {{ section.settings.quality_title }}
+        </div>
+        <div class="slider-labels">
+          <span>{{ section.settings.quality_left_label }}</span>
+          <span>{{ section.settings.quality_right_label }}</span>
+        </div>
+        <div class="slider-container">
+          <div class="slider-fill" style="width: {{ section.settings.quality }}%;"></div>
+        </div>
+      </div>
+
+      <!-- Comfort -->
+      <div class="feedback-item">
+        <div class="feedback-question">
+          {{ section.settings.comfort_title }}
+        </div>
+        <div class="slider-labels">
+          <span>{{ section.settings.comfort_left_label }}</span>
+          <span>{{ section.settings.comfort_right_label }}</span>
+        </div>
+        <div class="slider-container">
+          <div class="slider-fill" style="width: {{ section.settings.comfort }}%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% schema %}
+{
+  "name": "Community Feedback",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Star & Rating Settings"
+    },
+    {
+      "type": "text",
+      "id": "average_rating",
+      "label": "Average Rating",
+      "default": "4,3",
+      "info": "Set the overall star rating  e.g. 4,5 ."
+    },
+    {
+      "type": "range",
+      "id": "average_rating_font_size",
+      "label": "Average Rating Font Size (px)",
+      "default": 48,
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "info": "Controls the font size of the main numeric rating."
+    },
+    {
+      "type": "range",
+      "id": "star_size",
+      "label": "Star Size (px)",
+      "default": 24,
+      "min": 10,
+      "max": 60,
+      "step": 1,
+      "info": "Controls the size of each star."
+    },
+    {
+      "type": "color",
+      "id": "filled_star_color",
+      "label": "Filled Star Color",
+      "default": "#f1c40f",
+      "info": "Color used for the filled portion of stars."
+    },
+    {
+      "type": "color",
+      "id": "unfilled_star_color",
+      "label": "Unfilled Star Color",
+      "default": "#ccc",
+      "info": "Color used for the unfilled portion of stars."
+    },
+
+    {
+      "type": "header",
+      "content": "Reviews Info Settings"
+    },
+    {
+      "type": "text",
+      "id": "total_reviews",
+      "label": "Total Reviews",
+      "default": "127+",
+      "info": "Shown in 'BASED ON X REVIEWS'."
+    },
+    {
+      "type": "range",
+      "id": "reviews_info_font_size_desktop",
+      "label": "Reviews Info Font Size Desktop (px)",
+      "default": 15,
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "info": "Font size for the text (desktop)."
+    },
+    {
+      "type": "range",
+      "id": "reviews_info_font_size_mobile",
+      "label": "Reviews Info Font Size Mobile (px)",
+      "default": 15,
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "info": "Font size for the text (mobile)."
+    },
+    {
+      "type": "range",
+      "id": "review_info_desktop_offset_x",
+      "label": "Horizontal Offset (Desktop Only)",
+      "default": 140,
+      "min": -300,
+      "max": 300,
+      "step": 10,
+      "info": "Move the 'Based on X Reviews' text horizontally on larger screens."
+    },
+
+    {
+      "type": "header",
+      "content": "Layout & Colors"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "General Text Color",
+      "default": "#000000",
+      "info": "Overall text color for the section."
+    },
+    {
+      "type": "color",
+      "id": "labels_text_color",
+      "label": "Labels Text Color (important)",
+      "default": "#000000",
+      "info": "Color for all question labels and slider labels."
+    },
+    {
+      "type": "color",
+      "id": "fill_bar_color",
+      "label": "Fill Bar Color",
+      "default": "#000",
+      "info": "Color of the filled portion of each slider bar."
+    },
+    {
+      "type": "color",
+      "id": "unfilled_bar_color",
+      "label": "Unfilled Bar Color",
+      "default": "#e0e0e0",
+      "info": "Color of the unfilled portion of each slider bar."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff",
+      "info": "Background color of the entire section."
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding (px)",
+      "default": 50,
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "info": "Extra space above this section."
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding (px)",
+      "default": 50,
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "info": "Extra space below this section."
+    },
+    {
+      "type": "range",
+      "id": "bars_border_radius",
+      "label": "Bars Border Radius (px)",
+      "default": 3,
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "info": "Rounding for the edges of the slider bars."
+    },
+
+    {
+      "type": "header",
+      "content": "Sliders & Label Text"
+    },
+    {
+      "type": "range",
+      "id": "slider_label_font_size",
+      "label": "Slider Label Font Size (px)",
+      "default": 14,
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "info": "Font size for the left/right labels under each question."
+    },
+    {
+      "type": "range",
+      "id": "feedback_question_font_size",
+      "label": "Feedback Question Font Size (px)",
+      "default": 17,
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "info": "Font size for each slider’s question."
+    },
+
+    
+    {
+      "type": "text",
+      "id": "value_for_money_title",
+      "label": "Value for Money Title",
+      "default": "Is this product good value for money?",
+      "info": "Heading for the Value for Money slider."
+    },
+    {
+      "type": "text",
+      "id": "value_for_money_left_label",
+      "label": "Value for Money Left Label",
+      "default": "Very poor",
+      "info": "Left label for the Value for Money slider."
+    },
+    {
+      "type": "text",
+      "id": "value_for_money_right_label",
+      "label": "Value for Money Right Label",
+      "default": "Excellent",
+      "info": "Right label for the Value for Money slider."
+    },
+    {
+      "type": "text",
+      "id": "length_title",
+      "label": "Length Title",
+      "default": "What do you think of the length?",
+      "info": "Heading for the Length slider."
+    },
+    {
+      "type": "text",
+      "id": "length_left_label",
+      "label": "Length Left Label",
+      "default": "Too short",
+      "info": "Left label for the Length slider."
+    },
+    {
+      "type": "text",
+      "id": "length_right_label",
+      "label": "Length Right Label",
+      "default": "Too long",
+      "info": "Right label for the Length slider."
+    },
+    {
+      "type": "text",
+      "id": "sizing_title",
+      "label": "Sizing Title",
+      "default": "What do you think of the sizing?",
+      "info": "Heading for the Sizing slider."
+    },
+    {
+      "type": "text",
+      "id": "sizing_left_label",
+      "label": "Sizing Left Label",
+      "default": "Too tight",
+      "info": "Left label for the Sizing slider."
+    },
+    {
+      "type": "text",
+      "id": "sizing_right_label",
+      "label": "Sizing Right Label",
+      "default": "Too loose",
+      "info": "Right label for the Sizing slider."
+    },
+    {
+      "type": "text",
+      "id": "quality_title",
+      "label": "Quality Title",
+      "default": "Quality of Product",
+      "info": "Heading for the Quality slider."
+    },
+    {
+      "type": "text",
+      "id": "quality_left_label",
+      "label": "Quality Left Label",
+      "default": "1 Star",
+      "info": "Left label for the Quality slider."
+    },
+    {
+      "type": "text",
+      "id": "quality_right_label",
+      "label": "Quality Right Label",
+      "default": "5 Star",
+      "info": "Right label for the Quality slider."
+    },
+    {
+      "type": "text",
+      "id": "comfort_title",
+      "label": "Comfort Title",
+      "default": "How comfortable is this product?",
+      "info": "Heading for the Comfort slider."
+    },
+    {
+      "type": "text",
+      "id": "comfort_left_label",
+      "label": "Comfort Left Label",
+      "default": "Very uncomfortable",
+      "info": "Left label for the Comfort slider."
+    },
+    {
+      "type": "text",
+      "id": "comfort_right_label",
+      "label": "Comfort Right Label",
+      "default": "Very comfortable",
+      "info": "Right label for the Comfort slider."
+    },
+
+    
+    {
+      "type": "text",
+      "id": "value_for_money",
+      "label": "Value for money slider (0-100)",
+      "default": "80",
+      "info": "Enter a number 0–100 for how filled the slider should be."
+    },
+    {
+      "type": "text",
+      "id": "length",
+      "label": "Length slider (0-100)",
+      "default": "50",
+      "info": "Enter a number 0–100 for how filled the slider should be."
+    },
+    {
+      "type": "text",
+      "id": "sizing",
+      "label": "Sizing slider (0-100)",
+      "default": "50",
+      "info": "Enter a number 0–100 for how filled the slider should be."
+    },
+    {
+      "type": "text",
+      "id": "quality",
+      "label": "Quality slider (0-100)",
+      "default": "80",
+      "info": "Enter a number 0–100 for how filled the slider should be."
+    },
+    {
+      "type": "text",
+      "id": "comfort",
+      "label": "Comfort slider (0-100)",
+      "default": "90",
+      "info": "Enter a number 0–100 for how filled the slider should be."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Feedback Sliders ",
+       "category": "Testimonials"
+    }
+  ]
+}
+  {% endschema %}
+</section>

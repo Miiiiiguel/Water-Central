@@ -1,0 +1,876 @@
+{% schema %}
+{
+  "name": "Login Page",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Settings"
+    },
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Section Background Color",
+      "default": "#ffffff",
+      "info": "Set the background color for the entire login/register section."
+    },
+    {
+      "type": "range",
+      "id": "section_top_padding",
+      "label": "Section Top Padding (px)",
+      "default": 40,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "info": "Adjust the top padding of the section to control spacing above."
+    },
+    {
+      "type": "range",
+      "id": "section_bottom_padding",
+      "label": "Section Bottom Padding (px)",
+      "default": 40,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "info": "Adjust the bottom padding of the section to control spacing below."
+    },
+
+    {
+      "type": "header",
+      "content": "Card Settings"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Card Border Radius (px)",
+      "default": 8,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "info": "Define the border radius of the cards for rounded corners."
+    },
+    {
+      "type": "select",
+      "id": "cards_shadow",
+      "label": "Cards Shadow",
+      "default": "low",
+      "options": [
+        { "value": "none", "label": "No Shadow" },
+        { "value": "low", "label": "Low Shadow" },
+        { "value": "medium", "label": "Medium Shadow" },
+        { "value": "high", "label": "High Shadow" }
+      ],
+      "info": "Choose the intensity of the shadow effect on the cards."
+    },
+    {
+      "type": "color",
+      "id": "cards_background_color",
+      "label": "Cards Background Color Customizer",
+      "default": "#ffffff",
+      "info": "Override the card background color if needed."
+    },
+    {
+      "type": "range",
+      "id": "card_horizontal_padding_desktop",
+      "label": "Card Horizontal Padding (Desktop) (px)",
+      "default": 40,
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "info": "Set the horizontal padding inside cards for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "card_horizontal_padding_mobile",
+      "label": "Card Horizontal Padding (Mobile) (px)",
+      "default": 20,
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "info": "Set the horizontal padding inside cards for mobile view."
+    },
+    {
+      "type": "range",
+      "id": "card_vertical_padding",
+      "label": "Card Vertical Padding (px)",
+      "default": 30,
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "info": "Set the vertical padding inside the cards."
+    },
+    {
+      "type": "range",
+      "id": "create_account_card_vertical_padding",
+      "label": "Sign Up Card Vertical Padding (px)",
+      "default": 30,
+      "min": 0,
+      "max": 150,
+      "step": 10,
+      "info": "Adjust the vertical padding for the 'Don't Have An Account' card."
+    },
+
+    {
+      "type": "header",
+      "content": "Heading Settings"
+    },
+    {
+      "type": "color",
+      "id": "heading_text_color",
+      "label": "Heading Text Color",
+      "default": "#000000",
+      "info": "Set the color for the main headings in the section."
+    },
+    {
+      "type": "color",
+      "id": "heading_circle_color",
+      "label": "Heading Circle Background Color",
+      "default": "#a14ff7",
+      "info": "Set the background color for the circle behind the headings."
+    },
+
+    {
+      "type": "header",
+      "content": "Subtext Settings"
+    },
+    {
+      "type": "color",
+      "id": "subtext_color",
+      "label": "Subtext Color",
+      "default": "#999999",
+      "info": "Set the color for the subtext beneath the headings."
+    },
+    {
+      "type": "textarea",
+      "id": "register_subtext",
+      "label": "Register Subtext",
+      "default": "Sign up for early Sale access plus tailored new arrivals, trends and promotions. To opt out, click unsubscribe in our emails.",
+      "info": "Provide a descriptive subtext for the registration section."
+    },
+
+    {
+      "type": "header",
+      "content": "Button Settings"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Default Button Background Color",
+      "default": "#a14ff7",
+      "info": "Set the default background color for buttons."
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Default Button Text Color",
+      "default": "#ffffff",
+      "info": "Set the default text color for buttons."
+    },
+    {
+      "type": "color",
+      "id": "forgot_link_color",
+      "label": "Forgot Password Link Color",
+      "default": "#a14ff7",
+      "info": "Choose the color for the 'Forgot Password' link."
+    },
+    {
+      "type": "color",
+      "id": "signin_button_bg_color",
+      "label": "Sign In Button Background Color",
+      "default": "#a14ff7",
+      "info": "Set the background color specifically for the Sign In button."
+    },
+    {
+      "type": "color",
+      "id": "signin_button_hover_bg_color",
+      "label": "Sign In Button Hover Background Color",
+      "default": "#8f3ae6",
+      "info": "Set the background color for the Sign In button on hover."
+    },
+    {
+      "type": "color",
+      "id": "signin_button_text_color",
+      "label": "Sign In Button Text Color",
+      "default": "#ffffff",
+      "info": "Set the text color for the Sign In button."
+    },
+    {
+      "type": "color",
+      "id": "create_account_button_bg_color",
+      "label": "Create Account Button Background Color",
+      "default": "#a14ff7",
+      "info": "Set the background color specifically for the Create Account button."
+    },
+    {
+      "type": "color",
+      "id": "create_account_button_hover_bg_color",
+      "label": "Create Account Button Hover Background Color",
+      "default": "#8f3ae6",
+      "info": "Set the background color for the Create Account button on hover."
+    },
+    {
+      "type": "color",
+      "id": "create_account_button_text_color",
+      "label": "Create Account Button Text Color",
+      "default": "#ffffff",
+      "info": "Set the text color for the Create Account button."
+    },
+    {
+      "type": "range",
+      "id": "buttons_border_radius",
+      "label": "Buttons Border Radius (px)",
+      "default": 4,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "info": "Define the border radius for all buttons to achieve rounded corners."
+    },
+    {
+      "type": "range",
+      "id": "signin_button_top_padding",
+      "label": "Sign In Button Top Padding (px)",
+      "default": 12,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "info": "Adjust the top padding for the Sign In button."
+    },
+    {
+      "type": "range",
+      "id": "signin_button_bottom_padding",
+      "label": "Sign In Button Bottom Padding (px)",
+      "default": 12,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "info": "Adjust the bottom padding for the Sign In button."
+    },
+    {
+      "type": "range",
+      "id": "create_account_button_top_padding",
+      "label": "Create Account Button Top Padding (px)",
+      "default": 12,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "info": "Adjust the top padding for the Create Account button."
+    },
+    {
+      "type": "range",
+      "id": "create_account_button_bottom_padding",
+      "label": "Create Account Button Bottom Padding (px)",
+      "default": 12,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "info": "Adjust the bottom padding for the Create Account button."
+    },
+
+    {
+      "type": "header",
+      "content": "Input Settings"
+    },
+    {
+      "type": "range",
+      "id": "inputs_border_radius",
+      "label": "Inputs Border Radius (px)",
+      "default": 9,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "info": "Define the border radius for input fields."
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input Border Color",
+      "default": "#cccccc",
+      "info": "Set the border color for input fields."
+    },
+    {
+      "type": "color",
+      "id": "input_border_color_focus",
+      "label": "Input Border Color (Focus)",
+      "default": "#a14ff7",
+      "info": "Set the border color for input fields when focused."
+    },
+
+    {
+      "type": "header",
+      "content": "Icon Settings"
+    },
+    {
+      "type": "color",
+      "id": "icon_color_email",
+      "label": "Email Icon Color",
+      "default": "#000000",
+      "info": "Choose the color for email icons in input fields."
+    },
+    {
+      "type": "color",
+      "id": "icon_color_lock",
+      "label": "Lock Icon Color",
+      "default": "#000000",
+      "info": "Choose the color for lock icons in password fields."
+    }
+  ]
+}
+{% endschema %}
+
+{{ 'my-account.css' | asset_url | stylesheet_tag }}
+
+<style>
+    /* -----------------------------------------------------------
+       SINGLE-LAYOUT LOGIN/REGISTER SECTION
+       -----------------------------------------------------------
+    */
+    .one-row-layout-container {
+      width: 100%;
+      /* Force these paddings so they definitely take effect */
+      padding-top: var(--section-top-padding) !important;
+      padding-bottom: var(--section-bottom-padding) !important;
+      padding-left: 20px;
+      padding-right: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    
+    }
+
+    /* Wrapper holding the two forms side-by-side on desktop */
+    .one-row-layout-container .login-register-flex {
+      display: flex;
+      flex-flow: row nowrap;
+      gap: 40px;
+      max-width: 1200px;
+      width: 100%;
+    }
+    @media screen and (max-width: 768px) {
+      .one-row-layout-container .login-register-flex {
+        flex-direction: column;
+        gap: 20px;
+      }
+    }
+
+    /* Cards for login & register forms */
+    .one-row-layout-container .customer-form,
+    .one-row-layout-container .content-register {
+      flex: 1;
+      box-sizing: border-box;
+    }
+
+    /* Style for the card wrapper */
+    .one-row-layout-container .form-card {
+      background-color: var(--cards-background-color);
+      border-radius: var(--card-border-radius);
+      box-shadow: var(--cards-shadow);
+    }
+
+    /* Distinguish the general form card padding on desktop vs. mobile */
+    @media screen and (min-width: 769px) {
+      .one-row-layout-container .form-card {
+        padding: var(--card-vertical-padding) var(--card-horizontal-padding-desktop);
+      }
+    }
+    @media screen and (max-width: 768px) {
+      .one-row-layout-container .form-card {
+        padding: var(--card-vertical-padding) var(--card-horizontal-padding-mobile);
+      }
+    }
+
+    /* The create-account card might override vertical padding if set */
+    .one-row-layout-container .content-register.form-card {
+      padding-top: var(--create-account-card-vertical-padding);
+      padding-bottom: var(--create-account-card-vertical-padding);
+    }
+
+    /* Title styles (circle behind text + custom color) */
+    .one-row-layout-container .title-customer {
+      position: relative;
+      display: flex; /* for justify-content to work */
+      justify-content: center !important;
+      align-items: center; /* vertically center text */
+      margin-bottom: 10px;
+      font-size: 24px;
+      color: var(--heading-text-color);
+    }
+    .one-row-layout-container .title-customer::before {
+      content: "";
+      position: absolute;
+      left: -40px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: var(--heading-circle-color);
+      z-index: -1;
+    }
+
+    /* Subtext style (lighter, smaller text) */
+    .one-row-layout-container .form-subtext {
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: var(--subtext-color);
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Form fields + icons in the left corner */
+    .one-row-layout-container .form-field {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+      position: relative; /* to position the icon */
+    }
+    .one-row-layout-container .form-label {
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #555555;
+    }
+    .one-row-layout-container .form-label.visually-hidden {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    /* Input fields for email/password with icons on the left */
+    .one-row-layout-container input[type="email"],
+    .one-row-layout-container input[type="password"] {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 15px;
+      border: 1px solid var(--input-border-color, #cccccc);
+      border-radius: var(--inputs-border-radius, 9px);
+      transition: border-color 0.3s;
+      box-sizing: border-box;
+      padding-left: 42px; /* extra left space for the icon */
+    }
+    .one-row-layout-container input[type="email"]:focus,
+    .one-row-layout-container input[type="password"]:focus {
+      outline: none;
+      border-color: var(--input-border-color-focus, #a14ff7) !important;
+    }
+
+    /* Icon container (absolute) */
+    .one-row-layout-container .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 17px;
+      height: 17px;
+      pointer-events: none;
+      fill: var(--icon-color, #000000);
+    }
+
+    /* Distinguish for email vs lock */
+    .one-row-layout-container .icon-email {
+      fill: var(--icon-color-email);
+    }
+    .one-row-layout-container .icon-lock {
+      fill: var(--icon-color-lock);
+    }
+
+    /* Eye icon in password field (optional if you have toggle script) */
+    .one-row-layout-container .password-field-wrapper {
+      position: relative;
+    }
+    .one-row-layout-container .password-field-wrapper .eye-icon {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      fill: #999;
+    }
+
+    .one-row-layout-container .reset-password-btn {
+      background-color: var(--signin-button-bg-color) !important; /* Same as Sign In button */
+      color: var(--signin-button-text-color); /* Same as Sign In button */
+      border-radius: var(--buttons-border-radius); /* Same as Sign In button */
+      padding-top: var(--signin-button-top-padding) !important; /* Same as Sign In button */
+      padding-bottom: var(--signin-button-bottom-padding) !important; /* Same as Sign In button */
+      transition: background-color 0.3s, opacity 0.3s;
+    }
+
+    .one-row-layout-container .reset-password-btn:hover {
+      background-color: var(--signin-button-hover-bg-color) !important; /* Same as Sign In button hover */
+      opacity: 0.9; /* Optional hover effect */
+    }
+
+    /* Forgot password link */
+    .one-row-layout-container .forget-password {
+      font-size: 14px;
+      color: var(--forgot-link-color);
+      margin-top: -10px;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+    .one-row-layout-container .forget-password:hover {
+      text-decoration: underline;
+    }
+
+    /* Remember Me toggle switch */
+    .one-row-layout-container .remember-me-toggle-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .one-row-layout-container .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+    }
+    .one-row-layout-container .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .one-row-layout-container .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    .one-row-layout-container .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #fff;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    .one-row-layout-container .toggle-switch input:checked + .slider {
+      background-color: var(--button-bg-color, #a14ff7);
+    }
+    .one-row-layout-container .toggle-switch input:checked + .slider:before {
+      transform: translateX(18px);
+    }
+    .one-row-layout-container .slider.round {
+      border-radius: 34px;
+    }
+    .one-row-layout-container .remember-me-label {
+      font-size: 14px;
+      color: #555;
+      cursor: pointer;
+    }
+
+    /* Button style (original .btn-primary).
+       We'll override with more specific classes for sign-in and create-account. */
+    .one-row-layout-container .btn-primary {
+      background-color: var(--button-bg-color, #a14ff7);
+      color: var(--button-text-color, #ffffff);
+      font-size: 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      transition: background-color 0.3s, opacity 0.3s;
+      width: 100%;
+    }
+    .one-row-layout-container .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    /* Sign In button overrides (with !important for top/bottom paddings) */
+    .one-row-layout-container .sign-in-btn {
+      background-color: var(--signin-button-bg-color);
+      color: var(--signin-button-text-color);
+      border-radius: var(--buttons-border-radius);
+      padding-top: var(--signin-button-top-padding) !important;
+      padding-bottom: var(--signin-button-bottom-padding) !important;
+    }
+    .one-row-layout-container .sign-in-btn:hover {
+      background-color: var(--signin-button-hover-bg-color);
+    }
+
+    /* Create Account button overrides (with !important) */
+    .one-row-layout-container .create-account-btn {
+      background-color: var(--create-account-button-bg-color);
+      color: var(--create-account-button-text-color);
+      border-radius: var(--buttons-border-radius);
+      padding-top: var(--create_account_button_top_padding) !important;
+      padding-bottom: var(--create_account_button_bottom_padding) !important;
+    }
+    .one-row-layout-container .create-account-btn:hover {
+       background-color: var(--create-account-button-hover-bg-color) !important;
+    }
+
+    /* Error & Success messages */
+    .one-row-layout-container .alert-message {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .one-row-layout-container .error {
+      background-color: #ffe6e6;
+      color: #cc0000;
+    }
+    .one-row-layout-container .success {
+      background-color: #e6ffed;
+      color: #28a745;
+    }
+    .one-row-layout-container .alert-message svg {
+      margin-right: 10px;
+    }
+</style>
+
+{% comment %}
+  Expose dynamic CSS variables for easy customization
+{% endcomment %}
+<style>
+  .one-row-layout-container {
+    /* Existing variables */
+    --section-bg-color: {{ section.settings.section_bg_color }};
+    --cards-background-color: {{ section.settings.cards_background_color }};
+    --heading-text-color: {{ section.settings.heading_text_color }};
+    --heading-circle-color: {{ section.settings.heading_circle_color }};
+    --subtext-color: {{ section.settings.subtext_color }};
+    --button-bg-color: {{ section.settings.button_bg_color }};
+    --button-text-color: {{ section.settings.button_text_color }};
+    --forgot-link-color: {{ section.settings.forgot_link_color }};
+    --card-border-radius: {{ section.settings.card_border_radius }}px;
+
+    /* Desktop vs. mobile card paddings */
+    --card-horizontal-padding-desktop: {{ section.settings.card_horizontal_padding_desktop }}px;
+    --card-horizontal-padding-mobile: {{ section.settings.card_horizontal_padding_mobile }}px;
+    --card-vertical-padding: {{ section.settings.card_vertical_padding }}px;
+
+    /* Buttons custom vars */
+    --signin-button-bg-color: {{ section.settings.signin_button_bg_color }};
+    --signin-button-hover-bg-color: {{ section.settings.signin_button_hover_bg_color }};
+    --create-account-button-bg-color: {{ section.settings.create_account_button_bg_color }};
+    --create-account-button-hover-bg-color: {{ section.settings.create_account_button_hover_bg_color }};
+    --signin-button-text-color: {{ section.settings.signin_button_text_color }};
+    --create-account-button-text-color: {{ section.settings.create_account_button_text_color }};
+    --buttons-border-radius: {{ section.settings.buttons_border_radius }}px;
+
+    {% if section.settings.cards_shadow == 'none' %}
+      --cards-shadow: none;
+    {% elsif section.settings.cards_shadow == 'low' %}
+      --cards-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    {% elsif section.settings.cards_shadow == 'medium' %}
+      --cards-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    {% elsif section.settings.cards_shadow == 'high' %}
+      --cards-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    {% endif %}
+
+    /* Buttons padding */
+    --signin-button-top-padding: {{ section.settings.signin_button_top_padding }}px;
+    --signin-button-bottom-padding: {{ section.settings.signin_button_bottom_padding }}px;
+    --create_account_button_top_padding: {{ section.settings.create_account_button_top_padding }}px;
+    --create_account_button_bottom_padding: {{ section.settings.create_account_button_bottom_padding }}px;
+
+    /* Card vertical padding for the "Sign up" side */
+    --create-account-card-vertical-padding: {{ section.settings.create_account_card_vertical_padding }}px;
+
+    /* Section top/bottom padding */
+    --section-top-padding: {{ section.settings.section_top_padding }}px;
+    --section-bottom-padding: {{ section.settings.section_bottom_padding }}px;
+
+    /* Inputs border radius + colors */
+    --inputs-border-radius: {{ section.settings.inputs_border_radius }}px;
+    --input-border-color: {{ section.settings.input_border_color }};
+    --input-border-color-focus: {{ section.settings.input_border_color_focus }};
+
+    /* Icon colors */
+    --icon-color-email: {{ section.settings.icon_color_email }};
+    --icon-color-lock: {{ section.settings.icon_color_lock }};
+  }
+</style>
+
+<div class="one-row-layout-container" style="background-color: var(--section-bg-color)">
+  <!-- This container holds the entire forms layout -->
+  <div class="login-register-flex">
+    <!-- LOGIN / RECOVER Password Column -->
+    <div class="customer-form form-card">
+      <!-- Recover Password Section -->
+      <div class="customer-forgot" id="recover">
+        <h3 class="title-customer">{{ 'customer.recover_password.title' | t }}</h3>
+        <p class="form-subtext">{{ 'customer.recover_password.subtext' | t }}</p>
+
+        {%- form 'recover_customer_password' -%}
+          {%- assign recover_success = form.posted_successfully? -%}
+          {%- if form.errors -%}
+            {%- assign message = form.errors | default_errors | strip_html -%}
+            <p class="alert-message error">
+              {%- render 'icon-error' -%}
+              {{ message }}
+            </p>
+          {% endif %}
+
+          <div class="form-field">
+            <label class="form-label visually-hidden" for="RecoverEmail">
+              {{ 'customer.recover_password.email' | t }}
+              <span class="required">*</span>
+            </label>
+            <!-- Email Icon -->
+            <svg
+              class="input-icon icon-email"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 32 32"
+            >
+              <g data-name="Layer 3" id="Layer_3"><path d="m30.853 13.87a15 15 0 0 0 -29.729 4.082 15.1 15.1 0 0 0 12.876 12.918 15.6 15.6 0 0 0 2.016.13 14.85 14.85 0 0 0 7.715-2.145 1 1 0 1 0 -1.031-1.711 13.007 13.007 0 1 1 5.458-6.529 2.149 2.149 0 0 1 -4.158-.759v-10.856a1 1 0 0 0 -2 0v1.726a8 8 0 1 0 .2 10.325 4.135 4.135 0 0 0 7.83.274 15.2 15.2 0 0 0 .823-7.455zm-14.853 8.13a6 6 0 1 1 6-6 6.006 6.006 0 0 1 -6 6z"></path></g>
+            </svg>
+            <input
+              type="email"
+              name="email"
+              id="RecoverEmail"
+              autocomplete="email"
+              autocorrect="off"
+              autocapitalize="off"
+              placeholder="{{ 'customer.login_page.placeholder_email' | t }}"
+              required
+            >
+          </div>
+
+          <div class="form-field">
+            <input
+              type="submit"
+              class="btn-primary reset-password-btn"
+              value="{{ 'customer.recover_password.submit' | t }}"
+            >
+          </div>
+        {%- endform -%}
+      </div>
+
+      <!-- Login Section -->
+      <div class="customer-login">
+        <h3 class="title-customer">{{ 'customer.login_page.title' | t }}</h3>
+        <p class="form-subtext">
+          {{ 'Welcome back! Please enter your details' }}
+          <!-- or your custom text -->
+        </p>
+
+        {%- if recover_success == true -%}
+          <p class="alert-message success">
+            {%- render 'icon-success' -%}
+            {{ 'customer.recover_password.success' | t }}
+          </p>
+        {% endif %}
+
+        {%- form 'customer_login', class: 'customer-login-form' -%}
+          {%- if form.errors -%}
+            {%- assign message = form.errors.messages.form -%}
+            <p class="alert-message error">
+              {%- render 'icon-error' -%}
+              {{ message }}
+            </p>
+          {% endif %}
+
+          <!-- Email input with icon -->
+          <div class="form-field">
+            <label class="form-label visually-hidden" for="CustomerEmail">
+              {{ 'customer.login_page.email' | t }}
+              <span class="required">*</span>
+            </label>
+            <svg
+              class="input-icon icon-email"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 32 32"
+            >
+              <g data-name="Layer 3" id="Layer_3"><path d="m30.853 13.87a15 15 0 0 0 -29.729 4.082 15.1 15.1 0 0 0 12.876 12.918 15.6 15.6 0 0 0 2.016.13 14.85 14.85 0 0 0 7.715-2.145 1 1 0 1 0 -1.031-1.711 13.007 13.007 0 1 1 5.458-6.529 2.149 2.149 0 0 1 -4.158-.759v-10.856a1 1 0 0 0 -2 0v1.726a8 8 0 1 0 .2 10.325 4.135 4.135 0 0 0 7.83.274 15.2 15.2 0 0 0 .823-7.455zm-14.853 8.13a6 6 0 1 1 6-6 6.006 6.006 0 0 1 -6 6z"></path></g>
+            </svg>
+            <input
+              type="email"
+              name="customer[email]"
+              id="CustomerEmail"
+              placeholder="{{ 'customer.login_page.placeholder_email' | t }}"
+              required
+            >
+          </div>
+
+          {% if form.password_needed %}
+            <div class="form-field password-field-wrapper">
+              <label class="form-label visually-hidden" for="CustomerPassword">
+                {{ 'customer.login_page.password' | t }}
+                <span class="required">*</span>
+              </label>
+              <!-- Lock Icon -->
+              <svg
+                class="input-icon icon-lock"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="-64 0 512 512"
+              >
+                <path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224c0-26.476562 21.546875-48 48-48h288c26.453125 0 48 21.523438 48 48v224c0 26.476562-21.546875 48-48 48zm-288-288c-8.8125 0-16 7.167969-16 16v224c0 8.832031 7.1875 16 16 16h288c8.8125 0 16-7.167969 16-16v-224c0-8.832031-7.1875-16-16-16zm0 0"></path><path d="m304 224c-8.832031 0-16-7.167969-16-16v-80c0-52.929688-43.070312-96-96-96s-96 43.070312-96 96v80c0 8.832031-7.167969 16-16 16s-16-7.167969-16-16v-80c0-70.59375 57.40625-128 128-128s128 57.40625 128 128v80c0 8.832031-7.167969 16-16 16zm0 0"></path>
+              </svg>
+              <input
+                type="password"
+                name="customer[password]"
+                id="CustomerPassword"
+                placeholder="{{ 'customer.login_page.placeholder_pass' | t }}"
+                required
+              >
+              <!-- Eye icon (optional toggle) -->
+            </div>
+          {% endif %}
+
+          <!-- Remember Me Toggle -->
+          <div class="remember-me-toggle-field">
+            <label class="toggle-switch">
+              <input type="checkbox" name="remember_me" id="remember_me">
+              <span class="slider round"></span>
+            </label>
+            <label for="remember_me" class="remember-me-label">
+              {{ 'Remember me.' }}
+            </label>
+          </div>
+
+          <!-- Forgot password link -->
+          <a href="#recover" class="forget-password">
+            {{ 'customer.login_page.forgot_password' | t }}
+          </a>
+
+          <div>
+            <!-- Sign In Button with new class for custom paddings/colors -->
+            <input
+              type="submit"
+              class="btn-primary sign-in-btn"
+              value="{{ 'customer.login_page.submit' | t }}"
+            >
+          </div>
+        {%- endform -%}
+      </div>
+    </div>
+    <!-- END .customer-form -->
+
+    <!-- REGISTER COLUMN -->
+    <div class="content-register form-card">
+      <h3 class="title-customer">{{ 'customer.register.title_content' | t }}</h3>
+      <!-- Editable message from the new textarea setting -->
+      <p class="form-subtext">{{ section.settings.register_subtext }}</p>
+
+      <!-- Create Account Button with new class for custom paddings/colors -->
+      <a href="{{ routes.account_register_url }}" class="btn-primary create-account-btn">
+        {{ 'customer.register.submit' | t }}
+      </a>
+    </div>
+  </div>
+  <!-- END .login-register-flex -->
+</div>

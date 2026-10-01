@@ -1,0 +1,183 @@
+{%- liquid
+  assign section_st = section.settings
+  assign section_width = section_st.section_width
+  assign color_scheme = section_st.color_scheme
+  assign t = template | split: '.' | first
+-%}
+<section
+  id="breadcrumbs-{{ section.id }}"
+  class="breadcrumbs color-{{ color_scheme }} gradient fs-small{% if t == 'product' and section_st.dashboard_redirect_url %} py-20{% else %} py-25{% endif %}"
+>
+  <style>
+    /* ID selector ensures these override any utility classes like py-20/py-25 */
+    #breadcrumbs-{{ section.id }}{
+      /* Desktop defaults */
+      --bc-pad-top-desktop: {{ section_st.top_padding_desktop | default: 25 }}px;
+      --bc-pad-bottom-desktop: {{ section_st.bottom_padding_desktop | default: 25 }}px;
+      --bc-height-desktop: {{ section_st.breadcrumb_height_desktop | default: 0 }}px;
+
+      padding-top: var(--bc-pad-top-desktop);
+      padding-bottom: var(--bc-pad-bottom-desktop);
+      /* If height is 0, min-height auto; otherwise enforce */
+      {% if section_st.breadcrumb_height_desktop > 0 %}
+      min-height: var(--bc-height-desktop);
+      {% endif %}
+      box-sizing: border-box;
+      {% if section_st.enable_bottom_border %}
+      border-bottom: 1px solid {{ section_st.bottom_border_color | default: '#000000' }};
+      {% endif %}
+    }
+
+    @media (max-width: 749px){
+      #breadcrumbs-{{ section.id }}{
+        --bc-pad-top-mobile: {{ section_st.top_padding_mobile | default: 20 }}px;
+        --bc-pad-bottom-mobile: {{ section_st.bottom_padding_mobile | default: 20 }}px;
+        --bc-height-mobile: {{ section_st.breadcrumb_height_mobile | default: 0 }}px;
+
+        padding-top: var(--bc-pad-top-mobile);
+        padding-bottom: var(--bc-pad-bottom-mobile);
+        {% if section_st.breadcrumb_height_mobile > 0 %}
+        min-height: var(--bc-height-mobile);
+        {% endif %}
+      }
+    }
+  </style>
+
+  <div class="{{ section_width }}">
+    {% render 'breadcrumbs',
+      dashboard_icon_color: section_st.dashboard_icon_color,
+      dashboard_redirect_url: section_st.dashboard_redirect_url
+    %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Breadcrumbs Section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "options": [
+        { "value": "container", "label": "Container Width" },
+        { "value": "fluid_container", "label": "Fluid Container" },
+        { "value": "stretch_width", "label": "Stretch Width" },
+        { "value": "full_width", "label": "Full Width" }
+      ],
+      "default": "fluid_container",
+      "label": "Select Section Width",
+      "info": "Choose the width for the breadcrumb section."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "default": "default-color-scheme",
+      "info": "Select the color scheme for the breadcrumbs."
+    },
+    {
+      "type": "color",
+      "id": "dashboard_icon_color",
+      "label": "Dashboard Icon Color",
+      "default": "#919191",
+      "info": "Choose the color for the dashboard icon."
+    },
+    {
+      "type": "text",
+      "id": "dashboard_redirect_url",
+      "label": "Dashboard Redirect URL",
+      "default": "/collections/all",
+      "info": "Enter the URL where the dashboard icon should redirect when clicked."
+    },
+
+    
+    {
+      "type": "header",
+      "content": "Spacing (Desktop)"
+    },
+    {
+      "type": "range",
+      "id": "top_padding_desktop",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 160,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "bottom_padding_desktop",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 160,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "breadcrumb_height_desktop",
+      "label": "Breadcrumb height (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "unit": "px",
+      "default": 50,
+      "info": "Set to 0 for automatic height."
+    },
+
+    {
+      "type": "header",
+      "content": "Spacing (Mobile)"
+    },
+    {
+      "type": "range",
+      "id": "top_padding_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "bottom_padding_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "breadcrumb_height_mobile",
+      "label": "Breadcrumb height (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 5,
+      "unit": "px",
+      "default": 0,
+      "info": "Set to 0 for automatic height."
+    },
+    {
+      "type": "header",
+      "content": "Bottom Border"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_bottom_border",
+      "label": "Enable bottom border line",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "bottom_border_color",
+      "label": "Bottom border color",
+      "default": "#000000"
+    }
+  ]
+}
+{% endschema %}

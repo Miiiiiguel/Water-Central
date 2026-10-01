@@ -1,0 +1,787 @@
+{% schema %}
+{
+  "name": "Faq-1",
+  "tag": "section",
+  "class": "faq1",
+
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Desktop top spacing",
+      "default": 90,
+      "info": "Adjust the top spacing for desktop"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Desktop bottom spacing",
+      "default": 120,
+      "info": "Adjust the bottom spacing for desktop"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Desktop left spacing",
+      "default": 180,
+      "info": "Adjust the left spacing for desktop"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_right",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Desktop right spacing",
+      "default": 180,
+      "info": "Adjust the right spacing for desktop"
+    },
+    {
+      "type": "header",
+      "content": "Mobile spacing"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile top spacing",
+      "default": 70,
+      "info": "Adjust the top spacing for mobile"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile bottom spacing",
+      "default": 100,
+      "info": "Adjust the bottom spacing for mobile"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile left spacing",
+      "default": 0,
+      "info": "Adjust the left spacing for mobile"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_right_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile right spacing",
+      "default": 0,
+      "info": "Adjust the right spacing for mobile"
+    },
+    {
+      "type": "header",
+      "content": "General"
+    },
+    {
+      "type": "checkbox",
+      "id": "inherit_fonts",
+      "default": false,
+      "label": "Use theme font sizes?",
+      "info": "Enable this to inherit font sizes from your theme"
+    },
+    {
+      "type": "checkbox",
+      "id": "is_fullwidth",
+      "default": false,
+      "label": "Make section full width",
+      "info": "Stretch this section to the full screen width"
+    },
+    {
+      "type": "checkbox",
+      "id": "is_first_opened",
+      "default": true,
+      "label": "Expand first FAQ by default",
+      "info": "Open the first FAQ item automatically when the page loads"
+    },
+    {
+      "type": "select",
+      "id": "faq_position",
+      "label": "FAQ alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left",
+      "info": "Control the overall alignment of the FAQ items"
+    },
+    {
+      "type": "select",
+      "id": "heading_text_position",
+      "label": "Heading text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center",
+      "info": "Align the main heading text"
+    },
+    {
+      "type": "color",
+      "id": "heading_text_color",
+      "label": "Heading text color",
+      "default": "#292929",
+      "info": "Customize the color of the main heading"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "FAQ title color",
+      "default": "#212121",
+      "info": "Customize the color of the accordion (FAQ) titles"
+    },
+    {
+      "type": "color",
+      "id": "content_color",
+      "label": "FAQ content color",
+      "default": "#5D5D5D",
+      "info": "Customize the text color of the FAQ content"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Arrow color",
+      "default": "#000000",
+      "info": "Customize the color of the collapsible arrow icon"
+    },
+    {
+      "type": "range",
+      "id": "arrow_icon_size",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Arrow icon size",
+      "default": 15,
+      "info": "Customize the size of the arrow SVG icon"
+    },
+    {
+      "type": "color",
+      "id": "arrow_bg_color",
+      "label": "Arrow background color",
+      "default": "#F3F3F3",
+      "info": "Customize the background color of the arrow button."
+    },
+    {
+      "type": "range",
+      "id": "arrow_padding",
+      "min": 5,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Arrow background size",
+      "default": 11,
+      "info": "Adjust the padding inside the arrow background."
+    },
+    {
+      "type": "range",
+      "id": "arrow_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Button arrow background border radius",
+      "default": 50,
+      "info": "Control the border radius of the arrow background."
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Accordion border color",
+      "default": "#DEDEDE",
+      "info": "Set the border color separating each FAQ item"
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size",
+      "min": 10,
+      "max": 80,
+      "step": 1,
+      "unit": "px",
+      "label": "Main heading font size",
+      "default": 31,
+      "info": "Adjust the font size of the main heading"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "FAQ title font size",
+      "default": 21,
+      "info": "Adjust the font size of each FAQ title"
+    },
+    {
+      "type": "select",
+      "id": "title_font_weight",
+      "label": "FAQ title font weight",
+      "options": [
+        {
+          "value": "300",
+          "label": "Light"
+        },
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "400",
+      "info": "Choose how thick or thin the FAQ titles appear"
+    },
+    {
+      "type": "range",
+      "id": "title_padding_left_mobile",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "FAQ Title Left Padding (Mobile)",
+      "default": 15,
+      "info": "Adjust left padding for FAQ title on mobile"
+    },
+    {
+      "type": "range",
+      "id": "title_padding_right_mobile",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "FAQ Title Right Padding (Mobile)",
+      "default": 15,
+      "info": "Adjust right padding for FAQ title on mobile"
+    },
+    {
+      "type": "range",
+      "id": "content_font_size",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "FAQ content font size",
+      "default": 16,
+      "info": "Adjust the font size of the FAQ content text"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "transparent",
+      "info": "Choose a background color for this section"
+    },
+    {
+      "type": "number",
+      "id": "container_max_width",
+      "label": "Content width limit (px)",
+      "default": 1320,
+      "info": "Limit the maximum width of the content container"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "Custom class",
+      "info": "Adds a custom CSS class to the outermost section wrapper"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS",
+      "info": "Add additional custom CSS here if desired"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading tag",
+      "options": [
+        {
+          "value": "h1",
+          "label": "H1"
+        },
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        },
+        {
+          "value": "h4",
+          "label": "H4"
+        },
+        {
+          "value": "h5",
+          "label": "H5"
+        },
+        {
+          "value": "h6",
+          "label": "H6"
+        }
+      ],
+      "default": "h2",
+      "info": "Select the HTML heading tag for the main title"
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Heading",
+      "type": "heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading_text",
+          "label": "Heading text",
+          "default": "Heading text",
+          "info": "Enter your main heading"
+        }
+      ]
+    },
+    {
+      "name": "Accordion",
+      "type": "accordion",
+      "limit": 12,
+      "settings": [
+        {
+          "type": "text",
+          "id": "acc_heading",
+          "label": "Title",
+          "default": "Title",
+          "info": "Enter the FAQ item title"
+        },
+        {
+          "type": "richtext",
+          "id": "acc_text",
+          "label": "Content",
+          "default": "<p>Content goes here...</p>",
+          "info": "Enter the main body content for this FAQ item"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ-1",
+        "category": "FAQ",
+      "settings": {
+        "container_max_width": 850,
+        "background_color": "transparent"
+      },
+      "blocks": [
+        {
+          "type": "heading",
+          "settings": {
+            "heading_text": "Frequently Asked Questions"
+          }
+        },
+        {
+          "type": "accordion",
+          "settings": {
+            "acc_heading": "Question Goes Here ",
+            "acc_text": "<p>Typography in web design is used to create a hierarchy of information on a page, with the most important information displayed in larger, more prominent typefaces. This helps users quickly grasp the structure and content.</p>"
+          }
+        },
+        {
+          "type": "accordion",
+          "settings": {
+            "acc_heading": "Question Goes Here ",
+            "acc_text": "<p>Good web typography should be easy to read, with clear, legible typefaces and appropriate line spacing and font sizes.</p>"
+          }
+        },
+        {
+          "type": "accordion",
+          "settings": {
+            "acc_heading": "Question Goes Here ",
+            "acc_text": "<p>Typography is crucial for branding, helping convey a company's personality. Thoughtfully chosen typefaces create a cohesive visual identity across a website and its marketing materials.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+{% assign sec_id = section.id | slice: -6, 6 | replace: '-', '_' %}
+{% assign sec_id = sec_id | prepend: 'loudecomz' %}
+
+{%- style -%}
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  .loudecomz-container,
+  .loudecomz-container-fluid {
+    width: 100%;
+    padding-right: var(--loudecomz-gutter-x, 15px);
+    padding-left: var(--loudecomz-gutter-x, 15px);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  @media (min-width: 576px) {
+    .loudecomz-container {
+      max-width: 540px;
+    }
+  }
+  @media (min-width: 750px) {
+    .loudecomz-container {
+      max-width: 720px;
+    }
+  }
+  @media (min-width: 992px) {
+    .loudecomz-container {
+      max-width: 960px;
+    }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width <= 960 %}
+      .loudecomz-section__{{sec_id}} .loudecomz-container {
+        max-width: {{section.settings.container_max_width}}px;
+      }
+    {% endif %}
+  }
+  @media (min-width: 1200px) {
+    .loudecomz-container {
+      max-width: 1140px;
+    }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width <= 1140 %}
+      .loudecomz-section__{{sec_id}} .loudecomz-container {
+        max-width: {{section.settings.container_max_width}}px;
+      }
+    {% endif %}
+  }
+  @media (min-width: 1400px) {
+    .loudecomz-container {
+      max-width: 1320px;
+    }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width != 1320 %}
+      .loudecomz-section__{{sec_id}} .loudecomz-container {
+        max-width: {{section.settings.container_max_width}}px;
+      }
+    {% endif %}
+  }
+
+  .loudecomz-section__{{sec_id}} {
+    --loudecomz-gutter-x: 25px;
+    background-color: {{ section.settings.background_color }};
+    padding-top: {{ section.settings.section_padding_top }}px;
+    padding-bottom: {{ section.settings.section_padding_bottom }}px;
+    padding-left: {{ section.settings.section_padding_left }}px;
+    padding-right: {{ section.settings.section_padding_right }}px;
+    line-height: 1.5;
+  }
+
+  /* Mobile overrides */
+  @media only screen and (max-width: 749px) {
+    .loudecomz-section__{{sec_id}} {
+      padding-top: {{ section.settings.section_padding_top_mobile }}px !important;
+      padding-bottom: {{ section.settings.section_padding_bottom_mobile }}px !important;
+      padding-left: {{ section.settings.section_padding_left_mobile }}px !important;
+      padding-right: {{ section.settings.section_padding_right_mobile }}px !important;
+    }
+    .loudecomz-section__{{sec_id}} .loudecomz-accordion-btn {
+      padding-left: {{ section.settings.title_padding_left_mobile }}px;
+      /* Removed the complex padding-right calculation */
+    }
+  }
+
+  /* Heading & Subheading styling */
+  .loudecomz-section__{{sec_id}} .loudecomz-section-title {
+    color: {{ section.settings.heading_text_color }} !important;
+    text-align: {{ section.settings.heading_text_position }};
+    font-size: {{ section.settings.heading_font_size }}px;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 30px;
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-section-subtitle {
+    color: {{ section.settings.heading_text_color }} !important;
+    text-align: {{ section.settings.heading_text_position }};
+    margin: 0 auto 40px;
+    max-width: 800px;
+  }
+
+  /* FAQ alignment */
+  .loudecomz-section__{{sec_id}} .loudecomz-accordion {
+    text-align: {{ section.settings.faq_position }};
+  }
+
+  /* Accordion items */
+  .loudecomz-section__{{sec_id}} .loudecomz-accordion-item {
+    margin-bottom: 0; /* Just to keep items stacked nicely */
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-accordion-header {
+    cursor: pointer;
+    padding: 20px 0;
+    width: 100%;
+    transition: 0.3s;
+    position: relative; /* for arrow positioning */
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-accordion-btn {
+    margin: 0;
+    padding: 0 15px 0 0; /* Added padding-right: 15px for spacing */
+    display: inline-block; /* so text flows normally, arrow is absolute */
+    font-size: {{ section.settings.title_font_size }}px;
+    font-weight: {{ section.settings.title_font_weight }};
+    color: {{ section.settings.title_color }} !important;
+    max-width: calc(100% - ({{ section.settings.arrow_icon_size }}px + {{ section.settings.arrow_padding | times: 2 }}px)); /* Added to prevent overlap */
+  }
+
+  /* Arrow Icon - pinned to the far right */
+  .loudecomz-section__{{sec_id}} .accordion-arrow {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    background-color: {{ section.settings.arrow_bg_color }};
+    border-radius: {{ section.settings.arrow_border_radius }}px;
+    padding: {{ section.settings.arrow_padding }}px;
+    transform: translateY(-50%);
+    display: inline-flex;
+  }
+  .loudecomz-section__{{sec_id}} .accordion-arrow svg {
+    transition: transform 0.4s ease;
+    transform-origin: center;
+    width: {{ section.settings.arrow_icon_size }}px;
+    height: {{ section.settings.arrow_icon_size }}px;
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-accordion-item.active .accordion-arrow svg {
+    transform: rotate(90deg);
+  }
+
+  /* Accordion content area */
+  .loudecomz-section__{{sec_id}} .loudecomz-accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease; /* smoother animation */
+    border-bottom: 2px solid {{ section.settings.border_color }};
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-accordion-content-inner {
+    padding-bottom: 20px;
+  }
+
+  /* FAQ content text */
+  .loudecomz-section__{{sec_id}} .loudecomz-accordion-content p,
+  .loudecomz-section__{{sec_id}} .loudecomz-accordion-content li,
+  .loudecomz-section__{{sec_id}} .loudecomz-accordion-content a {
+    font-size: {{ section.settings.content_font_size }}px;
+    color: {{ section.settings.content_color }};
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+  .loudecomz-section__{{sec_id}} .loudecomz-accordion-content ul,
+  .loudecomz-section__{{sec_id}} .loudecomz-accordion-content ol {
+    margin-top: 12px;
+    margin-bottom: 12px;
+    padding-left: 20px;
+  }
+
+  /* If user wants to rely on the theme's inherent font sizes instead: */
+  {% if section.settings.inherit_fonts == true %}
+    /* Rely on theme-provided font sizes, if enabled. */
+  {% endif %}
+{%- endstyle -%}
+
+{% if section.settings.custom_css != blank %}
+  {%- style -%}
+    {{ section.settings.custom_css }}
+  {%- endstyle -%}
+{% endif %}
+
+{% if section.settings.is_fullwidth == true %}
+  {% assign container = 'loudecomz-container-fluid' %}
+{% else %}
+  {% assign container = 'loudecomz-container' %}
+{% endif %}
+
+<div class="loudecomz-section__{{sec_id}} {{ section.settings.custom_class }}">
+  <div class="{{container}}">
+    <div class="loudecomz-row">
+      <div class="loudecomz-col-lg-12">
+        <div class="loudecomz-title-wrapper">
+          {% for block in section.blocks %}
+            {% case block.type %}
+              {% when 'heading' %}
+                {% if block.settings.heading_text != blank %}
+                  <{{ section.settings.heading_tag }}
+                    class="loudecomz-section-title"
+                    {{ block.shopify_attributes }}
+                  >
+                    {{ block.settings.heading_text | escape }}
+                  </{{ section.settings.heading_tag }}>
+                {% endif %}
+              {% when 'subheading' %}
+                {% if block.settings.subheading_text != blank %}
+                  <p class="loudecomz-section-subtitle" {{ block.shopify_attributes }}>
+                    {{ block.settings.subheading_text }}
+                  </p>
+                {% endif %}
+            {% endcase %}
+          {% endfor %}
+        </div>
+      </div>
+      <div class="loudecomz-col-lg-12">
+        <div class="loudecomz-accordion">
+          {% assign count = 0 %}
+          {% for block in section.blocks %}
+            {% case block.type %}
+              {% when 'accordion' %}
+                {% assign count = count | plus: 1 %}
+                <div
+                  class="loudecomz-accordion-item {% if section.settings.is_first_opened and count == 1 %}active{% endif %}"
+                  {{ block.shopify_attributes }}
+                >
+                  <div class="loudecomz-accordion-header">
+                    {% if block.settings.acc_heading != blank %}
+                      <h3 class="loudecomz-accordion-btn">
+                        {{ block.settings.acc_heading }}
+                      </h3>
+                      <!-- Arrow SVG -->
+                      <span class="accordion-arrow">
+                        <svg
+                          fill="{{ section.settings.arrow_color }}"
+                          height="20px"
+                          width="20px"
+                          version="1.1"
+                          id="Layer_1"
+                          xmlns="http://www.w3.org/2000/svg"
+                          xmlns:xlink="http://www.w3.org/1999/xlink"
+                          viewBox="0 0 330 330"
+                          xml:space="preserve"
+                        >
+                          <path d="M250.606,154.389l-150-149.996c-5.857-5.858-15.355-5.858-21.213,0.001
+                           c-5.857,5.858-5.857,15.355,0.001,21.213l139.393,139.39L79.393,304.394c-5.857,5.858-5.857,15.355,0.001,21.213
+                           C82.322,328.536,86.161,330,90,330s7.678-1.464,10.607-4.394l149.999-150.004c2.814-2.813,4.394-6.628,4.394-10.606
+                           C255,161.018,253.42,157.202,250.606,154.389z"/>
+                        </svg>
+                      </span>
+                    {% endif %}
+                  </div>
+                  <div
+                    class="loudecomz-accordion-content"
+                    {% if section.settings.is_first_opened and count == 1 %}
+                      style="max-height: none;"
+                    {% endif %}
+                  >
+                    {% if block.settings.acc_text != blank %}
+                      <div class="loudecomz-accordion-content-inner">
+                        {{ block.settings.acc_text }}
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+            {% endcase %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Smoother open/close logic
+  window.addEventListener('DOMContentLoaded', function() {
+    let faqItems = document.querySelectorAll('.loudecomz-section__{{sec_id}} .loudecomz-accordion-item');
+
+    // Expand first item if applicable
+    if (faqItems.length && faqItems[0].classList.contains('active')) {
+      let firstPanel = faqItems[0].querySelector('.loudecomz-accordion-content');
+      if (firstPanel) {
+        firstPanel.style.maxHeight = firstPanel.scrollHeight + "px";
+      }
+    }
+
+    // Toggle each item on click
+    faqItems.forEach(function(item) {
+      item.addEventListener('click', function() {
+        // If it is already open, close it
+        if (item.classList.contains('active')) {
+          item.classList.remove('active');
+          let content = item.querySelector('.loudecomz-accordion-content');
+          if (content) content.style.maxHeight = null;
+        } else {
+          // Close others (if you want an accordion-like one-at-a-time behavior)
+          // If you prefer multiple open, just remove the loop below.
+          faqItems.forEach(function(otherItem) {
+            otherItem.classList.remove('active');
+            let otherContent = otherItem.querySelector('.loudecomz-accordion-content');
+            if (otherContent) otherContent.style.maxHeight = null;
+          });
+
+          // Now open this one
+          item.classList.add('active');
+          let content = item.querySelector('.loudecomz-accordion-content');
+          if (content) content.style.maxHeight = content.scrollHeight + "px";
+        }
+      });
+    });
+  });
+</script>
+
+{%- if request.design_mode -%}
+  <link
+    rel="stylesheet"
+    href="https://cdn.shopify.com/s/files/1/0511/2465/files/design-mode.css"
+    onload="
+      var ecomss_script = document.createElement('script');
+      ecomss_script.setAttribute('src','https://ecomss-sections-assets.pages.dev/assets/js/lich-accordion.min.js');
+      document.head.appendChild(ecomss_script);
+    "
+  >
+{%- endif -%}

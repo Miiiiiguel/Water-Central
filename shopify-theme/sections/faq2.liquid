@@ -1,0 +1,753 @@
+<div class="loudecomz-faq-wrapper">
+  <div
+    class="ecomss-faq-shopify-section"
+    style="
+      padding-top: {{ section.settings.section_top_padding }}px;
+      padding-bottom: {{ section.settings.section_bottom_padding }}px;
+      padding-left: {{ section.settings.section_left_padding_desktop }}px;
+      padding-right: {{ section.settings.section_right_padding_desktop }}px;
+      background-color: {{ section.settings.section_background_color }};
+    "
+  >
+    {% if section.settings.enable_badge %}
+      <div class="badge-wrapper" style="text-align: center; margin-bottom: {{ section.settings.badge_vertical_spacing }}px;">
+        <a {% if section.settings.badge_link != blank %}href="{{ section.settings.badge_link }}"{% endif %} class="badge-pill" style="
+          font-size: {{ section.settings.badge_font_size_desktop }}rem;
+          font-weight: {{ section.settings.badge_font_weight }};
+          color: {{ section.settings.badge_text_color }};
+          background-color: {{ section.settings.badge_bg_color }};
+          border: 1px solid {{ section.settings.badge_border_color }};
+          border-radius: {{ section.settings.badge_border_radius }}px;
+          padding: 8px 20px;
+          display: inline-block;
+          text-decoration: none;
+        ">
+          {{ section.settings.badge_text }}
+        </a>
+      </div>
+    {% endif %}
+
+    {% for block in section.blocks %}
+      {% if block.type == "heading" %}
+        <h1 block-id="{{ block.id }}" style="
+          color: {{ block.settings.text_color }} !important;
+          font-weight: {{ block.settings.font_weight }};
+          font-size: {{ block.settings.font_size_desktop }}rem;
+          margin-bottom: {{ block.settings.vertical_spacing }}px;
+          text-align: center;
+        ">
+          {{ block.settings.heading }}
+        </h1>
+      {% endif %}
+    {% endfor %}
+
+    <div class="ecomss-faq-container" role="list">
+      {% for block in section.blocks %}
+        {% if block.type == "text" %}
+          {% assign _uid = forloop.index | prepend: '-' | prepend: section.id %}
+          <div class="ecomss-faq-container-item" role="listitem">
+            <!-- Hidden checkbox that toggles each Q&A open/closed -->
+            <input style="display:none!important;" type="checkbox" id="tab{{ _uid }}" class="tab-toggle">
+            <label for="tab{{ _uid }}" class="ecomss-faq-question" role="button" aria-controls="ans{{ _uid }}" aria-expanded="false">
+              {{ block.settings.question }}
+            </label>
+            <div id="ans{{ _uid }}" class="ecomss-faq-answer" aria-hidden="true">
+              {{ block.settings.answer }}
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Faq 2",
+  "presets": [
+    {
+      "category": "FAQ",
+      "name": "FAQ 2",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text",
+          "settings": {
+            "question": "Do you provide free shipping?",
+            "answer": "<p>Yes! We offer complimentary standard shipping on all orders exceeding $100. A minimal shipping fee applies for orders below this threshold, calculated at checkout. Estimated delivery times vary based on location and shipping method.</p>"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "question": "What is your return policy?",
+            "answer": "<p>If you’re unsatisfied with your purchase, you can return it within 14 days for a full refund. The item must be unused and in its original packaging.</p>"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "question": "What are the estimated delivery times?",
+            "answer": "<p>Delivery times depend on your location and the shipping method selected. Standard shipping typically takes 5-7 business days, while expedited options may arrive sooner. International deliveries may take longer due to customs processing.</p>"
+          }
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Spacing"
+    },
+    {
+      "type": "range",
+      "label": "Section Top Padding (Desktop)",
+      "id": "section_top_padding",
+      "default": 33,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "info": "Padding at the top of the section for desktop view."
+    },
+    {
+      "type": "range",
+      "label": "Section Bottom Padding (Desktop)",
+      "id": "section_bottom_padding",
+      "default": 33,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "info": "Padding at the bottom of the section for desktop view."
+    },
+    {
+      "type": "range",
+      "label": "Section Top Padding (Mobile)",
+      "id": "section_top_padding_mobile",
+      "default": 33,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "info": "Padding at the top of the section for mobile view."
+    },
+    {
+      "type": "range",
+      "label": "Section Bottom Padding (Mobile)",
+      "id": "section_bottom_padding_mobile",
+      "default": 33,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "info": "Padding at the bottom of the section for mobile view."
+    },
+    {
+      "type": "range",
+      "label": "Section Left Padding (Desktop)",
+      "id": "section_left_padding_desktop",
+      "default": 15,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "info": "Left padding for the section on desktop."
+    },
+    {
+      "type": "range",
+      "label": "Section Right Padding (Desktop)",
+      "id": "section_right_padding_desktop",
+      "default": 15,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "info": "Right padding for the section on desktop."
+    },
+    {
+      "type": "color",
+      "label": "Section Background Color",
+      "id": "section_background_color",
+      "default": "transparent",
+      "info": "Customize the background color of the section."
+    },
+    {
+      "type": "header",
+      "content": "Badge Settings"
+    },
+    {
+      "type": "checkbox",
+      "label": "Enable Badge above heading text",
+      "id": "enable_badge",
+      "default": false,
+      "info": "Toggle to enable a pill-shaped badge above the heading."
+    },
+    {
+      "type": "text",
+      "label": "Badge Text",
+      "id": "badge_text",
+      "default": "Have more questions?",
+      "info": "The text inside the badge."
+    },
+    {
+      "type": "url",
+      "label": "Badge Link URL",
+      "id": "badge_link",
+      "info": "The URL to redirect to when the badge is clicked, e.g., contact page."
+    },
+    {
+      "type": "range",
+      "label": "Badge Font Size (Desktop)",
+      "id": "badge_font_size_desktop",
+      "default": 1.2,
+      "min": 0.8,
+      "max": 2.0,
+      "step": 0.1,
+      "info": "Font size for the badge text on desktop."
+    },
+    {
+      "type": "range",
+      "label": "Badge Font Size (Mobile)",
+      "id": "badge_font_size_mobile",
+      "default": 1.1,
+      "min": 0.5,
+      "max": 2.0,
+      "step": 0.1,
+      "info": "Font size for the badge text on mobile."
+    },
+    {
+      "type": "select",
+      "label": "Badge Font Weight",
+      "id": "badge_font_weight",
+      "default": "400",
+      "options": [
+        { "value": "inherit", "label": "Inherit" },
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "600", "label": "Semibold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "info": "Select the font weight for the badge text."
+    },
+    {
+      "type": "color",
+      "label": "Badge Text Color",
+      "id": "badge_text_color",
+      "default": "#000000",
+      "info": "Customize the text color of the badge."
+    },
+    {
+      "type": "color",
+      "label": "Badge Background Color",
+      "id": "badge_bg_color",
+      "default": "#f0f0f0",
+      "info": "Customize the background color of the badge."
+    },
+    {
+      "type": "color",
+      "label": "Badge Border Color",
+      "id": "badge_border_color",
+      "default": "#000000",
+      "info": "Customize the border color of the badge."
+    },
+    {
+      "type": "range",
+      "label": "Badge Border Radius",
+      "id": "badge_border_radius",
+      "default": 20,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "info": "Adjust the border radius for the pill-shaped badge."
+    },
+    {
+      "type": "range",
+      "label": "Vertical Spacing (Badge to Heading)",
+      "id": "badge_vertical_spacing",
+      "default": 10,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "info": "Adjust the space between the badge and the heading."
+    },
+    {
+      "type": "header",
+      "content": "Question Settings"
+    },
+    {
+      "type": "checkbox",
+      "label": "Enable Question Background Gradient",
+      "id": "enable_question_gradient",
+      "default": true,
+      "info": "Toggle to enable a background gradient for questions."
+    },
+    {
+      "type": "color",
+      "label": "Gradient Color 1",
+      "id": "gradient_color_1",
+      "default": "#FAFAFA",
+      "info": "First color for the question gradient."
+    },
+    {
+      "type": "color",
+      "label": "Gradient Color 2",
+      "id": "gradient_color_2",
+      "default": "#F9F9F9",
+      "info": "Second color for the question gradient."
+    },
+    {
+      "type": "color",
+      "label": "Gradient Color 3",
+      "id": "gradient_color_3",
+      "default": "#FAFAFA",
+      "info": "Third color for the question gradient."
+    },
+    {
+      "type": "select",
+      "label": "Gradient Angle",
+      "id": "gradient_degrees",
+      "default": "90deg",
+      "options": [
+        { "value": "0deg", "label": "0°" },
+        { "value": "45deg", "label": "45°" },
+        { "value": "90deg", "label": "90°" },
+        { "value": "135deg", "label": "135°" },
+        { "value": "180deg", "label": "180°" },
+        { "value": "225deg", "label": "225°" },
+        { "value": "270deg", "label": "270°" },
+        { "value": "315deg", "label": "315°" }
+      ],
+      "info": "Select the angle for the question gradient."
+    },
+    {
+      "type": "range",
+      "label": "Question Border Thickness",
+      "id": "question_border_thickness",
+      "default": 0,
+      "min": 0,
+      "max": 5,
+      "step": 0.5,
+      "info": "Adjust the thickness of the border around questions."
+    },
+    {
+      "type": "color",
+      "label": "Question Border Color",
+      "id": "question_border_color",
+      "default": "#000000",
+      "info": "Customize the border color of the questions."
+    },
+    {
+      "type": "range",
+      "label": "Question Border Radius",
+      "id": "question_border_radius",
+      "default": 20,
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "info": "Adjust the border radius for questions."
+    },
+    {
+      "type": "color",
+      "label": "Question Text Color",
+      "id": "question_text_color_custom",
+      "default": "#171717",
+      "info": "Customize the text color of the questions."
+    },
+    {
+      "type": "range",
+      "label": "Question Font Size (Desktop)",
+      "id": "question_font_size_desktop",
+      "default": 1.8,
+      "min": 0.8,
+      "max": 3.0,
+      "step": 0.1,
+      "info": "Adjust the question text size for desktop."
+    },
+    {
+      "type": "range",
+      "label": "Question Font Size (Mobile)",
+      "id": "question_font_size_mobile",
+      "default": 1.7,
+      "min": 0.5,
+      "max": 3.0,
+      "step": 0.1,
+      "info": "Adjust the question text size for mobile."
+    },
+    {
+      "type": "select",
+      "label": "Question Font Weight",
+      "id": "question_font_weight",
+      "default": "inherit",
+      "info": "Select the font weight for the question text.",
+      "options": [
+        { "value": "inherit", "label": "Inherit" },
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "600", "label": "Semibold" },
+        { "value": "700", "label": "Bold" }
+      ]
+    },
+    {
+      "type": "color",
+      "label": "Question Hover Color",
+      "id": "hover_color",
+      "default": "#252525",
+      "info": "Color for question text when hovered."
+    },
+    {
+      "type": "color",
+      "label": "Question Background Color",
+      "id": "background_color",
+      "default": "#EDEDED",
+      "info": "Background color for questions if gradient is disabled."
+    },
+    {
+      "type": "color",
+      "label": "Icon Color",
+      "id": "icon_color",
+      "default": "#000",
+      "info": "Color for the toggle icon on questions."
+    },
+    {
+      "type": "header",
+      "content": "Answer Settings"
+    },
+    {
+      "type": "color",
+      "label": "Answer Text Color",
+      "id": "answer_text_color_custom",
+      "default": "#000000",
+      "info": "Customize the text color of the answers."
+    },
+    {
+      "type": "color",
+      "label": "Answer Background Color",
+      "id": "answer_bg_color",
+      "default": "transparent",
+      "info": "Background color for the answer area."
+    },
+    {
+      "type": "range",
+      "label": "Answer Font Size (Desktop)",
+      "id": "answer_font_size_desktop",
+      "default": 1.5,
+      "min": 0.8,
+      "max": 2.5,
+      "step": 0.1,
+      "info": "Adjust the answer text size for desktop."
+    },
+    {
+      "type": "range",
+      "label": "Answer Font Size (Mobile)",
+      "id": "answer_font_size_mobile",
+      "default": 1.3,
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1,
+      "info": "Adjust the answer text size for mobile."
+    },
+    {
+      "type": "select",
+      "label": "Answer Font Weight",
+      "id": "answer_font_weight",
+      "default": "inherit",
+      "info": "Select the font weight for the answer text.",
+      "options": [
+        { "value": "inherit", "label": "Inherit" },
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "600", "label": "Semibold" },
+        { "value": "700", "label": "Bold" }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        {
+          "type": "text",
+          "label": "Heading Text",
+          "id": "heading",
+          "default": "Frequently Asked Questions",
+          "info": "The main title for the FAQ section."
+        },
+        {
+          "type": "color",
+          "label": "Heading Text Color",
+          "id": "text_color",
+          "default": "#000000",
+          "info": "Customize the text color of the heading."
+        },
+        {
+          "type": "select",
+          "label": "Heading Font Weight",
+          "id": "font_weight",
+          "default": "inherit",
+          "options": [
+            { "value": "inherit", "label": "Inherit" },
+            { "value": "300", "label": "Light" },
+            { "value": "400", "label": "Normal" },
+            { "value": "600", "label": "Semibold" },
+            { "value": "700", "label": "Bold" }
+          ],
+          "info": "Select the font weight for the heading."
+        },
+        {
+          "type": "range",
+          "label": "Heading Font Size (Desktop)",
+          "id": "font_size_desktop",
+          "default": 3,
+          "min": 1,
+          "max": 5,
+          "step": 0.1,
+          "info": "Font size for the heading on desktop devices."
+        },
+        {
+          "type": "range",
+          "label": "Heading Font Size (Mobile)",
+          "id": "font_size_mobile",
+          "default": 3,
+          "min": 1,
+          "max": 5,
+          "step": 0.1,
+          "info": "Font size for the heading on mobile devices."
+        },
+        {
+          "type": "range",
+          "label": "Vertical Spacing Below Heading",
+          "id": "vertical_spacing",
+          "default": 45,
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "info": "Adjust the space below the heading."
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Q&A Pair",
+      "settings": [
+        {
+          "type": "text",
+          "label": "Question",
+          "id": "question",
+          "default": "Question text",
+          "info": "The question displayed in the FAQ."
+        },
+        {
+          "type": "richtext",
+          "label": "Answer",
+          "id": "answer",
+          "default": "<p>Answer richtext</p>",
+          "info": "The answer content for the question."
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+{% style %}
+  .loudecomz-faq-wrapper .ecomss-faq-answer a {
+    color: inherit;
+    text-decoration: inherit;
+  }
+
+  .loudecomz-faq-wrapper .ecomss-faq-shopify-section {
+    margin-bottom: 50px;
+  }
+
+  /* FAQ container */
+  .loudecomz-faq-wrapper .ecomss-faq-container {
+    margin: auto;
+    max-width: 1000px;
+    margin-top: 20px;
+  }
+
+  /* FAQ item wrapper */
+  .loudecomz-faq-wrapper .ecomss-faq-container-item {
+    margin-bottom: 10px;
+    overflow: hidden;
+    border-radius: {{ section.settings.question_border_radius }}px;
+  }
+
+  /* Question styling */
+  .loudecomz-faq-wrapper .ecomss-faq-question {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+
+    {% if section.settings.enable_question_gradient %}
+      background: linear-gradient(
+        {{ section.settings.gradient_degrees }},
+        {{ section.settings.gradient_color_1 }},
+        {{ section.settings.gradient_color_2 }},
+        {{ section.settings.gradient_color_3 }}
+      );
+    {% else %}
+      background-color: {{ section.settings.background_color }};
+    {% endif %}
+
+    padding: 15px 20px;
+    color: {{ section.settings.question_text_color_custom }};
+    font-size: {{ section.settings.question_font_size_desktop }}rem;
+    font-weight: {{ section.settings.question_font_weight }};
+    border: {{ section.settings.question_border_thickness }}px solid {{ section.settings.question_border_color }};
+    border-radius: {{ section.settings.question_border_radius }}px;
+    transition: background .3s ease, color .3s ease, box-shadow .3s ease;
+    cursor: pointer;
+    position: relative;
+  }
+
+  /* Icon arrow */
+  .loudecomz-faq-wrapper .ecomss-faq-question::after {
+    color: {{ section.settings.icon_color }};
+    content: '\276F';
+    display: inline-block;
+    transform: rotate(0deg);
+    transition: transform .36s cubic-bezier(.22,.61,.36,1);
+    margin-left: 12px;
+  }
+
+  /* Hover on question */
+  .loudecomz-faq-wrapper .ecomss-faq-question:hover {
+    color: {{ section.settings.hover_color }};
+  }
+
+  /* Answer container (animated with JS via max-height) */
+  .loudecomz-faq-wrapper .ecomss-faq-answer {
+    padding: 0 20px;
+    position: relative;
+    width: 100%;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition:
+      max-height .42s cubic-bezier(.22,.61,.36,1),
+      opacity .36s ease,
+      transform .36s ease,
+      visibility 0s linear .42s;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+
+    color: {{ section.settings.answer_text_color_custom }};
+    background-color: {{ section.settings.answer_bg_color }};
+    text-align: left;
+    font-size: {{ section.settings.answer_font_size_desktop }}rem;
+    font-weight: {{ section.settings.answer_font_weight }};
+  }
+
+  /* Active (JS toggles this class) */
+  .loudecomz-faq-wrapper .ecomss-faq-container-item.is-open .ecomss-faq-answer {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+    transition:
+      max-height .42s cubic-bezier(.22,.61,.36,1),
+      opacity .36s ease,
+      transform .36s ease,
+      visibility 0s;
+  }
+  .loudecomz-faq-wrapper .ecomss-faq-container-item.is-open .ecomss-faq-question::after {
+    transform: rotate(90deg);
+  }
+
+  /* Mobile Styles */
+  @media screen and (max-width: 767px) {
+    {% for block in section.blocks %}
+      {% if block.type == "heading" %}
+        .loudecomz-faq-wrapper h1[block-id="{{ block.id }}"] {
+          font-size: {{ block.settings.font_size_mobile }}rem !important;
+        }
+      {% endif %}
+    {% endfor %}
+    .loudecomz-faq-wrapper .badge-pill {
+      font-size: {{ section.settings.badge_font_size_mobile }}rem;
+    }
+    .loudecomz-faq-wrapper .ecomss-faq-question {
+      font-size: {{ section.settings.question_font_size_mobile }}rem;
+    }
+    .loudecomz-faq-wrapper .ecomss-faq-answer {
+      font-size: {{ section.settings.answer_font_size_mobile }}rem;
+    }
+    .loudecomz-faq-wrapper .ecomss-faq-shopify-section {
+      padding-top: {{ section.settings.section_top_padding_mobile }}px !important;
+      padding-bottom: {{ section.settings.section_bottom_padding_mobile }}px !important;
+    }
+  }
+{% endstyle %}
+
+<script>
+  (function(){
+    var root = document.currentScript.parentElement;
+    if(!root) return;
+
+    var items = root.querySelectorAll('.ecomss-faq-container-item');
+    items.forEach(function(item){
+      var input = item.querySelector('.tab-toggle');
+      var label = item.querySelector('.ecomss-faq-question');
+      var answer = item.querySelector('.ecomss-faq-answer');
+
+      // Set initial ARIA state
+      label.setAttribute('aria-expanded', 'false');
+      answer.setAttribute('aria-hidden', 'true');
+
+      // Progressive enhancement: smooth height animation
+      function openItem(){
+        item.classList.add('is-open');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+        label.setAttribute('aria-expanded', 'true');
+        answer.setAttribute('aria-hidden', 'false');
+      }
+      function closeItem(){
+        // set explicit height to current to enable reverse animation
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+        // force reflow so the next line transitions
+        answer.offsetHeight; // eslint-disable-line no-unused-expressions
+        item.classList.remove('is-open');
+        answer.style.maxHeight = '0px';
+        label.setAttribute('aria-expanded', 'false');
+        answer.setAttribute('aria-hidden', 'true');
+      }
+
+      // Sync with checkbox (kept intact from your structure)
+      function syncToCheckbox(){
+        if(input.checked){ openItem(); }
+        else{ closeItem(); }
+      }
+      syncToCheckbox();
+
+      // Toggle on label click (prevents awkward double-tap on iOS)
+      label.addEventListener('click', function(e){
+        e.preventDefault();
+        input.checked = !input.checked;
+        syncToCheckbox();
+      });
+
+      // Keyboard: Enter/Space on label for accessibility
+      label.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          input.checked = !input.checked;
+          syncToCheckbox();
+        }
+      });
+    });
+
+    // Single debounced resize listener (prevents N×resize memory leak)
+    var resizeTimer;
+    window.addEventListener('resize', function(){
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function(){
+        items.forEach(function(item){
+          if(item.classList.contains('is-open')){
+            var ans = item.querySelector('.ecomss-faq-answer');
+            if(ans) ans.style.maxHeight = ans.scrollHeight + 'px';
+          }
+        });
+      }, 100);
+    });
+  })();
+</script>

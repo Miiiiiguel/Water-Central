@@ -1,0 +1,974 @@
+<style>
+  {%- capture sp_content -%}
+  {% if section.settings.override_fonts %}
+      {{ section.settings.text_font | font_face }}
+      {{ section.settings.headline_font | font_face }}
+  {% endif %}
+
+  /* Text Elements */
+  #loudecoms-{{ section.id }} p {
+      font-size: {{ section.settings.description_size }}px;
+      {% if section.settings.override_fonts %}
+      font-family: {{ section.settings.text_font.family }}, {{ section.settings.text_font.fallback_families }};
+      font-weight: {{ section.settings.text_font.weight }};
+      {% endif %}
+      margin: 0 0 {{ section.settings.element_spacing }}px 0;
+      padding: 0;
+      color: {{ section.settings.description_text_color }};
+  }
+
+  #loudecoms-{{ section.id }} ul,
+  #loudecoms-{{ section.id }} ol {
+    margin: 0 0 {{ section.settings.element_spacing }}px 0;
+  }
+
+  #loudecoms-{{ section.id }} li {
+    font-size: {{ section.settings.description_size }}px;
+    {% if section.settings.override_fonts %}
+    font-family: {{ section.settings.text_font.family }}, {{ section.settings.text_font.fallback_families }};
+    font-weight: {{ section.settings.text_font.weight }};
+    {% endif %}
+    margin: 0 0 5px 0;
+    padding: 0;
+    color: {{ section.settings.description_text_color }};
+  }
+
+  #loudecoms-{{ section.id }} li:last-child {
+    margin: 0;
+  }
+
+  @media (max-width: 800px) {
+      #loudecoms-{{ section.id }} p,
+      #loudecoms-{{ section.id }} li {
+        font-size: {{ section.settings.mobile_description_size }}px;
+      }
+  }
+
+  /* Section Container */
+  #loudecoms-{{ section.id }} {
+      position: relative;
+      {% if section.settings.enable_background_gradient %}
+         background: linear-gradient({{ section.settings.section_background_custom_color }}, {{ section.settings.section_background_custom_color }});
+      {% else %}
+         background-color: {{ section.settings.section_background_custom_color }};
+      {% endif %}
+      width: 100%;
+      box-sizing: border-box;
+      padding: {{ section.settings.section_padding_top }}px {{ section.settings.section_padding_left_right }}px {{ section.settings.section_padding_bottom }}px {{ section.settings.section_padding_left_right }}px;
+      overflow: hidden;
+  }
+
+  {% if section.settings.section_background_image %}
+  #loudecoms-{{ section.id }}::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url({{ section.settings.section_background_image | image_url }});
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: {{ section.settings.section_background_size }};
+      filter: brightness({{ section.settings.section_bg_image_brightness }}%);
+      z-index: -1;
+  }
+  {% endif %}
+
+  @media (max-width: 800px) {
+      #loudecoms-{{ section.id }} {
+        padding: {{ section.settings.mobile_section_padding_top }}px {{ section.settings.mobile_section_padding_left_right }}px {{ section.settings.mobile_section_padding_bottom }}px {{ section.settings.mobile_section_padding_left_right }}px;
+      }
+  }
+
+  {% if section.settings.show_on_device == 'mobile' %}
+    @media (min-width: 801px) {
+        #loudecoms-{{ section.id }} {
+            display: none;
+        }
+    }
+  {% endif %}
+
+  {% if section.settings.show_on_device == 'desktop' %}
+    @media (max-width: 800px) {
+        #loudecoms-{{ section.id }} {
+            display: none;
+        }
+    }
+  {% endif %}
+
+  /* Inner Container */
+  #loudecoms-{{ section.id }} .loudecoms-container {
+      position: relative;
+      margin: 0 auto;
+      background: {{ section.settings.container_background_color }};
+      border-radius: {{ section.settings.container_radius }}px;
+      border: {{ section.settings.container_border_size }}px solid {{ section.settings.container_border_color }};
+      max-width: {{ section.settings.container_max_width }}px;
+      padding: {{ section.settings.container_padding_top_bottom }}px {{ section.settings.container_padding_left_right }}px;
+  }
+
+  @media (max-width: 800px) {
+      #loudecoms-{{ section.id }} .loudecoms-container {
+        padding: {{ section.settings.mobile_container_padding_top_bottom }}px {{ section.settings.mobile_container_padding_left_right }}px;
+      }
+  }
+
+  .loudecoms-headline {
+    margin: 0;
+    padding: 0 0 {{ section.settings.headline_spacing }}px 0;
+  }
+
+  #loudecoms-{{ section.id }} .loudecoms-headline * {
+    text-align: {{ section.settings.text_alignment }};
+  }
+
+  @media only screen and (max-width: 800px) {
+    #loudecoms-{{ section.id }} .loudecoms-headline * {
+      text-align: {{ section.settings.mobile_text_alignment }};
+    }
+  }
+
+  /* Grid Layout */
+  #loudecoms-{{ section.id }} .loudecoms-grid {
+    margin: {{ section.settings.vertical_gap }}px auto 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    max-width: 1000px;
+    gap: 20px;
+  }
+
+  @media only screen and (max-width: 800px) {
+    #loudecoms-{{ section.id }} .loudecoms-grid {
+      grid-template-columns: 1fr;
+      margin: {{ section.settings.mobile_vertical_gap | default: section.settings.vertical_gap }}px 10px 0;
+    }
+  }
+
+  /* Count Display */
+  #loudecoms-{{ section.id }} .loudecoms-col h3 {
+    font-size: {{ section.settings.count_size }}px;
+    font-weight: {{ section.settings.count_font_weight }} !important;
+    color: {{ section.settings.count_color }} !important;
+    padding: 0;
+    margin: 0 0 {{ section.settings.count_spacing }}px 0;
+    text-align: {{ section.settings.count_alignment }};
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    justify-content: {{ section.settings.count_alignment }};
+  }
+
+  @media (max-width: 800px) {
+    #loudecoms-{{ section.id }} .loudecoms-col h3 {
+      font-size: {{ section.settings.mobile_count_size }}px;
+    }
+  }
+
+  #loudecoms-{{ section.id }} .loudecoms-col p {
+    padding: 0;
+    margin: 0;
+    color: {{ section.settings.description_text_color }};
+    text-align: {{ section.settings.count_alignment }};
+    line-height: 1;
+    font-size: {{ section.settings.description_size }}px;
+    {% if section.settings.override_fonts %}
+    font-family: {{ section.settings.text_font.family }}, {{ section.settings.text_font.fallback_families }};
+    font-weight: {{ section.settings.text_font.weight }};
+    {% endif %}
+  }
+
+  @media (max-width: 800px) {
+    #loudecoms-{{ section.id }} .loudecoms-col p {
+      font-size: {{ section.settings.mobile_description_size }}px;
+    }
+  }
+
+  /* Plus Sign for Count Display */
+  #loudecoms-{{ section.id }} .loudecoms-plus {
+      font-size: {{ section.settings.plus_size }}px !important;
+      color: {{ section.settings.count_color }} !important;
+      margin-left: 5px;
+  }
+
+  {% for block in section.blocks %}
+    {% if block.type == 'headline' %}
+    #loudecoms-{{ section.id }} .headline-{{ block.id }} {
+      font-size: {{ block.settings.size }}px;
+      {% if section.settings.override_fonts %}
+      font-family: {{ section.settings.headline_font.family }}, {{ section.settings.headline_font.fallback_families }};
+      {% endif %}
+      font-weight: {{ block.settings.font_weight }};
+      {% if block.settings.line_height != 'inherit' %}line-height: {{ block.settings.line_height }};{% endif %}
+      margin: 0 0 {{ section.settings.heading_subheading_gap }}px 0;
+      padding: 0;
+      color: {{ block.settings.color }} !important;
+    }
+
+    @media (max-width: 800px) {
+      #loudecoms-{{ section.id }} .headline-{{ block.id }} {
+        font-size: {{ block.settings.mobile_size }}px;
+        margin: 0 0 {{ section.settings.mobile_heading_subheading_gap }}px 0;
+      }
+    }
+    {% elsif block.type == 'subheadline' %}
+    #loudecoms-{{ section.id }} .subheadline-{{ block.id }} {
+      font-size: {{ block.settings.size }}px;
+      {% if section.settings.override_fonts %}
+      font-family: {{ section.settings.text_font.family }}, {{ section.settings.text_font.fallback_families }};
+      font-weight: {{ section.settings.text_font.weight }};
+      {% endif %}
+      {% if block.settings.line_height != 'inherit' %}line-height: {{ block.settings.line_height }};{% endif %}
+      margin: 0;
+      padding: 0;
+      color: {{ block.settings.color }};
+    }
+
+    @media (max-width: 800px) {
+      #loudecoms-{{ section.id }} .subheadline-{{ block.id }} {
+        font-size: {{ block.settings.mobile_size }}px;
+      }
+    }
+    {% endif %}
+  {% endfor %}
+
+  {%- endcapture -%}
+  {%- liquid
+    assign chunks = sp_content | strip_newlines | split: ' ' | join: ' ' | split: '*/'
+    for chunk in chunks
+      assign mini = chunk | split: '/*' | first | strip | replace: ': ', ':' | replace: '; ', ';' | replace: '} ', '}' | replace: '{ ', '{' | replace: ' {', '{' | replace: ';}', '}'
+      echo mini
+    endfor
+  %}
+</style>
+
+<div id="loudecoms-{{ section.id }}" class="loudecoms-section" loudecoms-section>
+  <div class="loudecoms-container" loudecoms-container>
+    <div class="loudecoms-headline">
+      {% for block in section.blocks %}
+        {% if block.type == 'headline' %}
+          <h2 class="headline-{{ block.id }}">{{ block.settings.content }}</h2>
+        {% elsif block.type == 'subheadline' %}
+          <p class="subheadline-{{ block.id }}">{{ block.settings.content }}</p>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="loudecoms-grid">
+      {% for block in section.blocks %}
+        {% if block.type == 'count_box' %}
+          <div class="loudecoms-col">
+            <h3>
+              <span class="loudecoms-count-up" data-value="{{ block.settings.number }}">
+                {{- block.settings.number -}}
+              </span>
+              {% if section.settings.enable_plus_sign %}
+                <span class="loudecoms-plus">+</span>
+              {% endif %}
+            </h3>
+            <p>{{ block.settings.text }}</p>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+  const enableDotSpacer = {{ section.settings.enable_dot_spacer | default: false | json }};
+  class CountUp {
+    constructor(target, endVal, options = {}) {
+      this.el = typeof target === 'string' ? document.getElementById(target) : target;
+      this.endVal = Math.round(Number(endVal) || 0);
+      this.options = { startVal: 0, duration: 2, ...options };
+      this.startVal = Math.round(this.options.startVal);
+      this.frameVal = this.startVal;
+      this.duration = this.options.duration * 1000;
+      this.countDown = this.startVal > this.endVal;
+    }
+    start(callback) {
+      this.startTime = null;
+      this.animate(callback);
+    }
+    animate(callback) {
+      const step = (timestamp) => {
+        if (!this.startTime) this.startTime = timestamp;
+        const progress = Math.min((timestamp - this.startTime) / this.duration, 1);
+        this.frameVal = this.countDown
+          ? this.startVal - (this.startVal - this.endVal) * progress
+          : this.startVal + (this.endVal - this.startVal) * progress;
+        this.printValue(Math.round(this.frameVal));
+        if (progress < 1) requestAnimationFrame(step);
+        else if (callback) callback();
+      };
+      requestAnimationFrame(step);
+    }
+    printValue(value) {
+      let formatted = value.toLocaleString();
+      if (enableDotSpacer) {
+        formatted = formatted.replace(/,/g, '.');
+      }
+      if (this.el) this.el.textContent = formatted;
+    }
+  }
+  function countStart(el) {
+    el.querySelectorAll('.loudecoms-count-up').forEach((item) => {
+      new CountUp(item, item.dataset.value).start();
+    });
+  }
+  const el = document.querySelector('#loudecoms-{{ section.id }}');
+  if (el) {
+    new IntersectionObserver(([entry], observer) => {
+      if (entry.isIntersecting) {
+        countStart(el);
+        observer.disconnect();
+      }
+    }, { threshold: 0.75 }).observe(el);
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Count Up Banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Padding Settings",
+      "info": "Adjust the section’s padding."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Section Top Padding (Desktop)",
+      "default": 25,
+      "info": "Set the top padding for the section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Section Bottom Padding (Desktop)",
+      "default": 25,
+      "info": "Set the bottom padding for the section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Section Horizontal Padding",
+      "default": 25,
+      "info": "Set the left and right padding for the section."
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Section Top Padding (Mobile)",
+      "default": 25,
+      "info": "Set the top padding for the section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Section Bottom Padding (Mobile)",
+      "default": 25,
+      "info": "Set the bottom padding for the section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Section Horizontal Padding (Mobile)",
+      "default": 25,
+      "info": "Set the left and right padding for mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Font Settings",
+      "info": "Customize the fonts for your section."
+    },
+    {
+      "type": "checkbox",
+      "id": "override_fonts",
+      "label": "Use Custom Fonts",
+      "default": false,
+      "info": "Toggle to override the default theme fonts."
+    },
+    {
+      "type": "font_picker",
+      "id": "headline_font",
+      "label": "Headline Font Family",
+      "default": "sans-serif",
+      "info": "Select the font for headline text."
+    },
+    {
+      "type": "font_picker",
+      "id": "text_font",
+      "label": "Body Text Font Family",
+      "default": "sans-serif",
+      "info": "Select the font for body text."
+    },
+    {
+      "type": "header",
+      "content": "Text Settings",
+      "info": "Set text sizes, line heights, and colors."
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Description Text Size",
+      "default": 15,
+      "info": "Set the text size for count descriptions."
+    },
+    {
+      "type": "range",
+      "id": "mobile_description_size",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Description Text Size",
+      "default": 15,
+      "info": "Set the text size for mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Section Design",
+      "info": "Set the overall section appearance."
+    },
+    {
+      "type": "color",
+      "id": "section_background_custom_color",
+      "default": "transparent",
+      "label": "Section Background Color",
+      "info": "Choose the section background color."
+    },
+    {
+      "type": "image_picker",
+      "id": "section_background_image",
+      "label": "Section Background Image",
+      "info": "Select an image for the section background."
+    },
+    {
+      "type": "select",
+      "id": "section_background_size",
+      "default": "cover",
+      "label": "Background Image Size",
+      "options": [
+        { "value": "auto", "label": "Auto" },
+        { "value": "cover", "label": "Cover" },
+        { "value": "contain", "label": "Contain" }
+      ],
+      "info": "Determine how the background image scales."
+    },
+    {
+      "type": "range",
+      "id": "section_bg_image_brightness",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "%",
+      "label": "Section Background Image Brightness",
+      "default": 100,
+      "info": "Adjust the brightness of the section background image."
+    },
+    {
+      "type": "header",
+      "content": "Container Design",
+      "info": "Style the inner content container."
+    },
+    {
+      "type": "color_background",
+      "id": "container_background_color",
+      "label": "Container Background",
+      "info": "Set the container background color."
+    },
+    {
+      "type": "number",
+      "id": "container_max_width",
+      "default": 1000,
+      "label": "Container Maximum Width",
+      "info": "Define the maximum container width."
+    },
+    {
+      "type": "range",
+      "id": "container_padding_top_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Container Vertical Padding",
+      "default": 0,
+      "info": "Set the top and bottom padding for the container."
+    },
+    {
+      "type": "range",
+      "id": "mobile_container_padding_top_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Container Vertical Padding",
+      "default": 10,
+      "info": "Set the container’s vertical padding for mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "container_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Container Horizontal Padding",
+      "default": 10,
+      "info": "Set the left and right padding inside the container."
+    },
+    {
+      "type": "range",
+      "id": "mobile_container_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Container Horizontal Padding",
+      "default": 10,
+      "info": "Set the container’s horizontal padding for mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "element_spacing",
+      "min": -50,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Element Spacing",
+      "default": 15,
+      "info": "Adjust spacing between container elements."
+    },
+    {
+      "type": "range",
+      "id": "container_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Container Border Radius",
+      "default": 0,
+      "info": "Set the container’s corner radius."
+    },
+    {
+      "type": "range",
+      "id": "container_border_size",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Container Border Thickness",
+      "default": 0,
+      "info": "Define the container border thickness."
+    },
+    {
+      "type": "color",
+      "id": "container_border_color",
+      "default": "#888",
+      "label": "Container Border Color",
+      "info": "Set the container border color."
+    },
+    {
+      "type": "header",
+      "content": "Count Display Settings",
+      "info": "Configure how the count numbers are shown."
+    },
+    {
+      "type": "range",
+      "id": "count_size",
+      "min": 10,
+      "max": 75,
+      "step": 1,
+      "unit": "px",
+      "label": "Count Number Size (Desktop)",
+      "default": 48,
+      "info": "Set the count number size for desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "mobile_count_size",
+      "min": 10,
+      "max": 75,
+      "step": 1,
+      "unit": "px",
+      "label": "Count Number Size (Mobile)",
+      "default": 48,
+      "info": "Set the count number size for mobile devices."
+    },
+    {
+      "type": "select",
+      "id": "count_font_weight",
+      "label": "Count Number Font Weight",
+      "options": [
+        { "value": "light", "label": "Light" },
+        { "value": "normal", "label": "Normal" },
+        { "value": "bold", "label": "Bold" }
+      ],
+      "default": "normal",
+      "info": "Choose the font weight for the count numbers."
+    },
+    {
+      "type": "range",
+      "id": "count_spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Count Spacing",
+      "default": 10,
+      "info": "Adjust spacing around the count numbers."
+    },
+    {
+      "type": "color",
+      "id": "count_color",
+      "default": "#111",
+      "label": "Count Number Color",
+      "info": "Set the count numbers’ color."
+    },
+    {
+      "type": "color",
+      "id": "description_text_color",
+      "default": "#111",
+      "label": "Box Description Text Color",
+      "info": "Set the color for the box description texts."
+    },
+    {
+      "type": "text_alignment",
+      "id": "count_alignment",
+      "default": "center",
+      "label": "Count Alignment",
+      "info": "Set the alignment for the count numbers."
+    },
+    {
+      "type": "range",
+      "id": "vertical_gap",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Vertical Gap",
+      "default": 10,
+      "info": "Set the vertical gap between the subheading and count numbers."
+    },
+    {
+      "type": "range",
+      "id": "mobile_vertical_gap",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Vertical Gap",
+      "default": 10,
+      "info": "Set the vertical gap between the subheading and count numbers on mobile."
+    },
+    {
+      "type": "text_alignment",
+      "id": "text_alignment",
+      "label": "Headline Alignment",
+      "default": "center",
+      "info": "Set the alignment for the headline text."
+    },
+    {
+      "type": "text_alignment",
+      "id": "mobile_text_alignment",
+      "label": "Mobile Headline Alignment",
+      "default": "center",
+      "info": "Set the headline alignment for mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "headline_spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Headline Spacing",
+      "default": 34,
+      "info": "Adjust the spacing between the headline and subtext."
+    },
+    {
+      "type": "range",
+      "id": "heading_subheading_gap",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Gap Between Heading and Subheading",
+      "default": 10,
+      "info": "Set the vertical gap between heading and subheading text."
+    },
+    {
+      "type": "range",
+      "id": "mobile_heading_subheading_gap",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Gap Between Heading and Subheading",
+      "default": 10,
+      "info": "Set the vertical gap between heading and subheading text on mobile."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_plus_sign",
+      "label": "Enable Plus Sign",
+      "default": false,
+      "info": "Toggle to show a plus sign next to each count number."
+    },
+    {
+      "type": "range",
+      "id": "plus_size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Plus Sign Size",
+      "default": 37,
+      "info": "Set the size for the plus sign."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_dot_spacer",
+      "label": "Use Dot as Thousands Separator",
+      "default": false,
+      "info": "Toggle to use dots instead of commas for thousands separators in counts."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "headline",
+      "name": "Headline",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "content",
+          "label": "Headline Content",
+          "default": "Numbers Don't Lie",
+          "info": "Enter the main headline."
+        },
+        {
+          "type": "range",
+          "id": "size",
+          "min": 10,
+          "max": 75,
+          "step": 1,
+          "unit": "px",
+          "label": "Text Size",
+          "default": 32,
+          "info": "Set the desktop headline size."
+        },
+        {
+          "type": "range",
+          "id": "mobile_size",
+          "min": 10,
+          "max": 75,
+          "step": 1,
+          "unit": "px",
+          "label": "Mobile Text Size",
+          "default": 31,
+          "info": "Set the headline size for mobile devices."
+        },
+        {
+          "type": "select",
+          "id": "line_height",
+          "label": "Line Height",
+          "options": [
+            { "value": "0.75", "label": "0.75" },
+            { "value": "1.0", "label": "1.0" },
+            { "value": "1.1", "label": "1.1" },
+            { "value": "1.2", "label": "1.2" },
+            { "value": "1.3", "label": "1.3" },
+            { "value": "1.4", "label": "1.4" },
+            { "value": "1.5", "label": "1.5" },
+            { "value": "1.6", "label": "1.6" },
+            { "value": "1.7", "label": "1.7" },
+            { "value": "1.8", "label": "1.8" },
+            { "value": "1.9", "label": "1.9" },
+            { "value": "2.0", "label": "2.0" },
+            { "value": "inherit", "label": "Inherit" }
+          ],
+          "default": "inherit",
+          "info": "Set the line height for the headline text."
+        },
+        {
+          "type": "select",
+          "id": "font_weight",
+          "label": "Font Weight",
+          "options": [
+            { "value": "300", "label": "300" },
+            { "value": "400", "label": "400" },
+            { "value": "500", "label": "500" },
+            { "value": "550", "label": "550" },
+            { "value": "600", "label": "600" },
+            { "value": "700", "label": "700" },
+            { "value": "inherit", "label": "Inherit" }
+          ],
+          "default": "500"
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "default": "#111",
+          "label": "Text Color",
+          "info": "Choose the color for the headline text."
+        }
+      ]
+    },
+    {
+      "type": "subheadline",
+      "name": "Subheadline",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "content",
+          "label": "Subheadline Content",
+          "default": "Use this block to add a description. Leave blank to remove.",
+          "info": "Enter additional text or a subheadline below the main headline."
+        },
+        {
+          "type": "range",
+          "id": "size",
+          "min": 10,
+          "max": 50,
+          "step": 1,
+          "unit": "px",
+          "label": "Text Size",
+          "default": 15,
+          "info": "Set the subheadline text size."
+        },
+        {
+          "type": "range",
+          "id": "mobile_size",
+          "min": 10,
+          "max": 50,
+          "step": 1,
+          "unit": "px",
+          "label": "Mobile Text Size",
+          "default": 15,
+          "info": "Set the subheadline text size for mobile devices."
+        },
+        {
+          "type": "select",
+          "id": "line_height",
+          "label": "Line Height",
+          "options": [
+            { "value": "0.75", "label": "0.75" },
+            { "value": "1.0", "label": "1.0" },
+            { "value": "1.1", "label": "1.1" },
+            { "value": "1.2", "label": "1.2" },
+            { "value": "1.3", "label": "1.3" },
+            { "value": "1.4", "label": "1.4" },
+            { "value": "1.5", "label": "1.5" },
+            { "value": "1.6", "label": "1.6" },
+            { "value": "1.7", "label": "1.7" },
+            { "value": "1.8", "label": "1.8" },
+            { "value": "1.9", "label": "1.9" },
+            { "value": "2.0", "label": "2.0" },
+            { "value": "inherit", "label": "Inherit" }
+          ],
+          "default": "inherit",
+          "info": "Set the line height for the subheadline text."
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "default": "#111",
+          "label": "Text Color",
+          "info": "Choose the color for the subheadline text."
+        }
+      ]
+    },
+    {
+      "type": "count_box",
+      "name": "Count Box",
+      "settings": [
+        {
+          "type": "number",
+          "id": "number",
+          "label": "Number",
+          "default": 5000
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "default": "Reached",
+          "label": "Description"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Count Up Banner",
+      "category": "Banners",
+      "blocks": [
+        {
+          "type": "headline",
+          "settings": {
+            "content": "Numbers Don't Lie"
+          }
+        },
+        {
+          "type": "subheadline",
+          "settings": {
+            "content": "Use this block to add a description. Leave blank to remove."
+          }
+        },
+        {
+          "type": "count_box",
+          "settings": {
+            "number": 5000,
+            "text": "Reached"
+          }
+        },
+        {
+          "type": "count_box",
+          "settings": {
+            "number": 500,
+            "text": "Reached"
+          }
+        },
+        {
+          "type": "count_box",
+          "settings": {
+            "number": 100,
+            "text": "Reached"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

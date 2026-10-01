@@ -1,0 +1,785 @@
+<style> 
+  /* Container: Mobile max-width is used by default */
+  .cookiebanner-{{ section.id }} {
+    position: fixed;
+    z-index: 9999;
+    overflow: hidden;
+    max-width: {{ section.settings.max_width_mobile }}px;
+  }
+  @media (min-width: 750px) {
+    .cookiebanner-{{ section.id }} {
+      max-width: {{ section.settings.max_width_desktop }}px;
+    }
+  }
+
+  /* Mobile padding override using new mobile padding settings */
+  @media (max-width: 749px) {
+    .cookiebanner-{{ section.id }} {
+      padding-top: {{ section.settings.mobile_padding_top }}px !important;
+      padding-bottom: {{ section.settings.mobile_padding_bottom }}px !important;
+      padding-left: {{ section.settings.mobile_padding_left }}px !important;
+      padding-right: {{ section.settings.mobile_padding_right }}px !important;
+    }
+  }
+
+  /* Heading and text styles */
+  .cookiebanner-{{ section.id }} .cookiebanner-heading {
+    font-size: 19px;
+    margin-bottom: 10px;
+    font-weight: 700;
+    /* Heading color is now customizable via the heading_color setting */
+    color: {{ section.settings.heading_color }};
+    text-align: {{ section.settings.heading_position }};
+  }
+  .cookiebanner-{{ section.id }} .cookiebanner-text,
+  .cookiebanner-{{ section.id }} .cookiebanner-text p {
+    font-size: 16px;
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+
+  /* Button styles */
+  .cookiebanner-{{ section.id }} .cookiebanner-btn {
+    padding: 10px 20px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    width: fit-content;
+    /* Added transition for smooth hover effects */
+    transition: background-color 0.3s ease, color 0.3s ease, filter 0.3s ease;
+  }
+  .cookiebanner-{{ section.id }} .btn-wrapper {
+    display: flex;
+    gap: 12px;
+  }
+
+  /* Desktop Layout Banner 2:
+     When the toggle is on, only on screens ≥750px, wrap the text and button wrapper in a flex container
+     so that the text appears to the left and the buttons appear to the right.
+     (Note: the heading remains above.) */
+  @media (min-width: 750px) {
+    .cookiebanner-{{ section.id }} .layout-banner-2-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .cookiebanner-{{ section.id }} .layout-banner-2-wrapper .cookiebanner-text {
+      flex: 1;
+      margin-right: 20px;
+    }
+  }
+
+  /* Mobile placement override using the mobile vertical position and (optional) horizontal offset */
+  @media (max-width: 749px) {
+    .cookiebanner-{{ section.id }} {
+      {% if section.settings.placement_mobile == 'bottom-left' %}
+        left: 20px !important;
+        right: auto !important;
+        bottom: {{ section.settings.vertical_position_mobile }}px !important;
+        transform: none !important;
+      {% elsif section.settings.placement_mobile == 'bottom-right' %}
+        right: 20px !important;
+        left: auto !important;
+        bottom: {{ section.settings.vertical_position_mobile }}px !important;
+        transform: none !important;
+      {% elsif section.settings.placement_mobile == 'bottom-center' %}
+        left: 50% !important;
+        right: auto !important;
+        bottom: {{ section.settings.vertical_position_mobile }}px !important;
+        {% if section.settings.enable_mobile_banner_placement_slider %}
+          transform: translateX(calc(-50% + {{ section.settings.mobile_banner_horizontal_offset }}px)) !important;
+        {% else %}
+          transform: translateX(-50%) !important;
+        {% endif %}
+      {% endif %}
+    }
+  }
+</style>
+
+<div
+  class="cookiebanner-{{ section.id }}"
+  style="
+    {% if section.settings.enable_gradient_background %}
+      background: linear-gradient({{ section.settings.gradient_degrees }}deg, {{ section.settings.gradient_color_1 }}, {{ section.settings.gradient_color_2 }}, {{ section.settings.gradient_color_3 }});
+    {% else %}
+      background-color: {{ section.settings.background_color }};
+    {% endif %}
+
+    border-radius: {{ section.settings.border_radius }}px;
+    /* Desktop padding using separate top & bottom values */
+    padding-top: {{ section.settings.desktop_padding_top }}px;
+    padding-bottom: {{ section.settings.desktop_padding_bottom }}px;
+    padding-left: {{ section.settings.horizontal_padding_desktop }}px;
+    padding-right: {{ section.settings.horizontal_padding_desktop }}px;
+
+    /* Desktop placement using vertical_position_desktop */
+    {% if section.settings.placement_desktop == 'bottom-left' %}
+      bottom: {{ section.settings.vertical_position_desktop }}px;
+      left: 20px;
+    {% elsif section.settings.placement_desktop == 'bottom-right' %}
+      bottom: {{ section.settings.vertical_position_desktop }}px;
+      right: 20px;
+    {% elsif section.settings.placement_desktop == 'bottom-center' %}
+      bottom: {{ section.settings.vertical_position_desktop }}px;
+      left: 50%;
+      {% if section.settings.enable_desktop_banner_placement_slider %}
+        transform: translateX(calc(-50% + {{ section.settings.desktop_banner_horizontal_offset }}px));
+      {% else %}
+        transform: translateX(-50%);
+      {% endif %}
+    {% endif %}
+
+    {% if section.settings.banner_shadow == 'low' %}
+      box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+    {% elsif section.settings.banner_shadow == 'medium' %}
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+    {% elsif section.settings.banner_shadow == 'high' %}
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.3);
+    {% endif %}
+  "
+>
+  {% if section.settings.heading != blank %}
+    <div class="cookiebanner-heading">
+      {{ section.settings.heading }}
+    </div>
+  {% endif %}
+
+  {%- if section.settings.enable_layout_banner_2 -%}
+    <!-- When Layout Banner 2 is enabled, wrap text and buttons in a flex container on desktop -->
+    <div class="layout-banner-2-wrapper">
+      {% if section.settings.text != blank %}
+        <div
+          class="cookiebanner-text"
+          style="color: {{ section.settings.text_color }}; font-size: {{ section.settings.text_size }}px;"
+        >
+          {{ section.settings.text }}
+        </div>
+      {% endif %}
+      <div class="btn-wrapper">
+        {% for block in section.blocks %}
+          {% assign block_id = block.id %}
+          {% if block.settings.redirect_url != blank %}
+            <a
+              id="cookiebanner-btn-{{ block_id }}"
+              class="cookiebanner-btn"
+              href="{{ block.settings.redirect_url }}"
+              style="
+                background-color: {{ block.settings.button_color }};
+                color: {{ block.settings.button_text_color }};
+                border-color: {{ block.settings.button_border_color }};
+                border-width: {{ block.settings.button_border_width }}px;
+                border-style: solid;
+                border-radius: {{ block.settings.button_border_radius }}px;
+              "
+              data-button-type="{{ block.type }}"
+            >
+              {{ block.settings.button_text }}
+            </a>
+          {% else %}
+            <div
+              id="cookiebanner-btn-{{ block_id }}"
+              class="cookiebanner-btn"
+              style="
+                background-color: {{ block.settings.button_color }};
+                color: {{ block.settings.button_text_color }};
+                border-color: {{ block.settings.button_border_color }};
+                border-width: {{ block.settings.button_border_width }}px;
+                border-style: solid;
+                border-radius: {{ block.settings.button_border_radius }}px;
+              "
+              data-button-type="{{ block.type }}"
+            >
+              {{ block.settings.button_text }}
+            </div>
+          {% endif %}
+          <style>
+            #cookiebanner-btn-{{ block_id }}:hover {
+              background-color: {{ block.settings.button_hover_color }};
+              color: {{ block.settings.button_hover_text_color }};
+              filter: brightness(85%);
+            }
+          </style>
+        {% endfor %}
+      </div>
+    </div>
+  {%- else -%}
+    <!-- Standard layout (stacked) -->
+    {% if section.settings.text != blank %}
+      <div
+        class="cookiebanner-text"
+        style="color: {{ section.settings.text_color }}; font-size: {{ section.settings.text_size }}px;"
+      >
+        {{ section.settings.text }}
+      </div>
+    {% endif %}
+    <div class="btn-wrapper">
+      {% for block in section.blocks %}
+        {% assign block_id = block.id %}
+        {% if block.settings.redirect_url != blank %}
+          <a
+            id="cookiebanner-btn-{{ block_id }}"
+            class="cookiebanner-btn"
+            href="{{ block.settings.redirect_url }}"
+            style="
+              background-color: {{ block.settings.button_color }};
+              color: {{ block.settings.button_text_color }};
+              border-color: {{ block.settings.button_border_color }};
+              border-width: {{ block.settings.button_border_width }}px;
+              border-style: solid;
+              border-radius: {{ block.settings.button_border_radius }}px;
+            "
+            data-button-type="{{ block.type }}"
+          >
+            {{ block.settings.button_text }}
+          </a>
+        {% else %}
+          <div
+            id="cookiebanner-btn-{{ block_id }}"
+            class="cookiebanner-btn"
+            style="
+              background-color: {{ block.settings.button_color }};
+              color: {{ block.settings.button_text_color }};
+              border-color: {{ block.settings.button_border_color }};
+              border-width: {{ block.settings.button_border_width }}px;
+              border-style: solid;
+              border-radius: {{ block.settings.button_border_radius }}px;
+            "
+            data-button-type="{{ block.type }}"
+          >
+            {{ block.settings.button_text }}
+          </div>
+        {% endif %}
+        <style>
+          #cookiebanner-btn-{{ block_id }}:hover {
+            background-color: {{ block.settings.button_hover_color }};
+            color: {{ block.settings.button_hover_text_color }};
+            filter: brightness(85%);
+          }
+        </style>
+      {% endfor %}
+    </div>
+  {%- endif -%}
+</div>
+
+<script>
+  // Handle accept or decline button clicks:
+  (function () {
+    const cookieConsent = document.cookie.split('; ').find((row) => row.startsWith('cookie_consent='));
+    if (cookieConsent && cookieConsent.split('=')[1] === '1') {
+      var banner = document.querySelector('.cookiebanner-{{ section.id }}');
+      if(banner) banner.style.display = 'none';
+      return;
+    }
+    const allButtons = document.querySelectorAll('.cookiebanner-{{ section.id }} .cookiebanner-btn');
+    allButtons.forEach((button) => {
+      button.addEventListener('click', function() {
+        const buttonType = this.dataset.buttonType;
+        if (buttonType === 'accept_button') {
+          const date = new Date();
+          const durationHours = parseFloat("{{ section.settings.cookie_acceptance_duration }}") || 720;
+          date.setTime(date.getTime() + durationHours * 60 * 60 * 1000);
+          document.cookie = `cookie_consent=1; expires=${date.toUTCString()}; path=/`;
+        } else if (buttonType === 'decline_button') {
+          document.cookie = 'cookie_consent=0; path=/';
+        }
+        var banner = document.querySelector('.cookiebanner-{{ section.id }}');
+        if(banner) banner.style.display = 'none';
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Cookie Consent Banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Cookie Consent Duration and Display Configuration",
+      "info": "Configure how long the consent remains active and determine its display properties."
+    },
+    {
+      "type": "select",
+      "id": "cookie_acceptance_duration",
+      "label": "Consent Validity Period",
+      "info": "Select the time duration for which the cookie consent is remembered.",
+      "default": "720",
+      "options": [
+        { "value": "12", "label": "12 Hours" },
+        { "value": "24", "label": "1 Day" },
+        { "value": "72", "label": "3 Days" },
+        { "value": "120", "label": "5 Days" },
+        { "value": "240", "label": "10 Days" },
+        { "value": "480", "label": "20 Days" },
+        { "value": "720", "label": "30 Days" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Banner Content & Messaging",
+      "info": "Customize the text and heading displayed on the cookie consent banner."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Banner Title",
+      "info": "Enter the main title text for the cookie consent banner.",
+      "default": "🍪 Cookie Settings"
+    },
+    {
+      "type": "select",
+      "id": "heading_position",
+      "label": "Title Alignment",
+      "info": "Select the alignment for the banner title.",
+      "default": "left",
+      "options": [
+        { "value": "left", "label": "Left Aligned" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right Aligned" }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Title Color",
+      "info": "Set the color of the banner title text.",
+      "default": "#222222"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Body Text Color",
+      "info": "Choose the color for the main message text.",
+      "default": "#787878"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Message Font Size",
+      "info": "Adjust the font size of the banner message.",
+      "default": 16,
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Banner Message",
+      "info": "Provide the main message for the cookie consent banner. HTML formatting is supported.",
+      "default": "<p>We use cookies to optimize your browsing experience. Click 'Allow' to consent to our cookie policy.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Banner Styling Options",
+      "info": "Customize the appearance of the banner including size, background, and border styling."
+    },
+    {
+      "type": "range",
+      "id": "max_width_desktop",
+      "label": "Maximum Width (Desktop)",
+      "info": "Set the maximum width for the banner on desktop screens.",
+      "default": 620,
+      "min": 0,
+      "max": 1000,
+      "step": 20,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "max_width_mobile",
+      "label": "Maximum Width (Mobile)",
+      "info": "Set the maximum width for the banner on mobile devices.",
+      "default": 780,
+      "min": 0,
+      "max": 1000,
+      "step": 20,
+      "unit": "px"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_gradient_background",
+      "label": "Use Gradient Background",
+      "info": "Toggle to enable a gradient background effect for the banner.",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_1",
+      "label": "Primary Gradient Color",
+      "info": "Select the first color for the gradient background.",
+      "default": "#ff9a9e"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_2",
+      "label": "Secondary Gradient Color",
+      "info": "Select the second color for the gradient background.",
+      "default": "#fad0c4"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_3",
+      "label": "Tertiary Gradient Color",
+      "info": "Optional third color for a multi-stop gradient effect.",
+      "default": "#fad0c4"
+    },
+    {
+      "type": "select",
+      "id": "gradient_degrees",
+      "label": "Gradient Angle",
+      "info": "Determine the angle of the gradient background.",
+      "default": "90",
+      "options": [
+        { "value": "0", "label": "0°" },
+        { "value": "45", "label": "45°" },
+        { "value": "90", "label": "90°" },
+        { "value": "135", "label": "135°" },
+        { "value": "180", "label": "180°" },
+        { "value": "225", "label": "225°" },
+        { "value": "270", "label": "270°" }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Solid Background Color",
+      "info": "Set a fallback or solid background color for the banner.",
+      "default": "#FCFCFC"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Corner Rounding",
+      "info": "Define the border radius to achieve rounded corners.",
+      "default": 24,
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_top",
+      "label": "Top Padding (Desktop)",
+      "info": "Adjust the top padding inside the banner for desktop view.",
+      "default": 20,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_bottom",
+      "label": "Bottom Padding (Desktop)",
+      "info": "Adjust the bottom padding inside the banner for desktop view.",
+      "default": 20,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "horizontal_padding_desktop",
+      "label": "Horizontal Padding (Desktop)",
+      "info": "Adjust the horizontal spacing inside the banner for desktop view.",
+      "default": 20,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "vertical_position_desktop",
+      "label": "Vertical Offset (Desktop)",
+      "info": "Set the vertical spacing from the edge of the screen for desktop.",
+      "default": 20,
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "placement_desktop",
+      "label": "Banner Placement (Desktop)",
+      "info": "Choose the corner where the banner appears on desktop screens.",
+      "default": "bottom-left",
+      "options": [
+        { "value": "bottom-left", "label": "Bottom Left" },
+        { "value": "bottom-right", "label": "Bottom Right" },
+        { "value": "bottom-center", "label": "Bottom Center" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_desktop_banner_placement_slider",
+      "label": "Activate Desktop Banner Slider",
+      "info": "Enable a slider to adjust the banner's horizontal position on desktop.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "desktop_banner_horizontal_offset",
+      "label": "Horizontal Offset (Desktop)",
+      "info": "Adjust the horizontal position of the banner on desktop screens.",
+      "min": -900,
+      "max": 900,
+      "step": 100,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Mobile Banner Positioning",
+      "info": "Configure the placement and offset of the banner on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "vertical_position_mobile",
+      "label": "Vertical Offset (Mobile)",
+      "info": "Set the vertical spacing from the edge of the screen for mobile devices.",
+      "default": 20,
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "placement_mobile",
+      "label": "Banner Placement (Mobile)",
+      "info": "Choose the position where the banner will appear on mobile devices.",
+      "default": "bottom-center",
+      "options": [
+        { "value": "bottom-left", "label": "Bottom Left" },
+        { "value": "bottom-right", "label": "Bottom Right" },
+        { "value": "bottom-center", "label": "Bottom Center" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_mobile_banner_placement_slider",
+      "label": "Activate Mobile Banner Slider",
+      "info": "Enable a slider to adjust the banner's horizontal position on mobile.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "mobile_banner_horizontal_offset",
+      "label": "Horizontal Offset (Mobile)",
+      "info": "Adjust the horizontal position of the banner on mobile devices.",
+      "min": -200,
+      "max": 200,
+      "step": 10,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_top",
+      "label": "Top Padding (Mobile)",
+      "info": "Adjust the top padding inside the banner for mobile devices.",
+      "default": 20,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_bottom",
+      "label": "Bottom Padding (Mobile)",
+      "info": "Adjust the bottom padding inside the banner for mobile devices.",
+      "default": 20,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_left",
+      "label": "Left Padding (Mobile)",
+      "info": "Adjust the left padding inside the banner for mobile devices.",
+      "default": 20,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_right",
+      "label": "Right Padding (Mobile)",
+      "info": "Adjust the right padding inside the banner for mobile devices.",
+      "default": 20,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "banner_shadow",
+      "label": "Shadow Effect",
+      "info": "Select the intensity of the shadow effect applied to the banner.",
+      "default": "none",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "low", "label": "Low Shadow" },
+        { "value": "medium", "label": "Medium Shadow" },
+        { "value": "high", "label": "High Shadow" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Additional Layout Configurations",
+      "info": "Customize alternative layout options for the banner display."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_layout_banner_2",
+      "label": "Activate Alternative Desktop Layout",
+      "info": "Enable a layout where buttons appear to the right of the text on desktop devices.",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Cookie Banner",
+            "category": "Other",
+      "blocks": [
+        { "type": "accept_button" },
+        { "type": "decline_button" }
+      ]
+    }
+  ],
+  "max_blocks": 2,
+  "blocks": [
+    {
+      "type": "accept_button",
+      "name": "Accept Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Accept Button Label",
+          "info": "Text displayed on the accept button.",
+          "default": "Accept"
+        },
+        {
+          "type": "color",
+          "id": "button_color",
+          "label": "Accept Button Background",
+          "info": "Background color for the accept button.",
+          "default": "#d99d42"
+        },
+        {
+          "type": "color",
+          "id": "button_text_color",
+          "label": "Accept Button Text Color",
+          "info": "Text color for the accept button.",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "button_border_color",
+          "label": "Accept Button Border Color",
+          "info": "Color of the border for the accept button.",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "button_border_width",
+          "label": "Accept Button Border Thickness",
+          "info": "Thickness of the border around the accept button.",
+          "min": 0,
+          "max": 10,
+          "step": 1,
+          "unit": "px",
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "button_border_radius",
+          "label": "Accept Button Corner Radius",
+          "info": "Rounded corner size for the accept button.",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "default": 24
+        }
+      ]
+    },
+    {
+      "type": "decline_button",
+      "name": "Decline Button",
+
+      "settings": [
+        {
+          "type": "url",
+          "id": "redirect_url",
+          "label": "URL for Decline Action",
+          "info": "URL to redirect users when they decline cookies."
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Decline Button Label",
+          "info": "Text displayed on the decline button.",
+          "default": "Decline"
+        },
+        {
+          "type": "color",
+          "id": "button_color",
+          "label": "Decline Button Background",
+          "info": "Background color for the decline button.",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "button_text_color",
+          "label": "Decline Button Text Color",
+          "info": "Text color for the decline button.",
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "button_border_color",
+          "label": "Decline Button Border Color",
+          "info": "Border color for the decline button.",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "button_border_width",
+          "label": "Decline Button Border Thickness",
+          "info": "Thickness of the border around the decline button.",
+          "min": 0,
+          "max": 10,
+          "step": 1,
+          "unit": "px",
+          "default": 1
+        },
+        {
+          "type": "range",
+          "id": "button_border_radius",
+          "label": "Decline Button Corner Radius",
+          "info": "Rounded corner size for the decline button.",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "default": 24
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

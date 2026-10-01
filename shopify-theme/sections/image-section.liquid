@@ -1,0 +1,701 @@
+{%- style -%}
+  /* Box Sizing and Image Defaults */
+  .loudecomz-section__{{ sec_id }} *,
+  .loudecomz-section__{{ sec_id }} *:after,
+  .loudecomz-section__{{ sec_id }} *:before {
+    box-sizing: border-box;
+  }
+
+  .loudecomz-section__{{ sec_id }} img {
+    max-width: 100%;
+    height: auto;
+    border-radius: {{ section.settings.image_border_radius }}px;
+  }
+
+  /* Container Styles */
+  .loudecomz-container,
+  .loudecomz-container-fluid {
+    width: 100%;
+    padding-right: var(--loudecomz-gutter-x, 15px);
+    padding-left: var(--loudecomz-gutter-x, 15px);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  /* Responsive Container Widths */
+  @media (min-width: 576px) {
+    .loudecomz-container {
+      max-width: 540px;
+    }
+  }
+
+  @media (min-width: 750px) {
+    .loudecomz-container {
+      max-width: 720px;
+    }
+  }
+
+  @media (min-width: 992px) {
+    .loudecomz-container {
+      max-width: 960px;
+    }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width <= 960 %}
+      .loudecomz-section__{{ sec_id }} .loudecomz-container {
+        max-width: {{ section.settings.container_max_width }}px;
+      }
+    {% endif %}
+  }
+
+  @media (min-width: 1200px) {
+    .loudecomz-container {
+      max-width: 1140px;
+    }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width <= 1140 %}
+      .loudecomz-section__{{ sec_id }} .loudecomz-container {
+        max-width: {{ section.settings.container_max_width }}px;
+      }
+    {% endif %}
+  }
+
+  @media (min-width: 1400px) {
+    .loudecomz-container {
+      max-width: 1320px;
+    }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width != 1320 %}
+      .loudecomz-section__{{ sec_id }} .loudecomz-container {
+        max-width: {{ section.settings.container_max_width }}px;
+      }
+    {% endif %}
+  }
+
+  /* Gutter X Adjustment for Desktop and Mobile */
+  .loudecomz-section__{{ sec_id }} .loudecomz-container,
+  .loudecomz-section__{{ sec_id }} .loudecomz-container-fluid {
+    --loudecomz-gutter-x: {{ section.settings.padding_lr_desktop }}px;
+  }
+
+  @media only screen and (max-width: 749px) {
+    .loudecomz-section__{{ sec_id }} .loudecomz-container,
+    .loudecomz-section__{{ sec_id }} .loudecomz-container-fluid {
+      --loudecomz-gutter-x: {{ section.settings.padding_lr_mobile }}px;
+    }
+  }
+
+  /* Section Styles */
+  .loudecomz-section__{{ sec_id }} {
+    padding-top: {{ section.settings.section_padding_top }}px;
+    padding-bottom: {{ section.settings.section_padding_bottom }}px;
+    position: relative;
+    line-height: 1.5;
+    {% if section.settings.display_on == 'mobile' %}
+      display: none;
+    {% elsif section.settings.display_on == 'desktop' %}
+      display: none;
+    {% elsif section.settings.display_on == 'none' %}
+      display: none;
+    {% endif %}
+  }
+
+  @media only screen and (max-width: 749px) {
+    .loudecomz-section__{{ sec_id }} {
+      padding-top: {{ section.settings.section_padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.section_padding_bottom_mobile }}px;
+    }
+  }
+
+  {% if section.settings.is_fullwidth == true %}
+    .loudecomz-section__{{ sec_id }} .loudecomz-container-fluid {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  {% endif %}
+
+  /* Image/Video Wrapper Styles with Adjustable Margins */
+  .loudecomz-section__{{ sec_id }} .loudecomz-img-wrapper {
+    position: relative;
+    min-height: {{ section.settings.img_min_height }}vh;
+    margin-top: {{ section.settings.image_margin_top }}px;
+    margin-bottom: {{ section.settings.image_margin_bottom }}px;
+  }
+
+  /* Media (Image) Positioning */
+  .loudecomz-section__{{ sec_id }} .loudecomz-img-wrapper img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: {{ section.settings.background_position_x }}% {{ section.settings.background_position_y }}%;
+    border-radius: {{ section.settings.image_border_radius }}px;
+  }
+
+  /* Video Styles */
+  .loudecomz-section__{{ sec_id }} .loudecomz-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: {{ section.settings.background_position_x }}% {{ section.settings.background_position_y }}%;
+  }
+
+  /* Image Text Overlay */
+  .loudecomz-section__{{ sec_id }} .loudecomz-img-text {
+    position: absolute;
+    max-width: 90%;
+    bottom: 50px;
+    z-index: 1;
+    text-align: center;
+    color: {{ section.settings.image_description_text_color }};
+    border-radius: {{ section.settings.image_text_border_radius }}px;
+    padding: 10px 15px;
+    font-size: {{ section.settings.image_description_fz }}px;
+    {% if section.settings.enable_image_text_background %}
+      /* Background handled by pseudo-element */
+    {% else %}
+      background: none;
+    {% endif %}
+    /* CSS Variables for Positioning */
+    left: var(--image-text-horizontal-position, {{ section.settings.image_text_horizontal_position_desktop }}%);
+    right: var(--image-text-horizontal-position-right, auto);
+    transform: translateX(var(--image-text-translateX, 0));
+  }
+
+  /* Pseudo-element for Background with Opacity */
+  .loudecomz-section__{{ sec_id }} .loudecomz-img-text::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: {{ section.settings.image_text_background_color }};
+    opacity: {{ section.settings.image_text_background_opacity | divided_by: 100.0 }};
+    border-radius: {{ section.settings.image_text_border_radius }}px;
+    z-index: -1;
+    display: {% if section.settings.enable_image_text_background %} block {% else %} none {% endif %};
+  }
+
+  /* Position Selector Classes */
+  .loudecomz-section__{{ sec_id }} .loudecomz-img-text.position-bottom-left {
+    --image-text-horizontal-position: {{ section.settings.image_text_horizontal_position_desktop }}%;
+    --image-text-horizontal-position-right: auto;
+    --image-text-translateX: 0;
+  }
+
+  .loudecomz-section__{{ sec_id }} .loudecomz-img-text.position-bottom-center {
+    left: 50%;
+    right: auto;
+    --image-text-translateX: -50%;
+  }
+
+  .loudecomz-section__{{ sec_id }} .loudecomz-img-text.position-bottom-right {
+    --image-text-horizontal-position: auto;
+    --image-text-horizontal-position-right: {{ section.settings.image_text_horizontal_position_desktop }}%;
+    --image-text-translateX: 0;
+  }
+
+  /* Responsive Styles for Mobile */
+  @media only screen and (max-width: 749px) {
+    .loudecomz-section__{{ sec_id }} .loudecomz-img-wrapper {
+      min-height: {{ section.settings.img_min_height_mobile }}vh;
+      margin-top: {{ section.settings.image_margin_top }}px;
+      margin-bottom: {{ section.settings.image_margin_bottom }}px;
+    }
+    .loudecomz-section__{{ sec_id }} .loudecomz-img-wrapper img,
+    .loudecomz-section__{{ sec_id }} .loudecomz-video {
+      object-position: {{ section.settings.background_position_x_mobile }}% {{ section.settings.background_position_y_mobile }}%;
+    }
+    .loudecomz-section__{{ sec_id }} .loudecomz-img-text {
+      font-size: {{ section.settings.image_description_fz_mobile }}px;
+      bottom: 30px;
+      /* Override horizontal position for mobile */
+      left: var(--image-text-horizontal-position-mobile, {{ section.settings.image_text_horizontal_position_mobile }}%);
+      right: auto;
+      transform: translateX(-50%);
+    }
+    /* Adjust horizontal positioning based on mobile settings */
+    .loudecomz-section__{{ sec_id }} .loudecomz-img-text.position-bottom-left,
+    .loudecomz-section__{{ sec_id }} .loudecomz-img-text.position-bottom-right {
+      left: var(--image-text-horizontal-position-mobile, {{ section.settings.image_text_horizontal_position_mobile }}%);
+      right: auto;
+      --image-text-translateX: -50%;
+    }
+    .loudecomz-section__{{ sec_id }} .loudecomz-img-text.position-bottom-right {
+      left: auto;
+      right: var(--image-text-horizontal-position-mobile, {{ section.settings.image_text_horizontal_position_mobile }}%);
+      --image-text-translateX: 0;
+    }
+  }
+
+  /* Display Section On Classes */
+  {% if section.settings.display_on == 'mobile' %}
+    /* Mobile Only */
+    .loudecomz-section__{{ sec_id }} {
+      display: none;
+    }
+    @media only screen and (max-width: 749px) {
+      .loudecomz-section__{{ sec_id }} {
+        display: block;
+      }
+    }
+  {% elsif section.settings.display_on == 'desktop' %}
+    /* Desktop Only */
+    .loudecomz-section__{{ sec_id }} {
+      display: none;
+    }
+    @media only screen and (min-width: 750px) {
+      .loudecomz-section__{{ sec_id }} {
+        display: block;
+      }
+    }
+  {% elsif section.settings.display_on == 'none' %}
+    /* No Devices */
+    .loudecomz-section__{{ sec_id }} {
+      display: none;
+    }
+  {% endif %}
+{%- endstyle -%}
+
+{% if section.settings.custom_css != blank %}
+  {%- style -%}
+    .loudecomz-section__{{ sec_id }} {
+      {{ section.settings.custom_css }}
+    }
+  {%- endstyle -%}
+{% endif %}
+
+{% if section.settings.is_fullwidth == true %}
+  {% assign container = 'loudecomz-container-fluid' %}
+{% else %}
+  {% assign container = 'loudecomz-container' %}
+{% endif %}
+
+{% if section.settings.lazyload == true %}
+  {% assign loading = 'lazy' %}
+{% else %}
+  {% assign loading = 'eager' %}
+{% endif %}
+
+<div class="loudecomz-section__{{ sec_id }} {{ section.settings.custom_class }}">
+  <div class="{{ container }}">
+    <div class="loudecomz-img-wrapper">
+      {% if section.settings.use_video %}
+        {% if section.settings.video_url != blank %}
+          <video autoplay muted loop playsinline class="loudecomz-video">
+            <source src="{{ section.settings.video_url }}" type="video/mp4">
+          </video>
+        {% endif %}
+      {% else %}
+        {% if section.settings.background_image == blank %}
+          <img
+            src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+            loading="{{ loading }}"
+            sizes="100vw"
+          >
+        {% else %}
+          {{
+            section.settings.background_image
+            | image_url: width: 1920
+            | image_tag: widths: '490, 750, 992, 1200, 1920', sizes: '100vw', loading: loading
+          }}
+        {% endif %}
+      {% endif %}
+      {% if section.settings.image_description != blank %}
+        <div class="loudecomz-img-text position-{{ section.settings.image_description_position | downcase | replace: ' ', '-' }}">
+          {{ section.settings.image_description }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Image ",
+  "tag": "section",
+  "class": "simple-image-1",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Image Settings",
+      "info": "Configure the image, its appearance, and positioning."
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Image",
+      "info": "Select the background image for this section."
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Image Border Radius",
+      "default": 10,
+      "info": "Adjust the border radius of the image for rounded corners."
+    },
+    {
+      "type": "range",
+      "id": "background_position_x",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "%",
+      "label": "Image Content Position Horizontal (Desktop Version)",
+      "default": 50,
+      "info": "Adjust the horizontal positioning of the image content."
+    },
+    {
+      "type": "range",
+      "id": "background_position_y",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "%",
+      "label": "Image Content Position Vertical (Desktop Version)",
+      "default": 50,
+      "info": "Adjust the vertical positioning of the image content."
+    },
+    {
+      "type": "header",
+      "content": "Text Settings",
+      "info": "Configure the text overlay on the image."
+    },
+    {
+      "type": "textarea",
+      "id": "image_description",
+      "label": "Image Text Description",
+      "default": "Caption text ",
+      "info": "Enter the descriptive text to display over the image."
+    },
+    {
+      "type": "range",
+      "id": "image_description_fz",
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Font Size (Desktop)",
+      "default": 23,
+      "info": "Set the font size of the image description on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "image_description_fz_mobile",
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Font Size (Mobile)",
+      "default": 17,
+      "info": "Set the font size of the image description on mobile devices."
+    },
+    {
+      "type": "color",
+      "id": "image_description_text_color",
+      "label": "Image Description Text Color",
+      "default": "#FFFFFF",
+      "info": "Choose the color of the image description text."
+    },
+    {
+      "type": "color",
+      "id": "image_text_background_color",
+      "label": "Image Text Background Color",
+      "default": "#686868",
+      "info": "Choose the background color for the image text."
+    },
+    {
+      "type": "range",
+      "id": "image_text_background_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Text Container Background Opacity",
+      "default": 19,
+      "info": "Set the opacity level of the image text background."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_image_text_background",
+      "default": true,
+      "label": "Enable Container Text Background",
+      "info": "Toggle the visibility of the image text background."
+    },
+    {
+      "type": "range",
+      "id": "image_text_horizontal_position_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Horizontal Position of Image Text (Desktop)",
+      "default": 5,
+      "info": "Adjust the horizontal position of the image text on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "image_text_horizontal_position_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Horizontal Position of Image Text (Mobile)",
+      "default": 26,
+      "info": "Adjust the horizontal position of the image text on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "image_text_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Image Text Border Radius",
+      "default": 8,
+      "info": "Set the border radius for the image text background."
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings",
+      "info": "Configure the overall layout and spacing of the section."
+    },
+    {
+      "type": "checkbox",
+      "id": "is_fullwidth",
+      "default": true,
+      "label": "Enable Full Width Section",
+      "info": "Enable to make the section span the full width of the viewport."
+    },
+    {
+      "type": "number",
+      "id": "container_max_width",
+      "label": "Content Width Limit (px)",
+      "default": 1300,
+      "info": "Set the maximum width for the content within the section."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top",
+      "default": 0,
+      "info": "Adjust the top padding of the section for desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom",
+      "default": 0,
+      "info": "Adjust the bottom padding of the section for desktop."
+    },
+    {
+      "type": "range",
+      "id": "padding_lr_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Left and Right Padding (Desktop)",
+      "default": 15,
+      "info": "Set the left and right padding for desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "img_min_height",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "vh",
+      "label": "Image Height (Desktop)",
+      "default": 70,
+      "info": "Set the minimum height of the image section on desktop devices."
+    },
+    {
+      "type": "header",
+      "content": "Desktop Settings",
+      "info": "Customize settings specific to desktop devices."
+    },
+    {
+      "type": "header",
+      "content": "Mobile Settings",
+      "info": "Customize settings specific to mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Mobile)",
+      "default": 40,
+      "info": "Adjust the top padding of the section for mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Mobile)",
+      "default": 40,
+      "info": "Adjust the bottom padding of the section for mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "padding_lr_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Left and Right Padding (Mobile)",
+      "default": 20,
+      "info": "Set the left and right padding for mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "img_min_height_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "vh",
+      "label": "Image Height (Mobile)",
+      "default": 50,
+      "info": "Set the minimum height of the image section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "background_position_x_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "%",
+      "label": "Image Horizontal Content Position (Mobile Version)",
+      "default": 50,
+      "info": "Adjust the horizontal positioning of the image content on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "background_position_y_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "%",
+      "label": "Image Vertical Content Position (Mobile Version)",
+      "default": 50,
+      "info": "Adjust the vertical positioning of the image content on mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Advanced Media Settings",
+      "info": "Additional controls for media positioning and video background."
+    },
+    {
+      "type": "range",
+      "id": "image_margin_top",
+      "min": -200,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Image Top Margin",
+      "default": 0,
+      "info": "Adjust the top margin of the media to allow overlap outside the section."
+    },
+    {
+      "type": "range",
+      "id": "image_margin_bottom",
+      "min": -200,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Image Bottom Margin",
+      "default": 0,
+      "info": "Adjust the bottom margin of the media to allow overlap outside the section."
+    },
+    {
+      "type": "checkbox",
+      "id": "use_video",
+      "default": false,
+      "label": "Use Video Instead of Image",
+      "info": "Toggle to use a video background instead of an image."
+    },
+    {
+      "type": "text",
+      "id": "video_url",
+      "label": "Video URL",
+    
+      "info": "Enter the URL of the video to use as background. Must be in MP4 format.",
+      "placeholder": "https://example.com/video.mp4"
+    },
+    {
+      "type": "header",
+      "content": "Customization",
+      "info": "Additional customization options for advanced users."
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS",
+      "info": "Add custom CSS to further style this section."
+    },
+    {
+      "type": "select",
+      "id": "display_on",
+      "label": "Display Section On",
+      "options": [
+        {
+          "value": "all",
+          "label": "All Devices"
+        },
+        {
+          "value": "mobile",
+          "label": "Mobile Devices Only"
+        },
+        {
+          "value": "desktop",
+          "label": "Desktop/Larger Screens Only"
+        },
+        {
+          "value": "none",
+          "label": "No Devices"
+        }
+      ],
+      "default": "all",
+      "info": "Choose on which devices this section should be displayed."
+    },
+    {
+      "type": "checkbox",
+      "id": "lazyload",
+      "default": true,
+      "label": "Lazyload Images",
+      "info": "Enable lazy loading for images to improve page load times."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image ",
+       "category": "Media",
+      "settings": {
+        "is_fullwidth": false,
+        "section_padding_top": 50,
+        "section_padding_bottom": 50
+      }
+    }
+  ]
+}
+{% endschema %}

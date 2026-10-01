@@ -1,0 +1,604 @@
+
+<section
+  id="community-stories-slider"
+  class="community-stories-slider"
+  style="
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    background-color: {{ section.settings.background_color }};
+    text-align: center;
+  "
+>
+  <!-- Container with desktop left/right padding -->
+  <div
+    class="container"
+    style="padding-left: {{ section.settings.desktop_padding_left }}px; padding-right: {{ section.settings.desktop_padding_right }}px;"
+  >
+    {% if section.settings.enable_custom_fonts and section.settings.selected_custom_font != blank %}
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family={{ section.settings.selected_custom_font | replace: ' ', '+' }}&display=swap');
+        /* Apply the selected Google font to all text elements within the section */
+        #community-stories-slider * {
+          font-family: '{{ section.settings.selected_custom_font }}', sans-serif !important;
+        }
+      </style>
+    {% elsif section.settings.custom_font_url != blank %}
+      <style>
+        @import url('{{ section.settings.custom_font_url }}');
+        /* Apply the custom font to all text elements within the section */
+        #community-stories-slider * {
+          font-family: 'CustomFont', sans-serif !important;
+        }
+      </style>
+    {% endif %}
+
+    <!-- Assign RGB components based on the selected overlay color -->
+    {% assign overlay_color_option = section.settings.video_overlay_color_selector %}
+    {% case overlay_color_option %}
+      {% when 'none' %}
+        {% assign overlay_r = 0 %}
+        {% assign overlay_g = 0 %}
+        {% assign overlay_b = 0 %}
+        {% assign overlay_opacity = 0 %}
+      {% when 'black' %}
+        {% assign overlay_r = 0 %}
+        {% assign overlay_g = 0 %}
+        {% assign overlay_b = 0 %}
+        {% assign overlay_opacity = section.settings.video_overlay_opacity %}
+      {% when 'white' %}
+        {% assign overlay_r = 255 %}
+        {% assign overlay_g = 255 %}
+        {% assign overlay_b = 255 %}
+        {% assign overlay_opacity = section.settings.video_overlay_opacity %}
+      {% when 'gray' %}
+        {% assign overlay_r = 128 %}
+        {% assign overlay_g = 128 %}
+        {% assign overlay_b = 128 %}
+        {% assign overlay_opacity = section.settings.video_overlay_opacity %}
+      {% when 'light-gray' %}
+        {% assign overlay_r = 211 %}
+        {% assign overlay_g = 211 %}
+        {% assign overlay_b = 211 %}
+        {% assign overlay_opacity = section.settings.video_overlay_opacity %}
+      {% when 'dark-gray' %}
+        {% assign overlay_r = 169 %}
+        {% assign overlay_g = 169 %}
+        {% assign overlay_b = 169 %}
+        {% assign overlay_opacity = section.settings.video_overlay_opacity %}
+    {% endcase %}
+
+    <h2
+      class="community-stories-title"
+      style="
+        color: {{ section.settings.title_color }} !important;
+        font-size: {{ section.settings.title_font_size }}px;
+        font-weight: {{ section.settings.title_font_weight }};
+        margin-bottom: {{ section.settings.space_between_title_tagline_desktop }}px;
+      "
+    >
+      {{ section.settings.title }}
+    </h2>
+    <p
+      class="community-stories-tagline"
+      style="
+        color: {{ section.settings.tagline_color }};
+        font-size: {{ section.settings.tagline_font_size }}px;
+        margin-bottom: {{ section.settings.space_between_tagline_video_desktop }}px;
+      "
+    >
+      {{ section.settings.tagline }}
+    </p>
+
+    <!-- Desktop and Tablet View -->
+    <div
+      class="video-cards-wrapper desktop-view"
+      style="gap: {{ section.settings.video_cards_gap_desktop }}px;"
+    >
+      {% for block in section.blocks %}
+        {% assign selected_product = block.settings.product %}
+        {% if block.settings.enable_override == false and selected_product != blank %}
+          {% assign use_product_title = '' %}
+          {% assign use_product_name = selected_product.title %}
+          {% assign use_product_price = selected_product.price | money %}
+          {% assign use_product_thumbnail = selected_product.featured_image | img_url: '40x40' %}
+          {% assign use_product_link = selected_product.url %}
+          {% assign use_button_link = selected_product.url %}
+        {% else %}
+          {% assign use_product_title = block.settings.product_title %}
+          {% assign use_product_name = block.settings.product_name %}
+          {% assign use_product_price = block.settings.product_price %}
+          {% assign use_product_thumbnail = block.settings.product_thumbnail | img_url: '40x40' %}
+          {% assign use_product_link = block.settings.product_link %}
+          {% assign use_button_link = block.settings.button_link %}
+        {% endif %}
+        {% if section.settings.disable_video_card_clickable %}
+          <div class="video-card-link non-clickable">
+        {% else %}
+          <a href="{{ use_product_link }}" class="video-card-link">
+        {% endif %}
+          <div class="video-card {{ section.settings.hover_animation }}">
+            {% if block.settings.image %}
+              <img
+                src="{{ block.settings.image | img_url: 'master' }}"
+                alt="{{ use_product_name }}"
+                class="media-content"
+              >
+            {% else %}
+              <video class="media-content" autoplay muted loop playsinline>
+                {% if block.settings.shopify_video %}
+                  <source src="{{ block.settings.shopify_video | video_url }}" type="video/mp4">
+                {% elsif block.settings.video_url %}
+                  <source src="{{ block.settings.video_url }}" type="video/mp4">
+                {% endif %}
+                Your browser does not support the video tag.
+              </video>
+            {% endif %}
+
+            {% unless section.settings.hide_addons %}
+              <div
+                class="video-overlay"
+                style="
+                  background-color: rgba(
+                    {{ overlay_r }},
+                    {{ overlay_g }},
+                    {{ overlay_b }},
+                    {{ overlay_opacity }}
+                  );
+                "
+              >
+                <img
+                  src="{{ use_product_thumbnail }}"
+                  alt="{{ use_product_name }}"
+                  class="product-thumbnail"
+                >
+                <div class="product-info">
+                  <span class="product-title" style="color: {{ section.settings.product_name_color }};">
+                    {{ use_product_title }}
+                  </span>
+                  <span class="product-name" style="color: {{ section.settings.product_name_color }};">
+                    {{ use_product_name }}
+                  </span>
+                  <span class="product-price" style="color: {{ section.settings.product_price_color }};">
+                    {{ use_product_price }}
+                  </span>
+                </div>
+              </div>
+            {% endunless %}
+
+            {% if section.settings.enable_button %}
+              <a href="{{ use_button_link }}" class="custom-button">
+                {{ section.settings.button_text }}
+              </a>
+            {% endif %}
+          </div>
+        {% if section.settings.disable_video_card_clickable %}
+          </div>
+        {% else %}
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <!-- Mobile Slider View -->
+    <div class="swiper-container mobile-view">
+      <div class="swiper-wrapper">
+        {% for block in section.blocks %}
+          <div class="swiper-slide">
+            {% assign selected_product = block.settings.product %}
+            {% if block.settings.enable_override == false and selected_product != blank %}
+              {% assign use_product_title = '' %}
+              {% assign use_product_name = selected_product.title %}
+              {% assign use_product_price = selected_product.price | money %}
+              {% assign use_product_thumbnail = selected_product.featured_image | img_url: '40x40' %}
+              {% assign use_product_link = selected_product.url %}
+              {% assign use_button_link = selected_product.url %}
+            {% else %}
+              {% assign use_product_title = block.settings.product_title %}
+              {% assign use_product_name = block.settings.product_name %}
+              {% assign use_product_price = block.settings.product_price %}
+              {% assign use_product_thumbnail = block.settings.product_thumbnail | img_url: '40x40' %}
+              {% assign use_product_link = block.settings.product_link %}
+              {% assign use_button_link = block.settings.button_link %}
+            {% endif %}
+            {% if section.settings.disable_video_card_clickable %}
+              <div class="video-card-link non-clickable">
+            {% else %}
+              <a href="{{ use_product_link }}" class="video-card-link">
+            {% endif %}
+              <div class="video-card {{ section.settings.hover_animation }}">
+                {% if block.settings.image %}
+                  <img
+                    src="{{ block.settings.image | img_url: 'master' }}"
+                    alt="{{ use_product_name }}"
+                    class="media-content"
+                  >
+                {% else %}
+                  <video class="media-content" autoplay muted loop playsinline>
+                    {% if block.settings.shopify_video %}
+                      <source src="{{ block.settings.shopify_video | video_url }}" type="video/mp4">
+                    {% elsif block.settings.video_url %}
+                      <source src="{{ block.settings.video_url }}" type="video/mp4">
+                    {% endif %}
+                    Your browser does not support the video tag.
+                  </video>
+                {% endif %}
+
+                {% unless section.settings.hide_addons %}
+                  <div
+                    class="video-overlay"
+                    style="
+                      background-color: rgba(
+                        {{ overlay_r }},
+                        {{ overlay_g }},
+                        {{ overlay_b }},
+                        {{ overlay_opacity }}
+                      );
+                    "
+                  >
+                    <img
+                      src="{{ use_product_thumbnail }}"
+                      alt="{{ use_product_name }}"
+                      class="product-thumbnail"
+                    >
+                    <div class="product-info">
+                      <span class="product-title" style="color: {{ section.settings.product_name_color }};">
+                        {{ use_product_title }}
+                      </span>
+                      <span class="product-name" style="color: {{ section.settings.product_name_color }};">
+                        {{ use_product_name }}
+                      </span>
+                      <span class="product-price" style="color: {{ section.settings.product_price_color }};">
+                        {{ use_product_price }}
+                      </span>
+                    </div>
+                  </div>
+                {% endunless %}
+
+                {% if section.settings.enable_button %}
+                  <a href="{{ use_button_link }}" class="custom-button">
+                    {{ section.settings.button_text }}
+                  </a>
+                {% endif %}
+              </div>
+            {% if section.settings.disable_video_card_clickable %}
+              </div>
+            {% else %}
+              </a>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if section.settings.show_arrows %}
+        <!-- Add Navigation Buttons -->
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Swiper.js CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+
+  <style>
+        /* Container Styles */
+        #community-stories-slider {
+          position: relative;
+          overflow: hidden;
+        }
+        /* Adjust container padding for mobile via media query */
+        @media (max-width: 768px) {
+          .container {
+            padding-left: {{ section.settings.mobile_padding_left }}px !important;
+            padding-right: {{ section.settings.mobile_padding_right }}px !important;
+          }
+        }
+
+        #community-stories-slider .community-stories-title,
+        #community-stories-slider .community-stories-tagline {
+          font-family: inherit;
+        }
+
+        /* Video Cards Wrapper - Desktop View */
+        #community-stories-slider .video-cards-wrapper.desktop-view {
+          display: flex;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        /* Video Card Link */
+        #community-stories-slider .video-card-link {
+          text-decoration: none;
+          color: inherit;
+        }
+
+        #community-stories-slider .video-card-link.non-clickable {
+          pointer-events: none;
+          cursor: default;
+        }
+
+        /* Video Card Styles */
+        #community-stories-slider .video-card {
+          position: relative;
+          width: {{ section.settings.video_card_size }}px;
+          height: calc({{ section.settings.video_card_size }}px * 1.6);
+          border-radius: 12px;
+          overflow: hidden;
+          transition: transform 0.3s, box-shadow 0.3s;
+          cursor: pointer;
+          background-color: #f9f9f9;
+        }
+
+        /* Hover Animations */
+        #community-stories-slider .video-card.none:hover { }
+        #community-stories-slider .video-card.smooth-zoom:hover {
+          transform: scale(1.05);
+        }
+        #community-stories-slider .video-card.scale-in:hover {
+          transform: scale(1.1);
+        }
+        #community-stories-slider .video-card.scale-in-up:hover {
+          transform: scale(1.1) translateY(-5px);
+        }
+        #community-stories-slider .video-card.subtle-shadow:hover {
+          box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+        #community-stories-slider .video-card.subtle-white-glow-pulse:hover {
+          box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+          animation: pulseWhiteGlow 1.5s infinite;
+        }
+        #community-stories-slider .video-card.subtle-gray-glow-pulse:hover {
+          box-shadow: 0 0 10px rgba(128, 128, 128, 0.7);
+          animation: pulseGrayGlow 1.5s infinite;
+        }
+        @keyframes pulseWhiteGlow {
+          0% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.7); }
+          50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.9); }
+          100% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.7); }
+        }
+        @keyframes pulseGrayGlow {
+          0% { box-shadow: 0 0 10px rgba(128, 128, 128, 0.7); }
+          50% { box-shadow: 0 0 20px rgba(128, 128, 128, 0.9); }
+          100% { box-shadow: 0 0 10px rgba(128, 128, 128, 0.7); }
+        }
+
+        #community-stories-slider .media-content {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        /* Overlay Styles */
+        #community-stories-slider .video-overlay {
+          position: absolute;
+          bottom: 0;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          padding: 10px;
+        }
+        #community-stories-slider .product-thumbnail {
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          margin-right: 10px;
+          object-fit: cover;
+        }
+        #community-stories-slider .product-info {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        #community-stories-slider .product-title,
+        #community-stories-slider .product-name {
+          font-size: 14px;
+          font-weight: bold;
+          font-family: inherit;
+        }
+        #community-stories-slider .product-price {
+          font-size: 14px;
+          color: #555;
+          font-family: inherit;
+        }
+
+        /* Button Styles */
+        #community-stories-slider .custom-button {
+        position: absolute;
+        bottom: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: {{ section.settings.button_background_color }};
+        color: {{ section.settings.button_text_color }};
+        border: none;
+        border-radius: {{ section.settings.button_border_radius }}px;
+        padding: 8px 16px;
+        text-decoration: none;
+        transition: background-color 0.3s ease, filter 0.3s ease;
+        font-size: 14px;
+        white-space: nowrap;
+        display: inline-block;
+        will-change: filter; /* Optimizes hover effect */
+    }
+
+    #community-stories-slider .custom-button:hover {
+        filter: brightness(0.94);
+
+
+        }
+
+        /* Swiper Styles - Mobile View */
+        #community-stories-slider .swiper-container.mobile-view {
+          display: none;
+          width: 100%;
+          padding-bottom: 40px;
+          position: relative;
+        }
+        #community-stories-slider .swiper-slide {
+          display: flex;
+          justify-content: center;
+        }
+
+        /* Swiper Navigation Buttons Styles */
+        #community-stories-slider .swiper-button-prev,
+        #community-stories-slider .swiper-button-next {
+          color: {{ section.settings.arrow_color }};
+          width: {{ section.settings.arrow_size }}px;
+          height: {{ section.settings.arrow_size }}px;
+          transition: color 0.3s ease;
+          display: block;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 10;
+        }
+        #community-stories-slider .swiper-button-prev:hover,
+        #community-stories-slider .swiper-button-next:hover {
+          color: {{ section.settings.arrow_hover_color }};
+        }
+        #community-stories-slider .swiper-button-prev::after,
+        #community-stories-slider .swiper-button-next::after {
+          font-size: {{ section.settings.arrow_size }}px;
+        }
+        #community-stories-slider .swiper-button-prev { left: 10px; }
+        #community-stories-slider .swiper-button-next { right: 10px; }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+          #community-stories-slider .video-cards-wrapper.desktop-view {
+            display: none;
+          }
+          #community-stories-slider .swiper-container.mobile-view {
+            display: block;
+          }
+          #community-stories-slider .community-stories-title {
+            font-size: {{ section.settings.title_font_size | minus: 4 }}px;
+            margin-bottom: {{ section.settings.space_between_title_tagline_mobile }}px !important;
+          }
+          #community-stories-slider .community-stories-tagline {
+            font-size: {{ section.settings.tagline_font_size | minus: 2 }}px;
+            margin-bottom: {{ section.settings.space_between_tagline_video_mobile }}px !important;
+          }
+          #community-stories-slider .swiper-container.mobile-view .swiper-slide .video-card {
+            width: {{ section.settings.mobile_video_card_width }}px;
+            height: calc({{ section.settings.mobile_video_card_width }}px * 1.8);
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.smooth-zoom:hover {
+            transform: scale(1.03);
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.scale-in:hover {
+            transform: scale(1.05);
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.scale-in-up:hover {
+            transform: scale(1.05) translateY(0);
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.subtle-shadow:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.subtle-white-glow-pulse:hover {
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+            animation: pulseWhiteGlow 1.5s infinite;
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.subtle-gray-glow-pulse:hover {
+            box-shadow: 0 0 8px rgba(128, 128, 128, 0.7);
+            animation: pulseGrayGlow 1.5s infinite;
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card {
+            touch-action: manipulation;
+          }
+        }
+        @media (max-width: 480px) {
+          #community-stories-slider .community-stories-title {
+            font-size: {{ section.settings.title_font_size | minus: 6 }}px;
+          }
+          #community-stories-slider .community-stories-tagline {
+            font-size: {{ section.settings.tagline_font_size | minus: 4 }}px;
+          }
+          #community-stories-slider .swiper-container.mobile-view .swiper-slide .video-card {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.smooth-zoom:hover {
+            transform: scale(1.02);
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.scale-in:hover {
+            transform: scale(1.03);
+          }
+          #community-stories-slider .swiper-container.mobile-view .video-card.scale-in-up:hover {
+            transform: scale(1.03) translateY(0);
+          }
+        }
+  </style>
+
+  <!-- Swiper.js JS -->
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+  <script>
+    (function() {
+      const section = document.getElementById('community-stories-slider');
+      if (!section) return;
+      let swiperInstance = null;
+
+      function initSwiper() {
+        if (window.innerWidth <= 768) {
+          if (!swiperInstance) {
+            const swiperOptions = {
+              loop: true,
+              autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+              },
+              slidesPerView: {{ section.settings.mobile_column_count }},
+              spaceBetween: {{ section.settings.video_cards_gap_mobile }},
+              effect: 'slide',
+              grabCursor: true,
+              speed: 600
+            };
+            {% if section.settings.show_arrows %}
+              swiperOptions.navigation = {
+                nextEl: '#community-stories-slider .swiper-button-next',
+                prevEl: '#community-stories-slider .swiper-button-prev',
+              };
+            {% endif %}
+            swiperInstance = new Swiper(section.querySelector('.swiper-container.mobile-view'), swiperOptions);
+          }
+        } else {
+          if (swiperInstance) {
+            swiperInstance.destroy(true, true);
+            swiperInstance = null;
+          }
+        }
+      }
+
+      function handleSectionLoad() {
+        initSwiper();
+      }
+
+      function handleSectionUnload() {
+        if (swiperInstance) {
+          swiperInstance.destroy(true, true);
+          swiperInstance = null;
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        initSwiper();
+      });
+
+      window.addEventListener('resize', function() {
+        initSwiper();
+      });
+
+      document.addEventListener('shopify:section:load', handleSectionLoad);
+      document.addEventListener('shopify:section:unload', handleSectionUnload);
+
+      document.addEventListener('shopify:block:select', function() {
+        initSwiper();
+      });
+    })();
+  </script>
+</section>
+
+{%- schema -%}
+{"name":"User Content","settings":[],"presets":[{"name":"User Content"}]}
+{%- endschema -%}

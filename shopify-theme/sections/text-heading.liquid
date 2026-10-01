@@ -1,0 +1,945 @@
+{% schema %}
+{
+  "name": "Text Heading ",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Settings",
+      "info": "Configure the overall appearance and layout of the section."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff",
+      "info": "Choose the background color for the section."
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding Top",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "default": 40,
+      "unit": "px",
+      "info": "Set the top padding of the section."
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding Bottom",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "default": 40,
+      "unit": "px",
+      "info": "Set the bottom padding of the section."
+    },
+    {
+      "type": "range",
+      "id": "padding_left_mobile",
+      "label": "Left Padding (Mobile)",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "default": 0,
+      "unit": "px",
+      "info": "Set the left padding for mobile view (up to 767px)."
+    },
+    {
+      "type": "range",
+      "id": "padding_right_mobile",
+      "label": "Right Padding (Mobile)",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "default": 0,
+      "unit": "px",
+      "info": "Set the right padding for mobile view (up to 767px)."
+    },
+    {
+      "type": "range",
+      "id": "padding_left_desktop",
+      "label": "Left Padding (Desktop)",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "default": 0,
+      "unit": "px",
+      "info": "Set the left padding for desktop view (768px and larger)."
+    },
+    {
+      "type": "range",
+      "id": "padding_right_desktop",
+      "label": "Right Padding (Desktop)",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "default": 0,
+      "unit": "px",
+      "info": "Set the right padding for desktop view (768px and larger)."
+    },
+    {
+      "type": "select",
+      "id": "elements_alignment",
+      "label": "Elements Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center",
+      "info": "Align the elements within the section."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_on_mobile",
+      "label": "Show Section on Mobile",
+      "default": true,
+      "info": "Toggle the visibility of the section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_height_desktop",
+      "label": "Section Height (Desktop)",
+      "min": 50,
+      "max": 1000,
+      "step": 10,
+      "default": 170,
+      "unit": "px",
+      "info": "Set the height of the section for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "section_height_mobile",
+      "label": "Section Height (Mobile)",
+      "min": 50,
+      "max": 1000,
+      "step": 10,
+      "default": 170,
+      "unit": "px",
+      "info": "Set the height of the section for mobile view."
+    },
+    {
+      "type": "header",
+      "content": "Typography Settings",
+      "info": "Customize the fonts and text styles for titles, descriptions, and buttons."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_font",
+      "label": "Enable Custom Font",
+      "default": false,
+      "info": "Use custom Google fonts for the title, description, and button texts."
+    },
+    {
+      "type": "select",
+      "id": "custom_font_title",
+      "label": "Custom Font for Title",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "Yanone Kaffeesatz", "label": "Yanone Kaffeesatz" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "PT Sans", "label": "PT Sans" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Nunito", "label": "Nunito" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Slabo 27px", "label": "Slabo 27px" },
+        { "value": "Lora", "label": "Lora" },
+        { "value": "Fira Sans", "label": "Fira Sans" },
+        { "value": "Libre Baskerville", "label": "Libre Baskerville" },
+        { "value": "Indie Flower", "label": "Indie Flower" },
+        { "value": "Bebas Neue", "label": "Bebas Neue" },
+        { "value": "Cabin", "label": "Cabin" },
+        { "value": "Cinzel", "label": "Cinzel" },
+        { "value": "Dosis", "label": "Dosis" },
+        { "value": "Exo 2", "label": "Exo 2" },
+        { "value": "Fjalla One", "label": "Fjalla One" },
+        { "value": "Gilda Display", "label": "Gilda Display" },
+        { "value": "Heebo", "label": "Heebo" },
+        { "value": "Karla", "label": "Karla" },
+        { "value": "Muli", "label": "Muli" },
+        { "value": "Noto Serif", "label": "Noto Serif" },
+        { "value": "Quicksand", "label": "Quicksand" },
+        { "value": "Roboto Slab", "label": "Roboto Slab" },
+        { "value": "Signika", "label": "Signika" },
+        { "value": "Titillium Web", "label": "Titillium Web" },
+        { "value": "Varela Round", "label": "Varela Round" },
+        { "value": "Work Sans", "label": "Work Sans" },
+        { "value": "Zilla Slab", "label": "Zilla Slab" }
+      ],
+      "default": "Roboto",
+      "info": "Select a custom Google font for the title text (used if 'Enable Custom Font' is active and a custom font URL is not provided)."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_font_url",
+      "label": "Enable Custom Font URL",
+      "default": false,
+      "info": "Enable usage of a custom font URL for the title text."
+    },
+    {
+      "type": "textarea",
+      "id": "custom_font_url",
+      "label": "Custom Font URL",
+      "info": "Enter the URL for your custom font file (e.g. .ttf). To easily add a custom font, make sure your font file is in TTF or OTF format. Simply go to Shopify Admin Panel → Content → Files, upload your font file, copy the URL, and paste it here. This will override default fonts when enabled."
+    },
+    {
+      "type": "text",
+      "id": "custom_font_family",
+      "label": "Enter Font Name",
+      "info": "Define the custom font family name to be used with the custom font URL. For example: Roboto, Arial, or Tampa."
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#2E2E2E",
+      "info": "Choose the color of the title text."
+    },
+    {
+      "type": "range",
+      "id": "title_text_size",
+      "label": "Title Text Size",
+      "min": 10,
+      "max": 300,
+      "step": 10,
+      "default": 40,
+      "unit": "px",
+      "info": "Adjust the font size of the title text."
+    },
+    {
+      "type": "range",
+      "id": "title_mobile_size",
+      "label": "Title Text Size (Mobile)",
+      "min": 10,
+      "max": 150,
+      "step": 5,
+      "default": 30,
+      "unit": "px",
+      "info": "Set the title text size for mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "title_contrast",
+      "label": "Title Contrast",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 100,
+      "unit": "%",
+      "info": "Adjust the contrast of the title text."
+    },
+    {
+      "type": "range",
+      "id": "title_opacity",
+      "label": "Title Opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 100,
+      "unit": "%",
+      "info": "Adjust the opacity of the title text."
+    },
+    {
+      "type": "header",
+      "content": "Title Settings",
+      "info": "Manage the title text and its styling."
+    },
+    {
+      "type": "select",
+      "id": "title_font_weight",
+      "label": "Title Font Weight",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "700",
+      "info": "Choose the font weight for the title text."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_title_gradient",
+      "label": "Enable Title Gradient",
+      "default": false,
+      "info": "Apply a gradient effect to the title text."
+    },
+    {
+      "type": "color",
+      "id": "gradient_start_color",
+      "label": "Title Gradient Start Color",
+      "default": "#ff7e5f",
+      "info": "Choose the starting color for the title gradient."
+    },
+    {
+      "type": "color",
+      "id": "gradient_middle_color",
+      "label": "Title Gradient Middle Color",
+      "default": "#ffffff",
+      "info": "Choose the middle color for the title gradient."
+    },
+    {
+      "type": "color",
+      "id": "gradient_end_color",
+      "label": "Title Gradient End Color",
+      "default": "#feb47b",
+      "info": "Choose the ending color for the title gradient."
+    },
+    {
+      "type": "select",
+      "id": "gradient_direction",
+      "label": "Title Gradient Direction",
+      "options": [
+        { "value": "to right", "label": "To Right" },
+        { "value": "to left", "label": "To Left" },
+        { "value": "to top", "label": "To Top" },
+        { "value": "to bottom", "label": "To Bottom" },
+        { "value": "45deg", "label": "45 Degrees" },
+        { "value": "135deg", "label": "135 Degrees" },
+        { "value": "180deg", "label": "180 Degrees" }
+      ],
+      "default": "to right",
+      "info": "Set the direction of the title gradient."
+    },
+    {
+      "type": "select",
+      "id": "title_text_animation",
+      "label": "Title Text Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "rainbow-gradient", "label": "Rainbow Gradient Animation" },
+        { "value": "pulsing-glow", "label": "Pulsing Subtle White Glow" },
+        { "value": "bounce", "label": "Bounce" },
+        { "value": "slide-in-left", "label": "Slide In Left" },
+        { "value": "slide-in-right", "label": "Slide In Right" },
+        { "value": "fade-up", "label": "Fade Up" },
+        { "value": "fade-down", "label": "Fade Down" },
+        { "value": "zoom-in", "label": "Zoom In" },
+        { "value": "zoom-out", "label": "Zoom Out" },
+        { "value": "flip-horizontal", "label": "Flip Horizontal" },
+        { "value": "flip-vertical", "label": "Flip Vertical" },
+        { "value": "skew", "label": "Skew" },
+        { "value": "wave", "label": "Wave" }
+      ],
+      "default": "none",
+      "info": "Select an animation effect for the title text."
+    },
+    {
+      "type": "select",
+      "id": "title_line_height",
+      "label": "Title Line Height",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "1.2", "label": "1.2" },
+        { "value": "1.5", "label": "1.5" },
+        { "value": "1.6", "label": "1.6" },
+        { "value": "1.8", "label": "1.8" },
+        { "value": "2", "label": "2" },
+        { "value": "2.2", "label": "2.2" },
+        { "value": "2.5", "label": "2.5" },
+        { "value": "3", "label": "3" }
+      ],
+      "default": "1.2",
+      "info": "Set the line height for the title text."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_second_text",
+      "label": "Enable Second Text Separate",
+      "default": false,
+      "info": "Toggle to display a second separate text next to the main title."
+    },
+    {
+      "type": "text",
+      "id": "second_text",
+      "label": "Second Text",
+      "info": "Enter the second text that will appear next to the main title."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_second_text_custom_font_url",
+      "label": "Enable Second Text Custom Font URL",
+      "default": false,
+      "info": "Enable usage of a custom font URL for the second text."
+    },
+    {
+      "type": "textarea",
+      "id": "second_text_custom_font_url",
+      "label": "Second Text Custom Font URL",
+      "info": "Enter the URL for your custom font file for the second text (e.g. .ttf)."
+    },
+    {
+      "type": "text",
+      "id": "second_text_custom_font_family",
+      "label": "Second Text Font Name",
+      "info": "Define the custom font family name for the second text."
+    },
+    {
+      "type": "color",
+      "id": "second_text_color",
+      "label": "Second Text Color",
+      "default": "#000000",
+      "info": "Choose the color for the second text."
+    },
+    {
+      "type": "range",
+      "id": "second_text_size_desktop",
+      "label": "Second Text Size (Desktop)",
+      "min": 10,
+      "max": 150,
+      "step": 10,
+      "default": 20,
+      "unit": "px",
+      "info": "Adjust the font size of the second text for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "second_text_size_mobile",
+      "label": "Second Text Size (Mobile)",
+      "min": 10,
+      "max": 150,
+      "step": 5,
+      "default": 20,
+      "unit": "px",
+      "info": "Adjust the font size of the second text for mobile view."
+    },
+    {
+      "type": "range",
+      "id": "second_text_margin_left",
+      "label": "Second Text Margin Left",
+      "min": -100,
+      "max": 100,
+      "step": 10,
+      "default": 0,
+      "unit": "px",
+      "info": "Adjust the left margin for the second text."
+    },
+    {
+      "type": "range",
+      "id": "second_text_margin_right",
+      "label": "Second Text Margin Right",
+      "min": -100,
+      "max": 100,
+      "step": 10,
+      "default": 0,
+      "unit": "px",
+      "info": "Adjust the right margin for the second text."
+    },
+    {
+      "type": "select",
+      "id": "second_text_font_weight",
+      "label": "Second Text Font Weight",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "400",
+      "info": "Choose the font weight for the second text."
+    },
+    {
+      "type": "range",
+      "id": "second_text_horizontal_position_desktop",
+      "label": "Second Text Horizontal Position (Desktop)",
+      "min": -200,
+      "max": 200,
+      "step": 10,
+      "default": 0,
+      "unit": "px",
+      "info": "Adjust the horizontal position of the second text for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "second_text_horizontal_position_mobile",
+      "label": "Second Text Horizontal Position (Mobile)",
+      "min": -200,
+      "max": 200,
+      "step": 10,
+      "default": 0,
+      "unit": "px",
+      "info": "Adjust the horizontal position of the second text for mobile view."
+    },
+    {
+      "type": "range",
+      "id": "title_horizontal_position_desktop",
+      "label": "Title Text Horizontal Position (Desktop)",
+      "min": -200,
+      "max": 200,
+      "step": 10,
+      "default": 0,
+      "unit": "px",
+      "info": "Adjust the horizontal position of the title text for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "title_horizontal_position_mobile",
+      "label": "Title Text Horizontal Position (Mobile)",
+      "min": -200,
+      "max": 200,
+      "step": 10,
+      "default": 0,
+      "unit": "px",
+      "info": "Adjust the horizontal position of the title text for mobile view."
+    },
+    {
+      "type": "range",
+      "id": "title_vertical_position_desktop",
+      "label": "Title Text Vertical Position (Desktop)",
+      "min": -200,
+      "max": 200,
+      "step": 10,
+      "default": 0,
+      "unit": "px",
+      "info": "Adjust the vertical position of the title text for desktop view. The title can overlap outside the section."
+    },
+    {
+      "type": "range",
+      "id": "title_vertical_position_mobile",
+      "label": "Title Text Vertical Position (Mobile)",
+      "min": -200,
+      "max": 200,
+      "step": 10,
+      "default": 0,
+      "unit": "px",
+      "info": "Adjust the vertical position of the title text for mobile view. The title can overlap outside the section."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "name": "Title",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "title_text",
+          "label": "Title Text",
+          "default": "Talk about your brand",
+          "info": "Enter the main heading text for the section."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Text Heading ",
+      "category": "Other",
+      "blocks": [
+        {
+          "type": "title"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+{%- comment -%}
+  Output @font-face rule for main custom font if enabled.
+{%- endcomment -%}
+{% if section.settings.enable_custom_font_url
+  and section.settings.custom_font_url != blank
+  and section.settings.custom_font_family != blank
+%}
+  <style>
+    @font-face {
+      font-family: '{{ section.settings.custom_font_family }}';
+      src: url("{{ section.settings.custom_font_url }}") format("truetype");
+      font-weight: normal;
+      font-style: normal;
+    }
+  </style>
+{% endif %}
+
+{%- comment -%}
+  Output @font-face rule for second text custom font if enabled.
+{%- endcomment -%}
+{% if section.settings.enable_second_text_custom_font_url
+  and section.settings.second_text_custom_font_url != blank
+  and section.settings.second_text_custom_font_family != blank
+%}
+  <style>
+    @font-face {
+      font-family: '{{ section.settings.second_text_custom_font_family }}';
+      src: url("{{ section.settings.second_text_custom_font_url }}") format("truetype");
+      font-weight: normal;
+      font-style: normal;
+    }
+  </style>
+{% endif %}
+
+<div
+  id="rt-elements-pro-1-wrapper-{{ section.id }}"
+  class="
+    rt-elements-pro-1-wrapper
+    {% if section.settings.enable_custom_font %}custom-font{% endif %}
+    {% if section.settings.enable_custom_font_url %}custom-font-url{% endif %}
+    {% unless section.settings.show_on_mobile %}hide-on-mobile{% endunless %}
+  "
+  style="
+    background-color: {{ section.settings.background_color }};
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    padding-left: {{ section.settings.padding_left_desktop }}px;
+    padding-right: {{ section.settings.padding_right_desktop }}px;
+    height: {{ section.settings.section_height_desktop }}px;
+    position: relative;
+  "
+>
+  <div class="rt-elements-pro-1-content-container {{ section.settings.elements_alignment }}">
+    {% for block in section.blocks %}
+      {% case block.type %}
+        {% when 'title' %}
+          <h2
+            class="rt-elements-pro-1-title {{ section.settings.title_text_animation }} {% if section.settings.enable_title_gradient and section.settings.gradient_start_color and section.settings.gradient_middle_color and section.settings.gradient_end_color %}rt-elements-pro-1-title-gradient{% endif %}"
+            data-text="{{ block.settings.title_text }}"
+            style="
+              {% if section.settings.enable_title_gradient and section.settings.gradient_start_color and section.settings.gradient_middle_color and section.settings.gradient_end_color %}
+                background: linear-gradient({{ section.settings.gradient_direction }}, {{ section.settings.gradient_start_color }}, {{ section.settings.gradient_middle_color }}, {{ section.settings.gradient_end_color }});
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+              {% else %}
+                color: {{ section.settings.title_color }} !important;
+              {% endif %}
+              opacity: {{ section.settings.title_opacity | divided_by: 100 }};
+              filter: contrast({{ section.settings.title_contrast }}%);
+              line-height: {{ section.settings.title_line_height }};
+              font-size: {{ section.settings.title_text_size }}px;
+              transform: translateX({{ section.settings.title_horizontal_position_desktop }}px) translateY({{ section.settings.title_vertical_position_desktop }}px);
+            "
+          >
+            {{ block.settings.title_text }}
+            {% if section.settings.enable_second_text and section.settings.second_text != blank %}
+              <span
+                class="rt-elements-pro-1-title-second"
+                style="
+                  color: {{ section.settings.second_text_color }};
+                  font-size: {{ section.settings.second_text_size_desktop }}px;
+                  margin-left: {{ section.settings.second_text_margin_left }}px;
+                  margin-right: {{ section.settings.second_text_margin_right }}px;
+                  font-weight: {{ section.settings.second_text_font_weight }};
+                  transform: translateX({{ section.settings.second_text_horizontal_position_desktop }}px);
+                "
+              >
+                {{ section.settings.second_text }}
+              </span>
+            {% endif %}
+          </h2>
+      {% endcase %}
+    {% endfor %}
+  </div>
+</div>
+
+{% comment %}
+  Load Google font if "Enable Custom Font" is true.
+{% endcomment %}
+{% if section.settings.enable_custom_font %}
+  {% assign font_title = section.settings.custom_font_title | replace: ' ', '+' %}
+  <link
+    href="https://fonts.googleapis.com/css2?family={{ font_title }}&display=swap"
+    rel="stylesheet"
+  >
+{% endif %}
+
+<style>
+  /* Scoped CSS for this section instance using the unique ID */
+  #rt-elements-pro-1-wrapper-{{ section.id }} {
+    width: 100%;
+    position: relative;
+    overflow: visible; /* Allow title to overlap outside the section */
+  }
+  /* For main title custom font */
+  #rt-elements-pro-1-wrapper-{{ section.id }}.custom-font .rt-elements-pro-1-title {
+    font-family: '{{ section.settings.custom_font_title }}', sans-serif;
+  }
+  /* For main title custom font URL */
+  #rt-elements-pro-1-wrapper-{{ section.id }}.custom-font-url .rt-elements-pro-1-title {
+    font-family: '{% if section.settings.custom_font_family != blank %}{{ section.settings.custom_font_family }}{% else %}sans-serif{% endif %}' !important;
+  }
+  /* For second text custom font URL */
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title-second {
+    font-family: '{% if section.settings.enable_second_text_custom_font_url and section.settings.second_text_custom_font_family != blank %}{{ section.settings.second_text_custom_font_family }}{% else %}inherit{% endif %}';
+  }
+  /* Container for content to limit max width (set to 100% per update) */
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-content-container {
+    max-width: 100%;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+  /* Alignment classes */
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-content-container.left {
+    text-align: left;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-content-container.center {
+    text-align: center;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-content-container.right {
+    text-align: right;
+  }
+  /* Typography for main title */
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title {
+    font-weight: {{ section.settings.title_font_weight }};
+    margin-bottom: 15px;
+    position: relative;
+    transition: transform 0.3s ease;
+  }
+  /* Styling for second text */
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title-second {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  /* Gradient Title */
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title-gradient {
+    display: inline-block;
+  }
+  /* Title Text Animations and other effects (unchanged) */
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.shimmer-black-gray {
+    position: relative;
+    overflow: hidden;
+    color: transparent;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.shimmer-black-gray::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, black, gray, black);
+    animation: rt-elements-pro-1-shimmer 2s infinite;
+    background-size: 200% 100%;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.shimmer-lightgray-white {
+    position: relative;
+    overflow: hidden;
+    color: transparent;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.shimmer-lightgray-white::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, lightgray, white, lightgray);
+    animation: rt-elements-pro-1-shimmer 2s infinite;
+    background-size: 200% 100%;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.shimmer {
+    position: relative;
+    overflow: hidden;
+    color: transparent;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.shimmer::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.8), rgba(255,255,255,0));
+    animation: rt-elements-pro-1-shimmer 2s infinite;
+    background-size: 200% 100%;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.color-wave {
+    animation: rt-elements-pro-1-colorWave 5s infinite;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.blurry-clear {
+    animation: rt-elements-pro-1-blurryClear 3s infinite alternate;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.rainbow-gradient {
+    background: linear-gradient(270deg, #ff0000, #ff7e00, #ffee00, #00ff00, #0000ff, #4b0082, #8f00ff, #ff0000);
+    background-size: 1400% 1400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rt-elements-pro-1-rainbowGradient 10s ease infinite;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.pulsing-glow {
+    animation: rt-elements-pro-1-pulsingGlow 2s infinite;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.color-fade-spectrum {
+    animation: rt-elements-pro-1-colorFadeSpectrum 6s infinite;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.typing-effect {
+    border-right: .15em solid orange;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: rt-elements-pro-1-typing 3.5s steps(30, end) forwards, rt-elements-pro-1-blink-caret .75s step-end infinite;
+  }
+  @keyframes rt-elements-pro-1-typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+  @keyframes rt-elements-pro-1-blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: orange; }
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.bounce {
+    animation: rt-elements-pro-1-bounce 2s infinite;
+  }
+  @keyframes rt-elements-pro-1-bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.rotate {
+    display: inline-block;
+    animation: rt-elements-pro-1-rotate 4s linear infinite;
+  }
+  @keyframes rt-elements-pro-1-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  /* Additional Animations (unchanged) */
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.slide-in-left {
+    animation: rt-elements-pro-1-slideInLeft 1s forwards;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.slide-in-right {
+    animation: rt-elements-pro-1-slideInRight 1s forwards;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.fade-up {
+    animation: rt-elements-pro-1-fadeUp 2s forwards;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.fade-down {
+    animation: rt-elements-pro-1-fadeDown 2s forwards;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.zoom-in {
+    animation: rt-elements-pro-1-zoomIn 1s forwards;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.zoom-out {
+    animation: rt-elements-pro-1-zoomOut 1s forwards;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.flip-horizontal {
+    animation: rt-elements-pro-1-flipHorizontal 1s forwards;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.flip-vertical {
+    animation: rt-elements-pro-1-flipVertical 1s forwards;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.skew {
+    animation: rt-elements-pro-1-skew 2s infinite alternate;
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title.wave {
+    display: inline-block;
+    animation: rt-elements-pro-1-wave 2s infinite;
+  }
+  @keyframes rt-elements-pro-1-slideInLeft {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes rt-elements-pro-1-slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes rt-elements-pro-1-fadeUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes rt-elements-pro-1-fadeDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes rt-elements-pro-1-zoomIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  @keyframes rt-elements-pro-1-zoomOut {
+    from { transform: scale(1.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  @keyframes rt-elements-pro-1-flipHorizontal {
+    from { transform: rotateY(90deg); opacity: 0; }
+    to { transform: rotateY(0deg); opacity: 1; }
+  }
+  @keyframes rt-elements-pro-1-flipVertical {
+    from { transform: rotateX(90deg); opacity: 0; }
+    to { transform: rotateX(0deg); opacity: 1; }
+  }
+  @keyframes rt-elements-pro-1-skew {
+    from { transform: skewX(0deg); }
+    to { transform: skewX(20deg); }
+  }
+  @keyframes rt-elements-pro-1-wave {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(5deg); }
+    50% { transform: rotate(0deg); }
+    75% { transform: rotate(-5deg); }
+    100% { transform: rotate(0deg); }
+  }
+  @keyframes rt-elements-pro-1-shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  @keyframes rt-elements-pro-1-colorWave {
+    0% { color: #ff0000; }
+    16% { color: #ffa500; }
+    33% { color: #ffff00; }
+    50% { color: #008000; }
+    66% { color: #0000ff; }
+    83% { color: #4b0082; }
+    100% { color: #ee82ee; }
+  }
+  @keyframes rt-elements-pro-1-blurryClear {
+    0% { text-shadow: 0 0 5px rgba(0,0,0,0.5); }
+    100% { text-shadow: 0 0 20px rgba(255,255,255,1); }
+  }
+  @keyframes rt-elements-pro-1-rainbowGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  @keyframes rt-elements-pro-1-pulsingGlow {
+    0% { text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+    50% { text-shadow: 0 0 20px rgba(255,255,255,1); }
+    100% { text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+  }
+  @keyframes rt-elements-pro-1-colorFadeSpectrum {
+    0% { color: #ff0000; }
+    14% { color: #ff7f00; }
+    28% { color: #ffff00; }
+    42% { color: #00ff00; }
+    56% { color: #0000ff; }
+    70% { color: #4b0082; }
+    84% { color: #8f00ff; }
+    100% { color: #ff0000; }
+  }
+  /* Mobile-specific styles (up to 767px) */
+  @media (max-width: 767px) {
+    #rt-elements-pro-1-wrapper-{{ section.id }} {
+      height: {{ section.settings.section_height_mobile }}px !important;
+      padding-left: {{ section.settings.padding_left_mobile }}px !important;
+      padding-right: {{ section.settings.padding_right_mobile }}px !important;
+    }
+    #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title {
+      font-size: {{ section.settings.title_mobile_size }}px !important;
+      transform: translateX({{ section.settings.title_horizontal_position_mobile }}px) translateY({{ section.settings.title_vertical_position_mobile }}px) !important;
+    }
+    #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title-second {
+      font-size: {{ section.settings.second_text_size_mobile }}px !important;
+      transform: translateX({{ section.settings.second_text_horizontal_position_mobile }}px) !important;
+    }
+    #rt-elements-pro-1-wrapper-{{ section.id }}.hide-on-mobile {
+      display: none;
+    }
+  }
+  /* Desktop-specific styles (768px and larger) */
+  @media (min-width: 768px) {
+    #rt-elements-pro-1-wrapper-{{ section.id }} {
+      padding-left: {{ section.settings.padding_left_desktop }}px !important;
+      padding-right: {{ section.settings.padding_right_desktop }}px !important;
+    }
+  }
+  #rt-elements-pro-1-wrapper-{{ section.id }} .rt-elements-pro-1-title::after {
+    display: block;
+  }
+</style>

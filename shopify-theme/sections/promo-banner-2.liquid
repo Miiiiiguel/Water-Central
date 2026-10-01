@@ -1,0 +1,661 @@
+{% schema %}
+{
+  "name": "Promo Banner 2",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Display Settings",
+      "info": "Control the visibility of the section across different devices."
+    },
+    {
+      "type": "select",
+      "id": "display_section_on",
+      "label": "Display Section On",
+      "options": [
+        { "value": "all_devices", "label": "All Devices" },
+        { "value": "no_devices", "label": "No Devices" },
+        { "value": "mobile_only", "label": "Mobile Devices Only" },
+        { "value": "desktop_only", "label": "Desktop/Larger Screens Only" }
+      ],
+      "default": "all_devices",
+      "info": "Choose on which devices the section should be displayed."
+    },
+
+    {
+      "type": "header",
+      "content": "Background Settings",
+      "info": "Customize the background image and its appearance."
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Select the background image for the section."
+    },
+    {
+      "type": "range",
+      "id": "background_brightness",
+      "label": "Background Brightness",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 90,
+      "unit": "%",
+      "info": "Adjust the brightness of the background image."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_background_color",
+      "label": "Enable Background Color Instead of Image",
+      "default": false,
+      "info": "Toggle to use a solid color background instead of an image."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#333333",
+      "info": "Choose the solid background color."
+    },
+
+    {
+      "type": "header",
+      "content": "Typography Settings",
+      "info": "Customize fonts, sizes, and colors for texts."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_fonts",
+      "label": "Enable Custom Fonts",
+      "default": false,
+      "info": "Toggle to use custom fonts for the section texts."
+    },
+    {
+      "type": "select",
+      "id": "custom_font",
+      "label": "Custom Font",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Dancing Script", "label": "Dancing Script" },
+        { "value": "Lora", "label": "Lora" },
+        { "value": "Abril Fatface", "label": "Abril Fatface" }
+      ],
+      "default": "Roboto",
+      "info": "Choose a custom font for the section texts."
+    },
+
+    {
+      "type": "header",
+      "content": "Layout Settings",
+      "info": "Adjust padding, container height, and content positioning."
+    },
+    {
+      "type": "range",
+      "id": "padding_top_desktop",
+      "label": "Section Top Padding (Desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 45,
+      "unit": "px",
+      "info": "Set the top padding of the section for desktop screens."
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_desktop",
+      "label": "Section Bottom Padding (Desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 45,
+      "unit": "px",
+      "info": "Set the bottom padding of the section for desktop screens."
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Section Top Padding (Mobile)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 20,
+      "unit": "px",
+      "info": "Set the top padding of the section for mobile screens."
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Section Bottom Padding (Mobile)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 20,
+      "unit": "px",
+      "info": "Set the bottom padding of the section for mobile screens."
+    },
+    {
+      "type": "range",
+      "id": "heading_subtext_gap",
+      "label": "Vertical Gap Between Heading and Subtext",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 20,
+      "unit": "px",
+      "info": "Adjust the vertical gap between the heading and subtext."
+    },
+    {
+      "type": "range",
+      "id": "subtext_buttons_gap",
+      "label": "Vertical Gap Between Subtext and Buttons",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 20,
+      "unit": "px",
+      "info": "Adjust the vertical gap between the subtext and buttons."
+    },
+    {
+      "type": "range",
+      "id": "container_height_desktop",
+      "label": "Container Height (Desktop)",
+      "min": 100,
+      "max": 1000,
+      "step": 10,
+      "default": 340,
+      "unit": "px",
+      "info": "Set the height of the container on desktop screens."
+    },
+    {
+      "type": "range",
+      "id": "horizontal_content_position_desktop",
+      "label": "Horizontal Content Position (Desktop)",
+      "min": -900,
+      "max": 0,
+      "step": 100,
+      "default": -200,
+      "unit": "px",
+      "info": "Adjust the horizontal position of the content on desktop screens."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "label": "Heading",
+          "default": "SALE 40% OFF",
+          "info": "Set the main heading text."
+        },
+        {
+          "type": "color",
+          "id": "heading_color",
+          "label": "Heading Color",
+          "default": "#FFFFFF",
+          "info": "Choose the color of the heading text."
+        },
+        {
+          "type": "range",
+          "id": "heading_size_desktop",
+          "label": "Heading Size (Desktop)",
+          "min": 10,
+          "max": 100,
+          "step": 1,
+          "default": 47,
+          "unit": "px",
+          "info": "Set the heading font size for desktop screens."
+        },
+        {
+          "type": "range",
+          "id": "heading_size_mobile",
+          "label": "Heading Size (Mobile)",
+          "min": 10,
+          "max": 60,
+          "step": 1,
+          "default": 36,
+          "unit": "px",
+          "info": "Set the heading font size for mobile screens."
+        },
+        {
+          "type": "select",
+          "id": "heading_font_weight",
+          "label": "Heading Font Weight",
+          "options": [
+            { "value": "400", "label": "400 (Regular)" },
+            { "value": "500", "label": "500 (Medium)" },
+            { "value": "550", "label": "550" },
+            { "value": "600", "label": "600 (Semi Bold)" },
+            { "value": "700", "label": "700 (Bold)" },
+            { "value": "inherit", "label": "Inherit" }
+          ],
+          "default": "700",
+          "info": "Choose the font weight for the heading text."
+        }
+      ]
+    },
+    {
+      "type": "subtext",
+      "name": "Subtext",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "subtext",
+          "label": "Subtext",
+          "default": "Ipsum odor amet, consectetuer adipiscing elit. Ornare nascetur consectetur metus laoreet vitae tempus. accumsan libero ex. Tincidunt ",
+          "info": "Set the subtext content below the heading."
+        },
+        {
+          "type": "color",
+          "id": "subtext_color",
+          "label": "Subtext Color",
+          "default": "#FFFFFF",
+          "info": "Choose the color of the subtext."
+        },
+        {
+          "type": "range",
+          "id": "subtext_size_desktop",
+          "label": "Subtext Size (Desktop)",
+          "min": 10,
+          "max": 40,
+          "step": 1,
+          "default": 16,
+          "unit": "px",
+          "info": "Set the subtext font size for desktop screens."
+        },
+        {
+          "type": "range",
+          "id": "subtext_size_mobile",
+          "label": "Subtext Size (Mobile)",
+          "min": 10,
+          "max": 30,
+          "step": 1,
+          "default": 13,
+          "unit": "px",
+          "info": "Set the subtext font size for mobile screens."
+        },
+        {
+          "type": "select",
+          "id": "subtext_font_weight",
+          "label": "Subtext Font Weight",
+          "options": [
+            { "value": "400", "label": "400 (Regular)" },
+            { "value": "500", "label": "500 (Medium)" },
+            { "value": "550", "label": "550" },
+            { "value": "600", "label": "600 (Semi Bold)" },
+            { "value": "700", "label": "700 (Bold)" },
+            { "value": "inherit", "label": "Inherit" }
+          ],
+          "default": "400",
+          "info": "Choose the font weight for the subtext."
+        }
+      ]
+    },
+    {
+      "type": "buttons",
+      "name": "Buttons",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "hide_buttons",
+          "label": "Hide Buttons",
+          "default": false,
+          "info": "Toggle to hide both 'Learn More' and 'Shop Now' buttons."
+        },
+        {
+          "type": "text",
+          "id": "learn_more_text",
+          "label": "Learn More Button Text",
+          "default": "Learn More",
+          "info": "Set the text for the 'Learn More' button."
+        },
+        {
+          "type": "color",
+          "id": "learn_more_text_color",
+          "label": "Learn More Button Text Color",
+          "default": "#E8E8E8",
+          "info": "Choose the text color for the 'Learn More' button."
+        },
+        {
+          "type": "color",
+          "id": "learn_more_text_hover_color",
+          "label": "Learn More Button Text Hover Color",
+          "default": "#EAEAEA",
+          "info": "Choose the text color on hover for the 'Learn More' button."
+        },
+        {
+          "type": "color",
+          "id": "learn_more_bg_color",
+          "label": "Learn More Button Background Color",
+          "default": "#202020",
+          "info": "Choose the background color for the 'Learn More' button."
+        },
+        {
+          "type": "color",
+          "id": "learn_more_bg_hover_color",
+          "label": "Learn More Button Background Hover Color",
+          "default": "#353535",
+          "info": "Choose the background color on hover for the 'Learn More' button."
+        },
+        {
+          "type": "url",
+          "id": "learn_more_link",
+          "label": "Learn More Button Link",
+          "info": "Set the URL that the 'Learn More' button will link to."
+        },
+        {
+          "type": "text",
+          "id": "shop_now_text",
+          "label": "Shop Now Button Text",
+          "default": "Shop Now",
+          "info": "Set the text for the 'Shop Now' button."
+        },
+        {
+          "type": "color",
+          "id": "shop_now_text_color",
+          "label": "Shop Now Button Text Color",
+          "default": "#0B0B0B",
+          "info": "Choose the text color for the 'Shop Now' button."
+        },
+        {
+          "type": "color",
+          "id": "shop_now_text_hover_color",
+          "label": "Shop Now Button Text Hover Color",
+          "default": "#242424",
+          "info": "Choose the text color on hover for the 'Shop Now' button."
+        },
+        {
+          "type": "color",
+          "id": "shop_now_bg_color",
+          "label": "Shop Now Button Background Color",
+          "default": "#EAEAEA",
+          "info": "Choose the background color for the 'Shop Now' button."
+        },
+        {
+          "type": "color",
+          "id": "shop_now_bg_hover_color",
+          "label": "Shop Now Button Background Hover Color",
+          "default": "#FFFFFF",
+          "info": "Choose the background color on hover for the 'Shop Now' button."
+        },
+        {
+          "type": "url",
+          "id": "shop_now_link",
+          "label": "Shop Now Button Link",
+          "info": "Set the URL that the 'Shop Now' button will link to."
+        },
+        {
+          "type": "range",
+          "id": "button_text_size",
+          "label": "Button Text Size",
+          "min": 10,
+          "max": 30,
+          "step": 1,
+          "default": 16,
+          "unit": "px",
+          "info": "Set the font size for button texts."
+        },
+        {
+          "type": "range",
+          "id": "button_border_radius",
+          "label": "Button Border Radius",
+          "min": 0,
+          "max": 50,
+          "step": 1,
+          "default": 7,
+          "unit": "px",
+          "info": "Adjust the border radius of the buttons for rounded corners."
+        },
+        {
+          "type": "select",
+          "id": "button_font_weight",
+          "label": "Button Font Weight",
+          "options": [
+            { "value": "400", "label": "400 (Regular)" },
+            { "value": "500", "label": "500 (Medium)" },
+            { "value": "550", "label": "550" },
+            { "value": "600", "label": "600 (Semi Bold)" },
+            { "value": "700", "label": "700 (Bold)" },
+            { "value": "inherit", "label": "Inherit" }
+          ],
+          "default": "500",
+          "info": "Choose the font weight for the button texts."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Promo Banner 2",
+      "category": "Banners",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "subtext"
+        },
+        {
+          "type": "buttons"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  /* Scoped Styles for Fashion Landing Page Section */
+  .fashion-landing-page-section-{{ section.id }} {
+    {% if section.settings.display_section_on == "no_devices" %}
+      display: none;
+    {% elsif section.settings.display_section_on == "mobile_only" %}
+      display: block;
+    {% elsif section.settings.display_section_on == "desktop_only" %}
+      display: block;
+    {% else %}
+      display: block;
+    {% endif %}
+  }
+
+  /* Display Section On Media Queries */
+  @media (max-width: 767px) {
+    .fashion-landing-page-section-{{ section.id }} {
+      {% if section.settings.display_section_on == "desktop_only" or section.settings.display_section_on == "no_devices" %}
+        display: none;
+      {% endif %}
+    }
+  }
+
+  @media (min-width: 768px) {
+    .fashion-landing-page-section-{{ section.id }} {
+      {% if section.settings.display_section_on == "mobile_only" or section.settings.display_section_on == "no_devices" %}
+        display: none;
+      {% endif %}
+    }
+  }
+
+  /* Import Google Fonts */
+  {% if section.settings.enable_custom_fonts %}
+    @import url('https://fonts.googleapis.com/css2?family={{ section.settings.custom_font | replace: ' ', '+' }}&display=swap');
+  {% endif %}
+
+  .fashion-landing-page-section-{{ section.id }} .fashion-landing-page-container {
+    position: relative;
+    width: 100%;
+    height: {{ section.settings.container_height_desktop }}px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    background-color: #333;
+    padding-top: {{ section.settings.padding_top_desktop }}px;
+    padding-bottom: {{ section.settings.padding_bottom_desktop }}px;
+    overflow: hidden;
+  }
+
+  /* Background Image or Video */
+  .fashion-landing-page-section-{{ section.id }} .background-media {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    filter: brightness({{ section.settings.background_brightness }}%);
+  }
+
+  /* Background Image */
+  .fashion-landing-page-section-{{ section.id }} .background-image {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .fashion-landing-page-section-{{ section.id }} .fashion-landing-page-content {
+    max-width: 400px;
+    left: {{ section.settings.horizontal_content_position_desktop }}px;
+    text-align: left;
+    padding: 10px;
+    position: relative;
+    color: white;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    transform: translateX(-10px);
+    background: transparent;
+    border-radius: 5px;
+    z-index: 1;
+  }
+
+  @media (max-width: 768px) {
+    .fashion-landing-page-section-{{ section.id }} .fashion-landing-page-container {
+      height: auto;
+      padding-top: {{ section.settings.padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+    }
+
+    .fashion-landing-page-section-{{ section.id }} .fashion-landing-page-content {
+      max-width: 90%;
+      left: 0px;
+      text-align: left;
+      margin: 0 auto;
+      transform: translateX(0);
+    }
+  }
+</style>
+
+<div class="fashion-landing-page-section-{{ section.id }}">
+  <div class="fashion-landing-page-container" {% if section.settings.enable_background_color %}style="background-color: {{ section.settings.background_color }};"{% endif %}>
+    {% unless section.settings.enable_background_color %}
+      <div class="background-media background-image" style="background-image: url('{{ section.settings.background_image | img_url: '2048x2048' | default: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E' }}');"></div>
+    {% endunless %}
+
+    <div class="fashion-landing-page-content">
+      {% for block in section.blocks %}
+        {% case block.type %}
+          {% when 'heading' %}
+            <style>
+              .fashion-landing-page-section-{{ section.id }} .heading-{{ block.id }} {
+                color: {{ block.settings.heading_color }} !important;
+                font-size: {{ block.settings.heading_size_desktop }}px;
+                margin-bottom: {{ section.settings.heading_subtext_gap }}px;
+                {% if section.settings.enable_custom_fonts %}
+                  font-family: '{{ section.settings.custom_font }}', sans-serif;
+                {% endif %}
+                font-weight: {{ block.settings.heading_font_weight }};
+              }
+              @media (max-width: 768px) {
+                .fashion-landing-page-section-{{ section.id }} .heading-{{ block.id }} {
+                  font-size: {{ block.settings.heading_size_mobile }}px;
+                }
+              }
+            </style>
+            <h1 class="heading-{{ block.id }}">{{ block.settings.heading }}</h1>
+          {% when 'subtext' %}
+            <style>
+              .fashion-landing-page-section-{{ section.id }} .subtext-{{ block.id }} {
+                color: {{ block.settings.subtext_color }};
+                font-size: {{ block.settings.subtext_size_desktop }}px;
+                margin-bottom: {{ section.settings.subtext_buttons_gap }}px;
+                {% if section.settings.enable_custom_fonts %}
+                  font-family: '{{ section.settings.custom_font }}', sans-serif;
+                {% endif %}
+                font-weight: {{ block.settings.subtext_font_weight }};
+              }
+              @media (max-width: 768px) {
+                .fashion-landing-page-section-{{ section.id }} .subtext-{{ block.id }} {
+                  font-size: {{ block.settings.subtext_size_mobile }}px;
+                }
+              }
+            </style>
+            <p class="subtext-{{ block.id }}">{{ block.settings.subtext }}</p>
+          {% when 'buttons' %}
+            {% unless block.settings.hide_buttons %}
+              <style>
+                .fashion-landing-page-section-{{ section.id }} .learn-more-{{ block.id }} {
+                  text-decoration: none;
+                  padding: 10px 20px;
+                  border: 0px solid;
+                  background-color: {{ block.settings.learn_more_bg_color }};
+                  color: {{ block.settings.learn_more_text_color }};
+                  transition: background-color 0.3s, color 0.3s;
+                  border-radius: {{ block.settings.button_border_radius }}px;
+                  font-size: {{ block.settings.button_text_size }}px;
+                  {% if section.settings.enable_custom_fonts %}
+                    font-family: '{{ section.settings.custom_font }}', sans-serif;
+                  {% endif %}
+                  font-weight: {{ block.settings.button_font_weight }};
+                }
+                .fashion-landing-page-section-{{ section.id }} .learn-more-{{ block.id }}:hover {
+                  background-color: {{ block.settings.learn_more_bg_hover_color }};
+                  color: {{ block.settings.learn_more_text_hover_color }};
+                }
+                .fashion-landing-page-section-{{ section.id }} .shop-now-{{ block.id }} {
+                  text-decoration: none;
+                  padding: 10px 20px;
+                  border: 0px solid;
+                  background-color: {{ block.settings.shop_now_bg_color }};
+                  color: {{ block.settings.shop_now_text_color }};
+                  transition: background-color 0.3s, color 0.3s;
+                  border-radius: {{ block.settings.button_border_radius }}px;
+                  font-size: {{ block.settings.button_text_size }}px;
+                  {% if section.settings.enable_custom_fonts %}
+                    font-family: '{{ section.settings.custom_font }}', sans-serif;
+                  {% endif %}
+                  font-weight: {{ block.settings.button_font_weight }};
+                }
+                .fashion-landing-page-section-{{ section.id }} .shop-now-{{ block.id }}:hover {
+                  background-color: {{ block.settings.shop_now_bg_hover_color }};
+                  color: {{ block.settings.shop_now_text_hover_color }};
+                }
+                .fashion-landing-page-section-{{ section.id }} .buttons-{{ block.id }} {
+                  display: flex;
+                  gap: 10px;
+                }
+              </style>
+              <div class="buttons-{{ block.id }}">
+                <a class="learn-more-{{ block.id }}" href="{{ block.settings.learn_more_link }}">
+                  {{ block.settings.learn_more_text }}
+                </a>
+                <a class="shop-now-{{ block.id }}" href="{{ block.settings.shop_now_link }}">
+                  {{ block.settings.shop_now_text }}
+                </a>
+              </div>
+            {% endunless %}
+        {% endcase %}
+      {% endfor %}
+    </div>
+  </div>
+</div>

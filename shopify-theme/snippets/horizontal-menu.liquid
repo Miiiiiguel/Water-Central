@@ -1,0 +1,1109 @@
+<link rel="stylesheet" href="{{ 'navigation.css' | asset_url }}" media="print" onload="this.media='all'">    
+<style>
+  /* Existing CSS for Login and Signup Buttons */  
+  .button-login,
+  .button-signup {
+    align-items: center;
+    background-clip: padding-box;
+    border-radius: var(--button-border-radius, 6px); /* Fallback to 6px */
+    box-sizing: border-box; /* Correct placement */
+
+    /* Smooth transition for background, text color and brightness-only hover */
+    transition:
+      filter 300ms ease-in-out,
+      background-color 300ms ease-in-out,
+      color 300ms ease-in-out !important;
+
+    will-change: filter;
+    color: var(--button-text-color, #fff) !important; /* Text color controlled by color picker */
+    cursor: pointer;
+    display: inline-flex;
+    font-family: system-ui, -apple-system, system-ui, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: var(--button-font-size, 16px); /* Font size controlled by slider */
+    font-weight: 500;
+    justify-content: center;
+    line-height: 1.25;
+    margin: 0;
+    min-height: var(--button-min-height, 3.8rem); /* Min height controlled by slider */
+    min-width: var(--button-min-width, 9rem); /* Min width controlled by slider */
+    padding: calc(1.5rem - 4px) calc(1.5rem - 4px);
+    position: relative;
+    text-decoration: none;
+
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: baseline;
+    width: auto;
+  }
+
+  /* Compact mobile drawer title bar */
+  .menu-mobile-title.is-compact{
+    min-height: var(--compact-title-height) !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    gap: 12px !important;
+  }
+
+  /* Make sure the X stays; give the title some right padding so it doesn't collide */
+  .menu-mobile-title.is-compact{
+    padding-right: 60px !important; /* room for the absolute close button */
+  }
+
+  /* Hide any images inside when compact */
+  .menu-mobile-title.is-compact img{ display:none !important; }
+
+  /* Title text look (inherits --color-heading you already set) */
+  .menu-mobile-title.is-compact .menu-title-text{
+    display:inline-block;
+    font-weight: 700;
+    transition: none !important;   /* no tweening */
+    font-size: 16px;
+    line-height: 1;
+    color: var(--color-heading);
+  }
+  .menu-mobile-title.is-compact a,
+  .menu-mobile-title.is-compact a:hover,
+  .menu-mobile-title.is-compact .menu-title-text:hover{
+    color: var(--compact-title-color, var(--color-heading)) !important;
+    opacity: 1 !important;
+    transform: none !important;
+    text-decoration: none !important;
+    transition: none !important;
+  }
+  /* Optional: slightly thinner divider under the first list item when compact */
+  .navigation .is-compact + ul > li:first-child{
+    border-top: 1px solid rgba(0,0,0,.06);
+  }
+
+  .grid.grid-cols.gap-20.px-30.px-1025-0.hover_fade {
+    transition: all 0.3s ease-in-out !important;
+    animation: none !important;
+  }
+
+  /* Smooth fade hover effect on images */
+  .promotion-container a.promotion-image:hover img {
+    opacity: 0.95; /* Subtle fade on hover */
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .promotion-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+    overflow: hidden;
+    flex-wrap: wrap; /* Ensures better mobile adaptability */
+  }
+
+  /* Ensure both images are fully responsive and equal in height */
+  .promotion-container .promotion-image {
+    width: 100%;
+    height: 400px; /* Fixed height for desktop */
+    display: block;
+    transition: all 0.3s ease-in-out;
+    object-fit: cover; /* Ensures images scale properly */
+  }
+
+  /* Adjusting images for better uniformity */
+  .promotion-container a.promotion-image img {
+    width: 100%;
+    height: 100%;
+    transition: all 0.3s ease-in-out;
+    object-fit: cover;
+  }
+
+  /* Ensure both images maintain the same height */
+  .promotion-container {
+    display: flex;
+    flex-direction: row;
+    transition: all 0.3s ease-in-out;
+    justify-content: flex-end;
+    gap: 5px; /* Space between images */
+  }
+
+  /* SCOPED BUTTON DESIGN */
+  .promotion-container .promotion-button {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--btn-outline-bg-color) !important;
+    border-radius: var(--btn-border-radius) !important;
+    border: var(--outline-button-border-weight) solid var(--outline-button-border-color) !important;
+    color: var(--btn-outline-text-color) !important; /* Ensure WHITE Text */
+    font-size: 16px;
+    font-weight: 700 !important; /* Ensure Boldness */
+    padding: 12px 28px;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out !important;
+    white-space: nowrap;
+    opacity: 1 !important; /* Force Visibility */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999 !important; /* Ensure it's always on top */
+  }
+
+  /* Button hover effect */
+  .promotion-container .promotion-button:hover {
+    background-color: var(--btn-outline-hover-color) !important;
+    color: var(--btn-outline-hover-text-color) !important;
+    padding: 12px 28px;
+  }
+
+  /* RESPONSIVE DESIGN FOR MOBILE */
+  @media (max-width: 768px) {
+    .promotion-container {
+      flex-direction: column; /* Stack images vertically */
+      align-items: center;
+      transition: all 0.3s ease-in-out !important;
+    }
+    .navigation a {
+      color: var(--color-text) !important;
+      transition: color 0.3s ease-in-out;
+    }
+    .promotion-image {
+      width: 100%;
+      transition: all 0.3s ease-in-out !important;
+      height: auto; /* Allow flexible height */
+      display: flex; /* Ensure proper alignment */
+      opacity: 1 !important; /* Subtle fade on hover */
+    }
+
+    /* Ensure both images stay the same height */
+    .promotion-container a.promotion-image {
+      width: 100%;
+      display: flex;
+      transition: all 0.3s ease-in-out !important;
+      flex: 1; /* Make both images equal in height */
+      opacity: 1 !important; /* Subtle fade on hover */
+    }
+    .promotion-container a.promotion-image img {
+      width: 100%;
+      height: 100% !important; /* Force images to take the same height */
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.3s ease-in-out; /* Smooth fade effect */
+    }
+
+    /* Smooth fade hover effect on images */
+    .promotion-container a.promotion-image:hover img {
+      opacity: 0.95 !important; /* Subtle fade on hover */
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    .promotion-container .promotion-button {
+      bottom: 20px;
+      font-size: 12px;
+      display: none !important;
+      transition: all 0.3s ease-in-out !important;
+      padding: 8px 7px;
+      width: auto;
+      text-align: center;
+    }
+
+    .promotion-container .promotion-button:hover {
+      background-color: var(--btn-outline-hover-color) !important;
+      color: var(--btn-outline-hover-text-color) !important;
+      display: none !important;
+      padding: 8px 7px;
+      font-size: 12px;
+      transition: all 0.3s ease-in-out !important;
+    }
+  }
+
+  .hidden-1025.grey-bg.px-30.border-bottom.flex.gap-15.align-center.justify-between {
+    background: linear-gradient(180deg, var(--menu-mobile-title-bg), var(--menu-mobile-title-bg-secondary)) !important;
+  }
+
+  /* Base (non-hover) colors from your pickers */
+  .navigation a.button-login {
+    background-color: var(--button-login-bg-color, #f1f1f1) !important;
+    color: var(--button-login-text-color, #000) !important;
+    /* prevent global link fade from affecting buttons */
+    opacity: 1 !important;
+    transition:
+      filter 300ms ease-in-out,
+      background-color 300ms ease-in-out,
+      color 300ms ease-in-out !important;
+    will-change: filter;
+  }
+  .navigation a.button-signup {
+    background-color: var(--button-signup-bg-color, #000) !important;
+    color: var(--button-signup-text-color, #fff) !important;
+    opacity: 1 !important;
+    transition:
+      filter 300ms ease-in-out,
+      background-color 300ms ease-in-out,
+      color 300ms ease-in-out !important;
+    will-change: filter;
+  }
+
+  /* ✅ New smooth, subtle hover: lower brightness only (0.3s) */
+  .navigation a.button-login:hover,
+  .navigation a.button-login:focus,
+  .navigation a.button-signup:hover,
+  .navigation a.button-signup:focus {
+    filter: brightness(0.94);
+    /* keep colors exactly the same on hover; no abrupt swap */
+    background-color: inherit;
+    color: inherit;
+    box-shadow: none; /* remove the “pop” shadow for a calmer feel */
+  }
+
+  /* Keep label pill */
+  .menu_label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 2px 5px;
+    font-size: 10px;
+    vertical-align: middle;
+    height: 15.5px;
+  }
+
+  /* Optional: Adjust spacing between buttons */
+  .auth-buttons {
+    display: flex;
+    padding-top: 21px;
+    gap: 1.2rem;
+  }
+
+  /* New CSS for Vertical Alignment of Account and Log Out Buttons */
+  .auth-buttons-vertical {
+    display: flex;
+    flex-direction: column;
+    padding-top: 21px;
+    gap: 1.2rem;
+  }
+
+  /* New CSS for Navigation Arrows */
+  .navigation open-children-toggle {
+    color: var(--mobile-toggle-arrow-color, #000); /* Default to Black if not set */
+  }
+
+  /* Optional: Ensure SVGs inherit the current color */
+  .navigation svg {
+    fill: currentColor;
+    stroke: currentColor;
+  }
+
+  /* Adjust the position of the arrow down by moving it 2px down */
+  .navigation svg.icon-down {
+    transform: translateY(2px);
+  }
+
+  /* New CSS for Close Menu (X) Icon */
+  .close-menu svg {
+    fill: var(--close-menu-icon-color, #000) !important; /* Default fallback to black */
+    stroke: var(--close-menu-icon-color, #000) !important; /* Use the same variable for stroke */
+    width: 10px; /* Smaller size */
+    height: 10px;
+    stroke-opacity: 0.7; /* Make it lighter */
+  }
+
+  /* Additional CSS to Control All Arrow Colors Based on Toggle */
+  .arrow-colored {
+    color: var(--mobile-toggle-arrow-color, #000) !important;
+  }
+
+  /* New CSS for tab styles */
+  .menu-mobile-title .tab-link .menu-title-text {
+    transition: opacity 0.3s ease-in-out, color 0.3s ease-in-out;
+  }
+menu-mobile-title .tab-link,
+.menu-mobile-title .tab-link .menu-title-text{
+  transition: none !important;
+}
+
+/* Base colors (from your pickers) */
+.menu-mobile-title .tab-link[data-menu="horizontal-list"] .menu-title-text{
+  color: var(--menu-tab-color, #000000) !important;
+}
+.menu-mobile-title .tab-link[data-menu="categories-list"] .menu-title-text{
+  color: var(--categories-tab-color, #000000) !important;
+}
+
+/* Keep colors identical on hover/focus/active (no black) */
+.menu-mobile-title .tab-link:hover .menu-title-text,
+.menu-mobile-title .tab-link:focus .menu-title-text,
+.menu-mobile-title .tab-link:active .menu-title-text{
+  color: inherit !important;     /* ← same as base above */
+  opacity: inherit !important;
+  filter: none !important;
+  text-decoration: none !important;
+  transform: none !important;
+}
+
+/* Nuke any global nav hover that forces black */
+.navigation .menu-mobile-title a:hover{
+  color: inherit !important;
+  filter: none !important;
+  transition: none !important;
+}
+
+/* Active vs inactive (unchanged by hover) */
+.menu-mobile-title .tab-link.active .menu-title-text{ opacity: 1 !important; }
+.menu-mobile-title .tab-link:not(.active) .menu-title-text{ opacity: 0.5 !important; }
+
+/* Optional: no tap highlight on mobile */
+.menu-mobile-title .tab-link{ -webkit-tap-highlight-color: transparent; }
+  .menu-mobile-title .tab-link.active .menu-title-text {
+    opacity: 1;
+  }
+
+  .menu-mobile-title .tab-link:not(.active) .menu-title-text {
+    opacity: 0.5;
+  }
+
+  .menu-mobile-title .tab-link[data-menu="horizontal-list"] .menu-title-text {
+    color: var(--menu-tab-color, #000000);
+  }
+
+  .menu-mobile-title .tab-link[data-menu="categories-list"] .menu-title-text {
+    color: var(--categories-tab-color, #000000);
+  }
+
+  .menu-mobile-title .tab-link:hover .menu-title-text {
+    color: inherit;
+    opacity: inherit;
+    transition: none;
+  }
+
+  /* Mobile menu content toggle */
+  @media (max-width: 1024px) {
+    .navigation__menu-content ul.horizontal-list,
+    .navigation__menu-content ul.categories-list {
+      display: none;
+    }
+
+    .navigation__menu-content ul.active-menu {
+      display: block;
+    }
+  }
+
+  /* Remove hover effects on collection images */
+  .categories-list img {
+    transition: none !important;
+  }
+
+  .categories-list a:hover img {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+</style>
+
+<svg hidden>
+  <symbol id="icon-arrow-down">
+    <path fill="currentColor" d="M1.09 1.822a.52.52 0 0 1-.178-.396c0-.164.06-.306.178-.424A.557.557 0 0 1 1.5.838c.164 0 .3.055.41.164L5 4.092l3.09-3.09A.557.557 0 0 1 8.5.838c.164 0 .3.055.41.164.119.118.178.26.178.424a.52.52 0 0 1-.178.396l-3.5 3.5A.535.535 0 0 1 5 5.5c-.164 0-.3-.06-.41-.178l-3.5-3.5Z"/>
+  </symbol>
+
+  <!-- Replaced icon-next for right arrow -->
+  <symbol id="icon-next" viewBox="0 0 24 24">
+    <polygon points="6.8,23.7 5.4,22.3 15.7,12 5.4,1.7 6.8,0.3 18.5,12" fill="currentColor" />
+  </symbol>
+
+  <!-- Replaced icon-back for left arrow -->
+  <symbol id="icon-back" viewBox="0 0 1024 1024">
+    <path d="M669.6 849.6c8.8 8 22.4 7.2 30.4-1.6s7.2-22.4-1.6-30.4l-309.6-280c-8-7.2-8-17.6 0-24.8l309.6-270.4c8.8-8 9.6-21.6 2.4-30.4-8-8.8-21.6-9.6-30.4-2.4L360.8 480.8c-27.2 24-28 64-0.8 88.8l309.6 280z" fill="currentColor" />
+  </symbol>
+
+  <!-- Ensure the close icon uses currentColor -->
+  <symbol id="icon-close" viewBox="0 0 13 13">
+    <path d="M1 1 L12 12 M12 1 L1 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+  </symbol>
+</svg>
+
+{%- liquid
+  assign section_st = section.settings
+  assign theme_st = settings
+  assign section_width = section_st.section_width
+  assign show_my_account = section_st.show_account_icon
+  assign recently_viewed = section_st.show_recently_viewed
+  assign wishlist = section_st.show_wishlist_icon
+  assign uppercase_first = section_st.uppercase_first
+  assign menu_mobile_tab = section_st.menu_tab
+  assign collection_list = section_st.collection_list
+-%}
+{%- if section_st.mega_menu != blank -%}
+  <nav
+    class="flex flex-column block-1025 navigation horizontal fixed static-1025 z-15 invisible visible-1025 inset-0 {{ section_st.dropdowns_animation }}"
+    data-action-mobile="{{ section_st.redirect_to_link }}"
+    style="
+      --hot-cl: {{ section_st.label_color_hot }};--hot-bg-cl: {{ section_st.label_background_hot }};
+      --new-cl: {{ section_st.label_color_new }};--new-bg-cl: {{ section_st.label_background_new }};
+      --sale-cl: {{ section_st.label_color_sale }};;--sale-bg-cl: {{ section_st.label_background_sale }};
+      --mobile-toggle-arrow-color: {{ section_st.mobile_toggle_arrow_color | default: '#000' }}; /* Added CSS Variable for Arrow Color */
+      --close-menu-icon-color: {{ section_st.close_menu_icon_color | default: '#000' }};
+    "
+  >
+    <close-menu class="close-menu no-underline absolute top-0 w-55 h-55 inline-flex hidden-1025 content-center{% if settings.rtl %} left-7{% else %} right-7{% endif %}">
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 13 13"
+        fill="none"
+        class="heading-color"
+        style="--color-heading: {{ section_st.menu_mobile_color }};"
+      >
+        <use href="#icon-close" />
+      </svg>
+    </close-menu>
+    <div class="navigation__menu-content word-break">
+      <div
+          class="menu-mobile-title min-h-55 min-h-1025-50 flex align-center px-30 py-5 gradient hidden-1025 gap-30 {% if section.settings.mobile_menu_compact %}is-compact{% endif %}"
+  style="
+    --color-heading: {{ section.settings.menu_mobile_color }};
+    --gradient-background: {{ section.settings.menu_mobile_background }};
+    --compact-title-height: {{ section.settings.mobile_menu_compact_height | default: 44 }}px;
+    --compact-title-color: {{ section.settings.mobile_menu_compact_text_color | default: '#ffffff' }};
+    --menu-tab-color: {{ section.settings.menu_tab_color | default: '#000000' }};
+    --categories-tab-color: {{ section.settings.categories_tab_color | default: '#000000' }};
+  "
+>
+  {%- comment -%} MENU tab (always present) {%- endcomment -%}
+  <a
+    class="active no-underline heading-style py-10 tab-link"
+    data-menu="horizontal-list"
+    role="link"
+    aria-disabled="true"
+    aria-label="{{ 'main_menu.horizontal.title' | t }}"
+  >
+    {% if section.settings.mobile_menu_compact %}
+      <span class="menu-title-text">{{ section.settings.mobile_menu_compact_label | default: 'Menu' }}</span>
+    {% else %}
+      {% if section.settings.mobile_nav_logo_image != blank %}
+        <img
+          src="{{ section.settings.mobile_nav_logo_image | img_url: 'master' }}"
+          alt="Store Logo"
+          width="{{ section.settings.mobile_nav_logo_size }}"
+          height="{{ section.settings.mobile_nav_logo_size | divided_by: 1.33 }}"
+          style="object-fit:cover;display:block;"
+        >
+      {% else %}
+        {{- '' -}}
+      {% endif %}
+    {% endif %}
+  </a>
+
+  {%- comment -%} CATEGORIES tab (mobile only, optional) {%- endcomment -%}
+  {% if section.settings.enable_categories_tab_mobile %}
+    <a
+      class="no-underline heading-style py-10 tab-link"
+      data-menu="categories-list"
+      role="link"
+      aria-disabled="true"
+      aria-label="{{ section.settings.categories_tab_label | default: 'Categories' }}"
+    >
+      <span class="menu-title-text">
+        {{ section.settings.categories_tab_label | default: 'Categories' }}
+      </span>
+    </a>
+  {% endif %}
+</div>
+
+
+      <ul
+        class="horizontal-list list-unstyled inline-flex-1025 flex-wrap gap row-gap-0 horizontal px-30 px-1025-0 show-localization animation-{{ section_st.dropdowns_animation }} active-menu"
+        style="--col-gap: 3.3rem"
+      >
+        {%- for link in section_st.mega_menu.links -%}
+          {%- liquid
+            assign last_block = null
+            assign title = link.title | downcase
+            for block in section.blocks
+              assign text = block.settings.text | downcase
+              if text == title
+                assign last_block = block
+              endif
+            endfor
+          -%}
+          {% if last_block != null %}
+            {%- liquid
+              assign block_st = last_block.settings
+              assign has_content = false
+              assign full_width = block_st.full_width
+              assign mega_custom_width = block_st.mega_custom_width
+            -%}
+            {%- case last_block.type -%}
+              {%- when 'menu_promotion' -%}
+                {%- for i in (1..2) -%}
+                  {%- capture promotion -%}promotion_image_{{ i }}{%- endcapture -%}
+                  {%- liquid
+                    if block_st[promotion] != blank
+                      assign has_content = true
+                    endif
+                  -%}
+                {%- endfor -%}
+              {%- when 'menu_collection' -%}
+                {%- for i in (1..3) -%}
+                  {%- capture collection -%}collection_{{ i }}{%- endcapture -%}
+                  {%- liquid
+                    if block_st[collection] != blank
+                      assign has_content = true
+                    endif
+                  -%}
+                {%- endfor -%}
+              {%- else -%}
+                {%- for i in (1..3) -%}
+                  {%- capture product -%}product_{{ i }}{%- endcapture -%}
+                  {%- liquid
+                    if block_st[product] != blank
+                      assign has_content = true
+                    endif
+                  -%}
+                {%- endfor -%}
+            {%- endcase -%}
+            {%- capture menu_level_0 -%}
+              {%- liquid
+                assign label = block_st.item_label
+              -%}
+              <menu-item class="relative static-1025 flex justify-between align-center border-bottom border-bottom-1025-0 header-color">
+                <a class="no-underline py-10 relative lh-normal inline-flex min-h-55 min-h-1025-50 align-center{% if theme_st.menu_font == 'heading_font' %} heading-style{% endif %}{% if uppercase_first %} uppercase{% endif %}{% if link.links.size > 0 and redirect_to_link == blank %} redirect-to-link{% endif %}" href="{{ link.url }}"{% if block_st.open_link_newtab %} target="_blank"{% endif %}>
+                  <span>{{ link.title }}</span>
+                  {%- if label != blank and label != 'unset' -%}
+                    <span class="menu_label rounded-2 text-center heading_weight relative absolute-1025 whitespace-nowrap uppercase  {{ label }}">{{ section_st[label] }}</span>
+                  {%- endif -%}
+                </a>
+                {%- if link.links.size > 0 -%}
+                  <open-children-toggle class="inline-flex flex-end align-center ms-5{% if section_st.redirect_to_link == blank %} absolute inset-0 static-1025{% else %} touch-target-mb{% endif %} arrow-colored">
+                    <svg class="icon-down hidden block-1025" width="18" height="12">
+                      <use href="#icon-arrow-down" />
+                    </svg>
+                    {% if settings.rtl %}
+                      <svg class="icon-down block hidden-1025" width="16" height="16" stroke="var(--nav-icon-color, #000000)">
+                        <use href="#icon-back" />
+                      </svg>
+                    {% else %}
+                      <svg class="icon-down block hidden-1025" width="16" height="16">
+                        <use href="#icon-next" />
+                      </svg>
+                    {% endif %}
+                  </open-children-toggle>
+                {%- endif -%}
+              </menu-item>
+            {%- endcapture -%}
+            <li
+              {{ block.shopify_attributes }}
+              class="level0{% if link.links.size or has_content %} menu-parent mega-menu{% else %} single{% endif %}"
+              {{ block.shopify_attributes }}
+            >
+              {{ menu_level_0 }}
+              {%- if link.links.size > 0 or has_content -%}
+                <div
+                  class="submenu invisible-1025 absolute{% if section_st.logo_position == 'left' %} left-0{% endif %} transition gradient p-0 py-1025-40{% if full_width %} full-width inset-x-0{% else %} mega-menu-custom-width{% if block_st.center_submenu %} inset-x-0 mx-auto{% endif %}{% endif %} overflow-x-hidden overflow-y-auto"
+                  style="--mega_custom_width: {{ mega_custom_width }}px"
+                >
+                  <div class="hidden-1025 grey-bg px-30 border-bottom flex gap-15 align-center justify-between{% if theme_st.menu_font == 'heading_font' %} heading-style{% endif %}">
+                    <back-menu
+                      class="py-10 min-h-55 min-h-1025-50 inline-flex gap-20 align-center fs-big-1 heading-style"
+                      role="link"
+                    >
+                      {% if settings.rtl %}
+                        <svg width="14" height="14" fill="none">
+                          <use href="#icon-next" />
+                        </svg>
+                      {% else %}
+                        <svg width="16" height="16" fill="none" stroke="var(--nav-icon-color, #000000)">
+                          <use href="#icon-back" />
+                        </svg>
+                      {% endif %}
+                      {{ link.title }}
+                    </back-menu>
+                    <close-menu class="close-menu lh-1 ms-10">
+                      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                        <use href="#icon-close" />
+                      </svg>
+                    </close-menu>
+                  </div>
+                  <div class="{% if full_width %}{% if section_width == 'container' %}container{% else %}fluid_container{% endif %}{% else %}stretch_width{% endif %} overflow-y-auto">
+                    {%- case last_block.type -%}
+                      {%- when 'menu_promotion' -%}
+                        {% assign banner_count = 0 %}
+                        {% for i in (1..2) %}
+                          {%- capture promotion_image -%}promotion_image_{{i}}{%- endcapture -%}
+                          {%- if block_st[promotion_image] != blank -%}
+                            {% assign banner_count = banner_count | plus: 1 %}
+                          {%- endif -%}
+                        {% endfor %}
+                        <div
+                          class="flex flex-column gap{% if block_st.promotion_position == 'left' %} flex-1025-row-reverse{% else %} flex-1025-row{% endif %}"
+                          style="--col-mega-width: {{ block_st.promotion_image_width }}%; --col-gap: 30px"
+                        >
+                          {% if link.links.size > 0 %}
+                            <div
+                              class="menu-list"
+                              style="--row-gap: 40px; --col-desktop:{{ block_st.promotion_menu_column }};"
+                            >
+                              {%- render 'submenu-list', link: link -%}
+                            </div>
+                          {% endif %}
+                          {%- if block_st.promotion_image_1 != blank or block_st.promotion_image_2 != blank -%}
+                            <div class="col-mega">
+                              <div
+                                class="grid grid-cols gap-20 px-30 px-1025-0 {{ settings.hover_effect }}"
+                                style="--col-number: {{ banner_count }}"
+                              >
+                                {%- if block_st.promotion_image_1 != blank -%}
+                                  {%- assign banner_alt = block_st.promotion_image_1.alt
+                                    | default: link.title
+                                    | escape
+                                  -%}
+                                  <div class="promotion-container">
+                                    <a
+                                      {% if block_st.promotion_link_1 == blank %}
+                                        role="link" aria-disabled="true"
+                                      {% else %}
+                                        href="{{ block_st.promotion_link_1 }}"
+                                      {% endif %}
+                                      {% if block_st.promotion_link_newtab_1 != blank %}
+                                        target="_blank"
+                                      {% endif %}
+                                      class="promotion-image"
+                                      style="--aspect-ratio: {{ block_st.promotion_image_1.aspect_ratio}}"
+                                    >
+                                      {% render 'responsive-image',
+                                        type: banner,
+                                        container: section_width,
+                                        image: block_st.promotion_image_1,
+                                        image_alt: banner_alt,
+                                        colunm: colunm,
+                                        colunm_mobile: colunm_mobile,
+                                        padding: 20,
+                                        sizes: '(min-width: 1200px) 450px, 360px',
+                                        class: 'rounded'
+                                      %}
+                                    </a>
+
+                                    <!-- Modern Blue Button -->
+                                    <a href="{{ block_st.promotion_link_2 }}" class="promotion-button">
+                                      {{ settings.global_promotion_button_text | default: 'Discover' }}
+                                    </a>
+                                  </div>
+                                {%- endif -%}
+
+                                {%- if block_st.promotion_image_2 != blank -%}
+                                  {%- assign banner_alt = block_st.promotion_image_2.alt
+                                    | default: link.title
+                                    | escape
+                                  -%}
+                                  <div class="promotion-container">
+                                    <a
+                                      {% if block_st.promotion_link_2 == blank %}
+                                        role="link" aria-disabled="true"
+                                      {% else %}
+                                        href="{{ block_st.promotion_link_2 }}"
+                                      {% endif %}
+                                      {% if block_st.promotion_link_newtab_2 != blank %}
+                                        target="_blank"
+                                      {% endif %}
+                                      class="promotion-image"
+                                      style="--aspect-ratio: {{ block_st.promotion_image_2.aspect_ratio}}"
+                                    >
+                                      {% render 'responsive-image',
+                                        type: banner,
+                                        container: section_width,
+                                        image: block_st.promotion_image_2,
+                                        image_alt: banner_alt,
+                                        colunm: colunm,
+                                        colunm_mobile: colunm_mobile,
+                                        padding: 20,
+                                        sizes: '(min-width: 1200px) 450px, 360px',
+                                        class: 'rounded'
+                                      %}
+                                    </a>
+
+                                    <a href="{{ block_st.promotion_link_2 }}" class="promotion-button">
+                                      {{ settings.global_promotion_button_text | default: 'Discover' }}
+                                    </a>
+                                  </div>
+                                {%- endif -%}
+                              </div>
+                            </div>
+                          {%- endif -%}
+                        </div>
+                      {%- when 'menu_collection' -%}
+                        {% assign collection_count = 0 %}
+                        {% for i in (1..3) %}
+                          {%- capture collection -%}collection_{{i}}{%- endcapture -%}
+                          {%- if block_st[collection] != blank -%}
+                            {% assign collection_count = collection_count | plus: 1 %}
+                          {%- endif -%}
+                        {% endfor %}
+                        <div
+                          class="flex flex-column gap-30 flex-1025-row"
+                          style="--col-mega-width: {{ block_st.collection_width }}%"
+                        >
+                          {% if link.links.size > 0 %}
+                            <div
+                              class="menu-list"
+                              style="--row-gap: 40px; --col-desktop:{{ block_st.collection_menu_column }};"
+                            >
+                              {%- render 'submenu-list', link: link -%}
+                            </div>
+                          {% endif %}
+                          {%- if collection_count > 0 -%}
+                            <div class="col-mega">
+                              <div
+                                class="grid grid-cols gap-20 px-30 px-1025-0"
+                                style="--col-number: {{ collection_count }}"
+                              >
+                                {%- for i in (1..3) -%}
+                                  {%- capture collection -%}collection_{{i}}{%- endcapture -%}
+                                  {%- liquid
+                                    assign collection_value = block_st[collection]
+                                  -%}
+                                  {%- if collection_value != blank -%}
+                                    {%- liquid
+                                      assign p_url = collection_value.url
+                                      assign p_img = collection_value.featured_image
+                                      assign ratio = collection_value.featured_image.aspect_ratio
+                                    -%}
+                                    {%- if p_url != blank -%}
+                                      <div class="collection-items align-self-start menu-collection rounded overflow-hidden relative">
+                                        {%- assign banner_alt = p_img.alt | default: collection_value.title | escape -%}
+                                        <a
+                                          role="link"
+                                          aria-label="{{ collection_value.title }}"
+                                          href="{{ p_url }}"
+                                          class="banner__media collection-media p-0 block rounded"
+                                          style="--aspect-ratio: {{ ratio }}"
+                                        >
+                                          {%- if p_img != blank -%}
+                                            {%- assign image_alt = p_img.alt | default: 'Images' | escape -%}
+                                            {% render 'responsive-image',
+                                              type: 'other',
+                                              image: p_img,
+                                              image_alt: image_alt,
+                                              sizes: '(min-width: 1200px) 240px, 120px'
+                                            %}
+                                          {%- else -%}
+                                            {% render 'placeholder-render' %}
+                                          {%- endif -%}
+                                        </a>
+                                        <div class="collection-info absolute bottom-25 inset-x-0 text-center pointer-none">
+                                          <span
+                                            class="btn inline-block bg-white heading-color py-15 px-30 text-center"
+                                            style="--btn-color: var(--color-heading);"
+                                          >
+                                            {{- collection_value.title -}}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    {%- endif -%}
+                                  {%- endif -%}
+                                {%- endfor -%}
+                              </div>
+                            </div>
+                          {%- endif -%}
+                        </div>
+                      {%- else -%}
+                        {% assign product_count = 0 %}
+                        {% for i in (1..3) %}
+                          {%- capture product -%}product_{{i}}{%- endcapture -%}
+                          {%- if block_st[product] != blank -%}
+                            {% assign product_count = product_count | plus: 1 %}
+                          {%- endif -%}
+                        {% endfor %}
+                        <div
+                          class="flex flex-column gap-30 flex-1025-row"
+                          style="--col-mega-width: {{ block_st.product_width }}%"
+                        >
+                          {% if link.links.size > 0 %}
+                            <div
+                              class="menu-list"
+                              style="--row-gap: 40px; --col-desktop:{{ block_st.product_menu_column }};"
+                            >
+                              {%- render 'submenu-list', link: link -%}
+                            </div>
+                          {% endif %}
+                          {%- if product_count > 0 -%}
+                            <div class="col-mega">
+                              <div
+                                class="grid grid-cols gap-20 px-30 px-1025-0"
+                                style="--col-number: {{ product_count }}"
+                              >
+                                {%- for i in (1..3) -%}
+                                  {%- capture product -%}product_{{i}}{%- endcapture -%}
+                                  {%- liquid
+                                    assign product_value = block_st[product]
+                                  -%}
+                                  {%- if product_value != blank -%}
+                                    {% render 'product-item',
+                                      card_product: product_value,
+                                      template_enable_action: false,
+                                      template_enable_product_vendor: false,
+                                      template_enable_rate: false,
+                                      template_enable_product_short_description: false,
+                                      template_enable_color_swatches: true,
+                                      type: 'grid',
+                                      template_enable_action: true,
+                                      template_enable_product_badges: true
+                                    %}
+                                  {%- endif -%}
+                                {%- endfor -%}
+                              </div>
+                            </div>
+                          {%- endif -%}
+                        </div>
+                    {%- endcase -%}
+                  </div>
+                </div>
+              {%- endif -%}
+            </li>
+          {% else %}
+            <li
+              {{ block.shopify_attributes }}
+              class="level0{% if link.links.size > 0 %} menu-parent dropdown-menu{% else %} single{% endif %}"
+              {{ block.shopify_attributes }}
+            >
+              <menu-item class="relative static-1025 flex justify-between align-center border-bottom border-bottom-1025-0 header-color">
+                <a
+                  class="no-underline py-10 relative lh-normal inline-flex min-h-55 min-h-1025-50 align-center{% if theme_st.menu_font == 'heading_font' %} heading-style{% endif %}{% if uppercase_first %} uppercase{% endif %}"
+                  href="{{ link.url }}"
+                  aria-label="{{ link.title }}"
+                >
+                  <span>{{ link.title }}</span>
+                </a>
+                {%- if link.links.size > 0 -%}
+                  <open-children-toggle class="inline-flex flex-end align-center ms-5{% if section_st.redirect_to_link == blank %} absolute inset-0 static-1025{% else %} touch-target-mb{% endif %} arrow-colored">
+                    <svg class="icon-down hidden block-1025" width="18" height="10">
+                      <use href="#icon-arrow-down" />
+                    </svg>
+                    {% if settings.rtl %}
+                      <svg
+                        class="icon-down block hidden-1025"
+                        width="16"
+                        height="16"
+                        stroke="var(--nav-icon-color, #000000)"
+                      >
+                        <use href="#icon-back" />
+                      </svg>
+                    {% else %}
+                      <svg class="icon-down block hidden-1025" width="14" height="14">
+                        <use href="#icon-next" />
+                      </svg>
+                    {% endif %}
+                  </open-children-toggle>
+                {%- endif -%}
+              </menu-item>
+              {%- if link.links.size > 0 -%}
+                <div class="submenu invisible-1025 absolute transition gradient color-default">
+                  <div class="hidden-1025 grey-bg px-30 border-bottom flex gap-15 align-center justify-between{% if theme_st.menu_font == 'heading_font' %} heading-style{% endif %}">
+                    <back-menu
+                      class="py-10 min-h-55 min-h-1025-50 inline-flex gap-20 align-center fs-big-1 heading-style"
+                      role="link"
+                    >
+                      {% if settings.rtl %}
+                        <svg width="16" height="16" fill="none">
+                          <use href="#icon-next" />
+                        </svg>
+                      {% else %}
+                        <svg width="16" height="16" fill="none" stroke="var(--nav-icon-color, #000000)">
+                          <use href="#icon-back" />
+                        </svg>
+                      {% endif %}
+                      {{ link.title }}
+                    </back-menu>
+                    <close-menu class="close-menu lh-1 ms-10">
+                      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                        <use href="#icon-close" />
+                      </svg>
+                    </close-menu>
+                  </div>
+                  {%- render 'submenu-list', link: link, menu_type: 'dropdown' -%}
+                </div>
+              {%- endif -%}
+            </li>
+          {% endif %}
+        {%- endfor -%}
+        {%- if recently_viewed -%}
+          <li class="level0 hidden-1025">
+            <a
+              class="no-underline py-10 lh-normal flex border-bottom border-bottom-1025-0 min-h-55 min-h-1025-50 align-center{% if uppercase_first %} uppercase{% endif %}"
+              href="/pages/contact"
+              aria-label="Contact Us"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 120 120"
+                width="24"
+                height="24"
+                class="me-10"
+                fill="currentColor"
+                style="enable-background:new 0 0 120 120"
+                xml:space="preserve"
+              >
+                <path d="m60 120-1.4-1C56.7 117.6 13 86 13 47 13 21.1 34.1 0 60 0s47 21.1 47 47c0 39-43.7 70.6-45.6 72l-1.4 1zM60 5C36.8 5 18 23.8 18 47c0 32.6 34.5 61 42 66.8 7.5-5.8 42-34.2 42-66.8 0-23.2-18.8-42-42-42z"/>
+                <path d="M60 74.9c-15.4 0-27.9-12.5-27.9-27.9S44.6 19.1 60 19.1 87.9 31.6 87.9 47 75.4 74.9 60 74.9zM60 24c-12.7 0-23 10.3-23 23s10.3 23 23 23 23-10.3 23-23-10.3-23-23-23z"/>
+              </svg>
+              Contact Us
+            </a>
+          </li>
+        {% endif %}
+
+        {%- if wishlist -%}
+          <li class="level0 hidden-1025">
+            <a
+              class="no-underline py-10 lh-normal flex border-bottom border-bottom-1025-0 min-h-55 min-h-1025-50 align-center{% if uppercase_first %} uppercase{% endif %}"
+              href="/pages/wishlist"
+              aria-label="{{ 'templates.wishlist.wishlist' | t }}"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                xml:space="preserve"
+                width="24"
+                height="24"
+                viewBox="0 0 100 100"
+                id="heart"
+                class="me-10"
+                fill="currentColor"
+              >
+                <style>
+                  @keyframes pulse {
+                    0% { transform: scale(1); fill: currentColor; }
+                    50% { transform: scale(1.1); fill: red; }
+                    100% { transform: scale(1); fill: currentColor; }
+                  }
+                  #heart { animation: pulse 2s infinite ease-in-out; }
+                </style>
+                <path d="M48.6 85.4 15.7 52.8c-1.4-1.3-2.5-2.8-3.5-4.4-5.4-8.9-4-20.3 3.5-27.7C20 16.4 25.8 14 31.9 14c9.6 0 15.6 5.6 18.1 8.8 2.5-3.2 8.5-8.8 18.1-8.8 6.1 0 11.9 2.4 16.2 6.7 7.4 7.4 8.9 18.8 3.5 27.7-1 1.6-2.1 3.1-3.5 4.4L51.4 85.4c-.8.8-2 .8-2.8 0zM31.9 18c-5.1 0-9.8 2-13.4 5.5-6.1 6.1-7.3 15.5-2.9 22.8.8 1.3 1.8 2.6 2.9 3.7L50 81.2 81.5 50c1.1-1.1 2.1-2.3 2.9-3.7 4.4-7.4 3.3-16.8-2.9-22.8C77.9 20 73.1 18 68.1 18c-7.2 0-13.2 3.9-16.4 9.3-.8 1.3-2.7 1.3-3.5 0-3.1-5.4-9.1-9.3-16.3-9.3z"></path>
+              </svg>
+              {{ 'templates.wishlist.wishlist' | t }}
+            </a>
+          </li>
+        {% endif %}
+        {%- if show_my_account -%}
+          {% if customer %}
+            <!-- Updated: Replaced My Account and Log Out links with styled buttons -->
+            <li class="level0 hidden-1025">
+              <div class="auth-buttons-vertical">
+                <a
+                  href="{{ routes.account_url }}"
+                  class="button-login"
+                  aria-label="{{ customer.name }}"
+                >
+                  {% if customer.name != blank %}
+                    {{ customer.name }}
+                  {% else %}
+                    {{ 'customer.account.my_account' | t }}
+                  {% endif %}
+                </a>
+                <a
+                  href="{{ routes.account_logout_url }}"
+                  class="button-signup"
+                  aria-label="{{ 'customer.log_out' | t }}"
+                >
+                  <span style="margin-left: 2px;">{{- 'customer.log_out' | t -}}</span>
+                </a>
+              </div>
+            </li>
+          {% else %}
+            <!-- Replaced the existing login link with Login and Signup buttons -->
+            <li class="level0 hidden-1025">
+              <div class="auth-buttons">
+                <a
+                  href="{{ routes.account_login_url }}"
+                  class="button-login"
+                  aria-label="{{ 'customer.login_menu_mobile' | t }}"
+                >
+                  Login
+                </a>
+                <a href="{{ routes.account_register_url }}" class="button-signup" aria-label="Registrarse"> Registrarse </a>
+              </div>
+            </li>
+          {% endif %}
+        {%- endif -%}
+      </ul>
+   {% if menu_mobile_tab == 'custom-collections' and collection_list != blank %}
+  <ul class="categories-list list-unstyled px-30 hidden-1025">
+    {% for collection in collection_list %}
+      {% if collection.handle != blank %}
+        <li class="border-bottom">
+          <a href="{{ collection.url }}" class="no-underline py-10 flex align-center min-h-55">
+            {% if section.settings.enable_collection_images %}
+            {% if collection.image %}
+             <img
+  src="{{ collection.image | image_url: width: 80, height: 80, crop: 'center' }}"
+  srcset="
+    {{ collection.image | image_url: width: 40, height: 40, crop: 'center' }} 1x,
+    {{ collection.image | image_url: width: 80, height: 80, crop: 'center' }} 2x
+  "
+  sizes="40px"
+  alt="{{ collection.title }}"
+  width="40"
+  height="40"
+  loading="lazy"
+  class="me-30 no-hover-fade"
+  style="
+    margin-right: 15px;
+    width: 40px; height: 40px;
+    object-fit: cover; object-position: center;
+    aspect-ratio: 1 / 1;
+    transition: none !important;
+    display: block; flex-shrink: 0;
+    /* ⬇️ circle toggle */
+    border-radius: {% if section.settings.collection_images_circle %}50%{% else %}5px{% endif %};
+  "
+>
+            {% endif %}
+            {% endif %}
+            {%- comment -%} Put your collection title here if needed {%- endcomment -%}
+  
+                  <span class="fs-body-bold">{{ collection.title }}</span>
+                </a>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      {% endif %}
+    </div>
+    <div class="lang__currency-on-nav mt-30 flex flex-wrap hidden-1025">
+      {% if show_language %} {% render 'language-switcher' %}{% endif %}
+      {% render 'country-switcher' %}
+    </div>
+  </nav>
+{%- endif -%}
+<script>
+  const menuTitle = document.querySelector('.menu-mobile-title');
+  if (menuTitle) {
+    menuTitle.querySelectorAll('.tab-link').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        menuTitle.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const menu = tab.dataset.menu;
+        document.querySelector('.horizontal-list').classList.remove('active-menu');
+        const categoriesList = document.querySelector('.categories-list');
+        if (categoriesList) {
+          categoriesList.classList.remove('active-menu');
+        }
+        document.querySelector(`.${menu}`).classList.add('active-menu');
+      });
+    });
+  }
+</script>
+
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{%- render 'submenu-list' | link: link -%}"
+  to: "{%- render 'submenu-list', link: link -%}"
+  position: 25122..25163
+- from: "{%- render 'submenu-list' | link: link -%}"
+  to: "{%- render 'submenu-list', link: link -%}"
+  position: 31275..31316
+- from: "{%- render 'submenu-list' | link: link -%}"
+  to: "{%- render 'submenu-list', link: link -%}"
+  position: 35915..35956
+- from: "{%- render 'submenu-list' | link: link | menu_type: 'dropdown' -%}"
+  to: "{%- render 'submenu-list', link: link, menu_type: 'dropdown' -%}"
+  position: 41114..41178
+{% endcomment %}

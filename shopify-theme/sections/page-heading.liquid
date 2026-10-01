@@ -1,0 +1,376 @@
+{%- liquid
+  assign section_st = section.settings
+  assign t = template | split: '.' | first
+  assign section_width = section_st.section_width
+  assign color_scheme = section_st.color_scheme
+  assign background_image = section_st.background_image
+  assign height_setting = section_st.height_option
+-%}
+{%- capture style -%}
+  /* Padding Variables */
+  --section-pt: {{ section_st.padding_top }}px !important;
+  --section-pb: {{ section_st.padding_bottom }}px !important;
+  
+  --overlay-opacity: {{ section_st.overlay_opacity }}%;
+  
+  /* Custom Colors */
+  --background-color: {% if section_st.background_color != blank %}{{ section_st.background_color }}{% else %}{% case color_scheme %}
+    {% when 'default-color-scheme' %}#ffffff
+    {% when 'dark' %}#000000
+    {% when 'light' %}#f0f0f0
+    {% else %}#ffffff
+  {% endcase %}{% endif %};
+  
+  /* Image Adjustments */
+  --image-brightness: {{ section_st.image_brightness }}%;
+  --image-contrast: {{ section_st.image_contrast }}%;
+{%- endcapture -%}
+{%- if section.blocks.size > 0 -%}
+  <div
+    class="section remove_spacing sec__page-heading color-{{ color_scheme }} gradient{% if background_image != blank %} bg-transparent relative{% endif %} align-center justify-content-{{ section_st.alignment }}{% if t == 'cart' and cart == empty %} hidden{% else %} flex{% endif %} {% case section_st.display_on %} {% when 'mobile' %} only-mobile {% when 'desktop' %} only-desktop {% endcase %}"
+    style="{{ style | strip | strip_newlines }}"
+  >
+    {%- if background_image != blank -%}
+      <div class="overlay-bg">
+        {%- assign image_alt = background_image.alt | default: 'background image' | escape -%}
+        {% render 'responsive-image',
+          type: 'banner',
+          container: section_width,
+          image: background_image,
+          image_alt: image_alt,
+          class: 'background-heading absolute inset-0 z--1 pointer-none w-full h-full object-position-center object-fit-cover'
+        %}
+      </div>
+    {% endif %}
+    <div class="{{ section_width }}">
+      <div class="heading-content relative text-{{ section_st.alignment }}">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign block_st = block.settings
+          -%}
+          {%- case block.type -%}
+            {%- when 'heading' -%}
+              {%- liquid
+                assign header_class = 'h2'
+                if block_st.header_size == 'small'
+                  assign header_class = 'h3'
+                elsif block_st.header_size == 'large'
+                  assign header_class = 'h1-size'
+                endif
+              -%}
+              <h1
+                class="heading-title heading-letter-spacing {{ header_class }} mt-8 mb-0"
+                style="{% if block_st.enable_heading_color %}color: {{ block_st.heading_color }} !important;{% endif %} font-size: {{ block_st.heading_font_size }}px; margin-bottom: {{ block_st.vertical_gap }}px;"
+              >
+                {%- if block_st.page_title != blank -%}
+                  {{ block_st.page_title }}
+                {%- else -%}
+                  {% if template contains 'blog' %}
+                    {{ blog.title }}
+                  {% elsif template contains 'cart' %}
+                    {{- 'general.cart.title' | t -}}
+                  {% else %}
+                    {{ page.title }}
+                  {% endif %}
+                {% endif %}
+              </h1>
+            {%- when 'description' -%}
+              {% if block_st.description != blank or page.content != blank %}
+                <div
+                  class="heading-description rich__text-m0"
+                  style="color: {{ block_st.description_color }}; font-size: {{ block_st.description_font_size }}px;"
+                >
+                  {% if block_st.description != blank -%}
+                    {{- block_st.description -}}
+                  {%- else %}
+                    {{ page.content -}}
+                  {%- endif %}
+                </div>
+              {% endif %}
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+<style>
+  .sec__page-heading {
+    background-color: var(--background-color);
+    padding-top: var(--section-pt);
+    padding-bottom: var(--section-pb);
+    margin-top: {{ section_st.margin_top_desktop }}px;
+    margin-bottom: {{ section_st.margin_bottom_desktop }}px;
+    {%- case section_st.height_option -%}
+      {%- when 'fixed' -%}
+        height: {{ section_st.section_height }}px;
+      {%- when 'adapt' -%}
+        {%- if background_image != blank -%}
+          aspect-ratio: {{ background_image.aspect_ratio }}; height: auto;
+        {%- else -%}
+          height: {{ section_st.section_height }}px;
+        {%- endif -%}
+      {%- when 'based_on_content' -%}
+        height: auto;
+    {%- endcase -%}
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Device Visibility Classes */
+  @media (max-width: 767px) {
+    .only-desktop {
+      display: none;
+    }
+    .sec__page-heading {
+      margin-top: {{ section_st.margin_top_mobile }}px !important;
+      margin-bottom: {{ section_st.margin_bottom_mobile }}px !important;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .only-mobile {
+      display: none;
+    }
+  }
+
+  .sec__page-heading.flex { display: flex; }
+  .sec__page-heading.hidden { display: none; }
+
+  .overlay-bg {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, var(--overlay-opacity)); z-index: -1;
+  }
+
+  .background-heading {
+    filter: brightness(var(--image-brightness)) contrast(var(--image-contrast));
+    transition: filter 0.3s ease;
+  }
+
+  .heading-title { transition: margin-bottom 0.3s ease, font-size 0.3s ease; }
+  .heading-description { transition: font-size 0.3s ease; }
+</style>
+
+{% schema %}
+{
+  "name": "Page Heading",
+  "tag": "section",
+  "class": "page-title",
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "options": [
+        { "value": "container", "label": "Container Width" },
+        { "value": "fluid_container", "label": "Fluid Container" },
+        { "value": "stretch_width", "label": "Stretch to Full Width" },
+        { "value": "full_width", "label": "Full Width" }
+      ],
+      "default": "fluid_container",
+      "label": "Section Width",
+      "info": "Choose the width of the section container."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "default": "default-color-scheme",
+      "info": "Select the overall color scheme for the section."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "info": "Select a custom background color. If left blank, the background color will be set automatically based on the selected Color Scheme."
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Content Alignment",
+      "default": "center",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "info": "Align the content to the left, center, or right."
+    },
+    {
+      "type": "select",
+      "id": "display_on",
+      "options": [
+        { "value": "all", "label": "All devices" },
+        { "value": "mobile", "label": "Mobile only" },
+        { "value": "desktop", "label": "Desktop only" }
+      ],
+      "default": "all",
+      "label": "Display on"
+    },
+    { "type": "header", "content": "Background Image Settings" },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Upload an image to use as the background."
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0, "max": 100, "step": 1, "unit": "%",
+      "label": "Overlay Opacity",
+      "default": 0,
+      "info": "Adjust the opacity of the background overlay."
+    },
+    { "type": "header", "content": "Image Adjustments" },
+    {
+      "type": "range",
+      "id": "image_brightness",
+      "min": 0, "max": 200, "step": 10, "unit": "%",
+      "label": "Image Brightness",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "image_contrast",
+      "min": 0, "max": 200, "step": 10, "unit": "%",
+      "label": "Image Contrast",
+      "default": 100
+    },
+    {
+      "type": "select",
+      "id": "height_option",
+      "options": [
+        { "value": "adapt", "label": "Adapt to Image" },
+        { "value": "fixed", "label": "Fixed Height" },
+        { "value": "based_on_content", "label": "Based on Content" }
+      ],
+      "default": "adapt",
+      "label": "Section Height Option",
+      "info": "Choose how the section height is determined."
+    },
+    {
+      "type": "range",
+      "id": "section_height",
+      "label": "Section Height",
+      "default": 210,
+      "min": 100, "max": 500, "step": 10, "unit": "px",
+      "info": "Set the height of the section. Only applicable if 'Fixed Height' is selected."
+    },
+    { "type": "header", "content": "Section Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding Top",
+      "default": 0, "min": 0, "max": 100, "step": 5, "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding Bottom",
+      "default": 0, "min": 0, "max": 100, "step": 5, "unit": "px"
+    },
+    { "type": "header", "content": "Desktop Margins" },
+    {
+      "type": "range",
+      "id": "margin_top_desktop",
+      "label": "Top Margin (Desktop)",
+      "default": 50, "min": 0, "max": 300, "step": 10, "unit": "px",
+      "info": "Set the top margin of the section."
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom_desktop",
+      "label": "Bottom Margin (Desktop)",
+      "default": 50, "min": 0, "max": 300, "step": 10, "unit": "px",
+      "info": "Set the bottom margin of the section."
+    },
+    { "type": "header", "content": "Mobile Margins" },
+    {
+      "type": "range",
+      "id": "margin_top_mobile",
+      "label": "Top Margin (Mobile)",
+      "default": 40, "min": 0, "max": 300, "step": 10, "unit": "px",
+      "info": "Set the top margin of the section."
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom_mobile",
+      "label": "Bottom Margin (Mobile)",
+      "default": 40, "min": 0, "max": 300, "step": 10, "unit": "px",
+      "info": "Set the bottom margin of the section."
+    }
+  ],
+  "max_blocks": 2,
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Section Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "page_title",
+          "label": "Page Specific Title",
+          "info": "Enter the title to display in the heading."
+        },
+        {
+          "type": "select",
+          "id": "header_size",
+          "options": [
+            { "value": "small", "label": "Small" },
+            { "value": "medium", "label": "Medium" },
+            { "value": "large", "label": "Large" }
+          ],
+          "default": "medium",
+          "label": "Heading Size"
+        },
+
+        
+        {
+          "type": "checkbox",
+          "id": "enable_heading_color",
+          "label": "Enable Heading Text Color",
+          "default": false
+        },
+
+        {
+          "type": "color",
+          "id": "heading_color",
+          "label": "Heading Text Color",
+          "default": "#000000",
+          "info": "Used only when the toggle above is enabled."
+        },
+        {
+          "type": "range",
+          "id": "heading_font_size",
+          "label": "Heading Font Size",
+          "default": 34,
+          "min": 16, "max": 72, "step": 1, "unit": "px",
+          "info": "Adjust the font size of the heading text."
+        },
+        {
+          "type": "range",
+          "id": "vertical_gap",
+          "label": "Vertical Gap to Description",
+          "default": 7,
+          "min": 0, "max": 100, "step": 1, "unit": "px",
+          "info": "Control the vertical spacing between the heading and description texts."
+        }
+      ]
+    },
+    {
+      "type": "description",
+      "name": "Section Description",
+      "limit": 2,
+      "settings": [
+        { "type": "richtext", "id": "description", "label": "Description", "info": "Add a description or additional content for the section." },
+        { "type": "color", "id": "description_color", "label": "Description Text Color", "default": "#767676", "info": "Choose the color for the description text." },
+        { "type": "range", "id": "description_font_size", "label": "Description Font Size", "default": 15, "min": 12, "max": 36, "step": 1, "unit": "px", "info": "Adjust the font size of the description text." },
+        { "type": "paragraph", "content": "Provide detailed information or instructions related to the section." }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,872 @@
+<!-- Include Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+<div class="brand-deal-of-the-month-section">
+  <style>
+    {% if section.settings.enable_custom_fonts %}
+    @import url('https://fonts.googleapis.com/css2?family=Roboto&family=Open+Sans&family=Lato&family=Montserrat&family=Oswald&family=Source+Sans+Pro&family=Raleway&family=Poppins&family=Merriweather&family=Ubuntu&family=Playfair+Display&family=Noto+Sans&family=Nunito&family=PT+Sans&family=Merriweather+Sans&display=swap');
+    {% endif %}
+
+    .brand-deal-of-the-month-section .brand-deal-container {
+      display: flex;
+      flex-wrap: wrap;
+      width: 100%;
+      margin: 0;
+      padding-top: {{ section.settings.section_padding_top_desktop | default: 20 }}px;
+      padding-bottom: {{ section.settings.section_padding_bottom_desktop | default: 20 }}px;
+      background-color: {{ section.settings.section_background_color | default: '#ffffff' }};
+      font-family: Arial, sans-serif;
+    }
+    .brand-deal-of-the-month-section .brand-deal-image.desktop-image {
+      flex: 2;
+      min-width: auto;
+      height: 290px;
+      position: relative;
+    }
+    .brand-deal-of-the-month-section .brand-deal-image.desktop-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: {{ section.settings.image_position_x_desktop | default: 50 }}% {{ section.settings.image_position_y_desktop | default: 50 }}%;
+    }
+    .brand-deal-of-the-month-section .brand-deal-image.mobile-image {
+      display: none;
+      flex: 2;
+      min-width: 300px;
+      height: auto;
+      object-fit: cover;
+      position: relative;
+    }
+    .brand-deal-of-the-month-section .brand-deal-image.mobile-image img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      object-position: {{ section.settings.image_position_x_mobile | default: 50 }}% {{ section.settings.image_position_y_mobile | default: 50 }}%;
+    }
+    .brand-deal-of-the-month-section .brand-deal-text {
+      flex: 1;
+      {% if section.settings.enable_gradient_background %}
+      background: linear-gradient({{ section.settings.gradient_degrees | default: 90 }}deg, {{ section.settings.gradient_start_color }}, {{ section.settings.gradient_middle_color }}, {{ section.settings.gradient_end_color }});
+      {% else %}
+      background-color: {{ section.settings.brand_deal_text_background_color | default: '#2c3e50' }};
+      {% endif %}
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 23px;
+      text-align: center;
+      height: 290px;
+    }
+    .brand-deal-of-the-month-section .brand-deal-text p.hashtag {
+      font-size: 1.2em;
+      margin: 10px 0;
+      color: {{ section.settings.hashtag_color | default: '#ffffff' }};
+      {% if section.settings.enable_custom_fonts %}
+      font-family: '{{ section.settings.hashtag_font }}', sans-serif;
+      {% endif %}
+    }
+    .brand-deal-of-the-month-section .brand-deal-text h1 {
+      font-size: 2em;
+      margin: 10px 0;
+      color: {{ section.settings.title_color | default: '#ffffff' }} !important; /* Title color forced !important */
+      {% if section.settings.enable_custom_fonts %}
+      font-family: '{{ section.settings.title_font }}', sans-serif;
+      {% endif %}
+      font-weight: {{ section.settings.title_font_weight | default: '400' }}; /* New font-weight setting */
+    }
+    .brand-deal-of-the-month-section .brand-deal-text p.discount {
+      font-size: 1.2em;
+      margin: 10px 0;
+      color: {{ section.settings.discount_color | default: '#ffffff' }};
+      {% if section.settings.enable_custom_fonts %}
+      font-family: '{{ section.settings.discount_font }}', sans-serif;
+      {% endif %}
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .brand-deal-of-the-month-section .brand-deal-container {
+        flex-direction: column;
+        padding-top: {{ section.settings.section_padding_top_mobile | default: 20 }}px;
+        padding-bottom: {{ section.settings.section_padding_bottom_mobile | default: 20 }}px;
+      }
+      .brand-deal-of-the-month-section .brand-deal-text {
+        height: 350px; /* Increased height for mobile */
+        {% if section.settings.enable_gradient_background %}
+        background: linear-gradient({{ section.settings.gradient_degrees_mobile | default: 90 }}deg, {{ section.settings.gradient_start_color_mobile }}, {{ section.settings.gradient_middle_color_mobile }}, {{ section.settings.gradient_end_color_mobile }});
+        {% else %}
+        background-color: {{ section.settings.brand_deal_text_background_color | default: '#2c3e50' }};
+        {% endif %}
+      }
+      .brand-deal-of-the-month-section .brand-deal-image.desktop-image {
+        display: none;
+      }
+      .brand-deal-of-the-month-section .brand-deal-image.mobile-image {
+        display: block;
+        height: auto;
+        object-fit: cover;
+      }
+    }
+  </style>
+
+  <div class="brand-deal-container">
+    <!-- Desktop Image Section -->
+    <div class="brand-deal-image desktop-image">
+      <img
+        src="{{ section.settings.image | img_url: '1600x' | default: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E' }}"
+        alt="{{ section.settings.image_alt | default: 'Default placeholder description for desktop image.' }}"
+      >
+    </div>
+
+    <!-- Mobile Image Section -->
+    <div class="brand-deal-image mobile-image">
+      <img
+        src="{{ section.settings.mobile_image | img_url: '1600x' | default: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E' }}"
+        alt="{{ section.settings.mobile_image_alt | default: 'Default placeholder description for mobile image.' }}"
+      >
+    </div>
+
+    <!-- Text Section -->
+    <div class="brand-deal-text">
+      <p class="hashtag">{{ section.settings.hashtag }}</p>
+      <h1>{{ section.settings.title }}</h1>
+      <p class="discount">{{ section.settings.discount }}</p>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Promo Banner 1",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Title Settings",
+      "info": "Configure the main title of the Brand Deal section."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "Title",
+      "default": "<strong>Brand Deal of the Month</strong>",
+      "info": "Enter the main title displayed in the Brand Deal section."
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#ffffff",
+      "info": "Select the color of the title text."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_fonts",
+      "label": "Enable Custom Fonts",
+      "default": false,
+      "info": "Toggle to enable or disable the use of custom fonts."
+    },
+    {
+      "type": "select",
+      "id": "title_font",
+      "label": "Title Font",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Nunito", "label": "Nunito" },
+        { "value": "PT Sans", "label": "PT Sans" },
+        { "value": "Merriweather Sans", "label": "Merriweather Sans" },
+        { "value": "Arial", "label": "Arial" },
+        { "value": "Verdana", "label": "Verdana" },
+        { "value": "Georgia", "label": "Georgia" },
+        { "value": "Tahoma", "label": "Tahoma" },
+        { "value": "Courier New", "label": "Courier New" },
+        { "value": "Trebuchet MS", "label": "Trebuchet MS" },
+        { "value": "Fira Sans", "label": "Fira Sans" },
+        { "value": "Lora", "label": "Lora" },
+        { "value": "Slabo 27px", "label": "Slabo 27px" },
+        { "value": "Droid Sans", "label": "Droid Sans" },
+        { "value": "Roboto Condensed", "label": "Roboto Condensed" },
+        { "value": "Quicksand", "label": "Quicksand" },
+        { "value": "Cinzel", "label": "Cinzel" },
+        { "value": "Karla", "label": "Karla" },
+        { "value": "Bitter", "label": "Bitter" },
+        { "value": "Fjalla One", "label": "Fjalla One" },
+        { "value": "Alfa Slab One", "label": "Alfa Slab One" },
+        { "value": "Bree Serif", "label": "Bree Serif" },
+        { "value": "Cabin", "label": "Cabin" },
+        { "value": "Candal", "label": "Candal" },
+        { "value": "Dosis", "label": "Dosis" },
+        { "value": "Exo", "label": "Exo" },
+        { "value": "Fredoka One", "label": "Fredoka One" },
+        { "value": "Gloria Hallelujah", "label": "Gloria Hallelujah" },
+        { "value": "Hind", "label": "Hind" },
+        { "value": "Indie Flower", "label": "Indie Flower" },
+        { "value": "Julius Sans One", "label": "Julius Sans One" },
+        { "value": "Lobster", "label": "Lobster" },
+        { "value": "Mukta", "label": "Mukta" },
+        { "value": "Neuton", "label": "Neuton" },
+        { "value": "Niconne", "label": "Niconne" },
+        { "value": "Oxygen", "label": "Oxygen" },
+        { "value": "PT Serif", "label": "PT Serif" },
+        { "value": "Play", "label": "Play" },
+        { "value": "Saira", "label": "Saira" },
+        { "value": "Tangerine", "label": "Tangerine" },
+        { "value": "Titillium Web", "label": "Titillium Web" },
+        { "value": "Varela Round", "label": "Varela Round" },
+        { "value": "Zilla Slab", "label": "Zilla Slab" },
+        { "value": "Asap", "label": "Asap" },
+        { "value": "Barlow", "label": "Barlow" },
+        { "value": "Cairo", "label": "Cairo" },
+        { "value": "Chela One", "label": "Chela One" },
+        { "value": "Cousine", "label": "Cousine" },
+        { "value": "Dancing Script", "label": "Dancing Script" },
+        { "value": "Frank Ruhl Libre", "label": "Frank Ruhl Libre" },
+        { "value": "Hind Madurai", "label": "Hind Madurai" },
+        { "value": "Kalam", "label": "Kalam" },
+        { "value": "Muli", "label": "Muli" },
+        { "value": "Pangolin", "label": "Pangolin" },
+        { "value": "Roboto Slab", "label": "Roboto Slab" },
+        { "value": "Shadows Into Light", "label": "Shadows Into Light" },
+        { "value": "Acme", "label": "Acme" },
+        { "value": "Alegreya", "label": "Alegreya" },
+        { "value": "Anton", "label": "Anton" },
+        { "value": "Architects Daughter", "label": "Architects Daughter" },
+        { "value": "Astloch", "label": "Astloch" },
+        { "value": "Be+Sans", "label": "Be+Sans" },
+        { "value": "Bree", "label": "Bree" },
+        { "value": "Buda", "label": "Buda" },
+        { "value": "Cabin Sketch", "label": "Cabin Sketch" },
+        { "value": "Cantarell", "label": "Cantarell" },
+        { "value": "Cardo", "label": "Cardo" },
+        { "value": "Chivo", "label": "Chivo" },
+        { "value": "Clicker Script", "label": "Clicker Script" },
+        { "value": "Comfortaa", "label": "Comfortaa" },
+        { "value": "Cormorant Garamond", "label": "Cormorant Garamond" },
+        { "value": "Dancing", "label": "Dancing" },
+        { "value": "Days One", "label": "Days One" },
+        { "value": "DM Sans", "label": "DM Sans" },
+        { "value": "Domine", "label": "Domine" },
+        { "value": "Eczar", "label": "Eczar" },
+        { "value": "Fira Mono", "label": "Fira Mono" },
+        { "value": "Fjalla", "label": "Fjalla" },
+        { "value": "Fredoka", "label": "Fredoka" },
+        { "value": "Gloock", "label": "Gloock" },
+        { "value": "Hind Guntur", "label": "Hind Guntur" },
+        { "value": "Ibarra Real Nova", "label": "Ibarra Real Nova" },
+        { "value": "Inconsolata", "label": "Inconsolata" },
+        { "value": "Julius Sans", "label": "Julius Sans" },
+        { "value": "Kufam", "label": "Kufam" },
+        { "value": "Londrina", "label": "Londrina" },
+        { "value": "Mako", "label": "Mako" },
+        { "value": "Mandali", "label": "Mandali" },
+        { "value": "Monda", "label": "Monda" },
+        { "value": "Nunito Sans", "label": "Nunito Sans" },
+        { "value": "Old Standard TT", "label": "Old Standard TT" },
+        { "value": "Orbitron", "label": "Orbitron" },
+        { "value": "Pathway Gothic", "label": "Pathway Gothic" },
+        { "value": "Playball", "label": "Playball" },
+        { "value": "Roboto Mono", "label": "Roboto Mono" },
+        { "value": "Rock Salt", "label": "Rock Salt" },
+        { "value": "Sanchez", "label": "Sanchez" },
+        { "value": "Sarina", "label": "Sarina" },
+        { "value": "Spartan", "label": "Spartan" },
+        { "value": "Staatliches", "label": "Staatliches" },
+        { "value": "Syncopate", "label": "Syncopate" },
+        { "value": "Tisa", "label": "Tisa" },
+        { "value": "Varela", "label": "Varela" },
+        { "value": "Abril Fatface", "label": "Abril Fatface" },
+        { "value": "Amatic SC", "label": "Amatic SC" },
+        { "value": "Bad Script", "label": "Bad Script" },
+        { "value": "Balthazar", "label": "Balthazar" },
+        { "value": "Bangers", "label": "Bangers" },
+        { "value": "Barlow Condensed", "label": "Barlow Condensed" },
+        { "value": "Caveat", "label": "Caveat" },
+        { "value": "Concert One", "label": "Concert One" },
+        { "value": "Cuprum", "label": "Cuprum" },
+        { "value": "Droid Serif", "label": "Droid Serif" },
+        { "value": "Exo 2", "label": "Exo 2" },
+        { "value": "Gilda Display", "label": "Gilda Display" },
+        { "value": "Grand Hotel", "label": "Grand Hotel" },
+        { "value": "Hammersmith One", "label": "Hammersmith One" },
+        { "value": "Lobster Two", "label": "Lobster Two" },
+        { "value": "Mada", "label": "Mada" },
+        { "value": "Oleo Script", "label": "Oleo Script" },
+        { "value": "Satisfy", "label": "Satisfy" }
+      ],
+      "default": "Roboto",
+      "info": "Select the font for the Title."
+    },
+    {
+      "type": "select",
+      "id": "title_font_weight",
+      "label": "Title Font Weight",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "400",
+      "info": "Select the font weight for the Title text."
+    },
+
+    {
+      "type": "header",
+      "content": "Hashtag Settings",
+      "info": "Configure the hashtag displayed in the Brand Deal section."
+    },
+    {
+      "type": "text",
+      "id": "hashtag",
+      "label": "Hashtag",
+      "default": "#lookgoodfeelgood",
+      "info": "Enter the hashtag to be displayed."
+    },
+    {
+      "type": "color",
+      "id": "hashtag_color",
+      "label": "Hashtag Color",
+      "default": "#ffffff",
+      "info": "Select the color of the hashtag text."
+    },
+    {
+      "type": "select",
+      "id": "hashtag_font",
+      "label": "Hashtag Font",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Nunito", "label": "Nunito" },
+        { "value": "PT Sans", "label": "PT Sans" },
+        { "value": "Merriweather Sans", "label": "Merriweather Sans" },
+        { "value": "Arial", "label": "Arial" },
+        { "value": "Verdana", "label": "Verdana" },
+        { "value": "Georgia", "label": "Georgia" },
+        { "value": "Tahoma", "label": "Tahoma" },
+        { "value": "Courier New", "label": "Courier New" },
+        { "value": "Trebuchet MS", "label": "Trebuchet MS" },
+        { "value": "Fira Sans", "label": "Fira Sans" },
+        { "value": "Lora", "label": "Lora" },
+        { "value": "Slabo 27px", "label": "Slabo 27px" },
+        { "value": "Droid Sans", "label": "Droid Sans" },
+        { "value": "Roboto Condensed", "label": "Roboto Condensed" },
+        { "value": "Quicksand", "label": "Quicksand" },
+        { "value": "Cinzel", "label": "Cinzel" },
+        { "value": "Karla", "label": "Karla" },
+        { "value": "Bitter", "label": "Bitter" },
+        { "value": "Fjalla One", "label": "Fjalla One" },
+        { "value": "Alfa Slab One", "label": "Alfa Slab One" },
+        { "value": "Bree Serif", "label": "Bree Serif" },
+        { "value": "Cabin", "label": "Cabin" },
+        { "value": "Candal", "label": "Candal" },
+        { "value": "Dosis", "label": "Dosis" },
+        { "value": "Exo", "label": "Exo" },
+        { "value": "Fredoka One", "label": "Fredoka One" },
+        { "value": "Gloria Hallelujah", "label": "Gloria Hallelujah" },
+        { "value": "Hind", "label": "Hind" },
+        { "value": "Indie Flower", "label": "Indie Flower" },
+        { "value": "Julius Sans One", "label": "Julius Sans One" },
+        { "value": "Lobster", "label": "Lobster" },
+        { "value": "Mukta", "label": "Mukta" },
+        { "value": "Neuton", "label": "Neuton" },
+        { "value": "Niconne", "label": "Niconne" },
+        { "value": "Oxygen", "label": "Oxygen" },
+        { "value": "PT Serif", "label": "PT Serif" },
+        { "value": "Play", "label": "Play" },
+        { "value": "Saira", "label": "Saira" },
+        { "value": "Tangerine", "label": "Tangerine" },
+        { "value": "Titillium Web", "label": "Titillium Web" },
+        { "value": "Varela Round", "label": "Varela Round" },
+        { "value": "Zilla Slab", "label": "Zilla Slab" },
+        { "value": "Asap", "label": "Asap" },
+        { "value": "Barlow", "label": "Barlow" },
+        { "value": "Cairo", "label": "Cairo" },
+        { "value": "Chela One", "label": "Chela One" },
+        { "value": "Cousine", "label": "Cousine" },
+        { "value": "Dancing Script", "label": "Dancing Script" },
+        { "value": "Frank Ruhl Libre", "label": "Frank Ruhl Libre" },
+        { "value": "Hind Madurai", "label": "Hind Madurai" },
+        { "value": "Kalam", "label": "Kalam" },
+        { "value": "Muli", "label": "Muli" },
+        { "value": "Pangolin", "label": "Pangolin" },
+        { "value": "Roboto Slab", "label": "Roboto Slab" },
+        { "value": "Shadows Into Light", "label": "Shadows Into Light" },
+        { "value": "Acme", "label": "Acme" },
+        { "value": "Alegreya", "label": "Alegreya" },
+        { "value": "Anton", "label": "Anton" },
+        { "value": "Architects Daughter", "label": "Architects Daughter" },
+        { "value": "Astloch", "label": "Astloch" },
+        { "value": "Be+Sans", "label": "Be+Sans" },
+        { "value": "Bree", "label": "Bree" },
+        { "value": "Buda", "label": "Buda" },
+        { "value": "Cabin Sketch", "label": "Cabin Sketch" },
+        { "value": "Cantarell", "label": "Cantarell" },
+        { "value": "Cardo", "label": "Cardo" },
+        { "value": "Chivo", "label": "Chivo" },
+        { "value": "Clicker Script", "label": "Clicker Script" },
+        { "value": "Comfortaa", "label": "Comfortaa" },
+        { "value": "Cormorant Garamond", "label": "Cormorant Garamond" },
+        { "value": "Dancing", "label": "Dancing" },
+        { "value": "Days One", "label": "Days One" },
+        { "value": "DM Sans", "label": "DM Sans" },
+        { "value": "Domine", "label": "Domine" },
+        { "value": "Eczar", "label": "Eczar" },
+        { "value": "Fira Mono", "label": "Fira Mono" },
+        { "value": "Fjalla", "label": "Fjalla" },
+        { "value": "Fredoka", "label": "Fredoka" },
+        { "value": "Gloock", "label": "Gloock" },
+        { "value": "Hind Guntur", "label": "Hind Guntur" },
+        { "value": "Ibarra Real Nova", "label": "Ibarra Real Nova" },
+        { "value": "Inconsolata", "label": "Inconsolata" },
+        { "value": "Julius Sans", "label": "Julius Sans" },
+        { "value": "Kufam", "label": "Kufam" },
+        { "value": "Londrina", "label": "Londrina" },
+        { "value": "Mako", "label": "Mako" },
+        { "value": "Mandali", "label": "Mandali" },
+        { "value": "Monda", "label": "Monda" },
+        { "value": "Nunito Sans", "label": "Nunito Sans" },
+        { "value": "Old Standard TT", "label": "Old Standard TT" },
+        { "value": "Orbitron", "label": "Orbitron" },
+        { "value": "Pathway Gothic", "label": "Pathway Gothic" },
+        { "value": "Playball", "label": "Playball" },
+        { "value": "Roboto Mono", "label": "Roboto Mono" },
+        { "value": "Rock Salt", "label": "Rock Salt" },
+        { "value": "Sanchez", "label": "Sanchez" },
+        { "value": "Sarina", "label": "Sarina" },
+        { "value": "Spartan", "label": "Spartan" },
+        { "value": "Staatliches", "label": "Staatliches" },
+        { "value": "Syncopate", "label": "Syncopate" },
+        { "value": "Tisa", "label": "Tisa" },
+        { "value": "Varela", "label": "Varela" },
+        { "value": "Abril Fatface", "label": "Abril Fatface" },
+        { "value": "Amatic SC", "label": "Amatic SC" },
+        { "value": "Bad Script", "label": "Bad Script" },
+        { "value": "Balthazar", "label": "Balthazar" },
+        { "value": "Bangers", "label": "Bangers" },
+        { "value": "Barlow Condensed", "label": "Barlow Condensed" },
+        { "value": "Caveat", "label": "Caveat" },
+        { "value": "Concert One", "label": "Concert One" },
+        { "value": "Cuprum", "label": "Cuprum" },
+        { "value": "Droid Serif", "label": "Droid Serif" },
+        { "value": "Exo 2", "label": "Exo 2" },
+        { "value": "Gilda Display", "label": "Gilda Display" },
+        { "value": "Grand Hotel", "label": "Grand Hotel" },
+        { "value": "Hammersmith One", "label": "Hammersmith One" },
+        { "value": "Lobster Two", "label": "Lobster Two" },
+        { "value": "Mada", "label": "Mada" },
+        { "value": "Oleo Script", "label": "Oleo Script" },
+        { "value": "Satisfy", "label": "Satisfy" }
+      ],
+      "default": "Open Sans",
+      "info": "Select the font for the Hashtag."
+    },
+
+    {
+      "type": "header",
+      "content": "Discount Settings",
+      "info": "Configure the discount information displayed."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "discount",
+      "label": "Discount Text",
+      "default": "Get up to 20% off",
+      "info": "Enter the discount text to be displayed."
+    },
+    {
+      "type": "color",
+      "id": "discount_color",
+      "label": "Discount Text Color",
+      "default": "#ffffff",
+      "info": "Select the color of the discount text."
+    },
+    {
+      "type": "select",
+      "id": "discount_font",
+      "label": "Discount Text Font",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Nunito", "label": "Nunito" },
+        { "value": "PT Sans", "label": "PT Sans" },
+        { "value": "Merriweather Sans", "label": "Merriweather Sans" },
+        { "value": "Arial", "label": "Arial" },
+        { "value": "Verdana", "label": "Verdana" },
+        { "value": "Georgia", "label": "Georgia" },
+        { "value": "Tahoma", "label": "Tahoma" },
+        { "value": "Courier New", "label": "Courier New" },
+        { "value": "Trebuchet MS", "label": "Trebuchet MS" },
+        { "value": "Fira Sans", "label": "Fira Sans" },
+        { "value": "Lora", "label": "Lora" },
+        { "value": "Slabo 27px", "label": "Slabo 27px" },
+        { "value": "Droid Sans", "label": "Droid Sans" },
+        { "value": "Roboto Condensed", "label": "Roboto Condensed" },
+        { "value": "Quicksand", "label": "Quicksand" },
+        { "value": "Cinzel", "label": "Cinzel" },
+        { "value": "Karla", "label": "Karla" },
+        { "value": "Bitter", "label": "Bitter" },
+        { "value": "Fjalla One", "label": "Fjalla One" },
+        { "value": "Alfa Slab One", "label": "Alfa Slab One" },
+        { "value": "Bree Serif", "label": "Bree Serif" },
+        { "value": "Cabin", "label": "Cabin" },
+        { "value": "Candal", "label": "Candal" },
+        { "value": "Dosis", "label": "Dosis" },
+        { "value": "Exo", "label": "Exo" },
+        { "value": "Fredoka One", "label": "Fredoka One" },
+        { "value": "Gloria Hallelujah", "label": "Gloria Hallelujah" },
+        { "value": "Hind", "label": "Hind" },
+        { "value": "Indie Flower", "label": "Indie Flower" },
+        { "value": "Julius Sans One", "label": "Julius Sans One" },
+        { "value": "Lobster", "label": "Lobster" },
+        { "value": "Mukta", "label": "Mukta" },
+        { "value": "Neuton", "label": "Neuton" },
+        { "value": "Niconne", "label": "Niconne" },
+        { "value": "Oxygen", "label": "Oxygen" },
+        { "value": "PT Serif", "label": "PT Serif" },
+        { "value": "Play", "label": "Play" },
+        { "value": "Saira", "label": "Saira" },
+        { "value": "Tangerine", "label": "Tangerine" },
+        { "value": "Titillium Web", "label": "Titillium Web" },
+        { "value": "Varela Round", "label": "Varela Round" },
+        { "value": "Zilla Slab", "label": "Zilla Slab" },
+        { "value": "Asap", "label": "Asap" },
+        { "value": "Barlow", "label": "Barlow" },
+        { "value": "Cairo", "label": "Cairo" },
+        { "value": "Chela One", "label": "Chela One" },
+        { "value": "Cousine", "label": "Cousine" },
+        { "value": "Dancing Script", "label": "Dancing Script" },
+        { "value": "Frank Ruhl Libre", "label": "Frank Ruhl Libre" },
+        { "value": "Hind Madurai", "label": "Hind Madurai" },
+        { "value": "Kalam", "label": "Kalam" },
+        { "value": "Muli", "label": "Muli" },
+        { "value": "Pangolin", "label": "Pangolin" },
+        { "value": "Roboto Slab", "label": "Roboto Slab" },
+        { "value": "Shadows Into Light", "label": "Shadows Into Light" },
+        { "value": "Acme", "label": "Acme" },
+        { "value": "Alegreya", "label": "Alegreya" },
+        { "value": "Anton", "label": "Anton" },
+        { "value": "Architects Daughter", "label": "Architects Daughter" },
+        { "value": "Astloch", "label": "Astloch" },
+        { "value": "Be+Sans", "label": "Be+Sans" },
+        { "value": "Bree", "label": "Bree" },
+        { "value": "Buda", "label": "Buda" },
+        { "value": "Cabin Sketch", "label": "Cabin Sketch" },
+        { "value": "Cantarell", "label": "Cantarell" },
+        { "value": "Cardo", "label": "Cardo" },
+        { "value": "Chivo", "label": "Chivo" },
+        { "value": "Clicker Script", "label": "Clicker Script" },
+        { "value": "Comfortaa", "label": "Comfortaa" },
+        { "value": "Cormorant Garamond", "label": "Cormorant Garamond" },
+        { "value": "Dancing", "label": "Dancing" },
+        { "value": "Days One", "label": "Days One" },
+        { "value": "DM Sans", "label": "DM Sans" },
+        { "value": "Domine", "label": "Domine" },
+        { "value": "Eczar", "label": "Eczar" },
+        { "value": "Fira Mono", "label": "Fira Mono" },
+        { "value": "Fjalla", "label": "Fjalla" },
+        { "value": "Fredoka", "label": "Fredoka" },
+        { "value": "Gloock", "label": "Gloock" },
+        { "value": "Hind Guntur", "label": "Hind Guntur" },
+        { "value": "Ibarra Real Nova", "label": "Ibarra Real Nova" },
+        { "value": "Inconsolata", "label": "Inconsolata" },
+        { "value": "Julius Sans", "label": "Julius Sans" },
+        { "value": "Kufam", "label": "Kufam" },
+        { "value": "Londrina", "label": "Londrina" },
+        { "value": "Mako", "label": "Mako" },
+        { "value": "Mandali", "label": "Mandali" },
+        { "value": "Monda", "label": "Monda" },
+        { "value": "Nunito Sans", "label": "Nunito Sans" },
+        { "value": "Old Standard TT", "label": "Old Standard TT" },
+        { "value": "Orbitron", "label": "Orbitron" },
+        { "value": "Pathway Gothic", "label": "Pathway Gothic" },
+        { "value": "Playball", "label": "Playball" },
+        { "value": "Roboto Mono", "label": "Roboto Mono" },
+        { "value": "Rock Salt", "label": "Rock Salt" },
+        { "value": "Sanchez", "label": "Sanchez" },
+        { "value": "Sarina", "label": "Sarina" },
+        { "value": "Spartan", "label": "Spartan" },
+        { "value": "Staatliches", "label": "Staatliches" },
+        { "value": "Syncopate", "label": "Syncopate" },
+        { "value": "Tisa", "label": "Tisa" },
+        { "value": "Varela", "label": "Varela" },
+        { "value": "Abril Fatface", "label": "Abril Fatface" },
+        { "value": "Amatic SC", "label": "Amatic SC" },
+        { "value": "Bad Script", "label": "Bad Script" },
+        { "value": "Balthazar", "label": "Balthazar" },
+        { "value": "Bangers", "label": "Bangers" },
+        { "value": "Barlow Condensed", "label": "Barlow Condensed" },
+        { "value": "Caveat", "label": "Caveat" },
+        { "value": "Concert One", "label": "Concert One" },
+        { "value": "Cuprum", "label": "Cuprum" },
+        { "value": "Droid Serif", "label": "Droid Serif" },
+        { "value": "Exo 2", "label": "Exo 2" },
+        { "value": "Gilda Display", "label": "Gilda Display" },
+        { "value": "Grand Hotel", "label": "Grand Hotel" },
+        { "value": "Hammersmith One", "label": "Hammersmith One" },
+        { "value": "Lobster Two", "label": "Lobster Two" },
+        { "value": "Mada", "label": "Mada" },
+        { "value": "Oleo Script", "label": "Oleo Script" },
+        { "value": "Satisfy", "label": "Satisfy" }
+      ],
+      "default": "Roboto",
+      "info": "Select the font for the Discount Text."
+    },
+
+    {
+      "type": "header",
+      "content": "Image Settings",
+      "info": "Configure the images, their appearance, and positioning."
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Deal Image",
+      "info": "Upload the main image for the deal."
+    },
+    {
+      "type": "text",
+      "id": "image_alt",
+      "label": "Image Alt Text",
+      "default": "Fashionable person with curly hair wearing sunglasses and a bright orange jacket standing in front of a green door.",
+      "info": "Provide alternative text for the main image."
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Deal Image for Mobile",
+      "info": "Upload the image optimized for mobile view."
+    },
+    {
+      "type": "text",
+      "id": "mobile_image_alt",
+      "label": "Mobile Image Alt Text",
+      "default": "Deal image for mobile view.",
+      "info": "Provide alternative text for the mobile image."
+    },
+
+    
+    {
+      "type": "range",
+      "id": "image_position_x_desktop",
+      "label": "Image Horizontal Position X (Desktop)",
+      "default": 49,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "info": "Set the horizontal position of the desktop image (0-100)."
+    },
+    {
+      "type": "range",
+      "id": "image_position_y_desktop",
+      "label": "Image Vertical Position Y (Desktop)",
+      "default": 6,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "info": "Set the vertical position of the desktop image (0-100)."
+    },
+    {
+      "type": "range",
+      "id": "image_position_x_mobile",
+      "label": "Image Horizontal Position X (Mobile)",
+      "default": 50,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "info": "Set the horizontal position of the mobile image (0-100)."
+    },
+    {
+      "type": "range",
+      "id": "image_position_y_mobile",
+      "label": "Image Vertical Position Y (Mobile)",
+      "default": 50,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "info": "Set the vertical position of the mobile image (0-100)."
+    },
+
+    {
+      "type": "header",
+      "content": "Background Settings",
+      "info": "Configure the background colors for different sections."
+    },
+    {
+      "type": "color",
+      "id": "brand_deal_text_background_color",
+      "label": "Brand Deal Text Background Color",
+      "default": "#333333",
+      "info": "Select the background color for the Brand Deal text area."
+    },
+    {
+      "type": "color",
+      "id": "section_background_color",
+      "label": "Section Background Color",
+      "default": "#FFFFFF",
+      "info": "Select the background color for the entire section."
+    },
+
+    {
+      "type": "header",
+      "content": "Gradient Settings",
+      "info": "Configure gradient backgrounds for enhanced visual appeal."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_gradient_background",
+      "label": "Enable Gradient Background for Brand Deal Text",
+      "default": true,
+      "info": "Toggle to enable or disable the gradient background for the Brand Deal text area."
+    },
+    {
+      "type": "color",
+      "id": "gradient_start_color",
+      "label": "Gradient Start Color",
+      "default": "#4A4A4A",
+      "info": "The starting color of the gradient."
+    },
+    {
+      "type": "color",
+      "id": "gradient_middle_color",
+      "label": "Gradient Middle Color",
+      "default": "#2A2A2A",
+      "info": "The middle color of the gradient."
+    },
+    {
+      "type": "color",
+      "id": "gradient_end_color",
+      "label": "Gradient End Color",
+      "default": "#161616",
+      "info": "The end color of the gradient."
+    },
+    {
+      "type": "select",
+      "id": "gradient_degrees",
+      "label": "Gradient Angle (Desktop)",
+      "options": [
+        { "value": "0", "label": "0°" },
+        { "value": "15", "label": "15°" },
+        { "value": "30", "label": "30°" },
+        { "value": "45", "label": "45°" },
+        { "value": "60", "label": "60°" },
+        { "value": "75", "label": "75°" },
+        { "value": "90", "label": "90°" },
+        { "value": "105", "label": "105°" },
+        { "value": "120", "label": "120°" },
+        { "value": "135", "label": "135°" }
+      ],
+      "default": "90",
+      "info": "Select the angle of the gradient for desktop view."
+    },
+
+    {
+      "type": "header",
+      "content": "Padding Settings",
+      "info": "Adjust the padding around the section for different devices."
+    },
+    {
+      "type": "number",
+      "id": "section_padding_top_desktop",
+      "label": "Section Top Padding (Desktop)",
+      "default": 0,
+      "info": "Set the top padding of the section for desktop view."
+    },
+    {
+      "type": "number",
+      "id": "section_padding_bottom_desktop",
+      "label": "Section Bottom Padding (Desktop)",
+      "default": 0,
+      "info": "Set the bottom padding of the section for desktop view."
+    },
+    {
+      "type": "number",
+      "id": "section_padding_top_mobile",
+      "label": "Section Top Padding (Mobile)",
+      "default": 0,
+      "info": "Set the top padding of the section for mobile view."
+    },
+    {
+      "type": "number",
+      "id": "section_padding_bottom_mobile",
+      "label": "Section Bottom Padding (Mobile)",
+      "default": 0,
+      "info": "Set the bottom padding of the section for mobile view."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Promo Banner 1",
+      "category": "Banners",
+      "settings": {
+        "image_alt": "Fashionable person with curly hair wearing sunglasses and a bright orange jacket standing in front of a green door.",
+        "mobile_image_alt": "Deal image for mobile view.",
+        "hashtag": "#lookgoodfeelgood",
+        "hashtag_color": "#ffffff",
+        "title": "Brand Deal of the Month",
+        "title_color": "#ffffff",
+        "discount": "Get up to 20% off",
+        "discount_color": "#ffffff",
+        "brand_deal_text_background_color": "#333333",
+        "section_background_color": "#ffffff",
+        "section_padding_top_desktop": 0,
+        "section_padding_bottom_desktop": 0,
+        "section_padding_top_mobile": 0,
+        "section_padding_bottom_mobile": 0,
+        "enable_custom_fonts": false,
+        "title_font": "Roboto",
+        "title_font_weight": "400",
+        "hashtag_font": "Open Sans",
+        "discount_font": "Roboto",
+        "enable_gradient_background": true,
+        "gradient_start_color": "#4A4A4A",
+        "gradient_middle_color": "#2A2A2A",
+        "gradient_end_color": "#161616",
+        "gradient_degrees": "90",
+        "image_position_x_desktop": 49,
+        "image_position_y_desktop": 6,
+        "image_position_x_mobile": 50,
+        "image_position_y_mobile": 50
+      }
+    }
+  ]
+}
+{% endschema %}
+
+{% stylesheet %}
+  /* Additional styles can be added here if needed, scoped within .brand-deal-of-the-month-section if necessary. */
+{% endstylesheet %}
+
+{% javascript %}
+  /* Additional JavaScript can be added here if needed.
+     Make sure to scope any JS selectors with .brand-deal-of-the-month-section to avoid conflicts. */
+{% endjavascript %}

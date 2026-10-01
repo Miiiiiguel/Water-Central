@@ -1,0 +1,1183 @@
+{%- style -%}
+    *,
+    *:after,
+    *:before {
+      box-sizing: border-box;
+    }
+  @media (max-width: 768px) {
+      .loudecomz-two-columns-text {
+          position: relative;
+          left: -20px !important; /* Adjust this value as needed */
+      }
+  }
+    .loudecomz-container,
+    .loudecomz-container-fluid {
+      width: 100%;
+      padding-right: var(--loudecomz-gutter-x, 15px);
+      padding-left: var(--loudecomz-gutter-x, 15px);
+      margin-right: 20px;
+      margin-left: 40px;
+      padding-left: 100px; /* Decrease this value to move elements to the left */
+    }
+
+    @media (min-width: 576px) {
+      .loudecomz-container {
+        max-width: 540px;
+      }
+    }
+
+    @media (min-width: 750px) {
+      .loudecomz-container {
+        max-width: 720px;
+      }
+    }
+
+    @media (min-width: 992px) {
+      .loudecomz-container {
+        max-width: 960px;
+      }
+      {% if section.settings.container_max_width >= 720 and section.settings.container_max_width <= 960 %}
+        .loudecomz-section__{{sec_id}} .loudecomz-container {
+          max-width: {{ section.settings.container_max_width }}px;
+        }
+      {% endif %}
+    }
+
+    @media (min-width: 1200px) {
+      .loudecomz-container {
+        max-width: 1140px;
+      }
+      {% if section.settings.container_max_width >= 720 and section.settings.container_max_width <= 1140 %}
+        .loudecomz-section__{{sec_id}} .loudecomz-container {
+          max-width: {{ section.settings.container_max_width }}px;
+        }
+      {% endif %}
+    }
+
+    @media (min-width: 1400px) {
+      .loudecomz-container {
+        max-width: 1320px;
+      }
+      {% if section.settings.container_max_width >= 720 and section.settings.container_max_width != 1320 %}
+        .loudecomz-section__{{sec_id}} .loudecomz-container {
+          max-width: {{ section.settings.container_max_width }}px;
+        }
+      {% endif %}
+    }
+
+    /* Display Section On Classes */
+    .display-desktop-only {
+      display: none;
+    }
+
+    @media (min-width: 750px) {
+      .display-desktop-only {
+        display: block;
+      }
+    }
+
+    .display-mobile-only {
+      display: none;
+    }
+
+    @media (max-width: 749px) {
+      .display-mobile-only {
+        display: block;
+      }
+    }
+
+    .display-none {
+      display: none;
+    }
+
+    .loudecomz-section__{{sec_id}} {
+      --button-text-font-size: {{ section.settings.button_size_desktop }}px;
+      --heading-text-font-size: {{ section.settings.heading_text_size_desktop }}px;
+      --section-text-font-size: {{ section.settings.section_text_size_desktop }}px;
+
+      position: relative;
+      padding-top: {{ section.settings.section_padding_top }}px;
+      padding-bottom: {{ section.settings.section_padding_bottom }}px;
+      line-height: 1.5;
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: cover;
+      background-color: {{ section.settings.bg_color }};
+
+      {% if section.settings.background_image != blank %}
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-image: url("{{ section.settings.background_image | image_url }}");
+          background-repeat: no-repeat;
+          background-position: center center;
+          background-size: cover;
+          filter: brightness({{ section.settings.image_brightness }}%) blur({{ section.settings.image_blur }}px);
+          opacity: 1;
+          z-index: -1;
+        }
+      {% endif %}
+
+      .loudecomz-section-title {
+        font-size: var(--heading-text-font-size);
+        color: {{ section.settings.heading_text_color }};
+        {% if section.settings.enable_custom_fonts %}
+          font-family: '{{ section.settings.selected_font }}', sans-serif;
+        {% endif %}
+        font-weight: {{ section.settings.heading_font_weight }};
+      }
+
+      /* Force section text color to follow heading text color (!important) */
+      .loudecomz-section-text {
+        font-size: var(--section-text-font-size);
+        color: {{ section.settings.heading_text_color }} !important;
+        {% if section.settings.enable_custom_fonts %}
+          font-family: '{{ section.settings.selected_font }}', sans-serif;
+        {% endif %}
+      }
+
+      .loudecomz-section__{{sec_id}} .loudecomz-btn {
+        margin-top: 12px;
+        padding-top: {{ section.settings.button_padding_top }}px;
+        padding-right: {{ section.settings.button_padding_right }}px;
+        padding-bottom: {{ section.settings.button_padding_bottom }}px;
+        padding-left: {{ section.settings.button_padding_left }}px;
+        position: relative;
+        top: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--button-text-font-size);
+        text-align: center;
+        /* Removed color property to prevent conflict with inline styles */
+      }
+
+      @media (min-width: 750px) {
+        &::before {
+          background-position: {{ section.settings.image_position_x_desktop }}% {{ section.settings.image_position_y_desktop }}%;
+        }
+
+        .loudecomz-section__{{sec_id}} .loudecomz-btn {
+          font-size: {{ section.settings.button_size_desktop }}px;
+        }
+
+        .loudecomz-section-title {
+          font-size: {{ section.settings.heading_text_size_desktop }}px;
+        }
+
+        .loudecomz-section-text {
+          font-size: {{ section.settings.section_text_size_desktop }}px;
+        }
+      }
+
+      @media (max-width: 749px) {
+        /* Mobile responsiveness */
+        padding-top: {{ section.settings.section_padding_top_mobile }}px;
+        padding-bottom: {{ section.settings.section_padding_bottom_mobile }}px;
+
+        /*
+          New mobile left and right padding using the new schema settings
+        */
+        padding-left: {{ section.settings.section_padding_left_mobile }}px;
+        padding-right: {{ section.settings.section_padding_right_mobile }}px;
+
+        --button-text-font-size: {{ section.settings.button_size_mobile }}px;
+        --heading-text-font-size: {{ section.settings.heading_text_size_mobile }}px;
+        --section-text-font-size: {{ section.settings.section_text_size_mobile }}px;
+
+        /* Make the container margins smaller for mobile */
+        .loudecomz-container,
+        .loudecomz-container-fluid {
+          margin-left: 15px !important;
+          margin-right: 15px !important;
+          padding-left: 15px !important;
+          padding-right: 15px !important;
+        }
+
+        /* Stack text blocks and forms vertically for better mobile layout */
+        .two-columns-row {
+          flex-direction: column;
+          margin-left: 0;
+          margin-right: 0;
+        }
+
+        .loudecomz-two-columns-text,
+        .loudecomz-two-columns-form {
+          width: 100% !important;
+          max-width: 100% !important;
+          padding: 0 0 20px 0;
+        }
+
+        /* Stacking the input & button on separate lines on mobile */
+        .loudecomz-input-wrapper {
+          display: block !important;
+        }
+        .loudecomz-form-input {
+          width: 100% !important;
+          margin-right: 0 !important;
+        }
+        .subscribe-btn {
+          width: 100% !important;
+          margin-top: 15px !important;
+          justify-content: center !important;
+        }
+      }
+
+      .loudecomz-container,
+      .loudecomz-container-fluid {
+        width: 100%;
+        padding-right: var(--loudecomz-gutter-x, 15px);
+        padding-left: var(--loudecomz-gutter-x, 15px);
+        margin-right: auto;
+        margin-left: auto;
+      }
+
+      .loudecomz-section__{{ sec_id }} .loudecomz-btn,
+      .rte .loudecomz-section__{{ sec_id }} a.loudecomz-btn:not(.btn) {
+        border-radius: {{ section.settings.button_border_radius }}px;
+      }
+
+      .loudecomz-section__{{ sec_id }} .loudecomz-form-input {
+        border-radius: {{ section.settings.input_border_radius }}px;
+      }
+
+      .newsletter-form__message.success {
+        display: none;
+        text-align: center;
+        font-size: 18px;
+        /* Now also forced to heading color for consistency */
+        color: {{ section.settings.heading_text_color }};
+        margin-top: 20px;
+      }
+
+      {% if section.settings.enable_email_confirmation %}
+        .newsletter-form__message.success {
+          display: block;
+        }
+        .loudecomz-two-columns-form {
+          display: none;
+        }
+      {% endif %}
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-btn,
+    .rte .loudecomz-section__{{ sec_id }} a.loudecomz-btn:not(.btn) {
+      /* Removed color property to use inline styles instead */
+      background-color: {{ block.settings.btn_bg }};
+      text-decoration: none;
+      border: none;
+      outline: none;
+      font-weight: {{ section.settings.button_font_weight }};
+      white-space: nowrap;
+      text-transform: none;
+      margin: 0;
+      justify-content: center;
+      line-height: 1.5;
+      min-width: 200px;
+      min-height: auto;
+      box-sizing: border-box;
+      transition: all 0.25s;
+      cursor: pointer;
+    }
+
+    /* Hover animations - base classes */
+    .loudecomz-section__{{ sec_id }} .loudecomz-btn.hover-animation-smooth-fade {
+      transition: opacity 0.3s ease;
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-btn.hover-animation-none:hover {
+      /* No extra animation */
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-btn.hover-animation-smooth-fade:hover {
+      opacity: 0.8 !important;
+      transition: opacity 0.3s ease;
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-btn.hover-animation-smooth-scale-in:hover {
+      transform: scale(1.05);
+      transition: transform 0.3s ease;
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-btn.hover-animation-smooth-glow:hover {
+      box-shadow: 0 0 8px rgba(255,255,255,0.6);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-btn.hover-animation-smooth-fade-up:hover {
+      transform: translateY(-5px);
+      transition: transform 0.3s ease;
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-btn.hover-animation-smooth-shadow:hover {
+      box-shadow: 0px 4px 15px rgba(0,0,0,0.3);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-btn:focus {
+      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
+    }
+
+    .loudecomz-section__{{ sec_id }} .subscribe-btn {
+      display: flex;
+      gap: 10px;
+    }
+
+    .loudecomz-section__{{ sec_id }} .two-columns-row {
+      display: flex;
+      flex-wrap: wrap;
+      margin-right: calc(var(--loudecomz-gutter-x, 15px) * -1);
+      margin-left: calc(var(--loudecomz-gutter-x, 15px) * -1);
+      align-items: center;
+      flex-direction: row-reverse;
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-two-columns-text {
+      flex: 0 0 auto;
+      width: 50%;
+      max-width: 540px;
+      padding-left: 30px;
+      /* Force text color to heading color */
+      color: {{ section.settings.heading_text_color }} !important;
+      {% if section.settings.img_position == 'left' %}
+        padding-left: 0;
+        padding-right: 10%;
+      {% endif %}
+      {% if section.settings.img_position == 'right' %}
+        padding-left: 10%;
+        padding-right: 0;
+      {% endif %}
+      {% if section.settings.is_fullwidth == true %}
+        padding-left: 5%;
+        padding-right: 5%;
+      {% endif %}
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-section-title {
+      color: {{ section.settings.heading_text_color }} !important;
+      font-weight: {{ section.settings.heading_font_weight }};
+      line-height: 1.3;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-section-text {
+      /* Also forced to heading color */
+      color: {{ section.settings.heading_text_color }} !important;
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-section-text p {
+      margin-top: 16px;
+      margin-bottom: 0;
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-two-columns-form {
+      flex-grow: 1;
+      width: 50%;
+      max-width: 540px;
+      padding-right: 30px;
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-form-input {
+      flex-grow: 1;
+      width: 100%;
+      padding: 16px 45px 16px 24px;
+      border: none;
+      font-size: 14px;
+      background-color: #F0F3F4;
+      margin-right: 24px;
+      {% case section.settings.input_form_shadow %}
+        {% when 'none' %}
+          box-shadow: none;
+        {% when 'low' %}
+          box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        {% when 'medium' %}
+          box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+        {% when 'high' %}
+          box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+      {% endcase %}
+    }
+
+    .loudecomz-section__{{ sec_id }} .loudecomz-form-input::placeholder {
+      color: var(--placeholder-color);
+    }
+
+    .loudecomz-section__{{ sec_id }} .newsletter-form__message {
+      margin-top: 0px;
+      font-weight: 400;
+      justify-content: flex-start;
+      /* Also forced to heading text color */
+      color: {{ section.settings.heading_text_color }};
+    }
+
+    {% if section.settings.enable_email_confirmation %}
+      .newsletter-form__message.success {
+        display: block;
+      }
+      .loudecomz-two-columns-form {
+        display: none;
+      }
+    {% endif %}
+{%- endstyle -%}
+
+{% if section.settings.custom_css != blank %}
+  {%- style -%}
+    {{ section.settings.custom_css }}
+  {%- endstyle -%}
+{% endif %}
+
+{% if section.settings.is_fullwidth == true %}
+  {% assign container = 'loudecomz-container-fluid' %}
+{% else %}
+  {% assign container = 'loudecomz-container' %}
+{% endif %}
+
+{% if section.settings.enable_custom_fonts %}
+  <!-- Import Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family={{ section.settings.selected_font | replace: ' ', '+' }}:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+{% endif %}
+
+<style>
+  .loudecomz-section__{{sec_id}} .loudecomz-form-input {
+    border-radius: 4px;
+    outline: none;
+    border: none;
+    line-height: 1.15;
+  }
+
+  .loudecomz-section__{{sec_id}} .loudecomz-form-input:focus {
+    border-bottom: 2px solid #5b5fc7;
+    border-radius: 4px 4px 2px 2px;
+  }
+
+  .loudecomz-section__{{sec_id}} .loudecomz-form-input:hover {
+    outline: 1px solid lightgrey;
+  }
+
+  .newsletter-form__message.success {
+    display: none;
+    text-align: center;
+    font-size: 18px;
+    /* Forced to heading text color */
+    color: {{ section.settings.heading_text_color }};
+    margin-top: 20px;
+  }
+
+  {% if section.settings.enable_email_confirmation %}
+    .newsletter-form__message.success {
+      display: block;
+    }
+    .loudecomz-two-columns-form {
+      display: none;
+    }
+  {% endif %}
+</style>
+
+<div class="loudecomz-section__{{sec_id}} {{ section.settings.custom_class }} {% case section.settings.display_on %}{% when 'desktop_only' %} display-desktop-only{% when 'mobile_only' %} display-mobile-only{% when 'no_devices' %} display-none{% endcase %}">
+  <div class="{{ container }}">
+    <div class="two-columns-row">
+      {% for block in section.blocks %}
+        {% case block.type %}
+          {% when 'heading' %}
+            {% if block.settings.heading_text != blank %}
+              <div class="loudecomz-two-columns-text" {{ block.shopify_attributes }}>
+                <{{ section.settings.heading_tag }}
+                  class="{{ block.settings.heading_size }} loudecomz-section-title"
+                  {% if section.settings.heading_text_color != blank %}
+                    style="color: {{ section.settings.heading_text_color }};"
+                  {% endif %}
+                >
+                  {{ block.settings.heading_text | escape }}
+                </{{ section.settings.heading_tag }}>
+                {% if block.settings.section_text != blank %}
+                  <div class="loudecomz-section-text">
+                    <p>{{ block.settings.section_text }}</p>
+                  </div>
+                {% endif %}
+              </div>
+            {% endif %}
+
+          {% when 'email_form' %}
+            {% assign brightness_diff = block.settings.btn_bg | brightness_difference: '#ffffff' %}
+            {% if brightness_diff > 125 %}
+              {% assign readable_text_color = '#ffffff' %}
+            {% else %}
+              {% assign readable_text_color = '#242424' %}
+            {% endif %}
+
+            {% assign brightness_diff2 = block.settings.input_bg | brightness_difference: '#ffffff' %}
+            {% if brightness_diff2 > 125 %}
+              {% assign readable_text_color_2 = '#ffffff' %}
+            {% else %}
+              {% assign readable_text_color_2 = '#242424' %}
+            {% endif %}
+
+            <div {{ block.shopify_attributes }} class="loudecomz-two-columns-form">
+              {% form 'customer', class: 'loudecomz-newsletter-form' %}
+                <input type="hidden" name="contact[tags]" value="newsletter">
+                <div class="loudecomz-form-wrapper">
+                  {% if form.posted_successfully? and section.settings.enable_email_confirmation %}
+                    <div class="newsletter-form__message success">Great! You successfully subscribed!</div>
+                  {% else %}
+                    <div class="loudecomz-input-wrapper">
+                      <input
+                        id="NewsletterForm--{{ section.id }}"
+                        type="email"
+                        name="contact[email]"
+                        class="loudecomz-form-input"
+                        value="{{ form.email }}"
+                        aria-required="true"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        autocomplete="email"
+                        {% if form.errors %}
+                          autofocus
+                          aria-invalid="true"
+                          aria-describedby="Newsletter-error--{{ section.id }}"
+                        {% elsif form.posted_successfully? %}
+                          aria-describedby="Newsletter-success--{{ section.id }}"
+                        {% endif %}
+                        placeholder="{{ block.settings.email_placeholder }}"
+                        required
+                        style="
+                          border-radius: {{ section.settings.input_border_radius }}px;
+                          background-color: {{ block.settings.input_bg }};
+                          --placeholder-color: {{ readable_text_color_2 }};
+                          color: {{ readable_text_color_2 }};
+                          {% if section.settings.enable_custom_fonts %}
+                            font-family: '{{ section.settings.selected_font }}', sans-serif;
+                          {% endif %}
+                        "
+                      >
+                      {% if section.settings.display_on != 'mobile_only'
+                        and section.settings.display_on != 'no_devices'
+                      %}
+                        <button
+                          type="submit"
+                          class="subscribe-btn loudecomz-btn hover-animation-{{ section.settings.button_hover_animation | replace: ' ', '-' | downcase }}"
+                          name="commit"
+                          id="Subscribe"
+                          aria-label="{{ block.settings.btn_label }}"
+                          style="
+                            background-color: {{ block.settings.btn_bg }};
+                            color: {{ block.settings.btn_text_color }};
+                            border-radius: {{ section.settings.button_border_radius }}px;
+                            font-size: var(--button-text-font-size);
+                            padding-top: {{ section.settings.button_padding_top }}px;
+                            padding-right: {{ section.settings.button_padding_right }}px;
+                            margin-right: 20px !important;
+                            padding-bottom: {{ section.settings.button_padding_bottom }}px;
+                            padding-left: {{ section.settings.button_padding_left }}px;
+                            justify-content: center !important;
+                            {% if section.settings.enable_custom_fonts %}
+                              font-family: '{{ section.settings.selected_font }}', sans-serif;
+                            {% endif %}
+                          "
+                        >
+                          {{ block.settings.btn_label }}
+                          <svg
+                            width="24"
+                            height="25"
+                            viewBox="0 0 24 25"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path d="M14.7071 6.13603L20.3639 11.7929C20.7545 12.1834 20.7545 12.8166 20.3639 13.2071L14.7071 18.864C14.3166 19.2545 13.6834 19.2545 13.2929 18.864C12.9023 18.4734 12.9023 17.8403 13.2929 17.4497L17.2426 13.5H4C3.44772 13.5 3 13.0523 3 12.5C3 11.9477 3.44772 11.5 4 11.5H17.2426L13.2929 7.55025C12.9023 7.15972 12.9023 6.52656 13.2929 6.13603C13.6834 5.74551 14.3166 5.74551 14.7071 6.13603Z" fill="currentColor"/>
+                          </svg>
+                        </button>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endform %}
+            </div>
+        {% endcase %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Newsletter Banner 1",
+  "tag": "section",
+
+  "class": "subscribe-sime-newsellter",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading Settings",
+      "info": "Configure the heading text and its appearance."
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading Tag",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" }
+      ],
+      "default": "h2",
+      "info": "Select the HTML tag for the heading."
+    },
+    {
+      "type": "color",
+      "id": "heading_text_color",
+      "label": "Heading Text Color",
+      "default": "#ffffff",
+      "info": "Choose the color of the heading text."
+    },
+    {
+      "type": "range",
+      "id": "heading_text_size_desktop",
+      "min": 16,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading Text Size (Desktop)",
+      "default": 45,
+      "info": "Adjust the size of the heading text on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "heading_text_size_mobile",
+      "min": 16,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading Text Size (Mobile)",
+      "default": 33,
+      "info": "Adjust the size of the heading text on mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Image Settings",
+      "info": "Configure the background image, its appearance, and positioning."
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Section Background Color",
+      "default": "transparent",
+      "info": "Set the background color of the section."
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Choose an image to use as the background."
+    },
+    {
+      "type": "range",
+      "id": "image_brightness",
+      "label": "Background Image Brightness",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "%",
+      "default": 60,
+      "info": "Adjust the brightness of the background image."
+    },
+    {
+      "type": "range",
+      "id": "image_blur",
+      "label": "Background Image Blur",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 0,
+      "info": "Apply a blur effect to the background image."
+    },
+    {
+      "type": "range",
+      "id": "image_position_x_desktop",
+      "label": "Image Horizontal Position X (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 50,
+      "info": "Set the horizontal position of the image on desktop screens."
+    },
+    {
+      "type": "range",
+      "id": "image_position_y_desktop",
+      "label": "Image Vertical Position Y (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 32,
+      "info": "Set the vertical position of the image on desktop screens."
+    },
+    {
+      "type": "header",
+      "content": "Text Settings",
+      "info": "Customize the section text and its appearance."
+   
+    },
+    {
+      "type": "range",
+      "id": "section_text_size_desktop",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Section Text Size (Desktop)",
+      "default": 17,
+      "info": "Adjust the size of the section text on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "section_text_size_mobile",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Section Text Size (Mobile)",
+      "default": 16,
+      "info": "Adjust the size of the section text on mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Font Settings",
+      "info": "Select and customize fonts for the heading and section text."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_fonts",
+      "default": false,
+      "label": "Enable Custom Fonts",
+      "info": "Toggle the use of custom Google Fonts."
+    },
+    {
+      "type": "select",
+      "id": "selected_font",
+      "label": "Select Custom Font",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "Slabo 27px", "label": "Slabo 27px" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "PT Sans", "label": "PT Sans" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Fira Sans", "label": "Fira Sans" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Nunito", "label": "Nunito" }
+      ],
+      "default": "Roboto",
+      "info": "Select a Google Font to apply to the heading and section text."
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "300", "label": "300" },
+        { "value": "400", "label": "400" },
+        { "value": "500", "label": "500" },
+        { "value": "600", "label": "600" },
+        { "value": "700", "label": "700" },
+        { "value": "inherit", "label": "Inherit" }
+      ],
+      "default": "700",
+      "info": "Select the font weight for the heading text."
+    },
+    {
+      "type": "select",
+      "id": "button_font_weight",
+      "label": "Button Font Weight",
+      "options": [
+        { "value": "300", "label": "300" },
+        { "value": "400", "label": "400" },
+        { "value": "500", "label": "500" },
+        { "value": "600", "label": "600" },
+        { "value": "700", "label": "700" },
+        { "value": "inherit", "label": "Inherit" }
+      ],
+      "default": "600",
+      "info": "Select the font weight for the button text."
+    },
+    {
+      "type": "header",
+      "content": "Display Settings",
+      "info": "Control where and how the section is displayed."
+    },
+    {
+      "type": "select",
+      "id": "display_on",
+      "label": "Display Section On",
+      "options": [
+        { "value": "all_devices", "label": "All Devices" },
+        { "value": "desktop_only", "label": "Desktop/Larger Screens Only" },
+        { "value": "mobile_only", "label": "Mobile Device Only" },
+        { "value": "no_devices", "label": "No Devices" }
+      ],
+      "default": "all_devices",
+      "info": "Choose the devices on which this section will be displayed."
+    },
+    {
+      "type": "header",
+      "content": "Padding Settings",
+      "info": "Adjust the padding around the section for different devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top",
+      "default": 90,
+      "info": "Set the top padding of the section on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom",
+      "default": 90,
+      "info": "Set the bottom padding of the section on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Mobile)",
+      "default": 60,
+      "info": "Set the top padding of the section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Mobile)",
+      "default": 60,
+      "info": "Set the bottom padding of the section on mobile devices."
+    },
+
+    
+    {
+      "type": "header",
+      "content": "Mobile Version",
+      "info": "Adjust the left and right padding on mobile."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left_mobile",
+      "label": "Section Left Padding (Mobile)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+        "default": 10,
+      "info": "Set the left padding of the section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_right_mobile",
+      "label": "Section Right Padding (Mobile)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "default": 10,
+      "info": "Set the right padding of the section on mobile devices."
+    },
+
+    {
+      "type": "header",
+      "content": "Button Customization",
+      "info": "Customize the appearance and behavior of buttons."
+    },
+    {
+      "type": "range",
+      "id": "button_padding_top",
+      "label": "Button Top Padding",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 14,
+      "info": "Set the top padding inside the button."
+    },
+    {
+      "type": "range",
+      "id": "button_padding_right",
+      "label": "Button Right Padding",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 11,
+      "info": "Set the right padding inside the button."
+    },
+    {
+      "type": "range",
+      "id": "button_padding_bottom",
+      "label": "Button Bottom Padding",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 13,
+      "info": "Set the bottom padding inside the button."
+    },
+    {
+      "type": "range",
+      "id": "button_padding_left",
+      "label": "Button Left Padding",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 31,
+      "info": "Set the left padding inside the button."
+    },
+    {
+      "type": "range",
+      "id": "button_size_desktop",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Button Size (Desktop)",
+      "default": 16,
+      "info": "Adjust the size of the button on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "button_size_mobile",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Button Size (Mobile)",
+      "default": 16,
+      "info": "Adjust the size of the button on mobile devices."
+    },
+    {
+      "type": "select",
+      "id": "button_hover_animation",
+      "label": "Button Hover Animation",
+      "options": [
+        { "value": "None", "label": "None" },
+        { "value": "Smooth Fade", "label": "Smooth Fade" },
+        { "value": "Smooth Scale-in", "label": "Smooth Scale-in" },
+        { "value": "Smooth Glow", "label": "Smooth Glow" },
+        { "value": "Smooth Fade up", "label": "Smooth Fade up" },
+        { "value": "Smooth Shadow", "label": "Smooth Shadow" }
+      ],
+      "default": "Smooth Fade",
+      "info": "Choose an animation effect when the button is hovered over."
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "label": "Button Border Radius",
+      "default": 6,
+      "info": "Set the border radius of the button for rounded corners."
+    },
+    {
+      "type": "header",
+      "content": "Input Field Customization",
+      "info": "Customize the appearance of input fields."
+    },
+    {
+      "type": "range",
+      "id": "input_border_radius",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "label": "Input Border Radius",
+      "default": 8,
+      "info": "Set the border radius of input fields for rounded corners."
+    },
+    {
+      "type": "select",
+      "id": "input_form_shadow",
+      "label": "Input Form Shadow",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "low", "label": "Low Shadow" },
+        { "value": "medium", "label": "Medium Shadow" },
+        { "value": "high", "label": "High Shadow" }
+      ],
+      "default": "low",
+      "info": "Select the shadow intensity for the input form."
+    },
+    {
+      "type": "header",
+      "content": "Customization",
+      "info": "Additional customization options for the section."
+    },
+    {
+      "type": "number",
+      "id": "container_max_width",
+      "label": "Content Width Limit (px)",
+      "default": 1385,
+      "info": "Set the maximum width for the content container."
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS",
+      "info": "Add your own CSS to customize the section further."
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Heading / Subheading",
+      "type": "heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading_text",
+          "label": "Heading text",
+          "default": "Subscribe to our Newsletter"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "section_text",
+          "default": "Get the latest updates and offers directly in your inbox.",
+          "label": "Section text"
+        }
+      ]
+    },
+    {
+      "name": "Input Email Adress Bar",
+      "type": "email_form",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "color",
+          "id": "input_bg",
+          "label": "Input background color",
+          "default": "#f0f3f4"
+        },
+        {
+          "type": "color",
+          "id": "btn_bg",
+          "label": "Button background color",
+          "default": "#3B3EF2"
+        },
+        {
+          "type": "color",
+          "id": "btn_text_color",
+          "label": "Button Text Color",
+          "default": "#FFFFFF",
+          "info": "Set the color of the button text."
+        },
+        {
+          "type": "text",
+          "id": "email_placeholder",
+          "label": "Placeholder label",
+          "default": "Email address"
+        },
+        {
+          "type": "text",
+          "id": "btn_label",
+          "label": "Button label",
+          "default": "Subscribe"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Newsletter Banner 1",
+        "category": "Newsletter Banners",
+      "settings": {
+        "section_padding_top": 90,
+        "section_padding_bottom": 90,
+        "section_padding_top_mobile": 60,
+        "section_padding_bottom_mobile": 60,
+
+        "bg_color": "#232222",
+        "image_brightness": 60,
+        "image_blur": 0,
+        "heading_text_color": "#ffffff",
+
+        "display_on": "all_devices",
+        "enable_custom_fonts": false,
+        "selected_font": "Roboto",
+        "heading_font_weight": "600",
+        "button_font_weight": "600",
+        "heading_text_size_desktop": 37,
+        "heading_text_size_mobile": 33,
+        "section_text_size_desktop": 16,
+        "section_text_size_mobile": 16,
+        "button_size_desktop": 16,
+        "button_size_mobile": 17,
+        "button_border_radius": 6,
+
+        "input_form_shadow": "none",
+        "button_padding_top": 12,
+        "button_padding_right": 8,
+        "button_padding_bottom": 12,
+        "button_padding_left": 30,
+        "button_hover_animation": "None",
+
+        "section_padding_left_mobile": 10,
+        "section_padding_right_mobile": 10
+      },
+      "blocks": [
+        {
+          "type": "heading",
+          "settings": {
+            "section_text": "Get the latest updates and offers directly in your inbox.",
+            "heading_text": "Subscribe to our Newsletter"
+          }
+        },
+        {
+          "type": "email_form",
+          "settings": {
+            "btn_bg": "#3045FF",
+            "input_bg": "#FFFFFF",
+            "email_placeholder": "Enter your email",
+            "btn_label": "Subscribe"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+<!-- The code above has been fully preserved and updated with mobile left/right padding sliders. -->

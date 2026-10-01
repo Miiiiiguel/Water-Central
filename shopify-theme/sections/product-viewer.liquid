@@ -1,0 +1,672 @@
+{%- liquid
+  assign section_st = section.settings
+  assign section_width = section_st.section_width
+  assign color_scheme = section_st.color_scheme
+  assign center = section_st.center
+  if section_st.reset_spacing
+    assign reset_spacing = ' remove_spacing'
+  endif
+  assign product = section_st.product
+  assign first_3_d_model = product.media | where: 'media_type', 'model' | first
+  assign desktop_layout = section_st.desktop_layout
+  assign image_list = ''
+  assign filtered_images = ''
+-%}
+{% for image in product.media %}
+  {% if image.alt == 'image-360' and image.media_type == 'image' %}
+    {% capture filtered_images %}{{ filtered_images }}{{ image.preview_image | image_url }},{% endcapture %}
+  {% endif %}
+{% endfor %}
+{% assign filtered_images = filtered_images | split: ',' | compact %}
+{% for image in filtered_images %}
+  {% capture image_json %}"{{ image }}"{%- unless forloop.last -%},{%- endunless -%}{% endcapture %}
+  {% capture image_list %}{{ image_list }}{{ image_json }}{% endcapture %}
+{% endfor %}
+{{ 'main-product.css' | asset_url | stylesheet_tag }}
+{%- capture style -%}
+  --desktop-pt: {{ section_st.desktop_padding_top }}px;
+  --desktop-pb: {{ section_st.desktop_padding_bottom }}px;
+  --desktop-pl: {{ section_st.desktop_padding_left }}px;
+  --desktop-pr: {{ section_st.desktop_padding_right }}px;
+  --mobile-pt: {{ section_st.mobile_padding_top }}px;
+  --mobile-pb: {{ section_st.mobile_padding_bottom }}px;
+  --mobile-pl: {{ section_st.mobile_padding_left }}px;
+  --mobile-pr: {{ section_st.mobile_padding_right }}px;
+  --gap: {{ section_st.space_between_text }}px;
+  --speed: {{ section_st.speed }}s;
+  --font-size: {{ section_st.font_size }}px;
+{%- endcapture -%}
+{{ 'component-deferred-media.css' | asset_url | stylesheet_tag }}
+{%- if first_3_d_model -%}
+  {{ 'component-product-model.css' | asset_url | stylesheet_tag }}
+  <link
+    id="ModelViewerStyle"
+    rel="stylesheet"
+    href="https://cdn.shopify.com/shopifycloud/model-viewer-ui/assets/v1.0/model-viewer-ui.css"
+    media="print"
+    onload="this.media='all'"
+  >
+  <link
+    id="ModelViewerOverride"
+    rel="stylesheet"
+    href="{{ 'component-model-viewer-ui.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+{% endif %}
+{% if image_list.size != 0 %}
+<script src="{{ 'js-cloudimage-360-view.min.js' | asset_url }}" defer="defer"></script>
+{% endif %}
+<div
+  class="product__item-js section{% if section_st.desktop_padding_top < 30 %} pt-min{% endif %}{% if section_st.desktop_padding_bottom < 30 %} pb-min{% endif %} sec__featured-product color-{{ color_scheme }} gradient{{ reset_spacing }} {% if center == true %} feature_product-center {% endif %}"
+  style="{{ style | strip | strip_newlines }}"
+  data-desktop-layout="{{ desktop_layout }}"
+  data-color-trigger="{{ settings.color_swatch_trigger }}"
+  data-section="{{ section.id }}"
+  data-zoom="no_zoom"
+  data-type-element="feature_product"
+>
+  <div class="featured-product__content {{ section_width }}">
+    {%- comment -%}
+      Render the single product layout without wishlist functionality for this section.
+      Wishlist button remains available on the full single product page.
+    {%- endcomment -%}
+    {% render 'product-single-layout', product: section_st.product, section: section, type: 'single', show_wishlist: false %}
+    {%- assign benefits_block = section.blocks | where: 'type', 'vertical_benefits' | first -%}
+    {%- if benefits_block -%}
+      <div class="vertical-benefits">
+        {%- if benefits_block.settings.benefit_1 != blank -%}
+          <div class="benefit">
+            <span class="check-icon">✓</span>
+            <div class="benefit-text">{{ benefits_block.settings.benefit_1 }}</div>
+          </div>
+        {%- endif -%}
+        {%- if benefits_block.settings.benefit_2 != blank -%}
+          <div class="benefit">
+            <span class="check-icon">✓</span>
+            <div class="benefit-text">{{ benefits_block.settings.benefit_2 }}</div>
+          </div>
+        {%- endif -%}
+        {%- if benefits_block.settings.benefit_3 != blank -%}
+          <div class="benefit">
+            <span class="check-icon">✓</span>
+            <div class="benefit-text">{{ benefits_block.settings.benefit_3 }}</div>
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+  {%- unless product.has_only_default_variant -%}
+    <script type="application/json" class="productVariantsQty">
+      [
+      {%- for variant in product.variants -%}
+        {%- assign op = variant.option1 | replace: '"', '\"' -%}
+        {%- liquid
+            assign id = '"id":' | append: variant.id
+            assign option = '"option":"' | append: op | append: '"'
+            assign quantity = '"qty":' | append: variant.inventory_quantity
+            assign available = '"available":' | append: variant.available
+            assign mamagement = '"mamagement":"' | append: variant.inventory_management | append: '"'
+        -%}
+        { {{ id }},{{ option }},{{ quantity }},{{ available }},{{ mamagement }}}
+        {%- unless forloop.last -%},{%- endunless forloop.last -%}
+      {%- endfor -%}
+      ]
+    </script>
+  {%- endunless -%}
+  {%- if first_3_d_model -%}
+    <script type="application/json" id="ProductJSON-{{ product.id }}">
+      {{ product.media | where: 'media_type', 'model' | json }}
+    </script>
+    <script src="{{ 'product-model.js' | asset_url }}" defer></script>
+  {% endif %}
+</div>
+
+
+<style>
+
+
+
+  .shopify-payment-button__button--unbranded {
+    background-color: var(--btn-outline-bg-color);
+    border-radius: var(--btn-border-radius);
+    border: var(--outline-button-border-weight) solid var(--outline-button-border-color);
+    color: var(--btn-outline-text-color);
+    padding: 12px 17px !important;
+    font-size: 16px;
+    font-weight: 500;
+  justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Smooth transition */
+
+        }
+  #shopify-section-{{ section.id }} .section {
+    padding-top: var(--desktop-pt);
+    padding-bottom: var(--desktop-pb);
+    padding-left: var(--desktop-pl);
+    padding-right: var(--desktop-pr);
+  }
+  @media (max-width: 767px) {
+    #shopify-section-{{ section.id }} .section {
+      padding-top: var(--mobile-pt);
+      padding-bottom: var(--mobile-pb);
+      padding-left: var(--mobile-pl);
+      padding-right: var(--mobile-pr);
+    }
+  }
+  #shopify-section-{{ section.id }} .view-full-details {
+    display: block;
+    margin: 10px auto;
+    text-align: center;
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  #shopify-section-{{ section.id }} button {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .vertical-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .benefit {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .check-icon {
+    font-size: 20px;
+    color: #28a745;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .benefit-text {
+    flex: 1;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  @media (max-width: 767px) {
+    .benefit-text {
+      font-size: 14px;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Featured Product",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer", "custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Padding Options"
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_top",
+      "label": "Desktop Top Padding",
+      "info": "Adjust the top padding for desktop views",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_bottom",
+      "label": "Desktop Bottom Padding",
+      "info": "Adjust the bottom padding for desktop views",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_left",
+      "label": "Desktop Left Padding",
+      "info": "Adjust the left padding for desktop views",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_right",
+      "label": "Desktop Right Padding",
+      "info": "Adjust the right padding for desktop views",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_top",
+      "label": "Mobile Top Padding",
+      "info": "Adjust the top padding for mobile views",
+      "default": 30,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_bottom",
+      "label": "Mobile Bottom Padding",
+      "info": "Adjust the bottom padding for mobile views",
+      "default": 30,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_left",
+      "label": "Mobile Left Padding",
+      "info": "Adjust the left padding for mobile views",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_right",
+      "label": "Mobile Right Padding",
+      "info": "Adjust the right padding for mobile views",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "checkbox",
+      "id": "reset_spacing",
+      "label": "Clear Default Spacing",
+      "info": "Remove the section's default spacing if checked",
+      "default": false
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Choose Product",
+      "info": "Select the product to display in this section"
+    },
+    {
+      "type": "checkbox",
+      "id": "center",
+      "label": "Align Content Centrally",
+      "info": "Enable to center-align the section content",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Container Width",
+      "info": "Define the width of the section container",
+      "default": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "Standard Container"
+        },
+        {
+          "value": "fluid_container",
+          "label": "Fluid Container"
+        },
+        {
+          "value": "stretch_width",
+          "label": "Stretched Width"
+        },
+        {
+          "value": "full_width",
+          "label": "Full Width"
+        }
+      ]
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Section Color Theme",
+      "info": "Select a color scheme for the section",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Color Swatches Configuration"
+    },
+    {
+      "type": "header",
+      "content": "Media Settings"
+    },
+    {
+      "type": "range",
+      "id": "desktop_media_width",
+      "label": "Desktop Media Width",
+      "info": "Set the width of media on desktop",
+      "default": 50,
+      "min": 30,
+      "max": 60,
+      "step": 1,
+      "unit": "%"
+    },
+    {
+      "type": "select",
+      "id": "desktop_main_image_position",
+      "label": "Desktop Main Image Placement",
+      "info": "Choose where the main image appears on desktop",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left Side"
+        },
+        {
+          "value": "right",
+          "label": "Right Side"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "desktop_layout",
+      "options": [
+        {
+          "value": "thumbnail_left",
+          "label": "Thumbnails on Left"
+        },
+        {
+          "value": "thumbnail_bottom",
+          "label": "Thumbnails Below"
+        },
+        {
+          "value": "hidden_thumbnail",
+          "label": "Hide Thumbnails"
+        }
+      ],
+      "default": "thumbnail_bottom",
+      "label": "Desktop Layout Style",
+      "info": "Select the layout for desktop display"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_video_autoplay",
+      "label": "Autoplay Videos",
+      "info": "Enable automatic playback of videos",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_video_looping",
+      "label": "Loop Videos",
+      "info": "Enable continuous looping of videos",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Additional Settings"
+    },
+    {
+      "type": "range",
+      "id": "space_between_text",
+      "label": "Space Between Text",
+      "info": "Adjust the space between text elements",
+      "default": 20,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Animation Speed",
+      "info": "Set the speed of animations",
+      "default": 5,
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "unit": "s"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Font Size",
+      "info": "Adjust the font size for text",
+      "default": 16,
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "name": "Product Title",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_vendor",
+          "label": "Display Vendor",
+          "info": "Show the product vendor name"
+        }
+      ]
+    },
+    {
+      "type": "price",
+      "name": "Product Price",
+      "limit": 1
+    },
+    {
+      "type": "badges",
+      "name": "Product Badges",
+      "limit": 1
+    },
+    {
+      "type": "rate",
+      "name": "Product Rating",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "To display ratings, install a reviews app"
+        }
+      ]
+    },
+    {
+      "type": "variant_picker",
+      "name": "Variant Selector",
+      "settings": [
+        {
+          "type": "select",
+          "id": "variant_type",
+          "label": "Selector Type",
+          "info": "Choose how variants are displayed",
+          "options": [
+            {
+              "value": "swatches",
+              "label": "Color Swatches"
+            },
+            {
+              "value": "dropdown",
+              "label": "Dropdown Menu"
+            }
+          ],
+          "default": "swatches"
+        }
+      ],
+      "limit": 1
+    },
+    {
+      "type": "buy_buttons",
+      "name": "Purchase Buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "label": "Show Dynamic Checkout",
+          "info": "Display additional payment options",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_gift_card_recipient",
+          "default": true,
+          "label": "Show Gift Card Option",
+          "info": "Enable gift card recipient fields"
+        }
+      ]
+    },
+    {
+      "type": "description",
+      "name": "Product Description",
+      "limit": 1
+    },
+    {
+      "type": "custom_liquid",
+      "name": "Custom Liquid Code",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "Custom Liquid",
+          "info": "Add custom Liquid code here"
+        }
+      ]
+    },
+    {
+      "type": "product_meta",
+      "name": "Product Metadata",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_available",
+          "label": "Show Availability",
+          "info": "Display stock status"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_sku",
+          "label": "Show SKU",
+          "info": "Display the product SKU"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_collections",
+          "label": "Show Collections",
+          "info": "Display associated collections"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_tags",
+          "label": "Show Tags",
+          "info": "Display product tags"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_type",
+          "label": "Show Product Type",
+          "info": "Display the product type"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Custom Text",
+      "limit": 5,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "text",
+          "default": "Text block",
+          "label": "Text Content",
+          "info": "Add custom text to display"
+        }
+      ]
+    },
+    {
+      "type": "vertical_benefits",
+      "name": "Vertical Benefits",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "benefit_1",
+          "label": "Benefit 1",
+          "default": "<p>Benefit 1 text here</p>"
+        },
+        {
+          "type": "richtext",
+          "id": "benefit_2",
+          "label": "Benefit 2",
+          "default": "<p>Benefit 2 text here</p>"
+        },
+        {
+          "type": "richtext",
+          "id": "benefit_3",
+          "label": "Benefit 3",
+          "default": "<p>Benefit 3 text here</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured Product",
+      	"category": "Products",
+      "blocks": [
+        {
+          "type": "badges"
+        },
+        {
+          "type": "title"
+        },
+        {
+          "type": "rate"
+        },
+        {
+          "type": "price"
+        },
+        {
+          "type": "description"
+        },
+        {
+          "type": "variant_picker"
+        },
+        {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": true
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

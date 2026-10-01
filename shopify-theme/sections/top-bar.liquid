@@ -1,0 +1,348 @@
+{%- liquid
+  assign section_st = section.settings
+  assign theme_st = settings
+  assign section_width = section_st.section_width
+  assign color_scheme = section_st.color_scheme
+-%}
+
+{% if section_st.hide_section_on_homepage and template == 'index' %}
+  {%- comment -%} Section is hidden on homepage due to toggle setting {%- endcomment -%}
+{% else %}
+  {%- if section.blocks.size > 0 -%}
+    {%- style -%}
+      @media (max-width: 767px) {
+        .disclosure {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          left: -6px;
+        }
+      }
+
+      @media (max-width: 767px) {
+        .topbar-message.mobile-only {
+          left: 12px;
+        }
+      }
+
+      .disclosure__list,
+      .currency-dropdown {
+        z-index: 9999 !important;
+        position: absolute;
+      }
+
+      #topbar .swiper-slide { transition: 0.2s; }
+      #topbar .swiper-slide:not(.swiper-slide-active) { opacity: 0; }
+      #topbar .swiper-slide-active { opacity: 1; }
+
+      .topbar-item .list-social__item a {
+        width: 3rem;
+        height: 3rem;
+      }
+
+      @keyframes shimmer_black_gray {
+        0% { background-position: -100% 0; }
+        100% { background-position: 200% 0; }
+      }
+      .text-animation-shimmer_black_gray {
+        background: linear-gradient(90deg, black 0%, gray 50%, black 100%) !important;
+        background-size: 200% auto !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        animation: shimmer_black_gray 2s linear infinite !important;
+        will-change: background-position;
+      }
+
+      @keyframes shimmer_white_lightgray {
+        0% { background-position: -100% 0; }
+        100% { background-position: 200% 0; }
+      }
+      .text-animation-shimmer_white_lightgray {
+        background: linear-gradient(90deg, white 0%, lightgray 50%, white 100%) !important;
+        background-size: 200% auto !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        animation: shimmer_white_lightgray 2s linear infinite !important;
+        will-change: background-position;
+      }
+
+      @keyframes rainbowgradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      .text-animation-rainbowgradient {
+        background: linear-gradient(270deg, red, orange, yellow, green, blue, indigo, violet) !important;
+        background-size: 400% 400% !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        animation: rainbowgradient 4s ease infinite !important;
+        will-change: background-position;
+      }
+
+      @media (max-width: 1024px) {
+        .desktop-only { display: none !important; }
+        .mobile-only { display: block !important; }
+      }
+      @media (min-width: 1025px) {
+        .desktop-only { display: block !important; }
+        .mobile-only { display: none !important; }
+      }
+    {%- endstyle -%}
+
+    {%- style -%}
+      /* Top bar social styles driven by settings */
+      #topbar .list-social__item a {
+        height: {{ section_st.social_icon_size }}px !important;
+        width: {{ section_st.social_icon_size }}px !important;
+        margin: 0 {{ section_st.social_icon_gap }}px;
+        position: relative;
+        top: {{ section_st.social_icon_vertical_position }}px;
+      }
+      #topbar .list-social__item svg {
+        {% if section_st.enable_custom_social_colors %}
+          color: {{ section_st.social_icon_color }} !important;
+        {% endif %}
+        transition: all 0.3s ease;
+        filter: brightness(1);
+      }
+      #topbar .list-social__item:hover svg {
+        {% if section_st.enable_custom_social_colors %}
+          color: {{ section_st.social_icon_hover_color }} !important;
+        {% endif %}
+        filter: brightness(0.9);
+      }
+    {%- endstyle -%}
+
+    {%- capture style -%}
+      --section-pt: {{ section_st.padding_top }};
+      --section-pb: {{ section_st.padding_bottom }};
+      --swiper-navigation-color: var(--color-text);
+    {%- endcapture -%}
+
+    {%- liquid
+      assign hidden_block = true
+      for block in section.blocks
+        assign block_st = block.settings
+        if block_st.hidden_on_mobile == false
+          assign hidden_block = false
+          break
+        endif
+      endfor
+    -%}
+
+    <div
+      id="topbar"
+      class="topbar gradient{% if section_st.padding_top < 30 %} pt-min{% endif %}{% if section_st.padding_bottom < 30 %} pb-min{% endif %} section remove_spacing color-{{ color_scheme }}{% if hidden_block == true %} hidden block-1025{% endif %}{% if section_st.show_separator_line %} border-bottom{% endif %}{% if section_st.uppercase %} uppercase{% endif %}{% if section_st.show_mobile == blank %} hidden block-1025{% endif %}"
+      style="{{ style | strip | strip_newlines }}"
+    >
+      <div class="{{ section_width }}">
+        <div
+          class="flex flex-wrap flex-md-nowrap gap justify-center justify-between-1025 align-center topbar__section-inner gap-10 gap-lg-25 fs-custom {{ section_st.font_weight }}"
+          style="--font-size: {{ section_st.font_size }};"
+        >
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign block_st = block.settings
+            -%}
+            {%- case block.type -%}
+              {%- when 'store_information' -%}
+                {% if theme_st.store_email != blank or theme_st.store_phone != blank %}
+                  <div class="topbar-item{% if block_st.hidden_on_mobile %} hidden flex-1025{% else %} flex{% endif %} gap-10">
+                    {%- if block_st.show_phone and theme_st.store_phone != blank -%}
+                      <a class="no-underline" href="tel:{{ theme_st.store_phone }}" arial-label="{{ theme_st.store_phone }}">
+                        <span>{{ theme_st.store_phone }}</span>
+                      </a>
+                    {% endif %}
+                    {%- if block_st.show_email and theme_st.store_email != blank -%}
+                      <a class="no-underline" href="mailto:{{ theme_st.store_email }}" arial-label="{{ theme_st.store_email }}">
+                        <span>{{ theme_st.store_email }}</span>
+                      </a>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              {%- when 'socials' -%}
+                {%- if settings.facebook != blank
+                  or settings.instagram != blank
+                  or settings.twitter != blank
+                  or settings.tiktok != blank
+                  or settings.youtube != blank
+                  or settings.pinterest != blank
+                  or settings.vimeo != blank
+                  or settings.linkedin != blank
+                  or settings.whatsapp != blank
+                  or settings.tumblr != blank
+                  or settings.snapchat != blank
+                -%}
+                  <div class="topbar-item{% if block_st.hidden_on_mobile %} hidden block-1025{% endif %}">
+                    {%- render 'social-icons' -%}
+                  </div>
+                {% endif %}
+              {%- when 'text' -%}
+                <div class="topbar-item{% if block_st.hidden_on_mobile %} hidden block-1025{% endif %}">
+                  {%- if block_st.text != blank or block_st.mobile_text != blank -%}
+                    {% if block_st.text != blank %}
+                      <div
+                        class="topbar-message desktop-only{% if block_st.text_animation and block_st.text_animation != 'none' %} text-animation-{{ block_st.text_animation }}{% endif %}"
+                        style="
+                          {% if block_st.enable_custom_color %}color: {{ block_st.custom_message_color }};{% endif %}
+                          {% if block_st.enable_horizontal_position_slider %} margin-left: {{ block_st.horizontal_position }}px;{% endif %}
+                        "
+                      >
+                        {% if block_st.enable_svg_icon_desktop and block_st.svg_icon_code_desktop != blank %}
+                          <span class="svg-icon" style="display:inline-block; vertical-align: middle; width: {{ block_st.svg_icon_size }}px; margin-right: {{ block_st.desktop_svg_margin_right }}px; margin-bottom: {{ block_st.desktop_svg_margin_bottom }}px;">
+                            {{ block_st.svg_icon_code_desktop | raw }}
+                          </span>
+                        {% endif %}
+                        {% if block_st.enable_svg_icon_mobile and block_st.svg_icon_code_mobile != blank %}
+                          <span class="svg-icon" style="display:inline-block; vertical-align: middle; width: {{ block_st.svg_icon_size }}px; margin-right: {{ block_st.mobile_svg_margin_right }}px; margin-bottom: {{ block_st.mobile_svg_margin_bottom }}px;">
+                            {{ block_st.svg_icon_code_mobile | raw }}
+                          </span>
+                        {% endif %}
+                        {%- if block_st.message_link_url != blank -%}
+                          <a href="{{ block_st.message_link_url }}" class="message-link-{{ block.id }}" style="transition: color 0.3s ease; text-decoration: none;">
+                            <span class="message-text" style="vertical-align: middle;">{{- block_st.text -}}</span>
+                          </a>
+                          <style>
+                            .message-link-{{ block.id }}:hover { color: {{ block_st.custom_message_hover_color }}; }
+                          </style>
+                        {%- else -%}
+                          <span class="message-text" style="vertical-align: middle;">{{- block_st.text -}}</span>
+                        {%- endif -%}
+                      </div>
+                    {% endif %}
+
+                    {% if block_st.mobile_text != blank %}
+                      <div class="topbar-message mobile-only{% if block_st.text_animation and block_st.text_animation != 'none' %} text-animation-{{ block_st.text_animation }}{% endif %}"
+                        {% if block_st.enable_custom_color %} style="color: {{ block_st.custom_message_color }};"{% endif %}>
+                        {% unless block_st.hide_svg_icon_mobile %}
+                          {% if block_st.enable_svg_icon_desktop and block_st.svg_icon_code_desktop != blank %}
+                            <span class="svg-icon" style="display:inline-block; vertical-align: middle; width: {{ block_st.svg_icon_size }}px; margin-right: {{ block_st.desktop_svg_margin_right }}px; margin-bottom: {{ block_st.desktop_svg_margin_bottom }}px;">
+                              {{ block_st.svg_icon_code_desktop | raw }}
+                            </span>
+                          {% endif %}
+                          {% if block_st.enable_svg_icon_mobile and block_st.svg_icon_code_mobile != blank %}
+                            <span class="svg-icon" style="display:inline-block; vertical-align: middle; width: {{ block_st.svg_icon_size }}px; margin-right: {{ block_st.mobile_svg_margin_right }}px; margin-bottom: {{ block_st.mobile_svg_margin_bottom }}px;">
+                              {{ block_st.svg_icon_code_mobile | raw }}
+                            </span>
+                          {% endif %}
+                        {% endunless %}
+                        {%- if block_st.message_link_url != blank -%}
+                          <a href="{{ block_st.message_link_url }}" class="message-link-{{ block.id }}-mobile" style="transition: color 0.3s ease; text-decoration: none;">
+                            <span class="message-text" style="vertical-align: middle;">{{- block_st.mobile_text -}}</span>
+                          </a>
+                          <style>
+                            .message-link-{{ block.id }}-mobile:hover { color: {{ block_st.custom_message_hover_color }}; }
+                          </style>
+                        {%- else -%}
+                          <span class="message-text" style="vertical-align: middle;">{{- block_st.mobile_text -}}</span>
+                        {%- endif -%}
+                      </div>
+                    {% endif %}
+                  {% endif %}
+                </div>
+              {%- when 'text_slider' -%}
+                <div class="topbar-item w-full text-slide{% if block_st.hidden_on_mobile %} hidden block-1025{% endif %}">
+                  <slide-section
+                    class="swiper bls__swiper text-center text-md-start gap-0 lazy-loading-swiper-before"
+                    data-section-id="{{ section.id }}"
+                    data-loop="true"
+                    data-autoplay="true"
+                    data-autoplaySpeed="{{ section_st.change_every }}"
+                    data-loop="true"
+                    data-mobile="1"
+                    data-tablet="1"
+                    data-desktop="1"
+                    style="--color-dark: transparent; --swiper-navigation-color: currentColor; --col-gap: 0; --swiper-navigation-sides-offset: 1rem;"
+                  >
+                    <div class="swiper-action gradient show-arrow static absolute-md align-center left-0 inset-y-0 z-3 flex gap-20 pe-1025-25 pe-0">
+                      <div class="swiper-arrow swiper-button-prev original-style visible absolute left-10 static-md-impo transform-md-none transition" style="--swiper-navigation-sides-offset: 1rem; --swiper-width: 0.5rem;">
+                        <svg width="6" height="11" fill="none"><use href="#icon-back" /></svg>
+                      </div>
+                      <div class="swiper-arrow swiper-button-next original-style visible absolute right-10 static-md-impo transform-md-none transition" style="--swiper-navigation-sides-offset: 1rem; --swiper-width: 0.5rem;">
+                        <svg width="6" height="11" fill="none"><use href="#icon-next" /></svg>
+                      </div>
+                    </div>
+                    <div class="swiper-wrapper">
+                      {%- if block_st.text1 != blank -%}
+                        <div class="swiper-slide text-center text-md-start lh-normal"><div class="px-15">{{- block_st.text1 -}}</div></div>
+                      {% endif %}
+                      {%- if block_st.text2 != blank -%}
+                        <div class="swiper-slide text-center text-md-start lh-normal"><div class="px-15">{{- block_st.text2 -}}</div></div>
+                      {% endif %}
+                      {%- if block_st.text3 != blank -%}
+                        <div class="swiper-slide text-center text-md-start lh-normal"><div class="px-15">{{- block_st.text3 -}}</div></div>
+                      {% endif %}
+                    </div>
+                  </slide-section>
+                </div>
+              {%- when 'cur_lang' -%}
+                <div class="lang__currency-desktop lang__currency-mobile-fix justify-content-center justity-md-unset topbar-item{% if block_st.hidden_on_mobile %} hidden flex-1025{% else %} flex{% endif %} flex-wrap gap-10 gap-lg-25 align-center row-gap-0">
+                  <div class="cur-lang-icon">
+                    <svg width="16" height="16" fill="currentColor" class="icon-language" viewBox="0 0 16 16">
+                      <use href="#icon-language"></use>
+                    </svg>
+                  </div>
+                  {%- if block_st.menu_link != blank -%}
+                    <ul class="linklist list-unstyled flex flex-wrap gap-10 gap-lg-25">
+                      {%- for link in block_st.menu_link.links -%}
+                        <li><a class="no-underline" href="{{ link.url }}" aria-label="{{ link.title }}">{{- link.title -}}</a></li>
+                      {%- endfor -%}
+                    </ul>
+                  {% endif %}
+                  {%- if block_st.show_our_store and theme_st.store_page and theme_st.store_address -%}
+                    <a href="{{ pages[theme_st.store_page].url | default: '#' }}" aria-label="{{ theme_st.store_address }}" class="no-underline">
+                      {%- if theme_st.store_address != blank -%}
+                        <span>{{ theme_st.store_address }}</span>
+                      {%- else -%}
+                        <span>{{ pages[theme_st.store_page].title }}</span>
+                      {% endif %}
+                    </a>
+                  {% endif %}
+                  {%- if block_st.show_currency -%}
+                    {%- render 'country-switcher' -%}
+                  {% endif %}
+                  {%- if block_st.show_language -%}
+                    {%- render 'language-switcher' -%}
+                  {% endif %}
+                </div>
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+
+    {% if template == 'index' %}
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          try {
+            var sliderElements = document.querySelectorAll('#topbar slide-section.lazy-loading-swiper-before');
+            sliderElements.forEach(function(sliderEl) {
+              if (sliderEl && typeof Swiper !== 'undefined') {
+                if (!sliderEl.swiper) {
+                  new Swiper(sliderEl, {
+                    loop: true,
+                    autoplay: { delay: {{ section_st.change_every | default: 3000 }} },
+                    slidesPerView: 1,
+                    spaceBetween: 0,
+                    navigation: {
+                      nextEl: sliderEl.parentElement.querySelector('.swiper-button-next'),
+                      prevEl: sliderEl.parentElement.querySelector('.swiper-button-prev'),
+                    },
+                  });
+                }
+              }
+            });
+          } catch (error) {
+            console.error("Slider initialization error on homepage: ", error);
+          }
+        });
+      </script>
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+{%- schema -%}
+{"name":"Top Bar","settings":[],"presets":[{"name":"Top Bar"}]}
+{%- endschema -%}

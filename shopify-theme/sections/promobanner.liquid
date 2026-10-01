@@ -1,0 +1,600 @@
+
+
+{% assign is_popup = section.settings.show_as_popup %}
+
+<section
+  class="promo-banner-pro{% if is_popup %} promo-banner-pro--as-popup{% endif %}"
+  data-section-id="{{ section.id }}"
+  data-hide-days="{{ section.settings.hide_days }}"
+  data-open-mode="{{ section.settings.open_mode }}"
+  data-delay="{{ section.settings.delay_s }}"
+  data-inactivity="{{ section.settings.inactivity_s }}"
+  data-exit-intent="{% if section.settings.exit_intent %}true{% else %}false{% endif %}"
+  data-append-discount="{% if section.settings.append_discount %}true{% else %}false{% endif %}"
+  data-discount-code="{{ section.settings.coupon_code | escape }}"
+  data-show-once-per-session="{% if section.settings.once_per_session %}true{% else %}false{% endif %}"
+  data-edit-mode="{% if section.settings.enable_edit_mode %}true{% else %}false{% endif %}"
+  style="
+    --pbp-bg: {{ section.settings.card_bg }};
+    --pbp-text: {{ section.settings.text_color }};
+    --pbp-btn-bg: {{ section.settings.btn_bg }};
+    --pbp-btn-text: {{ section.settings.btn_text }};
+    --pbp-overlay: {{ section.settings.overlay_color }};
+    --pbp-overlay-opacity: {{ section.settings.overlay_opacity | times: 0.01 }};
+    --pbp-radius: {{ section.settings.radius }}px;
+    --pbp-popup-radius: {{ section.settings.popup_radius }}px;
+    --pbp-popup-w: {{ section.settings.popup_width }}px;
+    --pbp-pad: {{ section.settings.card_padding }}px;
+    --pbp-top-pad: {{ section.settings.top_padding }}px;
+    --pbp-bottom-pad: {{ section.settings.bottom_padding }}px;
+    --pbp-mtop-pad: {{ section.settings.mobile_top_padding }}px;
+    --pbp-mbottom-pad: {{ section.settings.mobile_bottom_padding }}px;
+    --pbp-mh-pad: {{ section.settings.mobile_h_padding }}px;
+    --pbp-gap: {{ section.settings.col_gap }}px;
+    --pbp-eyebrow-ls: {{ section.settings.eyebrow_ls }}em;
+    --pbp-eyebrow-size: {{ section.settings.eyebrow_size }}px;
+    --pbp-eyebrow-size-m: {{ section.settings.eyebrow_size_mobile }}px;
+    --pbp-headline-size: {{ section.settings.headline_size }}px;
+    --pbp-headline-size-m: {{ section.settings.headline_size_mobile }}px;
+    --pbp-headline-w: {{ section.settings.headline_weight }};
+    --pbp-body-size: {{ section.settings.body_size }}px;
+    --pbp-body-size-m: {{ section.settings.body_size_mobile }}px;
+    --pbp-code-size: {{ section.settings.code_size }}px;
+    --pbp-btn-size: {{ section.settings.btn_size }}px;
+    --pbp-text-l-pad: {{ section.settings.text_left_pad_desktop }}px;
+    --pbp-text-r-pad: {{ section.settings.text_right_pad_desktop }}px;
+    --pbp-text-l-pad-m: {{ section.settings.text_left_pad_mobile }}px;
+    --pbp-text-r-pad-m: {{ section.settings.text_right_pad_mobile }}px;
+    --pbp-img-radius: {{ section.settings.img_radius }}px;
+
+    --pbp-code-bg: {{ section.settings.code_bg }};
+    --pbp-code-bg-copied: {{ section.settings.code_bg_copied }};
+    --pbp-code-border: {{ section.settings.code_border }};
+    --pbp-code-border-copied: {{ section.settings.code_border_copied }};
+    --pbp-code-color: {{ section.settings.code_color }};
+    --pbp-code-color-copied: {{ section.settings.code_color_copied }};
+
+    --pbp-copy-bg: {{ section.settings.copy_bg }};
+    --pbp-copy-bg-copied: {{ section.settings.copy_bg_copied }};
+    --pbp-copy-border: {{ section.settings.copy_border }};
+    --pbp-copy-border-copied: {{ section.settings.copy_border_copied }};
+    --pbp-copy-color: {{ section.settings.copy_color }};
+    --pbp-copy-color-copied: {{ section.settings.copy_color_copied }};
+
+    --pbp-close-color: {{ section.settings.close_color }};
+
+    /* Desktop button width (auto if 0) */
+    --pbp-btn-w: {% if section.settings.btn_width > 0 %}{{ section.settings.btn_width }}px{% else %}auto{% endif %};
+
+    /* Desktop custom image size */
+    --pbp-img-w: {% if section.settings.enable_custom_img_desktop %}{{ section.settings.img_w_desktop }}px{% else %}100%{% endif %};
+    --pbp-img-h: {% if section.settings.enable_custom_img_desktop %}{{ section.settings.img_h_desktop }}px{% else %}100%{% endif %};
+
+    /* Mobile custom image size */
+    --pbp-img-w-m: {% if section.settings.enable_custom_img_mobile %}{{ section.settings.img_w_mobile }}px{% else %}100%{% endif %};
+    --pbp-img-h-m: {% if section.settings.enable_custom_img_mobile %}{{ section.settings.img_h_mobile }}px{% else %}100%{% endif %};
+  "
+>
+  <div class="pbp-overlay" aria-hidden="true"></div>
+
+  <div class="pbp-card{% unless is_popup %} pbp-card--inline{% endunless %}"
+       {% if is_popup %}role="dialog" aria-modal="true"{% endif %}
+       aria-labelledby="pbp-title-{{ section.id }}"
+       aria-describedby="pbp-desc-{{ section.id }}">
+
+    <button class="pbp-close" aria-label="{{ 'general.close' | t | default: 'Close' }}">
+      <span aria-hidden="true">×</span>
+    </button>
+
+    <div class="pbp-grid {{ section.settings.image_side }}">
+      <div class="pbp-text pbp-align-desktop-{{ section.settings.align_desktop }} pbp-align-mobile-{{ section.settings.align_mobile }}">
+        {% if section.settings.eyebrow != blank %}
+          <div class="pbp-eyebrow">{{ section.settings.eyebrow }}</div>
+        {% endif %}
+
+        {% if section.settings.headline != blank %}
+          <h2 class="pbp-headline" id="pbp-title-{{ section.id }}">{{ section.settings.headline }}</h2>
+        {% endif %}
+
+        {% if section.settings.body != blank %}
+          <p class="pbp-body" id="pbp-desc-{{ section.id }}">{{ section.settings.body }}</p>
+        {% endif %}
+
+        <div class="pbp-code-row">
+          {% if section.settings.coupon_label != blank %}
+            <span class="pbp-code-label">{{ section.settings.coupon_label }}</span>
+          {% endif %}
+          <button class="pbp-code" data-code="{{ section.settings.coupon_code | escape }}" type="button" aria-label="Copy coupon code">
+            {{ section.settings.coupon_code | escape }}
+          </button>
+          <button class="pbp-copy" type="button" aria-label="Copy coupon">
+            <svg width="20" height="20" viewBox="0 -0.5 25 25" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+              <g id="SVGRepo_iconCarrier">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M17.676 14.248C17.676 15.8651 16.3651 17.176 14.748 17.176H7.428C5.81091 17.176 4.5 15.8651 4.5 14.248V6.928C4.5 5.31091 5.81091 4 7.428 4H14.748C16.3651 4 17.676 5.31091 17.676 6.928V14.248Z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M10.252 20H17.572C19.1891 20 20.5 18.689 20.5 17.072V9.75195" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"></path>
+              </g>
+            </svg>
+          </button>
+        </div>
+
+        {% assign href = section.settings.btn_link %}
+        {% if section.settings.append_discount and section.settings.coupon_code != blank and href != blank %}
+          {% assign redir = href %}
+          {% assign href = '/discount/' | append: section.settings.coupon_code | append: '?redirect=' | append: redir %}
+        {% endif %}
+
+        {% if section.settings.btn_label != blank %}
+          <a class="pbp-btn" {% if href != blank %}href="{{ href }}"{% endif %}>
+            {{ section.settings.btn_label }}
+          </a>
+        {% endif %}
+      </div>
+
+      <div class="pbp-image">
+        {% if section.settings.image != blank %}
+          {{ section.settings.image | image_url: width: 900 | image_tag:
+            loading: 'lazy',
+            alt: section.settings.image_alt,
+            sizes: '(min-width: 990px) 420px, 50vw',
+            widths: '360,540,720,900',
+            class: 'pbp-img-el'
+          }}
+        {% else %}
+          <img
+            class="pbp-img-el"
+            src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+            width="900" height="600" loading="lazy" alt="{{ section.settings.image_alt | default: 'Promotion image placeholder' }}">
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .promo-banner-pro { position: relative; }
+    .promo-banner-pro .pbp-overlay{
+      position: fixed; inset: 0; background: var(--pbp-overlay);
+      opacity: 0; pointer-events: none; transition: opacity .3s ease-in-out;
+    }
+    .promo-banner-pro--as-popup .pbp-card{
+      position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.95);
+      opacity: 0; pointer-events: none; transition: transform .3s ease-in-out, opacity .3s ease-in-out;
+      z-index: 10001;
+      max-width: var(--pbp-popup-w);
+      width: min(92vw, var(--pbp-popup-w));
+      border-radius: var(--pbp-popup-radius);
+    }
+    .promo-banner-pro--as-popup.pbp-open .pbp-overlay{
+      opacity: var(--pbp-overlay-opacity); pointer-events: auto; z-index: 10000;
+    }
+    .promo-banner-pro--as-popup.pbp-open .pbp-card{
+      opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1);
+    }
+
+    .pbp-card{
+      background: var(--pbp-bg); color: var(--pbp-text) !important;
+      border-radius: var(--pbp-radius);
+      box-shadow: 0 10px 30px rgba(0,0,0,.10);
+      padding-top: var(--pbp-top-pad);
+      padding-bottom: var(--pbp-bottom-pad);
+      padding-left: var(--pbp-pad);
+      padding-right: var(--pbp-pad);
+      max-width: 920px; width: min(92vw, 920px);
+    }
+    .pbp-card--inline{ margin: 20px auto; }
+
+    .pbp-close{
+      position: absolute; left: 12px; top: 10px; border: none; background: transparent; outline: none;
+      font-size: 28px; line-height: 1; color: var(--pbp-close-color); opacity:.6; cursor:pointer;
+      transition: opacity .2s ease;
+    }
+    .pbp-close:hover{ opacity: 1; }
+    .pbp-close:focus { outline: none; }
+
+    .pbp-grid{
+      display: grid; grid-template-columns: 1.05fr .95fr; gap: var(--pbp-gap); align-items: stretch;
+    }
+    .pbp-grid.image-left{ grid-template-columns: .95fr 1.05fr; }
+    .pbp-grid.image-left .pbp-text{ order: 2; }
+    .pbp-grid.image-left .pbp-image{ order: 1; }
+
+    .pbp-text{ display:flex; flex-direction:column; justify-content:center; padding: 0 var(--pbp-text-r-pad) 0 var(--pbp-text-l-pad); }
+    .pbp-image{ border-radius: var(--pbp-img-radius); overflow: hidden; }
+    .pbp-img-el{ width:100%; height:100%; object-fit: cover; display:block; min-height: 360px; }
+
+    .pbp-eyebrow{
+      text-transform: uppercase; letter-spacing: var(--pbp-eyebrow-ls);
+      font-size: var(--pbp-eyebrow-size); font-weight: 700; opacity:.8; margin-bottom: 8px;
+    }
+    .pbp-headline{
+      font-size: var(--pbp-headline-size); line-height: 1.0; font-weight: var(--pbp-headline-w); margin: 0 0 12px;
+    }
+    .pbp-body{ font-size: var(--pbp-body-size); margin: 0 0 18px; max-width: 420px; }
+
+    .pbp-code-row{ display:flex; align-items:center; gap:10px; margin: 6px 0 20px; flex-wrap: wrap; }
+    .pbp-code-label{ font-weight: 600; opacity:.9; }
+    .pbp-code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: var(--pbp-code-size); font-weight: 700; letter-spacing: .08em;
+      border: 2px dashed var(--pbp-code-border); background: var(--pbp-code-bg); color: var(--pbp-code-color);
+      padding: 10px 12px; border-radius: 6px; cursor: pointer; transition: background .2s ease, color .2s ease, border-color .2s ease;
+    }
+    .pbp-copy{
+      display:inline-flex; align-items:center; justify-content:center;
+      width:38px; height:38px; border-radius: 6px; border:1px solid var(--pbp-copy-border);
+      background: var(--pbp-copy-bg); color: var(--pbp-copy-color); cursor: pointer; transition: background .2s ease, color .2s ease, border-color .2s ease;
+    }
+
+    /* Copied visual state */
+    .pbp-code.is-copied{
+      background: var(--pbp-code-bg-copied);
+      border-color: var(--pbp-code-border-copied);
+      color: var(--pbp-code-color-copied);
+    }
+    .pbp-copy.is-copied{
+      background: var(--pbp-copy-bg-copied);
+      border-color: var(--pbp-copy-border-copied);
+      color: var(--pbp-copy-color-copied);
+    }
+
+    .pbp-btn{
+      display:inline-block; text-decoration:none; text-align:center;
+      padding: 14px 26px; border-radius: {{ section.settings.btn_radius }}px;
+      background: var(--pbp-btn-bg); color: var(--pbp-btn-text);
+      font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+      font-size: var(--pbp-btn-size);
+      width: var(--pbp-btn-w);
+      align-self: flex-start; /* overridden by center alignment */
+    }
+
+    /* Desktop alignment controls */
+    @media (min-width: 750px){
+      .pbp-text.pbp-align-desktop-left{ text-align: left; align-items: flex-start; }
+      .pbp-text.pbp-align-desktop-center{ text-align: center; align-items: center; }
+      .pbp-text.pbp-align-desktop-center .pbp-code-row{ justify-content: center; }
+      .pbp-text.pbp-align-desktop-left .pbp-code-row{ justify-content: flex-start; }
+      .pbp-text.pbp-align-desktop-center .pbp-btn{ align-self: center; }
+    }
+
+    /* Desktop custom image size (only when enabled) */
+    @media (min-width: 750px){
+      {% if section.settings.enable_custom_img_desktop %}
+      .pbp-img-el{ width: var(--pbp-img-w); height: var(--pbp-img-h); }
+      {% endif %}
+    }
+
+    /* Mobile */
+    @media (max-width: 749px){
+      .pbp-grid{ grid-template-columns: 1fr; }
+      {% if section.settings.mobile_image_position == 'above' %}
+      .pbp-text{ order: 2; }
+      .pbp-image{ order: 1; }
+      {% endif %}
+      .pbp-card {
+        padding-top: var(--pbp-mtop-pad);
+        padding-bottom: var(--pbp-mbottom-pad);
+        padding-left: var(--pbp-mh-pad);
+        padding-right: var(--pbp-mh-pad);
+      }
+      .pbp-text{ padding: 0 var(--pbp-text-r-pad-m) 0 var(--pbp-text-l-pad-m); }
+      .pbp-img-el{ min-height: 260px; }
+
+      .pbp-eyebrow{ font-size: var(--pbp-eyebrow-size-m); }
+      .pbp-headline{ font-size: var(--pbp-headline-size-m); }
+      .pbp-body{ font-size: var(--pbp-body-size-m); }
+
+      /* Mobile alignment controls */
+      .pbp-text.pbp-align-mobile-left{ text-align: left; align-items: flex-start; }
+      .pbp-text.pbp-align-mobile-center{ text-align: center; align-items: center; }
+      .pbp-text.pbp-align-mobile-center .pbp-code-row{ justify-content: center; }
+      .pbp-text.pbp-align-mobile-left .pbp-code-row{ justify-content: flex-start; }
+      .pbp-text.pbp-align-mobile-center .pbp-btn{ align-self: center; }
+
+      /* Mobile custom image size (only when enabled) */
+      {% if section.settings.enable_custom_img_mobile %}
+      .pbp-img-el{ width: var(--pbp-img-w-m); height: var(--pbp-img-h-m); }
+      {% endif %}
+
+      .pbp-close{ left: 8px; top: 6px; }
+    }
+  </style>
+
+  <script>
+    (function(){
+      const root = document.currentScript.closest('.promo-banner-pro');
+      const card = root.querySelector('.pbp-card');
+      const overlay = root.querySelector('.pbp-overlay');
+      const closeBtn = root.querySelector('.pbp-close');
+      const copyBtn = root.querySelector('.pbp-copy');
+      const codeBtn = root.querySelector('.pbp-code');
+
+      // Robust copy to clipboard (code or icon click)
+      function copyCode(){
+        const code = codeBtn?.dataset.code || '';
+        if(!code) return;
+
+        const originalText = codeBtn.textContent;
+
+        function markCopied(){
+          codeBtn.textContent = 'COPIED';
+          codeBtn && codeBtn.classList.add('is-copied');
+          copyBtn && copyBtn.classList.add('is-copied');
+          setTimeout(()=>{
+            codeBtn.textContent = originalText;
+            codeBtn && codeBtn.classList.remove('is-copied');
+            copyBtn && copyBtn.classList.remove('is-copied');
+          }, 3000);
+        }
+
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(code).then(markCopied).catch(()=>fallback());
+        } else {
+          fallback();
+        }
+
+        function fallback(){
+          const ta = document.createElement('textarea');
+          ta.value = code;
+          ta.setAttribute('readonly','');
+          ta.style.position = 'absolute';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          try{ document.execCommand('copy'); }catch(e){}
+          document.body.removeChild(ta);
+          markCopied();
+        }
+      }
+      copyBtn && copyBtn.addEventListener('click', copyCode);
+      codeBtn && codeBtn.addEventListener('click', copyCode);
+
+      // Popup behavior
+      const isPopup = root.classList.contains('promo-banner-pro--as-popup');
+      if(!isPopup) return;
+
+      const id = root.dataset.sectionId || '{{ section.id }}';
+      const hideDays = parseInt(root.dataset.hideDays || '0', 10);
+      const openMode = root.dataset.openMode;
+       const delay = parseInt(root.dataset.delay || '0', 10) * 1000; // convert seconds → ms
+      const inactivity = parseInt(root.dataset.inactivity || '0', 10) * 1000;
+      const exitIntentEnabled = root.dataset.exitIntent === 'true';
+      const oncePerSession = root.dataset.showOncePerSession === 'true';
+      const editModeWanted = root.dataset.editMode === 'true';
+      const inDesign = !!(window.Shopify && Shopify.designMode);
+      const editMode = editModeWanted && inDesign;
+
+      const LS_KEY = 'pbp_hide_until_' + id;
+      const SS_KEY = 'pbp_shown_' + id;
+
+      function isHidden(){
+        if(editMode) return false; // always show while editing
+        const until = parseInt(localStorage.getItem(LS_KEY) || '0', 10);
+        if(until && Date.now() < until) return true;
+        if(oncePerSession && sessionStorage.getItem(SS_KEY)) return true;
+        return false;
+      }
+      function hideForDays(days){
+        if(editMode) return; // do not hide in editor
+        if(days > 0){
+          const until = Date.now() + days*24*60*60*1000;
+          localStorage.setItem(LS_KEY, String(until));
+        }
+      }
+      function show(){
+        if(isHidden()) return;
+        root.classList.add('pbp-open');
+        if(!editMode){ sessionStorage.setItem(SS_KEY, '1'); }
+        trapFocus();
+      }
+      function close(){
+        root.classList.remove('pbp-open');
+        untrapFocus();
+        if(editMode){
+          setTimeout(() => {
+            root.classList.add('pbp-open');
+            trapFocus();
+          }, 5000);
+          return;
+        }
+        hideForDays(hideDays);
+      }
+
+      closeBtn && closeBtn.addEventListener('click', close);
+      overlay && overlay.addEventListener('click', close);
+      document.addEventListener('keydown', e => { if(e.key === 'Escape') close(); });
+
+      // Focus trap for a11y
+      let prevFocus, firstFocusable, focusables;
+      function trapFocus(){
+        prevFocus = document.activeElement;
+        focusables = card.querySelectorAll('a,button,[tabindex]:not([tabindex="-1"])');
+        firstFocusable = focusables[0] || closeBtn;
+        (firstFocusable || card).focus({preventScroll:true});
+        card.addEventListener('keydown', cycleFocus);
+      }
+      function untrapFocus(){
+        card.removeEventListener('keydown', cycleFocus);
+        if(prevFocus && prevFocus.focus){ prevFocus.focus({preventScroll:true}); }
+      }
+      function cycleFocus(e){
+        if(e.key !== 'Tab' || focusables.length < 2) return;
+        const focusedIndex = Array.prototype.indexOf.call(focusables, document.activeElement);
+        if(e.shiftKey && focusedIndex === 0){ e.preventDefault(); focusables[focusables.length-1].focus(); }
+        else if(!e.shiftKey && focusedIndex === focusables.length-1){ e.preventDefault(); focusables[0].focus(); }
+      }
+
+      // Open logic
+      if(editMode){
+        show();
+        // Keep visible while editing
+        ['click','keydown'].forEach(ev=>{
+          card.addEventListener(ev, ()=>{ root.classList.add('pbp-open'); }, {passive:true});
+        });
+        return;
+      }
+
+      if(isHidden()) return;
+
+      if(openMode === 'delay' && delay > 0){
+        setTimeout(show, delay);
+      } else if(openMode === 'inactivity' && inactivity > 0){
+        let timer;
+        const reset = ()=>{ clearTimeout(timer); timer = setTimeout(show, inactivity); };
+        ['mousemove','keydown','scroll','click','touchstart'].forEach(ev => document.addEventListener(ev, reset, {passive:true}));
+        reset();
+      } else if(openMode === 'exit' && exitIntentEnabled){
+        const handler = (e)=>{ if(e.clientY <= 8){ show(); document.removeEventListener('mousemove', handler); } };
+        document.addEventListener('mousemove', handler, {passive:true});
+      } else if(openMode === 'immediate'){
+        show();
+      }
+      // Manual hooks
+      window['PBP_open_{{ section.id }}'] = show;
+      window['PBP_close_{{ section.id }}'] = close;
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Promotion Popup Discount",
+  "tag": "section",
+  "class": "promo-banner-pro-wrapper",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "id": "eyebrow", "type": "text", "label": "Eyebrow (small title)", "default": "LIMITED TIME OFFER" },
+    { "id": "headline", "type": "text", "label": "Big headline", "default": "20% OFF" },
+    { "id": "body", "type": "textarea", "label": "Body", "default": "Hurry up! Get special sale for all products with coupon" },
+    { "id": "coupon_label", "type": "text", "label": "Coupon label", "default": "USE" },
+    { "id": "coupon_code", "type": "text", "label": "Coupon code", "default": "SAVE20" },
+    { "type": "url", "id": "btn_link", "label": "CTA link" },
+    { "id": "btn_label", "type": "text", "label": "CTA label", "default": "VIEW PRODUCTS" },
+    { "id": "append_discount", "type": "checkbox", "label": "Append discount to CTA link (/discount/CODE?redirect=...)", "default": true },
+
+    { "type": "image_picker", "id": "image", "label": "Right image" },
+    { "type": "text", "id": "image_alt", "label": "Image alt text", "default": "Promotion image" },
+    { "type": "select", "id": "image_side", "label": "Image position", "default": "image-right",
+      "options": [
+        { "value": "image-right", "label": "Right" },
+        { "value": "image-left", "label": "Left" }
+      ]
+    },
+    { "type": "select", "id": "mobile_image_position", "label": "Mobile image position", "default": "above",
+      "options": [
+        { "value": "below", "label": "Below the content" },
+        { "value": "above", "label": "Above the content" }
+      ]
+    },
+
+    { "type": "header", "content": "Content alignment" },
+    { "type": "select", "id": "align_desktop", "label": "Desktop alignment", "default": "center",
+      "options": [
+        { "value": "left", "label": "Left aligned" },
+        { "value": "center", "label": "Center aligned" }
+      ]
+    },
+    { "type": "select", "id": "align_mobile", "label": "Mobile alignment", "default": "center",
+      "options": [
+        { "value": "left", "label": "Left aligned" },
+        { "value": "center", "label": "Center aligned" }
+      ]
+    },
+
+    { "type": "header", "content": "Image sizing" },
+    { "id": "enable_custom_img_desktop", "type": "checkbox", "label": "Enable custom image width/height (desktop)", "default": false },
+    { "id": "img_w_desktop", "type": "range", "min": 120, "max": 900, "step": 10, "unit": "px", "label": "Desktop image width", "default": 420 },
+    { "id": "img_h_desktop", "type": "range", "min": 120, "max": 900, "step": 10, "unit": "px", "label": "Desktop image height", "default": 360 },
+
+    { "id": "enable_custom_img_mobile", "type": "checkbox", "label": "Enable custom image width/height (mobile)", "default": false },
+    { "id": "img_w_mobile", "type": "range", "min": 120, "max": 900, "step": 10, "unit": "px", "label": "Mobile image width", "default": 360 },
+    { "id": "img_h_mobile", "type": "range", "min": 120, "max": 900, "step": 10, "unit": "px", "label": "Mobile image height", "default": 260 },
+    { "id": "img_radius", "type": "range", "min": 0, "max": 24, "step": 1, "unit": "px", "label": "Image border radius", "default": 8 },
+
+    { "type": "header", "content": "Popup behavior" },
+    { "id": "show_as_popup", "type": "checkbox", "label": "Render as popup (modal)", "default": true },
+    { "id": "popup_width", "type": "range", "min": 400, "max": 1200, "step": 10, "unit": "px", "label": "Popup width (desktop)", "default": 750 },
+    { "id": "popup_radius", "type": "range", "min": 0, "max": 24, "step": 1, "unit": "px", "label": "Popup border radius", "default": 10 },
+    { "id": "open_mode", "type": "select", "label": "When to open", "default": "exit",
+      "options": [
+        { "value": "immediate", "label": "Immediately" },
+        { "value": "delay", "label": "After delay" },
+        { "value": "exit", "label": "Exit intent (desktop)" },
+        { "value": "inactivity", "label": "Inactivity timer" },
+        { "value": "manual", "label": "Manual (via JS)" }
+      ]
+    },
+    { "id": "delay_s", "type": "range", "min": 0, "max": 100, "step": 1, "unit": "s", "label": "Delay (seconds)", "default": 20 },
+    { "id": "inactivity_s", "type": "range", "min": 0, "max": 120, "step": 5, "unit": "s", "label": "Inactivity duration (s)", "default": 10 },
+    { "id": "exit_intent", "type": "checkbox", "label": "Enable exit-intent detection", "default": true },
+    { "id": "hide_days", "type": "range", "min": 0, "max": 30, "step": 1, "unit": "day", "label": "Do not show again for", "default": 2 },
+    { "id": "once_per_session", "type": "checkbox", "label": "Show only once per session", "default": true },
+    { "id": "enable_edit_mode", "type": "checkbox", "label": "Enable Edit mode (always show in Theme Editor)", "default": true },
+
+    { "type": "header", "content": "Design" },
+    { "id": "card_bg", "type": "color", "label": "Card background", "default": "#ffffff" },
+    { "id": "text_color", "type": "color", "label": "Text color", "default": "#111111" },
+    { "id": "btn_bg", "type": "color", "label": "Button background", "default": "#222222" },
+    { "id": "btn_text", "type": "color", "label": "Button text", "default": "#ffffff" },
+    { "id": "close_color", "type": "color", "label": "Close icon color", "default": "#111111" },
+    { "id": "btn_width", "type": "range", "min": 0, "max": 520, "step": 10, "unit": "px", "label": "Button width (desktop; 0 = auto)", "default": 230 },
+
+    { "id": "overlay_color", "type": "color", "label": "Overlay color", "default": "#000000" },
+    { "id": "overlay_opacity", "type": "range", "min": 0, "max": 90, "step": 5, "unit": "%", "label": "Overlay opacity", "default": 50 },
+
+    { "id": "code_bg", "type": "color", "label": "Code background (uncopied)", "default": "transparent" },
+    { "id": "code_bg_copied", "type": "color", "label": "Code background (copied)", "default": "rgba(0,0,0,0.06)" },
+    { "id": "code_border", "type": "color", "label": "Code border (uncopied)", "default": "#999999" },
+    { "id": "code_border_copied", "type": "color", "label": "Code border (copied)", "default": "#000000" },
+    { "id": "code_color", "type": "color", "label": "Code text (uncopied)", "default": "#515151" },
+    { "id": "code_color_copied", "type": "color", "label": "Code text (copied)", "default": "#E11B1C" },
+    { "id": "copy_bg", "type": "color", "label": "Copy button background (uncopied)", "default": "transparent" },
+    { "id": "copy_bg_copied", "type": "color", "label": "Copy button background (copied)", "default": "#000000" },
+    { "id": "copy_border", "type": "color", "label": "Copy button border (uncopied)", "default": "#999999" },
+    { "id": "copy_border_copied", "type": "color", "label": "Copy button border (copied)", "default": "#000000" },
+    { "id": "copy_color", "type": "color", "label": "Copy button icon (uncopied)", "default": "#999999" },
+    { "id": "copy_color_copied", "type": "color", "label": "Copy button icon (copied)", "default": "#F9F9F9" },
+
+    { "id": "radius", "type": "range", "min": 0, "max": 24, "step": 1, "unit": "px", "label": "Card border radius", "default": 10 },
+    { "id": "card_padding", "type": "range", "min": 16, "max": 48, "step": 2, "unit": "px", "label": "Desktop horizontal padding", "default": 30 },
+    { "id": "top_padding", "type": "range", "min": 0, "max": 48, "step": 2, "unit": "px", "label": "Desktop top padding", "default": 20 },
+    { "id": "bottom_padding", "type": "range", "min": 0, "max": 48, "step": 2, "unit": "px", "label": "Desktop bottom padding", "default": 20 },
+    { "id": "mobile_h_padding", "type": "range", "min": 8, "max": 32, "step": 2, "unit": "px", "label": "Mobile horizontal padding", "default": 20 },
+    { "id": "mobile_top_padding", "type": "range", "min": 0, "max": 98, "step": 2, "unit": "px", "label": "Mobile top padding", "default": 36 },
+    { "id": "mobile_bottom_padding", "type": "range", "min": 0, "max": 98, "step": 2, "unit": "px", "label": "Mobile bottom padding", "default": 38 },
+    { "id": "col_gap", "type": "range", "min": 8, "max": 48, "step": 2, "unit": "px", "label": "Column gap", "default": 28 },
+
+    { "type": "header", "content": "Text padding" },
+    { "id": "text_left_pad_desktop", "type": "range", "min": 0, "max": 60, "step": 2, "unit": "px", "label": "Text left padding (desktop)", "default": 36 },
+    { "id": "text_right_pad_desktop", "type": "range", "min": 0, "max": 60, "step": 2, "unit": "px", "label": "Text right padding (desktop)", "default": 10 },
+    { "id": "text_left_pad_mobile", "type": "range", "min": 0, "max": 40, "step": 2, "unit": "px", "label": "Text left padding (mobile)", "default": 0 },
+    { "id": "text_right_pad_mobile", "type": "range", "min": 0, "max": 40, "step": 2, "unit": "px", "label": "Text right padding (mobile)", "default": 0 },
+
+    { "type": "header", "content": "Typography" },
+    { "id": "eyebrow_size", "type": "range", "min": 10, "max": 20, "step": 1, "unit": "px", "label": "Eyebrow size (desktop)", "default": 12 },
+    { "id": "eyebrow_size_mobile", "type": "range", "min": 8, "max": 18, "step": 1, "unit": "px", "label": "Eyebrow size (mobile)", "default": 14 },
+    { "id": "eyebrow_ls", "type": "range", "min": 0, "max": 0.3, "step": 0.1, "label": "Eyebrow letter-spacing (em)", "default": 0.1 },
+    { "id": "headline_size", "type": "range", "min": 28, "max": 80, "step": 1, "unit": "px", "label": "Headline size (desktop)", "default": 56 },
+    { "id": "headline_size_mobile", "type": "range", "min": 20, "max": 60, "step": 1, "unit": "px", "label": "Headline size (mobile)", "default": 40 },
+    { "id": "headline_weight", "type": "select", "label": "Headline font weight", "default": "700",
+      "options": [
+        { "value": "300", "label": "300" },
+        { "value": "400", "label": "400" },
+        { "value": "500", "label": "500" },
+        { "value": "600", "label": "600" },
+        { "value": "700", "label": "700" },
+        { "value": "800", "label": "800" },
+        { "value": "inherit", "label": "Inherit" }
+      ]
+    },
+    { "id": "body_size", "type": "range", "min": 12, "max": 22, "step": 1, "unit": "px", "label": "Body size (desktop)", "default": 16 },
+    { "id": "body_size_mobile", "type": "range", "min": 10, "max": 20, "step": 1, "unit": "px", "label": "Body size (mobile)", "default": 16 },
+    { "id": "code_size", "type": "range", "min": 12, "max": 22, "step": 1, "unit": "px", "label": "Coupon font size", "default": 18 },
+    { "id": "btn_size", "type": "range", "min": 12, "max": 18, "step": 1, "unit": "px", "label": "Button text size", "default": 14 },
+    { "id": "btn_radius", "type": "range", "min": 0, "max": 16, "step": 1, "unit": "px", "label": "Button radius", "default": 4 }
+  ],
+  "presets": [
+    { "name": "Promotion Popup Discount", "category": "Promotional Popup" }
+  ]
+}
+{% endschema %}

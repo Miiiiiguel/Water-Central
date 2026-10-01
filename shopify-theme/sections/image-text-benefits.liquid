@@ -1,0 +1,1589 @@
+<style>
+  /* Scoped Styles for #hd-{{ section.id }} */
+
+  /* Apply Custom Fonts if Override is Enabled */
+  {% if section.settings.override_fonts %}
+    {{ section.settings.text_font | font_face }}
+    {{ section.settings.headline_font | font_face }}
+  {% endif %}
+
+  /* Import and Apply Custom Font if URL is Provided */
+  {% if section.settings.custom_font_url != blank and section.settings.custom_font_family != blank %}
+    @import url('{{ section.settings.custom_font_url }}');
+    #hd-{{ section.id }} p,
+    #hd-{{ section.id }} h1,
+    #hd-{{ section.id }} h2,
+    #hd-{{ section.id }} h3,
+    #hd-{{ section.id }} h4,
+    #hd-{{ section.id }} h5 {
+      font-family: '{{ section.settings.custom_font_family }}', {{ section.settings.text_font.family }}, sans-serif;
+    }
+  {% endif %}
+
+  /* Section Styles */
+  #hd-{{ section.id }} {
+    background: {{ section.settings.section_background_color }};
+    width: 100%;
+    box-sizing: border-box;
+    padding-top: {{ section.settings.section_padding_top_desktop }}px;
+    padding-bottom: {{ section.settings.section_padding_bottom_desktop }}px;
+    padding-left: {{ section.settings.section_padding_left_right }}px;
+    padding-right: {{ section.settings.section_padding_left_right }}px;
+    overflow: hidden;
+    {% if section.settings.section_animation != 'none' %}
+      opacity: 0;
+      animation: {{ section.settings.section_animation }} 1s forwards;
+    {% endif %}
+  }
+
+  /* Responsive Padding for Mobile Devices */
+  @media (max-width: 800px) {
+    #hd-{{ section.id }} {
+      padding-top: {{ section.settings.mobile_section_padding_top_bottom }}px;
+      padding-bottom: {{ section.settings.mobile_section_padding_top_bottom }}px;
+      padding-left: {{ section.settings.mobile_section_padding_left_right }}px;
+      padding-right: {{ section.settings.mobile_section_padding_left_right }}px;
+    }
+  }
+
+  /* Container Styles */
+  #hd-{{ section.id }} .hd-container {
+    position: relative;
+    margin: 0 auto;
+    background: {{ section.settings.container_background_color }};
+    border-radius: {{ section.settings.container_radius }}px;
+    {% if section.settings.container_shadow %}
+      box-shadow: 0 0 5px 0 rgba(0,0,0,0.20);
+    {% endif %}
+    border: {{ section.settings.container_border_size }}px solid {{ section.settings.container_border_color }};
+    max-width: {{ section.settings.container_max_width }}px;
+    padding: {{ section.settings.container_padding_top_bottom }}px {{ section.settings.container_padding_left_right }}px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Responsive Container Padding for Mobile Devices */
+  @media (max-width: 800px) {
+    #hd-{{ section.id }} .hd-container {
+      padding: {{ section.settings.mobile_container_padding_top_bottom }}px {{ section.settings.mobile_container_padding_left_right }}px;
+    }
+  }
+
+  /* Grid Layout for Content and Image */
+  #hd-{{ section.id }} .hd-grid-left,
+  #hd-{{ section.id }} .hd-grid-right {
+    display: grid;
+    grid-template-columns: {{ section.settings.grid_display }};
+    gap: {{ section.settings.grid_gap }}px;
+    align-items: center; /* Center items vertically */
+  }
+
+  /* Responsive Grid Layout */
+  @media (max-width: 900px) {
+    #hd-{{ section.id }} .hd-grid-left,
+    #hd-{{ section.id }} .hd-grid-right {
+      display: block;
+    }
+    #hd-{{ section.id }} .hd-column:nth-of-type(1) {
+      display: none;
+    }
+  }
+
+  /* Hide duplicate grid content on mobile except the dedicated mobile block */
+  @media (max-width: 900px) {
+    #hd-{{ section.id }} .hd-grid-left > *:not(.hd-mobile-text),
+    #hd-{{ section.id }} .hd-grid-right > *:not(.hd-mobile-text) {
+      display: none !important;
+    }
+  }
+
+  /* Column Text Alignment */
+  #hd-{{ section.id }} .hd-column-text {
+    margin: 0;
+    padding: 0;
+    text-align: {{ section.settings.text_alignment }};
+    transition: none;
+  }
+
+  /* Responsive Text Alignment for Mobile Devices */
+  @media only screen and (max-width: 800px) {
+    #hd-{{ section.id }} .hd-column-text {
+      text-align: {{ section.settings.mobile_text_alignment }};
+    }
+    #hd-{{ section.id }} .hd-mobile-text {
+      text-align: {{ section.settings.mobile_text_alignment }};
+    }
+    #hd-{{ section.id }} .hd-mobile-text h2.heading {
+      margin-top: {{ section.settings.spacing_between_image_and_headline_mobile }}px;
+    }
+  }
+
+  /* Typography Styles */
+
+  /* Paragraph Styles */
+  #hd-{{ section.id }} p {
+    font-size: {{ section.settings.text_size }}px;
+    {% if section.settings.override_fonts and section.settings.custom_font_url == blank %}
+      font-family: {{ section.settings.text_font.family }}, {{ section.settings.text_font.fallback_families }};
+      font-weight: {{ section.settings.text_font.weight }};
+    {% endif %}
+    {% if section.settings.text_line_height != 'inherit' %}
+      line-height: {{ section.settings.text_line_height }};
+    {% endif %}
+    margin: 0 0 {{ section.settings.element_spacing }}px 0;
+    padding: 0;
+    color: {{ section.settings.text_color }};
+  }
+
+  /* Subheading Styles */
+  #hd-{{ section.id }} .subheading {
+    padding-left: {{ section.settings.subheading_padding_left_desktop }}px;
+    padding-right: {{ section.settings.subheading_padding_right_desktop }}px;
+    line-height: {{ section.settings.subheading_line_height }};
+    margin-top: {{ section.settings.space_between_headline_and_subheading }}px;
+    margin-bottom: {{ section.settings.space_between_subheading_and_benefits }}px;
+    color: {{ section.settings.subheading_color }};
+  }
+
+  @media (max-width: 800px) {
+    #hd-{{ section.id }} .subheading {
+      padding-left: {{ section.settings.subheading_padding_left_mobile }}px;
+      padding-right: {{ section.settings.subheading_padding_right_mobile }}px;
+    }
+  }
+
+  /* List Styles */
+  #hd-{{ section.id }} ul,
+  #hd-{{ section.id }} ol {
+    margin: 0 0 {{ section.settings.element_spacing }}px 0;
+  }
+  #hd-{{ section.id }} li {
+    font-size: {{ section.settings.text_size }}px;
+    {% if section.settings.override_fonts and section.settings.custom_font_url == blank %}
+      font-family: {{ section.settings.text_font.family }}, {{ section.settings.text_font.fallback_families }};
+      font-weight: {{ section.settings.text_font.weight }};
+    {% endif %}
+    {% if section.settings.text_line_height != 'inherit' %}
+      line-height: {{ section.settings.text_line_height }};
+    {% endif %}
+    margin: 0 0 5px 0;
+    padding: 0;
+    color: {{ section.settings.text_color }};
+  }
+  #hd-{{ section.id }} li:last-child {
+    margin: 0;
+  }
+
+  /* Link Styles */
+  #hd-{{ section.id }} p a,
+  #hd-{{ section.id }} p a:visited,
+  #hd-{{ section.id }} li a,
+  #hd-{{ section.id }} li a:visited {
+    color: {{ section.settings.link_color }};
+  }
+
+  /* Responsive Text Sizes for Mobile Devices */
+  @media (max-width: 800px) {
+    #hd-{{ section.id }} p,
+    #hd-{{ section.id }} li {
+      font-size: {{ section.settings.mobile_text_size }}px;
+    }
+  }
+
+  /* Heading Styles */
+  #hd-{{ section.id }} h1,
+  #hd-{{ section.id }} h2,
+  #hd-{{ section.id }} h3,
+  #hd-{{ section.id }} h4,
+  #hd-{{ section.id }} h5 {
+    font-size: {{ section.settings.headline_size }}px;
+    {% if section.settings.override_fonts and section.settings.custom_font_url == blank %}
+      font-family: {{ section.settings.headline_font.family }}, {{ section.settings.headline_font.fallback_families }};
+      font-weight: {{ section.settings.headline_font.weight }};
+    {% endif %}
+    {% if section.settings.headline_line_height != 'inherit' %}
+      line-height: {{ section.settings.headline_line_height }};
+    {% endif %}
+    margin: 0 0 {{ section.settings.element_spacing }}px 0;
+    padding: 0;
+    color: {{ section.settings.headline_color }} !important;
+  }
+
+  /* Specific Heading Sizes */
+  #hd-{{ section.id }} h2 {
+    font-size: {{ section.settings.headline_size | minus:5 | at_least:13 }}px;
+  }
+  #hd-{{ section.id }} h3 {
+    font-size: {{ section.settings.headline_size | minus:10 | at_least:13 }}px;
+  }
+  #hd-{{ section.id }} h4 {
+    font-size: {{ section.settings.headline_size | minus:15 | at_least:13 }}px;
+  }
+  #hd-{{ section.id }} h5 {
+    font-size: {{ section.settings.headline_size | minus:20 | at_least:13 }}px;
+  }
+
+  /* Responsive Heading Sizes for Mobile Devices */
+  @media (max-width: 800px) {
+    #hd-{{ section.id }} h1,
+    #hd-{{ section.id }} h2,
+    #hd-{{ section.id }} h3,
+    #hd-{{ section.id }} h4,
+    #hd-{{ section.id }} h5 {
+      font-size: {{ section.settings.mobile_headline_size }}px;
+    }
+    #hd-{{ section.id }} h2 {
+      font-size: {{ section.settings.mobile_headline_size | minus:5 | at_least:13 }}px;
+    }
+    #hd-{{ section.id }} h3 {
+      font-size: {{ section.settings.mobile_headline_size | minus:10 | at_least:13 }}px;
+    }
+    #hd-{{ section.id }} h4 {
+      font-size: {{ section.settings.mobile_headline_size | minus:15 | at_least:13 }}px;
+    }
+    #hd-{{ section.id }} h5 {
+      font-size: {{ section.settings.mobile_headline_size | minus:20 | at_least:13 }}px;
+    }
+  }
+
+  /* Image & Video Styles */
+  #hd-{{ section.id }} .hd-container img,
+  #hd-{{ section.id }} .hd-container video {
+    aspect-ratio: {{ section.settings.image_aspect_ratio }};
+    object-fit: cover;
+    width: 100%;
+    display: block;
+    border-radius: {{ section.settings.border_radius }}px;
+    transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
+  }
+  #hd-{{ section.id }} .hd-container video {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Image Shadow Classes */
+  #hd-{{ section.id }} .image-shadow-none { box-shadow: none; }
+  #hd-{{ section.id }} .image-shadow-subtle { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+  #hd-{{ section.id }} .image-shadow-medium { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+  #hd-{{ section.id }} .image-shadow-heavy { box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); }
+  #hd-{{ section.id }} .image-shadow-custom { box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); }
+
+  /* Image and Video Hover Effects */
+  {% if section.settings.image_video_hover_animation != 'none' %}
+  #hd-{{ section.id }} .hd-container img:hover,
+  #hd-{{ section.id }} .hd-container video:hover {
+    transform: scale(1.02);
+    opacity: 0.9;
+  }
+  {% endif %}
+
+  /* Additional Hover Animation Styles */
+  #hd-{{ section.id }} .hover-animation-none:hover {}
+  #hd-{{ section.id }} .hover-animation-fade:hover { transition: opacity 0.7s ease; opacity: 0.7; }
+  #hd-{{ section.id }} .hover-animation-smooth-zoomin:hover { transition: transform 0.7s ease; transform: scale(1.05); }
+  #hd-{{ section.id }} .hover-animation-smooth-shadow:hover { transition: box-shadow 0.7s ease; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); }
+  #hd-{{ section.id }} .hover-animation-smooth-fade-in-up:hover { transition: transform 0.7s ease, opacity 0.7s ease; transform: translateY(-5px); opacity: 0.7; }
+  #hd-{{ section.id }} .hover-animation-smooth-blink:hover { transition: opacity 0.7s ease; opacity: 0.5; }
+  #hd-{{ section.id }} .hover-animation-smooth-zoomin-inner:hover { transition: transform 0.7s ease; transform: scale(1.1); }
+  #hd-{{ section.id }} .hover-animation-very-smooth:hover { transition: all 0.7s ease; }
+
+  /* Remove margin from last paragraph inside container */
+  #hd-{{ section.id }} .hd-container p:last-child {
+    margin: 0 !important;
+    padding: 0;
+  }
+
+  /* Call-to-Action Button Styles */
+  #hd-{{ section.id }} a.hd-cta {
+    display: inline-block;
+    padding: {{ section.settings.button_padding_tb }}px {{ section.settings.button_padding_lr }}px;
+    background: {% if section.settings.enable_button_gradient %}{{ section.settings.button_background_color }}{% else %}{{ section.settings.button_background_color_default }}{% endif %};
+    border-radius: {{ section.settings.button_border_radius }}px;
+    color: {{ section.settings.button_text_color }} !important;
+    font-size: {{ section.settings.button_text_size }}px !important;
+    text-decoration: none;
+    cursor: pointer;
+    text-shadow: none;
+    transition: background 0.3s ease-in-out, color 0.6s ease-in-out, transform 0.6s ease-in-out, box-shadow 0.6s ease-in-out;
+    margin-top: {{ section.settings.spacing_between_subheading_and_button }}px;
+  }
+  #hd-{{ section.id }} a.hd-cta:hover {
+    background: {% if section.settings.enable_button_gradient %}{{ section.settings.button_hover_background_color }}{% else %}{{ section.settings.button_hover_background_color_default }}{% endif %};
+    color: {{ section.settings.button_hover_text_color }} !important;
+  }
+
+  /* Button Hover Animations */
+  #hd-{{ section.id }} .animation-scale-up:hover { transform: scale(1.05); }
+  #hd-{{ section.id }} .animation-scale-down:hover { transform: scale(0.95); }
+  #hd-{{ section.id }} .animation-glow:hover { box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.7); }
+  #hd-{{ section.id }} .animation-pulse:hover { animation: pulse 1s infinite; }
+  #hd-{{ section.id }} .animation-rotate:hover { transform: rotate(5deg); }
+  #hd-{{ section.id }} .animation-slide-up:hover { transform: translateY(-5px); }
+  #hd-{{ section.id }} .animation-slide-down:hover { transform: translateY(5px); }
+  #hd-{{ section.id }} .animation-skew:hover { transform: skewX(10deg); }
+  #hd-{{ section.id }} .animation-bounce:hover { animation: bounce 0.5s; }
+  #hd-{{ section.id }} .animation-fade:hover { opacity: 0.8; }
+
+  /* Headline Animations */
+  .blurry-to-clear { animation: blurryToClear 1s forwards; }
+  @keyframes blurryToClear {
+    0% { filter: blur(5px); opacity: 0; }
+    100% { filter: blur(0); opacity: 1; }
+  }
+  .shimmer-gradient {
+    background: linear-gradient(120deg, #f6f7f8, #edeef1, #f6f7f8);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmerGradient 1.5s linear infinite;
+  }
+  @keyframes shimmerGradient {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  .glow-white { animation: glowWhite 2s infinite; }
+  @keyframes glowWhite {
+    0%, 100% { text-shadow: 0 0 10px rgba(255,255,255,0.8); }
+    50% { text-shadow: 0 0 20px rgba(255,255,255,1); }
+  }
+  .pulsing-subtle-white-glow { animation: pulsingSubtleWhiteGlow 2s infinite; }
+  @keyframes pulsingSubtleWhiteGlow {
+    0%, 100% { text-shadow: 0 0 5px rgba(255,255,255,0.5); }
+    50% { text-shadow: 0 0 10px rgba(255,255,255,0.7); }
+  }
+  .shimmer-gradient-black-gray {
+    background: linear-gradient(120deg, #000, #555, #000);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmerGradientBlackGray 2.5s linear infinite;
+  }
+  @keyframes shimmerGradientBlackGray {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  .shimmer-gradient-white-lightgray {
+    background: linear-gradient(120deg, #fff, #ccc, #fff);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmerGradientWhiteLightgray 2.5s linear infinite;
+  }
+  @keyframes shimmerGradientWhiteLightgray {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* Section Animations */
+  @keyframes fadeIn { to { opacity: 1; } }
+  @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeInRight { to { opacity: 1; transform: translateX(0); } }
+  @keyframes fadeInLeft { to { opacity: 1; transform: translateX(-20px); } }
+  @keyframes zoomIn { to { opacity: 1; transform: scale(1); } }
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+  }
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+  }
+
+  /* Apply Section Animations */
+  {% if section.settings.section_animation != 'none' %}
+    #hd-{{ section.id }}.animation-fade-in { animation: fadeIn 1s forwards; }
+    #hd-{{ section.id }}.animation-fade-in-up { opacity: 0; transform: translateY(20px); animation: fadeInUp 1s forwards; }
+    #hd-{{ section.id }}.animation-fade-in-right { opacity: 0; transform: translateX(20px); animation: fadeInRight 1s forwards; }
+    #hd-{{ section.id }}.animation-fade-in-left { opacity: 0; transform: translateX(-20px); animation: fadeInLeft 1s forwards; }
+    #hd-{{ section.id }}.animation-zoom-in { opacity: 0; transform: scale(0.95); animation: zoomIn 1s forwards; }
+  {% endif %}
+
+  /* Responsive Display Settings */
+  {% if section.settings.show_on_device == 'mobile' %}
+    @media (min-width: 801px) {
+      #hd-{{ section.id }} { display: none; }
+    }
+  {% endif %}
+  {% if section.settings.show_on_device == 'desktop' %}
+    @media (max-width: 800px) {
+      #hd-{{ section.id }} { display: none; }
+    }
+  {% endif %}
+
+  /* Mobile Text Visibility */
+  #hd-{{ section.id }} .hd-mobile-text { display: none; }
+  @media only screen and (max-width: 900px) {
+    #hd-{{ section.id }} .hd-column { padding: 5px 0; }
+    #hd-{{ section.id }} .hd-column-text { display: none; }
+    #hd-{{ section.id }} .hd-mobile-text { display: block; }
+  }
+
+  /* --- New Second Image Overlay Styles --- */
+  #hd-{{ section.id }} .main-image-wrapper { position: relative; }
+  #hd-{{ section.id }} .second-image-overlay { position: absolute; }
+  @media (max-width: 800px) {
+    #hd-{{ section.id }} .second-image-overlay {
+      width: calc({{ section.settings.second_image_width }}px * 0.7);
+      height: calc({{ section.settings.second_image_height }}px * 0.7);
+      right: calc(-({{ section.settings.second_image_width | divided_by: 2 }}px) * 0.7 + {{ section.settings.second_image_horizontal_position }}px);
+      top: calc(50% + {{ section.settings.second_image_vertical_position }}px);
+      transform: translateY(-50%);
+    }
+  }
+
+  /* --- Updated Vertical Benefits Styles --- */
+  #hd-{{ section.id }} .benefits-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px; /* spacing between each benefit row */
+  }
+
+  /* Alignment classes: .align-left, .align-center, .align-right */
+  #hd-{{ section.id }} .benefits-container.align-left .benefit-item { justify-content: flex-start; }
+  #hd-{{ section.id }} .benefits-container.align-center .benefit-item { justify-content: center; }
+  #hd-{{ section.id }} .benefits-container.align-right .benefit-item { justify-content: flex-end; }
+
+  #hd-{{ section.id }} .benefit-item {
+    display: flex;
+    align-items: flex-start; /* Align the icon with the first line of text */
+    gap: 12px; /* Adjust the spacing between the icon and text */
+    position: relative;
+  }
+
+  #hd-{{ section.id }} .benefit-icon {
+    flex-shrink: 0;
+    border-radius: 50% !important; /* Keep it circular */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #hd-{{ section.id }} .benefit-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: flex;
+    border-radius: 50% !important;
+  }
+
+  #hd-{{ section.id }} .benefit-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  #hd-{{ section.id }} .benefit-text-wrapper {
+    flex: 1;
+    line-height: 1.4; /* Adjust for better spacing */
+    display: flex;
+    color: {{ section.settings.subheading_color }} !important;
+    align-items: flex-start; /* Align text to start at the same level as the icon */
+  }
+</style>
+
+<div
+  id="hd-{{ section.id }}"
+  class="hd-section{% if section.settings.section_animation != 'none' %} animation-{{ section.settings.section_animation }}{% endif %}"
+  hd-section
+>
+  <div class="hd-container" hd-container>
+    <div class="hd-grid-{{ section.settings.image_location }}">
+      {% if section.settings.image_location == 'left' %}
+        <div class="hd-column" hd-column>
+          <div class="main-image-wrapper">
+            {% if section.settings.video_url != blank %}
+              <video
+                class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}"
+                autoplay
+                muted
+                loop
+                playsinline
+              >
+                <source src="{{ section.settings.video_url }}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            {% elsif section.settings.image %}
+              <img
+                class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}"
+                src="{{ section.settings.image | image_url: width: 600 }}"
+                srcset="{{ section.settings.image | image_url: width: 600 }} 600w, {{ section.settings.image | image_url: width: 1100 }} 1100w"
+              >
+            {% else %}
+              <img
+                class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}"
+                src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+                srcset="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+              >
+            {% endif %}
+            {% if section.settings.enable_second_image and section.settings.second_image != blank %}
+              <img
+                class="second-image-overlay"
+                src="{{ section.settings.second_image | image_url: width: section.settings.second_image_width }}"
+                style="width: {{ section.settings.second_image_width }}px; height: {{ section.settings.second_image_height }}px; top: calc(50% + {{ section.settings.second_image_vertical_position }}px); right: calc(-{{ section.settings.second_image_width | divided_by: 2 }}px + {{ section.settings.second_image_horizontal_position }}px); transform: translateY(-50%);"
+              >
+            {% endif %}
+          </div>
+        </div>
+        <div class="hd-column hd-column-text" hd-column>
+          {% if section.settings.headline != '' %}
+            <h2
+              class="heading {{ section.settings.headline_animation }}"
+              {% if section.settings.headline_animation == 'text-reflection-water-rainbow' %}
+                data-text="{{ section.settings.headline }}"
+              {% endif %}
+            >
+              {{ section.settings.headline }}
+            </h2>
+          {% endif %}
+          {% if section.settings.content != '' %}
+            <div class="subheading">
+              {{ section.settings.content }}
+            </div>
+          {% endif %}
+          {%- if section.settings.enable_benefits -%}
+            <div class="benefits-container align-{{ section.settings.benefits_alignment }}">
+              {% for i in (1..4) %}
+                <div class="benefit-item">
+                  {% if section.settings.enable_svg_benefits %}
+                    {% assign benefit_svg_key = 'benefit_' | append: i | append: '_svg' %}
+                    <div class="benefit-icon" style="width:{{ section.settings.svg_benefit_size_desktop }}px; height:{{ section.settings.svg_benefit_size_desktop }}px;">
+                      {{ section.settings[benefit_svg_key] }}
+                    </div>
+                  {% else %}
+                    {% assign benefit_image_key = 'benefit_' | append: i | append: '_image' %}
+                    <div class="benefit-icon" style="width:{{ section.settings.image_benefit_size }}px; height:{{ section.settings.image_benefit_size }}px;">
+                      {% if section.settings[benefit_image_key] %}
+                        <img src="{{ section.settings[benefit_image_key] | image_url: width: 200 }}" alt="Benefit Icon {{ i }}">
+                      {% else %}
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Benefit Icon {{ i }}">
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                  {% assign benefit_text_key = 'benefit_' | append: i | append: '_text' %}
+                  <div class="benefit-text-wrapper">
+                    {{ section.settings[benefit_text_key] }}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {%- endif -%}
+          {% if section.settings.link_text != '' %}
+            <p>
+              <a
+                class="hd-cta {% if section.settings.button_animation != 'none' %} animation-{{ section.settings.button_animation }}{% endif %}"
+                href="{{ section.settings.link }}"
+              >
+                {{- section.settings.link_text -}}
+              </a>
+            </p>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if section.settings.image_location == 'right' %}
+        <div class="hd-column hd-column-text" hd-column>
+          {% if section.settings.headline != '' %}
+            <h2
+              class="heading {{ section.settings.headline_animation }}"
+              {% if section.settings.headline_animation == 'text-reflection-water-rainbow' %}
+                data-text="{{ section.settings.headline }}"
+              {% endif %}
+            >
+              {{ section.settings.headline }}
+            </h2>
+          {% endif %}
+          {% if section.settings.content != '' %}
+            <div class="subheading">
+              {{ section.settings.content }}
+            </div>
+          {% endif %}
+          {%- if section.settings.enable_benefits -%}
+            <div class="benefits-container align-{{ section.settings.benefits_alignment }}">
+              {% for i in (1..4) %}
+                <div class="benefit-item">
+                  {% if section.settings.enable_svg_benefits %}
+                    {% assign benefit_svg_key = 'benefit_' | append: i | append: '_svg' %}
+                    <div class="benefit-icon" style="width:{{ section.settings.svg_benefit_size_desktop }}px; height:{{ section.settings.svg_benefit_size_desktop }}px;">
+                      {{ section.settings[benefit_svg_key] }}
+                    </div>
+                  {% else %}
+                    {% assign benefit_image_key = 'benefit_' | append: i | append: '_image' %}
+                    <div class="benefit-icon" style="width:{{ section.settings.image_benefit_size }}px; height:{{ section.settings.image_benefit_size }}px;">
+                      {% if section.settings[benefit_image_key] %}
+                        <img src="{{ section.settings[benefit_image_key] | image_url: width: 200 }}" alt="Benefit Icon {{ i }}">
+                      {% else %}
+                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Benefit Icon {{ i }}">
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                  {% assign benefit_text_key = 'benefit_' | append: i | append: '_text' %}
+                  <div class="benefit-text-wrapper">
+                    {{ section.settings[benefit_text_key] }}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {%- endif -%}
+          {% if section.settings.link_text != '' %}
+            <p>
+              <a
+                class="hd-cta {% if section.settings.button_animation != 'none' %} animation-{{ section.settings.button_animation }}{% endif %}"
+                href="{{ section.settings.link }}"
+              >
+                {{- section.settings.link_text -}}
+              </a>
+            </p>
+          {% endif %}
+        </div>
+        <div class="hd-column" hd-column>
+          <div class="main-image-wrapper">
+            {% if section.settings.video_url != blank %}
+              <video
+                class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}"
+                autoplay
+                muted
+                loop
+                playsinline
+              >
+                <source src="{{ section.settings.video_url }}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            {% elsif section.settings.image %}
+              <img
+                class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}"
+                src="{{ section.settings.image | image_url: width: 600 }}"
+                srcset="{{ section.settings.image | image_url: width: 600 }} 600w, {{ section.settings.image | image_url: width: 1100 }} 1100w"
+              >
+            {% else %}
+              <img
+                class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}"
+                src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+                srcset="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+              >
+            {% endif %}
+            {% if section.settings.enable_second_image and section.settings.second_image != blank %}
+              <img
+                class="second-image-overlay"
+                src="{{ section.settings.second_image | image_url: width: section.settings.second_image_width }}"
+                style="width: {{ section.settings.second_image_width }}px; height: {{ section.settings.second_image_height }}px; top: calc(50% + {{ section.settings.second_image_vertical_position }}px); right: calc(-{{ section.settings.second_image_width | divided_by: 2 }}px + {{ section.settings.second_image_horizontal_position }}px); transform: translateY(-50%);"
+              >
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="hd-mobile-text">
+        {% if section.settings.video_url != blank %}
+          <video
+            class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}"
+            autoplay
+            muted
+            loop
+            playsinline
+          >
+            <source src="{{ section.settings.video_url }}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        {% elsif section.settings.image %}
+          <img
+            class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}"
+            src="{{ section.settings.image | image_url: width: 600 }}"
+            srcset="{{ section.settings.image | image_url: width: 600 }} 600w, {{ section.settings.image | image_url: width: 1100 }} 1100w"
+          >
+        {% else %}
+          <img
+            class="image-shadow-{{ section.settings.image_shadow }} hover-animation-{{ section.settings.image_video_hover_animation }}"
+            src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+            srcset="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+          >
+        {% endif %}
+
+        {% if section.settings.headline != '' %}
+          <h2
+            class="heading {{ section.settings.headline_animation }}"
+            {% if section.settings.headline_animation == 'text-reflection-water-rainbow' %}
+              data-text="{{ section.settings.headline }}"
+            {% endif %}
+          >
+            {{ section.settings.headline }}
+          </h2>
+        {% endif %}
+        {% if section.settings.content != '' %}
+          <div class="subheading">
+            {{ section.settings.content }}
+          </div>
+        {% endif %}
+        {%- if section.settings.enable_benefits -%}
+          <div class="benefits-container align-{{ section.settings.benefits_alignment }}">
+            {% for i in (1..4) %}
+              <div class="benefit-item">
+                {% if section.settings.enable_svg_benefits %}
+                  {% assign benefit_svg_key = 'benefit_' | append: i | append: '_svg' %}
+                  <div class="benefit-icon" style="width:{{ section.settings.svg_benefit_size_mobile }}px; height:{{ section.settings.svg_benefit_size_mobile }}px;">
+                    {{ section.settings[benefit_svg_key] }}
+                  </div>
+                {% else %}
+                  {% assign benefit_image_key = 'benefit_' | append: i | append: '_image' %}
+                  <div class="benefit-icon" style="width:{{ section.settings.image_benefit_size }}px; height:{{ section.settings.image_benefit_size }}px;">
+                    {% if section.settings[benefit_image_key] %}
+                      <img src="{{ section.settings[benefit_image_key] | image_url: width: 200 }}" alt="Benefit Icon {{ i }}">
+                    {% else %}
+                      <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Benefit Icon {{ i }}">
+                    {% endif %}
+                  </div>
+                {% endif %}
+                {% assign benefit_text_key = 'benefit_' | append: i | append: '_text' %}
+                <div class="benefit-text-wrapper">
+                  {{ section.settings[benefit_text_key] }}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {%- endif -%}
+        {% if section.settings.link_text != '' %}
+          <p>
+            <a
+              class="hd-cta {% if section.settings.button_animation != 'none' %} animation-{{ section.settings.button_animation }}{% endif %}"
+              href="{{ section.settings.link }}"
+            >
+              {{- section.settings.link_text -}}
+            </a>
+          </p>
+        {% endif %}
+      </div>
+    </div>
+    <!-- /hd-grid -->
+  </div>
+  <!-- /hd-container -->
+</div>
+<!-- /hd-section -->
+
+<!-- Scoped JavaScript -->
+<script>
+  (function() {
+    const sectionId = 'hd-{{ section.id }}';
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    // Toggle video play on click
+    const videos = section.querySelectorAll('video');
+    videos.forEach(video => {
+      video.addEventListener('click', () => {
+        if (video.paused) {
+          video.play();
+        } else {
+          video.pause();
+        }
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Image & Video Benefits",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Padding",
+      "info": "Adjust the padding around the section"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Top (Desktop) (px)",
+      "default": 44,
+      "info": "Set the top padding for the section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Bottom (Desktop) (px)",
+      "default": 44,
+      "info": "Set the bottom padding for the section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Left/Right (Desktop) (px)",
+      "default": 81,
+      "info": "Set the left and right padding for the section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_top_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Padding Top/Bottom (px)",
+      "default": 36,
+      "info": "Set the top and bottom padding for mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Padding Left/Right (px)",
+      "default": 20,
+      "info": "Set the left and right padding for mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Subheading Settings",
+      "info": "Customize the subheading text"
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_left_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading Padding Left (Desktop) (px)",
+      "default": 0,
+      "info": "Set the left padding for the subheading on desktop."
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_right_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading Padding Right (Desktop) (px)",
+      "default": 0,
+      "info": "Set the right padding for the subheading on desktop."
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_left_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading Padding Left (Mobile) (px)",
+      "default": 0,
+      "info": "Set the left padding for the subheading on mobile."
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_right_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading Padding Right (Mobile) (px)",
+      "default": 0,
+      "info": "Set the right padding for the subheading on mobile."
+    },
+    {
+      "type": "range",
+      "id": "subheading_line_height",
+      "min": 0.7,
+      "max": 2.0,
+      "step": 0.1,
+      "unit": "em",
+      "label": "Subheading Line Height",
+      "default": 1.4,
+      "info": "Set the line height for the subheading text."
+    },
+    {
+      "type": "range",
+      "id": "space_between_headline_and_subheading",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Space Between Headline and Subheading (px)",
+      "default": 13,
+      "info": "Set the space between the headline and the subheading."
+    },
+    {
+      "type": "range",
+      "id": "space_between_subheading_and_benefits",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Space Between Subheading and Benefits (px)",
+      "default": 20,
+      "info": "Set the space between the subheading and the benefits."
+    },
+    {
+      "type": "header",
+      "content": "Layout Alignment",
+      "info": "Customize the alignment"
+    },
+    {
+      "type": "range",
+      "id": "container_max_width",
+      "min": 300,
+      "max": 2000,
+      "step": 20,
+      "unit": "px",
+      "label": "GRID Max Width (px)",
+      "default": 1240,
+      "info": "Set the maximum width for the grid."
+    },
+    {
+      "type": "header",
+      "content": "Mobile Settings",
+      "info": "Customize settings for mobile devices"
+    },
+    {
+      "type": "range",
+      "id": "spacing_between_image_and_headline_mobile",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Spacing Between Image and Headline (Mobile)",
+      "default": 21,
+      "info": "Set the spacing between the image and headline on mobile devices."
+    },
+    {
+      "type": "select",
+      "id": "mobile_text_alignment",
+      "label": "Mobile Text Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left",
+      "info": "Set the alignment for headline, subheading, and button on mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Font Settings",
+      "info": "Customize the font settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "override_fonts",
+      "label": "Enable Custom Fonts",
+      "default": false,
+      "info": "Enable Custom Fonts."
+    },
+    {
+      "type": "font_picker",
+      "id": "text_font",
+      "label": "Text Font",
+      "default": "sans-serif",
+      "info": "Select the font for the body text."
+    },
+    {
+      "type": "font_picker",
+      "id": "headline_font",
+      "label": "Headline Font",
+      "default": "sans-serif",
+      "info": "Select the font for the headlines."
+    },
+    {
+      "type": "range",
+      "id": "headline_size",
+      "min": 10,
+      "max": 75,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading Size",
+      "default": 60,
+      "info": "Set the font size for headlines."
+    },
+    {
+      "type": "range",
+      "id": "mobile_headline_size",
+      "min": 10,
+      "max": 75,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Headline Size",
+      "default": 49,
+      "info": "Set the font size for headlines on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "headline_line_height",
+      "min": 0.7,
+      "max": 2.0,
+      "step": 0.1,
+      "unit": "em",
+      "label": "Headline Line Height",
+      "default": 1.2,
+      "info": "Set the line height for headlines."
+    },
+    {
+      "type": "range",
+      "id": "spacing_between_subheading_and_button",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Spacing Between Subheading and Button",
+      "default": 19,
+      "info": "Set the spacing between the subheading text and the button."
+    },
+    {
+      "type": "color",
+      "id": "headline_color",
+      "default": "#000000",
+      "label": "Headline Color",
+      "info": "Set the color for the headline text."
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "default": "#353535",
+      "label": "Subheading and Benefits Text Color",
+      "info": "Set the color for the subheading and benefits text."
+    },
+    {
+      "type": "color",
+      "id": "section_background_color",
+      "default": "#FFFFFF",
+      "label": "Section Background Color",
+      "info": "Set the background color for the entire section."
+    },
+    {
+      "type": "text",
+      "id": "custom_font_family",
+      "label": "Custom Font Family",
+      "info": "Enter the custom font URL."
+    },
+    {
+      "type": "header",
+      "content": "Grid Settings",
+      "info": "Configure the grid layout"
+    },
+    {
+      "type": "select",
+      "id": "grid_display",
+      "label": "Column Spaces",
+      "options": [
+        { "value": "1fr 1fr", "label": "1 / 1" },
+        { "value": "6fr 4fr", "label": "6 / 4" },
+        { "value": "4fr 6fr", "label": "4 / 6" },
+        { "value": "3fr 2fr", "label": "3 / 2" },
+        { "value": "2fr 3fr", "label": "2 / 3" },
+        { "value": "7fr 5fr", "label": "7 / 5" },
+        { "value": "5fr 7fr", "label": "5 / 7" }
+      ],
+      "default": "1fr 1fr",
+      "info": "Choose the proportion of columns in the grid layout."
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Grid Gap (px)",
+      "default": 100,
+      "info": "Set the gap between grid items."
+    },
+    {
+      "type": "range",
+      "id": "mobile_horizontal_position",
+      "min": -100,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile Horizontal Position",
+      "default": 0,
+      "info": "Adjust the horizontal position of the headline text and button for mobile devices."
+    },
+    {
+      "type": "select",
+      "id": "image_shadow",
+      "label": "Image Shadow",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "subtle", "label": "Subtle Shadow" },
+        { "value": "medium", "label": "Medium Shadow" },
+        { "value": "heavy", "label": "Heavy Shadow" },
+        { "value": "custom", "label": "Custom Shadow" }
+      ],
+      "default": "none",
+      "info": "Choose a shadow effect for the image."
+    },
+    {
+      "type": "select",
+      "id": "image_video_hover_animation",
+      "label": "Image/Video Hover Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "fade", "label": "Fade" },
+        { "value": "smooth-zoomin", "label": "Smooth Zoom In" },
+        { "value": "smooth-shadow", "label": "Smooth Shadow" },
+        { "value": "smooth-fade-in-up", "label": "Smooth Fade In Up" },
+        { "value": "smooth-blink", "label": "Smooth Blink" },
+        { "value": "smooth-zoomin-inner", "label": "Smooth Zoom In Inner" },
+        { "value": "very-smooth", "label": "Very Smooth 0.7s" }
+      ],
+      "default": "none",
+      "info": "Select an animation effect for image/video hover."
+    },
+    {
+      "type": "header",
+      "content": "Section Animations",
+      "info": "Select an animation for the entire section"
+    },
+    {
+      "type": "select",
+      "id": "section_animation",
+      "label": "Section Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "fade-in", "label": "Fade In" },
+        { "value": "fade-in-up", "label": "Fade In Up" },
+        { "value": "fade-in-right", "label": "Fade In Right" },
+        { "value": "fade-in-left", "label": "Fade In Left" },
+        { "value": "zoom-in", "label": "Zoom In" }
+      ],
+      "default": "none",
+      "info": "Select an animation to apply to the entire section."
+    },
+    {
+      "type": "header",
+      "content": "Headline Animation",
+      "info": "Select an animation effect for the headline text."
+    },
+    {
+      "type": "select",
+      "id": "headline_animation",
+      "label": "Headline Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "blurry-to-clear", "label": "Blurry to Clear" },
+        { "value": "shimmer-gradient", "label": "Shimmer Gradient" },
+        { "value": "glow-white", "label": "Glow White" },
+        { "value": "pulsing-subtle-white-glow", "label": "Pulsing Subtle White Glow Text" },
+        { "value": "shimmer-gradient-black-gray", "label": "Shimmer Gradient with Black and Gray" },
+        { "value": "shimmer-gradient-white-lightgray", "label": "Shimmer Gradient With White And Light Gray" }
+      ],
+      "default": "none",
+      "info": "Select an animation to apply to the headline text."
+    },
+    {
+      "type": "header",
+      "content": "Content Settings",
+      "info": "Set up image, video, and text content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "Choose an image to display."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "video_url",
+      "label": "Video URL",
+      "info": "Enter the URL of the video to display. If provided, the image will be hidden."
+    },
+    {
+      "type": "select",
+      "id": "image_location",
+      "label": "Image Location",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left",
+      "info": "Choose the position of the image/video relative to the text."
+    },
+    {
+      "type": "select",
+      "id": "image_aspect_ratio",
+      "label": "Image/Video Aspect Ratio",
+      "options": [
+        { "value": "21 / 9", "label": "21:9" },
+        { "value": "16 / 9", "label": "16:9" },
+        { "value": "4 / 3", "label": "4:3" },
+        { "value": "1 / 1", "label": "1:1" },
+        { "value": "auto", "label": "Auto" },
+        { "value": "3 / 2", "label": "3:2" },
+        { "value": "5 / 4", "label": "5:4" },
+        { "value": "16 / 10", "label": "16:10" }
+      ],
+      "default": "4 / 3",
+      "info": "Select the aspect ratio for the image or video."
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Image/Video Border Radius (px)",
+      "default": 8,
+      "info": "Set the border radius for the image or video."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "headline",
+      "label": "Headline",
+      "default": "<strong>BETTER DESIGN BETTER FEEL.</strong>",
+      "info": "Enter the headline text."
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "Subheading Text",
+      "default": "<p>Lorem ipsum dolor sit amet...</p>",
+      "info": "Enter the subheading text to display below the headline."
+    },
+    {
+      "type": "header",
+      "content": "Second Image Settings",
+      "info": "Customize the overlay second image"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_second_image",
+      "label": "Enable Second Image",
+      "default": false,
+      "info": "Toggle to enable the overlay second image."
+    },
+    {
+      "type": "image_picker",
+      "id": "second_image",
+      "label": "Second Image",
+      "info": "Choose the second image to overlay on the main image."
+    },
+    {
+      "type": "range",
+      "id": "second_image_width",
+      "label": "Second Image Width (px)",
+      "min": 50,
+      "max": 500,
+      "step": 10,
+      "default": 200,
+      "info": "Adjust the width of the second image."
+    },
+    {
+      "type": "range",
+      "id": "second_image_height",
+      "label": "Second Image Height (px)",
+      "min": 50,
+      "max": 500,
+      "step": 10,
+      "default": 200,
+      "info": "Adjust the height of the second image."
+    },
+    {
+      "type": "range",
+      "id": "second_image_vertical_position",
+      "label": "Second Image Vertical Position (px)",
+      "min": -200,
+      "max": 200,
+      "step": 10,
+      "default": 0,
+      "info": "Adjust the vertical position of the second image."
+    },
+    {
+      "type": "range",
+      "id": "second_image_horizontal_position",
+      "label": "Second Image Horizontal Position (px)",
+      "min": -200,
+      "max": 200,
+      "step": 10,
+      "default": 0,
+      "info": "Adjust how far the second image extends beyond the main image's right edge."
+    },
+    {
+      "type": "header",
+      "content": "Button Styles",
+      "info": "Customize the call-to-action button"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_button_gradient",
+      "label": "Enable Button Gradient",
+      "default": false,
+      "info": "Toggle to enable custom gradient backgrounds for the button."
+    },
+    {
+      "type": "color_background",
+      "id": "button_background_color",
+      "default": "linear-gradient(228deg, #0D0D0D 100%, #0D0D0D, #0D0D0D 100%)",
+      "label": "Button Background Color (Gradient)",
+      "info": "Set the gradient background for the button when enabled."
+    },
+    {
+      "type": "color_background",
+      "id": "button_hover_background_color",
+      "default": "linear-gradient(112deg, #292929 100%, #292929 100%)",
+      "label": "Button Hover Background Color (Gradient)",
+      "info": "Set the gradient background for the button on hover when enabled."
+    },
+    {
+      "type": "color",
+      "id": "button_background_color_default",
+      "default": "#000",
+      "label": "Default Button Background Color",
+      "info": "Background color for the button when gradient is disabled."
+    },
+    {
+      "type": "color",
+      "id": "button_hover_background_color_default",
+      "default": "#000",
+      "label": "Default Button Hover Background Color",
+      "info": "Background color for the button on hover when gradient is disabled."
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "default": "#fff",
+      "label": "Button Text Color",
+      "info": "Set the text color for the button."
+    },
+    {
+      "type": "color",
+      "id": "button_hover_text_color",
+      "default": "#fff",
+      "label": "Button Hover Text Color",
+      "info": "Set the text color when the button is hovered."
+    },
+    {
+      "type": "range",
+      "id": "button_text_size",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Button Text Size",
+      "default": 14,
+      "info": "Set the font size for the button text."
+    },
+    {
+      "type": "range",
+      "id": "button_padding_tb",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Button Padding Top/Bottom (px)",
+      "default": 10,
+      "info": "Set the top and bottom padding for the button."
+    },
+    {
+      "type": "range",
+      "id": "button_padding_lr",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Button Padding Left/Right (px)",
+      "default": 24,
+      "info": "Set the left and right padding for the button."
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Button Border Radius",
+      "default": 6,
+      "info": "Set the border radius for the button."
+    },
+    {
+      "type": "select",
+      "id": "button_animation",
+      "label": "Button Hover Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "scale-up", "label": "Scale Up" },
+        { "value": "scale-down", "label": "Scale Down" },
+        { "value": "glow", "label": "Glow" },
+        { "value": "pulse", "label": "Pulse" },
+        { "value": "rotate", "label": "Rotate" },
+        { "value": "slide-up", "label": "Slide Up" },
+        { "value": "slide-down", "label": "Slide Down" },
+        { "value": "skew", "label": "Skew" },
+        { "value": "bounce", "label": "Bounce" },
+        { "value": "fade", "label": "Fade" }
+      ],
+      "default": "glow",
+      "info": "Select an animation to apply on button hover."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "link_text",
+      "label": "Button Text",
+      "default": "Shop Now",
+      "info": "Enter the text displayed on the button."
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Button Link",
+      "info": "Enter the URL the button should link to."
+    },
+    {
+      "type": "header",
+      "content": "Benefits Settings",
+      "info": "Configure vertical benefits below the headline"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_benefits",
+      "label": "Enable Vertical Benefits",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "benefits_alignment",
+      "label": "Benefits Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_svg_benefits",
+      "label": "Enable SVG Icons for Benefits",
+      "default": false,
+      "info": "When enabled, use SVG code instead of images for benefit icons."
+    },
+    {
+      "type": "range",
+      "id": "image_benefit_size",
+      "label": "Benefit Icon Image Size (px)",
+      "min": 10,
+      "max": 200,
+      "step": 10,
+      "default": 40,
+      "info": "Set the size for image-based benefit icons (used when SVG is disabled)."
+    },
+    {
+      "type": "range",
+      "id": "svg_benefit_size_desktop",
+      "label": "SVG Benefit Icon Size (Desktop) (px)",
+      "min": 10,
+      "max": 200,
+      "step": 10,
+      "default": 40,
+      "info": "Set the size for SVG benefit icons on desktop (used when SVG is enabled)."
+    },
+    {
+      "type": "range",
+      "id": "svg_benefit_size_mobile",
+      "label": "SVG Benefit Icon Size (Mobile) (px)",
+      "min": 10,
+      "max": 200,
+      "step": 10,
+      "default": 30,
+      "info": "Set the size for SVG benefit icons on mobile (used when SVG is enabled)."
+    },
+    {
+      "type": "text",
+      "id": "benefit_1_text",
+      "label": "Benefit #1 Text",
+      "default": "100% Cotton"
+    },
+    {
+      "type": "image_picker",
+      "id": "benefit_1_image",
+      "label": "Benefit #1 Image Icon",
+      "info": "Select an image for Benefit #1 (used when 'Enable SVG Icons' is off)."
+    },
+    {
+      "type": "textarea",
+      "id": "benefit_1_svg",
+      "label": "Benefit #1 SVG Code",
+      "info": "Paste the complete SVG code, including the <svg> tag with a viewBox attribute, when 'Enable SVG Icons' is on."
+    },
+    {
+      "type": "text",
+      "id": "benefit_2_text",
+      "label": "Benefit #2 Text",
+      "default": "100% Cotton"
+    },
+    {
+      "type": "image_picker",
+      "id": "benefit_2_image",
+      "label": "Benefit #2 Image Icon",
+      "info": "Select an image for Benefit #2 (used when 'Enable SVG Icons' is off)."
+    },
+    {
+      "type": "textarea",
+      "id": "benefit_2_svg",
+      "label": "Benefit #2 SVG Code",
+      "info": "Paste the complete SVG code, including the <svg> tag with a viewBox attribute, when 'Enable SVG Icons' is on."
+    },
+    {
+      "type": "text",
+      "id": "benefit_3_text",
+      "label": "Benefit #3 Text",
+      "default": "Better Breathability"
+    },
+    {
+      "type": "image_picker",
+      "id": "benefit_3_image",
+      "label": "Benefit #3 Image Icon",
+      "info": "Select an image for Benefit #3 (used when 'Enable SVG Icons' is off)."
+    },
+    {
+      "type": "textarea",
+      "id": "benefit_3_svg",
+      "label": "Benefit #3 SVG Code",
+      "info": "Paste the complete SVG code, including the <svg> tag with a viewBox attribute, when 'Enable SVG Icons' is on."
+    },
+    {
+      "type": "text",
+      "id": "benefit_4_text",
+      "label": "Benefit #4 Text",
+      "default": "Hassle-Free Returns"
+    },
+    {
+      "type": "image_picker",
+      "id": "benefit_4_image",
+      "label": "Benefit #4 Image Icon",
+      "info": "Select an image for Benefit #4 (used when 'Enable SVG Icons' is off)."
+    },
+    {
+      "type": "textarea",
+      "id": "benefit_4_svg",
+      "label": "Benefit #4 SVG Code",
+      "info": "Paste the complete SVG code, including the <svg> tag with a viewBox attribute, when 'Enable SVG Icons' is on."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image & Video Benefits",
+      "category": "Image With Text"
+    }
+  ]
+}
+{% endschema %}

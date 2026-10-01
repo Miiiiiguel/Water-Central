@@ -1,0 +1,714 @@
+{% schema %}
+{
+  "name": "Collection Hero Pro ",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Content",
+      "info": "Configure the main content of the section, including title and description."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "Section Title",
+      "default": "<strong> NEW</strong> COLLECTION",
+      "info": "Enter the main heading text for the section."
+    },
+    {
+      "type": "color",
+      "id": "section_title_color",
+      "label": "Section Title Color",
+      "default": "#000000",
+      "info": "Select the color for the section title."
+    },
+    {
+      "type": "range",
+      "id": "section_title_font_size_desktop",
+      "label": "Section Title Font Size (Desktop)",
+      "min": 16,
+      "max": 72,
+      "step": 1,
+      "default": 45,
+      "info": "Adjust the font size of the section title on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "section_title_font_size_mobile",
+      "label": "Section Title Font Size (Mobile)",
+      "min": 16,
+      "max": 48,
+      "step": 1,
+      "default": 31,
+      "info": "Adjust the font size of the section title on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "vertical_space_title_description_desktop",
+      "label": "Vertical Space Between Section Title and Description (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 12,
+      "unit": "px",
+      "info": "Set the vertical spacing between the title and description on desktop."
+    },
+    {
+      "type": "range",
+      "id": "vertical_space_title_description_mobile",
+      "label": "Vertical Space Between Section Title and Description (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 10,
+      "unit": "px",
+      "info": "Set the vertical spacing between the title and description on mobile."
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Section Description",
+      "default": "Body text content goes here. This is where the main content will be displayed.",
+      "info": "Provide a description or additional information for the section."
+    },
+    {
+      "type": "color",
+      "id": "section_description_color",
+      "label": "Section Description Color",
+      "default": "#000000",
+      "info": "Select the color for the section description."
+    },
+    {
+      "type": "range",
+      "id": "section_description_font_size_desktop",
+      "label": "Section Description Font Size (Desktop)",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "default": 14,
+      "info": "Adjust the font size of the section description on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "section_description_font_size_mobile",
+      "label": "Section Description Font Size (Mobile)",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "default": 14,
+      "info": "Adjust the font size of the section description on mobile devices."
+    },
+
+    {
+      "type": "header",
+      "content": "Image Settings",
+      "info": "Configure the images, their appearance, and positioning."
+    },
+    {
+      "type": "image_picker",
+      "id": "left_image",
+      "label": "Left Image",
+      "info": "Select an image to display on the left side of the section."
+    },
+    {
+      "type": "textarea",
+      "id": "left_video_url",
+      "label": "Left Video URL",
+      "info": "Enter video URL for left side. Video will autoplay, mute, and loop if provided."
+    },
+    {
+      "type": "image_picker",
+      "id": "right_image",
+      "label": "Right Image",
+      "info": "Select an image to display on the right side of the section."
+    },
+    {
+      "type": "textarea",
+      "id": "right_video_url",
+      "label": "Right Video URL",
+      "info": "Enter video URL for right side. Video will autoplay, mute, and loop if provided."
+    },
+    {
+      "type": "range",
+      "id": "images_border_radius",
+      "label": "Images Border Radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 8,
+      "unit": "px",
+      "info": "Set the border radius for the images to achieve rounded corners."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_lazy_load",
+      "label": "Enable Lazy Load",
+      "default": false,
+      "info": "Enable lazy loading for images to improve page load times."
+    },
+
+    {
+      "type": "header",
+      "content": "Typography",
+      "info": "Customize the fonts used in the section."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_font",
+      "label": "Enable Custom Font",
+      "default": false,
+      "info": "Toggle the use of a custom font for the section text."
+    },
+    {
+      "type": "select",
+      "id": "custom_font",
+      "label": "Custom Font",
+      "options": [
+          { "value": "Roboto", "label": "Roboto" },
+          { "value": "Open Sans", "label": "Open Sans" },
+          { "value": "Lato", "label": "Lato" },
+          { "value": "Montserrat", "label": "Montserrat" },
+          { "value": "Oswald", "label": "Oswald" },
+          { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+          { "value": "Raleway", "label": "Raleway" },
+          { "value": "Yanone Kaffeesatz", "label": "Yanone Kaffeesatz" },
+          { "value": "Merriweather", "label": "Merriweather" },
+          { "value": "PT Sans", "label": "PT Sans" },
+          { "value": "Noto Sans", "label": "Noto Sans" },
+          { "value": "Nunito", "label": "Nunito" },
+          { "value": "Ubuntu", "label": "Ubuntu" },
+          { "value": "Poppins", "label": "Poppins" },
+          { "value": "Playfair Display", "label": "Playfair Display" },
+          { "value": "Slabo 27px", "label": "Slabo 27px" },
+          { "value": "Lora", "label": "Lora" },
+          { "value": "Fira Sans", "label": "Fira Sans" },
+          { "value": "Libre Baskerville", "label": "Libre Baskerville" },
+          { "value": "Indie Flower", "label": "Indie Flower" },
+          { "value": "Bebas Neue", "label": "Bebas Neue" },
+          { "value": "Cabin", "label": "Cabin" },
+          { "value": "Cinzel", "label": "Cinzel" },
+          { "value": "Dosis", "label": "Dosis" },
+          { "value": "Exo 2", "label": "Exo 2" },
+          { "value": "Fjalla One", "label": "Fjalla One" },
+          { "value": "Gilda Display", "label": "Gilda Display" },
+          { "value": "Heebo", "label": "Heebo" },
+          { "value": "Karla", "label": "Karla" },
+          { "value": "Muli", "label": "Muli" },
+          { "value": "Noto Serif", "label": "Noto Serif" },
+          { "value": "Quicksand", "label": "Quicksand" },
+          { "value": "Roboto Slab", "label": "Roboto Slab" },
+          { "value": "Signika", "label": "Signika" },
+          { "value": "Titillium Web", "label": "Titillium Web" },
+          { "value": "Varela Round", "label": "Varela Round" },
+          { "value": "Work Sans", "label": "Work Sans" },
+          { "value": "Zilla Slab", "label": "Zilla Slab" }
+      ],
+      "default": "Roboto",
+      "info": "Select a custom font from Google Fonts."
+    },
+
+    {
+      "type": "header",
+      "content": "Button Settings",
+      "info": "Customize the appearance and behavior of the button."
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link",
+       "default": "/",
+      "info": "Enter the URL the button should link to."
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Shop Now",
+      "info": "Specify the text displayed on the button."
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#FFFFFF",
+      "info": "Choose the color of the button text."
+    },
+    {
+      "type": "color",
+      "id": "button_background_color",
+      "label": "Button Background Color",
+      "default": "#090909",
+      "info": "Set the background color of the button."
+    },
+    {
+      "type": "color",
+      "id": "button_border_color",
+      "label": "Button Border Color",
+      "default": "#A6A6A6",
+      "info": "Define the border color of the button."
+    },
+    {
+      "type": "range",
+      "id": "button_border_weight",
+      "label": "Button Border Weight",
+      "min": 0,
+      "max": 5,
+      "step": 0.5,
+      "unit": "px",
+      "default": 0,
+      "info": "Adjust the thickness of the button border."
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Button Border Radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 6,
+      "info": "Set the border radius for the button to achieve rounded corners."
+    },
+    {
+      "type": "range",
+      "id": "button_vertical_position_desktop",
+      "label": "Button Vertical Position (Desktop)",
+      "min": -50,
+      "max": 50,
+      "step": 1,
+      "default": 10,
+      "unit": "px",
+      "info": "Adjust the vertical position of the button on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "button_vertical_position_mobile",
+      "label": "Button Vertical Position (Mobile)",
+      "min": -50,
+      "max": 50,
+      "step": 1,
+      "default": 5,
+      "unit": "px",
+      "info": "Adjust the vertical position of the button on mobile devices."
+    },
+    {
+      "type": "select",
+      "id": "button_hover_animation",
+      "label": "Button Hover Animation",
+      "options": [
+        { "label": "None", "value": "none" },
+        { "label": "Fade In", "value": "fade-in" },
+        { "label": "Light Slide", "value": "light-slide" }
+      ],
+      "default": "none",
+      "info": "Choose an animation effect for the button on hover."
+    },
+    {
+      "type": "color",
+      "id": "button_background_color_hover",
+      "label": "Button Background Color (Hover)",
+      "default": "#FFFFFF",
+      "info": "Set the background color of the button on hover."
+    },
+    {
+      "type": "color",
+      "id": "button_text_color_hover",
+      "label": "Button Text Color (Hover)",
+      "default": "#121212",
+      "info": "Set the text color of the button on hover."
+    },
+
+    {
+      "type": "header",
+      "content": "Layout & Spacing",
+      "info": "Adjust the layout and spacing of the section for better visual balance."
+    },
+    {
+      "type": "range",
+      "id": "section_top_padding_desktop",
+      "label": "Section Top Padding (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 80,
+      "unit": "px",
+      "info": "Define the top padding of the section on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "section_bottom_padding_desktop",
+      "label": "Section Bottom Padding (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 50,
+      "unit": "px",
+      "info": "Define the bottom padding of the section on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "section_top_padding_mobile",
+      "label": "Section Top Padding (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 22,
+      "unit": "px",
+      "info": "Define the top padding of the section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_bottom_padding_mobile",
+      "label": "Section Bottom Padding (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 22,
+      "unit": "px",
+      "info": "Define the bottom padding of the section on mobile devices."
+    },
+    {
+      "type": "color",
+      "id": "content_container_background_color",
+      "label": "Content Container Background Color",
+      "default": "#F1F1F1",
+      "info": "Set the background color of the content container."
+    },
+    {
+      "type": "color",
+      "id": "section_background_color",
+      "label": "Section Background Color",
+      "default": "#ffffff",
+      "info": "Set the overall background color of the section."
+    },
+
+    {
+      "type": "header",
+      "content": "Visibility",
+      "info": "Control the visibility of the section across different devices."
+    },
+    {
+      "type": "select",
+      "id": "show_section_on",
+      "label": "Show Section On",
+      "options": [
+        { "label": "All Devices", "value": "all" },
+        { "label": "Only Mobile", "value": "mobile" },
+        { "label": "Only Desktop/Large Screens", "value": "desktop" }
+      ],
+      "default": "all",
+      "info": "Choose on which devices the section should be displayed."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection Hero Pro",
+           "category": "Collections"
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  /* Scoped CSS using unique section ID */
+  /* Import Google Font if enabled */
+  {% if section.settings.enable_custom_font and section.settings.custom_font %}
+    @import url('https://fonts.googleapis.com/css2?family={{ section.settings.custom_font | replace: ' ', '+' }}&display=swap');
+  {% endif %}
+
+  /* Unique Identifier for Scoping */
+  #featured-section-{{ section.id }} {
+    display: flex;
+    gap: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: {{ section.settings.section_top_padding_desktop }}px;
+    padding-bottom: {{ section.settings.section_bottom_padding_desktop }}px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: {{ section.settings.section_background_color }};
+  }
+
+  /* Show Section On Settings */
+  {% if section.settings.show_section_on == 'mobile' %}
+    #featured-section-{{ section.id }} {
+      display: none;
+    }
+    @media (max-width: 767px) {
+      #featured-section-{{ section.id }} {
+        display: flex;
+      }
+    }
+  {% elsif section.settings.show_section_on == 'desktop' %}
+    #featured-section-{{ section.id }} {
+      display: none;
+    }
+    @media (min-width: 768px) {
+      #featured-section-{{ section.id }} {
+        display: flex;
+      }
+    }
+  {% endif %}
+
+  /* Designer Image/Video Wrapper */
+  #featured-section-{{ section.id }} .designer-image-wrapper {
+    flex: 0 0 30%;
+    width: 400px;
+    height: 600px;
+    overflow: hidden;
+    border-radius: {{ section.settings.images_border_radius }}px;
+  }
+
+  /* Designer Image */
+  #featured-section-{{ section.id }} .designer-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: {{ section.settings.images_border_radius }}px;
+  }
+
+  /* Designer Video */
+  #featured-section-{{ section.id }} .designer-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: {{ section.settings.images_border_radius }}px;
+  }
+
+  /* Content Container */
+  #featured-section-{{ section.id }} .content-container {
+    flex: 0 0 32%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: {{ section.settings.content_container_background_color }};
+    border-radius: 8px;
+    padding: 32px 25px;
+  }
+
+  /* Section Title */
+  #featured-section-{{ section.id }} .section-title {
+    text-align: center;
+     font-family: var(--font-body-family);
+    margin: 0 0 {{ section.settings.vertical_space_title_description_desktop }}px 0;
+    padding-left: 12px;
+    padding-right: 12px;
+    font-size: {{ section.settings.section_title_font_size_desktop }}px;
+    line-height: 50px;
+    color: {{ section.settings.section_title_color }} !important;
+    {% if section.settings.enable_custom_font and section.settings.custom_font %}
+      font-family: '{{ section.settings.custom_font | replace: '+', ' ' }}', sans-serif;
+    {% else %}
+      font-family: inherit;
+    {% endif %}
+  }
+
+  /* Section Description */
+  #featured-section-{{ section.id }} .section-description {
+    text-align: center;
+    margin: 0 0 60px 0;
+      
+    font-size: {{ section.settings.section_description_font_size_desktop }}px;
+    line-height: 22px;
+    color: {{ section.settings.section_description_color }};
+    margin-top: {{ section.settings.vertical_space_title_description_desktop }}px;
+    {% if section.settings.enable_custom_font and section.settings.custom_font %}
+      font-family: '{{ section.settings.custom_font | replace: '+', ' ' }}', sans-serif;
+    {% else %}
+      font-family: inherit;
+    {% endif %}
+  }
+
+  /* Action Button */
+  #featured-section-{{ section.id }} .action-button {
+    background: {{ section.settings.button_background_color }};
+    color: {{ section.settings.button_text_color }};
+    padding: 12px 24px;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+    width: 160px;
+    height: 48px;
+    border: {{ section.settings.button_border_weight }}px solid {{ section.settings.button_border_color }};
+    border-radius: {{ section.settings.button_border_radius }}px;
+    transition: transform 0.3s ease-in-out, background 0.3s ease-in-out, color 0.3s ease-in-out;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: {{ section.settings.button_vertical_position_desktop }}px;
+  }
+
+  /* Button Hover Styles */
+  #featured-section-{{ section.id }} .action-button:hover {
+    background: {{ section.settings.button_background_color_hover }};
+    color: {{ section.settings.button_text_color_hover }};
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out, opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    {% if section.settings.button_hover_animation == 'fade-in' %}
+      opacity: 0.8;
+    {% elsif section.settings.button_hover_animation == 'light-slide' %}
+      transform: translateX(3px);
+    {% endif %}
+  }
+
+  /* Visually Hidden (Accessibility) */
+  #featured-section-{{ section.id }} .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
+  /* Responsive Styles */
+  @media (max-width: 1024px) {
+    #featured-section-{{ section.id }} {
+      flex-wrap: wrap;
+      justify-content: center;
+      padding-top: {{ section.settings.section_top_padding_mobile }}px;
+      padding-bottom: {{ section.settings.section_bottom_padding_mobile }}px;
+    }
+    #featured-section-{{ section.id }} .designer-image-wrapper,
+    #featured-section-{{ section.id }} .content-container {
+      flex: 0 0 45%;
+      max-width: 500px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    #featured-section-{{ section.id }} {
+      flex-direction: column;
+      padding: {{ section.settings.section_top_padding_mobile }}px 16px {{ section.settings.section_bottom_padding_mobile }}px 16px;
+      gap: 24px;
+      align-items: center;
+    }
+    #featured-section-{{ section.id }} .designer-image-wrapper {
+      flex: 0 0 100%;
+      width: 100%;
+      height: {{ section.settings.images_height_mobile }}px;
+      max-width: 400px;
+      border-radius: {{ section.settings.images_border_radius }}px;
+    }
+    #featured-section-{{ section.id }} .designer-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: {{ section.settings.images_border_radius }}px;
+    }
+    #featured-section-{{ section.id }} .content-container {
+      flex: 0 0 100%;
+      max-width: 400px;
+      padding: 24px 16px;
+    }
+    #featured-section-{{ section.id }} .section-title {
+      font-size: {{ section.settings.section_title_font_size_mobile }}px;
+      line-height: 35px;
+      margin-bottom: {{ section.settings.vertical_space_title_description_mobile }}px;
+    }
+    #featured-section-{{ section.id }} .section-description {
+      font-size: {{ section.settings.section_description_font_size_mobile }}px;
+      line-height: 20px;
+      margin-bottom: 32px;
+      max-width: 280px;
+      margin-top: {{ section.settings.vertical_space_title_description_mobile }}px;
+    }
+    #featured-section-{{ section.id }} .action-button {
+      width: 140px;
+      height: 44px;
+      font-size: 14px;
+      padding: 10px 20px;
+      margin-top: {{ section.settings.button_vertical_position_mobile }}px;
+    }
+  }
+</style>
+
+<section id="featured-section-{{ section.id }}" class="featured-section">
+  <div class="designer-image-wrapper">
+    {% if section.settings.left_video_url != blank %}
+      <video class="designer-video" autoplay muted loop playsinline>
+        <source src="{{ section.settings.left_video_url }}" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    {% elsif section.settings.left_image %}
+      <img
+        src="{{ section.settings.left_image | img_url: '400x600' }}"
+        alt="Left Designer Image"
+        class="designer-image"
+        {% if section.settings.enable_lazy_load %}
+          loading="lazy"
+        {% endif %}
+      >
+    {% else %}
+      <img
+        src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+        alt="Left Designer Image"
+        class="designer-image"
+        {% if section.settings.enable_lazy_load %}
+          loading="lazy"
+        {% endif %}
+      >
+    {% endif %}
+  </div>
+
+  <div class="content-container">
+    <h2 class="section-title">{{ section.settings.title }}</h2>
+    <p class="section-description">{{ section.settings.description }}</p>
+    {% if section.settings.button_link %}
+      <a
+        href="{{ section.settings.button_link }}"
+        class="action-button"
+      >
+        {{ section.settings.button_text }}
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="designer-image-wrapper">
+    {% if section.settings.right_video_url != blank %}
+      <video class="designer-video" autoplay muted loop playsinline>
+        <source src="{{ section.settings.right_video_url }}" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    {% elsif section.settings.right_image %}
+      <img
+        src="{{ section.settings.right_image | img_url: '400x600' }}"
+        alt="Right Designer Image"
+        class="designer-image"
+        {% if section.settings.enable_lazy_load %}
+          loading="lazy"
+        {% endif %}
+      >
+    {% else %}
+      <img
+        src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+        alt="Right Designer Image"
+        class="designer-image"
+        {% if section.settings.enable_lazy_load %}
+          loading="lazy"
+        {% endif %}
+      >
+    {% endif %}
+  </div>
+</section>
+
+{% javascript %}
+  <script>
+    (function() {
+      const FeaturedSection{{ section.id }} = {
+        init: function() {
+          const section = document.getElementById('featured-section-{{ section.id }}');
+          if (!section) return;
+        }
+      };
+      document.addEventListener('DOMContentLoaded', function() {
+        FeaturedSection{{ section.id }}.init();
+      });
+    })();
+  </script>
+{% endjavascript %}

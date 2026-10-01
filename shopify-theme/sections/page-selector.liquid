@@ -1,0 +1,37 @@
+{% comment %}
+  Pages Section
+  This section displays the content of a selected page.
+{% endcomment %}
+
+<div class="pages-section">
+  {% if section.settings.page != blank %}
+    {% assign selected_page = pages[section.settings.page] %}
+    <div class="page-content">
+      <h2>{{ selected_page.title }}</h2>
+      <div class="page-body">
+        {{ selected_page.content }}
+      </div>
+    </div>
+  {% else %}
+    <p>Please select a page in the section settings.</p>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Pages",
+  "settings": [
+    {
+      "type": "page",
+      "id": "page",
+      "label": "Select a Page"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Pages Section",
+      "category": "Other"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,686 @@
+
+<section id="coming-soon" class="coming-soon-section">
+  {% if section.settings.enable_custom_video_background %}
+    {% if section.settings.custom_bg_video_url != blank %}
+      <video autoplay muted loop playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness({{ section.settings.video_brightness }}); z-index: 0;">
+        <source src="{{ section.settings.custom_bg_video_url }}" type="video/mp4">
+      </video>
+    {% elsif section.settings.custom_bg_video %}
+      <video autoplay muted loop playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness({{ section.settings.video_brightness }}); z-index: 0;">
+        {% for source in section.settings.custom_bg_video.sources %}
+          <source src="{{ source.url }}" type="{{ source.mime_type }}">
+        {% endfor %}
+      </video>
+    {% endif %}
+  {% endif %}
+  <div class="container">
+    {% if section.settings.enable_logo and section.settings.logo_image %}
+      <div class="logo-container">
+        <img src="{{ section.settings.logo_image | img_url: 'master' }}" alt="Logo" class="logo-image">
+      </div>
+    {% endif %}
+    {% assign countdown_date = '' %}
+    {% assign countdown_block_exists = false %}
+    {% for block in section.blocks %}
+      {% case block.type %}
+        {% when 'countdown' %}
+          {% assign countdown_block_exists = true %}
+          {% assign countdown_date = block.settings.countdown_date %}
+          <div id="countdown">
+            <span id="days"></span>
+            <span id="hours"></span>
+            <span id="minutes"></span>
+            <span id="seconds"></span>
+          </div>
+        {% when 'heading' %}
+          <h1>{{ block.settings.heading }}</h1>
+        {% when 'subheading' %}
+          <div class="subheading">{{ block.settings.subheading }}</div>
+        {% when 'email' %}
+          <form method="post" action="/contact#contact_form" id="contact_form" accept-charset="UTF-8" class="email-form">
+            <input type="hidden" name="form_type" value="customer">
+            <input type="hidden" name="utf8" value="✓">
+            <input type="hidden" name="contact[tags]" value="waitlist">
+            <input type="email" name="contact[email]" placeholder="Escribe tu correo electrónico" required>
+            <button type="submit">Suscribirme</button>
+          </form>
+      {% endcase %}
+    {% endfor %}
+  </div>
+  <div class="store-owner-login">
+    <a href="/admin">¿Eres el dueño de la tienda? ¡Inicia sesión aquí!</a>
+  </div>
+</section>
+
+<style>
+  .coming-soon-section {
+    text-align: center;
+    padding: {{ section.settings.padding_top_desktop }}px 20px {{ section.settings.padding_bottom_desktop }}px;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: fixed;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    {% if section.settings.enable_custom_bg_image or section.settings.enable_custom_video_background %}
+      background: none;
+    {% elsif section.settings.enable_bg_gradient %}
+      background: linear-gradient({{ section.settings.bg_gradient_degree }}deg, {{ section.settings.bg_gradient_color1 }}, {{ section.settings.bg_gradient_color2 }}, {{ section.settings.bg_gradient_color3 }});
+    {% else %}
+      background: {{ section.settings.background_color }};
+    {% endif %}
+  }
+
+  body.coming-soon-active header,
+  body.coming-soon-active #shopify-section-header,
+  body.coming-soon-active .header-wrapper,
+  body.coming-soon-active .site-header,
+  body.coming-soon-active footer,
+  body.coming-soon-active #shopify-section-footer,
+  body.coming-soon-active .footer-wrapper,
+  body.coming-soon-active .site-footer {
+    display: none !important;
+  }
+
+  body.coming-soon-active {
+    overflow: hidden;
+  }
+
+  .coming-soon-section .container {
+    position: relative;
+    z-index: 2;
+  }
+
+  {% if section.settings.enable_custom_bg_image and section.settings.custom_bg_image != blank and section.settings.enable_custom_video_background == false %}
+  .coming-soon-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url({{ section.settings.custom_bg_image | img_url: 'master' }});
+    background-size: cover;
+    background-position: center;
+    filter: brightness({{ section.settings.bg_image_brightness }});
+    z-index: 0;
+  }
+  {% endif %}
+
+  .logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .logo-image {
+    width: {{ section.settings.logo_size_desktop }}px;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .email-form {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  {% for block in section.blocks %}
+    {% if block.type == 'email' %}
+      .email-form input[type="email"] {
+        padding: 10px;
+        border: 1px solid {{ block.settings.email_input_border_color }};
+        border-radius: 5px 0 0 5px;
+        width: 250px;
+        background-color: {% if block.settings.enable_email_input_bg %}{{ block.settings.email_input_bg_color }}{% else %}#ffffff{% endif %};
+      }
+
+      .email-form input[type="email"]::placeholder {
+        color: {{ block.settings.placeholder_color }};
+      }
+
+      .email-form button {
+        padding: 17px 20px;
+        border: none;
+        background-color: {{ block.settings.button_bg_color }};
+        color: {{ block.settings.button_text_color }};
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+      }
+    {% endif %}
+  {% endfor %}
+
+  .store-owner-login {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    text-align: center;
+    z-index: 2;
+    font-size: 14px;
+  }
+
+  .store-owner-login a {
+    color: {{ section.settings.heading_color }};
+    text-decoration: underline;
+  }
+
+  {% for block in section.blocks %}
+    {% if block.type == 'countdown' %}
+      #countdown {
+        font-size: {{ block.settings.countdown_size_desktop }}rem;
+        font-weight: bold;
+        width: min-content;
+        display: flex;
+        justify-content: center;
+        margin: auto;
+        align-items: center;
+        padding: 20px;
+        border: 2px solid {{ block.settings.countdown_border_color }};
+        border-radius: 10px;
+        z-index: 2;
+      }
+
+      .countdown-unit {
+        display: inline-block;
+        padding: 10px;
+        border: 2px solid {{ block.settings.countdown_border_color }};
+        border-radius: {{ block.settings.countdown_border_radius }}px;
+        margin: 0 5px;
+        background-color: {{ block.settings.countdown_unit_bg_color }};
+        color: {{ block.settings.countdown_text_color }};
+      }
+    {% endif %}
+
+    {% if block.type == 'heading' %}
+      .coming-soon-section h1 {
+        margin-bottom: 20px;
+        font-size: {{ block.settings.heading_font_size }}px !important;
+        {% if block.settings.enable_heading_gradient %}
+          background: -webkit-linear-gradient({{ block.settings.heading_gradient_degree }}deg, {{ block.settings.heading_gradient_color1 }}, {{ block.settings.heading_gradient_color2 }}, {{ block.settings.heading_gradient_color3 }});
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        {% else %}
+          color: {{ block.settings.heading_color }};
+        {% endif %}
+        z-index: 2;
+      }
+    {% endif %}
+
+    {% if block.type == 'subheading' %}
+      .subheading {
+        font-size: {{ block.settings.subheading_font_size }}px;
+        margin-bottom: 40px;
+        font-weight: normal;
+        color: {{ block.settings.subheading_color }};
+        z-index: 2;
+      }
+
+      .store-owner-login a {
+        color: {{ block.settings.subheading_color }};
+        text-decoration: underline;
+      }
+    {% endif %}
+  {% endfor %}
+
+  @media (max-width: 768px) {
+    .logo-image {
+      width: {{ section.settings.logo_size_mobile }}px;
+    }
+
+    .coming-soon-section {
+      padding: {{ section.settings.padding_top_mobile }}px 20px {{ section.settings.padding_bottom_mobile }}px;
+    }
+
+    {% for block in section.blocks %}
+      {% if block.type == 'heading' %}
+        .coming-soon-section h1 {
+          font-size: calc({{ block.settings.heading_font_size }}px * 0.7) !important;
+        }
+      {% endif %}
+      {% if block.type == 'subheading' %}
+        .subheading {
+          font-size: calc({{ block.settings.subheading_font_size }}px * 1.1) !important;
+        }
+      {% endif %}
+      {% if block.type == 'countdown' %}
+        #countdown {
+          font-size: {{ block.settings.countdown_size_mobile }}rem;
+          margin-left: auto;
+          margin-right: auto;
+        }
+      {% endif %}
+    {% endfor %}
+  }
+</style>
+
+<script>
+  document.body.classList.add('coming-soon-active');
+
+  {% if countdown_block_exists %}
+  var countDownDate = new Date("{{ countdown_date }}T00:00:00").getTime();
+  console.log("Countdown Date:", new Date(countDownDate).toLocaleString());
+
+  var x = setInterval(function() {
+    var now = new Date().getTime();
+    var distance = countDownDate - now;
+
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    if (distance > 0) {
+      document.getElementById("days").innerHTML = "<span class='countdown-unit'>" + days + "d </span>";
+      document.getElementById("hours").innerHTML = "<span class='countdown-unit'>" + hours + "h </span>";
+      document.getElementById("minutes").innerHTML = "<span class='countdown-unit'>" + minutes + "m </span>";
+      document.getElementById("seconds").innerHTML = "<span class='countdown-unit'>" + seconds + "s </span>";
+    } else {
+      clearInterval(x);
+      document.getElementById("countdown").innerHTML = "EXPIRED";
+    }
+  }, 1000);
+  {% endif %}
+</script>
+
+{% assign scheme1 = settings.color_schemes | first %}
+{%- if section.settings.color_scheme == scheme1 -%}<hr>{%- endif -%}
+
+{% schema %}
+{
+  "name": "Coming Soon",
+  "settings": [
+    {
+      "type": "header",
+      "content": "General Settings"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_desktop",
+      "label": "Top Padding (Desktop)",
+      "min": 0,
+      "max": 300,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_desktop",
+      "label": "Bottom Padding (Desktop)",
+      "min": 0,
+      "max": 300,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top Padding (Mobile)",
+      "min": 0,
+      "max": 300,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom Padding (Mobile)",
+      "min": 0,
+      "max": 300,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_bg_gradient",
+      "label": "Enable Background Gradient",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "bg_gradient_color1",
+      "label": "Background Gradient Color 1",
+      "default": "#e3ffe7"
+    },
+    {
+      "type": "color",
+      "id": "bg_gradient_color2",
+      "label": "Background Gradient Color 2",
+      "default": "#d9e7ff"
+    },
+    {
+      "type": "color",
+      "id": "bg_gradient_color3",
+      "label": "Background Gradient Color 3",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "bg_gradient_degree",
+      "label": "Background Gradient Degree",
+      "default": "90",
+      "options": [
+        { "value": "0", "label": "0°" },
+        { "value": "45", "label": "45°" },
+        { "value": "90", "label": "90°" },
+        { "value": "135", "label": "135°" },
+        { "value": "180", "label": "180°" },
+        { "value": "225", "label": "225°" },
+        { "value": "270", "label": "270°" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_bg_image",
+      "label": "Enable Custom Background Image",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "custom_bg_image",
+      "label": "Custom Background Image"
+    },
+    {
+      "type": "range",
+      "id": "bg_image_brightness",
+      "label": "Background Image Brightness",
+      "min": 0.5,
+      "max": 1.5,
+      "step": 0.1,
+      "default": 1
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_video_background",
+      "label": "Enable Custom Video Background",
+      "default": false
+    },
+    {
+      "type": "video",
+      "id": "custom_bg_video",
+      "label": "Upload Video"
+    },
+    {
+      "type": "text",
+      "id": "custom_bg_video_url",
+      "label": "Or Video URL"
+    },
+    {
+      "type": "range",
+      "id": "video_brightness",
+      "label": "Video Brightness",
+      "min": 0.5,
+      "max": 1.5,
+      "step": 0.1,
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "Logo Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_logo",
+      "label": "Enable Logo",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_image",
+      "label": "Logo Image"
+    },
+    {
+      "type": "range",
+      "id": "logo_size_desktop",
+      "label": "Logo Size (Desktop)",
+      "min": 50,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "logo_size_mobile",
+      "label": "Logo Size (Mobile)",
+      "min": 50,
+      "max": 500,
+      "step": 10,
+      "unit": "px",
+      "default": 100
+    }
+  ],
+  "blocks": [
+    {
+      "type": "countdown",
+      "name": "Countdown",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "countdown_date",
+          "label": "Countdown Date (YYYY-MM-DD)",
+          "default": "2025-12-31"
+        },
+        {
+          "type": "range",
+          "id": "countdown_size_desktop",
+          "label": "Countdown Overall Size (rem) (Desktop)",
+          "min": 1,
+          "max": 5,
+          "step": 0.1,
+          "default": 1.9
+        },
+        {
+          "type": "range",
+          "id": "countdown_size_mobile",
+          "label": "Countdown Overall Size (rem) (Mobile)",
+          "min": 1,
+          "max": 1.5,
+          "step": 0.1,
+          "default": 1.5
+        },
+        {
+          "type": "color",
+          "id": "countdown_border_color",
+          "label": "Countdown Border Color",
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "countdown_text_color",
+          "label": "Countdown Text Color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "countdown_unit_bg_color",
+          "label": "Countdown Unit Background Color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "countdown_border_radius",
+          "label": "Countdown Unit Border Radius",
+          "min": 0,
+          "max": 20,
+          "step": 1,
+          "unit": "px",
+          "default": 5
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Our Store is Coming Soon"
+        },
+        {
+          "type": "range",
+          "id": "heading_font_size",
+          "label": "Heading Font Size (px)",
+          "min": 20,
+          "max": 120,
+          "step": 1,
+          "default": 60
+        },
+        {
+          "type": "color",
+          "id": "heading_color",
+          "label": "Heading Text Color",
+          "default": "#333333"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_heading_gradient",
+          "label": "Enable Gradient Text Color for Heading",
+          "default": false
+        },
+        {
+          "type": "color",
+          "id": "heading_gradient_color1",
+          "label": "Heading Gradient Color 1",
+          "default": "#eeeeee"
+        },
+        {
+          "type": "color",
+          "id": "heading_gradient_color2",
+          "label": "Heading Gradient Color 2",
+          "default": "#333333"
+        },
+        {
+          "type": "color",
+          "id": "heading_gradient_color3",
+          "label": "Heading Gradient Color 3",
+          "default": "#ff0000"
+        },
+        {
+          "type": "select",
+          "id": "heading_gradient_degree",
+          "label": "Heading Gradient Degree",
+          "default": "90",
+          "options": [
+            { "value": "0", "label": "0°" },
+            { "value": "45", "label": "45°" },
+            { "value": "90", "label": "90°" },
+            { "value": "135", "label": "135°" },
+            { "value": "180", "label": "180°" },
+            { "value": "225", "label": "225°" },
+            { "value": "270", "label": "270°" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "subheading",
+          "label": "Subheading",
+          "default": "<p>Stay tuned for something amazing!</p>"
+        },
+        {
+          "type": "range",
+          "id": "subheading_font_size",
+          "label": "Subheading Font Size (px)",
+          "min": 10,
+          "max": 60,
+          "step": 1,
+          "default": 20
+        },
+        {
+          "type": "color",
+          "id": "subheading_color",
+          "label": "Subheading Text Color",
+          "default": "#333333"
+        }
+      ]
+    },
+    {
+      "type": "email",
+      "name": "Email Input",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "enable_email_input_bg",
+          "label": "Enable Custom Background Color for Email Input",
+          "default": false
+        },
+        {
+          "type": "color",
+          "id": "email_input_bg_color",
+          "label": "Email Input Background Color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "email_input_border_color",
+          "label": "Email Input Border Color",
+          "default": "#cccccc"
+        },
+        {
+          "type": "color",
+          "id": "placeholder_color",
+          "label": "Placeholder Text Color",
+          "default": "#999999"
+        },
+        {
+          "type": "color",
+          "id": "button_bg_color",
+          "label": "Button Background Color",
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "button_text_color",
+          "label": "Button Text Color",
+          "default": "#ffffff"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Coming Soon",
+      "blocks": [
+        {
+          "type": "countdown"
+        },
+        {
+          "type": "heading"
+        },
+        {
+          "type": "subheading"
+        },
+        {
+          "type": "email"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,144 @@
+{% comment %}
+  Swiper Navigation – Modern Navigation Arrows
+  This snippet renders modern navigation arrows with customizable color and size.
+{% endcomment %}
+<div
+  class="swiper-navigation modern-arrows"
+  style="--arrow-color: {{ section.settings.arrow_color }}; --arrow-size: {{ section.settings.arrow_size }}px;"
+>
+  <button class="swiper-button-prev" aria-label="Previous">
+    <svg
+      width="{{ section.settings.arrow_size }}"
+      height="{{ section.settings.arrow_size }}"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="var(--arrow-color)"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </button>
+  <button class="swiper-button-next" aria-label="Next">
+    <svg
+      width="{{ section.settings.arrow_size }}"
+      height="{{ section.settings.arrow_size }}"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="var(--arrow-color)"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </button>
+</div>
+
+<style>
+  .modern-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 23px; /* Default size */
+    height: 23px; /* Default size */
+    border-radius: 50%; /* Makes it a perfect circle */
+    background-color: #f0f0f0; /* Light gray background */
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+
+    position: absolute;
+    top: 45%;
+    transform: translateY(-50%);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .swiper-button-prev {
+    left: 20px; /* Moves it 5px more to the left */
+       transition: all 0.3s ease-in-out;
+  }
+
+  .swiper-button-next {
+    right: 20px; /* Moves it 5px more to the right */
+       transition: all 0.3s ease-in-out;
+  }
+
+  .modern-arrow:hover {
+    background-color: #e0e0e0; /* Slightly darker on hover */
+       transition: all 0.3s ease-in-out;
+    transform: translateY(-50%) scale(1.0); /* Subtle hover effect */
+  }
+
+  .modern-arrow svg {
+    width: 25px;
+    height: 25px;
+    fill: currentColor; /* Uses the arrow color set in Liquid */
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    .modern-arrows {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    .modern-arrows button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      pointer-events: all;
+      transition: transform 0.3s ease;
+    }
+    .modern-arrows button:hover {
+      transform: scale(1.1);
+    }
+    .modern-arrows svg {
+      display: block;
+
+         }
+
+  @media (max-width: 768px) {
+    .modern-arrows button {
+      width: calc(var(--arrow-size) * 0.6); /* Smaller arrows on mobile */
+      height: calc(var(--arrow-size) * 0.8);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .swiper-button-prev {
+      left: 5px; /* Keep it visible on smaller screens */
+    }
+
+    .swiper-button-next {
+      right: 5px;
+    }
+  }
+
+  .modern-arrows svg {
+    display: block;
+    width: 50%;
+    height: 50%;
+  }
+</style>

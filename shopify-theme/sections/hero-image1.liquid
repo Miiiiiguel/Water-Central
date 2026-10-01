@@ -1,0 +1,870 @@
+<!-- Hero Section - About Us -->
+{% schema %}
+{
+  "name": "Hero Image 1",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Padding Settings",
+      "info": "Adjust the padding around the hero section content."
+    },
+    {
+      "type": "range",
+      "id": "padding_top_desktop",
+      "label": "Top Padding (Desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 50,
+      "info": "Set the top padding for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_desktop",
+      "label": "Bottom Padding (Desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 50,
+      "info": "Set the bottom padding for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top Padding (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 20,
+      "info": "Set the top padding for mobile view."
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom Padding (Mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 20,
+      "info": "Set the bottom padding for mobile view."
+    },
+    {
+      "type": "header",
+      "content": "Heading Settings",
+      "info": "Configure the main heading and subtitle text."
+    },
+    {
+      "type": "text",
+      "id": "main_heading_text",
+      "label": "Main Heading Text",
+      "default": "Hero Image",
+      "info": "Set the primary heading text displayed in the hero section."
+    },
+    {
+      "type": "select",
+      "id": "main_heading_text_animation",
+      "label": "Main Heading Text Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "smooth_shimmer_black_gray", "label": "Smooth Shimmer Gradient Black And Gray" },
+        { "value": "smooth_shimmer_white_gray", "label": "Smooth Shimmer Gradient White and Light Gray" },
+        { "value": "rainbow_gradient", "label": "Rainbow Gradient" },
+        { "value": "spectrum_gradient", "label": "Spectrum Gradient" },
+        { "value": "white_glow_pulse", "label": "White Glow Pulse" },
+        { "value": "white_flickering", "label": "White Flickering" },
+        { "value": "blinkin_smooth", "label": "Blinking Smooth" },
+        { "value": "typewriter", "label": "Typewriter Effect" },
+        { "value": "fade_in", "label": "Fade In" }
+      ],
+      "default": "none",
+      "info": "Select an animation effect for the main heading text."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_fonts",
+      "label": "Enable Custom Fonts for Main Heading",
+      "default": false,
+      "info": "Toggle to use custom fonts for the main heading."
+    },
+    {
+      "type": "select",
+      "id": "main_heading_font",
+      "label": "Select Font for Main Heading",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "Yanone Kaffeesatz", "label": "Yanone Kaffeesatz" },
+        { "value": "PT Sans", "label": "PT Sans" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Nunito", "label": "Nunito" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Slabo 27px", "label": "Slabo 27px" },
+        { "value": "Lora", "label": "Lora" },
+        { "value": "Fira Sans", "label": "Fira Sans" },
+        { "value": "Libre Baskerville", "label": "Libre Baskerville" },
+        { "value": "Indie Flower", "label": "Indie Flower" },
+        { "value": "Bebas Neue", "label": "Bebas Neue" },
+        { "value": "Cabin", "label": "Cabin" },
+        { "value": "Cinzel", "label": "Cinzel" },
+        { "value": "Dosis", "label": "Dosis" },
+        { "value": "Exo 2", "label": "Exo 2" },
+        { "value": "Fjalla One", "label": "Fjalla One" },
+        { "value": "Gilda Display", "label": "Gilda Display" },
+        { "value": "Heebo", "label": "Heebo" },
+        { "value": "Karla", "label": "Karla" },
+        { "value": "Muli", "label": "Muli" },
+        { "value": "Noto Serif", "label": "Noto Serif" },
+        { "value": "Quicksand", "label": "Quicksand" },
+        { "value": "Roboto Slab", "label": "Roboto Slab" },
+        { "value": "Signika", "label": "Signika" },
+        { "value": "Titillium Web", "label": "Titillium Web" },
+        { "value": "Varela Round", "label": "Varela Round" },
+        { "value": "Work Sans", "label": "Work Sans" },
+        { "value": "Zilla Slab", "label": "Zilla Slab" },
+        { "value": "Asap", "label": "Asap" },
+        { "value": "Cairo", "label": "Cairo" },
+        { "value": "DM Sans", "label": "DM Sans" },
+        { "value": "Eczar", "label": "Eczar" },
+        { "value": "Fira Mono", "label": "Fira Mono" },
+        { "value": "Gentium Basic", "label": "Gentium Basic" },
+        { "value": "Hind", "label": "Hind" },
+        { "value": "Jost", "label": "Jost" },
+        { "value": "Kreon", "label": "Kreon" },
+        { "value": "Lexend", "label": "Lexend" },
+        { "value": "Mukta", "label": "Mukta" },
+        { "value": "Noto Sans JP", "label": "Noto Sans JP" },
+        { "value": "Overpass", "label": "Overpass" },
+        { "value": "Qwigley", "label": "Qwigley" },
+        { "value": "Sen", "label": "Sen" },
+        { "value": "Teko", "label": "Teko" },
+        { "value": "Ultra", "label": "Ultra" },
+        { "value": "Vollkorn", "label": "Vollkorn" },
+        { "value": "ZCOOL XiaoWei", "label": "ZCOOL XiaoWei" },
+        { "value": "ABeeZee", "label": "ABeeZee" },
+        { "value": "Acme", "label": "Acme" },
+        { "value": "Balsamiq Sans", "label": "Balsamiq Sans" },
+        { "value": "Caveat", "label": "Caveat" },
+        { "value": "Engagement", "label": "Engagement" },
+        { "value": "Fredoka One", "label": "Fredoka One" },
+        { "value": "Gloria Hallelujah", "label": "Gloria Hallelujah" },
+        { "value": "Irish Grover", "label": "Irish Grover" },
+        { "value": "Kalam", "label": "Kalam" },
+        { "value": "Marck Script", "label": "Marck Script" },
+        { "value": "Neucha", "label": "Neucha" },
+        { "value": "Patrick Hand", "label": "Patrick Hand" },
+        { "value": "Rock Salt", "label": "Rock Salt" },
+        { "value": "Tangerine", "label": "Tangerine" },
+        { "value": "Unica One", "label": "Unica One" },
+        { "value": "Vibur", "label": "Vibur" },
+        { "value": "Wallpoet", "label": "Wallpoet" },
+        { "value": "Yellowtail", "label": "Yellowtail" },
+        { "value": "Zilla Slab Highlight", "label": "Zilla Slab Highlight" }
+      ],
+      "default": "Poppins",
+      "info": "Select the font for the main heading. Visible when Custom Fonts are enabled."
+    },
+    {
+      "type": "text",
+      "id": "subtitle_text",
+      "label": "Subtitle Text",
+      "default": "ABOUT US",
+      "info": "Set the subtitle text displayed below the main heading."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_fonts_subtitle",
+      "label": "Enable Custom Fonts for Subtitle",
+      "default": false,
+      "info": "Toggle to use custom fonts for the subtitle."
+    },
+    {
+      "type": "select",
+      "id": "subtitle_font",
+      "label": "Select Font for Subtitle",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "Yanone Kaffeesatz", "label": "Yanone Kaffeesatz" },
+        { "value": "PT Sans", "label": "PT Sans" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Nunito", "label": "Nunito" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Slabo 27px", "label": "Slabo 27px" },
+        { "value": "Lora", "label": "Lora" },
+        { "value": "Fira Sans", "label": "Fira Sans" },
+        { "value": "Libre Baskerville", "label": "Libre Baskerville" },
+        { "value": "Indie Flower", "label": "Indie Flower" },
+        { "value": "Bebas Neue", "label": "Bebas Neue" },
+        { "value": "Cabin", "label": "Cabin" },
+        { "value": "Cinzel", "label": "Cinzel" },
+        { "value": "Dosis", "label": "Dosis" },
+        { "value": "Exo 2", "label": "Exo 2" },
+        { "value": "Fjalla One", "label": "Fjalla One" },
+        { "value": "Gilda Display", "label": "Gilda Display" },
+        { "value": "Heebo", "label": "Heebo" },
+        { "value": "Karla", "label": "Karla" },
+        { "value": "Muli", "label": "Muli" },
+        { "value": "Noto Serif", "label": "Noto Serif" },
+        { "value": "Quicksand", "label": "Quicksand" },
+        { "value": "Roboto Slab", "label": "Roboto Slab" },
+        { "value": "Signika", "label": "Signika" },
+        { "value": "Titillium Web", "label": "Titillium Web" },
+        { "value": "Varela Round", "label": "Varela Round" },
+        { "value": "Work Sans", "label": "Work Sans" },
+        { "value": "Zilla Slab", "label": "Zilla Slab" },
+        { "value": "Asap", "label": "Asap" },
+        { "value": "Cairo", "label": "Cairo" },
+        { "value": "DM Sans", "label": "DM Sans" },
+        { "value": "Eczar", "label": "Eczar" },
+        { "value": "Fira Mono", "label": "Fira Mono" },
+        { "value": "Gentium Basic", "label": "Gentium Basic" },
+        { "value": "Hind", "label": "Hind" },
+        { "value": "Jost", "label": "Jost" },
+        { "value": "Kreon", "label": "Kreon" },
+        { "value": "Lexend", "label": "Lexend" },
+        { "value": "Mukta", "label": "Mukta" },
+        { "value": "Noto Sans JP", "label": "Noto Sans JP" },
+        { "value": "Overpass", "label": "Overpass" },
+        { "value": "Qwigley", "label": "Qwigley" },
+        { "value": "Sen", "label": "Sen" },
+        { "value": "Teko", "label": "Teko" },
+        { "value": "Ultra", "label": "Ultra" },
+        { "value": "Vollkorn", "label": "Vollkorn" },
+        { "value": "ZCOOL XiaoWei", "label": "ZCOOL XiaoWei" },
+        { "value": "ABeeZee", "label": "ABeeZee" },
+        { "value": "Acme", "label": "Acme" },
+        { "value": "Balsamiq Sans", "label": "Balsamiq Sans" },
+        { "value": "Caveat", "label": "Caveat" },
+        { "value": "Engagement", "label": "Engagement" },
+        { "value": "Fredoka One", "label": "Fredoka One" },
+        { "value": "Gloria Hallelujah", "label": "Gloria Hallelujah" },
+        { "value": "Irish Grover", "label": "Irish Grover" },
+        { "value": "Kalam", "label": "Kalam" },
+        { "value": "Marck Script", "label": "Marck Script" },
+        { "value": "Neucha", "label": "Neucha" },
+        { "value": "Patrick Hand", "label": "Patrick Hand" },
+        { "value": "Rock Salt", "label": "Rock Salt" },
+        { "value": "Tangerine", "label": "Tangerine" },
+        { "value": "Unica One", "label": "Unica One" },
+        { "value": "Vibur", "label": "Vibur" },
+        { "value": "Wallpoet", "label": "Wallpoet" },
+        { "value": "Yellowtail", "label": "Yellowtail" },
+        { "value": "Zilla Slab Highlight", "label": "Zilla Slab Highlight" }
+      ],
+      "default": "Poppins",
+      "info": "Select the font for the subtitle. Visible when Custom Fonts are enabled."
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size_desktop",
+      "label": "Heading Font Size (Desktop)",
+      "min": 24,
+      "max": 100,
+      "step": 1,
+      "default": 70,
+      "info": "Adjust the font size of the main heading for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size_mobile",
+      "label": "Heading Font Size (Mobile)",
+      "min": 16,
+      "max": 64,
+      "step": 1,
+      "default": 46,
+      "info": "Adjust the font size of the main heading for mobile view."
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#FFFFFF",
+      "info": "Set the color of the text in the hero section."
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font Weight",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "600", "label": "Bold" }
+      ],
+      "default": "400",
+      "info": "Choose the font weight for the text."
+    },
+    {
+      "type": "header",
+      "content": "Image Settings",
+      "info": "Configure the background image, its appearance, and positioning."
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Select the image to use as the background for the hero section."
+    },
+    {
+      "type": "range",
+      "id": "background_blur",
+      "label": "Background Blur (px)",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0,
+      "info": "Adjust the blur level of the background image."
+    },
+    {
+      "type": "range",
+      "id": "section_height",
+      "label": "Section Height (px)",
+      "min": 300,
+      "max": 1000,
+      "step": 10,
+      "default": 480,
+      "info": "Set the height of the hero section for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "section_height_mobile",
+      "label": "Section Height (px) (Mobile Version)",
+      "min": 200,
+      "max": 800,
+      "step": 10,
+      "default": 300,
+      "info": "Set the height of the hero section for mobile view."
+    },
+    {
+      "type": "range",
+      "id": "bg_image_contrast",
+      "label": "Background Image Contrast",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 100,
+      "info": "Adjust the contrast of the background image."
+    },
+    {
+      "type": "range",
+      "id": "bg_image_brightness",
+      "label": "Background Image Brightness",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 50,
+      "info": "Adjust the brightness of the background image."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_color_gradient",
+      "label": "Enable Color Gradient for Main Heading Text",
+      "default": true,
+      "info": "Toggle to apply a color gradient to the main heading text."
+    },
+    {
+      "type": "color",
+      "id": "gradient_start_color",
+      "label": "Gradient Start Color",
+      "default": "#BEBEBE",
+      "info": "Set the starting color of the gradient. Visible when Color Gradient is enabled."
+    },
+    {
+      "type": "color",
+      "id": "gradient_middle_color",
+      "label": "Gradient Middle Color",
+      "default": "#FFFFFF",
+      "info": "Optional middle color for gradient. Visible when Color Gradient is enabled."
+    },
+    {
+      "type": "color",
+      "id": "gradient_end_color",
+      "label": "Gradient End Color",
+      "default": "#A1A1A1",
+      "info": "Set the ending color of the gradient. Visible when Color Gradient is enabled."
+    },
+    {
+      "type": "select",
+      "id": "gradient_degree",
+      "label": "Gradient Angle (Degrees)",
+      "options": [
+        { "value": "0", "label": "0°" },
+        { "value": "30", "label": "30°" },
+        { "value": "60", "label": "60°" },
+        { "value": "90", "label": "90°" },
+        { "value": "120", "label": "120°" },
+        { "value": "150", "label": "150°" },
+        { "value": "180", "label": "180°" },
+        { "value": "210", "label": "210°" },
+        { "value": "240", "label": "240°" },
+        { "value": "270", "label": "270°" },
+        { "value": "300", "label": "300°" },
+        { "value": "330", "label": "330°" },
+        { "value": "360", "label": "360°" }
+      ],
+      "default": "330",
+      "info": "Set the angle of the gradient. Visible when Color Gradient is enabled."
+    },
+    {
+      "type": "header",
+      "content": "Subtitle Settings",
+      "info": "Configure the subtitle text appearance."
+    },
+    {
+      "type": "range",
+      "id": "subtitle_font_size_desktop",
+      "label": "Subtitle Font Size (Desktop)",
+      "min": 12,
+      "max": 36,
+      "step": 1,
+      "default": 18,
+      "info": "Adjust the font size of the subtitle for desktop view."
+    },
+    {
+      "type": "range",
+      "id": "subtitle_font_size_mobile",
+      "label": "Subtitle Font Size (Mobile)",
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "default": 15,
+      "info": "Adjust the font size of the subtitle for mobile view."
+    },
+    {
+      "type": "color",
+      "id": "subtitle_font_color",
+      "label": "Subtitle Font Color",
+      "default": "#FFFFFF",
+      "info": "Set the color of the subtitle text."
+    },
+    {
+      "type": "header",
+      "content": "Fade-in Settings",
+      "info": "Configure fade-in effects for the hero section."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_fade_in_bottom_effect",
+      "label": "Enable Fade-in Bottom Effect",
+      "default": false,
+      "info": "Toggle to apply a fade-in effect at the bottom of the hero section."
+    },
+    {
+      "type": "range",
+      "id": "fade_gradient_smoothness",
+      "label": "Fade Gradient Smoothness",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 40,
+      "info": "Adjust the smoothness of the fade gradient."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_fade_color_customizer",
+      "label": "Enable Fade Color Customizer",
+      "default": false,
+      "info": "Toggle to customize the fade color."
+    },
+    {
+      "type": "color",
+      "id": "fade_color",
+      "label": "Fade Color",
+      "default": "#000000",
+      "info": "Set the color of the fade effect. Visible when Fade Color Customizer is enabled."
+    },
+    {
+      "type": "range",
+      "id": "fade_strength",
+      "label": "Fade Strength",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 1,
+      "info": "Adjust the opacity of the fade effect."
+    },
+    {
+      "type": "range",
+      "id": "fade_size",
+      "label": "Fade Size (%)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 17,
+      "info": "Set the size of the fade effect as a percentage of the section height."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Image 1",
+      "category": "Hero"
+    }
+  ]
+}
+{% endschema %}
+
+<section class="hero-section-about-us">
+  {% if section.settings.background_image != blank %}
+    {% assign background_image_url = section.settings.background_image | img_url: 'master' %}
+  {% else %}
+    {% assign background_image_url = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E' %}
+  {% endif %}
+  <div
+    class="hero-section-about-us__background-image {{ section.settings.background_image_animation }}"
+    style="
+      filter: brightness({{ section.settings.bg_image_brightness | default: 100 }}%)
+              contrast({{ section.settings.bg_image_contrast | default: 100 }}%)
+              blur({{ section.settings.background_blur | default: 0 }}px);
+      background-image: url({{ background_image_url }});
+    "
+  ></div>
+  <div class="hero-section-about-us__text-overlay">
+    <div class="hero-section-about-us__subtitle">{{ section.settings.subtitle_text }}</div>
+    <div class="hero-section-about-us__main-heading {{ section.settings.main_heading_text_animation }}">
+      {{ section.settings.main_heading_text }}
+    </div>
+  </div>
+  {% if section.settings.enable_fade_in_bottom_effect %}
+    <div class="hero-section-about-us__fade-in-bottom"></div>
+  {% endif %}
+</section>
+
+{% if section.settings.enable_custom_fonts
+  and section.settings.main_heading_font
+  or section.settings.enable_custom_fonts_subtitle
+  and section.settings.subtitle_font
+%}
+  <style>
+    {% if section.settings.enable_custom_fonts and section.settings.main_heading_font %}
+      @import url('https://fonts.googleapis.com/css2?family={{ section.settings.main_heading_font | replace: ' ', '+' }}&display=swap');
+    {% endif %}
+    {% if section.settings.enable_custom_fonts_subtitle and section.settings.subtitle_font %}
+      @import url('https://fonts.googleapis.com/css2?family={{ section.settings.subtitle_font | replace: ' ', '+' }}&display=swap');
+    {% endif %}
+  </style>
+{% endif %}
+
+<style>
+  /* Scoped CSS for Hero Section - About Us */
+  .hero-section-about-us {
+    width: 100%;
+    height: {{ section.settings.section_height | default: 500 }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+    padding-top: {{ section.settings.padding_top_desktop | default: 50 }}px;
+    padding-bottom: {{ section.settings.padding_bottom_desktop | default: 50 }}px;
+  }
+
+  .hero-section-about-us__background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: all 0.5s ease;
+    z-index: -1;
+  }
+
+  /* Background Image Animations */
+  .hero-section-about-us .hero-section-about-us__background-image.fade_in_hover:hover {
+    opacity: 0.8;
+  }
+  .hero-section-about-us .hero-section-about-us__background-image.scale_in_hover:hover {
+    transform: scale(1.1);
+  }
+  .hero-section-about-us .hero-section-about-us__background-image.zoom_out_hover:hover {
+    transform: scale(0.9);
+  }
+  .hero-section-about-us .hero-section-about-us__background-image.blur_hover:hover {
+    filter: brightness({{ section.settings.bg_image_brightness | default: 100 }}%)
+            contrast({{ section.settings.bg_image_contrast | default: 100 }}%)
+            blur(5px);
+  }
+  .hero-section-about-us .hero-section-about-us__background-image.rotate_hover:hover {
+    transform: rotate(5deg);
+  }
+
+  .hero-section-about-us__text-overlay {
+    color: {{ section.settings.text_color | default: '#FFFFFF' }} !important;
+    padding: 0 20px;
+    z-index: 1;
+  }
+
+  .hero-section-about-us__subtitle {
+    font-size: {{ section.settings.subtitle_font_size_desktop | default: 14 }}px;
+    color: {{ section.settings.subtitle_font_color | default: '#FFFFFF' }} !important;
+    font-weight: {{ section.settings.font_weight | default: 400 }};
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    {% if section.settings.enable_custom_fonts_subtitle and section.settings.subtitle_font %}
+      font-family: '{{ section.settings.subtitle_font }}', sans-serif;
+    {% endif %}
+  }
+
+  .hero-section-about-us__main-heading {
+    font-size: {{ section.settings.heading_font_size_desktop | default: 48 }}px;
+    font-weight: {{ section.settings.font_weight | default: 600 }};
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+    {% if section.settings.enable_custom_fonts and section.settings.main_heading_font %}
+      font-family: '{{ section.settings.main_heading_font }}', sans-serif;
+    {% endif %}
+    {% if section.settings.enable_color_gradient %}
+      background: {% if section.settings.gradient_middle_color != blank %}
+                  linear-gradient(
+                    {{ section.settings.gradient_degree | default: "90" }}deg,
+                    {{ section.settings.gradient_start_color }},
+                    {{ section.settings.gradient_middle_color }},
+                    {{ section.settings.gradient_end_color }}
+                  );
+                {% else %}
+                  linear-gradient(
+                    {{ section.settings.gradient_degree | default: "90" }}deg,
+                    {{ section.settings.gradient_start_color }},
+                    {{ section.settings.gradient_end_color }}
+                  );
+                {% endif %}
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    {% endif %}
+  }
+
+  /* Main Heading Text Animations */
+
+  .hero-section-about-us .hero-section-about-us__main-heading.smooth_shimmer_black_gray {
+    background: linear-gradient(90deg, #000000, #555555, #000000);
+    background-size: 200% 100%;
+    animation: shimmer-hero-about-us 3s linear infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-section-about-us .hero-section-about-us__main-heading.smooth_shimmer_white_gray {
+    background: linear-gradient(90deg, #FFFFFF, #CCCCCC, #FFFFFF);
+    background-size: 200% 100%;
+    animation: shimmer-hero-about-us 3s linear infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-section-about-us .hero-section-about-us__main-heading.rainbow_gradient {
+    background: linear-gradient(270deg, #ff0000, #ff7e00, #ffee00, #00ff00, #00ffff, #0000ff, #8b00ff, #ff0000);
+    background-size: 1400% 1400%;
+    animation: rainbow-hero-about-us 10s ease infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-section-about-us .hero-section-about-us__main-heading.spectrum_gradient {
+    background: linear-gradient(90deg, violet, indigo, blue, green, yellow, orange, red);
+    background-size: 400% 400%;
+    animation: spectrum-hero-about-us 15s ease infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-section-about-us .hero-section-about-us__main-heading.spectrum_gradient_whites {
+    background: linear-gradient(90deg, #FFFFFF, #CCCCCC, #FFFFFF, violet, indigo, blue, green, yellow, orange, red);
+    background-size: 400% 400%;
+    animation: spectrum_whites-hero-about-us 15s ease infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-section-about-us .hero-section-about-us__main-heading.spectrum_gradient_blacks {
+    background: linear-gradient(90deg, #000000, #333333, #000000, violet, indigo, blue, green, yellow, orange, red);
+    background-size: 400% 400%;
+    animation: spectrum_blacks-hero-about-us 15s ease infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-section-about-us .hero-section-about-us__main-heading.white_glow_pulse {
+    color: #FFFFFF;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5);
+    animation: glowPulse-hero-about-us 2s infinite alternate;
+  }
+
+  .hero-section-about-us .hero-section-about-us__main-heading.white_flickering {
+    color: #FFFFFF;
+    animation: flicker-hero-about-us 1.5s infinite;
+  }
+
+  .hero-section-about-us .hero-section-about-us__main-heading.blinkin_smooth {
+    color: #FFFFFF;
+    animation: blinkSmooth-hero-about-us 3s infinite;
+  }
+
+  .hero-section-about-us .hero-section-about-us__main-heading.typewriter {
+    overflow: hidden;
+    border-right: .15em solid orange;
+    white-space: nowrap;
+    animation: typing-hero-about-us 4s steps(40, end), blink-caret-hero-about-us .75s step-end infinite;
+  }
+
+  .hero-section-about-us .hero-section-about-us__main-heading.fade_in {
+    opacity: 0;
+    animation: fadeIn-hero-about-us 2s forwards;
+  }
+
+  .hero-section-about-us .hero-section-about-us__main-heading.slide_in_left {
+    transform: translateX(-100%);
+    animation: slideInLeft-hero-about-us 1s forwards;
+  }
+
+  .hero-section-about-us .hero-section-about-us__main-heading.slide_in_right {
+    transform: translateX(100%);
+    animation: slideInRight-hero-about-us 1s forwards;
+  }
+
+  .hero-section-about-us .hero-section-about-us__main-heading.zoom_in {
+    transform: scale(0);
+    animation: zoomIn-hero-about-us 1s forwards;
+  }
+
+  @keyframes shimmer-hero-about-us {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes rainbow-hero-about-us {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes spectrum-hero-about-us {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes spectrum_whites-hero-about-us {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes spectrum_blacks-hero-about-us {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes glowPulse-hero-about-us {
+    from { text-shadow: 0 0 10px rgba(255,255,255,0.7), 0 0 20px rgba(255,255,255,0.5); }
+    to { text-shadow: 0 0 20px rgba(255,255,255,1), 0 0 30px rgba(255,255,255,0.8); }
+  }
+
+  @keyframes flicker-hero-about-us {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+    20%, 24%, 55% { opacity: 0.5; }
+  }
+
+  @keyframes blinkSmooth-hero-about-us {
+    0%, 50%, 100% { opacity: 1; }
+    25%, 75% { opacity: 0.5; }
+  }
+
+  @keyframes typing-hero-about-us {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  @keyframes blink-caret-hero-about-us {
+    from, to { border-color: transparent; }
+    50% { border-color: orange; }
+  }
+
+  @keyframes fadeIn-hero-about-us {
+    to { opacity: 1; }
+  }
+
+  @keyframes slideInLeft-hero-about-us {
+    from { opacity: 0; transform: translateX(-100%); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes slideInRight-hero-about-us {
+    from { opacity: 0; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes zoomIn-hero-about-us {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  /* Fade-in bottom effect */
+  .hero-section-about-us__fade-in-bottom {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: {{ section.settings.fade_size | default: 20 }}%;
+    background: linear-gradient(
+      to bottom,
+      transparent {{ section.settings.fade_gradient_smoothness | default: 50 }}%,
+      {% if section.settings.enable_fade_color_customizer and section.settings.fade_color != blank %}
+        {{ section.settings.fade_color }}
+      {% else %}
+        #000000
+      {% endif %}
+    );
+    opacity: {{ section.settings.fade_strength | default: 1 }};
+    pointer-events: none;
+  }
+
+  @media (max-width: 768px) {
+    .hero-section-about-us {
+      height: {{ section.settings.section_height_mobile | default: 300 }}px;
+      padding-top: {{ section.settings.padding_top_mobile | default: 20 }}px;
+      padding-bottom: {{ section.settings.padding_bottom_mobile | default: 20 }}px;
+    }
+    .hero-section-about-us__subtitle {
+      font-size: {{ section.settings.subtitle_font_size_mobile | default: 12 }}px;
+    }
+    .hero-section-about-us__main-heading {
+      font-size: {{ section.settings.heading_font_size_mobile | default: 32 }}px;
+    }
+  }
+</style>
+
+<!-- Scoped JavaScript -->
+<script>
+  (function() {
+    // Unique namespace for the Hero Section - About Us
+    const heroAboutUs = {
+      init: function() {
+        const heroSection = document.querySelector('.hero-section-about-us');
+        if (!heroSection) return;
+        // Set opacity to 1 immediately (no animation settings are used)
+        heroSection.style.opacity = '1';
+      }
+    };
+    document.addEventListener('DOMContentLoaded', function() {
+      heroAboutUs.init();
+    });
+  })();
+</script>

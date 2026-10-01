@@ -1,0 +1,577 @@
+{%- liquid
+  if section.settings.image_filter == 'grayscale'
+    assign image_filter = 'grayscale(100%)'
+  elsif section.settings.image_filter == 'sepia'
+    assign image_filter = 'sepia(100%) contrast(1.2)'
+  elsif section.settings.image_filter == 'invert'
+    assign image_filter = 'invert(100%)'
+  endif
+-%}
+
+{%- capture html_id -%}
+  {%- if section.settings.html_id != blank -%}
+    id="{{ section.settings.html_id | handleize }}"
+  {%- endif -%}
+{%- endcapture -%}
+
+{% stylesheet %}
+  .loudz-collection-list-1 * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .loudz-collection-list-1 .loudz__container {
+    max-width: calc(var(--loudz-section-width) + 40px);
+    flex-direction: var(--loudz-image-position, row);
+    padding-block: var(--loudz-padding-block, 40px 50px);
+    gap: var(--loudz-container-gap, 50px);
+    display: flex;
+    width: 100%;
+    padding-inline: 20px;
+    margin-inline: auto;
+  }
+
+  .loudz-collection-list-1 .loudz__menu {
+    max-width: var(--loudz-image-width, 50%);
+    gap: var(--loudz-item-spacing, 20px);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transform: translateX(var(--loudz-menu-translate-x, 0%));
+    transition: transform 0.3s ease;
+  }
+
+  .loudz-collection-list-1 .loudz__menu a {
+    position: relative;
+    display: inline-block;
+    font-size: var(--loudz-collection-title-font-size, 28px);
+    font-weight: var(--loudz-collection-title-weight, 700);
+    color: var(--loudz-collection-title-color, #000000);
+    max-width: 400px;
+    width: max-content;
+    text-decoration: none;
+    transition: color 0.3s ease-in-out;
+  }
+
+  .loudz-collection-list-1 .loudz__menu a:hover {
+    color: var(--loudz-collection-title-color-hover, #FF0000);
+  }
+
+  /* Smooth underline reveal (toggle-controlled) */
+ .loudz-collection-list-1.loudz--underline-enabled .loudz__menu a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: calc(-1 * var(--loudz-underline-thickness, 2px) - var(--loudz-underline-offset, 0px));
+  width: 100%;
+  height: var(--loudz-underline-thickness, 2px);
+  background: var(--loudz-underline-color, currentColor);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 300ms ease-in-out;
+
+  }
+  .loudz-collection-list-1 .loudz__menu {
+  gap: 28px; /* was 20px — adjust to taste (24–32px) */
+}
+
+/* 2) Raise the hover underline closer to the text */
+.loudz-collection-list-1.loudz--underline-enabled .loudz__menu a::after {
+  bottom: -5px; /* was calc(-1 * thickness - 4px); closer = smaller | try -1px/-2px */
+}
+
+/* (optional) Slightly tighter line-height so underline hugs the baseline nicely */
+.loudz-collection-list-1 .loudz__menu a {
+  line-height: 1.15;
+}
+  .loudz-collection-list-1.loudz--underline-enabled .loudz__menu a:hover::after {
+    transform: scaleX(1);
+  }
+
+  .loudz-collection-list-1 .loudz__image-container {
+    border-radius: var(--loudz-image-border-radius, 12px);
+    width: var(--loudz-image-width, 50%);
+    position: relative;
+    overflow: hidden;
+    /* aspect ratio controlled via variables */
+    aspect-ratio: var(--loudz-aspect-mobile, 1 / 1);
+  }
+
+  .loudz-collection-list-1 .loudz__image-container img {
+    filter: var(--loudz-image-filter, none);
+    position: absolute;
+    inset: 0;
+    opacity: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: var(--loudz-object-fit, cover);
+    object-position: center;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+
+  .loudz-collection-list-1 .loudz__image-container:hover img {
+    transform: scale(1.06);
+  }
+
+  @media (min-width: 768px) {
+    .loudz-collection-list-1 .loudz__menu--left {
+      text-align: right;
+      align-items: flex-end;
+    }
+
+    .loudz-collection-list-1 .loudz__image-container {
+      aspect-ratio: var(--loudz-aspect-desktop, auto);
+      min-height: var(--loudz-min-height-desktop, 400px);
+    }
+  }
+{% endstylesheet %}
+
+<style>
+  {%- comment -%}
+    Helper to map ratio option to aspect-ratio values
+  {%- endcomment -%}
+  {%- assign ratio_map = section.settings.mobile_ratio -%}
+  {%- assign ratio_mobile = '1 / 1' -%}
+  {%- case section.settings.mobile_ratio -%}
+    {%- when 'auto' -%}{% assign ratio_mobile = 'auto' %}
+    {%- when 'landscape' -%}{% assign ratio_mobile = '16 / 9' %}
+    {%- when 'portrait' -%}{% assign ratio_mobile = '3 / 4' %}
+    {%- when 'square' -%}{% assign ratio_mobile = '1 / 1' %}
+    {%- when 'square_portrait' -%}{% assign ratio_mobile = '4 / 5' %}
+    {%- when 'rectangle' -%}{% assign ratio_mobile = '3 / 2' %}
+    {%- else -%}{% assign ratio_mobile = '1 / 1' %}
+  {%- endcase -%}
+
+  {%- assign ratio_desktop = 'auto' -%}
+  {%- case section.settings.desktop_ratio -%}
+    {%- when 'auto' -%}{% assign ratio_desktop = 'auto' %}
+    {%- when 'landscape' -%}{% assign ratio_desktop = '16 / 9' %}
+    {%- when 'portrait' -%}{% assign ratio_desktop = '3 / 4' %}
+    {%- when 'square' -%}{% assign ratio_desktop = '1 / 1' %}
+    {%- when 'square_portrait' -%}{% assign ratio_desktop = '4 / 5' %}
+    {%- when 'rectangle' -%}{% assign ratio_desktop = '3 / 2' %}
+    {%- else -%}{% assign ratio_desktop = 'auto' %}
+  {%- endcase -%}
+
+  #loudz-{{ section.id }} {
+    --loudz-background-color: {{ section.settings.background_gradient | default: section.settings.background_color }};
+    --loudz-section-width: {{ section.settings.section_width }}px;
+    --loudz-padding-block: {{ section.settings.mobile_top_padding }}px {{ section.settings.mobile_bottom_padding }}px;
+
+    --loudz-collection-title-color: {{ section.settings.title_color }};
+    --loudz-collection-title-color-hover: {{ section.settings.hover_color }};
+    --loudz-collection-title-font-size: {{ section.settings.mobile_text_size }}px;
+    --loudz-collection-title-weight: {{ section.settings.font_weight }};
+
+    --loudz-container-gap: {{ section.settings.mobile_container_gap }}px;
+    --loudz-item-spacing: {{ section.settings.collection_titles_gap }}px;
+    --loudz-image-border-radius: {{ section.settings.image_border_radius }}px;
+    --loudz-image-filter: {{ image_filter }};
+    --loudz-image-position: {{ section.settings.mobile_image_position }};
+    --loudz-image-width: 100%;
+    --loudz-object-fit: {% if section.settings.object_fit == 'cover' %}cover{% else %}contain{% endif %};
+
+    --loudz-underline-color: {{ section.settings.underline_color | default: section.settings.title_color }};
+    --loudz-underline-thickness: {{ section.settings.underline_thickness }}px;
+
+    --loudz-aspect-mobile: {{ ratio_mobile }};
+    --loudz-aspect-desktop: {{ ratio_desktop }};
+
+    background: var(--loudz-background-color);
+  }
+
+  @media (min-width: 768px) {
+    #loudz-{{ section.id }} {
+      --loudz-collection-title-font-size: {{ section.settings.desktop_text_size }}px;
+      --loudz-padding-block: {{ section.settings.desktop_top_padding }}px {{ section.settings.desktop_bottom_padding }}px;
+      --loudz-container-gap: {{ section.settings.desktop_container_gap }}px;
+      --loudz-image-position: {{ section.settings.desktop_image_position }};
+      --loudz-image-width: 50%;
+      --loudz-menu-translate-x: {{ section.settings.desktop_menu_offset }}%;
+    }
+  }
+</style>
+
+<div id="loudz-{{ section.id }}" class="loudz-{{ section.id }} loudz-collection-list-1{% if section.settings.enable_underline %} loudz--underline-enabled{% endif %}">
+  <div {{ html_id }} class="{{ 'loudz__container ' | append: section.settings.html_class | strip }}">
+    <div class="loudz__menu{% if section.settings.desktop_image_position == 'row-reverse' %} loudz__menu--left{% endif %}">
+      {% for block in section.blocks %}
+        {% liquid
+          assign image = ''
+
+          if block.settings.image != blank
+            assign image = block.settings.image
+          elsif block.settings.collection.image != blank
+            assign image = block.settings.collection.image
+          endif
+
+          capture image_url
+            if image != blank
+              echo image | image_url: width: 1200
+            else
+              echo 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E'
+            endif
+          endcapture
+        %}
+
+        <a href="{{ block.settings.collection.url | default: routes.all_products_collection_url }}"
+           target="{{ section.settings.button_link_target }}"
+           data-image="{{ image_url }}">
+  
+          {% if block.settings.title != blank %}
+            {{ block.settings.title }}
+          {% else %}
+            {{ block.settings.collection.title }}
+          {% endif %}
+        </a>
+      {% endfor %}
+    </div>
+
+    <div class="loudz__image-container">
+      {% assign first_block = section.blocks.first %}
+      {% liquid
+        assign image = ''
+
+        if first_block.settings.collection.image != blank
+          assign image = first_block.settings.collection.image
+        elsif first_block.settings.image != blank
+          assign image = first_block.settings.image
+        endif
+
+        capture image_url
+          if image != blank
+            echo image | image_url: width: 1400
+          else
+            echo 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E'
+          endif
+        endcapture
+      %}
+
+      <img src="{{ image_url }}" loading="lazy" id="loudz__collection-preview-image" width="{{ image.width }}" height="{{ image.height }}" />
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    function loudzCollectionList1() {
+      const sections = document.querySelectorAll('.loudz-collection-list-1');
+      
+      sections.forEach(section => {
+        const collectionItems = section.querySelectorAll('.loudz__menu a');
+        const previewImage = section.querySelector('.loudz__image-container img');
+
+        if (!previewImage || !collectionItems.length) return;
+
+        collectionItems.forEach(item => {
+          item.addEventListener('mouseenter', function () {
+            const newImage = item.getAttribute('data-image');
+            if (newImage && previewImage.getAttribute('src') !== newImage) {
+              previewImage.style.opacity = '0.85';
+              setTimeout(() => {
+                previewImage.setAttribute('src', newImage);
+                previewImage.style.opacity = '1';
+              }, 180);
+            }
+          });
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', loudzCollectionList1);
+    document.addEventListener('shopify:section:load', loudzCollectionList1);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Collection List",
+  "class": "loudz-section loudz-collection-list-1",
+  "tag": "section",
+  "max_blocks": 7,
+  "disabled_on": {
+    "groups": ["header"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "desktop_top_padding",
+      "label": "Desktop: top padding",
+      "min": 0, "max": 200, "step": 10, "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "desktop_bottom_padding",
+      "label": "Desktop: bottom padding",
+      "min": 0, "max": 200, "step": 10, "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "mobile_top_padding",
+      "label": "Mobile: top padding",
+      "min": 0, "max": 100, "step": 5, "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "mobile_bottom_padding",
+      "label": "Mobile: bottom padding",
+      "min": 0, "max": 100, "step": 5, "unit": "px",
+      "default": 40
+    },
+
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "number",
+      "id": "section_width",
+      "label": "Section width (px)",
+      "default": 1440
+    },
+    {
+      "type": "select",
+      "id": "desktop_image_position",
+      "label": "Image placement on desktop",
+      "options": [
+        { "value": "row-reverse", "label": "Left" },
+        { "value": "row", "label": "Right" }
+      ],
+      "default": "row"
+    },
+    {
+      "type": "select",
+      "id": "mobile_image_position",
+      "label": "Image placement on mobile",
+      "options": [
+        { "value": "column-reverse", "label": "Top" },
+        { "value": "column", "label": "Bottom" }
+      ],
+      "default": "column"
+    },
+    {
+      "type": "range",
+      "id": "desktop_container_gap",
+      "label": "Desktop: gap between text & image",
+      "min": 0, "max": 100, "step": 1, "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "mobile_container_gap",
+      "label": "Mobile: gap between text & image",
+      "min": 0, "max": 100, "step": 1, "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "desktop_menu_offset",
+      "label": "Collection List Texts — Horizontal position (Desktop)",
+      "info": "Shift the whole text column left/right. Negative = left, Positive = right.",
+      "min": -50, "max": 50, "step": 1, "unit": "%",
+      "default": 15
+    },
+
+    {
+      "type": "header",
+      "content": "Design"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color"
+    },
+    {
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Background gradient",
+      "info": "If set, overrides the background color."
+    },
+
+    {
+      "type": "header",
+      "content": "Collection titles"
+    },
+    {
+      "type": "range",
+      "id": "desktop_text_size",
+      "label": "Desktop: text size",
+      "min": 10, "max": 80, "step": 1, "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "mobile_text_size",
+      "label": "Mobile: text size",
+      "min": 10, "max": 48, "step": 1, "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font weight",
+      "options": [
+        { "value": "100", "label": "Thin" },
+        { "value": "200", "label": "Extra light" },
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi bold" },
+        { "value": "700", "label": "Bold" },
+        { "value": "800", "label": "Extra bold" },
+        { "value": "900", "label": "Black" }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "hover_color",
+      "label": "Title hover color",
+      "default": "#FF0000"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_underline",
+      "label": "Enable Smooth Underline Reveal (hover)",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "underline_color",
+      "label": "Underline color",
+      "info": "Defaults to the title color if left empty."
+    },
+    {
+      "type": "range",
+      "id": "underline_thickness",
+      "label": "Underline thickness",
+      "min": 1, "max": 8, "step": 1, "unit": "px",
+      "default": 2
+    },
+
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "label": "Image border radius",
+      "min": 0, "max": 48, "step": 1, "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "select",
+      "id": "desktop_ratio",
+      "label": "Image Ratio (Desktop)",
+      "options": [
+        { "value": "coverfit", "label": "Coverfit" },
+        { "value": "auto", "label": "Auto" },
+        { "value": "landscape", "label": "Landscape (16:9)" },
+        { "value": "portrait", "label": "Portrait (3:4)" },
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "square_portrait", "label": "Square-Portrait (4:5)" },
+        { "value": "rectangle", "label": "Rectangle (3:2)" }
+      ],
+      "default": "coverfit"
+    },
+    {
+      "type": "select",
+      "id": "mobile_ratio",
+      "label": "Image Ratio (Mobile)",
+      "options": [
+        { "value": "coverfit", "label": "Coverfit" },
+        { "value": "auto", "label": "Auto" },
+        { "value": "landscape", "label": "Landscape (16:9)" },
+        { "value": "portrait", "label": "Portrait (3:4)" },
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "square_portrait", "label": "Square-Portrait (4:5)" },
+        { "value": "rectangle", "label": "Rectangle (3:2)" }
+      ],
+      "default": "coverfit"
+    },
+    {
+      "type": "select",
+      "id": "object_fit",
+      "label": "Image fit behavior",
+      "info": "Coverfit uses full bleed (recommended). Auto ratio disables enforced aspect ratios.",
+      "options": [
+        { "value": "cover", "label": "Cover (fill the frame)" },
+        { "value": "contain", "label": "Contain (fit within frame)" }
+      ],
+      "default": "cover"
+
+    },
+
+    {
+      "type": "header",
+      "content": "Links"
+    },
+    {
+      "type": "select",
+      "id": "button_link_target",
+      "label": "Open links in",
+      "options": [
+        { "value": "_self", "label": "Same tab" },
+        { "value": "_blank", "label": "New tab" }
+      ],
+      "default": "_self"
+  
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Collection item",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Custom title (optional)",
+          "default": "Featured Collection",
+          "info": "Leave blank to use the collection title."
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Custom image (optional)",
+          "info": "Leave blank to use the collection image."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection List",
+        "category": "Collections",
+      "blocks": [
+        { "type": "item", "settings": { "title": "New Arrivals" } },
+        { "type": "item", "settings": { "title": "Best Sellers" } },
+        { "type": "item", "settings": { "title": "Accessories" } },
+        { "type": "item", "settings": { "title": "Seasonal Picks" } },
+        { "type": "item", "settings": { "title": "Editor’s Choice" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

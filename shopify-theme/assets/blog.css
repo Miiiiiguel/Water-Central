@@ -1,0 +1,142 @@
+.blog-tag a {
+  background-color: var(--grey-color);
+  border-radius: var(--btn-radius);
+  padding: 11px 20px;
+  text-decoration: none;
+  display: inline-block;
+  line-height: normal;
+}
+
+.block-title {
+  /* Pill shape and styling using CSS variables */
+  display: inline-block;
+  background-color: var(--pill-bg);
+  color: var(--pill-color);
+  border-radius: var(--pill-radius);
+  padding: var(--pill-padding-vertical) var(--pill-padding-horizontal);
+  border: var(--pill-border-width) solid var(--pill-border-color);
+  font-weight: var(--pill-bold-text);
+  text-transform: var(--pill-text-transform);
+  letter-spacing: var(--pill-letter_spacing);
+}
+
+/* Additional Styling for Responsive and Aesthetic Enhancements */
+.blog-sidebar .widget-title {
+  display: inline-block;
+}
+
+.blogSidebar-items-categories li a,
+.blog-tag a {
+  display: inline-block;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.blogSidebar-items-categories li a:hover,
+.blog-tag a:hover {
+  /* Example: just lightly darken or lighten the background, or color, etc. */
+  filter: brightness(0.9);
+}
+
+/* Ensure proper spacing and layout */
+.blogSidebar-items-categories {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.blogTagsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.widget {
+  background-color: var(--categories-bg-color, #ffffff);
+  border-radius: var(--categories-border-radius, 10px);
+  padding: 20px;
+}
+
+/* Hover styles for .blog-tag a */
+.blog-tag a::first-letter {
+  text-transform: uppercase;
+}
+
+.blog-tag a:hover,
+.blog-tag.active {
+  color: var(--btn-primary-hover-color);
+}
+
+/* Additional article / blog post styling */
+.list-social__link circle {
+  transition: var(--transition);
+}
+.list-social__link:hover circle {
+  stroke: var(--color-heading);
+}
+
+.article-template__content blockquote {
+  max-width: 58rem;
+  margin: auto;
+  text-align: center;
+}
+blockquote .light-dark-grey {
+  letter-spacing: 0;
+  font-weight: var(--subheading-weight);
+}
+
+.container-min {
+  max-width: 84rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.article-template__content p {
+  margin-block-start: clamp(2rem, 2vw, 2.6rem);
+  margin-bottom: clamp(2rem, 2vw, 2.6rem);
+}
+
+.article_meta {
+  --dot-width: 4px;
+  --dot-space: 0 10px;
+}
+
+.blog-post-related .blog-posts-title {
+  font-size: 1.6rem;
+}
+
+.article-template__hero-small {
+  height: clamp(35rem, 30vw, 50rem);
+}
+.article-template__hero-medium {
+  height: clamp(40rem, 32.5vw, 75.5rem);
+}
+.article-template__hero-large {
+  height: clamp(50rem, 35vw, 85.5rem);
+}
+
+/* ========================================== */
+/* ADVANCED SIDEBAR DESIGN (no icons)         */
+/* ========================================== */
+.advanced-sidebar {
+  /* Inlined variables come from main-blog.liquid capture */
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text-color);
+  border: var(--sidebar-border-width) var(--sidebar-border-style) var(--sidebar-border-color);
+  border-radius: var(--sidebar-border-radius);
+  padding: var(--sidebar-padding-vertical) var(--sidebar-padding-horizontal);
+  box-shadow: var(--sidebar-box-shadow-x)
+              var(--sidebar-box-shadow-y)
+              var(--sidebar-box-shadow-blur)
+              var(--sidebar-box-shadow-spread)
+              rgba(0, 0, 0, var(--sidebar-box-shadow-opacity));
+}
+
+.advanced-sidebar .widget-title {
+  text-align: var(--sidebar-title-alignment);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  /* You can add additional styling here as you like */
+}

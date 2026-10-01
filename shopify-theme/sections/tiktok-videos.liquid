@@ -1,0 +1,126 @@
+{% comment %} TikTok-style Video Carousel Section {% endcomment %}
+
+<style>
+  .tiktok-section {
+    background: #000;
+    padding: 40px 0;
+  }
+  .tiktok-section .section-title {
+    color: #C9A84C;
+    text-align: center;
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    padding: 0 20px;
+  }
+  .tiktok-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    justify-items: center;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 16px;
+    box-sizing: border-box;
+  }
+  .tiktok-item {
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 9 / 16;
+    overflow: hidden;
+    border-radius: 0;
+    box-shadow: none;
+    background: #111;
+  }
+  .tiktok-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  @media (max-width: 768px) {
+    .tiktok-grid {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      gap: 0;
+      padding: 0;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tiktok-item {
+      flex: 0 0 85vw;
+      max-width: 85vw;
+      scroll-snap-align: start;
+      border-radius: 0;
+    }
+  }
+</style>
+
+<section class="tiktok-section">
+  {% if section.settings.title != blank %}
+    <h2 class="section-title">{{ section.settings.title }}</h2>
+  {% endif %}
+  <div class="tiktok-grid">
+    {% for block in section.blocks %}
+      <div class="tiktok-item" {{ block.shopify_attributes }}>
+        {% if block.settings.video != blank %}
+          {{
+            block.settings.video
+            | video_tag:
+              autoplay: true,
+              loop: true,
+              muted: true,
+              playsinline: true,
+              controls: false
+          }}
+        {% else %}
+          <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#C9A84C;font-size:0.85rem;text-align:center;padding:16px;">
+            Sube tu video aquí
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Videos TikTok",
+  "tag": "section",
+  "class": "tiktok-video-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título de la sección",
+      "default": "Nuestros Videos"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "video",
+      "name": "Video",
+      "settings": [
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Videos TikTok",
+      "blocks": [
+        { "type": "video" },
+        { "type": "video" },
+        { "type": "video" },
+        { "type": "video" }
+      ]
+    }
+  ]
+}
+{% endschema %}

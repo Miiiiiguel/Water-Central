@@ -1,0 +1,606 @@
+{{ 'my-account.css' | asset_url | stylesheet_tag }}
+
+<section
+  class="customer-register"
+  id="my-account-section"
+  style="
+    padding-top: {{ section.settings.section_top_padding }}rem;
+    padding-bottom: {{ section.settings.section_bottom_padding }}rem;
+  "
+>
+  <div class="container">
+    <!-- Removed the inline style; now using CSS variables in my-account.css -->
+    <div class="customer-form register-form w-full max-w-custom m-auto col-sm-w-custom">
+      {% form 'create_customer', class: 'custormer-register-form' %}
+        {%- if form.errors -%}
+          <ul class="error error-list flex flex-wrap">
+            {%- render 'icon-error' -%}
+            {%- for field in form.errors -%}
+              <li class="flex gap-5 align-center flex-wrap">
+                {%- if field == 'form' -%}
+                  {{ form.errors.messages[field] | append: '.' }}
+                {%- else -%}
+                  <a href="#RegisterForm-{{ field }}" class="link link-underline no-underline">
+                    <span class="text">
+                      {{ form.errors.translated_fields[field] | capitalize }}
+                      {{ form.errors.messages[field] | append: '.' }}
+                    </span>
+                  </a>
+                {% endif %}
+              </li>
+            {%- endfor -%}
+          </ul>
+        {% endif %}
+
+        <!-- First Name Field -->
+        <div class="form-group flex flex-column first-name input-wrapper first-name">
+          <label class="form-label pb-5 visually-hidden" for="first-name">
+            {{ 'customer.register.first_name' | t }}
+          </label>
+          <div class="input-icon">
+            <!-- First Name SVG -->
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="currentColor"
+              class="bi bi-person"
+              viewBox="0 0 16 16"
+            >
+              <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+            </svg>
+          </div>
+          <input
+            type="text"
+            id="first-name"
+            placeholder="{{ 'customer.register.first_name' | t }}"
+            name="customer[first_name]"
+            required
+          >
+        </div>
+
+        <!-- Last Name Field -->
+        <div class="form-group flex flex-column last-name input-wrapper last-name">
+          <label class="form-label pb-5 visually-hidden" for="last-name">
+            {{ 'customer.register.last_name' | t }}
+          </label>
+          <div class="input-icon">
+            <!-- Last Name SVG -->
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="currentColor"
+              class="bi bi-person"
+              viewBox="0 0 16 16"
+            >
+              <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+            </svg>
+          </div>
+          <input
+            type="text"
+            id="last-name"
+            name="customer[last_name]"
+            placeholder="{{ 'customer.register.last_name' | t }}"
+            required
+          >
+        </div>
+
+        <!-- Email Field with "@" icon -->
+        <div class="form-group flex flex-column email input-wrapper email">
+          <label class="pb-5 visually-hidden" for="email">
+            {{ 'customer.register.email' | t }}
+            <span class="required">*</span>
+          </label>
+          <div class="input-icon">
+            <!-- @ SVG -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" viewBox="0 0 32 32" height="20">
+              <g data-name="Layer 3" id="Layer_3">
+                <path d="m30.853 13.87a15 15 0 0 0 -29.729 4.082 15.1 15.1 0 0 0 12.876 12.918 15.6 15.6 0 0 0 2.016.13 14.85 14.85 0 0 0 7.715-2.145 1 1 0 1 0 -1.031-1.711 13.007 13.007 0 1 1 5.458-6.529 2.149 2.149 0 0 1 -4.158-.759v-10.856a1 1 0 0 0 -2 0v1.726a8 8 0 1 0 .2 10.325 4.135 4.135 0 0 0 7.83.274 15.2 15.2 0 0 0 .823-7.455zm-14.853 8.13a6 6 0 1 1 6-6 6.006 6.006 0 0 1 -6 6z"/>
+              </g>
+            </svg>
+          </div>
+          <input
+            type="email"
+            name="customer[email]"
+            placeholder="{{ 'customer.login_page.placeholder_email' | t }}"
+            required
+            id="email"
+          >
+        </div>
+
+        <!-- Password Field with Lock icon -->
+        <div class="form-group flex flex-column password input-wrapper password">
+          <label class="form-label pb-5 visually-hidden" for="password">
+            {{ 'customer.register.password' | t }}
+            <span class="required">*</span>
+          </label>
+          <div class="input-icon">
+            <!-- Lock SVG -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" viewBox="-64 0 512 512" height="20">
+              <path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224c0-26.476562 21.546875-48 48-48h288c26.453125 0 48 21.523438 48 48v224c0 26.476562-21.546875 48-48 48zm-288-288c-8.8125 0-16 7.167969-16 16v224c0 8.832031 7.1875 16 16 16h288c8.8125 0 16-7.167969 16-16v-224c0-8.832031-7.1875-16-16-16zm0 0"></path>
+              <path d="m304 224c-8.832031 0-16-7.167969-16-16v-80c0-52.929688-43.070312-96-96-96s-96 43.070312-96 96v80c0 8.832031-7.167969 16-16 16s-16-7.167969-16-16v-80c0-70.59375 57.40625-128 128-128s128 57.40625 128 128v80c0 8.832031-7.167969 16-16 16zm0 0"></path>
+            </svg>
+          </div>
+          <input
+            type="password"
+            name="customer[password]"
+            placeholder="{{ 'customer.login_page.placeholder_pass' | t }}"
+            required
+            id="password"
+          >
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div class="form-group flex flex-column password-confirm input-wrapper password-confirm">
+          <label class="form-label pb-5 visually-hidden" for="password-confirm">
+            Confirm Password
+            <span class="required">*</span>
+          </label>
+          <div class="input-icon">
+            <!-- Lock SVG (same as above) -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" viewBox="-64 0 512 512" height="20">
+              <path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224c0-26.476562 21.546875-48 48-48h288c26.453125 0 48 21.523438 48 48v224c0 26.476562-21.546875 48-48 48zm-288-288c-8.8125 0-16 7.167969-16 16v224c0 8.832031 7.1875 16 16 16h288c8.8125 0 16-7.167969 16-16v-224c0-8.832031-7.1875-16-16-16zm0 0"></path>
+              <path d="m304 224c-8.832031 0-16-7.167969-16-16v-80c0-52.929688-43.070312-96-96-96s-96 43.070312-96 96v80c0 8.832031-7.167969 16-16 16s-16-7.167969-16-16v-80c0-70.59375 57.40625-128 128-128s128 57.40625 128 128v80c0 8.832031-7.167969 16-16 16zm0 0"></path>
+            </svg>
+          </div>
+          <input
+            type="password"
+            name="customer[password_confirmation]"
+            placeholder="Confirm password"
+            required
+            id="password-confirm"
+          >
+        </div>
+
+        <!-- "Remember Me" Toggle -->
+        <div class="form-group remember-me flex flex-row align-center">
+          <label class="switch">
+            <input type="checkbox" name="remember_me" id="remember_me">
+            <span class="slider round"></span>
+          </label>
+          <label for="remember_me" class="remember-me-label">Remember me</label>
+        </div>
+
+        <!-- Already have an account link -->
+        <p class="already-have-account__text">
+          <a
+            href="{{ routes.account_login_url }}"
+            class="already-have-account__link"
+          >
+            Already have an account? Log In!
+          </a>
+        </p>
+
+        <p>
+          {% assign policy = shop.privacy_policy.url %}
+          {{ 'customer.register.content_form_html' | t: link: policy }}
+        </p>
+
+        <div class="submit mt-30 flex flex-column">
+          <input class="btn-primary text-center" type="submit" value="{{ 'customer.register.submit' | t }}">
+          <a href="{{ routes.account_login_url }}" class="btn btn-outline no-underline w-full text-center mt-20">
+            {{ 'customer.login_page.submit' | t }}
+          </a>
+        </div>
+      {% endform %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "My Account (Register)",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Spacing"
+    },
+    {
+      "type": "paragraph",
+      "content": "Adjust the spacing at the top and bottom of this section."
+    },
+    {
+      "type": "range",
+      "id": "section_top_padding",
+      "label": "Top Padding (rem)",
+      "min": 0,
+      "max": 10,
+      "step": 0.5,
+      "default": 2,
+      "info": "Adds space above the register form."
+    },
+    {
+      "type": "range",
+      "id": "section_bottom_padding",
+      "label": "Bottom Padding (rem)",
+      "min": 0,
+      "max": 10,
+      "step": 0.5,
+      "default": 2,
+      "info": "Adds space below the register form."
+    },
+    {
+      "type": "header",
+      "content": "Inputs Customization"
+    },
+    {
+      "type": "paragraph",
+      "content": "Control how the input fields look (borders, spacing, width, etc.)."
+    },
+    {
+      "type": "header",
+      "content": "Inputs Background Color"
+    },
+    {
+      "type": "paragraph",
+      "content": "Enable and choose a custom background color for the input fields."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_inputs_bg_color",
+      "label": "Enable Inputs Background Color Customizer",
+      "default": false,
+      "info": "Toggle on to use a custom background color for all inputs."
+    },
+    {
+      "type": "color",
+      "id": "inputs_bg_color",
+      "label": "Custom Inputs Background Color",
+      "default": "#ffffff",
+      "info": "Only applies if the background color toggle is ON."
+    },
+    {
+      "type": "range",
+      "id": "input_border_radius",
+      "label": "Inputs Border Radius (px)",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "default": 4,
+      "info": "Rounded corners of the input fields."
+    },
+    {
+      "type": "range",
+      "id": "input_padding_top",
+      "label": "Inputs Top Padding (rem)",
+      "min": 0,
+      "max": 3,
+      "step": 0.1,
+      "default": 0.7,
+      "info": "Padding above the text in the inputs."
+    },
+    {
+      "type": "range",
+      "id": "input_padding_bottom",
+      "label": "Inputs Bottom Padding (rem)",
+      "min": 0,
+      "max": 3,
+      "step": 0.1,
+      "default": 0.7,
+      "info": "Padding below the text in the inputs."
+    },
+    {
+      "type": "range",
+      "id": "input_width",
+      "label": "Inputs Width (%)",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "default": 100,
+      "info": "Defines how wide the input fields are."
+    },
+    {
+      "type": "range",
+      "id": "gap_between_inputs",
+      "label": "Gap Between Inputs (rem)",
+      "min": 0,
+      "max": 4,
+      "step": 0.1,
+      "default": 1.3,
+      "info": "Sets the vertical space between each input field."
+    },
+    {
+      "type": "select",
+      "id": "inputs_shadow",
+      "label": "Inputs Box Shadow",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "low",
+          "label": "Low Shadow"
+        },
+        {
+          "value": "medium",
+          "label": "Medium Shadow"
+        },
+        {
+          "value": "high",
+          "label": "High Shadow"
+        }
+      ],
+      "default": "none",
+      "info": "Applies a subtle to strong shadow around the input fields."
+    },
+    {
+      "type": "header",
+      "content": "SVG Icons Colors"
+    },
+    {
+      "type": "paragraph",
+      "content": "Customize the fill color of the icons in each input field."
+    },
+    {
+      "type": "color",
+      "id": "svg_icons_color",
+      "label": "All SVG Icons Color",
+      "default": "#000000",
+      "info": "Changes the color of all icons except the Lock and '@' if overridden below."
+    },
+    {
+      "type": "color",
+      "id": "lock_svg_color",
+      "label": "Lock SVG Color",
+      "default": "#000000",
+      "info": "Only if you'd like to override the lock icon color specifically."
+    },
+    {
+      "type": "color",
+      "id": "at_svg_color",
+      "label": "@ SVG Color",
+      "default": "#000000",
+      "info": "Only if you'd like to override the '@' icon color specifically."
+    },
+    {
+      "type": "header",
+      "content": "Input Border Colors"
+    },
+    {
+      "type": "paragraph",
+      "content": "Define the normal and focused border colors for input fields."
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Inputs Border Color",
+      "default": "#cccccc",
+      "info": "The default border color around each input."
+    },
+    {
+      "type": "color",
+      "id": "input_border_focus_color",
+      "label": "Inputs Border Color (Focus)",
+      "default": "#666666",
+      "info": "The border color when the user focuses on an input."
+    },
+    {
+      "type": "header",
+      "content": "Link Customization"
+    },
+    {
+      "type": "paragraph",
+      "content": "Adjust the color of the 'Already have an account?' link."
+    },
+    {
+      "type": "color",
+      "id": "already_have_account_color",
+      "label": "'Already have an account?' Link Color",
+      "default": "#007bff",
+      "info": "Set the link color for the text leading back to the login form."
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+    /*
+       Root styling for your register form container
+       (moved from inline styles)
+    */
+    .customer-form.register-form {
+      --col-width: 80%;
+      --max-width: 65rem;
+
+      width: var(--col-width);
+      max-width: var(--max-width);
+    }
+
+    /* Wrapper for icon + input */
+    .input-wrapper {
+      position: relative;
+    }
+
+    /* Position the icon so it doesn't overlap placeholder text */
+    .input-icon {
+      position: absolute;
+      left: 1.4rem;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none; /* so clicks pass through */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Enforce gap between inputs, overriding any .mb-20, etc. */
+    .form-group {
+      margin-bottom: {{ section.settings.gap_between_inputs }}rem !important;
+    }
+
+    /* Generic input styling using the new settings */
+    .input-wrapper input[type="text"],
+    .input-wrapper input[type="email"],
+    .input-wrapper input[type="password"] {
+      /* Control width via the new slider */
+      width: {{ section.settings.input_width }}%;
+
+      /* Control top/bottom padding via sliders */
+      padding-top: {{ section.settings.input_padding_top }}rem;
+      padding-bottom: {{ section.settings.input_padding_bottom }}rem;
+
+      /* Keep left padding for the icon, right as is */
+      padding-left: 4.2rem;
+      padding-right: 1rem;
+
+      /* Border & Radius */
+      border: 1px solid {{ section.settings.input_border_color }};
+      border-radius: {{ section.settings.input_border_radius }}px;
+      outline: none;
+      font-size: 1rem;
+      transition: border-color 0.2s ease;
+
+      /* Background color depends on toggle */
+      background-color:
+        {% if section.settings.enable_inputs_bg_color %}
+          {{ section.settings.inputs_bg_color }};
+        {% else %}
+          /* If off, default to your theme or plain white */
+          #fff;
+        {% endif %}
+
+      /* Box-shadow based on user setting */
+      box-shadow:
+      {% case section.settings.inputs_shadow %}
+        {% when 'low' %} 0 1px 3px rgba(0,0,0,0.2);
+        {% when 'medium' %} 0 4px 6px rgba(0,0,0,0.15);
+        {% when 'high' %} 0 6px 12px rgba(0,0,0,0.3);
+        {% else %} none;
+      {% endcase %}
+    }
+
+    .input-wrapper input[type="text"]:focus,
+    .input-wrapper input[type="email"]:focus,
+    .input-wrapper input[type="password"]:focus {
+      border-color: {{ section.settings.input_border_focus_color }};
+    }
+
+    /* Universal color for ALL icons (unless specifically overridden below) */
+    .input-wrapper .input-icon svg {
+      fill: {{ section.settings.svg_icons_color }};
+    }
+
+    /* Overrides for the lock icon color if desired */
+    .password .input-icon svg,
+    .password-confirm .input-icon svg {
+      fill: {{ section.settings.lock_svg_color }};
+    }
+
+    /* Overrides for the @ icon color if desired */
+    .email .input-icon svg {
+      fill: {{ section.settings.at_svg_color }};
+    }
+
+    /* Example styling for a modern toggle switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 20px;
+      margin-right: 10px; /* space before "Remember me" label */
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #4564ff; /* or any accent color you prefer */
+    }
+
+    input:focus + .slider {
+      box-shadow: 0 0 1px #66bb6a;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    .slider.round {
+      border-radius: 34px;
+    }
+
+    .remember-me-label {
+      cursor: pointer;
+      margin-bottom: 0; /* keep it aligned */
+    }
+
+    /* "Already have an account? Log In!" link styling */
+    .already-have-account__link {
+      color: {{ section.settings.already_have_account_color }};
+      text-decoration: underline;
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) { /* Adjust the breakpoint as needed */
+    .customer-form.register-form {
+      --col-width: 90%; /* Example for mobile-specific adjustment */
+      --max-width: 85rem; /* Mobile-specific maximum width */
+    }
+  }
+
+    /* Original theme variables below. Keep them scoped as well. */
+    :root {
+      --btn-outline-color: {{ settings.btn_outline_color }};
+      --btn-border-color: {{ settings.btn_outline_border_color }};
+      --btn-link-color: {{ settings.button_link_color }};
+      --btn-link-hover-color: {{ settings.button_link_hover_color }};
+      --add-to-cart-bg-color: {{ settings.add_to_cart_bg_color | default: '#000000' }} !important;
+      --add-to-cart-text-color: {{ settings.add_to_cart_text_color | default: '#ffffff' }} !important;
+      --add-to-cart-border-color: {{ settings.add_to_cart_border_color | default: '#000000' }} !important;
+      --add-to-cart-border-weight: {{ settings.add_to_cart_border_weight | default: 1 }}px !important;
+      --add-to-cart-border-radius: {{ settings.add_to_cart_border_radius | default: 8 }}px !important;
+      --add-to-cart-hover-bg-color: {{ settings.add_to_cart_hover_bg_color | default: '#333333' }} !important;
+      --add-to-cart-hover-text-color: {{ settings.add_to_cart_hover_text_color | default: '#ffffff' }} !important;
+      --btn-link-color: {{ settings.button_link_color }};
+      --payment-button-more-options-border-weight: {{ settings.payment_button_more_options_border_weight | default: 1 }}px;
+      --payment-button-more-options-bg-color: {{ settings.payment_button_more_options_bg_color | default: '#000000' }};
+      --payment-button-more-options-text-color: {{ settings.payment_button_more_options_text_color | default: '#ffffff' }};
+      --payment-button-more-options-border-color: {{ settings.payment_button_more_options_border_color | default: '#000000' }};
+      --payment-button-more-options-border-radius: {{ settings.payment_button_more_options_border_radius | default: '8' }}px;
+      --outline-button-border-color: {{ settings.outline_button_border_color | default: '#2980b9' }} !important;
+      --outline-button-border-weight: {{ settings.outline_button_border_weight | default: 1 }}px !important;
+      --btn-outline-text-color: {{ settings.btn_outline_text_color | default: '#ffffff' }};
+      --btn-outline-hover-text-color: {{ settings.btn_outline_hover_text_color | default: '#ecf0f1' }};
+      --btn-outline-hover-color: {{ settings.btn_outline_hover_color }};
+      --btn-outline-bg-color: {{ settings.btn_outline_bg_color | default: '#3498db' }};
+      --btn-border-radius: {{ settings.btn_border_radius | default: 8 }}px !important;
+      --cart-drawer-checkout-bg-color: {{ settings.cart_drawer_checkout_bg_color }};
+      --cart-drawer-checkout-hover-bg-color: {{ settings.cart_drawer_checkout_hover_bg_color }} !important;
+      --cart-drawer-checkout-text-color: {{ settings.cart_drawer_checkout_text_color }} !important;
+      --cart-drawer-checkout-border-weight: {{ settings.cart_drawer_checkout_border_weight }}px !important;
+      --cart-drawer-checkout-border-color: {{ settings.cart_drawer_checkout_border_color }} !important;
+      --cart-drawer-checkout-border-radius: {{ settings.cart_drawer_checkout_border_radius }}px !important;
+      --cart-drawer-checkout-hover-text-color: {{ settings.cart_drawer_checkout_hover_text_color }} !important;
+      --btn-link-hover-color: {{ settings.button_link_hover_color }};
+    }
+
+
+</style>
+
+<link rel="stylesheet" href="{{ 'minicart.css' | asset_url }}" media="print" onload="this.media='all'">

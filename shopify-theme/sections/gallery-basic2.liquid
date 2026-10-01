@@ -1,0 +1,797 @@
+
+{%- style -%}
+  .loudecom-section__{{sec_id}} *,
+  .loudecom-section__{{sec_id}} *:after,
+  .loudecom-section__{{sec_id}} *:before {
+    box-sizing: border-box;
+  }
+
+  .loudecom-section__{{sec_id}} img,
+  .loudecom-section__{{sec_id}} video {
+    max-width: 100%;
+    height: auto;
+    /* Ensure images and videos cover the wrapper for hover effects */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Prevent copying or dragging the media */
+    user-select: none;
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+    /* Unified transition for a smoother hover/fade effect */
+    transition: transform 0.4s ease, opacity 0.4s ease;
+  }
+
+  .loudecom-container,
+  .loudecom-container-fluid {
+    width: 100%;
+    padding-right: var(--loudecom-gutter-x, 10px);
+    padding-left: var(--loudecom-gutter-x, 10px);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  @media (min-width: 576px) {
+    .loudecom-container {
+      max-width: 540px;
+    }
+  }
+
+  @media (min-width: 750px) {
+    .loudecom-container {
+      max-width: 720px;
+    }
+  }
+
+  @media (min-width: 992px) {
+    .loudecom-container {
+      max-width: 960px;
+    }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width <= 960 %}
+      .loudecom-section__{{sec_id}} .loudecom-container {
+        max-width: {{section.settings.container_max_width}}px;
+      }
+    {% endif %}
+  }
+
+  @media (min-width: 1200px) {
+    .loudecom-container {
+      max-width: 1140px;
+    }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width <= 1140 %}
+      .loudecom-section__{{sec_id}} .loudecom-container {
+        max-width: {{section.settings.container_max_width}}px;
+      }
+    {% endif %}
+  }
+
+  @media (min-width: 1400px) {
+    .loudecom-container {
+      max-width: 1320px;
+    }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width != 1320 %}
+      .loudecom-section__{{sec_id}} .loudecom-container {
+        max-width: {{section.settings.container_max_width}}px;
+      }
+    {% endif %}
+  }
+
+  .loudecom-section__{{sec_id}} .loudecom-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: calc(var(--loudecom-gutter-x, 15px) * -1);
+    margin-left: calc(var(--loudecom-gutter-x, 15px) * -1);
+  }
+
+  .loudecom-section__{{sec_id}} .loudecom-row > * {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 100%;
+    padding-right: var(--loudecom-gutter-x, 15px);
+    padding-left: var(--loudecom-gutter-x, 15px);
+    margin-bottom: calc(var(--loudecom-gutter-x, 15px) * 2);
+  }
+
+  @media (min-width: 750px) {
+    .loudecom-section__{{sec_id}} .loudecom-col-md-4 {
+      flex: 0 0 auto;
+      width: 33.33333333%;
+    }
+  }
+
+  .loudecom-section__{{sec_id}} {
+    --loudecom-gutter-x: {{section.settings.gutter}}px;
+    padding-top: {{section.settings.section_padding_top}}px;
+    padding-bottom: {{section.settings.section_padding_bottom}}px;
+    background-color: {{section.settings.background_color}};
+    color: {{section.settings.text_color}};
+    line-height: 1.5;
+  }
+
+  .loudecom-section__{{sec_id}} .loudecom-section-title {
+    color: {{section.settings.text_color}};
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 40px;
+    text-align: {{section.settings.text_align}};
+  }
+
+  {% if section.settings.inherit_fonts == false %}
+    .loudecom-section__{{sec_id}} .loudecom-large.loudecom-section-title {
+      font-size: 64px;
+    }
+    .loudecom-section__{{sec_id}} .loudecom-medium.loudecom-section-title {
+      font-size: 48px;
+    }
+    .loudecom-section__{{sec_id}} .loudecom-small.loudecom-section-title {
+      font-size: 32px;
+    }
+  {% endif %}
+
+  /* Default placeholder images for demonstration */
+  .loudecom-section__{{sec_id}} .loudecom-col-md-4:nth-child(1) .loudecom-img-wrapper {
+    background: url('https://www.grabthetorch.org/wp-content/uploads/2019/04/placeholder-image.jpg') no-repeat center/cover;
+  }
+  .loudecom-section__{{sec_id}} .loudecom-col-md-4:nth-child(2) .loudecom-img-wrapper {
+    background: url('https://www.grabthetorch.org/wp-content/uploads/2019/04/placeholder-image.jpg') no-repeat center/cover;
+  }
+  .loudecom-section__{{sec_id}} .loudecom-col-md-4:nth-child(3) .loudecom-img-wrapper {
+    background: url('https://www.grabthetorch.org/wp-content/uploads/2019/04/placeholder-image.jpg') no-repeat center/cover;
+  }
+  .loudecom-section__{{sec_id}} .loudecom-col-md-4:nth-child(4) .loudecom-img-wrapper {
+    background: url('https://www.grabthetorch.org/wp-content/uploads/2019/04/placeholder-image.jpg') no-repeat center/cover;
+  }
+  .loudecom-section__{{sec_id}} .loudecom-col-md-4:nth-child(5) .loudecom-img-wrapper {
+    background: url('https://www.grabthetorch.org/wp-content/uploads/2019/04/placeholder-image.jpg') no-repeat center/cover;
+  }
+  .loudecom-section__{{sec_id}} .loudecom-col-md-4:nth-child(6) .loudecom-img-wrapper {
+    background: url('https://www.grabthetorch.org/wp-content/uploads/2019/04/placeholder-image.jpg') no-repeat center/cover;
+  }
+
+  .loudecom-section__{{sec_id}} .loudecom-img-wrapper {
+    position: relative;
+    height: auto;
+    padding-top: {{section.settings.img_proportion}};
+    overflow: hidden;
+    border-radius: {{ section.settings.image_border_radius }}px;
+    box-shadow: {% case section.settings.image_shadow %}
+      {% when 'none' %}
+        none;
+      {% when 'low' %}
+        0 2px 4px rgba(0,0,0,0.1);
+      {% when 'medium' %}
+        0 4px 8px rgba(0,0,0,0.2);
+      {% when 'high' %}
+        0 6px 12px rgba(0,0,0,0.3);
+      {% else %}
+        none;
+      {% endcase %}
+    /* Ensures the transition is smooth on hover */
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  {% if section.settings.make_images_circle %}
+    .loudecom-section__{{sec_id}} .loudecom-img-wrapper {
+      border-radius: 50% !important;
+    }
+  {% endif %}
+
+  {% case section.settings.image_hover_animation %}
+    {% when 'none' %}
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover img,
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover video {
+        transform: none;
+        transition: none;
+      }
+    {% when 'fade_in' %}
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover img,
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover video {
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+      }
+    {% when 'zoom_in_subtle' %}
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover img,
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover video {
+        transform: scale(1.05);
+        transition: transform 0.3s ease;
+      }
+    {% when 'smooth_tilt' %}
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover img,
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover video {
+        transform: rotate(3deg);
+        transition: transform 0.3s ease;
+      }
+    {% when 'scale_up' %}
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover img,
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover video {
+        transform: scale(1.1);
+        transition: transform 0.3s ease;
+      }
+    {% when 'rotate' %}
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover img,
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover video {
+        transform: rotate(5deg);
+        transition: transform 0.3s ease;
+      }
+    {% when 'slide_up' %}
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover img,
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover video {
+        transform: translateY(-10px);
+        transition: transform 0.3s ease;
+      }
+    {% else %}
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover img,
+      .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover video {
+        transform: scale(1.03);
+        transition: transform 0.3s ease;
+      }
+  {% endcase %}
+
+  /* New CSS for media toggle behavior */
+  .loudecom-section__{{sec_id}} .loudecom-img-wrapper.display-video-first video {
+    opacity: 1;
+  }
+  .loudecom-section__{{sec_id}} .loudecom-img-wrapper.display-video-first img {
+    opacity: 0;
+  }
+  .loudecom-section__{{sec_id}} .loudecom-img-wrapper.display-video-first:hover video {
+    opacity: 0;
+  }
+  .loudecom-section__{{sec_id}} .loudecom-img-wrapper.display-video-first:hover img {
+    opacity: 1;
+  }
+
+  .loudecom-section__{{sec_id}} .loudecom-img-wrapper.display-image-first img {
+    opacity: 1;
+  }
+  .loudecom-section__{{sec_id}} .loudecom-img-wrapper.display-image-first video {
+    opacity: 0;
+  }
+  .loudecom-section__{{sec_id}} .loudecom-img-wrapper.display-image-first:hover img {
+    opacity: 0;
+  }
+  .loudecom-section__{{sec_id}} .loudecom-img-wrapper.display-image-first:hover video {
+    opacity: 1;
+  }
+
+  .loudecom-section__{{sec_id}} .loudecom-gallery-link {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    transition: background-color 0.3s, opacity 0.3s;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .loudecom-section__{{sec_id}} .loudecom-img-wrapper:hover .loudecom-gallery-link {
+    opacity: 1;
+  }
+
+  .loudecom-section__{{sec_id}} .loudecom-gallery-link svg {
+    width: {{ section.settings.icon_size }}px;
+    height: {{ section.settings.icon_size }}px;
+  }
+
+  @media only screen and (max-width: 749px) {
+    .loudecom-section__{{sec_id}} {
+      padding-top: {{section.settings.section_padding_top_mobile}}px;
+      padding-bottom: {{section.settings.section_padding_bottom_mobile}}px;
+    }
+    {% if section.settings.inherit_fonts == false %}
+      .loudecom-section__{{sec_id}} .loudecom-large.loudecom-section-title {
+        font-size: 56px;
+      }
+      .loudecom-section__{{sec_id}} .loudecom-medium.loudecom-section-title {
+        font-size: 40px;
+      }
+      .loudecom-section__{{sec_id}} .loudecom-small.loudecom-section-title {
+        font-size: 28px;
+      }
+    {% endif %}
+    .loudecom-section__{{sec_id}} .loudecom-row > * {
+      margin-bottom: {{ section.settings.vertical_space_mobile }}px;
+    }
+    /* Apply mobile image ratio */
+    .loudecom-section__{{sec_id}} .loudecom-img-wrapper {
+      padding-top: {{ section.settings.img_proportion_mobile }};
+    }
+  }
+{%- endstyle -%}
+
+{% if section.settings.custom_css != blank %}
+  {%- style -%}
+    {{section.settings.custom_css}}
+  {%- endstyle -%}
+{% endif %}
+
+{% if section.settings.is_fullwidth == true %}
+  {% assign container = 'loudecom-container-fluid' %}
+{% else %}
+  {% assign container = 'loudecom-container' %}
+{% endif %}
+
+{% if section.settings.lazyload == true %}
+  {% assign loading = 'lazy' %}
+{% else %}
+  {% assign loading = 'eager' %}
+{% endif %}
+
+<div class="loudecom-section__{{sec_id}} {{ section.settings.custom_class }}">
+  <div class="{{container}}">
+    {% if section.settings.heading_text != blank %}
+      <{{ section.settings.heading_tag }} class="{{ section.settings.heading_size }} loudecom-section-title">
+        {{ section.settings.heading_text | escape }}
+      </{{ section.settings.heading_tag }}>
+    {% endif %}
+    <div class="loudecom-row">
+      {% for block in section.blocks %}
+        {% case block.type %}
+          {% when 'image' %}
+            {%- assign wrapper_class = '' -%}
+            {% if block.settings.video_url != blank and block.settings.background_image != blank %}
+              {% if section.settings.display_video_first %}
+                {% assign wrapper_class = ' display-video-first' %}
+              {% elsif section.settings.display_image_first %}
+                {% assign wrapper_class = ' display-image-first' %}
+              {% endif %}
+            {% endif %}
+            <div class="loudecom-col-md-4" {{ block.shopify_attributes }}>
+              <div class="loudecom-img-wrapper{{ wrapper_class }}{% if section.settings.make_images_circle %} make-circle{% endif %}">
+                {% comment %}
+                  If both video & image are present with 'Display Video First':
+                  - We place the <video> first, then the <img> so the video is default visible
+                  and the image fades in on hover.
+                {% endcomment %}
+                {% if block.settings.video_url != blank
+                  and block.settings.background_image != blank
+                  and section.settings.display_video_first
+                %}
+                  <video autoplay muted loop playsinline style="width:100%; height:100%; object-fit:cover;">
+                    <source src="{{ block.settings.video_url }}" type="video/mp4">
+                  </video>
+                  {{
+                    block.settings.background_image
+                    | image_url: width: 2048
+                    | image_tag:
+                      widths: '490, 750, 992, 1200, 2048',
+                      sizes: '(min-width: 750px) 30vw, 100vw',
+                      loading: loading
+                  }}
+
+                  {% comment %}
+                    If both video & image are present with 'Display Image First':
+                    - We place the <img> first, then the <video>, so the image is default visible
+                    and the video fades in on hover.
+                  {% endcomment %}
+                {% elsif block.settings.video_url != blank
+                  and block.settings.background_image != blank
+                  and section.settings.display_image_first
+                %}
+                  {{
+                    block.settings.background_image
+                    | image_url: width: 2048
+                    | image_tag:
+                      widths: '490, 750, 992, 1200, 2048',
+                      sizes: '(min-width: 750px) 30vw, 100vw',
+                      loading: loading
+                  }}
+                  <video autoplay muted loop playsinline style="width:100%; height:100%; object-fit:cover;">
+                    <source src="{{ block.settings.video_url }}" type="video/mp4">
+                  </video>
+
+                {% elsif block.settings.video_url != blank %}
+                  <video autoplay muted loop playsinline style="width:100%; height:100%; object-fit:cover;">
+                    <source src="{{ block.settings.video_url }}" type="video/mp4">
+                  </video>
+                {% elsif block.settings.background_image != blank %}
+                  {{
+                    block.settings.background_image
+                    | image_url: width: 2048
+                    | image_tag:
+                      widths: '490, 750, 992, 1200, 2048',
+                      sizes: '(min-width: 750px) 30vw, 100vw',
+                      loading: loading
+                  }}
+                {% endif %}
+                {% if block.settings.gallery_link_url != blank %}
+                  <a
+                    href="{{ block.settings.gallery_link_url }}"
+                    class="loudecom-gallery-link"
+                    aria-label="View Details"
+                  >
+                    <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="none">
+                      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                      <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                      <g id="SVGRepo_iconCarrier">
+                        <path fill="#ffffff" d="M8.235 4.045a.75.75 0 111.03-1.09l4.5 4.25a.75.75 0 010 1.09l-4.5 4.25a.75.75 0 01-1.03-1.09L11.364 8.5H2.75a.75.75 0 010-1.5h8.614L8.235 4.045z"></path>
+                      </g>
+                    </svg>
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+        {% endcase %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+  // Disable right-click context menu for images in this section
+  (function(){
+    var imgs = document.querySelectorAll('.loudecom-section__{{sec_id}} img');
+    imgs.forEach(function(img) {
+      img.oncontextmenu = function() { return false; };
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Gallery Simple 1",
+  "tag": "section",
+  "class": "gallery-gallery",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Image Settings",
+      "info": "Configure the images' appearance and behavior."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "transparent",
+      "info": "Set the background color of the gallery section."
+    },
+    {
+      "type": "select",
+      "id": "img_proportion",
+      "label": "Image Ratio",
+      "options": [
+        {
+          "value": "100%",
+          "label": "1x1"
+        },
+        {
+          "value": "150%",
+          "label": "2x3"
+        },
+        {
+          "value": "133.333%",
+          "label": "3x4"
+        },
+        {
+          "value": "75%",
+          "label": "4x3"
+        },
+        {
+          "value": "56.25%",
+          "label": "16x9"
+        },
+        {
+          "value": "42.857%",
+          "label": "21x9"
+        },
+        {
+          "value": "125%",
+          "label": "4x5"
+        },
+        {
+          "value": "80%",
+          "label": "5x4"
+        }
+      ],
+      "default": "125%",
+      "info": "Choose the aspect ratio for images on desktop."
+    },
+    {
+      "type": "select",
+      "id": "img_proportion_mobile",
+      "label": "Image Ratio (Mobile)",
+      "options": [
+        {
+          "value": "100%",
+          "label": "1x1"
+        },
+        {
+          "value": "150%",
+          "label": "2x3"
+        },
+        {
+          "value": "133.333%",
+          "label": "3x4"
+        },
+        {
+          "value": "75%",
+          "label": "4x3"
+        },
+        {
+          "value": "56.25%",
+          "label": "16x9"
+        },
+        {
+          "value": "42.857%",
+          "label": "21x9"
+        },
+        {
+          "value": "125%",
+          "label": "4x5"
+        },
+        {
+          "value": "80%",
+          "label": "5x4"
+        }
+      ],
+      "default": "80%",
+      "info": "Choose the aspect ratio for images on mobile devices."
+    },
+    {
+      "type": "select",
+      "id": "image_shadow",
+      "label": "Image Shadow",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "low",
+          "label": "Low Shadow"
+        },
+        {
+          "value": "medium",
+          "label": "Medium Shadow"
+        },
+        {
+          "value": "high",
+          "label": "High Shadow"
+        }
+      ],
+      "default": "none",
+      "info": "Add shadow effects to images for depth."
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Image Border Radius",
+      "default": 4,
+      "info": "Set the border radius for images to create rounded corners."
+    },
+    {
+      "type": "checkbox",
+      "id": "make_images_circle",
+      "default": false,
+      "label": "Make Images Circle",
+      "info": "Enable to display images as circles. Make sure the image ratio is 1:1 / square."
+    },
+    {
+      "type": "select",
+      "id": "image_hover_animation",
+      "label": "Image Hover Animation",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "zoom_in_subtle",
+          "label": "Zoom In Subtle"
+        },
+        {
+          "value": "scale_up",
+          "label": "Scale Up"
+        }
+      ],
+      "default": "zoom_in_subtle",
+      "info": "Select an animation effect when hovering over images."
+    },
+    {
+      "type": "header",
+      "content": "Media Display Options",
+      "info": "Toggle which media displays first when both video and image are provided."
+    },
+    {
+      "type": "checkbox",
+      "id": "display_video_first",
+      "default": false,
+      "label": "Display Video First",
+      "info": "When enabled, the video is shown by default and on hover the image appears."
+    },
+    {
+      "type": "checkbox",
+      "id": "display_image_first",
+      "default": false,
+      "label": "Display Image First",
+      "info": "When enabled, the image is shown by default and on hover the video appears."
+    },
+    {
+      "type": "header",
+      "content": "Spacing",
+      "info": "Adjust the spacing around and between images."
+    },
+    {
+      "type": "range",
+      "id": "gutter",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Horizontal Space Between Images (Desktop)",
+      "default": 20,
+      "info": "Set the horizontal gutter between images on desktop."
+    },
+    {
+      "type": "range",
+      "id": "vertical_space_mobile",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Vertical Space Between Images (Mobile)",
+      "default": 20,
+      "info": "Set the vertical gutter between images on mobile."
+    },
+    {
+      "type": "header",
+      "content": "Section Padding",
+      "info": "Control the padding around the entire gallery section."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Desktop)",
+      "default": 50,
+      "info": "Set the top padding for the gallery section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Desktop)",
+      "default": 50,
+      "info": "Set the bottom padding for the gallery section on desktop."
+    },
+    {
+      "type": "header",
+      "content": "Mobile Padding",
+      "info": "Control the padding around the gallery section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Top (Mobile)",
+      "default": 50,
+      "info": "Set the top padding for the gallery section on mobile."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Padding Bottom (Mobile)",
+      "default": 50,
+      "info": "Set the bottom padding for the gallery section on mobile."
+    },
+    {
+      "type": "header",
+      "content": "Customization",
+      "info": "Advanced customization options for the gallery."
+    },
+    {
+      "type": "number",
+      "id": "container_max_width",
+      "label": "Content Width Limit (px)",
+      "default": 990,
+      "info": "Define the maximum width of the gallery container."
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS",
+      "info": "Add custom CSS to further style the gallery section."
+    },
+    {
+      "type": "header",
+      "content": "Performance",
+      "info": "Optimize the gallery for better performance."
+    },
+    {
+      "type": "checkbox",
+      "id": "lazyload",
+      "default": true,
+      "label": "Enable Lazyload Images",
+      "info": "Enable lazy loading for images to improve page load times."
+    },
+    {
+      "type": "header",
+      "content": "Icons",
+      "info": "Configure icon settings related to the gallery."
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "min": 8,
+      "max": 64,
+      "step": 1,
+      "unit": "px",
+      "label": "Icon Hover Size",
+      "default": 32,
+      "info": "Set the size of icons when hovered."
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Image",
+      "type": "image",
+      "limit": 9,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "background_image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "gallery_link_url",
+          "label": "Image URL"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "video_url",
+          "label": "Video URL",
+          "info": "Add link of a video to display. Video will autoplay, muted, loop infinitely."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gallery Simple 1",
+       "category": "Gallery",
+      "settings": {},
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

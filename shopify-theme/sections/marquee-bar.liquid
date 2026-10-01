@@ -1,0 +1,290 @@
+{%- comment -%} sections/marquee-bar.liquid {%- endcomment -%}
+{% stylesheet %}   
+  .scrolling-marquee-1 .scrolling__marquee {
+    overflow: hidden;
+    padding-block: var(--scrolling-padding-top, 14px) var(--scrolling-padding-bottom, 14px);
+    gap: var(--scrolling-item-gap, 40px);
+    background: var(--scrolling-background-color, #FFDD00);
+    display: flex;
+    margin-inline: auto;
+    max-width: var(--scrolling-section-width, 1920px);
+    width: 100%;
+  }
+
+  .scrolling-marquee-1 .scrolling__marquee a { color: inherit; }
+
+  .scrolling-marquee-1 .scrolling__marquee-wrapper {
+    animation: scrollingMarqueeRightToLeft var(--scrolling-animation-duration, 30s) linear infinite;
+    gap: var(--scrolling-item-gap, 40px);
+    width: max-content;
+    flex-shrink: 0;
+    display: flex;
+    animation-direction: var(--scrolling-animation-direction, reverse);
+  }
+
+  .scrolling-marquee-1 .scrolling__marquee:hover .scrolling__marquee-wrapper {
+    animation-play-state: var(--scrolling-pause-on-hover, paused);
+  }
+
+  @keyframes scrollingMarqueeRightToLeft {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(calc((-100% - var(--scrolling-item-gap)))); }
+  }
+
+  .scrolling-marquee-1 .scrolling__marquee-item {
+    font-size: var(--scrolling-text-size, 48px);
+    font-weight: var(--scrolling-font-weight, 400);
+    color: var(--scrolling-text-color, #000000);
+    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .scrolling-marquee-1 .scrolling__marquee-item a { text-decoration: none; }
+
+  .scrolling-marquee-1 .scrolling__marquee-img {
+    width: 60px;
+  }
+
+  /* SVG support (per-block size, optional colorize, vertical offset) */
+  .scrolling-marquee-1 .scrolling__marquee-item--icon {
+    transform: translateY(var(--svg-icon-offset-y, 0px)); /* why: allow per-block vertical positioning */
+    will-change: transform;
+  }
+
+  .scrolling-marquee-1 .scrolling__marquee-svg-wrap svg {
+    width: var(--svg-size-mobile, 24px);
+    height: auto;
+  }
+  @media screen and (min-width: 768px) {
+    .scrolling-marquee-1 .scrolling__marquee-svg-wrap svg {
+      width: var(--svg-size-desktop, 24px);
+    }
+  }
+
+  /* Only recolor when explicitly enabled; never force fills */
+  .scrolling-marquee-1 .scrolling__marquee-svg-wrap[data-colorize="true"] svg,
+  .scrolling-marquee-1 .scrolling__marquee-svg-wrap[data-colorize="true"] svg * {
+    stroke: var(--svg-color, currentColor) !important; /* why: recolor strokes only, preserve fills */
+  }
+{% endstylesheet %}
+
+{%- capture html_id -%}
+  {%- if section.settings.html_id != blank -%}
+    id="{{ section.settings.html_id | handleize }}"
+  {%- endif -%}
+{%- endcapture -%}
+
+<style>
+  #scrolling-{{ section.id }} {
+    --scrolling-item-gap: {{ section.settings.mobile_item_gap }}px;
+    --scrolling-padding-top: {{ section.settings.mobile_top_padding }}px;
+    --scrolling-padding-bottom: {{ section.settings.mobile_bottom_padding }}px;
+    --scrolling-background-color: {{ section.settings.background_gradient | default: section.settings.background_color }};
+    --scrolling-text-color: {{ section.settings.text_color }};
+    --scrolling-animation-duration: {{ section.settings.duration }}s;
+    --scrolling-text-size: {{ section.settings.mobile_text_size }}px;
+    --scrolling-section-width: {{ section.settings.section_width }}px;
+    --scrolling-pause-on-hover: {% if section.settings.pause_on_hover %}paused{% else %}running{% endif %};
+    --scrolling-animation-direction: {{ section.settings.direction }};
+    --scrolling-font-weight: {{ section.settings.text_weight }};
+  }
+
+  @media screen and (min-width: 768px) {
+    #scrolling-{{ section.id }} {
+      --scrolling-item-gap: {{ section.settings.desktop_item_gap }}px;
+      --scrolling-padding-top: {{ section.settings.desktop_top_padding }}px;
+      --scrolling-padding-bottom: {{ section.settings.desktop_bottom_padding }}px;
+      --scrolling-text-size: {{ section.settings.desktop_text_size }}px;
+    }
+  }
+</style>
+
+{% capture marquee_wrapper %}
+  <div class="scrolling__marquee-wrapper">
+    {%- for block in section.blocks -%}
+      <div class="scrolling__marquee-item">
+        {{ block.settings.text }}
+      </div>
+
+      {% if block.settings.svg_icon != blank %}
+        <div
+          class="scrolling__marquee-item scrolling__marquee-item--icon"
+          style="
+            --svg-size-mobile: {{ block.settings.svg_icon_size_mobile }}px;
+            --svg-size-desktop: {{ block.settings.svg_icon_size_desktop }}px;
+            --svg-color: {{ block.settings.svg_icon_color }};
+            --svg-icon-offset-y: {{ block.settings.svg_icon_vertical_offset | default: 0 }}px;
+          "
+        >
+          <div
+            class="scrolling__marquee-svg-wrap"
+            data-colorize="{% if block.settings.enable_svg_icon_color %}true{% else %}false{% endif %}"
+          >
+            {{ block.settings.svg_icon }}
+          </div>
+        </div>
+      {% elsif block.settings.image != blank %}
+        <div class="scrolling__marquee-item">
+          {{ block.settings.image | image_url: width: 60 | image_tag: loading: 'lazy', class: "scrolling__marquee-img" }}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endcapture %}
+
+<div id="scrolling-{{ section.id }}" class="scrolling-{{ section.id }} scrolling-marquee-1">
+  <div {{ html_id }} class="{{ 'scrolling__marquee ' | append: section.settings.html_class | strip }}">
+    {%- for i in (1..section.settings.repeat_count) -%}
+      {{ marquee_wrapper }}
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Marquee Bar",
+  "tag": "section",
+  "class": "scrollingbar",
+
+  "settings": [
+    { "type": "header", "content": "Section padding" },
+    {
+      "type": "range", "id": "desktop_top_padding",
+      "min": 0, "max": 200, "step": 2, "unit": "px",
+      "label": "Desktop: top padding", "default": 14
+    },
+    {
+      "type": "range", "id": "desktop_bottom_padding",
+      "min": 0, "max": 200, "step": 2, "unit": "px",
+      "label": "Desktop: bottom padding", "default": 14
+    },
+    {
+      "type": "range", "id": "mobile_top_padding",
+      "min": 0, "max": 100, "step": 2, "unit": "px",
+      "label": "Mobile: top padding", "default": 14
+    },
+    {
+      "type": "range", "id": "mobile_bottom_padding",
+      "min": 0, "max": 100, "step": 2, "unit": "px",
+      "label": "Mobile: bottom padding", "default": 14
+    },
+
+    { "type": "header", "content": "Typography" },
+    {
+      "type": "range", "id": "desktop_text_size",
+      "label": "Desktop: text size", "min": 5, "max": 145, "step": 5, "default": 20, "unit": "px"
+    },
+    {
+      "type": "range", "id": "mobile_text_size",
+      "label": "Mobile: text size", "min": 8, "max": 64, "step": 1, "default": 16, "unit": "px"
+    },
+    {
+      "type": "select", "id": "text_weight", "label": "Text weight",
+      "options": [
+        { "value": "100", "label": "Thin" },
+        { "value": "200", "label": "Extra Light" },
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi Bold" },
+        { "value": "700", "label": "Bold" },
+        { "value": "800", "label": "Extra Bold" },
+        { "value": "900", "label": "Black" }
+      ],
+      "default": "500"
+    },
+
+    { "type": "header", "content": "Content behavior" },
+    {
+      "type": "range", "id": "desktop_item_gap",
+      "label": "Desktop: item gap", "min": 0, "max": 100, "step": 1, "default": 40, "unit": "px"
+    },
+    {
+      "type": "range", "id": "mobile_item_gap",
+      "label": "Mobile: item gap", "min": 0, "max": 100, "step": 1, "default": 10, "unit": "px"
+    },
+    {
+      "type": "number", "id": "duration",
+      "label": "Duration (s)", "default": 30,
+      "info": "If the content is long then the duration should be increased."
+    },
+    {
+      "type": "select", "id": "direction", "label": "Direction:",
+      "options": [
+        { "label": "To left", "value": "normal" },
+        { "label": "To right", "value": "reverse" }
+      ],
+      "default": "reverse"
+    },
+    { "type": "checkbox", "id": "pause_on_hover", "label": "Pause on hover", "default": true },
+
+    { "type": "header", "content": "Design" },
+    { "type": "color", "id": "background_color", "label": "Background color", "default": "#000" },
+    { "type": "color_background", "id": "background_gradient", "label": "Background gradient", "info": "If set, overrides the background color." },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#fff" },
+
+    { "type": "header", "content": "Section layout" },
+    { "type": "number", "id": "section_width", "label": "Section width (px)", "default": 1920 },
+    {
+      "type": "range", "id": "repeat_count",
+      "label": "Number of repetitions", "min": 1, "max": 5, "step": 1, "default": 3,
+      "info": "How many times the marquee content should be repeated"
+    },
+
+    { "type": "header", "content": "Advanced" },
+    { "type": "text", "id": "html_id", "label": "HTML ID", "info": "Unique identifier for linking directly to this section. Leave blank if unsure." },
+    { "type": "text", "id": "html_class", "label": "HTML Class", "info": "Comma separated list of classes." }
+  ],
+
+  "blocks": [
+    {
+      "type": "marquee",
+      "name": "Marquee",
+      "settings": [
+        { "type": "inline_richtext", "id": "text", "label": "Text", "default": "Get 15% Off Sale" },
+        { "type": "image_picker", "id": "image", "label": "Image", "info": "Optional. If SVG code is provided below, it will be used instead of this image." },
+        { "type": "textarea", "id": "svg_icon", "label": "SVG icon code", "info": "Paste full <svg>…</svg> markup. This will override the image above if provided." },
+
+        { "type": "header", "content": "SVG Controls" },
+        { "type": "checkbox", "id": "enable_svg_icon_color", "label": "Enable SVG icon custom color", "default": false },
+        {
+          "type": "color", "id": "svg_icon_color",
+          "label": "SVG icon color (applies only when enabled)", "default": "#000000"
+        },
+        {
+          "type": "range", "id": "svg_icon_size_desktop",
+          "label": "SVG icon size (desktop)", "min": 0, "max": 160, "step": 10, "default": 40, "unit": "px"
+        },
+        {
+          "type": "range", "id": "svg_icon_size_mobile",
+          "label": "SVG icon size (mobile)", "min": 0, "max": 120, "step": 10, "default": 20, "unit": "px"
+        },
+        {
+          "type": "range", "id": "svg_icon_vertical_offset",
+          "label": "SVG icon vertical position (Y)", "min": -100, "max": 100, "step": 5, "default": 5, "unit": "px"
+        }
+      ]
+    }
+  ],
+
+  "presets": [
+    {
+      "name": "Marquee Bar",
+    "category": "Announcement Bars",
+      "blocks": [
+        { "type": "marquee", "settings": { "text": "Get 15% Off Sale" } },
+        { "type": "marquee", "settings": { "text": "Get 15% Off Sale" } },
+        { "type": "marquee", "settings": { "text": "Get 15% Off Sale" } },
+        { "type": "marquee", "settings": { "text": "Get 15% Off Sale" } },
+        { "type": "marquee", "settings": { "text": "Get 15% Off Sale" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

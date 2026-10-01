@@ -1,0 +1,29 @@
+/* glassmorphism.css */
+
+header.glassmorphism {
+  /* Example glass effect styles */
+ background-color: var(--glass-background, rgba(100, 100, 100, 0.0.1));
+  backdrop-filter: blur(var(--glass-blur, 10px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 10px));
+
+  /* A subtle border or outline can help highlight the effect */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: backdrop-filter 0.3s ease, background-color 0.3s ease;
+}
+
+
+/* Ensure Glassmorphism applies to sticky headers */
+header.glassmorphism[data-sticky="always"],
+
+header.glassmorphism[data-sticky="on-scroll-up"] {
+  position: sticky;
+  top: 0; /* Adjust based on your design */
+  z-index: 999; /* Ensure it stays above content */
+   background-color: var(--glass-background, rgba(100, 100, 100, 0.0.1));
+  backdrop-filter: blur(var(--glass-blur, 10px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 10px));
+
+  /* A subtle border or outline can help highlight the effect */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: backdrop-filter 0.3s ease, background-color 0.3s ease;
+}

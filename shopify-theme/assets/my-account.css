@@ -1,0 +1,185 @@
+/* page-account */
+
+.bls__page-account {
+  --background-order: #e3fadf;
+  --color-order: #008a00;
+}
+.active-form form ul {
+  padding: 0;
+}
+.account-dashboard a:last-child {
+  border: 0;
+  
+}
+.account-dashboard a.active {
+   background-color: var(--table-header-bg-color); /* Use CSS variable */
+}
+.bls__account-details h3,
+.bls__order-history h3 {
+  --font-h3: 2.4rem;
+   border-radius: 7px !important;
+  font-size: clamp(2rem, 3.5vw, var(--font-h3));
+}
+.bls__order-history .no-order {
+  padding: 1.6rem 2.5rem;
+  background-color: var(--background-order);
+  color: var(--color-order);
+ 
+  font-size: 1.4rem;
+}
+.no-order span {
+  font-size: 1.6rem;
+  margin-right: 0.5rem;
+}
+.no-order a {
+  color: var(--color-order);
+  border-bottom: 1px solid var(--color-order);
+  font-weight: 500;
+}
+.account-details {
+  border: 1px solid var(--border-color-base);
+  border-bottom: 0;
+    border-radius: 7px !important;
+  border-radius: 5px;
+}
+
+.account-details span {
+  padding: 1.3rem 2rem;
+  display: inline-block;
+}
+
+.account-details span:not(:last-child) {
+  border-right: 1px solid var(--border-color-base);
+  min-width: 138px;
+}
+
+.account-details > div {
+  border-bottom: 1px solid var(--border-color-base);
+}
+.title-default,
+.bls__your-addresses h3 {
+  --font-h3: 2.4rem;
+    border-radius: 7px !important;
+  font-size: clamp(2rem, 3.5vw, var(--font-h3));
+  margin-bottom: 1.5rem;
+}
+.bls__page-account .account-dashboard {
+  border: 1px solid var(--border-color-base); /* Controlled dynamically by the variable */
+  border-radius: 5px; /* Keeps the rounded corners */
+  position: sticky;
+  top: 30px; /* Sticky positioning */
+}
+.bls__your-addresses .form-field label {
+  margin-bottom: 0.5rem;
+  color: var(--color-link);
+}
+.bls__page-account .account-dashboard a,
+.bls__page-account .account-dashboard li {
+  border-bottom: 1px solid var(--border-color-base); /* Add border color to separators */
+  padding: 10px 15px; /* Adjust spacing */
+}
+
+.bls__page-account .account-dashboard a:last-child,
+.bls__page-account .account-dashboard li:last-child {
+  border-bottom: none; /* Remove the border for the last child */
+}
+.bls__your-addresses .form-field select {
+  background-position: 98% 50%;
+}
+.address-info p {
+  margin-bottom: 0.2rem;
+}
+
+.info-actions .btn-outline {
+  --btn-bg: var(--light-grey-color);
+  border-color: var(--border-color-base);
+}
+
+.responsive-table,
+.table-history-order {
+  width: 100%;
+   border-radius: 7px !important;
+  max-width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  text-align: left;
+}
+
+.responsive-table {
+  color: var(--color-link);
+  border-radius: 20px;
+}
+
+.table-history-order thead th {
+  padding: 1.3rem 2.7rem;
+    border-radius: 0px !important;
+  font-weight: 500;
+  
+  color: var(--btn-link-color);
+  border: 1px solid var(--border-color-base);
+   background-color: var(--table-header-bg-color); /* Use CSS variable */
+}
+
+.table-history-order tbody td {
+  vertical-align: middle;
+  padding: 0.9rem 1.7rem;
+    border-radius: 7px !important;
+  border: 0.5px solid var(--border-color-base);
+}
+
+.table-history-order tfoot td {
+  padding: 1.1rem 2rem;
+    border-radius: 7px !important;
+  vertical-align: middle;
+}
+
+.text-order {
+  font-size: 1.4rem;
+}
+
+.table-history-order tfoot td:last-child,
+.table-history-order tbody td:last-child {
+  font-weight: 500;
+    border-radius: 7px !important;
+  color: var(--color-link);
+}
+
+@media (min-width: 1024px) {
+  .row-order,
+  .bls__page-addresses .container > .row,
+  .bls__page-account .container > .row {
+    --bs-gutter-x: 10rem;
+      border-radius: 7px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .col-md-9.border-right,
+  .col-md-9.border-left {
+    border: 0;
+  }
+
+  .bls__addreses-default .bls__your-addresses,
+  .bls-customer__address .form-add-addresses {
+    padding: 2rem;
+  }
+  .table-history-order {
+    font-size: 1.4rem;
+    min-width: 500px;
+    
+  }
+  .table-history-order tbody td,
+  .table-history-order thead th {
+    padding: 1rem;
+  }
+  .bls__order-history {
+    overflow: hidden;
+    overflow-x: auto;
+    -webkit-mask-image: linear-gradient(to left, transparent 5px, #000 40px);
+    mask-image: linear-gradient(to left, transparent 5px, #000 40px);
+  }
+
+  .content-register {
+    margin-top: var(--space_between_section);
+  }
+}

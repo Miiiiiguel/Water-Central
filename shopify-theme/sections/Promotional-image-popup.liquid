@@ -1,0 +1,672 @@
+{%- liquid
+  assign display_options = section.settings.display_options
+  assign seconds = section.settings.seconds
+  assign percent = section.settings.percent
+  assign hide_promobanner_days = section.settings.hide_promobanner_days
+
+  assign promobanner_width = section.settings.promobanner_width
+  assign promobanner_width_mobile = section.settings.promobanner_width_mobile
+  assign promobanner_radius = section.settings.promobanner_radius
+  assign promobanner_border_thickness = section.settings.promobanner_border_thickness
+  assign promobanner_overlay = section.settings.promobanner_overlay
+  assign promobanner_horizontal_position = section.settings.promobanner_horizontal_position
+  assign promobanner_horizontal_position_mobile = section.settings.promobanner_horizontal_position_mobile
+  assign promobanner_vertical_position = section.settings.promobanner_vertical_position
+  assign promobanner_vertical_position_mobile = section.settings.promobanner_vertical_position_mobile
+
+  assign image_desktop = section.settings.image_desktop
+  assign image_mobile = section.settings.image_mobile
+  assign image_link = section.settings.image_link
+  assign image_border_radius = section.settings.image_border_radius
+  assign image_width_desktop = section.settings.image_width_desktop
+  assign image_height_desktop = section.settings.image_height_desktop
+  assign image_width_mobile = section.settings.image_width_mobile
+  assign image_height_mobile = section.settings.image_height_mobile
+  assign lazy = section.settings.lazy
+
+  assign close_button_color = section.settings.close_button_color
+  assign hide_on_mobile = section.settings.hide_on_mobile
+  assign image_hover_animation = section.settings.image_hover_animation
+
+  assign section_padding_top = section.settings.section_padding_top
+  assign section_padding_bottom = section.settings.section_padding_bottom
+
+  assign popup_container_background_color = section.settings.popup_container_background_color
+-%}
+
+{%- style -%}
+  /* Section wrapper & optional trigger button */
+  .section-{{ section.id }} {
+    text-align: center;
+    padding-top: {{ section_padding_top }}px;
+    padding-bottom: {{ section_padding_bottom }}px;
+  }
+  .promobanner-button-{{ section.id }} {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  /* Popup container (overlay) */
+  .promobanner-popup-{{ section.id }} {
+    width: 100% !important;
+    height: 100% !important;
+    top: 0;
+    left: 0;
+    position: fixed;
+    display: flex;
+    align-items: {{ promobanner_vertical_position_mobile }};
+    justify-content: {{ promobanner_horizontal_position_mobile }};
+    opacity: 0;
+    overflow-y: auto;
+    pointer-events: none;
+    background: rgba(0, 0, 0, {{ promobanner_overlay | times: 0.01 }});
+    padding: 10px;
+    transition: opacity 0.5s ease;
+    z-index: 9999;
+  }
+  .promobanner-popup-{{ section.id }}.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+  /* Popup inner container (where the image stays) */
+  .promobanner-popup-inner-{{ section.id }} {
+    position: relative;
+    max-width: {{ promobanner_width_mobile }}%;
+    border: {{ promobanner_border_thickness }}px solid #000;
+    background: {{ popup_container_background_color }};
+    border-radius: {{ promobanner_radius }}px;
+    overflow: hidden;
+  }
+
+  /* Image containers (only one is shown at a time) */
+  .promobanner-popup-image-desktop-{{ section.id }},
+  .promobanner-popup-image-mobile-{{ section.id }} {
+    margin: 0 auto;
+  }
+  .promobanner-popup-image-desktop-{{ section.id }} img,
+  .promobanner-popup-image-mobile-{{ section.id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: {{ image_border_radius }}px;
+  }
+  @media (min-width: 1024px) {
+    .promobanner-popup-inner-{{ section.id }} {
+      max-width: {{ promobanner_width }}%;
+    }
+    .promobanner-popup-image-desktop-{{ section.id }} {
+      display: block;
+      width: {{ image_width_desktop }}%;
+      height: {{ image_height_desktop }}px;
+    }
+    .promobanner-popup-image-mobile-{{ section.id }} {
+      display: none;
+    }
+  }
+  @media (max-width: 1023px) {
+    .promobanner-popup-image-mobile-{{ section.id }} {
+      display: block;
+      width: {{ image_width_mobile }}%;
+      height: {{ image_height_mobile }}px;
+    }
+    .promobanner-popup-image-desktop-{{ section.id }} {
+      display: none;
+    }
+  }
+
+  /* Close icon */
+  .promobanner-popup-close-{{ section.id }} {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 10000;
+  }
+  .promobanner-popup-close-{{ section.id }} svg {
+    width: 24px;
+    height: 24px;
+  }
+  .promobanner-popup-close-{{ section.id }} svg path {
+    fill: {{ close_button_color }};
+    transition: filter 0.3s ease;
+  }
+  .promobanner-popup-close-{{ section.id }}:hover svg path {
+    filter: brightness(0.8);
+  }
+
+  /* Hide section on mobile if enabled */
+  {% if hide_on_mobile %}
+  @media (max-width: 1023px) {
+    .section-{{ section.id }},
+    .promobanner-popup-{{ section.id }} {
+      display: none !important;
+    }
+  }
+  {% endif %}
+
+  /* Image Hover Animations */
+  {% if image_hover_animation == 'smooth_fade' %}
+    .promobanner-popup-image-desktop-{{ section.id }} img,
+    .promobanner-popup-image-mobile-{{ section.id }} img {
+      transition: opacity 0.3s ease;
+    }
+    .promobanner-popup-image-desktop-{{ section.id }} img:hover,
+    .promobanner-popup-image-mobile-{{ section.id }} img:hover {
+      opacity: 0.8;
+    }
+  {% elsif image_hover_animation == 'smooth_blink' %}
+    .promobanner-popup-image-desktop-{{ section.id }} img,
+    .promobanner-popup-image-mobile-{{ section.id }} img {
+      transition: opacity 0.3s ease;
+    }
+    .promobanner-popup-image-desktop-{{ section.id }} img:hover,
+    .promobanner-popup-image-mobile-{{ section.id }} img:hover {
+      animation: blink 1s linear infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  {% elsif image_hover_animation == 'smooth_shadow' %}
+    .promobanner-popup-image-desktop-{{ section.id }} img,
+    .promobanner-popup-image-mobile-{{ section.id }} img {
+      transition: box-shadow 0.3s ease;
+    }
+    .promobanner-popup-image-desktop-{{ section.id }} img:hover,
+    .promobanner-popup-image-mobile-{{ section.id }} img:hover {
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+    }
+  {% endif %}
+{%- endstyle -%}
+
+<div class="section-{{ section.id }} promobanner-{{ section.id }}">
+  <div class="section-{{ section.id }}-settings">
+    {% if display_options == 'click' %}
+      <button class="promobanner-button-{{ section.id }}">Open Banner</button>
+    {% endif %}
+  </div>
+</div>
+
+<div class="promobanner-popup-{{ section.id }}">
+  <div class="promobanner-popup-inner-{{ section.id }}">
+    <div class="promobanner-popup-image-desktop-{{ section.id }}">
+      {% if image_link != blank %}
+        <a href="{{ image_link }}">
+      {% endif %}
+      {% if image_desktop != blank %}
+        <img
+          src="{{ image_desktop | image_url }}"
+          alt="Banner Image"
+          {% if lazy %}
+            loading="lazy"
+          {% endif %}
+        >
+      {% else %}
+        <img
+          src="https://images.ctfassets.net/ihx0a8chifpc/37SPg1N7dGiotuYoIYCWXk/611e638af077126bd6964ff53d12675b/dynamic-dummy-image-generator-1280x720.png?w=1280&q=60&fm=webp"
+          alt="Banner Placeholder"
+          loading="lazy"
+        >
+      {% endif %}
+      {% if image_link != blank %}
+        </a>
+      {% endif %}
+    </div>
+    <div class="promobanner-popup-image-mobile-{{ section.id }}">
+      {% if image_link != blank %}
+        <a href="{{ image_link }}">
+      {% endif %}
+      {% if image_mobile != blank %}
+        <img
+          src="{{ image_mobile | image_url }}"
+          alt="Banner Image"
+          {% if lazy %}
+            loading="lazy"
+          {% endif %}
+        >
+      {% else %}
+        <img
+          src="https://images.ctfassets.net/ihx0a8chifpc/37SPg1N7dGiotuYoIYCWXk/611e638af077126bd6964ff53d12675b/dynamic-dummy-image-generator-1280x720.png?w=1280&q=60&fm=webp"
+          alt="Banner Placeholder"
+          loading="lazy"
+        >
+      {% endif %}
+      {% if image_link != blank %}
+        </a>
+      {% endif %}
+    </div>
+    <button class="promobanner-popup-close-{{ section.id }}">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 10.586l-7.293-7.293-1.414 1.414L10.586 12l-7.293 7.293 1.414 1.414L12 13.414l7.293 7.293 1.414-1.414L13.414 12l7.293-7.293-1.414-1.414L12 10.586z"></path>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  function initPromoBanner() {
+    const toggle = document.querySelector('.promobanner-button-{{ section.id }}');
+    const promobanner = document.querySelector('.promobanner-popup-{{ section.id }}');
+    const close = document.querySelector('.promobanner-popup-close-{{ section.id }}');
+    const promobannerKey = 'promobannerDisplayedAt_{{ section.id }}';
+
+    if (toggle) {
+      toggle.addEventListener('click', () => {
+        if (promobanner) {
+          {% if hide_promobanner_days > 0 %}
+            if (hasPromoBannerCookieExpired()) {
+              promobanner.classList.add('active');
+              document.body.style.overflow = 'hidden';
+              setPromoBannerCookie();
+            }
+          {% else %}
+            promobanner.classList.add('active');
+            document.body.style.overflow = 'hidden';
+          {% endif %}
+        }
+      });
+    }
+
+    if (close) {
+      close.addEventListener('click', () => {
+        document.body.style.overflow = '';
+        promobanner.classList.remove('active');
+      });
+    }
+
+    document.addEventListener('click', (e) => {
+      if (e.target === promobanner) {
+        document.body.style.overflow = '';
+        promobanner.classList.remove('active');
+      }
+    });
+
+    {% if display_options == "after_seconds" %}
+      setTimeout(function() {
+        if (promobanner) {
+          {% if hide_promobanner_days > 0 %}
+            if (hasPromoBannerCookieExpired()) {
+              promobanner.classList.add('active');
+              document.body.style.overflow = 'hidden';
+              setPromoBannerCookie();
+            }
+          {% else %}
+            promobanner.classList.add('active');
+            document.body.style.overflow = 'hidden';
+          {% endif %}
+        }
+      }, {{ seconds | times: 1000 }});
+    {% endif %}
+
+    {% if display_options == "after_scrolling" %}
+      let hasShownScrollMessage = false;
+      window.addEventListener("scroll", function() {
+        if (!hasShownScrollMessage) {
+          var scrollPosition = window.scrollY;
+          var windowHeight = window.innerHeight;
+          var documentHeight = document.body.clientHeight;
+          var scrollPercentage = ((scrollPosition + windowHeight) / documentHeight) * 100;
+          if (scrollPercentage >= {{ percent }}) {
+            {% if hide_promobanner_days > 0 %}
+              if (hasPromoBannerCookieExpired()) {
+                promobanner.classList.add("active");
+                document.body.style.overflow = 'hidden';
+                hasShownScrollMessage = true;
+                setPromoBannerCookie();
+              }
+            {% else %}
+              promobanner.classList.add("active");
+              document.body.style.overflow = 'hidden';
+              hasShownScrollMessage = true;
+            {% endif %}
+          }
+        }
+      });
+    {% endif %}
+
+    {% if display_options == "mouse_close" %}
+      let hasShownExitIntent = false;
+      document.addEventListener("mouseleave", function(event) {
+        if (!hasShownExitIntent) {
+          if (promobanner) {
+            {% if hide_promobanner_days > 0 %}
+              if (hasPromoBannerCookieExpired()) {
+                promobanner.classList.add("active");
+                document.body.style.overflow = 'hidden';
+                hasShownExitIntent = true;
+                setPromoBannerCookie();
+              }
+            {% else %}
+              promobanner.classList.add("active");
+              document.body.style.overflow = 'hidden';
+              hasShownExitIntent = true;
+            {% endif %}
+          }
+        }
+      });
+    {% endif %}
+
+    {% if hide_promobanner_days > 0 %}
+      function hasPromoBannerCookieExpired() {
+        const lastDisplayed = localStorage.getItem(promobannerKey);
+        if (lastDisplayed) {
+          const lastDisplayedDate = new Date(lastDisplayed);
+          const now = new Date();
+          const daysPassed = (now - lastDisplayedDate) / (1000 * 60 * 60 * 24);
+          return daysPassed >= {{ hide_promobanner_days }};
+        }
+        return true;
+      }
+      function setPromoBannerCookie() {
+        localStorage.setItem(promobannerKey, new Date().toISOString());
+      }
+    {% endif %}
+  }
+  document.addEventListener('DOMContentLoaded', initPromoBanner);
+  if (Shopify.designMode) {
+    document.addEventListener('shopify:section:unload', initPromoBanner);
+    document.addEventListener('shopify:section:load', initPromoBanner);
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Image Banner Popup",
+  "settings": [
+    {
+      "type": "header",
+      "content": "📢 Promotion Banner Configuration",
+      "info": "General configuration for the banner display."
+    },
+    {
+      "type": "select",
+      "id": "display_options",
+      "label": "Activation Method",
+      "info": "Select when the banner should be triggered.",
+      "default": "after_scrolling",
+      "options": [
+        { "label": "Exit Intent (mouse leaves window)", "value": "mouse_close" },
+        { "label": "After a few seconds", "value": "after_seconds" },
+        { "label": "After scrolling a percentage", "value": "after_scrolling" },
+        { "label": "On Button Click", "value": "click" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "seconds",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "s",
+      "label": "Delay Before Display (Seconds)",
+      "info": "Time delay before showing the banner.",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "hide_promobanner_days",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "d",
+      "label": "Suppress Banner for Days",
+      "info": "Hide the banner for this many days (set 0 for testing).",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "percent",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Scroll Trigger Percentage",
+      "info": "Percentage of scroll needed to activate the banner.",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "🖼️ Popup Container Options",
+      "info": "Settings for the popup container."
+    },
+    {
+      "type": "range",
+      "id": "promobanner_width",
+      "min": 20,
+      "max": 200,
+      "step": 2,
+      "unit": "%",
+      "label": "Desktop Popup Width (%)",
+      "info": "Width of the popup on desktop.",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "promobanner_width_mobile",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Mobile Popup Width (%)",
+      "info": "Width of the popup on mobile.",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "promobanner_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Popup Corner Radius (px)",
+      "info": "Roundness of the popup corners.",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "promobanner_border_thickness",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Popup Border Width (px)",
+      "info": "Thickness of the popup border.",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "promobanner_overlay",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "%",
+      "label": "Overlay Transparency (%)",
+      "info": "Transparency level of the background overlay.",
+      "default": 50
+    },
+    {
+      "type": "select",
+      "id": "promobanner_horizontal_position_mobile",
+      "label": " Popup Horizontal Alignment",
+      "info": "Horizontal position of the popup on mobile.",
+      "default": "center",
+      "options": [
+        { "label": "Left", "value": "flex-start" },
+        { "label": "Center", "value": "center" },
+        { "label": "Right", "value": "flex-end" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "promobanner_vertical_position_mobile",
+      "label": " Popup Vertical Alignment",
+      "info": "Vertical position of the popup on mobile.",
+      "default": "center",
+      "options": [
+        { "label": "Top", "value": "flex-start" },
+        { "label": "Center", "value": "center" },
+        { "label": "Bottom", "value": "flex-end" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "🖼️ Banner Image Options",
+      "info": "Settings for the banner image."
+    },
+    {
+      "type": "image_picker",
+      "id": "image_desktop",
+      "label": "Desktop Banner Image",
+      "info": "Select an image for desktop view."
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Mobile Banner Image",
+      "info": "Select an image for mobile view."
+    },
+    {
+      "type": "url",
+      "id": "image_link",
+      "label": "Image Link",
+      "info": "Enter the URL to redirect when the banner image is clicked."
+    },
+    {
+      "type": "range",
+      "id": "image_width_desktop",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Desktop Image Width (%)",
+      "info": "Width of the banner image on desktop.",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "image_height_desktop",
+      "min": 50,
+      "max": 1000,
+      "step": 10,
+      "unit": "px",
+      "label": "Desktop Image Height (px)",
+      "info": "Height of the banner image on desktop.",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "image_width_mobile",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Mobile Image Width (%)",
+      "info": "Width of the banner image on mobile.",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "image_height_mobile",
+      "min": 50,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "label": "Mobile Image Height (px)",
+      "info": "Height of the banner image on mobile.",
+      "default": 200
+    },
+    {
+      "type": "checkbox",
+      "id": "lazy",
+      "label": "Activate Image Lazy Loading",
+      "info": "Enable lazy loading for images.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "📐 Padding Options",
+      "info": "Set the top and bottom padding (in pixels) for the section."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Section Top Padding (px)",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Section Bottom Padding (px)",
+      "default": 10
+    },
+    {
+      "type": "header",
+      "content": "⚙️ Advanced Options",
+      "info": "Additional customization options."
+    },
+    {
+      "type": "color",
+      "id": "close_button_color",
+      "label": "Close Button Color",
+      "info": "Customize the color of the close (X) button.",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "popup_container_background_color",
+      "label": "Popup Container Background Color",
+      "info": "Customize the background color of the popup container (where the image stays).",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_on_mobile",
+      "label": "Hide Section On Mobile Version",
+      "info": "Toggle to hide the banner section on mobile devices.",
+      "default": false
+
+
+    }
+  ],
+  "presets": [
+    {
+      "name": "Promotional Image Banner Popup",
+      "category": "Promotional Popup",
+      "settings": {
+        "display_options": "after_scrolling",
+        "seconds": 10,
+        "hide_promobanner_days": 0,
+        "percent": 50,
+        "promobanner_width": 60,
+        "promobanner_width_mobile": 100,
+        "promobanner_radius": 4,
+        "promobanner_border_thickness": 0,
+        "promobanner_overlay": 50,
+        "promobanner_horizontal_position_mobile": "center",
+        "promobanner_vertical_position_mobile": "center",
+        "image_width_desktop": 100,
+        "image_height_desktop": 300,
+        "image_width_mobile": 100,
+        "image_height_mobile": 200,
+        "lazy": true,
+        "section_padding_top": 10,
+        "section_padding_bottom": 10,
+        "close_button_color": "#ffffff",
+        "popup_container_background_color": "#ffffff",
+        "hide_on_mobile": false
+      }
+    }
+  ]
+}
+{% endschema %}

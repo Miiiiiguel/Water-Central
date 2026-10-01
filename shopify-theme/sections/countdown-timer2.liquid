@@ -1,0 +1,1604 @@
+{% assign brightness_diff = section.settings.accent_color | brightness_difference: '#ffffff' %}
+{% if brightness_diff > 125 %}
+  {% assign readable_text_color = '#ffffff' %}
+{% else %}
+  {% assign readable_text_color = '#242424' %}
+{% endif %}
+
+{%- style -%}
+  *, *:after, *:before {
+    box-sizing: border-box;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .loudecomz-container,
+  .loudecomz-container-fluid {
+    width: 100%;
+    padding-right: var(--loudecomz-gutter-x, 15px);
+    padding-left: var(--loudecomz-gutter-x, 15px);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  @media (min-width: 576px) {
+    .loudecomz-container {
+      max-width: 540px;
+    }
+  }
+
+  @media (min-width: 750px) {
+    .loudecomz-container {
+      max-width: 720px;
+    }
+  }
+
+  @media (min-width: 992px) {
+    .loudecomz-container {
+      max-width: 960px;
+    }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width <= 960 %}
+      .loudecomz-section__{{sec_id}} .loudecomz-container {
+        max-width: {{section.settings.container_max_width}}px;
+      }
+    {% endif %}
+  }
+
+  @media (min-width: 1200px) {
+    .loudecomz-container {
+      max-width: 1140px;
+    }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width <= 1140 %}
+      .loudecomz-section__{{sec_id}} .loudecomz-container {
+        max-width: {{section.settings.container_max_width}}px;
+      }
+    {% endif %}
+  }
+
+  @media (min-width: 1400px) {
+    .loudecomz-container {
+      max-width: 1320px;
+    }
+    {% if section.settings.container_max_width >= 720 and section.settings.container_max_width != 1320 %}
+      .loudecomz-section__{{sec_id}} .loudecomz-container {
+        max-width: {{section.settings.container_max_width}}px;
+      }
+    {% endif %}
+  }
+
+  .loudecomz-section__{{sec_id}} .loudecomz-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: calc(var(--loudecomz-gutter-x, 15px) * -1);
+    margin-left: calc(var(--loudecomz-gutter-x, 15px) * -1);
+    {% if section.settings.elements_position == 'timer_right' %}
+      flex-direction: row;
+    {% elsif section.settings.elements_position == 'timer_left' %}
+      flex-direction: row-reverse;
+    {% endif %}
+  }
+
+  .loudecomz-section__{{sec_id}} .loudecomz-row > * {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 100%;
+    padding-right: var(--loudecomz-gutter-x, 15px);
+    padding-left: var(--loudecomz-gutter-x, 15px);
+  }
+
+  .loudecomz-section__{{sec_id}} .order-1 {
+    order: 1;
+  }
+
+  .loudecomz-section__{{sec_id}} .order-2 {
+    order: 2;
+  }
+
+  @media (min-width: 750px) {
+    .loudecomz-section__{{sec_id}} .loudecomz-col-md-6 {
+      flex: 0 0 auto;
+      width: 50%;
+    }
+    .loudecomz-section__{{sec_id}} .order-md-1 {
+      order: 1;
+    }
+    .loudecomz-section__{{sec_id}} .order-md-2 {
+      order: 2;
+    }
+  }
+
+  @media only screen and (min-width: 992px) {
+    .loudecomz-section__{{sec_id}} .timer-wrapper {
+      transform: translateY(-{{ section.settings.timer_vertical_position_desktop }}%);
+      transform: translateX(-{{ section.settings.timer_horizontal_position_desktop }}%);
+       background-color: transparent !important; /* Ensure transparency */
+    }
+  }
+
+  @media (min-width: 992px) {
+    .loudecomz-section__{{sec_id}} .loudecomz-col-lg-6 {
+      flex: 0 0 auto;
+      width: 50%;
+    }
+    .loudecomz-section__{{sec_id}} .order-lg-1 {
+      order: 1;
+    }
+    .loudecomz-section__{{sec_id}} .order-lg-2 {
+      order: 2;
+    }
+  }
+
+  .loudecomz-section__{{sec_id}} .align-items-center {
+    align-items: center;
+  }
+
+  .loudecomz-section__{{sec_id}} .loudecomz-btn,
+  .rte .loudecomz-section__{{sec_id}} a.loudecomz-btn:not(.btn) {
+    display: inline-block;
+    text-decoration: none;
+    border: none;
+    outline: none;
+    text-transform: none;
+    text-align: center;
+    background-color: {{section.settings.button_bg_color}};
+    border-radius: {{section.settings.btn_border_radius}}px;
+    color: {{ section.settings.button_text_color }};
+    font-weight: 400;
+    white-space: normal;
+    padding: 16px 36px;
+    margin: 0 0 12px 0;
+    line-height: 1.5;
+    min-width: auto;
+    min-height: auto;
+    transition: all 0.25s;
+    cursor: pointer;
+    box-sizing: border-box;
+    vertical-align: middle;
+    font-size: {{ section.settings.button_size }}px;
+  }
+
+  /* Button Hover Animations */
+  .loudecomz-section__{{sec_id}} .loudecomz-btn.smooth-fade-in:hover {
+    opacity: 0.8;
+  }
+
+  .loudecomz-section__{{sec_id}} .loudecomz-btn.smooth-fade-up:hover {
+    transform: translateY(-5px);
+    opacity: 0.8;
+  }
+
+  .loudecomz-section__{{sec_id}} .loudecomz-btn.smooth-shadow:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .loudecomz-section__{{sec_id}} .loudecomz-btn.smooth-glow:hover {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+  }
+
+  .loudecomz-section__{{sec_id}} .loudecomz-btn.smooth-scale-in:hover {
+    transform: scale(1.05);
+  }
+
+  .loudecomz-section__{{sec_id}} .loudecomz-btn.smooth-zoom-out:hover {
+    transform: scale(0.95);
+  }
+  /* End Button Hover Animations */
+
+  .loudecomz-section__{{sec_id}} .loudecomz-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
+  }
+
+  .loudecomz-section__{{sec_id}} {
+    --loudecomz-gutter-x: 20px;
+    padding-top: {{section.settings.section_padding_top}}px;
+    padding-bottom: {{section.settings.section_padding_bottom}}px;
+    margin-top: {{section.settings.section_margin_top}}px;
+    margin-bottom: {{section.settings.section_margin_bottom}}px;
+    line-height: 1.5;
+    position: relative;
+    text-align: {{ section.settings.all_elements_alignment_desktop }};
+    {% if section.settings.all_elements_alignment_mobile != section.settings.all_elements_alignment_desktop %}
+      @media only screen and (max-width: 749px) {
+        text-align: {{ section.settings.all_elements_alignment_mobile }};
+      }
+    {% endif %}
+    {% if section.settings.display_on_devices == 'mobile_only' %}
+      display: none;
+    {% elsif section.settings.display_on_devices == 'desktop_only' %}
+      @media (max-width: 749px) {
+        display: none;
+      }
+    {% endif %}
+    {% if section.settings.enable_custom_fonts and section.settings.selected_font != blank %}
+      font-family: '{{ section.settings.selected_font }}', sans-serif;
+    {% endif %}
+  }
+
+  .loudecomz-section__{{sec_id}}.hide_section {
+    display: none !important;
+  }
+
+  .loudecomz-section__{{sec_id}}.hide_timer .timer-wrapper {
+    display: none !important;
+  }
+
+  .loudecomz-section__{{sec_id}} .timer-content {
+    max-width: 530px;
+    text-align: {{ section.settings.all_elements_alignment_desktop }};
+    {% if section.settings.all_elements_alignment_mobile != section.settings.all_elements_alignment_desktop %}
+      @media only screen and (max-width: 749px) {
+        text-align: {{ section.settings.all_elements_alignment_mobile }};
+      }
+    {% endif %}
+    {% if section.settings.enable_custom_fonts and section.settings.selected_font != blank %}
+      font-family: '{{ section.settings.selected_font }}', sans-serif;
+    {% endif %}
+  }
+
+  .loudecomz-section__{{sec_id}} .loudecomz-section-title {
+    color: {{section.settings.heading_color}} !important;
+    font-weight: {{ section.settings.heading_font_weight }};
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: {{ section.settings.heading_size_desktop }}px;
+    {% if section.settings.enable_gradient %}
+      background: linear-gradient({{ section.settings.gradient_degrees }}, {{ section.settings.gradient_start_color }}, {{ section.settings.gradient_end_color }});
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    {% endif %}
+    {% if section.settings.enable_custom_fonts and section.settings.selected_font != blank %}
+      font-family: '{{ section.settings.selected_font }}', sans-serif;
+    {% endif %}
+  }
+
+  .loudecomz-section__{{sec_id}} .loudecomz-section-subtitle {
+    color: {{section.settings.sub_heading_color}};
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: {{ section.settings.sub_heading_size_desktop }}px;
+    {% if section.settings.enable_custom_fonts and section.settings.selected_font != blank %}
+      font-family: '{{ section.settings.selected_font }}', sans-serif;
+    {% endif %}
+  }
+
+  .loudecomz-section__{{sec_id}} .timer-wrapper {
+    text-align: right;
+     background-color: transparent !important; /* Ensure transparency */
+    height: {{ section.settings.timer_height }}px;
+    {% if section.settings.elements_position == 'timer_right' %}
+      order: 2;
+    {% elsif section.settings.elements_position == 'timer_left' %}
+      order: 1;
+    {% endif %}
+    background-color: {{ section.settings.timer_background_color }};
+  }
+
+  .loudecomz-section__{{sec_id}} .timer {
+    display: inline-flex;
+    /* Brightness filter is applied to the ::before pseudo-element instead */
+    {% if section.settings.enable_custom_fonts and section.settings.selected_font != blank %}
+      font-family: '{{ section.settings.selected_font }}', sans-serif;
+    {% endif %}
+  }
+
+  .loudecomz-section__{{sec_id}} .timer-block {
+    flex-shrink: 0;
+    width: 78px;
+    margin-right: 16px;
+  }
+
+  .loudecomz-section__{{sec_id}} .timer-block:last-child {
+    margin-right: 0;
+  }
+
+  .loudecomz-section__{{sec_id}} .timer-block-value {
+    position: relative;
+    padding-top: 100%;
+    border-radius: {{ section.settings.timer_block_border_radius }}px;
+    overflow: hidden;
+    background-color: {{section.settings.accent_color}};
+    margin-bottom: 16px;
+    {% if section.settings.enable_timer_gradient %}
+      background: linear-gradient({{ section.settings.timer_gradient_degrees }}, {{ section.settings.timer_gradient_start_color }}, {{ section.settings.timer_gradient_middle_color }}, {{ section.settings.timer_gradient_end_color }});
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    {% endif %}
+    {% if section.settings.enable_custom_fonts and section.settings.selected_font != blank %}
+      font-family: '{{ section.settings.selected_font }}', sans-serif;
+    {% endif %}
+  }
+
+  .loudecomz-section__{{sec_id}} .timer-value {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    color: {{ section.settings.timer_number_color }};
+    font-size: 32px;
+    font-weight: {{ section.settings.time_numbers_font_weight }};
+    line-height: 1.2;
+    {% if section.settings.enable_timer_gradient %}
+      background: linear-gradient({{ section.settings.timer_gradient_degrees }}, {{ section.settings.timer_gradient_start_color }}, {{ section.settings.timer_gradient_middle_color }}, {{ section.settings.timer_gradient_end_color }});
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    {% endif %}
+    {% if section.settings.enable_custom_fonts and section.settings.selected_font != blank %}
+      font-family: '{{ section.settings.selected_font }}', sans-serif;
+    {% endif %}
+  }
+
+  .loudecomz-section__{{sec_id}} .timer-block-label {
+    text-align: center;
+    color: {{section.settings.text_color}};
+    font-size: 14px;
+    font-weight: 400;
+    display: block;
+    {% if section.settings.enable_custom_fonts and section.settings.selected_font != blank %}
+      font-family: '{{ section.settings.selected_font }}', sans-serif;
+    {% endif %}
+  }
+
+  {% if section.settings.inherit_fonts == false %}
+    .loudecomz-section__{{sec_id}} .loudecomz-btn {
+      font-size: {{ section.settings.button_size }}px;
+    }
+    .loudecomz-section__{{sec_id}} .loudecomz-section-title {
+      font-size: {{ section.settings.heading_size_desktop }}px;
+    }
+    .loudecomz-section__{{sec_id}} .loudecomz-section-subtitle {
+      font-size: {{ section.settings.sub_heading_size_desktop }}px;
+    }
+  {% endif %}
+
+  @media only screen and (max-width: 991px) {
+    .loudecomz-section__{{sec_id}} .timer-block {
+      width: 70px;
+    }
+  }
+
+  @media only screen and (max-width: 749px) {
+    .loudecomz-section__{{sec_id}} .loudecomz-btn {
+      padding: 12px 30px;
+      font-size: {{ section.settings.button_size_mobile }}px;
+    }
+    .loudecomz-section__{{sec_id}} {
+      padding-top: {{section.settings.section_padding_top_mobile}}px;
+      padding-bottom: {{section.settings.section_padding_bottom_mobile}}px;
+      margin-top: {{section.settings.section_margin_top_mobile}}px;
+      margin-bottom: {{section.settings.section_margin_bottom_mobile}}px;
+    }
+
+    .loudecomz-section__{{sec_id}} .timer-wrapper {
+      text-align: left;
+      margin-bottom: 25px;
+       background-color: transparent !important; /* Ensure transparency */
+      text-align: {% case section.settings.timer_position_mobile %}
+                  {% when 'left' %} left;
+                  {% when 'center' %} center;
+                  {% when 'right' %} right;
+                  {% else %} center;
+      {% endcase %}
+      {% if section.settings.elements_position == 'timer_right' %}
+        order: 2;
+      {% elsif section.settings.elements_position == 'timer_left' %}
+        order: 1;
+      {% endif %}
+    }
+
+    .loudecomz-section__{{sec_id}} .loudecomz-section-title {
+      font-size: {{ section.settings.heading_size_mobile }}px;
+      {% if section.settings.enable_gradient %}
+        background: linear-gradient({{ section.settings.gradient_degrees }}, {{ section.settings.gradient_start_color }}, {{ section.settings.gradient_end_color }});
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+      {% endif %}
+    }
+    .loudecomz-section__{{sec_id}} .loudecomz-section-subtitle {
+      font-size: {{ section.settings.sub_heading_size_mobile }}px;
+    }
+  }
+
+  @media only screen and (max-width: 490px) {
+    .loudecomz-section__{{sec_id}} .timer-block {
+      width: 58px;
+    }
+    .loudecomz-section__{{sec_id}} .timer-value {
+      font-size: 28px;
+    }
+  }
+{%- endstyle -%}
+
+{% if section.settings.custom_css != blank %}
+  {%- style -%}
+    {{section.settings.custom_css}}
+  {%- endstyle -%}
+{% endif %}
+
+{% if section.settings.is_fullwidth == true %}
+  {% assign container = 'loudecomz-container-fluid' %}
+{% else %}
+  {% assign container = 'loudecomz-container' %}
+{% endif %}
+
+{% comment %}
+  Import selected Google Font if custom fonts are enabled and a font is selected
+{% endcomment %}
+{% if section.settings.enable_custom_fonts and section.settings.selected_font != blank %}
+  <link
+    href="https://fonts.googleapis.com/css2?family={{ section.settings.selected_font | replace: ' ', '+' }}&display=swap"
+    rel="stylesheet"
+  >
+{% endif %}
+
+<style>
+  .loudecomz-section__{{sec_id}} {
+    position: relative; /* Ensure positioning context for pseudo-element */
+    {% if section.settings.background_image != blank %}
+      /* Background image handled in ::before */
+    {% elsif section.settings.background_color == blank or section.settings.background_color == "rgba(0,0,0,0)" %}
+      /* Default background image handled in ::before */
+    {% else %}
+      background: {{section.settings.background_color}};
+    {% endif %}
+    text-align: {{ section.settings.all_elements_alignment_desktop }};
+    {% if section.settings.all_elements_alignment_mobile != section.settings.all_elements_alignment_desktop %}
+      @media only screen and (max-width: 749px) {
+        text-align: {{ section.settings.all_elements_alignment_mobile }};
+      }
+    {% endif %}
+    {% if section.settings.enable_custom_fonts and section.settings.selected_font != blank %}
+      font-family: '{{ section.settings.selected_font }}', sans-serif;
+    {% endif %}
+  }
+
+  {% if section.settings.background_image != blank %}
+    .loudecomz-section__{{sec_id}}::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url({{section.settings.background_image | image_url}}) no-repeat center/cover;
+      filter: brightness({{ section.settings.image_brightness }}%);
+      z-index: -1;
+    }
+  {% elsif section.settings.background_color == blank or section.settings.background_color == "rgba(0,0,0,0)" %}
+    .loudecomz-section__{{sec_id}}::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url(data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E) no-repeat center/cover;
+      filter: brightness({{ section.settings.image_brightness }}%);
+      z-index: -1;
+    }
+  {% endif %}
+</style>
+
+<div class="loudecomz-section__{{sec_id}} loudecomz-section {{ section.settings.custom_class }}">
+  <div class="{{container}}">
+    <div class="loudecomz-row align-items-center">
+      <div class="loudecomz-col-md-6 order-2 order-md-1">
+        <div class="timer-content">
+          {% for block in section.blocks %}
+            {% if block.type == 'heading' %}
+              <div class="loudecomz-title-wrapper" {{ block.shopify_attributes }}>
+                {% if block.settings.heading_text != blank %}
+                  <{{ section.settings.heading_tag }} class="loudecomz-section-title">
+                    {{ block.settings.heading_text | escape }}
+                  </{{ section.settings.heading_tag }}>
+                {% endif %}
+                {% if block.settings.sub_heading_text != blank %}
+                  <p class="loudecomz-section-subtitle">{{ block.settings.sub_heading_text | escape }}</p>
+                {% endif %}
+              </div>
+            {% endif %}
+
+            {% if block.type == 'buttons' and section.settings.show_buttons %}
+              <div class="loudecomz-section-btns" {{ block.shopify_attributes }}>
+                {% if block.settings.button_label_1 != blank %}
+                  <a
+                    href="{{block.settings.button_link_1}}"
+                    class="loudecomz-btn {% if section.settings.button_hover_animation != 'none' %}{{ section.settings.button_hover_animation | replace: '_', '-' }}{% endif %}"
+                  >
+                    {{ block.settings.button_label_1 }}
+                  </a>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="loudecomz-col-md-6 order-1 order-md-2">
+        {% for block in section.blocks %}
+          {% if block.type == 'timer1' %}
+            <div class="timer-wrapper" {{ block.shopify_attributes }}>
+              <div
+                class="timer timer-1"
+                data-timer1="true"
+                data-deadline="{{ block.settings.date_picker }}"
+                data-timer-ends="{{section.settings.timer_ends}}"
+              >
+                <div class="timer-block">
+                  <div class="timer-block-value">
+                    <span class="t-days timer-value">00</span>
+                  </div>
+                  {% if section.settings.days_label != blank %}
+                    <span class="timer-block-label">{{ section.settings.days_label }}</span>
+                  {% endif %}
+                </div>
+                <div class="timer-block">
+                  <div class="timer-block-value">
+                    <span class="t-hours timer-value">00</span>
+                  </div>
+                  {% if section.settings.hours_label != blank %}
+                    <span class="timer-block-label">{{ section.settings.hours_label }}</span>
+                  {% endif %}
+                </div>
+                <div class="timer-block">
+                  <div class="timer-block-value">
+                    <span class="t-minutes timer-value">00</span>
+                  </div>
+                  {% if section.settings.minutes_label != blank %}
+                    <span class="timer-block-label">{{ section.settings.minutes_label }}</span>
+                  {% endif %}
+                </div>
+                <div class="timer-block">
+                  <div class="timer-block-value">
+                    <span class="t-seconds timer-value">00</span>
+                  </div>
+                  {% if section.settings.seconds_label != blank %}
+                    <span class="timer-block-label">{{ section.settings.seconds_label }}</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endif %}
+
+          {% if block.type == 'timer2' %}
+            <div class="timer-wrapper" {{ block.shopify_attributes }}>
+              <div
+                class="timer timer-2"
+                data-timer2="true"
+                data-period_days="{{ block.settings.period_days }}"
+                data-period_hours="{{ block.settings.period_hours }}"
+                data-period_minutes="{{ block.settings.period_minutes }}"
+                data-period_seconds="{{ block.settings.period_seconds }}"
+                data-countdown_restart="{{ block.settings.countdown_restart }}"
+                data-timer-ends="{{section.settings.timer_ends}}"
+              >
+                <div class="timer-block">
+                  <div class="timer-block-value">
+                    <span class="t-days timer-value">00</span>
+                  </div>
+                  {% if section.settings.days_label != blank %}
+                    <span class="timer-block-label">{{ section.settings.days_label }}</span>
+                  {% endif %}
+                </div>
+                <div class="timer-block">
+                  <div class="timer-block-value">
+                    <span class="t-hours timer-value">00</span>
+                  </div>
+                  {% if section.settings.hours_label != blank %}
+                    <span class="timer-block-label">{{ section.settings.hours_label }}</span>
+                  {% endif %}
+                </div>
+                <div class="timer-block">
+                  <div class="timer-block-value">
+                    <span class="t-minutes timer-value">00</span>
+                  </div>
+                  {% if section.settings.minutes_label != blank %}
+                    <span class="timer-block-label">{{ section.settings.minutes_label }}</span>
+                  {% endif %}
+                </div>
+                <div class="timer-block">
+                  <div class="timer-block-value">
+                    <span class="t-seconds timer-value">00</span>
+                  </div>
+                  {% if section.settings.seconds_label != blank %}
+                    <span class="timer-block-label">{{ section.settings.seconds_label }}</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function getTimeRemaining(endtime) {
+    let t = Date.parse(endtime) - Date.parse(new Date());
+    let seconds = Math.floor((t / 1000) % 60);
+    let minutes = Math.floor((t / 1000 / 60) % 60);
+    let hours = Math.floor((t / (1000 * 60 * 60)) % 24);
+    let days = Math.floor(t / (1000 * 60 * 60 * 24));
+    return {
+      'total': t,
+      'days': days,
+      'hours': hours,
+      'minutes': minutes,
+      'seconds': seconds
+    };
+  }
+
+  function initializeClock(parentSelector, endtime) {
+    let clock = document.querySelector(parentSelector);
+    let daysSpan = clock.querySelector('.t-days');
+    let hoursSpan = clock.querySelector('.t-hours');
+    let minutesSpan = clock.querySelector('.t-minutes');
+    let secondsSpan = clock.querySelector('.t-seconds');
+
+    let timerEnds = clock.getAttribute("data-timer-ends");
+    let timerEndsCLass = "do_nothing";
+    if (timerEnds === "hide_timer") {
+      timerEndsCLass = "hide_timer";
+    }
+    if (timerEnds === "hide_section") {
+      timerEndsCLass = "hide_section";
+    }
+    if (timerEnds === "do_nothing") {
+      timerEndsCLass = "do_nothing";
+    }
+
+    function updateClock() {
+      let t = getTimeRemaining(endtime);
+
+      daysSpan.innerHTML = t.days;
+      hoursSpan.innerHTML = ('0' + t.hours).slice(-2);
+      minutesSpan.innerHTML = ('0' + t.minutes).slice(-2);
+      secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
+
+      if (t.total <= 0) {
+        daysSpan.innerHTML = '00';
+        hoursSpan.innerHTML = '00';
+        minutesSpan.innerHTML = '00';
+        secondsSpan.innerHTML = '00';
+
+        clearInterval(timeinterval);
+        showMessage("End timer!!!");
+        clock.closest('.loudecomz-section').classList.add(timerEndsCLass);
+      }
+    }
+
+    updateClock();
+    var timeinterval = setInterval(updateClock, 1000);
+  }
+
+  function showMessage(message) {
+    console.log(message);
+  }
+
+  function setCookie(name, value, days) {
+    let expires = '';
+    if (days) {
+      let date = new Date();
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      expires = '; expires=' + date.toUTCString();
+    }
+    document.cookie = name + '=' + (value || '') + expires + '; path=/';
+  }
+
+  function getCookie(name) {
+    let nameEQ = name + '=';
+    let ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+      if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+  }
+
+  {
+
+    let sectionName = 'seez-timer';
+
+    var _obj = _obj || {};
+
+    _obj['loader_' + sectionName] = true;
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+      let section_name = sectionName;
+
+      let sec_id = '{{sec_id}}';
+
+      _obj[section_name + sec_id] = function(id) {
+
+          let section = '.loudecomz-section__' + '{{sec_id}}';
+
+          let is_timer1 = document.querySelector(section + ' .timer-1');
+          if(is_timer1 !== null) {
+            is_timer1 = is_timer1.getAttribute('data-timer1') === 'true' ? true : false;
+          }
+
+          let is_timer2 = document.querySelector(section + ' .timer-2');
+          if(is_timer2 !== null) {
+            is_timer2 = is_timer2.getAttribute('data-timer2') === 'true' ? true : false;
+          }
+
+          if(is_timer1) {
+
+            let deadline  = document.querySelector(section + ' .timer-1').getAttribute('data-deadline');
+            deadline = new Date(deadline);
+            initializeClock(section + ' .timer-1', deadline);
+          }
+
+          if(is_timer2) {
+
+            let days, hours, minutes, seconds, resetPeriod, cookieExpiry, deadline2 = 0;
+            let timer2  = document.querySelector(section + ' .timer-2');
+            days        = +timer2.getAttribute('data-period_days');
+            hours       = +timer2.getAttribute('data-period_hours');
+            minutes     = +timer2.getAttribute('data-period_minutes');
+            seconds     = +timer2.getAttribute('data-period_seconds');
+            resetPeriod =  timer2.getAttribute('data-countdown_restart');
+
+            if (resetPeriod === 'hour') {
+              cookieExpiry = 1 / 24; // 1 hour
+            } else if (resetPeriod === 'day') {
+              cookieExpiry = 1; // 1 day
+            } else if (resetPeriod === 'week') {
+              cookieExpiry = 7; // 1 week
+            } else if (resetPeriod === 'month') {
+              cookieExpiry = 30; // 1 month
+            } else if (resetPeriod === 'none') {
+              cookieExpiry = -1;
+            }
+
+            deadline2 = new Date();
+            deadline2.setDate(deadline2.getDate() + days);
+            deadline2.setHours(deadline2.getHours() + hours);
+            deadline2.setMinutes(deadline2.getMinutes() + minutes);
+            deadline2.setSeconds(deadline2.getSeconds() + seconds);
+
+            let cookieName = 'countdownData__' + sec_id;
+            let savedData = getCookie(cookieName);
+
+            let timer_duration = '' + days + hours + minutes + seconds;
+            let timer_duration_from_cookie = getCookie('timer_duration__' + sec_id);
+            let oldcookieExpiry = +getCookie('cookieExpiry__' + sec_id);
+
+            if (savedData && timer_duration === timer_duration_from_cookie && oldcookieExpiry === cookieExpiry ) {
+              savedData = JSON.parse(savedData);
+              let savedEndTime = new Date(savedData.endTime);
+              let currentTime = new Date();
+
+              if (savedEndTime > currentTime) {
+                initializeClock(section + ' .timer-2', savedEndTime);
+              } else {
+                initializeClock(section + ' .timer-2', new Date());
+              }
+
+            } else {
+
+              // set cookie
+              let countdownData = {
+                endTime: deadline2.toISOString()
+              };
+
+              setCookie('timer_duration__' + sec_id, timer_duration, cookieExpiry);
+              setCookie('cookieExpiry__' + sec_id, cookieExpiry, cookieExpiry);
+              setCookie(cookieName, JSON.stringify(countdownData), cookieExpiry);
+
+              initializeClock(section + ' .timer-2', deadline2);
+
+            }
+          }
+      };
+
+      _obj[section_name + sec_id](sec_id);
+
+    });
+
+  }
+</script>
+
+{%- if request.design_mode -%}
+  <link
+    rel="stylesheet"
+    href="https://cdn.shopify.com/s/files/1/0511/2465/files/design-mode.css"
+    onload="var seez_script = document.createElement('script'); seez_script.setAttribute('src','https://seez-sections-assets.pages.dev/assets/js/all-timers.min.js'); document.head.appendChild(seez_script);"
+  >
+{%- endif -%}
+{% schema %}
+{
+  "name": "Countdown Timer Pro 2",
+  "tag": "section",
+  "class": "timer-timer-01",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Main settings",
+      "info": "Settings related to the main configuration of the timer section."
+    },
+    {
+      "type": "checkbox",
+      "id": "is_fullwidth",
+      "default": false,
+      "label": "Full width section",
+      "info": "If checked, the timer section will span the full width of the page."
+    },
+    {
+      "type": "select",
+      "id": "display_on_devices",
+      "label": "Display Section On",
+      "options": [
+        { "value": "all_devices", "label": "All Devices" },
+        { "value": "mobile_only", "label": "Mobile Devices Only" },
+        { "value": "desktop_only", "label": "Desktop / Larger Screens Only" }
+      ],
+      "default": "all_devices",
+      "info": "Choose on which devices the timer section should be displayed."
+    },
+    {
+      "type": "select",
+      "id": "elements_position",
+      "label": "Elements Position",
+      "options": [
+        { "value": "timer_right", "label": "Timer Right - Texts and Button Left" },
+        { "value": "timer_left", "label": "Timer Left - Texts and Button Right" }
+      ],
+      "default": "timer_right",
+      "info": "Select the position of the timer and button."
+    },
+    {
+      "type": "select",
+      "id": "all_elements_alignment_mobile",
+      "label": "All Elements Alignment (Mobile Version)",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left",
+      "info": "Control the alignment of all elements on mobile devices."
+    },
+    {
+      "type": "select",
+      "id": "all_elements_alignment_desktop",
+      "label": "All Elements Alignment (Desktop Version)",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left",
+      "info": "Control the alignment of all elements on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "timer_horizontal_position_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Timer Horizontal Position (Desktop Version)",
+      "default": 18,
+      "info": "Adjust the horizontal position of the timer on desktop screens. The value represents the percentage from the left."
+    },
+    {
+      "type": "select",
+      "id": "timer_position_mobile",
+      "label": "Timer Position (Mobile Version)",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center",
+      "info": "Controls the position of the timer on mobile devices."
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Section background image",
+      "info": "Choose an image to set as the background of the timer section."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "info": "Select a background color for the timer section."
+    },
+    {
+      "type": "range",
+      "id": "image_brightness",
+      "min": 0,
+      "max": 150,
+      "step": 10,
+      "unit": "%",
+      "label": "Background image brightness",
+      "default": 60,
+      "info": "Adjust the brightness of the background image."
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#FFFFFF",
+      "info": "Choose the color for the text in the timer section."
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#ffffff",
+      "info": "Choose the color for the heading text."
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Text Font Weight",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "700",
+      "info": "Select the font weight for the heading text."
+    },
+    {
+      "type": "color",
+      "id": "sub_heading_color",
+      "label": "Sub Heading color",
+      "default": "#DEDEDE",
+      "info": "Choose the color for the subheading text."
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Timer Background Color",
+      "default": "#2E2E2E",
+      "info": "Select the accent color used for buttons and timer blocks."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_gradient",
+      "default": false,
+      "label": "Enable Gradient Color",
+      "info": "Toggle to enable gradient color for the heading."
+    },
+    {
+      "type": "color",
+      "id": "gradient_start_color",
+      "label": "Gradient Start Color",
+      "default": "#ff0000",
+      "info": "Choose the start color for the heading gradient."
+    },
+    {
+      "type": "color",
+      "id": "gradient_end_color",
+      "label": "Gradient End Color",
+      "default": "#0000ff",
+      "info": "Choose the end color for the heading gradient."
+    },
+    {
+      "type": "select",
+      "id": "gradient_degrees",
+      "label": "Gradient Degrees",
+      "options": [
+        { "value": "0deg", "label": "0°" },
+        { "value": "15deg", "label": "15°" },
+        { "value": "30deg", "label": "30°" },
+        { "value": "45deg", "label": "45°" },
+        { "value": "60deg", "label": "60°" },
+        { "value": "75deg", "label": "75°" },
+        { "value": "90deg", "label": "90°" },
+        { "value": "105deg", "label": "105°" },
+        { "value": "120deg", "label": "120°" },
+        { "value": "135deg", "label": "135°" },
+        { "value": "150deg", "label": "150°" },
+        { "value": "165deg", "label": "165°" },
+        { "value": "180deg", "label": "180°" },
+        { "value": "195deg", "label": "195°" },
+        { "value": "210deg", "label": "210°" },
+        { "value": "225deg", "label": "225°" },
+        { "value": "240deg", "label": "240°" },
+        { "value": "255deg", "label": "255°" },
+        { "value": "270deg", "label": "270°" },
+        { "value": "285deg", "label": "285°" },
+        { "value": "300deg", "label": "300°" },
+        { "value": "315deg", "label": "315°" },
+        { "value": "330deg", "label": "330°" },
+        { "value": "345deg", "label": "345°" }
+      ],
+      "default": "90deg",
+      "info": "Select the angle for the heading gradient."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_fonts",
+      "default": false,
+      "label": "Enable Custom Fonts",
+      "info": "Toggle to enable custom font selection for all text elements in the section."
+    },
+    {
+      "type": "select",
+      "id": "selected_font",
+      "label": "Custom Font",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "Slabo 27px", "label": "Slabo 27px" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "PT Sans", "label": "PT Sans" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "Nunito", "label": "Nunito" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Dosis", "label": "Dosis" },
+        { "value": "Titillium Web", "label": "Titillium Web" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Cabin", "label": "Cabin" },
+        { "value": "Arvo", "label": "Arvo" },
+        { "value": "Rubik", "label": "Rubik" },
+        { "value": "Mukta", "label": "Mukta" },
+        { "value": "Bitter", "label": "Bitter" },
+        { "value": "Quicksand", "label": "Quicksand" },
+        { "value": "Inconsolata", "label": "Inconsolata" },
+        { "value": "Overpass", "label": "Overpass" },
+        { "value": "Work Sans", "label": "Work Sans" },
+        { "value": "Karla", "label": "Karla" },
+        { "value": "Varela Round", "label": "Varela Round" },
+        { "value": "Zilla Slab", "label": "Zilla Slab" },
+        { "value": "Crimson Text", "label": "Crimson Text" },
+        { "value": "Fira Sans", "label": "Fira Sans" },
+        { "value": "Asap", "label": "Asap" },
+        { "value": "Exo 2", "label": "Exo 2" },
+        { "value": "Josefin Sans", "label": "Josefin Sans" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Barlow", "label": "Barlow" },
+        { "value": "Lora", "label": "Lora" },
+        { "value": "Cairo", "label": "Cairo" },
+        { "value": "Heebo", "label": "Heebo" },
+        { "value": "Manrope", "label": "Manrope" },
+        { "value": "DM Sans", "label": "DM Sans" },
+        { "value": "Spectral", "label": "Spectral" },
+        { "value": "Amiri", "label": "Amiri" },
+        { "value": "Roboto Slab", "label": "Roboto Slab" },
+        { "value": "Archivo", "label": "Archivo" },
+        { "value": "Proza Libre", "label": "Proza Libre" },
+        { "value": "Prompt", "label": "Prompt" },
+        { "value": "Bebas Neue", "label": "Bebas Neue" },
+        { "value": "Cormorant", "label": "Cormorant" },
+        { "value": "Mulish", "label": "Mulish" },
+        { "value": "Anton", "label": "Anton" },
+        { "value": "Righteous", "label": "Righteous" },
+        { "value": "Play", "label": "Play" },
+        { "value": "Alice", "label": "Alice" },
+        { "value": "Marcellus", "label": "Marcellus" },
+        { "value": "Sora", "label": "Sora" },
+        { "value": "Alata", "label": "Alata" },
+        { "value": "PT Serif", "label": "PT Serif" },
+        { "value": "Shadows Into Light", "label": "Shadows Into Light" },
+        { "value": "Cinzel", "label": "Cinzel" },
+        { "value": "Noto Serif", "label": "Noto Serif" },
+        { "value": "Abel", "label": "Abel" },
+        { "value": "Yanone Kaffeesatz", "label": "Yanone Kaffeesatz" },
+        { "value": "Libre Baskerville", "label": "Libre Baskerville" },
+        { "value": "Dancing Script", "label": "Dancing Script" },
+        { "value": "Acme", "label": "Acme" },
+        { "value": "Baloo 2", "label": "Baloo 2" },
+        { "value": "Pacifico", "label": "Pacifico" },
+        { "value": "IBM Plex Sans", "label": "IBM Plex Sans" },
+        { "value": "Alfa Slab One", "label": "Alfa Slab One" },
+        { "value": "Permanent Marker", "label": "Permanent Marker" },
+        { "value": "Caveat", "label": "Caveat" },
+        { "value": "Satisfy", "label": "Satisfy" },
+        { "value": "Abril Fatface", "label": "Abril Fatface" },
+        { "value": "Bungee", "label": "Bungee" },
+        { "value": "Teko", "label": "Teko" },
+        { "value": "Frank Ruhl Libre", "label": "Frank Ruhl Libre" },
+        { "value": "Crete Round", "label": "Crete Round" },
+        { "value": "Oxygen", "label": "Oxygen" },
+        { "value": "Chivo", "label": "Chivo" },
+        { "value": "Fredericka the Great", "label": "Fredericka the Great" },
+        { "value": "Alegreya", "label": "Alegreya" },
+        { "value": "Vollkorn", "label": "Vollkorn" },
+        { "value": "Prata", "label": "Prata" },
+        { "value": "Rokkitt", "label": "Rokkitt" },
+        { "value": "Cardo", "label": "Cardo" },
+        { "value": "Palanquin", "label": "Palanquin" },
+        { "value": "Lobster", "label": "Lobster" },
+        { "value": "Quattrocento", "label": "Quattrocento" },
+        { "value": "Arima Madurai", "label": "Arima Madurai" },
+        { "value": "Noticia Text", "label": "Noticia Text" },
+        { "value": "Mada", "label": "Mada" },
+        { "value": "Kanit", "label": "Kanit" },
+        { "value": "Carter One", "label": "Carter One" },
+        { "value": "Fjalla One", "label": "Fjalla One" },
+        { "value": "Public Sans", "label": "Public Sans" },
+        { "value": "Asul", "label": "Asul" },
+        { "value": "Syncopate", "label": "Syncopate" },
+        { "value": "Gelasio", "label": "Gelasio" },
+        { "value": "Questrial", "label": "Questrial" },
+        { "value": "Kaushan Script", "label": "Kaushan Script" },
+        { "value": "Lilita One", "label": "Lilita One" },
+        { "value": "Ultra", "label": "Ultra" },
+        { "value": "Crimson Pro", "label": "Crimson Pro" },
+        { "value": "Arbutus Slab", "label": "Arbutus Slab" },
+        { "value": "Averia Serif Libre", "label": "Averia Serif Libre" },
+        { "value": "Black Han Sans", "label": "Black Han Sans" },
+        { "value": "Rufina", "label": "Rufina" },
+        { "value": "Catamaran", "label": "Catamaran" },
+        { "value": "Comfortaa", "label": "Comfortaa" },
+        { "value": "Muli", "label": "Muli" },
+        { "value": "Amatic SC", "label": "Amatic SC" },
+        { "value": "Itim", "label": "Itim" },
+        { "value": "Noto Serif Display", "label": "Noto Serif Display" },
+        { "value": "Unna", "label": "Unna" },
+        { "value": "Grandstander", "label": "Grandstander" }
+      ],
+      "default": "Roboto",
+      "info": "Select a custom font to apply to all text elements in the section."
+    },
+    {
+      "type": "range",
+      "id": "timer_block_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Timer block border radius",
+      "default": 50,
+      "info": "Set the border radius for timer blocks."
+    },
+    {
+      "type": "color",
+      "id": "timer_number_color",
+      "label": "Timer numbers color",
+      "default": "#ffffff",
+      "info": "Choose the color of the timer numbers (days, hours, minutes, seconds)."
+    },
+    {
+      "type": "select",
+      "id": "time_numbers_font_weight",
+      "label": "Time Numbers Font Weight",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "400",
+      "info": "Select the font weight for the timer numbers."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_buttons",
+      "default": true,
+      "label": "Show Buttons",
+      "info": "Toggle to show or hide the buttons in the timer section."
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Button background color",
+      "default": "#333333",
+      "info": "Choose the background color for buttons."
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff",
+      "info": "Choose the text color for buttons."
+    },
+    {
+      "type": "range",
+      "id": "btn_border_radius",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "label": "Button border radius",
+      "default": 7,
+      "info": "Set the border radius for buttons in the timer section."
+    },
+    {
+      "type": "range",
+      "id": "button_size",
+      "min": 12,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "label": "Button font size (Desktop)",
+      "default": 16,
+      "info": "Adjust the font size of the button text on desktop."
+    },
+    {
+      "type": "range",
+      "id": "button_size_mobile",
+      "min": 10,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "label": "Button font size (Mobile)",
+      "default": 17,
+      "info": "Adjust the font size of the button text on mobile."
+    },
+    {
+      "type": "select",
+      "id": "button_hover_animation",
+      "label": "Button Hover Animation",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "smooth_fade_in", "label": "Smooth Fade-in" },
+        { "value": "smooth_fade_up", "label": "Smooth Fade Up" },
+        { "value": "smooth_shadow", "label": "Smooth Shadow" },
+        { "value": "smooth_glow", "label": "Smooth Glow" },
+        { "value": "smooth_scale_in", "label": "Smooth Scale In" },
+        { "value": "smooth_zoom_out", "label": "Smooth Zoom Out" }
+      ],
+      "default": "smooth_fade_up",
+      "info": "Select the hover animation for the buttons."
+    },
+    {
+      "type": "header",
+      "content": "Desktop",
+      "info": "Settings specific to desktop view."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Top Padding",
+      "default": 60,
+      "info": "Adjust the top padding of the timer section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Section Bottom Padding",
+      "default": 60,
+      "info": "Adjust the bottom padding of the timer section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "min": 20,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading font size (Desktop)",
+      "default": 40,
+      "info": "Adjust the font size of the heading on desktop."
+    },
+    {
+      "type": "range",
+      "id": "sub_heading_size_desktop",
+      "min": 14,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "label": "Sub Heading font size (Desktop)",
+      "default": 16,
+      "info": "Adjust the font size of the sub heading on desktop."
+    },
+    {
+      "type": "header",
+      "content": "Mobile",
+      "info": "Settings specific to mobile view."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "min": 0,
+      "max": 250,
+      "step": 10,
+      "unit": "px",
+      "label": "Section padding-top",
+      "default": 50,
+      "info": "Adjust the top padding of the timer section on mobile."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "min": 0,
+      "max": 250,
+      "step": 10,
+      "unit": "px",
+      "label": "Section padding-bottom",
+      "default": 50,
+      "info": "Adjust the bottom padding of the timer section on mobile."
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "min": 16,
+      "max": 64,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading font size (Mobile)",
+      "default": 36,
+      "info": "Adjust the font size of the heading on mobile."
+    },
+    {
+      "type": "range",
+      "id": "sub_heading_size_mobile",
+      "min": 12,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "label": "Sub Heading font size (Mobile)",
+      "default": 16,
+      "info": "Adjust the font size of the sub heading on mobile."
+    },
+    {
+      "type": "header",
+      "content": "Texts & localization",
+      "info": "Customize the labels used in the timer."
+    },
+    {
+      "type": "text",
+      "id": "days_label",
+      "label": "Days Text",
+      "default": "Day(s)",
+      "info": "Label for the days part of the timer."
+    },
+    {
+      "type": "text",
+      "id": "hours_label",
+      "label": "Hours Text",
+      "default": "Hour(s)",
+      "info": "Label for the hours part of the timer."
+    },
+    {
+      "type": "text",
+      "id": "minutes_label",
+      "label": "Minutes Text",
+      "default": "Minute(s)",
+      "info": "Label for the minutes part of the timer."
+    },
+    {
+      "type": "text",
+      "id": "seconds_label",
+      "label": "Seconds Text",
+      "default": "Second(s)",
+      "info": "Label for the seconds part of the timer."
+    },
+    {
+      "type": "header",
+      "content": "Customization",
+      "info": "Additional customization options."
+    },
+    {
+      "type": "number",
+      "id": "container_max_width",
+      "label": "Content width limit (px)",
+      "default": 1324,
+      "info": "Set the maximum width of the content area."
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS",
+      "info": "Add custom CSS to style the timer section."
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading tag",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" }
+      ],
+      "default": "h2",
+      "info": "Select the HTML tag for the section heading."
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Heading & Subheading",
+      "type": "heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading_text",
+          "label": "Heading text",
+          "default": "Discount Ends Soon",
+          "info": "Enter the main heading text for the timer section."
+        },
+        {
+          "type": "textarea",
+          "id": "sub_heading_text",
+          "label": "Sub heading text",
+          "default": "Lorem ipsum odor amet, consectetuer adipiscing elit. Class accumsan magnis torquent purus placerat nunc a cubilia primis.",
+          "info": "Enter the subheading text for the timer section."
+        }
+      ]
+    },
+    {
+      "name": "Timer Countdown",
+      "type": "timer1",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "date_picker",
+          "label": "Choose end date",
+          "default": "2025-12-31",
+          "info": "Specify the end date and time for the timer (e.g., 2025-12-31 12:50:00 or December 11 2024 23:59:59 GMT+0200)."
+        }
+      ]
+    },
+    {
+      "name": "Timer Pro 2",
+      "type": "timer2",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Choose period",
+          "info": "Define the duration for the periodic timer."
+        },
+        {
+          "type": "range",
+          "id": "period_days",
+          "label": "Days",
+          "min": 0,
+          "max": 99,
+          "step": 1,
+          "default": 0,
+          "info": "Set the number of days for the timer period."
+        },
+        {
+          "type": "range",
+          "id": "period_hours",
+          "label": "Hours",
+          "min": 0,
+          "max": 24,
+          "step": 1,
+          "default": 0,
+          "info": "Set the number of hours for the timer period."
+        },
+        {
+          "type": "range",
+          "id": "period_minutes",
+          "label": "Minutes",
+          "min": 0,
+          "max": 60,
+          "step": 1,
+          "default": 25,
+          "info": "Set the number of minutes for the timer period."
+        },
+        {
+          "type": "range",
+          "id": "period_seconds",
+          "label": "Seconds",
+          "min": 0,
+          "max": 60,
+          "step": 1,
+          "default": 12,
+          "info": "Set the number of seconds for the timer period."
+        },
+        {
+          "type": "header",
+          "content": "Cookie settings",
+          "info": "Configure how cookies are used to manage the timer's behavior."
+        },
+        {
+          "type": "select",
+          "id": "countdown_restart",
+          "label": "Countdown restart",
+          "options": [
+            { "value": "none", "label": "Every time" },
+            { "value": "hour", "label": "Every hour" },
+            { "value": "day", "label": "Every day" },
+            { "value": "week", "label": "Every week" },
+            { "value": "month", "label": "Every month" }
+          ],
+          "default": "day",
+          "info": "Determine how often the countdown timer should restart."
+        }
+      ]
+    },
+    {
+      "name": "Button",
+      "type": "buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label_1",
+          "default": "Save 300$",
+          "label": "Button label",
+          "info": "Set the text displayed on the button."
+        },
+        {
+          "type": "url",
+          "id": "button_link_1",
+          "label": "Button link",
+          "info": "Specify the URL the button should link to."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Countdown Timer Pro 2",
+      "category": "Countdown Timers",
+      "settings": {
+        "text_color": "#ffffff",
+        "heading_color": "#ffffff",
+        "sub_heading_color": "#ffffff",
+        "button_bg_color": "#333333",
+        "button_text_color": "#ffffff",
+        "button_size": 17,
+        "button_size_mobile": 17,
+        "heading_size_desktop": 48,
+        "sub_heading_size_desktop": 16,
+        "heading_size_mobile": 37,
+        "sub_heading_size_mobile": 16,
+        "image_brightness": 60,
+        "timer_number_color": "#ffffff",
+        "timer_block_border_radius": 50,
+        "enable_gradient": false,
+        "button_hover_animation": "none",
+        "display_on_devices": "all_devices",
+        "show_buttons": true,
+        "enable_custom_fonts": false,
+        "selected_font": "Roboto",
+        "time_numbers_font_weight": "700",
+        "heading_font_weight": "700"
+      },
+      "blocks": [
+        {
+          "type": "heading",
+          "settings": {
+            "heading_text": "Discount Ends Soon",
+            "sub_heading_text": "Lorem ipsum odor amet, consectetuer adipiscing elit. Class accumsan magnis torquent purus placerat nunc a cubilia primis."
+          }
+        },
+        {
+          "type": "timer2",
+          "settings": {}
+        },
+        {
+          "type": "buttons",
+          "settings": {
+            "button_label_1": "Get notified"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

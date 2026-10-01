@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Modal with Copy Functionality</title>
+  <style>
+    /* Your provided CSS */
+    body .tingle-modal {
+      background: var(--overlay-bg);
+      padding-top: 0;
+      display: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      display: none;
+      opacity: 1;
+      cursor: url(cursor-close.png), pointer;
+      visibility: visible;
+      --swiper-pagination-mt: 2rem;
+    }
+    body .tingle-modal__close {
+      right: 10px;
+      top: 10px;
+      width: 40px;
+      height: 40px;
+    }
+    body.tingle-enabled {
+      position: unset;
+      overflow: unset;
+    }
+    .tingle-modal.modal-error {
+      --tingle-padding: 0;
+      --color-error: #904141;
+      --border-color-error: #eabdbd;
+      --background-error: #fadfdf;
+    }
+    .tingle-modal.modal-error .error {
+      margin-bottom: 0;
+      border: 0;
+    }
+    .tingle-modal.modal-error .tingle-modal-box {
+      width: fit-content;
+      background: var(--background-error);
+      border: 1px solid var(--border-color-error);
+      color: var(--color-error);
+    }
+    .tingle-modal.modal-error .tingle-modal__close {
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .tingle-modal__closeIcon {
+      color: var(--dark-grey, #666);
+      font-size: 0;
+    }
+    .tingle-modal__close:hover .tingle-modal__closeIcon {
+      color: var(--color-heading);
+    }
+    .tingle-modal .tingle-modal-box {
+      max-width: var(--popup-max-width, unset);
+      width: 85%;
+      margin: auto;
+      display: none;
+    }
+    .tingle-modal .tingle-modal-box__content {
+      max-height: 80vh;
+      overflow: hidden auto;
+      min-width: 30rem;
+    }
+    @media (min-width: 768px) {
+      .tingle-modal .tingle-modal-box__content {
+        min-width: 37rem;
+      }
+    }
+    body .tingle-modal--visible {
+      animation: fadeIn var(--duration-long, 0.3s) forwards;
+      display: flex;
+    }
+    body .tingle-modal--visible .tingle-modal-box {
+      animation: translateIn var(--duration-long, 0.3s) ease forwards;
+      display: block;
+    }
+    body .remove-loading {
+      animation: fadeOut var(--duration-long, 0.5s) forwards;
+    }
+    body .remove-loading .tingle-modal-box {
+      animation: translateOut var(--duration-long, 0.5s) forwards;
+    }
+    .rounded-style .tingle-modal-box {
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    body .tingle-modal-box__content {
+      padding: var(--tingle-padding, 4rem);
+    }
+    @media (max-width: 767.98px) {
+      body .tingle-modal-box__content {
+        padding: var(--tingle-padding, 2rem);
+      }
+      .lookbook-modal {
+        --tingle-padding: 10px;
+      }
+      .lookbook-modal .tingle-modal__close {
+        box-shadow: unset;
+        width: 15px;
+        height: 18px;
+      }
+      .shopable-video__product-information.hidden,
+      .shopable-video__product-information {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(100%);
+      }
+    }
+    @keyframes translateIn {
+      from {
+        transform: translateY(15px);
+      }
+      to {
+        transform: translateY(0);
+      }
+    }
+    @-webkit-keyframes translateIn {
+      from {
+        transform: translateY(15px);
+      }
+      to {
+        transform: translateY(0);
+      }
+    }
+    @keyframes translateOut {
+      from {
+        transform: translateY(0);
+      }
+      to {
+        transform: translateY(15px);
+      }
+    }
+    @-webkit-keyframes translateOut {
+      from {
+        transform: translateY(0);
+      }
+      to {
+        transform: translateY(15px);
+      }
+    }
+    .login-popup-modal {
+      --popup-max-width: 50rem;
+      --duration-long: 0.4s;
+    }
+    #login-popup [aria-hidden="true"] {
+      display: none;
+    }
+    #login-popup [aria-hidden="false"] {
+      animation: 0.2s fadeIn forwards;
+    }
+    .show-pass-word.text .icon-hide {
+      display: none;
+    }
+    .show-pass-word.text .icon-view {
+      display: inline-block;
+      color: var(--color-heading);
+    }
+    .shopable-video {
+      --popup-max-width: 72rem;
+    }
+    .shopable-video .tingle-modal-box__content {
+      padding: 0;
+    }
+    .video-item__popup .product__submit-form::after {
+      content: "";
+      position: absolute;
+      z-index: 1;
+      right: 0;
+      bottom: calc(100% + 15px);
+      left: 0;
+      height: 25px;
+      background-image: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0) 0%,
+        var(--gradient-background) 135%
+      );
+      pointer-events: none;
+    }
+    @media (max-width: 575.98px) {
+      .video-item__popup-media--ratio {
+        min-height: 60vh;
+      }
+      body .tingle-modal__close {
+        background-color: var(--color-white);
+        box-shadow: 5px 0px 30px 0px rgba(0, 0, 0, 0.08);
+        border-radius: 50%;
+        top: 1rem;
+        right: 1rem;
+      }
+      .tingle-modal__closeIcon svg {
+        width: 11px;
+        height: 11px;
+      }
+    }
+    .size_chart,
+    .term-and-condition {
+      --popup-max-width: 78rem;
+    }
+    .compare-colors {
+      --popup-max-width: 60rem;
+    }
+    .share {
+      --popup-max-width: 37rem;
+    }
+    .compare-colors__content .compare-radios {
+      margin-top: 0;
+    }
+    .compare-colors .tingle-modal-box__content {
+      margin-top: -1rem;
+    }
+    /* Instagram shop */
+    .instagram-shop {
+      --popup-max-width: 1020px;
+      --tingle-padding: 0;
+    }
+    @media (min-width: 576px) {
+      :is(.shopable-video, .instagram-shop) .tingle-modal__close {
+        right: 0;
+        top: 0;
+      }
+    }
+    /* Newsletter */
+    :is(.newsletter-popup-modal, .promotion-popup-modal) .tingle-modal-box {
+      width: unset;
+      --tingle-padding: 0;
+      --popup-max-width: 90%;
+    }
+    :is(.newsletter-popup-modal, .promotion-popup-modal) .popup-content {
+      width: var(--popup-max-width);
+      max-width: 100%;
+    }
+    .action-copy {
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .action-copy input {
+      width: 250px;
+      padding: 0.5rem;
+    }
+    .action-copy button {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    /* New styles for the copy button when copied */
+    .copy-button.copied {
+      background-color: #fff;
+      color: #000;
+    }
+    .copied-success {
+      font-size: 0.9rem;
+      color: green;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Modal structure -->
+  <div class="tingle-modal tingle-modal--visible">
+    <div class="tingle-modal-box">
+      <button class="tingle-modal__close">X</button>
+      <div class="tingle-modal-box__content">
+        <!-- Copy action container -->
+        <div class="action-copy">
+          <input id="linkInput" type="text" value="https://example.com" readonly>
+          <button class="copy-button">Copy Link</button>
+          <span class="copied-success">Copied!</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript for copy functionality -->
+  <script>
+    // Attach click event to the copy button
+    document.querySelector('.copy-button').addEventListener('click', function() {
+      const linkInput = document.getElementById('linkInput');
+      
+      // Select the text in the input (for mobile devices as well)
+      linkInput.select();
+      linkInput.setSelectionRange(0, 99999);
+      
+      // Function to show success animation on the copy button
+      function showCopySuccess() {
+        const copyButton = document.querySelector('.copy-button');
+        const originalText = copyButton.innerHTML;
+        copyButton.classList.add('copied');
+        copyButton.innerHTML = 'Copied';
+        // CSS transition provides the smooth animation; revert after 2 seconds
+        setTimeout(function() {
+          copyButton.classList.remove('copied');
+          copyButton.innerHTML = originalText;
+        }, 2000);
+      }
+      
+      // Use the modern Clipboard API if available
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(linkInput.value).then(function() {
+          showCopySuccess();
+        }).catch(function(err) {
+          console.error('Clipboard API error: ', err);
+        });
+      } else {
+        // Fallback for older browsers
+        try {
+          const successful = document.execCommand('copy');
+          if (successful) {
+            showCopySuccess();
+          } else {
+            console.error('Fallback: Copy command unsuccessful');
+          }
+        } catch (err) {
+          console.error('Fallback: Unable to copy', err);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

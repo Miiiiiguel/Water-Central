@@ -1,0 +1,496 @@
+<link rel="stylesheet" href="{{ 'minicart.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- liquid
+  assign theme_st = settings
+  assign free_shipping = theme_st.show_on_minicart_cart_page
+  assign show_currency_code = theme_st.show_currency_code
+  assign action_after_add_cart = theme_st.action_after_add_cart
+  assign minicart_type = theme_st.minicart_type
+  assign shipping_rate = theme_st.free_shipping_minimum | times: 1 | default: 0
+  assign shipping_rate_price = shipping_rate | money
+  if show_currency_code
+    assign shipping_rate_price = shipping_rate | money_with_currency
+  endif
+  assign cart_duration_show = theme_st.show_duration_on_minicart_cart_page
+  assign cart_duration = theme_st.cart_duration
+  assign recommendations_heading = theme_st.product_recommendations_heading
+  assign product_recommendations_type = theme_st.product_recommendations_type
+  assign select_product_recommendations = theme_st.select_product_recommendations
+  assign hidden_price = theme_st.hidden_price
+-%}
+<div class="minicart">
+  <cart-notification>
+    <div
+      id="header__minicart"
+      class="header__minicart {{ action_after_add_cart }}{% if action_after_add_cart == 'show_popup' %} relative{% endif %}"
+    >
+      <a
+        id="cart-icon-bubble"
+        href="{{ routes.cart_url }}"
+        aria-label="{{ 'general.cart.label' | t }}"
+        class="{% if template != 'cart' and action_after_add_cart != 'go_to_cart_page' %}minicart__action{% endif %} header-icon header-color w-44 h-44 inline-flex content-center  {% if action_after_add_cart == 'show_popup' %}show-overlay{% else %}overlay{% endif %}"
+      >
+        <h-count class="relative lh-1 fs-0">
+          <svg fill="currentColor" width="19" height="19" viewBox="0 0 15 16" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M13.09,1.33 L13.71,13.26 C13.75,13.99 13.22,14.62 12.53,14.66 C12.50,14.67 12.50,14.67 12.46,14.67 L2.54,14.67 C1.85,14.67 1.29,14.07 1.29,13.33 C1.29,13.30 1.29,13.30 1.29,13.26 L1.91,1.33 L13.09,1.33 Z M3.09,2.67 L2.54,13.33 L12.46,13.33 L11.91,2.67 L3.09,2.67 Z M4.38,4 L5.63,4 L5.63,5.67 C5.63,6.50 6.49,7.33 7.50,7.33 C8.51,7.33 9.38,6.50 9.38,5.67 L9.38,4 L10.63,4 L10.63,5.67 C10.63,7.27 9.17,8.67 7.50,8.67 C5.83,8.67 4.38,7.27 4.38,5.67 L4.38,4 Z"/>
+          </svg>
+          <span class="absolute lh-1 cart-count h-count inline-flex align-center justify-content-center rounded-50 overflow-hidden fs-10">
+            {%- if cart.item_count < 100 -%}
+              {{ cart.item_count }}
+            {%- else -%}
+              ~
+            {% endif %}
+            <span class="visually-hidden">{{ 'sections.header.cart_count' | t: count: cart.item_count }}</span>
+          </span>
+        </h-count>
+      </a>
+      {% if template != 'cart' and action_after_add_cart != 'go_to_cart_page' %}
+        <div class="minicart__wrapper flex flex-column color-default {% if action_after_add_cart == 'open_drawer' %} bls__drawer invisible fixed z-15 inset-y-0 h-full transition-popup{% if settings.rtl %} right left-0{% else %} left right-0{% endif %}{% endif %}{% if action_after_add_cart == 'show_popup' %} popup_cart invisible absolute z-10 transition-popup right-0 rounded shadow{% endif %}{% if settings.option_show_minicart == 'beside' %} minicart-beside{% endif %}">
+          {% if action_after_add_cart == 'show_popup' %}
+            <icon-close
+              class="pointer-none border inline-flex hidden-1025 mx-auto rounded-50 overflow-hidden absolute top-0 inset-x-0 w-50 h-50 content-center heading-color bg-white"
+              style="transform: translateY(calc(-100% - 15px));"
+            >
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" class="transition">
+                <use href="#icon-close"></use>
+              </svg>
+            </icon-close>
+          {%- endif %}
+          {% if action_after_add_cart == 'open_drawer' %}
+            <div class="minicart__header flex gap-10 align-center justify-between px-30 py-18 color-default">
+              <div class="h5 minicart-heading my-0" style="margin: 0 auto; text-align: center;">
+                {{ 'My Cart' }}
+                <span class="cart-count cart-count-drawer"> ({{ cart.item_count }}) </span>
+              </div>
+              <button
+                class="btn-reset button-close close-cart-button pointer hover-svg-zoom inline-flex align-center"
+                aria-label="{{ 'accessibility.close' | t }}"
+              >
+                <svg
+                  height="14px"
+                  width="14px"
+                  version="1.1"
+                  id="Capa_1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  viewBox="0 0 26 26"
+                  xml:space="preserve"
+                  fill="#000000"
+                >
+                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                  <g id="SVGRepo_iconCarrier">
+                    <g>
+                      <path style="fill:#c7c7c7;" d="M21.125,0H4.875C2.182,0,0,2.182,0,4.875v16.25C0,23.818,2.182,26,4.875,26h16.25 C23.818,26,26,23.818,26,21.125V4.875C26,2.182,23.818,0,21.125,0z M18.78,17.394l-1.388,1.387c-0.254,0.255-0.67,0.255-0.924,0 L13,15.313L9.533,18.78c-0.255,0.255-0.67,0.255-0.925-0.002L7.22,17.394c-0.253-0.256-0.253-0.669,0-0.926l3.468-3.467 L7.221,9.534c-0.254-0.256-0.254-0.672,0-0.925l1.388-1.388c0.255-0.257,0.671-0.257,0.925,0L13,10.689l3.468-3.468 c0.255-0.257,0.671-0.257,0.924,0l1.388,1.386c0.254,0.255,0.254,0.671,0.001,0.927l-3.468,3.467l3.468,3.467 C19.033,16.725,19.033,17.138,18.78,17.394z"></path>
+                    </g>
+                  </g>
+                </svg>
+              </button>
+            </div>
+          {%- endif -%}
+          {%- if free_shipping and shipping_rate > 0 -%}
+            {%- liquid
+              assign items_subtotal_price = cart.items_subtotal_price
+              assign shipping_price = shipping_rate
+            -%}
+            <free-ship-progress-bar
+              data-order="{{ cart.items_subtotal_price }}"
+              data-fe-amount="{{ shipping_rate }}"
+              data-fe-unavaiable="{{ 'general.cart.free_shipping' | t }}"
+              data-fe-avaiable="{{ 'general.cart.free_shipping_avaiable' | t }}"
+              class="block cart_shipping cart_threshold{% if action_after_add_cart == 'open_drawer' %} grey-bg{% endif %} border-bottom{% if action_after_add_cart != 'show_popup' %} border-top{% endif %} px-30 pt-33 pb-15{% if cart.items.size > 0 and items_subtotal_price >= shipping_price %} cart_shipping_free{% endif %}"
+            >
+              <div class="progress-bar cart_bar_w relative rounded-10">
+                <span
+                  class="progress percent_shipping_bar transition relative primary-color rounded-10"
+                  style="width: {{ cart.items_subtotal_price | divided_by: shipping_rate | times: 100 }}%;"
+                >
+                  {% if settings.rtl %}
+                  {% else %}
+
+                  {% endif %}
+                </span>
+              </div>
+              <div
+                class="free-shipping-message mt-17 cart-thres cart_thres_1 opacity-0"
+                style="font-size: 14.5px; padding-left: 1px; padding-right: 1px; margin-left: -3px; margin-right: -3px;"
+              >
+                {% if cart.items_subtotal_price < shipping_rate %}
+                  You are {{ shipping_rate | minus: cart.items_subtotal_price | money }} away from free shipping!
+                {% else %}
+                  Congratulations! You qualify for free shipping!
+                {% endif %}
+              </div>
+            </free-ship-progress-bar>
+          {%- endif -%}
+
+          {%- comment -%}
+            Countdown Timer Block – will only be visible when there are cart items.
+          {%- endcomment -%}
+          {%- if theme_st.enable_cart_drawer_countdown_timer -%}
+            <div
+              class="cart-drawer-countdown"
+              style="
+                margin: {{ theme_st.cart_drawer_countdown_margin }}px;
+                padding: {{ theme_st.cart_drawer_countdown_padding }}px;
+                background-color: {% if theme_st.enable_cart_drawer_countdown_transparent %}transparent{% else %}var(--color-background){% endif %} !important;
+                filter: brightness(1.2) contrast(0.93);
+                border: 1px solid {{ theme_st.cart_drawer_countdown_border_color }};
+                border-radius: {{ theme_st.cart_drawer_countdown_border_radius }}px;
+                text-align: center;
+                font-size: 15px;
+                color: var(--color-heading) !important;
+                display: {% if cart.items.size > 0 %}block{% else %}none{% endif %};
+              "
+            >
+              <span class="countdown-text"></span>
+              <span
+                class="countdown-timer"
+                style="font-weight: bold; color: {{ theme_st.cart_drawer_countdown_color }};"
+                >00:00</span
+              >
+            </div>
+          {%- endif -%}
+
+          <div
+            id="minicart-form"
+            class="minicart-form flex-1 flex flex-column grow relative overflow-hidden color-default"
+          >
+            <div class="flex-1 overflow-y-scroll custom-scrollbar">
+              <form
+                id="minicart"
+                action="{{ routes.cart_url }}"
+                method="post"
+                class="minicart-form flex-1 flex flex-column grow relative overflow-hidden color-default"
+                novalidate
+              >
+                {%- if cart.items.size > 0 -%}
+                  <div class="minicart-body flex-1 grow pt-30 px-30 overflow-x-hidden{% if action_after_add_cart == 'open_drawer' %} pb-30{% endif %}">
+                    <div class="items">
+                      {% for item in cart.items %}
+                        {%- render 'cart-item', item: item -%}
+                      {% endfor %}
+                    </div>
+                  </div>
+                {%- else -%}
+                  <div class="cart-body">
+                    <div class="cart-empty text-center p-30">
+                      {% if action_after_add_cart == 'open_drawer' %}
+                      {%- endif -%}
+                      <h6 class="fs-18 mt-15 mb-20">{{ 'general.cart.subtitle' | t }}</h6>
+                      <p class="empty description mt-0 mb-20 max-w-custom mx-auto" style="--max-width: 85%;">
+                        {{ 'general.cart.description' | t }}
+                      </p>
+                      <button type="button" class="minicart-action close-cart btn-primary mb-10">
+                        {{ 'general.cart.return_shop' | t }}
+                      </button>
+                    </div>
+                  </div>
+                {%- endif -%}
+              </form>
+              {% if cart.items.size > 0 %}
+                {% if action_after_add_cart == 'open_drawer' and minicart_type == 'show_inside' %}
+                  {%- if product_recommendations_type == 'auto' -%}
+                    <minicart-recommendations
+                      data-url="{{ routes.product_recommendations_url }}?product_id={{ cart.items.first.product_id }}&limit=6&section_id=cart-upsell"
+                      class="block cart-recommend pt-30 pb-30 px-30 border-top block{% if product_recommendations_type == 'auto' %} no-js-hidden{% endif %}"
+                    >
+                  {%- else -%}
+                    <div
+                      class="cart-recommend cart-recommend-custom pt-30 pb-30 px-30 border-top inside block{% if select_product_recommendations == blank %} hidden-recommend{% endif %}"
+                    >
+                  {%- endif -%}
+                  {%- if recommendations_heading -%}
+                    <h4 class="minicart-heading mt-0 mb-15 fs-18 heading-letter-spacing">
+                      {{ recommendations_heading }}
+                    </h4>
+                  {%- endif -%}
+                  <slide-section
+                    class="swiper swiper-cart-upsell"
+                    id="swiper-cart-upsell"
+                    data-section-id="cart-upsell"
+                    data-autoplay="false"
+                    data-loop="false"
+                    data-mobile="1"
+                    data-tablet="1"
+                    data-desktop="1"
+                    data-item-mobile="1"
+                    data-spacing="5"
+                  >
+                    <div class="swiper-wrapper">
+                      {%- if product_recommendations_type != 'auto' -%}
+                        {%- for item in select_product_recommendations -%}
+                          {% liquid
+                            assign hidden = false
+                            for itemcart in cart.items
+                              if itemcart.product_id == item.id
+                                assign hidden = true
+                              endif
+                            endfor
+                          %}
+                          {% if hidden == false %}
+                            <div class="swiper-slide">
+                              {% render 'product-item',
+                                card_product: item,
+                                template_enable_price: true,
+                                template_enable_add_cart: true,
+                                template_enable_product_vendor: false,
+                                template_enable_rate: false,
+                                template_enable_product_short_description: false,
+                                template_enable_color_swatches: false,
+                                type: 'list'
+                              %}
+                            </div>
+                          {% endif %}
+                        {%- endfor -%}
+                      {%- endif -%}
+                    </div>
+                    <div class="swiper-pagination"></div>
+                  </slide-section>
+                  {%- if product_recommendations_type == 'auto' -%}
+                    </minicart-recommendations>
+                  {%- else -%}
+                    </div>
+                  {%- endif -%}
+                {% endif %}
+                {% if action_after_add_cart == 'open_drawer' and minicart_type == 'show_beside' %}
+                  {%- if product_recommendations_type == 'auto' -%}
+                    <minicart-recommendations-beside
+                      data-url="{{ routes.product_recommendations_url }}?product_id={{ cart.items.first.product_id }}&limit=6&section_id=cart-upsell"
+                      class="cart-recommend pb-30 px-30 block fixed-1025 gradient inset-y-0 z-2 beside invisible-1025 pointer-none-1025 cart-recommend-beside-mobile color-default{% if product_recommendations_type == 'auto' %} no-js-hidden{% endif %}"
+                    >
+                  {%- else -%}
+                    <div
+                      class="cart-recommend cart-recommend-custom pb-30 px-30 fixed-1025 mt-1025-0 inset-y-0 z-2 beside invisible-1025 pointer-none-1025 cart-recommend-beside-mobile color-default{% if select_product_recommendations == blank %} hidden{% endif %}"
+                    >
+                  {%- endif -%}
+                  {%- if recommendations_heading -%}
+                    <minicart-recommendations-heading class="flex gap-10 justify-between recommend-heading">
+                      <h4 class="minicart-heading mt-0 mb-15 fs-18 heading-letter-spacing">
+                        {{ recommendations_heading }}
+                      </h4>
+                      <button-close-beside class="btn-reset button-close button-close-beside pointer hover-svg-zoom hidden block-1025">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" class="transition">
+                          <use href="#icon-close" />
+                        </svg>
+                      </button-close-beside>
+                    </minicart-recommendations-heading>
+                  {%- endif -%}
+                  <grid-custom
+                    class="cart-upsell-wrapper flex gap flex-wrap custom-scrollbar"
+                    data-mobile="1"
+                    data-spacing="15"
+                    data-section-id="cart-upsell-beside"
+                  >
+                    {%- if product_recommendations_type != 'auto' -%}
+                      {%- for item in select_product_recommendations -%}
+                        {% liquid
+                          assign hidden = false
+                          for itemcart in cart.items
+                            if itemcart.product_id == item.id
+                              assign hidden = true
+                            endif
+                          endfor
+                        %}
+                        {% if hidden == false %}
+                          <div class="cart-upsell-item w-full">
+                            {% render 'product-item',
+                              card_product: item,
+                              template_enable_price: true,
+                              template_enable_add_cart: true,
+                              template_enable_product_vendor: false,
+                              template_enable_rate: false,
+                              template_enable_product_short_description: false,
+                              template_enable_color_swatches: false,
+                              type: 'list'
+                            %}
+                          </div>
+                        {% endif %}
+                      {%- endfor -%}
+                    {%- endif -%}
+                  </grid-custom>
+                  {%- if product_recommendations_type == 'auto' -%}
+                    </minicart-recommendations-beside>
+                  {%- else -%}
+                    </div>
+                  {%- endif -%}
+                {% endif %}
+              {% endif %}
+            </div>
+            {% if cart.items.size > 0 %}
+              <div class="cart-footer{% if action_after_add_cart == 'show_popup' %} mt-30{% endif %}">
+                {% if action_after_add_cart == 'open_drawer' %}
+                  {%- render 'cart-addons' -%}
+                {% endif %}
+                {% if hidden_price == false %}
+                  <div class="cart-summary" data-cart-summary>
+                    <div data-discounts>
+                      <ul class="cart-discounts list-unstyled fs-small light-dark-grey" data-discounts-list>
+                        {% unless cart.cart_level_discount_applications.size == 0 %}
+                          {% for discount in cart.cart_level_discount_applications %}
+                            <li>
+                              <span>
+                                {% if show_currency_code %}
+                                  {{- discount.title | upcase }}&nbsp;(-
+                                  {{- discount.total_allocated_amount | money_with_currency -}}
+                                  )
+                                {% else %}
+                                  {{- discount.title | upcase }}&nbsp;(-{{ discount.total_allocated_amount | money }})
+                                {% endif %}
+                              </span>
+                            </li>
+                          {% endfor %}
+                        {% endunless %}
+                      </ul>
+                    </div>
+                  </div>
+                {% endif %}
+                <div class="drawer-bottom cart__ctas px-30 pt-20 pb-30 grey-bg border-top">
+                  <div class="subtotal flex gap-10 justify-between align-center" data-cart-subtotal>
+                    <h5 class="heading-color my-0">{{ 'general.cart.subtotal' | t }}</h5>
+                    <span class="subtotal-price h5 my-5" data-cart-subtotal-price>
+                      {% if show_currency_code %}
+                        {{ cart.total_price | money_with_currency }}
+                      {% else %}
+                        {{ cart.total_price | money }}
+                      {% endif %}
+                    </span>
+                  </div>
+                  {%- if theme_st.show_check_box_in_cart and theme_st.enable_catalog_mode == false -%}
+                    <terms-conditions class="terms-conditions flex mt-17 mb-25" data-custom-class="term-and-condition">
+                      <div class="checkbox-group relative">
+                        <input
+                          class="input w-20 h-20 m-0 opacity-0 absolute inset-0 pointer conditions_form_minicart"
+                          type="checkbox"
+                          name="conditions"
+                          id="conditions_form_minicart"
+                        >
+                        <span class="checkmark relative me-10  pointer-none pointer inline-flex"></span>
+                      </div>
+                      <label
+                        class="label pointer rich__text-m0"
+                        for="conditions_form_minicart"
+                        style="--color-link: var(--color-heading) !important;"
+                      >
+                        {{ theme_st.text_terms_conditions }}
+                      </label>
+                    </terms-conditions>
+                  {%- endif -%}
+                  {%- if settings.enable_catalog_mode == false -%}
+                    <a
+                      class="action block mb-10 btn-outline w-full text-center no-underline viewcart"
+                      href="{{ routes.cart_url }}"
+                    >
+                      <span>{{ 'general.cart.viewcart' | t }}</span>
+                    </a>
+                    <!-- Added Checkout Button Below -->
+                    <a
+                      class="action block mb-10 btn-primary w-full text-center no-underline checkout"
+                      href="{{ routes.checkout_url }}"
+                    >
+                      <span>{{ 'general.cart.checkout' | t }}</span>
+                    </a>
+                  {%- endif -%}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </cart-notification>
+</div>
+
+{% comment %}
+  Countdown Timer Script – uses localStorage to persist the target time.
+  The timer counts down from the configured number of minutes (default 5),
+  then when it reaches 00:00, it enters a 1-minute pause and then resets.
+{% endcomment %}
+{% if theme_st.enable_cart_drawer_countdown_timer %}
+  <script>
+    (function() {
+      // Get settings from Liquid
+      const countdownEnabled = {{ theme_st.enable_cart_drawer_countdown_timer | json }};
+      if (!countdownEnabled) return;
+      const countdownText = {{ theme_st.cart_drawer_countdown_text | json }};
+      const initialMinutes = parseFloat({{ theme_st.cart_drawer_countdown_initial_time | json }}) || 5;
+      // The color for the numbers is set inline in the element style
+
+      // Keys for localStorage
+      const TARGET_KEY = 'minicartCountdownTarget';
+      const PHASE_KEY = 'minicartCountdownPhase'; // 'active' or 'pause'
+
+      // Initialize or retrieve the countdown target and phase from localStorage
+      function initCountdown() {
+        let target = localStorage.getItem(TARGET_KEY);
+        let phase = localStorage.getItem(PHASE_KEY);
+        const now = new Date().getTime();
+        if (!target) {
+          target = now + initialMinutes * 60 * 1000;
+          phase = 'active';
+          localStorage.setItem(TARGET_KEY, target);
+          localStorage.setItem(PHASE_KEY, phase);
+        }
+        return { target: parseInt(target, 10), phase };
+      }
+
+      // Toggle the visibility of the countdown container based on the current cart count.
+      function toggleCountdownVisibility() {
+        const cartCountElement = document.querySelector('.cart-count-drawer');
+        const countdownContainer = document.querySelector('.cart-drawer-countdown');
+        if (!cartCountElement || !countdownContainer) return;
+        const countText = cartCountElement.textContent;
+        const count = parseInt(countText.replace(/\D/g, ''), 10) || 0;
+        if (count > 0) {
+          countdownContainer.style.display = 'block';
+        } else {
+          countdownContainer.style.display = 'none';
+        }
+      }
+
+      function updateCountdown() {
+        toggleCountdownVisibility();
+        const countdownElement = document.querySelector('.cart-drawer-countdown .countdown-timer');
+        if (!countdownElement) return;
+        let { target, phase } = initCountdown();
+        const now = new Date().getTime();
+        let diff = Math.floor((target - now) / 1000);
+
+        if (diff <= 0) {
+          if (phase === 'active') {
+            // Switch to pause phase: 1 minute countdown before restarting
+            phase = 'pause';
+            target = now + 60 * 1000;
+            localStorage.setItem(TARGET_KEY, target);
+            localStorage.setItem(PHASE_KEY, phase);
+            diff = Math.floor((target - now) / 1000);
+          } else {
+            // Pause phase ended, reset to active countdown
+            phase = 'active';
+            target = now + initialMinutes * 60 * 1000;
+            localStorage.setItem(TARGET_KEY, target);
+            localStorage.setItem(PHASE_KEY, phase);
+            diff = Math.floor((target - now) / 1000);
+          }
+        }
+
+        // Format as mm:ss
+        const minutes = Math.floor(diff / 60);
+        const seconds = diff % 60;
+        countdownElement.textContent = ("0" + minutes).slice(-2) + ":" + ("0" + seconds).slice(-2);
+      }
+
+      // Initialize the countdown text (controlled by the text input and theme heading color)
+      const countdownContainer = document.querySelector('.cart-drawer-countdown');
+      if (countdownContainer) {
+        const textElement = countdownContainer.querySelector('.countdown-text');
+        if (textElement) {
+          textElement.textContent = countdownText + " ";
+        }
+      }
+
+      // Update countdown immediately and then every second
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    })();
+  </script>
+{% endif %}

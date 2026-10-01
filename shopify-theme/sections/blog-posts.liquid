@@ -1,0 +1,729 @@
+{%- liquid
+  assign section_st = section.settings
+  assign section_width = section_st.section_width
+  assign color_scheme = section_st.color_scheme
+  assign items_per_row = section_st.items_per_row
+  assign items_to_show = section_st.items_to_show
+  assign items_per_row_mobile = section_st.items_per_row_mobile
+  assign heading = section_st.heading
+  assign description = section_st.description
+
+  assign carousel_pagination = section_st.carousel_pagination
+  assign infinite = section_st.infinite
+  assign autoplay = section_st.autoplay
+  assign autorotate_speed = section_st.autorotate_speed
+  assign reveal = section_st.reveal
+
+  assign show_date = section_st.show_date
+  assign show_author = section_st.show_author
+
+  assign image_ratio = section_st.image_ratio
+  assign custom_ratio = section_st.custom_ratio
+
+  assign content_alignment = section_st.content_alignment
+
+  assign scroll_animation = settings.scroll_animation
+-%}
+
+{%- capture style -%}
+  --section-pt: {{ section_st.padding_top }}; 
+  --section-pb: {{ section_st.padding_bottom }};
+  --vertical-gap: {{ section_st.vertical_gap }}px;
+  --heading-font-size: {{ section_st.heading_font_size }}px;
+
+  /* New custom property for gap between heading and subtext */
+  --heading-subtext-gap: {{ section_st.heading_subtext_gap }}px;
+
+  /* View All button custom properties */
+  --view-all-text-color: {{ section_st.view_all_text_color }};
+  --view-all-hover-text-color: {{ section_st.view_all_hover_text_color }};
+  --view-all-bg-color: {{ section_st.view_all_bg_color }};
+  /* New custom property for View All button hover background */
+  --view-all-hover-bg-color: {{ section_st.view_all_hover_bg_color }};
+{%- endcapture -%}
+
+{%- capture style_ratio -%}
+  {%- liquid
+    assign ratio = ''
+    if image_ratio != 'adapt'
+      case image_ratio
+        when 'square'
+          assign ratio = '1/1'
+        when 'landscape'
+          assign ratio = '4/3'
+        when 'portrait'
+          assign ratio = '3/4'
+        when 'custom'
+          if custom_ratio != blank
+            assign ratio = custom_ratio | replace: ':', '/'
+          else
+            assign ratio = '3/2'
+          endif
+        else
+          assign ratio = '3/2'
+      endcase
+    else
+      if article.image != blank
+        assign ratio = article.image.aspect_ratio
+      else
+        assign ratio = '3/2'
+      endif
+    endif
+  -%}
+  --aspect-ratio: {{ ratio }};
+{%- endcapture -%}
+
+{%- capture col_style -%}
+{% if section_st.column_gap < 15 %}
+  --col-gap: {{ section_st.column_gap }}px;
+{% else %}
+  --col-gap: 15px;
+  --col-gap-desktop: {{ section_st.column_gap }}px;
+{% endif %}
+{%- endcapture -%}
+
+<div
+  class="section color-{{ color_scheme }} gradient {{ settings.hover_effect }}{% if reveal %} overflow-hidden{% endif %}"
+  style="{{ style | strip | strip_newlines }}"
+>
+  <!-- Additional styling overrides -->
+  <style>
+    /* Ensure no underline on the 'View All' button in any state */
+    a.btn_view-all,
+    a.btn_view-all:hover,
+    a.btn_view-all:focus,
+    a.btn_view-all:active,
+    .btn_view-all,
+    .btn_view-all:hover,
+    .btn_view-all:focus,
+    .btn_view-all:active {
+      text-decoration: none !important;
+    }
+
+    /* Pill styling (if you need to reuse or adjust for headings, etc.) */
+    .pill {
+      display: inline-block;
+      background-color: var(--pill-bg, #f5f5f5);
+      color: var(--pill-text-color, #333);
+      border-radius: var(--pill-border-radius, 9999px);
+      border-width: var(--pill-border-width, 0);
+      border-color: var(--pill-border-color, #ccc);
+      border-style: solid;
+      padding: var(--pill-padding-vertical, 5px) var(--pill-padding-horizontal, 12px);
+    }
+
+    a.btn_view-all,
+    a.btn_view-all:link,
+    a.btn_view-all:visited,
+    a.btn_view-all:hover,
+    a.btn_view-all:active,
+    a.btn_view-all:focus {
+      text-decoration: none !important;
+      border: none !important;
+      border-bottom: none !important;
+      box-shadow: none !important;
+      outline: none !important;
+    }
+
+    .btn_view-all::before,
+    .btn_view-all::after {
+      content: none !important;
+      text-decoration: none !important;
+      border: none !important;
+    }
+
+    /* View All button styling */
+    .btn_view-all {
+      background-color: var(--view-all-bg-color, #e0e0e0);
+      color: var(--view-all-text-color, #333);
+      border-radius: 9999px;
+      padding: 8px 15px;
+      transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    }
+    .btn_view-all:hover {
+      color: var(--view-all-hover-text-color, #000);
+      background-color: var(--view-all-hover-bg-color, #ccc);
+    }
+  </style>
+
+  <div class="{{ section_width }}">
+    {%- if heading != blank or description != blank or section_st.show_view_all != blank -%}
+      <div
+        class="section__header text-{{ section_st.header_alignment }}{% if section_st.section_width == 'full_width' %} px-20{% endif %}"
+        style="margin-bottom: var(--vertical-gap);"
+      >
+        <div
+          class="
+            {% if section_st.show_view_all != blank and section_st.header_alignment != 'center' %}flex gap-15 gap-md-30 flex-wrap
+            {% if section_st.header_alignment == 'center' %} justify-content-center
+            {% else %} justify-between {% endif %}
+            align-center
+            {% if section_st.header_alignment == 'right' %} flex-row-reverse{% endif %}{% endif %}
+          "
+        >
+          {%- if heading != blank or description != blank -%}
+            <div class="secion__header-inner">
+              {%- if heading != blank -%}
+                <!-- Heading as inline rich text, but kept in an H2 for SEO -->
+                <h2
+                  class="section__header-heading heading-letter-spacing mt-0 mb-0"
+                  style="
+                      /* Only apply gap if description exists */
+                      margin-bottom: {% if description != blank %}var(--heading-subtext-gap){% else %}0px{% endif %};
+                    margin-bottom: -20px !important; /* Add fixed margin-bottom */
+                      font-size: var(--heading-font-size);
+                      {%- if scroll_animation != 'none' -%}
+                        --animation-order: 0;
+                      {% endif %}
+                  "
+                >
+                  {{ section_st.heading }}
+                </h2>
+              {% endif %}
+              {%- if description != blank -%}
+                <div
+                  class="section__header-des rich__text-m0{% if scroll_animation != 'none' %} scroll-trigger {{ scroll_animation }}{% endif %}"
+                  style="
+                    {%- if scroll_animation != 'none' -%}
+                      --animation-order: 1;
+                    {% endif %}
+                  "
+                >
+                  {{ section_st.description }}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+          {% if section_st.show_view_all != blank and section_st.header_alignment != 'center' %}
+            <a
+              href="{{ section_st.blog.url }}"
+              aria-label="View all blog posts"
+              class="btn_view-all no-underline inline-flex btn-link"
+            >
+              {{ 'blog_post.view_all' | t }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="blog-posts-main default">
+      {% if section_st.items_per_row_mobile > 1 and section_st.items_per_row_mobile < 2 %}
+        <div class="free-scroll">
+      {% endif %}
+
+      {%- assign blog = blogs[section_st.blog] -%}
+      {%- if blog.articles.size > 0 -%}
+        <slide-section
+          class="swiper{% if reveal %} reveal_on_scroll{% endif %}"
+          data-section-id="{{ section.id }}"
+          data-autoplay="{{ autoplay }}"
+          data-effect="slide"
+          data-loop="{{ infinite }}"
+          data-autoplay-speed="{{ autorotate_speed }}"
+          data-spacing="{{ section_st.column_gap }}"
+          data-mobile="{{ items_per_row_mobile }}"
+          data-desktop="{{ items_per_row }}"
+          data-pagination-progressbar="{% if carousel_pagination == 'show_progress_bar' %}true{% else %}false{% endif %}"
+          data-free-scroll="{% if items_per_row_mobile > 1 and items_per_row_mobile < 2 %}true{% endif %}"
+          style="{{ col_style | strip | strip_newlines }}"
+        >
+          <!-- Removed next/prev arrows per your request -->
+
+          <div class="swiper-wrapper">
+            {%- for article in blog.articles limit: items_to_show -%}
+              <div class="swiper-slide blog-posts-item">
+                {%- assign scroll_animation_custom = '' -%}
+                {% if items_per_row > items_to_show %}
+                  {% assign scroll_animation_custom = scroll_animation %}
+                {% else %}
+                  {% if forloop.index <= items_per_row %}
+                    {% assign scroll_animation_custom = scroll_animation %}
+                  {% endif %}
+                {% endif %}
+
+                {%- render 'article-card',
+                  article: article,
+                  scroll_animation: scroll_animation_custom,
+                  show_date: show_date,
+                  show_author: show_author,
+                  section_width: section_width,
+                  items_per_row: items_per_row,
+                  items_per_row_mobile: items_per_row_mobile,
+                  column_gap: section_st.column_gap,
+                  image_ratio: image_ratio,
+                  custom_ratio: custom_ratio,
+                  indexFor: forloop.index
+                -%}
+              </div>
+            {%- endfor -%}
+          </div>
+
+          {%- if carousel_pagination == 'show_dots'
+            or carousel_pagination == 'show_dots_on_mobile'
+            or carousel_pagination == 'show_progress_bar'
+          -%}
+            <div
+              class="swiper-pagination flex flex-wrap px-15 lh-1 bottom-30 {% if carousel_pagination == 'show_dots_on_mobile' %} hidden-md{% endif %} justify-content-center"
+              style="--swiper-pagination-bottom: 3rem;--swiper-pagination-position: static;"
+            ></div>
+          {% endif %}
+        </slide-section>
+      {%- else -%}
+        <!-- Placeholder slides if no articles exist -->
+        <slide-section
+          class="swiper{% if reveal %} reveal_on_scroll{% endif %}"
+          data-section-id="{{ section.id }}"
+          data-autoplay="{{ autoplay }}"
+          data-effect="slide"
+          data-loop="{{ infinite }}"
+          data-autoplay-speed="{{ autorotate_speed }}"
+          data-spacing="{{ section_st.column_gap }}"
+          data-mobile="{{ items_per_row_mobile }}"
+          data-desktop="{{ items_per_row }}"
+          data-pagination-progressbar="{% if carousel_pagination == 'show_progress_bar' %}true{% else %}false{% endif %}"
+          data-free-scroll="{% if items_per_row_mobile > 1 and items_per_row_mobile < 2 %}true{% endif %}"
+          style="{{ col_style | strip | strip_newlines }}"
+        >
+          <!-- Removed next/prev arrows per your request -->
+
+          <div class="swiper-wrapper">
+            {% for i in (1..items_to_show) %}
+              <div class="swiper-slide">
+                {% assign add_animation = false %}
+                {% if items_per_row > items_to_show %}
+                  {% assign add_animation = true %}
+                {% else %}
+                  {% if forloop.index <= items_per_row %}
+                    {% assign add_animation = true %}
+                  {% endif %}
+                {% endif %}
+                <div
+                  class="blog-posts-item {% if scroll_animation != 'none' and add_animation == true %} scroll-trigger {{ scroll_animation }}{% endif %}"
+                  {% if scroll_animation != 'none' and add_animation == true %}
+                    data-cascade
+                    style="--animation-order: {{ i }};"
+                  {% endif %}
+                >
+                  <div class="blog-posts-image rounded hover-effect" style="{{ style_ratio | strip | strip_newlines }}">
+                    {% render 'placeholder-render', class: 'rounded transition' %}
+                  </div>
+                  <div class="blog-posts-info text-{{ content_alignment }} mt-30">
+                    <h3 class="blog-posts-title fs-20 mt-0 mb-10 heading-letter-spacing">
+                      <a href="#" aria-label="Blog post title" class="no-underline heading-color">
+                        Default Blog title
+                      </a>
+                    </h3>
+                    <!-- Excerpt removed per your request -->
+
+                    <div class="blog-posts-bottom flex gap-10 justify-content-{{ content_alignment }}">
+                      {%- if show_date or show_author -%}
+                        {%- if show_date -%}
+                          <div class="blog-posts-date">
+                            <span> 2025 </span>
+                          </div>
+                        {% endif %}
+                        {%- if show_author -%}
+                          <div class="blog-posts-author">
+                            <span> Tony Blanco </span>
+                          </div>
+                        {% endif %}
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          {%- if carousel_pagination == 'show_dots'
+            or carousel_pagination == 'show_dots_on_mobile'
+            or carousel_pagination == 'show_progress_bar'
+          -%}
+            <div
+              class="swiper-pagination flex flex-wrap px-15 lh-1 bottom-30 {% if carousel_pagination == 'show_dots_on_mobile' %} hidden-md{% endif %} justify-content-center"
+              style="--swiper-pagination-bottom: 3rem;--swiper-pagination-position: static;"
+            ></div>
+          {% endif %}
+        </slide-section>
+      {% endif %}
+
+      {% if section_st.items_per_row_mobile > 1 and section_st.items_per_row_mobile < 2 %}
+        </div>
+      {% endif %}
+
+      {% if section_st.show_view_all != blank and section_st.header_alignment == 'center' %}
+        <div class="text-center mt-30">
+          <a
+            href="{{ section_st.blog.url }}"
+            aria-label="View all blog posts"
+            class="btn_view-all no-underline inline-flex btn-link"
+          >
+            {{ 'blog_post.view_all' | t }}
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Featured Blog Posts",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer", "custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Padding Settings"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding",
+      "info": "Adjust the extra space at the top of this section.",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding",
+      "info": "Adjust the extra space at the bottom of this section.",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+
+    {
+      "type": "header",
+      "content": "Section Width & Color Scheme"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section Width",
+      "info": "Choose how wide the overall container should be (container, fluid, stretch, or full).",
+      "options": [
+        {
+          "value": "container",
+          "label": "Container"
+        },
+        {
+          "value": "fluid_container",
+          "label": "Fluid Container"
+        },
+        {
+          "value": "stretch_width",
+          "label": "Stretch Width"
+        },
+        {
+          "value": "full_width",
+          "label": "Full Width"
+        }
+      ],
+      "default": "fluid_container"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color Scheme",
+      "info": "Pick a predefined color scheme or use your theme’s defaults.",
+      "default": "default-color-scheme"
+    },
+
+    {
+      "type": "header",
+      "content": "Heading & Description"
+    },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "Section Heading (Inline Rich Text)",
+      "info": "Add an eye-catching heading for this blog section."
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Section Sub-Text or Description",
+      "info": "Provide additional descriptive text beneath the heading."
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size",
+      "label": "Heading Font Size",
+      "info": "Control the size of the heading text (in pixels).",
+      "min": 12,
+      "max": 72,
+      "step": 1,
+      "default": 24,
+      "unit": "px"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show 'View All' Button",
+      "info": "Display a link to view all blog articles in this blog.",
+      "default": false
+    },
+
+    {
+      "type": "header",
+      "content": "'View All' Button Customization"
+    },
+    {
+      "type": "color",
+      "id": "view_all_text_color",
+      "label": "'View All' Text Color",
+      "info": "Select the text color for the 'View All' button.",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "view_all_hover_text_color",
+      "label": "'View All' Hover Text Color",
+      "info": "Select the hover text color for the 'View All' button.",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "view_all_bg_color",
+      "label": "'View All' Background Color",
+      "info": "Select the pill-shaped background color for the 'View All' button.",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "view_all_hover_bg_color",
+      "label": "'View All' Hover Background Color",
+      "info": "Pick a hover background color for the 'View All' button.",
+      "default": "#cccccc"
+    },
+
+    {
+      "type": "header",
+      "content": "Vertical Gap"
+    },
+    {
+      "type": "range",
+      "id": "vertical_gap",
+      "label": "Vertical Gap Between Text & Blog Posts",
+      "info": "Control the vertical space between the heading/description area and the blog post cards.",
+      "default": 30,
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px"
+    },
+
+    {
+      "type": "header",
+      "content": "Blog Source & Layout"
+    },
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "Choose a Blog",
+      "info": "Select which blog's posts should appear in this section."
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Featured Image Ratio",
+      "info": "Choose how images should be cropped (square, portrait, landscape, adapt, or custom).",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "Adapt to Image"
+        },
+        {
+          "value": "square",
+          "label": "Square (1:1)"
+        },
+        {
+          "value": "portrait",
+          "label": "Portrait (3:4)"
+        },
+        {
+          "value": "landscape",
+          "label": "Landscape (4:3)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom Ratio"
+        }
+      ],
+      "default": "square"
+    },
+    {
+      "type": "text",
+      "id": "custom_ratio",
+      "label": "Custom Ratio (Example: 3:2)",
+      "info": "Specify a custom aspect ratio if 'Custom Ratio' is selected."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "Show Author Name",
+      "info": "Display the author’s name for each article.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "Show Publish Date",
+      "info": "Display the publication date for each article.",
+      "default": true
+    },
+
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Content Alignment",
+      "info": "Align your blog titles and content to the left, center, or right.",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
+
+    {
+      "type": "header",
+      "content": "Number of Items & Column Settings"
+    },
+    {
+      "type": "range",
+      "id": "items_to_show",
+      "label": "Number of Articles to Load",
+      "info": "How many articles in total will be retrieved from the blog.",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "items_per_row",
+      "label": "Articles per Row (Desktop)",
+      "info": "How many articles are shown side-by-side on desktop screens.",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "label": "Horizontal Gap (px)",
+      "info": "Adjust the horizontal spacing between article cards.",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "default": 30,
+      "unit": "px"
+    },
+
+    {
+      "type": "header",
+      "content": "Carousel Settings"
+    },
+    {
+      "type": "select",
+      "id": "carousel_pagination",
+      "label": "Pagination Style",
+      "info": "Choose the type of pagination to display for the carousel.",
+      "options": [
+        {
+          "value": "disable",
+          "label": "No Pagination"
+        },
+        {
+          "value": "show_dots",
+          "label": "Show Dots"
+        },
+        {
+          "value": "show_dots_on_mobile",
+          "label": "Show Dots on Mobile Only"
+        },
+        {
+          "value": "show_progress_bar",
+          "label": "Show Progress Bar"
+        }
+      ],
+      "default": "disable"
+    },
+    {
+      "type": "checkbox",
+      "id": "infinite",
+      "label": "Loop the Carousel",
+      "info": "Enable infinite looping of the slides.",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto-Slide",
+      "info": "Enable automatic progression through the slides.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autorotate_speed",
+      "label": "Slide Duration (seconds)",
+      "info": "How many seconds each slide shows before moving to the next.",
+      "max": 6,
+      "min": 2,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal Animation",
+      "info": "Applies a reveal animation effect on scroll for this section.",
+      "default": false
+    },
+
+    {
+      "type": "header",
+      "content": "Mobile Options"
+    },
+    {
+      "type": "range",
+      "id": "items_per_row_mobile",
+      "label": "Articles per Row (Mobile)",
+      "info": "How many articles are shown side-by-side on smaller screens.",
+      "min": 1,
+      "max": 2,
+      "step": 0.5,
+      "default": 1
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured Blog Posts",
+            "category": "Blog"
+    }
+  ]
+}
+{% endschema %}

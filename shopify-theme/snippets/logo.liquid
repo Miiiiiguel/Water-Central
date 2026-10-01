@@ -1,0 +1,201 @@
+{%- liquid
+  assign theme_st   = settings
+  assign shop_name  = shop.name
+
+  assign normal_logo = theme_st.logo
+  assign trans_logo  = theme_st.logo_on_transparent
+
+  assign desktop_w = theme_st.desktop_logo_width | default: 110
+  assign mobile_w  = theme_st.mobile_logo_width  | default: desktop_w
+
+  # Fallback image (used when no logo is uploaded)
+  assign fallback_logo_url = 'https://cdn.shopify.com/s/files/1/0918/6322/0561/files/400_x_200.svg?v=1757841030'
+  # The SVG filename suggests 400x200 => aspect ratio = 2. Use that to compute height to help CLS.
+  assign fb_w = 400
+  assign fb_h = 200
+  assign fb_ratio = fb_w | divided_by: fb_h
+
+  # Intrinsic height for normal logo
+  assign normal_h = 0
+  if normal_logo != blank and normal_logo.aspect_ratio
+    assign normal_h = desktop_w | divided_by: normal_logo.aspect_ratio | round
+  elsif fb_ratio != blank
+    assign normal_h = desktop_w | divided_by: fb_ratio | round
+  else
+    assign normal_h = 40
+  endif
+
+  # Intrinsic height for transparent logo
+  assign trans_h = 0
+  if trans_logo != blank and trans_logo.aspect_ratio
+    assign trans_h = desktop_w | divided_by: trans_logo.aspect_ratio | round
+  elsif fb_ratio != blank
+    assign trans_h = desktop_w | divided_by: fb_ratio | round
+  else
+    assign trans_h = normal_h
+  endif
+-%}
+
+<a
+  class="logo-img no-underline inline-flex align-center"
+  href="{{ routes.root_url }}"
+  aria-label="{{ shop_name | escape }}"
+  {{ block.shopify_attributes }}
+>
+  {%- comment -%} ========= Normal (default/dark) variant ========= {%- endcomment -%}
+  {%- if normal_logo != blank -%}
+    <img
+      class="header__normal-logo"
+      src="{{ normal_logo | image_url: width: 360 }}"
+      srcset="
+        {% if normal_logo.width >= 180 %}{{ normal_logo | image_url: width: 180 }} 180w,{% endif %}
+        {% if normal_logo.width >= 360 %}{{ normal_logo | image_url: width: 360 }} 360w,{% endif %}
+        {% if normal_logo.width >= 540 %}{{ normal_logo | image_url: width: 540 }} 540w,{% endif %}
+        {% if normal_logo.width >= 720 %}{{ normal_logo | image_url: width: 720 }} 720w,{% endif %}
+        {{ normal_logo | image_url }} {{ normal_logo.width }}w
+      "
+      sizes="(max-width:1024px) {{ mobile_w }}px, {{ desktop_w }}px"
+      alt="{{ shop_name | escape }}"
+      width="{{ desktop_w }}"
+      height="{{ normal_h }}"
+      loading="eager"
+      fetchpriority="high"
+    >
+  {%- else -%}
+    <img
+      class="header__normal-logo is-fallback"
+      src="{{ fallback_logo_url }}"
+      alt="{{ shop_name | escape }}"
+      width="{{ desktop_w }}"
+      height="{{ normal_h }}"
+      loading="eager"
+      fetchpriority="high"
+    >
+  {%- endif -%}
+
+  {%- comment -%} ========= Transparent (light/white) variant ========= {%- endcomment -%}
+  {%- if trans_logo != blank -%}
+    <img
+      class="header__transparent-logo"
+      src="{{ trans_logo | image_url: width: 360 }}"
+      srcset="
+        {% if trans_logo.width >= 180 %}{{ trans_logo | image_url: width: 180 }} 180w,{% endif %}
+        {% if trans_logo.width >= 360 %}{{ trans_logo | image_url: width: 360 }} 360w,{% endif %}
+        {% if trans_logo.width >= 540 %}{{ trans_logo | image_url: width: 540 }} 540w,{% endif %}
+        {% if trans_logo.width >= 720 %}{{ trans_logo | image_url: width: 720 }} 720w,{% endif %}
+        {{ trans_logo | image_url }} {{ trans_logo.width }}w
+      "
+      sizes="(max-width:1024px) {{ mobile_w }}px, {{ desktop_w }}px"
+      alt="{{ shop_name | escape }}"
+      width="{{ desktop_w }}"
+      height="{{ trans_h }}"
+      loading="eager"
+      fetchpriority="high"
+    >
+  {%- else -%}
+    <img
+      class="header__transparent-logo is-fallback"
+      src="{{ fallback_logo_url }}"
+      alt="{{ shop_name | escape }}"
+      width="{{ desktop_w }}"
+      height="{{ trans_h }}"
+      loading="eager"
+      fetchpriority="high"
+    >
+  {%- endif -%}
+</a>
+
+{%- style -%}
+  /* ---------- CSS variable fallbacks from theme sliders ---------- */
+  :root{
+    --desktop-logo-size: {{ settings.desktop_logo_width | default: 110 }}px;
+    --mobile-logo-size:  {{ settings.mobile_logo_width  | default: settings.desktop_logo_width | default: 110 }}px;
+    /* Transparent size defaults to desktop unless overridden by header inline style:
+       header style should set:
+         --transparent-logo-size:  {{ section.settings.logo_transparent_width }}px;
+         --transparent-logo-shift: {{ section.settings.logo_transparent_position }}px; */
+
+    --transparent-logo-shift: 0px;
+  }
+
+  .section-header:not(.shopify-section-header-sticky) header.transparent .header__transparent-logo{
+    width: var(--transparent-logo-size, var(--desktop-logo-size));
+    height: auto;
+  }
+
+  /* (Text fallbacks retained but not used anymore since we always render an image) */
+  .header__transparent-text{
+    font-size: calc( (var(--transparent-logo-size, var(--desktop-logo-size))) * 0.30 );
+  }
+
+  /* ---------- Base sizing ---------- */
+  .header__normal-logo{
+    display:inline-block;
+    width:var(--desktop-logo-size);
+    height:auto;
+  }
+  @media (max-width:1024.98px){
+    .header__normal-logo{ width:var(--mobile-logo-size); }
+  }
+
+  .header__transparent-logo{
+    display:none; /* hidden by default; shown only on true transparent, non-sticky */
+    width:var(--transparent-logo-size, var(--desktop-logo-size));
+    height:auto;
+  }
+
+  /* Only the fallback images get rounded corners */
+  .header__normal-logo.is-fallback,
+  .header__transparent-logo.is-fallback{
+    border-radius: 8px;
+  }
+
+  /* Text classes kept for backward compatibility (not rendered now) */
+  .logo-text{
+    display:inline-block;
+    font-weight:700;
+    line-height:1;
+    white-space:nowrap;
+    letter-spacing:.02em;
+    padding-block:.15em;
+  }
+  .header__normal-text{ font-size: calc(var(--desktop-logo-size) * 0.30); }
+  @media (max-width:1024.98px){
+    .header__normal-text{ font-size: calc(var(--mobile-logo-size) * 0.30); }
+  }
+  .header__transparent-text{
+    display:none;
+    font-size: calc(var(--transparent-logo-size) * 0.30);
+  }
+
+  /* ---------- Swap logic (matches your header structure) ---------- */
+  /* Show transparent variant ONLY when header element has .transparent and section isn't sticky */
+  .section-header:not(.shopify-section-header-sticky) header.transparent .header__transparent-logo{ display:inline-block; }
+  .section-header:not(.shopify-section-header-sticky) header.transparent .header__transparent-text{ display:inline-block; }
+  .section-header:not(.shopify-section-header-sticky) header.transparent .header__normal-logo{ display:none; }
+  .section-header:not(.shopify-section-header-sticky) header.transparent .header__normal-text{ display:none; }
+
+  /* When sticky OR header not transparent => use normal logo */
+  .section-header.shopify-section-header-sticky header .header__transparent-logo,
+  .section-header:not(.shopify-section-header-sticky) header:not(.transparent) .header__transparent-logo{ display:none; }
+  .section-header.shopify-section-header-sticky header .header__transparent-text,
+  .section-header:not(.shopify-section-header-sticky) header:not(.transparent) .header__transparent-text{ display:none; }
+
+  .section-header.shopify-section-header-sticky header .header__normal-logo,
+  .section-header:not(.shopify-section-header-sticky) header:not(.transparent) .header__normal-logo{ display:inline-block; }
+  .section-header.shopify-section-header-sticky header .header__normal-text,
+  .section-header:not(.shopify-section-header-sticky) header:not(.transparent) .header__normal-text{ display:inline-block; }
+
+  /* ---------- Mobile: if transparent is disabled for mobile, force normal logo ---------- */
+  @media (max-width:1024.98px){
+    .section-header:not(.shopify-section-header-sticky) header.transparent:not(.transparent-mobile) .header__transparent-logo{ display:none !important; }
+    .section-header:not(.shopify-section-header-sticky) header.transparent:not(.transparent-mobile) .header__transparent-text{ display:none !important; }
+    .section-header:not(.shopify-section-header-sticky) header.transparent:not(.transparent-mobile) .header__normal-logo{ display:inline-block !important; }
+    .section-header:not(.shopify-section-header-sticky) header.transparent:not(.transparent-mobile) .header__normal-text{ display:inline-block !important; }
+  }
+
+  /* ---------- NEW: apply horizontal shift when header is transparent ---------- */
+  .section-header:not(.shopify-section-header-sticky) header.transparent .logo-img{
+    transform: translateX(var(--transparent-logo-shift));
+  }
+{%- endstyle -%}

@@ -1,0 +1,1068 @@
+<section id="member-benefits-section-unique" class="member-benefits-section">
+  <style>
+    /* Scoped Styles for #member-benefits-section-unique */
+
+    /* Import Google Material Icons */
+    @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+    /* Custom Fonts Integration */
+    {% if section.settings.enable_custom_fonts %}
+      /* Import Selected Google Fonts */
+      @import url('https://fonts.googleapis.com/css2?family={{ section.settings.section_title_font | replace: ' ', '+' }}&family={{ section.settings.card_title_font | replace: ' ', '+' }}&family={{ section.settings.card_description_font | replace: ' ', '+' }}&display=swap');
+
+      /* Apply Custom Fonts */
+      #member-benefits-section-unique .member-benefits-title {
+        font-family: '{{ section.settings.section_title_font }}', sans-serif;
+      }
+
+      #member-benefits-section-unique .member-benefit-title {
+        font-family: '{{ section.settings.card_title_font }}', sans-serif;
+      }
+
+      #member-benefits-section-unique .member-benefit-description {
+        font-family: '{{ section.settings.card_description_font }}', sans-serif;
+      }
+    {% endif %}
+
+    /* Base Styles */
+    #member-benefits-section-unique.member-benefits-section {
+      padding-top: {{ section.settings.section_top_padding_desktop }}px;
+      padding-bottom: {{ section.settings.section_bottom_padding_desktop }}px;
+      text-align: center;
+      background-color: {{ section.settings.background_color }};
+    }
+
+    #member-benefits-section-unique .member-benefits-title {
+      font-size: {{ section.settings.section_title_size_desktop }}px;
+      font-weight: bold;
+      color: {{ section.settings.section_title_color }} !important;
+      margin-bottom: {{ section.settings.vertical_gap_desktop }}px;
+    }
+
+    #member-benefits-section-unique .member-benefits-cards {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      {% if section.settings.all_cards_in_one_row %}
+        flex-wrap: nowrap;
+        overflow-x: auto;
+      {% else %}
+        flex-wrap: wrap;
+      {% endif %}
+    }
+
+    #member-benefits-section-unique .member-benefit-card {
+      background-color: {{ section.settings.benefit_card_color }};
+      {% if section.settings.enable_gradient %}
+        background: linear-gradient(
+          {{ section.settings.gradient_degrees }},
+          {{ section.settings.gradient_start_color }},
+          {{ section.settings.gradient_middle_color }},
+          {{ section.settings.gradient_end_color }}
+        );
+      {% endif %}
+      border-radius: {{ section.settings.benefit_card_border_radius }}px;
+      box-shadow:
+        {% case section.settings.benefit_card_shadow %}
+          {% when 'Low Shadow' %}
+            0 2px 4px rgba(0, 0, 0, 0.1);
+          {% when 'Medium Shadow' %}
+            0 4px 8px rgba(0, 0, 0, 0.15);
+          {% when 'High Shadow' %}
+            0 6px 12px rgba(0, 0, 0, 0.2);
+          {% else %}
+            none;
+        {% endcase %}
+      width: {{ section.settings.card_width }}px;
+      height: {{ section.settings.card_height }}px;
+      padding: 20px;
+      box-sizing: border-box;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+
+      {% if section.settings.hover_animation != 'None' %}
+        {% case section.settings.hover_animation %}
+          {% when 'Subtle Scale-In' %}
+            transition: transform 0.3s;
+            &:hover {
+              transform: scale(1.05);
+            }
+          {% when 'Subtle Fade-in' %}
+            opacity: 0.9;
+            transition: opacity 0.3s;
+            &:hover {
+              opacity: 1;
+            }
+          {% when 'Subtle Scale Up' %}
+            transition: transform 0.3s;
+            &:hover {
+              transform: scale(1.02);
+            }
+          {% when 'Subtle Shadow' %}
+            transition: box-shadow 0.3s;
+            &:hover {
+              box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            }
+          {% when 'Subtle Tilt' %}
+            transition: transform 0.3s;
+            &:hover {
+              transform: rotate(2deg);
+            }
+          {% when 'Subtle Rotate' %}
+            transition: transform 0.3s;
+            &:hover {
+              transform: rotate(3deg);
+            }
+          {% when 'Subtle Skew' %}
+            transition: transform 0.3s;
+            &:hover {
+              transform: skewX(5deg);
+            }
+          {% when 'Subtle Translate' %}
+            transition: transform 0.3s;
+            &:hover {
+              transform: translateY(-5px);
+            }
+          {% when 'Subtle Opacity' %}
+            transition: opacity 0.3s;
+            &:hover {
+              opacity: 0.95;
+            }
+        {% endcase %}
+      {% endif %}
+    }
+
+    #member-benefits-section-unique .member-benefit-image {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 20px auto;
+      background-size: cover;
+      background-color: {{ section.settings.icon_background_color }};
+      background-position: center;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #member-benefits-section-unique .member-benefit-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    /* Updated Card Title Style using new slider setting */
+    #member-benefits-section-unique .member-benefit-title {
+      font-weight: {{ section.settings.card_title_font_weight }};
+      font-size: {{ section.settings.card_title_size }}px;
+      color: {{ section.settings.card_title_color }} !important;
+      margin-bottom: 16px;
+    }
+
+    #member-benefits-section-unique .member-benefit-description {
+      font-size: {{ section.settings.card_description_size }}px;
+      color: {{ section.settings.card_description_color }};
+      line-height: 1.5em;
+    }
+
+    @media (max-width: 768px) {
+      #member-benefits-section-unique.member-benefits-section {
+        padding-top: {{ section.settings.section_top_padding_mobile }}px;
+        padding-bottom: {{ section.settings.section_bottom_padding_mobile }}px;
+      }
+
+      #member-benefits-section-unique .member-benefits-title {
+        font-size: {{ section.settings.section_title_size_mobile }}px;
+        margin-bottom: {{ section.settings.vertical_gap_mobile }}px;
+      }
+
+      #member-benefits-section-unique .member-benefit-card {
+        width: {{ section.settings.card_width_mobile }}px;
+        height: {{ section.settings.card_height_mobile }}px;
+        margin: 0 auto; /* Ensure proper centering on smaller screens */
+      }
+    }
+  </style>
+
+  <div class="container">
+    <h2 class="member-benefits-title">{{ section.settings.section_title }}</h2>
+    <div class="member-benefits-cards">
+      {% for block in section.blocks %}
+        <div class="member-benefit-card">
+          <div class="member-benefit-image">
+            {% comment %}
+              Added new logic below:
+              1) Check if "enable_svg_icon" is true and "svg_icon_code" is not blank.
+              2) Else if "enable_icon" is true for Material icon.
+              3) Else if we have an image.
+              4) Else fallback to the placeholder image.
+            {% endcomment %}
+            {% if block.settings.enable_svg_icon and block.settings.svg_icon_code != blank %}
+              <div
+                class="custom-svg-icon"
+                style="width: {{ block.settings.svg_icon_size }}px; height: {{ block.settings.svg_icon_size }}px; display: inline-block;"
+              >
+                <div style="width: 100%; height: 100%; fill: {{ block.settings.svg_icon_color }};">
+                  {{ block.settings.svg_icon_code }}
+                </div>
+              </div>
+            {% elsif block.settings.enable_icon %}
+              <span
+                class="material-icons"
+                style="color: {{ block.settings.icon_color }}; font-size: {{ block.settings.icon_size }}px;"
+              >
+                {{ block.settings.icon }}
+              </span>
+            {% elsif block.settings.image != blank %}
+              <img src="{{ block.settings.image | img_url: 'master' }}" alt="Benefit Image">
+            {% else %}
+              <img
+                src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+                alt="Placeholder Image"
+              >
+            {% endif %}
+          </div>
+          <h3 class="member-benefit-title">{{ block.settings.title }}</h3>
+          <p class="member-benefit-description">{{ block.settings.description }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Namespace for Member Benefits Section
+      const MemberBenefits = {
+        init: function() {
+          this.cacheDOM();
+          this.bindEvents();
+          // Initialize any required functionality here
+        },
+        cacheDOM: function() {
+          this.section = document.getElementById('member-benefits-section-unique');
+          this.cards = this.section.querySelectorAll('.member-benefit-card');
+        },
+        bindEvents: function() {
+          // Example: Add event listeners if needed
+          this.cards.forEach(card => {
+            card.addEventListener('click', this.handleCardClick.bind(this));
+          });
+        },
+        handleCardClick: function(event) {
+          // Handle card click event
+          console.log('Card clicked:', event.currentTarget);
+          // Add your custom logic here
+        }
+      };
+
+      // Initialize the Member Benefits Section
+      document.addEventListener('DOMContentLoaded', function() {
+        MemberBenefits.init();
+      });
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Benefits Cards Pro 2",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Settings",
+      "info": "Configure the overall section appearance and layout."
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title",
+      "default": "Why choose us?",
+      "info": "Set the title text for the member benefits section."
+    },
+    {
+      "type": "color",
+      "id": "section_title_color",
+      "label": "Section Title Color",
+      "default": "#000000",
+      "info": "Choose the color of the section title text."
+    },
+    {
+      "type": "range",
+      "id": "section_title_size_desktop",
+      "label": "Section Title Size (Desktop)",
+      "default": 34,
+      "min": 20,
+      "max": 80,
+      "step": 1,
+      "info": "Adjust the font size of the section title on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "section_title_size_mobile",
+      "label": "Section Title Size (Mobile)",
+      "default": 34,
+      "min": 20,
+      "max": 60,
+      "step": 1,
+      "info": "Adjust the font size of the section title on mobile devices."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#fff",
+      "info": "Select the background color for the member benefits section."
+    },
+    {
+      "type": "range",
+      "id": "section_top_padding_desktop",
+      "label": "Section Top Padding (Desktop)",
+      "default": 60,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "info": "Set the top padding of the section on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "section_bottom_padding_desktop",
+      "label": "Section Bottom Padding (Desktop)",
+      "default": 60,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "info": "Set the bottom padding of the section on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "section_top_padding_mobile",
+      "label": "Section Top Padding (Mobile)",
+      "default": 45,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "info": "Set the top padding of the section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_bottom_padding_mobile",
+      "label": "Section Bottom Padding (Mobile)",
+      "default": 45,
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "info": "Set the bottom padding of the section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "vertical_gap_desktop",
+      "label": "Vertical Gap Between Section Title and Cards (Desktop)",
+      "default": 55,
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "info": "Adjust the vertical space between the section title and the benefit cards on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "vertical_gap_mobile",
+      "label": "Vertical Gap Between Section Title and Cards (Mobile)",
+      "default": 35,
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "info": "Adjust the vertical space between the section title and the benefit cards on mobile devices."
+  
+    },
+
+    {
+      "type": "header",
+      "content": "Benefit Card Appearance",
+      "info": "Customize the appearance of benefit cards."
+    },
+    {
+      "type": "color",
+      "id": "benefit_card_color",
+      "label": "Benefit Card Color",
+      "default": "#F9F9F9",
+      "info": "Choose the background color for the benefit cards."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_gradient",
+      "label": "Enable Benefit Card Gradient Color",
+      "default": true,
+      "info": "Toggle to enable or disable gradient colors for the benefit cards."
+    },
+    {
+      "type": "color",
+      "id": "gradient_start_color",
+      "label": "Gradient Start Color",
+      "default": "#FAFAFA",
+      "info": "Select the starting color of the gradient."
+    },
+    {
+      "type": "color",
+      "id": "gradient_middle_color",
+      "label": "Gradient Middle Color",
+      "default": "#F9F9F9",
+      "info": "Select the middle color of the gradient."
+    },
+    {
+      "type": "color",
+      "id": "gradient_end_color",
+      "label": "Gradient End Color",
+      "default": "#F4F4F4",
+      "info": "Select the ending color of the gradient."
+    },
+    {
+      "type": "select",
+      "id": "gradient_degrees",
+      "label": "Gradient Degrees",
+      "options": [
+        { "value": "30deg", "label": "30°" },
+        { "value": "45deg", "label": "45°" },
+        { "value": "60deg", "label": "60°" },
+        { "value": "90deg", "label": "90°" },
+        { "value": "120deg", "label": "120°" },
+        { "value": "135deg", "label": "135°" },
+        { "value": "150deg", "label": "150°" },
+        { "value": "180deg", "label": "180°" },
+        { "value": "210deg", "label": "210°" },
+        { "value": "225deg", "label": "225°" },
+        { "value": "240deg", "label": "240°" },
+        { "value": "270deg", "label": "270°" },
+        { "value": "300deg", "label": "300°" },
+        { "value": "315deg", "label": "315°" },
+        { "value": "330deg", "label": "330°" },
+        { "value": "360deg", "label": "360°" }
+      ],
+      "default": "240deg",
+      "info": "Select the angle for the gradient effect."
+    },
+    {
+      "type": "range",
+      "id": "benefit_card_border_radius",
+      "label": "Benefit Card Border Radius",
+      "default": 12,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "info": "Adjust the border radius of the benefit cards to make corners more or less rounded."
+    },
+    {
+      "type": "select",
+      "id": "benefit_card_shadow",
+      "label": "Benefit Card Shadow",
+      "options": [
+        { "value": "None", "label": "None" },
+        { "value": "Low Shadow", "label": "Low Shadow" },
+        { "value": "Medium Shadow", "label": "Medium Shadow" },
+        { "value": "High Shadow", "label": "High Shadow" }
+      ],
+      "default": "None",
+      "info": "Select the shadow intensity for the benefit cards."
+    },
+    {
+      "type": "select",
+      "id": "hover_animation",
+      "label": "Benefit Card Hover Animation",
+      "options": [
+        { "value": "None", "label": "None" },
+        { "value": "Subtle Scale-In", "label": "Subtle Scale-In" },
+        { "value": "Subtle Fade-in", "label": "Subtle Fade-in" },
+        { "value": "Subtle Scale Up", "label": "Subtle Scale Up" },
+        { "value": "Subtle Shadow", "label": "Subtle Shadow" },
+        { "value": "Subtle Tilt", "label": "Subtle Tilt" },
+        { "value": "Subtle Rotate", "label": "Subtle Rotate" },
+        { "value": "Subtle Skew", "label": "Subtle Skew" },
+        { "value": "Subtle Translate", "label": "Subtle Translate" },
+        { "value": "Subtle Opacity", "label": "Subtle Opacity" }
+      ],
+      "default": "Subtle Translate",
+      "info": "Choose an animation effect when hovering over a benefit card."
+    },
+    {
+      "type": "range",
+      "id": "card_width",
+      "label": "Card Width",
+      "default": 370,
+      "min": 200,
+      "max": 500,
+      "step": 10,
+      "info": "Set the width of the benefit cards on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "card_height",
+      "label": "Card Height",
+      "default": 270,
+      "min": 200,
+      "max": 500,
+      "step": 10,
+      "info": "Set the height of the benefit cards on desktop devices."
+    },
+    {
+      "type": "range",
+      "id": "card_width_mobile",
+      "label": "Card Width (Mobile Version)",
+      "default": 330,
+      "min": 150,
+      "max": 400,
+      "step": 10,
+      "info": "Set the width of the benefit cards on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "card_height_mobile",
+      "label": "Card Height (Mobile Version)",
+      "default": 260,
+      "min": 150,
+      "max": 400,
+      "step": 10,
+      "info": "Set the height of the benefit cards on mobile devices."
+    },
+
+    {
+      "type": "header",
+      "content": "Font Settings",
+      "info": "Customize fonts and colors for section title, card titles, and descriptions."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_fonts",
+      "label": "Enable Custom Fonts",
+      "default": false,
+      "info": "Toggle to enable or disable custom font selections."
+    },
+    {
+      "type": "select",
+      "id": "section_title_font",
+      "label": "Section Title Font",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "Yanone Kaffeesatz", "label": "Yanone Kaffeesatz" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "PT Sans", "label": "PT Sans" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Nunito", "label": "Nunito" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Slabo 27px", "label": "Slabo 27px" },
+        { "value": "Lora", "label": "Lora" },
+        { "value": "Fira Sans", "label": "Fira Sans" },
+        { "value": "Libre Baskerville", "label": "Libre Baskerville" },
+        { "value": "Indie Flower", "label": "Indie Flower" },
+        { "value": "Bebas Neue", "label": "Bebas Neue" },
+        { "value": "Cabin", "label": "Cabin" },
+        { "value": "Cinzel", "label": "Cinzel" },
+        { "value": "Dosis", "label": "Dosis" },
+        { "value": "Exo 2", "label": "Exo 2" },
+        { "value": "Fjalla One", "label": "Fjalla One" },
+        { "value": "Gilda Display", "label": "Gilda Display" },
+        { "value": "Heebo", "label": "Heebo" },
+        { "value": "Karla", "label": "Karla" },
+        { "value": "Muli", "label": "Muli" },
+        { "value": "Noto Serif", "label": "Noto Serif" },
+        { "value": "Quicksand", "label": "Quicksand" },
+        { "value": "Roboto Slab", "label": "Roboto Slab" },
+        { "value": "Signika", "label": "Signika" },
+        { "value": "Titillium Web", "label": "Titillium Web" },
+        { "value": "Varela Round", "label": "Varela Round" },
+        { "value": "Work Sans", "label": "Work Sans" },
+        { "value": "Zilla Slab", "label": "Zilla Slab" },
+        { "value": "Asap", "label": "Asap" },
+        { "value": "Cairo", "label": "Cairo" },
+        { "value": "DM Sans", "label": "DM Sans" },
+        { "value": "Eczar", "label": "Eczar" },
+        { "value": "Fira Mono", "label": "Fira Mono" },
+        { "value": "Gentium Basic", "label": "Gentium Basic" },
+        { "value": "Hind", "label": "Hind" },
+        { "value": "Jost", "label": "Jost" },
+        { "value": "Kreon", "label": "Kreon" },
+        { "value": "Lexend", "label": "Lexend" },
+        { "value": "Mukta", "label": "Mukta" },
+        { "value": "Noto Sans JP", "label": "Noto Sans JP" },
+        { "value": "Overpass", "label": "Overpass" },
+        { "value": "Qwigley", "label": "Qwigley" },
+        { "value": "Sen", "label": "Sen" },
+        { "value": "Teko", "label": "Teko" },
+        { "value": "Ultra", "label": "Ultra" },
+        { "value": "Vollkorn", "label": "Vollkorn" },
+        { "value": "ZCOOL XiaoWei", "label": "ZCOOL XiaoWei" },
+        { "value": "ABeeZee", "label": "ABeeZee" },
+        { "value": "Acme", "label": "Acme" },
+        { "value": "Balsamiq Sans", "label": "Balsamiq Sans" },
+        { "value": "Caveat", "label": "Caveat" },
+        { "value": "Engagement", "label": "Engagement" },
+        { "value": "Fredoka One", "label": "Fredoka One" },
+        { "value": "Gloria Hallelujah", "label": "Gloria Hallelujah" },
+        { "value": "Irish Grover", "label": "Irish Grover" },
+        { "value": "Kalam", "label": "Kalam" },
+        { "value": "Marck Script", "label": "Marck Script" },
+        { "value": "Neucha", "label": "Neucha" },
+        { "value": "Patrick Hand", "label": "Patrick Hand" },
+        { "value": "Rock Salt", "label": "Rock Salt" },
+        { "value": "Tangerine", "label": "Tangerine" },
+        { "value": "Unica One", "label": "Unica One" },
+        { "value": "Vibur", "label": "Vibur" },
+        { "value": "Wallpoet", "label": "Wallpoet" },
+        { "value": "Yellowtail", "label": "Yellowtail" },
+        { "value": "Zilla Slab Highlight", "label": "Zilla Slab Highlight" },
+        { "value": "Alice", "label": "Alice" },
+        { "value": "Alfa Slab One", "label": "Alfa Slab One" },
+        { "value": "Amatic SC", "label": "Amatic SC" },
+        { "value": "Archivo Narrow", "label": "Archivo Narrow" },
+        { "value": "Baloo 2", "label": "Baloo 2" },
+        { "value": "Bangers", "label": "Bangers" },
+        { "value": "Bellefair", "label": "Bellefair" },
+        { "value": "Big Shoulders Display", "label": "Big Shoulders Display" },
+        { "value": "Black Han Sans", "label": "Black Han Sans" },
+        { "value": "Bowlby One SC", "label": "Bowlby One SC" },
+        { "value": "Bungee", "label": "Bungee" },
+        { "value": "Cardo", "label": "Cardo" },
+        { "value": "Chonburi", "label": "Chonburi" },
+        { "value": "Cinzel Decorative", "label": "Cinzel Decorative" },
+        { "value": "Contrail One", "label": "Contrail One" },
+        { "value": "Cormorant Garamond", "label": "Cormorant Garamond" },
+        { "value": "Courgette", "label": "Courgette" },
+        { "value": "Crimson Pro", "label": "Crimson Pro" },
+        { "value": "Cuprum", "label": "Cuprum" },
+        { "value": "Delius", "label": "Delius" },
+        { "value": "Delius Swash Caps", "label": "Delius Swash Caps" },
+        { "value": "Doppio One", "label": "Doppio One" },
+        { "value": "EB Garamond SC", "label": "EB Garamond SC" },
+        { "value": "Expletus Sans", "label": "Expletus Sans" },
+        { "value": "Faustina", "label": "Faustina" },
+        { "value": "Fjord One", "label": "Fjord One" },
+        { "value": "Frank Ruhl Libre", "label": "Frank Ruhl Libre" },
+        { "value": "Frijole", "label": "Frijole" },
+        { "value": "Glegoo", "label": "Glegoo" },
+        { "value": "Goblin One", "label": "Goblin One" },
+        { "value": "Grenze Gotisch", "label": "Grenze Gotisch" },
+        { "value": "Habibi", "label": "Habibi" },
+        { "value": "Henny Penny", "label": "Henny Penny" },
+        { "value": "IM Fell DW Pica", "label": "IM Fell DW Pica" },
+        { "value": "IM Fell English", "label": "IM Fell English" },
+        { "value": "IM Fell French Canon", "label": "IM Fell French Canon" },
+        { "value": "IM Fell Great Primer", "label": "IM Fell Great Primer" }
+      ],
+      "default": "Roboto",
+      "info": "Select the font for the section title."
+    },
+    {
+      "type": "select",
+      "id": "card_title_font",
+      "label": "Card Title Font",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "Yanone Kaffeesatz", "label": "Yanone Kaffeesatz" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "PT Sans", "label": "PT Sans" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Nunito", "label": "Nunito" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Slabo 27px", "label": "Slabo 27px" },
+        { "value": "Lora", "label": "Lora" },
+        { "value": "Fira Sans", "label": "Fira Sans" },
+        { "value": "Libre Baskerville", "label": "Libre Baskerville" },
+        { "value": "Indie Flower", "label": "Indie Flower" },
+        { "value": "Bebas Neue", "label": "Bebas Neue" },
+        { "value": "Cabin", "label": "Cabin" },
+        { "value": "Cinzel", "label": "Cinzel" },
+        { "value": "Dosis", "label": "Dosis" },
+        { "value": "Exo 2", "label": "Exo 2" },
+        { "value": "Fjalla One", "label": "Fjalla One" },
+        { "value": "Gilda Display", "label": "Gilda Display" },
+        { "value": "Heebo", "label": "Heebo" },
+        { "value": "Karla", "label": "Karla" },
+        { "value": "Muli", "label": "Muli" },
+        { "value": "Noto Serif", "label": "Noto Serif" },
+        { "value": "Quicksand", "label": "Quicksand" },
+        { "value": "Roboto Slab", "label": "Roboto Slab" },
+        { "value": "Signika", "label": "Signika" },
+        { "value": "Titillium Web", "label": "Titillium Web" },
+        { "value": "Varela Round", "label": "Varela Round" },
+        { "value": "Work Sans", "label": "Work Sans" },
+        { "value": "Zilla Slab", "label": "Zilla Slab" }
+      ],
+      "default": "Roboto",
+      "info": "Select the font for the card titles."
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "label": "Card Title Size (px)",
+      "default": 24,
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "info": "Adjust the font size of the card title text."
+    },
+    {
+      "type": "color",
+      "id": "card_title_color",
+      "label": "Card Title Color",
+      "default": "#191919",
+      "info": "Choose the color of the card title text."
+    },
+    {
+      "type": "select",
+      "id": "card_title_font_weight",
+      "label": "Card Title Font Weight",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "400",
+      "info": "Select the weight of the card title text."
+    },
+    {
+      "type": "select",
+      "id": "card_description_font",
+      "label": "Card Description Font",
+      "options": [
+        { "value": "Roboto", "label": "Roboto" },
+        { "value": "Open Sans", "label": "Open Sans" },
+        { "value": "Lato", "label": "Lato" },
+        { "value": "Montserrat", "label": "Montserrat" },
+        { "value": "Oswald", "label": "Oswald" },
+        { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+        { "value": "Raleway", "label": "Raleway" },
+        { "value": "Yanone Kaffeesatz", "label": "Yanone Kaffeesatz" },
+        { "value": "Merriweather", "label": "Merriweather" },
+        { "value": "PT Sans", "label": "PT Sans" },
+        { "value": "Noto Sans", "label": "Noto Sans" },
+        { "value": "Nunito", "label": "Nunito" },
+        { "value": "Ubuntu", "label": "Ubuntu" },
+        { "value": "Poppins", "label": "Poppins" },
+        { "value": "Playfair Display", "label": "Playfair Display" },
+        { "value": "Slabo 27px", "label": "Slabo 27px" },
+        { "value": "Lora", "label": "Lora" },
+        { "value": "Fira Sans", "label": "Fira Sans" },
+        { "value": "Libre Baskerville", "label": "Libre Baskerville" },
+        { "value": "Indie Flower", "label": "Indie Flower" },
+        { "value": "Bebas Neue", "label": "Bebas Neue" },
+        { "value": "Cabin", "label": "Cabin" },
+        { "value": "Cinzel", "label": "Cinzel" },
+        { "value": "Dosis", "label": "Dosis" },
+        { "value": "Exo 2", "label": "Exo 2" },
+        { "value": "Fjalla One", "label": "Fjalla One" },
+        { "value": "Gilda Display", "label": "Gilda Display" },
+        { "value": "Heebo", "label": "Heebo" },
+        { "value": "Karla", "label": "Karla" },
+        { "value": "Muli", "label": "Muli" },
+        { "value": "Noto Serif", "label": "Noto Serif" },
+        { "value": "Quicksand", "label": "Quicksand" },
+        { "value": "Roboto Slab", "label": "Roboto Slab" },
+        { "value": "Signika", "label": "Signika" },
+        { "value": "Titillium Web", "label": "Titillium Web" },
+        { "value": "Varela Round", "label": "Varela Round" },
+        { "value": "Work Sans", "label": "Work Sans" },
+        { "value": "Zilla Slab", "label": "Zilla Slab" }
+      ],
+      "default": "Roboto",
+      "info": "Select the weight of the card description text."
+    },
+    {
+      "type": "color",
+      "id": "card_description_color",
+      "label": "Card Description Color",
+      "default": "#666666",
+      "info": "Choose the color of the card description text."
+    },
+    {
+      "type": "range",
+      "id": "card_description_size",
+      "label": "Card Description Size (px)",
+      "default": 16,
+      "min": 10,
+      "max": 30,
+      "step": 1,
+      "info": "Adjust the font size of the card description text."
+    },
+
+    {
+      "type": "header",
+      "content": "Icon Settings",
+      "info": "Configure icon appearance within benefit cards."
+    },
+    {
+      "type": "color",
+      "id": "icon_background_color",
+      "label": "Icon Background Color",
+      "default": "#F2F2F2",
+      "info": "Choose the background color for icons."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "benefit_card",
+      "name": "Benefit Card",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "title",
+          "label": "Card Title",
+          "default": "<strong>Lifetime Access</strong>",
+          "info": "Enter the title for the benefit card."
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Card Description",
+          "default": "Get access to a growing library of 350+ Components and Templates.",
+          "info": "Provide a description for the benefit card."
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_icon",
+          "label": "Enable Material Icon",
+          "default": false,
+          "info": "Toggle to display a Google Material icon on the benefit card."
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Select Icon",
+          "options": [
+            { "value": "home", "label": "Home" },
+            { "value": "star", "label": "Star" },
+            { "value": "check", "label": "Check" },
+            { "value": "info", "label": "Info" },
+            { "value": "favorite", "label": "Favorite" },
+            { "value": "build", "label": "Build" },
+            { "value": "lock", "label": "Lock" },
+            { "value": "event", "label": "Event" },
+            { "value": "phone", "label": "Phone" },
+            { "value": "email", "label": "Email" },
+            { "value": "chat", "label": "Chat" },
+            { "value": "code", "label": "Code" },
+            { "value": "cloud", "label": "Cloud" },
+            { "value": "dashboard", "label": "Dashboard" },
+            { "value": "security", "label": "Security" },
+            { "value": "search", "label": "Search" },
+            { "value": "settings", "label": "Settings" },
+            { "value": "help", "label": "Help" },
+            { "value": "account_circle", "label": "Account Circle" },
+            { "value": "notifications", "label": "Notifications" },
+            { "value": "shopping_cart", "label": "Shopping Cart" },
+            { "value": "explore", "label": "Explore" },
+            { "value": "favorite_border", "label": "Favorite Border" },
+            { "value": "thumb_up", "label": "Thumb Up" },
+            { "value": "thumb_down", "label": "Thumb Down" },
+            { "value": "camera_alt", "label": "Camera" },
+            { "value": "play_arrow", "label": "Play" },
+            { "value": "pause", "label": "Pause" },
+            { "value": "stop", "label": "Stop" },
+            { "value": "volume_up", "label": "Volume Up" },
+            { "value": "volume_off", "label": "Volume Off" },
+            { "value": "mic", "label": "Mic" },
+            { "value": "mic_off", "label": "Mic Off" },
+            { "value": "file_download", "label": "Download" },
+            { "value": "file_upload", "label": "Upload" },
+            { "value": "folder", "label": "Folder" },
+            { "value": "print", "label": "Print" },
+            { "value": "visibility", "label": "Visibility" },
+            { "value": "visibility_off", "label": "Visibility Off" },
+            { "value": "battery_full", "label": "Battery Full" },
+            { "value": "battery_alert", "label": "Battery Alert" },
+            { "value": "wifi", "label": "Wi-Fi" },
+            { "value": "bluetooth", "label": "Bluetooth" },
+            { "value": "directions", "label": "Directions" },
+            { "value": "map", "label": "Map" },
+            { "value": "share", "label": "Share" },
+            { "value": "person", "label": "Person" },
+            { "value": "group", "label": "Group" },
+            { "value": "calendar_today", "label": "Calendar" },
+            { "value": "alarm", "label": "Alarm" },
+            { "value": "watch", "label": "Watch" },
+            { "value": "credit_card", "label": "Credit Card" },
+            { "value": "money", "label": "Money" },
+            { "value": "delete", "label": "Delete" },
+            { "value": "edit", "label": "Edit" },
+            { "value": "save", "label": "Save" },
+            { "value": "arrow_forward", "label": "Arrow Forward" },
+            { "value": "arrow_back", "label": "Arrow Back" },
+            { "value": "open_in_new", "label": "Open in New" },
+            { "value": "attach_file", "label": "Attach File" },
+            { "value": "bookmark", "label": "Bookmark" },
+            { "value": "lightbulb", "label": "Lightbulb" },
+            { "value": "filter_alt", "label": "Filter" },
+            { "value": "speed", "label": "Speed" },
+            { "value": "access_time", "label": "Access Time" },
+            { "value": "account_balance", "label": "Account Balance" },
+            { "value": "add_circle", "label": "Add Circle" },
+            { "value": "airplane", "label": "Airplane" },
+            { "value": "analytics", "label": "Analytics" },
+            { "value": "apartment", "label": "Apartment" },
+            { "value": "arrow_drop_down", "label": "Arrow Drop Down" },
+            { "value": "arrow_upward", "label": "Arrow Upward" },
+            { "value": "autorenew", "label": "Auto Renew" },
+            { "value": "bar_chart", "label": "Bar Chart" },
+            { "value": "battery_charging_full", "label": "Battery Charging Full" },
+            { "value": "beach_access", "label": "Beach Access" },
+            { "value": "bookmark_border", "label": "Bookmark Border" },
+            { "value": "brightness_high", "label": "Brightness High" },
+            { "value": "brush", "label": "Brush" },
+            { "value": "business", "label": "Business" },
+            { "value": "call", "label": "Call" },
+            { "value": "cancel", "label": "Cancel" },
+            { "value": "card_travel", "label": "Card Travel" },
+            { "value": "car_rental", "label": "Car Rental" },
+            { "value": "category", "label": "Category" },
+            { "value": "circle_notifications", "label": "Circle Notifications" },
+            { "value": "close", "label": "Close" },
+            { "value": "color_lens", "label": "Color Lens" },
+            { "value": "compare", "label": "Compare" },
+            { "value": "content_copy", "label": "Content Copy" },
+            { "value": "credit_score", "label": "Credit Score" },
+            { "value": "currency_exchange", "label": "Currency Exchange" },
+            { "value": "desktop_mac", "label": "Desktop Mac" },
+            { "value": "donut_large", "label": "Donut Large" },
+            { "value": "eco", "label": "Eco" },
+            { "value": "emoji_objects", "label": "Emoji Objects" },
+            { "value": "expand_more", "label": "Expand More" },
+            { "value": "extension", "label": "Extension" },
+            { "value": "face", "label": "Face" },
+            { "value": "fact_check", "label": "Fact Check" },
+            { "value": "fast_forward", "label": "Fast Forward" },
+            { "value": "flag", "label": "Flag" },
+            { "value": "flight_takeoff", "label": "Flight Takeoff" },
+            { "value": "grid_view", "label": "Grid View" },
+            { "value": "group_work", "label": "Group Work" },
+            { "value": "handshake", "label": "Handshake" },
+            { "value": "headset", "label": "Headset" },
+            { "value": "history", "label": "History" },
+            { "value": "hourglass_full", "label": "Hourglass Full" },
+            { "value": "inventory", "label": "Inventory" },
+            { "value": "language", "label": "Language" },
+            { "value": "leaderboard", "label": "Leaderboard" },
+            { "value": "luggage", "label": "Luggage" }
+          ],
+          "default": "star",
+          "info": "Choose a Material icon to display when 'Enable Material Icon' is active."
+        },
+        {
+          "type": "color",
+          "id": "icon_color",
+          "label": "Material Icon Color",
+          "default": "#191919",
+          "info": "Select the color for the Material icon."
+        },
+        {
+          "type": "range",
+          "id": "icon_size",
+          "label": "Material Icon Size (px)",
+          "default": 48,
+          "min": 16,
+          "max": 128,
+          "step": 2,
+          "unit": "px",
+          "info": "Adjust the size of the Material icon."
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_svg_icon",
+          "label": "Enable Custom SVG Icon",
+          "default": false,
+          "info": "Toggle to display a custom SVG icon on the benefit card."
+        },
+        {
+          "type": "textarea",
+          "id": "svg_icon_code",
+          "label": "Custom SVG Code",
+          "info": "Paste your custom SVG code here. It will display if 'Enable Custom SVG Icon' is checked."
+        },
+        {
+          "type": "range",
+          "id": "svg_icon_size",
+          "label": "SVG Icon Size (px)",
+          "default": 48,
+          "min": 16,
+          "max": 128,
+          "step": 2,
+          "unit": "px",
+          "info": "Adjust the display size of the custom SVG icon."
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Card Image",
+          "info": "Upload an image to display when neither icon option is selected."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Benefits Cards Pro 2",
+      "category": "Benefits",
+      "blocks": [
+        {
+          "type": "benefit_card",
+          "settings": {
+            "title": "<strong>Save Time</strong>",
+            "description": "Get access to a growing library of 350+ Components and Templates.",
+            "enable_icon": false,
+            "icon": "star",
+            "icon_color": "#000000",
+            "icon_size": 48,
+            "enable_svg_icon": false,
+            "svg_icon_code": "",
+            "svg_icon_size": 48,
+            "image": ""
+          }
+        },
+        {
+          "type": "benefit_card",
+          "settings": {
+            "title": "<strong>Lifetime Access</strong>",
+            "description": "Ridiculus vitae dui magna convallis odio massa. Ac lobortis parturient curae venenatis.",
+            "enable_icon": false,
+            "icon": "lock",
+            "icon_color": "#000000",
+            "icon_size": 48,
+            "enable_svg_icon": false,
+            "svg_icon_size": 48,
+            "image": ""
+          }
+        },
+        {
+          "type": "benefit_card",
+          "settings": {
+            "title": "<strong>Frequent Updates</strong>",
+            "description": "Ridiculus vitae dui magna convallis odio massa. Ac lobortis parturient curae venenatis.",
+            "enable_icon": false,
+            "icon": "update",
+            "icon_color": "#000000",
+            "icon_size": 48,
+            "enable_svg_icon": false,
+            "svg_icon_code": "",
+            "svg_icon_size": 48,
+            "image": ""
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,14 @@
+@media (max-width: 768px) { 
+  .wishlist-page-section-inner .product-item__button-action button-wishlist {
+    display: flex !important;  /* Ensure it's visible */
+
+
+
+  }
+}
+
+@media (min-width: 769px) { 
+  .wishlist-page-section-inner .product-item__button-action button-wishlist {
+    display: none !important;  /* Hide it on larger screens */
+  }
+}

@@ -1,0 +1,109 @@
+/* Marquee */
+
+/* 
+  .animation-marquee
+  This class applies a horizontal "ticker" style animation moving from left to right.
+  - The var(--speed, 6s) indicates that the animation duration is controlled by the CSS variable --speed, 
+    defaulting to 6s if not set elsewhere.
+  - The 'infinite linear' ensures the marquee loops endlessly at a constant speed.
+  - The -webkit-animation is added for broader browser support (older versions of Safari/Chrome).
+*/
+.animation-marquee {
+  animation: ticker var(--speed, 6s) infinite linear;
+  -webkit-animation: ticker var(--speed, 6s) infinite linear;
+}
+
+/* 
+  .animation-marquee.right
+  This variation applies a "ticker-right" animation, making the content move from right to left.
+  It uses the same speed control logic via var(--speed, 6s).
+*/
+.animation-marquee.right {
+  animation: ticker-right var(--speed, 6s) infinite linear;
+  -webkit-animation: ticker-right var(--speed, 6s) infinite linear;
+}
+
+/* 
+  .marquee:hover > *
+  When hovering over the marquee container, any animated child elements will pause their animations. 
+  This ensures that hovering stops the scrolling effect.
+*/
+.marquee:hover > * {
+  animation-play-state: paused;
+}
+
+/* 
+  .animation-marquee :is(.spacing, svg, .image_icon_scroll)
+  This rule applies a margin to the end of elements within .animation-marquee that match .spacing, svg, or .image_icon_scroll.
+  - margin-inline-end uses the custom property --col-gap-desktop if available, otherwise --col-gap.
+  - This helps control consistent spacing between items in the marquee.
+*/
+.animation-marquee :is(.spacing, svg, .image_icon_scroll) {
+  margin-inline-end: var(--col-gap-desktop, var(--col-gap));
+}
+
+/* 
+  @keyframes ticker
+  Defines the movement for the marquee from left to right.
+  - 0%: at the initial position
+  - 100%: completely shifted to the left by 100% of its width, creating the scrolling effect
+*/
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* 
+  @-webkit-keyframes ticker
+  Webkit-prefixed version of the ticker keyframes for older browsers. 
+  Identical to the standard definition above.
+*/
+@-webkit-keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* 
+  @keyframes ticker-right
+  Defines the movement for the marquee to move from right to left.
+  - 0%: at the initial position
+  - 100%: shifted completely to the right by 100%
+*/
+@keyframes ticker-right {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* 
+  @-webkit-keyframes ticker-right
+  Webkit-prefixed version of the ticker-right keyframes for older browsers. 
+  Identical to the standard definition above.
+*/
+@-webkit-keyframes ticker-right {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* 
+  .image_icon_scroll
+  Applies a specific width to elements with this class (often used for icons/images in the marquee).
+*/
+.image_icon_scroll {
+   width: 70px;
+}

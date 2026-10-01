@@ -1,0 +1,1431 @@
+{% assign short_id = section.id | slice: -3, 3 %} 
+
+<style>
+
+  :root {
+    --loudpro-clip-{{ short_id }}: {{ section.settings.start_percent }}%;
+    --horizontal-gap-{{ short_id }}: {{ section.settings.horizontal_gap }}px; /* Added Horizontal Gap Variable */
+  }
+
+  {%- capture loudpro_content -%} 
+
+  {% if section.settings.override_fonts %}
+      {{ section.settings.text_font | font_face }}
+      {{ section.settings.headline_font | font_face }}
+  {% endif %}
+
+  #loudpro-{{ section.id }} p {
+      font-size: {{ section.settings.text_size }}px;
+      {% if section.settings.override_fonts %}
+      font-family: {{ section.settings.text_font.family }}, {{ section.settings.text_font.fallback_families }};
+      font-weight: {{ section.settings.text_font.weight }};
+    {% endif %}
+      {% if section.settings.text_line_height != 'inherit' %}line-height: {{ section.settings.text_line_height }};{% endif %}
+      margin: 0 0 {{ section.settings.element_spacing }}px 0;
+      padding: 0;
+      color: {{ section.settings.content_text_color }};
+  }
+
+  #loudpro-{{ section.id }} ul, #loudpro-{{ section.id }} ol {
+    margin: 0 0 {{ section.settings.element_spacing }}px 0;
+  }
+
+  #loudpro-{{ section.id }} li {
+    font-size: {{ section.settings.text_size }}px;
+    {% if section.settings.override_fonts %}
+    font-family: {{ section.settings.text_font.family }}, {{ section.settings.text_font.fallback_families }};
+    font-weight: {{ section.settings.text_font.weight }};
+    {% endif %}
+    {% if section.settings.text_line_height != 'inherit' %}line-height: {{ section.settings.text_line_height }};{% endif %}
+    margin: 0 0 5px 0;
+    padding: 0;
+    color: {{ section.settings.content_text_color }};
+  }
+
+  #loudpro-{{ section.id }} li:last-child {
+    margin: 0;
+  }
+
+  #loudpro-{{ section.id }} p a,
+  #loudpro-{{ section.id }} p a:visited,
+  #loudpro-{{ section.id }} li a,
+  #loudpro-{{ section.id }} li a:visited {
+    color: {{ section.settings.link_color }};
+  }
+
+  @media (max-width: 800px) {
+      #loudpro-{{ section.id }} p,
+      #loudpro-{{ section.id }} li {
+        font-size: {{ section.settings.mobile_text_size }}px;
+      }
+  }
+
+  #loudpro-{{ section.id }} h1,
+  #loudpro-{{ section.id }} h2,
+  #loudpro-{{ section.id }} h3,
+  #loudpro-{{ section.id }} h4,
+  #loudpro-{{ section.id }} h5 {
+      font-size: {{ section.settings.headline_size }}px;
+      {% if section.settings.override_fonts %}
+      font-family: {{ section.settings.headline_font.family }}, {{ section.settings.headline_font.fallback_families }};
+      font-weight: {{ section.settings.headline_font.weight }};
+      {% endif %}
+      {% if section.settings.headline_line_height != 'inherit' %}line-height: {{ section.settings.headline_line_height }};{% endif %}
+      margin: 0 0 {{ section.settings.element_spacing }}px 0;
+      padding: 0;
+      color: {{ section.settings.headline_color }} !important;
+  }
+
+  @media (max-width: 800px) {
+      #loudpro-{{ section.id }} h1,
+      #loudpro-{{ section.id }} h2,
+      #loudpro-{{ section.id }} h3,
+      #loudpro-{{ section.id }} h4,
+      #loudpro-{{ section.id }} h5 {
+      font-size: {{ section.settings.mobile_headline_size }}px;
+      }
+  }
+
+  #loudpro-{{ section.id }} h2 {
+      font-size: {{ section.settings.headline_size | minus:5  | at_least:13 }}px;
+  }
+
+  #loudpro-{{ section.id }} h3 {
+      font-size: {{ section.settings.headline_size | minus:10 | at_least:13 }}px;
+  }
+
+  #loudpro-{{ section.id }} h4 {
+      font-size: {{ section.settings.headline_size | minus:15 | at_least:13 }}px;
+  }
+
+  #loudpro-{{ section.id }} h5 {
+      font-size: {{ section.settings.headline_size | minus:20 | at_least:13 }}px;
+  }
+
+  @media (max-width: 800px) {
+      #loudpro-{{ section.id }} h2 {
+      font-size: {{ section.settings.mobile_headline_size | minus:5 | at_least:13 }}px;
+      }
+
+      #loudpro-{{ section.id }} h3 {
+      font-size: {{ section.settings.mobile_headline_size | minus:10 | at_least:13 }}px;
+      }
+
+      #loudpro-{{ section.id }} h4 {
+      font-size: {{ section.settings.mobile_headline_size | minus:15 | at_least:13 }}px;
+      }
+
+      #loudpro-{{ section.id }} h5 {
+      font-size: {{ section.settings.mobile_headline_size | minus:20 | at_least:13 }}px;
+      }
+  }
+
+  #loudpro-{{ section.id }} {
+      background-color: {{ section.settings.section_background_color }};
+      {% if section.settings.section_background_image %}
+          background: url({{ section.settings.section_background_image | image_url }});
+          background-repeat: no-repeat;
+          background-position: center;
+          width: 100%;
+          background-size: {{ section.settings.section_background_size }};
+      {% endif %}
+      width: 100%;
+      box-sizing: border-box;
+      padding: {{ section.settings.section_padding_top_bottom }}px {{ section.settings.section_padding_left_right }}px;
+      overflow: hidden;
+  }
+
+  @media (max-width: 800px) {
+      #loudpro-{{ section.id }} {
+        padding: {{ section.settings.mobile_section_padding_top_bottom }}px {{ section.settings.mobile_section_padding_left_right }}px;
+      }
+  }
+
+  {% if section.settings.show_on_device == 'mobile' %}
+    @media (min-width: 801px) {
+        #loudpro-{{ section.id }} {
+            display: none;
+        }
+    }
+  {% endif %}
+
+  {% if section.settings.show_on_device == 'desktop' %}
+    @media (max-width: 800px) {
+        #loudpro-{{ section.id }} {
+            display: none;
+        }
+    }
+  {% endif %}
+
+  #loudpro-{{ section.id }} .loudpro-container {
+      position: relative;
+      margin: 0 auto;
+      background-color: transparent;
+      {% comment %} Removed border-radius, box-shadow, and border properties {% endcomment %}
+      max-width: {{ section.settings.container_max_width }}px;
+      padding: {{ section.settings.container_padding_top_bottom }}px {{ section.settings.container_padding_left_right }}px;
+  }
+
+  @media (max-width: 800px) {
+      #loudpro-{{ section.id }} .loudpro-container {
+      padding: {{ section.settings.mobile_container_padding_top_bottom }}px {{ section.settings.mobile_container_padding_left_right }}px;
+      }
+  }
+
+
+  /* headline */
+  #loudpro-{{ section.id }} .loudpro-headline {
+    margin: 0;
+    padding: 0 0 {{ section.settings.headline_spacing }}px 0;
+  }
+
+  #loudpro-{{ section.id }} .loudpro-headline * {
+    text-align: {{ section.settings.text_alignment }};
+  }
+
+  @media only screen and (max-width: 800px) {
+    #loudpro-{{ section.id }} .loudpro-headline * {
+      text-align: {{ section.settings.mobile_text_alignment }};
+    }
+  }
+
+  /* Button styles (button link URL and button text input are set via “link” and “link_text”) */
+  #loudpro-{{ section.id }} a.loudpro-cta {
+    display: inline-block;
+    padding: {{ section.settings.button_padding_tb }}px {{ section.settings.button_padding_lr }}px;
+    background-color: {{ section.settings.button_background_color }};
+    border-radius: {{ section.settings.button_border_radius }}px;
+    color: {{ section.settings.button_text_color }};
+    font-size: {{ section.settings.button_text_size }}px !important;
+    text-decoration: none;
+    cursor: pointer;
+    text-shadow: none;
+    transition: .25s all;
+    font-size: 13px;
+  }
+
+  /* Hover Animations */
+  {% comment %}
+    Button Hover Animation Classes
+  {% endcomment %}
+  a.loudpro-cta.hover-fade-in:hover {
+    opacity: 0.8;
+  }
+
+  a.loudpro-cta.hover-zoom-in:hover {
+    transform: scale(1.05);
+  }
+
+  a.loudpro-cta.hover-shadow:hover {
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+  }
+
+  a.loudpro-cta.hover-slide-up:hover {
+    transform: translateY(-2px);
+  }
+
+  a.loudpro-cta.hover-rotate:hover {
+    transform: rotate(3deg);
+  }
+
+  a.loudpro-cta.hover-color-change:hover {
+    background-color: {{ section.settings.button_background_color | darken: 10 }};
+  }
+
+  /* grid */
+  #loudpro-{{ section.id }} .loudpro-grid {
+    position: relative;
+    margin: 0 auto;
+    max-width: {{ section.settings.max_width }}px;
+    padding: {{ section.settings.padding_top }}px {{ section.settings.padding_right }}px {{ section.settings.padding_bottom }}px {{ section.settings.padding_left }}px;
+    /* Removed gap: {{ section.settings.grid_gap }}px; */
+  }
+
+  #loudpro-{{ section.id }} .loudpro-grid-left {
+    display: grid;
+    {% if section.settings.media_aspect_ratio == "21 / 9" %}
+    grid-template-columns: 3fr 1fr;
+    {% elsif section.settings.media_aspect_ratio == "16 / 9"%}
+    grid-template-columns: 2fr 1fr;
+    {% elsif section.settings.media_aspect_ratio == "3 / 2"%}
+    grid-template-columns: 2fr 1fr;
+    {% elsif section.settings.media_aspect_ratio == "5 / 4"%}
+    grid-template-columns: 2fr 1fr;
+    {% elsif section.settings.media_aspect_ratio == "3 / 1"%}
+    grid-template-columns: 3fr 1fr;
+    {% else %}
+    grid-template-columns: 1fr 1fr;
+    {% endif %}
+    align-items: center;
+    column-gap: var(--horizontal-gap-{{ short_id }}); /* Applied Horizontal Gap */
+  }
+
+  #loudpro-{{ section.id }} .loudpro-grid-right {
+    display: grid;
+    {% if section.settings.media_aspect_ratio == "21 / 9" %}
+    grid-template-columns: 1fr 3fr;
+    {% elsif section.settings.media_aspect_ratio == "16 / 9"%}
+    grid-template-columns: 1fr 2fr;
+    {% elsif section.settings.media_aspect_ratio == "3 / 2"%}
+    grid-template-columns: 1fr 2fr;
+    {% elsif section.settings.media_aspect_ratio == "5 / 4"%}
+    grid-template-columns: 1fr 2fr;
+    {% elsif section.settings.media_aspect_ratio == "3 / 1"%}
+    grid-template-columns: 1fr 3fr;
+    {% else %}
+    grid-template-columns: 1fr 1fr;
+    {% endif %}
+    align-items: center;
+    column-gap: var(--horizontal-gap-{{ short_id }}); /* Applied Horizontal Gap */
+  }
+
+  #loudpro-{{ section.id }} .loudpro-grid-left .loudpro-column-media {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  
+  #loudpro-{{ section.id }} .loudpro-grid-left .loudpro-column-text {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  #loudpro-{{ section.id }} .loudpro-grid-right .loudpro-column-media {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  
+  #loudpro-{{ section.id }} .loudpro-grid-right .loudpro-column-text {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /* bottom */
+  #loudpro-{{ section.id }} .loudpro-grid-bottom {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  @media only screen and (max-width: 900px) {
+    #loudpro-{{ section.id }} .loudpro-grid-left,
+    #loudpro-{{ section.id }} .loudpro-grid-right {
+      display: block;
+    }
+  }
+
+  @media only screen and (max-width: 900px) {
+    #loudpro-{{ section.id }} .loudpro-column-text {
+      margin: 0 0 {{ section.settings.grid_gap }}px 0;
+    }
+  }
+
+  /* before and after */
+  #loudpro-{{ section.id }} .loudpro-feature-wrap {
+    border-radius: {{ section.settings.media_radius }}px;
+
+    /* Image Shadow */
+    {% case section.settings.image_shadow %}
+      {% when 'low' %}
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+      {% when 'medium' %}
+        box-shadow: 4px 4px 10px rgba(0,0,0,0.5);
+      {% when 'high' %}
+        box-shadow: 6px 6px 15px rgba(0,0,0,0.7);
+      {% else %}
+        box-shadow: none;
+    {% endcase %}
+  }
+  
+  #loudpro-{{ section.id }} .loudpro-feature {
+    width: 100%;
+    aspect-ratio: {{ section.settings.media_aspect_ratio }};
+    position: relative;
+    clip-path: border-box;
+    overflow: hidden;
+    border-radius: {{ section.settings.media_radius }}px;
+  }
+
+  #loudpro-{{ section.id }} .loudpro-feature img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: 100%;
+    aspect-ratio: {{ section.settings.media_aspect_ratio }};
+    object-fit: cover;
+    /* Removed border */
+
+    /* Removed Image Shadow from img */
+  }
+
+  #loudpro-{{ section.id }} .loudpro-feature img:first-child {
+  }
+
+  #loudpro-{{ section.id }} .loudpro-feature img:nth-child(2) {
+    clip-path: polygon(0 0, var(--loudpro-clip-{{ short_id }}) 0, var(--loudpro-clip-{{ short_id }}) 100%, 0% 100%);
+  }
+
+  #loudpro-{{ section.id }} .loudpro-slider {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    -webkit-appearance: none;
+    appearance: none;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    background: rgba(0, 0, 0, 0);
+    outline: none;
+    margin: 10px;
+    border: 0px;
+    padding: 0;
+  }
+
+  #loudpro-{{ section.id }} .loudpro-slider::-webkit-slider-thumb {
+    -moz-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 800px;
+    background: transparent;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    box-shadow: none;
+  }
+
+  #loudpro-{{ section.id }} .loudpro-slider::-moz-range-thumb {
+    -moz-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 800px;
+    background: transparent;
+    cursor: pointer;
+    outline: none;
+    box-shadow: none;
+    border: none;
+  }
+
+  #loudpro-{{ section.id }} .loudpro-icon {
+    position: absolute;
+    top: 50%;
+    left: var(--loudpro-clip-{{ short_id }});
+    width: 50px;
+    height: 50px;
+    transform: translateX(-25px) translateY(-25px);
+    pointer-events: none;
+    background: {{ section.settings.circle_color }};
+    opacity: {{ section.settings.circle_opacity }}%;
+    border-radius: 50%;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    /* Animation classes have been removed */
+  }
+
+  #loudpro-{{ section.id }} .loudpro-icon svg {
+    width: 25px;
+    height: 25px;
+    fill: {{ section.settings.circle_icon_color }};
+    pointer-events: none;
+    transform: translateX(12.5px) translateY(12.5px);
+  }
+
+  #loudpro-{{ section.id }} .loudpro-bar {
+    position: absolute;
+    top: 0;
+    left: var(--loudpro-clip-{{ short_id }});
+    width: {{ section.settings.vertical_line_weight }}px;
+    height: 100%;
+    transform: translateX(-{{ section.settings.vertical_line_weight | divided_by: 2 }}px);
+    pointer-events: none;
+    background: {{ section.settings.bar_color }};
+    opacity: {{ section.settings.bar_opacity }}%;
+  }
+
+  #loudpro-{{ section.id }} .loudpro-before,
+  #loudpro-{{ section.id }} .loudpro-after {
+    display: inline-block;
+    position: absolute;
+    background: {{ section.settings.before_after_background_color }};
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 13px;
+    color: {{ section.settings.before_after_text_color }};
+  }
+
+  #loudpro-{{ section.id }} .loudpro-before {
+    top: 15px;
+    left: 15px;
+  }
+
+  #loudpro-{{ section.id }} .loudpro-after {
+    top: 15px;
+    right: 15px;
+  }
+  
+  /* Removed Hover Animations */
+
+  /* Icon Selection Styles */
+  {% comment %}
+    Dynamically insert the selected SVG icon into the .loudpro-icon span.
+    This is handled by Liquid conditionals based on the selected icon.
+  {% endcomment %}
+
+  {%- endcapture -%} 
+
+  {%- liquid
+    assign chunks = loudpro_content | strip_newlines | split: ' ' | join: ' ' | split: '*/'
+    for chunk in chunks
+      assign mini = chunk | split: '/*' | first | strip | replace: ': ', ':' | replace: '; ', ';' | replace: '} ', '}' | replace: ' {', '{' | replace: ';}', '}'
+      echo mini
+    endfor
+  %}
+</style>
+
+<div id="loudpro-{{ section.id }}" class="loudpro-section" loudpro-section>
+
+  <div class="loudpro-container" loudpro-container>
+
+    <div class="loudpro-grid loudpro-grid-{{ section.settings.media_location }}" loudpro-grid>
+
+      {% if section.settings.headline != '' or section.settings.content != '' or section.settings.link_text != '' %}
+      <div class="loudpro-column loudpro-headline loudpro-column-text" loudpro-column>
+        {% if section.settings.headline != '' %}<h2 class="loudpro-heading">{{ section.settings.headline }}</h2>{% endif %}
+        {% if section.settings.content != '' %}<div class="loudpro-content">{{ section.settings.content }}</div>{% endif %}
+        {% if section.settings.enable_button and section.settings.link_text != '' %}
+          <p>
+            <a class="loudpro-cta {% unless section.settings.button_hover_animation == 'none' %}hover-{{ section.settings.button_hover_animation }}{% endunless %}" href="{{ section.settings.link }}">
+              {{ section.settings.link_text }}
+            </a>
+          </p>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <div class="loudpro-column loudpro-column-media" loudpro-column>
+
+        <div class="loudpro-feature-wrap">
+          <div class="loudpro-feature">
+         {% if section.settings.after_image != blank %}
+  <img 
+    src="{{ section.settings.after_image | image_url: width: 1024 }}"
+    loading="lazy"
+    srcset="{{ section.settings.after_image | image_url: width: 600 }} 600w, {{ section.settings.after_image | image_url: width: 1024 }} 1100w">
+{% else %}
+  <img 
+    src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+    alt="Placeholder for After Image">
+{% endif %}
+           {% if section.settings.before_image != blank %}
+  <img 
+    src="{{ section.settings.before_image | image_url: width: 1024 }}"
+    loading="lazy"
+    srcset="{{ section.settings.before_image | image_url: width: 600 }} 600w, {{ section.settings.before_image | image_url: width: 1024 }} 1100w">
+{% else %}
+  <img 
+    src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+    alt="Placeholder for Before Image">
+{% endif %}
+
+
+            {% if section.settings.before_caption != '' %}<span class="loudpro-before">{{ section.settings.before_caption }}</span>{% endif %}
+            {% if section.settings.after_caption != '' %}<span class="loudpro-after">{{ section.settings.after_caption }}</span>{% endif %}
+
+            <input id="loudpro-slider-{{ short_id }}" type="range" min="0" max="100" value="50" class="loudpro-slider">
+
+            {% if section.settings.show_bar %}<span class="loudpro-bar"></span>{% endif %}
+
+            {% if section.settings.show_circle %}
+            <span class="loudpro-icon">
+              {% case section.settings.circle_icon %}
+                {% when 'icon1' %}
+                  <!-- Icon 1: Chevron Double Left -->
+                  <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 7L4 12L9 17M15 7L20 12L15 17" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                {% when 'icon2' %}
+                  <!-- Icon 2: Double Arrow Left/Right -->
+                  <svg enable-background="new 0 0 32 32" height="32px" id="Double_Arrow_Left_Right" version="1.1" viewBox="0 0 32 32" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <g id="Double_Arrow_Left_Right">
+                      <path d="M3.404,13.019h15.593c0.552,0,1-0.452,1-1.01c0-0.558-0.448-1.01-1-1.01H3.404l5.2-5.275c0.391-0.395,0.391-1.034,0-1.428c-0.391-0.395-1.024-0.395-1.414,0l-6.899,6.999c-0.385,0.389-0.389,1.04,0,1.429l6.9,6.999c0.391,0.395,1.024,0.394,1.414,0c0.391-0.394,0.391-1.034,0-1.428L3.404,13.019z" fill="#121313"/>
+                      <path d="M31.71,19.277l-6.9-6.999c-0.391-0.395-1.024-0.394-1.414,0c-0.391,0.394-0.391,1.034,0,1.428l5.2,5.275H13.003c-0.552,0-1,0.452-1,1.01c0,0.558,0.448,1.01,1,1.01h15.593l-5.2,5.275c-0.391,0.395-0.391,1.034,0,1.428c0.391,0.395,1.024,0.395,1.414,0l6.899-6.999C32.095,20.317,32.099,19.666,31.71,19.277z" fill="#121313"/>
+                    </g>
+                  </svg>
+                {% when 'icon3' %}
+                  <!-- Icon 3: Star -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2l2.39 6.93L22 9.24l-5 4.87L18.78 22 12 18.56 5.22 22 7 14.11 2 9.24l7.61-0.31L12 2z" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" fill="none"/>
+                  </svg>
+                {% when 'icon4' %}
+                  <!-- Icon 4: Heart -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 21C12 21 5 14.5 5 8.5C5 5.42 7.42 3 10.5 3C12.24 3 13.91 3.81 15 5.08C16.09 3.81 17.76 3 19.5 3C22.58 3 25 5.42 25 8.5C25 14.5 18 21 18 21H12Z" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                {% when 'icon5' %}
+                  <!-- Icon 5: Pencil -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 20H21V13L17 9L12 14L3 5L-2 12V21H7L12 16L17 21Z" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                {% when 'icon6' %}
+                  <!-- Icon 6: Camera -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M23 19V7C23 5.34315 21.6569 4 20 4H4C2.34315 4 1 5.34315 1 7V19C1 20.6569 2.34315 22 4 22H20C21.6569 22 23 20.6569 23 19Z" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="13" r="4" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2"/>
+                  </svg>
+                {% when 'icon7' %}
+                  <!-- Icon 7: Bell -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 8C18 5.23858 15.7614 3 13 3C10.2386 3 8 5.23858 8 8C8 14 5 16 5 16H21C21 16 18 14 18 8Z" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13.73 21C13.73 21 11.86 21 11.86 19.07C11.86 17.14 12.55 16.63 12.55 16.63C12.55 16.63 13.87 16.21 14 15.04C14.13 13.88 14 13 14 13" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                {% when 'icon8' %}
+                  <!-- Icon 8: Chat -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M21 15V6C21 4.34315 19.6569 3 18 3H6C4.34315 3 3 4.34315 3 6V15C3 16.6569 4.34315 18 6 18H16L21 23V18H21Z" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                {% when 'icon9' %}
+                  <!-- Icon 9: Globe -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2"/>
+                    <path d="M2 12H22" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 2V22" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M5.09 5.09L18.91 18.91" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M18.91 5.09L5.09 18.91" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                {% when 'icon10' %}
+                  <!-- Icon 10: Sun -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="5" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2"/>
+                    <path d="M12 1V3" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 21V23" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M4.22 4.22L5.64 5.64" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M18.36 18.36L19.78 19.78" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M1 12H3" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M21 12H23" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M4.22 19.78L5.64 18.36" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M18.36 5.64L19.78 4.22" stroke="{{ section.settings.circle_icon_color }}" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                {% when 'icon11' %}
+                  <!-- Icon 11: Layer 1 Icon -->
+                  <?xml version="1.0" ?>
+                  <!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'>
+                  <svg height="512px" id="Layer_1" style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512" width="512px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <g>
+                      <g>
+                        <path d="M256,48C141.1,48,48,141.1,48,256s93.1,208,208,208c114.9,0,208-93.1,208-208S370.9,48,256,48z M256,446.7
+                          c-105.1,0-190.7-85.5-190.7-190.7c0-105.1,85.5-190.7,190.7-190.7c105.1,0,190.7,85.5,190.7,190.7
+                          C446.7,361.1,361.1,446.7,256,446.7z"/>
+                      </g>
+                    </g>
+                    <g>
+                      <g>
+                        <path d="M256,96c-88.4,0-160,71.6-160,160c0,88.4,71.6,160,160,160c88.4,0,160-71.6,160-160C416,167.6,344.4,96,256,96z"/>
+                      </g>
+                    </g>
+                  </svg>
+                {% when 'icon12' %}
+                  <!-- Icon 12: Swap Horizontal Bold -->
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="mdi-swap-horizontal-bold" width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M8,10V13H14V18H8V21L2,15.5L8,10M22,8.5L16,3V6H10V11H16V14L22,8.5Z" />
+                  </svg>
+                {% when 'icon13' %}
+                  <!-- Icon 13: Swap Horizontal Bold Duplicate -->
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="mdi-swap-horizontal-bold" width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M8,10V13H14V18H8V21L2,15.5L8,10M22,8.5L16,3V6H10V11H16V14L22,8.5Z" />
+                  </svg>
+                {% when 'icon14' %}
+                  <!-- Icon 14: Emoji One Monotone -->
+                  <svg width="128" height="128" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--emojione-monotone" preserveAspectRatio="xMidYMid meet">
+                    <path d="M10.787 10.787c-11.715 11.715-11.715 30.711 0 42.426c11.714 11.717 30.71 11.717 42.426 0c11.717-11.715 11.717-30.71 0-42.426c-11.716-11.716-30.712-11.716-42.426 0zM36.487 16l15.512 16l-15.512 16V36.628h-8.975V48L12 32l15.513-16v11.373h8.975V16z" fill="#000000"></path>
+                  </svg>
+              {% endcase %}
+            </span>
+            {% endif %}
+
+          
+          </div>
+          <!-- /.loudpro-feature-->
+
+        </div>
+        <!-- /.loudpro-feature-wrap-->
+
+      </div>
+      <!--/.loudpro-column -->
+      
+    </div>
+    <!--/.loudpro-grid -->
+
+  </div>
+  <!--/.loudpro-container -->
+
+</div>
+<!--/.loudpro-section -->
+
+<script>
+  var el_{{ short_id }} = document.querySelector('#loudpro-slider-{{ short_id }}');
+
+  el_{{ short_id }}.addEventListener('input', (e)=>{
+    const pos = e.target.value;
+    var r = document.querySelector(':root');
+
+    r.style.setProperty('--loudpro-clip-{{ short_id }}', `${pos}%`);
+  });
+</script>
+
+
+{% schema %}
+{
+  "name": "Before and After Slider",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Headline Design",
+      "info": "Set the design of the headline"
+    },
+    {
+      "type": "text_alignment",
+      "id": "text_alignment",
+      "label": "Text Alignment",
+      "default": "center",
+      "info": "Align the headline text horizontally within the section."
+    },
+    {
+      "type": "text_alignment",
+      "id": "mobile_text_alignment",
+      "label": "Mobile Text Alignment",
+      "default": "center",
+      "info": "Align the headline text on mobile devices."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "headline",
+      "label": "Headline",
+      "default": "<strong>Before and after</strong>",
+      "info": "Enter the headline text displayed in the section."
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "Content",
+      "default": "<p>Present comparisons between two images,for showcasing product benefits<p>",
+      "info": "Add the main content text for the section."
+   
+    },
+    {
+      "type": "range",
+      "id": "headline_spacing",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 15,
+      "label": "Spacing between Headline and Features",
+      "info": "Adjust the vertical space between the headline and the features below."
+    },
+    {
+      "type": "header",
+      "content": "Font",
+      "info": "Set the fonts for your section"
+    },
+    {
+      "type": "checkbox",
+      "id": "override_fonts",
+      "label": "Enable Custom Fonts",
+      "default": false,
+      "info": "Toggle to use custom fonts for the section."
+    },
+    {
+      "type": "font_picker",
+      "id": "headline_font",
+      "label": "Headline Font",
+      "default": "sans-serif",
+      "info": "Select the font for the headline text."
+    },
+    {
+      "type": "font_picker",
+      "id": "text_font",
+      "label": "Text Font",
+      "default": "sans-serif",
+      "info": "Select the font for the main content text."
+    },
+    {
+      "type": "header",
+      "content": "Text",
+      "info": "Set the text for your section"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Text Size",
+      "default": 17,
+      "info": "Adjust the font size of the main content text."
+    },
+    {
+      "type": "range",
+      "id": "mobile_text_size",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Text Size",
+      "default": 15,
+      "info": "Adjust the font size of the main content text on mobile devices."
+    },
+    {
+      "type": "select",
+      "id": "text_line_height",
+      "label": "Text Line Height",
+      "options": [
+        {
+          "value": "1.0",
+          "label": "1.0"
+        },
+        {
+          "value": "1.2",
+          "label": "1.2"
+        },
+        {
+          "value": "1.4",
+          "label": "1.4"
+        },
+        {
+          "value": "1.6",
+          "label": "1.6"
+        },
+        {
+          "value": "1.8",
+          "label": "1.8"
+        },
+        {
+          "value": "2.0",
+          "label": "2.0"
+        }
+      ],
+      "default": "1.4",
+      "info": "Set the line height for the main content text."
+    },
+    {
+      "type": "range",
+      "id": "headline_size",
+      "min": 10,
+      "max": 75,
+      "step": 1,
+      "unit": "px",
+      "label": "Headline Size",
+      "default": 36,
+      "info": "Adjust the font size of the headline text."
+    },
+    {
+      "type": "range",
+      "id": "mobile_headline_size",
+      "min": 10,
+      "max": 75,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Headline Size",
+      "default": 38,
+      "info": "Adjust the font size of the headline text on mobile devices."
+    },
+    {
+      "type": "select",
+      "id": "headline_line_height",
+      "label": "Headline Line Height",
+      "options": [
+        {
+          "value": "1.0",
+          "label": "1.0"
+        },
+        {
+          "value": "1.2",
+          "label": "1.2"
+        },
+        {
+          "value": "1.4",
+          "label": "1.4"
+        },
+        {
+          "value": "1.6",
+          "label": "1.6"
+        },
+        {
+          "value": "1.8",
+          "label": "1.8"
+        },
+        {
+          "value": "2.0",
+          "label": "2.0"
+        }
+      ],
+      "default": "1.0",
+      "info": "Set the line height for the headline text."
+    },
+    {
+      "type": "color",
+      "id": "headline_color",
+      "default": "#3B3B3B",
+      "label": "Headline Color",
+      "info": "Choose the color of the headline text."
+    },
+    {
+      "type": "color",
+      "id": "content_text_color",
+      "default": "#111",
+      "label": "Content Text Color",
+      "info": "Choose the color of the main content text."
+    },
+    {
+      "type": "color",
+      "id": "before_after_background_color",
+      "default": "#FAFAFA",
+      "label": "Before & After Background Color",
+      "info": "Set the background color for the before and after images."
+    },
+    {
+      "type": "color",
+      "id": "before_after_text_color",
+      "default": "#292929",
+      "label": "Before & After Text Color",
+      "info": "Choose the color of the text labels for before and after."
+    },
+    {
+      "type": "header",
+      "content": "Section Design",
+      "info": "Set the design for the section"
+    },
+    {
+      "type": "select",
+      "id": "show_on_device",
+      "label": "Show Section",
+      "options": [
+        {
+          "value": "all",
+          "label": "All Devices"
+        },
+        {
+          "value": "mobile",
+          "label": "Mobile Device"
+        },
+        {
+          "value": "desktop",
+          "label": "Desktop Device"
+        }
+      ],
+      "default": "all",
+      "info": "Select on which devices the section should be visible."
+    },
+    {
+      "type": "color",
+      "id": "section_background_color",
+      "default": "#FFFFFF",
+      "label": "Background Color",
+      "info": "Set the background color of the section."
+    },
+    {
+      "type": "image_picker",
+      "id": "section_background_image",
+      "label": "Background Image",
+      "info": "Choose a background image for the section."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Top/Bottom",
+      "default": 30,
+      "info": "Set the vertical padding for the section."
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_top_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Mobile Padding Top/Bottom",
+      "default": 30,
+      "info": "Set the vertical padding for the section on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Left/Right",
+      "default": 25,
+      "info": "Set the horizontal padding for the section."
+    },
+    {
+      "type": "range",
+      "id": "mobile_section_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 25,
+      "label": "Mobile Padding Left/Right",
+      "info": "Set the horizontal padding for the section on mobile devices."
+    },
+    {
+      "type": "header",
+      "content": "Container Design",
+      "info": "Set the design for your inner container"
+    },
+    {
+      "type": "range",
+      "id": "container_max_width",
+      "min": 300,
+      "max": 2000,
+      "step": 50,
+      "unit": "px",
+      "default": 850,
+      "label": "Max Width",
+      "info": "Set the maximum width of the inner container."
+    },
+    {
+      "type": "range",
+      "id": "container_padding_top_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 10,
+      "label": "Padding Top/Bottom",
+      "info": "Set the vertical padding inside the container."
+    },
+    {
+      "type": "range",
+      "id": "mobile_container_padding_top_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 10,
+      "label": "Mobile Padding Top/Bottom",
+      "info": "Set the vertical padding inside the container on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "container_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 10,
+      "label": "Padding Left/Right",
+      "info": "Set the horizontal padding inside the container."
+    },
+    {
+      "type": "range",
+      "id": "mobile_container_padding_left_right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0,
+      "label": "Mobile Padding Left/Right",
+      "info": "Set the horizontal padding inside the container on mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "element_spacing",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 21,
+      "label": "Spacing Between Elements",
+      "info": "Adjust the space between elements inside the container."
+    },
+    {
+      "type": "header",
+      "content": "Grid Design",
+      "info": "Set settings for the grid"
+    },
+    {
+      "type": "range",
+      "id": "horizontal_gap",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "default": 100,
+      "label": "Horizontal Gap between Image and Text/Button",
+      "info": "Adjust the horizontal spacing between the image and the text/button."
+    },
+    {
+      "type": "header",
+      "content": "Before & After Display",
+      "info": "Set the display for the before and after feature."
+    },
+    {
+      "type": "select",
+      "id": "media_location",
+      "label": "Texts & Button Position ",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left Position"
+        },
+        {
+          "value": "right",
+          "label": "Right  Position"
+        },
+        {
+          "value": "bottom",
+          "label": "Bottom  Position"
+        }
+      ],
+      "default": "bottom",
+      "info": "Choose the position of the media relative to the content."
+    },
+    {
+      "type": "range",
+      "id": "start_percent",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "label": "Vertical Divider Position",
+      "default": 50,
+      "info": "Set the initial position percentage of the slider."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_bar",
+      "label": "Show Vertical Divider",
+      "default": true,
+      "info": "Toggle the visibility of the vertical divider between before and after images."
+    },
+    {
+      "type": "range",
+      "id": "vertical_line_weight",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Weight for the Vertical Line",
+      "default": 3,
+      "info": "Adjust the thickness of the vertical divider line."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_circle",
+      "label": "Show Circle Selector",
+      "default": true,
+      "info": "Toggle the visibility of the circle selector for the slider."
+    },
+    {
+      "type": "color",
+      "id": "bar_color",
+      "label": "Bar Color",
+      "default": "#fff",
+      "info": "Choose the color of the vertical divider bar."
+    },
+    {
+      "type": "range",
+      "id": "bar_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Bar Opacity",
+      "default": 75,
+      "info": "Set the opacity level of the vertical divider bar."
+    },
+    {
+      "type": "color",
+      "id": "circle_color",
+      "label": "Circle Color",
+      "default": "#F0F0F0",
+      "info": "Choose the color of the circle selector."
+    },
+    {
+      "type": "range",
+      "id": "circle_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Circle Opacity",
+      "default": 95,
+      "info": "Set the opacity level of the circle selector."
+    },
+    {
+      "type": "color",
+      "id": "circle_icon_color",
+      "label": "Circle Icon Color",
+      "default": "#2E2E2E",
+      "info": "Choose the color of the icon inside the circle selector."
+
+
+
+
+          },
+    {
+      "type": "inline_richtext",
+      "id": "link_text",
+      "label": "Button Text",
+      "info": "Specify the text for the link button. (This is the button text input)"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Button Link",
+      "info": "Provide the URL that the link button should navigate to. (This is the button link URL)"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_button",
+      "label": "Enable Button",
+      "default": true,
+      "info": "Toggle to show/hide the button."
+
+
+
+      
+    },
+    {
+      "type": "select",
+      "id": "media_aspect_ratio",
+      "label": "Images Aspect Ratio",
+      "options": [
+        {
+          "value": "21 / 9",
+          "label": "21:9"
+        },
+        {
+          "value": "16 / 9",
+          "label": "16:9"
+        },
+        {
+          "value": "4 / 3",
+          "label": "4:3"
+        },
+        {
+          "value": "1 / 1",
+          "label": "1:1"
+        },
+        {
+          "value": "3 / 2",
+          "label": "3:2"
+        },
+        {
+          "value": "5 / 4",
+          "label": "5:4"
+        },
+        {
+          "value": "3 / 1",
+          "label": "3:1"
+        }
+      ],
+      "default": "16 / 9",
+      "info": "Select the aspect ratio for the images."
+    },
+    {
+      "type": "range",
+      "id": "media_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Round Borders on Image",
+      "default": 5,
+      "info": "Set the border radius for media images."
+    },
+    {
+      "type": "image_picker",
+      "id": "before_image",
+      "label": "Before Image",
+      "info": "Upload the image to display before the slider."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "before_caption",
+      "label": "Left Caption Text ",
+      "default": "Before",
+      "info": "Set the caption for the 'before' image."
+    },
+    {
+      "type": "image_picker",
+      "id": "after_image",
+      "label": "After Image",
+      "info": "Upload the image to display after the slider."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "after_caption",
+      "label": "Right Caption Text",
+      "default": "After",
+      "info": "Set the caption for the 'after' image."
+    },
+    {
+      "type": "header",
+      "content": "Button Style",
+      "info": "Set the look and feel of the button"
+    },
+    {
+      "type": "color",
+      "id": "button_background_color",
+      "default": "#000000",
+      "label": "Button Background Color",
+      "info": "Choose the background color of the button."
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "default": "#FFFFFF",
+      "label": "Button Text Color",
+      "info": "Choose the text color of the button."
+    },
+    {
+      "type": "range",
+      "id": "button_text_size",
+      "min": 10,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Button Text Size",
+      "default": 14,
+      "info": "Adjust the font size of the button text."
+    },
+    {
+      "type": "range",
+      "id": "button_padding_tb",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 9,
+      "label": "Button Padding Top/Bottom",
+      "info": "Set the vertical padding inside the button."
+    },
+    {
+      "type": "range",
+      "id": "button_padding_lr",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 23,
+      "label": "Button Padding Left/Right",
+      "info": "Set the horizontal padding inside the button."
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 5,
+      "label": "Button Border Radius",
+      "info": "Adjust the border radius of the button for rounded corners."
+    },
+    {
+      "type": "select",
+      "id": "circle_icon",
+      "label": "Circle Icon",
+      "options": [
+        {
+          "value": "icon1",
+          "label": "Chevron Double Left"
+        },
+        {
+          "value": "icon2",
+          "label": "Double Arrow Left/Right"
+        },
+        {
+          "value": "icon3",
+          "label": "Star"
+        },
+        {
+          "value": "icon10",
+          "label": "Sun"
+        },
+        {
+          "value": "icon11",
+          "label": "Circle Minimal Icon"
+        },
+        {
+          "value": "icon12",
+          "label": "Swap Horizontal Bold"
+        },
+        {
+          "value": "icon13",
+          "label": "Swap Horizontal Bold Duplicate"
+        },
+        {
+          "value": "icon14",
+          "label": "Emoji One Monotone"
+        }
+      ],
+      "default": "icon2",
+      "info": "Select the icon to display inside the circle selector."
+    },
+    {
+      "type": "select",
+      "id": "image_shadow",
+      "label": "Image Shadow",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "low",
+          "label": "Low Shadow"
+        },
+        {
+          "value": "medium",
+          "label": "Medium Shadow"
+        },
+        {
+          "value": "high",
+          "label": "High Shadow"
+        }
+      ],
+      "default": "none",
+      "info": "Choose the shadow effect for images."
+    },
+    {
+      "type": "select",
+      "id": "button_hover_animation",
+      "label": "Button Hover Animation",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "fade-in",
+          "label": "Fade In"
+        
+        },
+        {
+          "value": "shadow",
+          "label": "Shadow"
+      
+        }
+      ],
+      "default": "fade-in",
+      "info": "Choose the hover animation for the button."
+    }
+  ],
+    "presets": [
+      {
+        "name": "Before and After Image Slider",
+             "category": "Comparisons"
+      }
+    ]
+  }
+{% endschema %}

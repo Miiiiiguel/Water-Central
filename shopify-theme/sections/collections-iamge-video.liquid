@@ -1,0 +1,1065 @@
+<!-- Collection Image / Video 2 Section -->
+<section id="collection-image-video-2" class="collection-image-video-2" style=" padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px; background-color: {{ section.settings.background_color }}; text-align: center; " >
+  <!-- Container with desktop left/right padding -->
+  <div class="container" style="padding-left: {{ section.settings.desktop_padding_left }}px; padding-right: {{ section.settings.desktop_padding_right }}px;" >
+    {% if section.settings.enable_custom_fonts and section.settings.selected_custom_font != blank %}
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family={{ section.settings.selected_custom_font | replace: ' ', '+' }}&display=swap');
+        /* Apply the selected Google font to all text elements within the section */
+        #collection-image-video-2 * {
+          font-family: '{{ section.settings.selected_custom_font }}', sans-serif !important;
+        }
+      </style>
+    {% elsif section.settings.custom_font_url != blank %}
+      <style>
+        @import url('{{ section.settings.custom_font_url }}');
+        /* Apply the custom font to all text elements within the section */
+        #collection-image-video-2 * {
+          font-family: 'CustomFont', sans-serif !important;
+        }
+      </style>
+    {% endif %}
+    <!-- Title -->
+    <h2 class="collection-title" style=" color: {{ section.settings.title_color }} !important; font-size: {{ section.settings.title_font_size }}px; font-weight: {{ section.settings.title_font_weight }}; margin-bottom: {{ section.settings.space_between_title_subheading_desktop }}px; " >
+      {{ section.settings.title }}
+    </h2>
+    <!-- Subheading -->
+    <p class="collection-subheading" style=" color: {{ section.settings.subheading_color }}; font-size: {{ section.settings.subheading_font_size }}px; margin-bottom: {{ section.settings.space_between_subheading_video_desktop }}px; " >
+      {{ section.settings.subheading }}
+    </p>
+    <!-- Desktop and Tablet View -->
+    <div class="card-items-wrapper desktop-view" style="gap: {{ section.settings.video_cards_gap_desktop }}px;" >
+      {% for block in section.blocks %}
+        {% assign main_image = block.settings.image %}
+        {% if main_image == blank and block.settings.collection != blank and block.settings.collection.featured_image != blank %}
+          {% assign main_image = block.settings.collection.featured_image %}
+        {% endif %}
+        <a href="{{ block.settings.product_link }}" class="card-item-link">
+          <div class="card-item {{ section.settings.hover_animation }}">
+            <div class="media-wrapper">
+              {% if block.settings.video_url != blank %}
+                <video class="media-content" autoplay muted loop playsinline>
+                  <source src="{{ block.settings.video_url }}" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              {% else %}
+                {% if main_image != blank %}
+                  <img src="{{ main_image | img_url: 'master' }}" alt="Card Image" class="media-content main-image" >
+                {% else %}
+                  <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Card Image" class="media-content main-image" >
+                {% endif %}
+              {% endif %}
+              {% if section.settings.enable_hover_secondary and block.settings.hover_image != blank %}
+                <img src="{{ block.settings.hover_image | img_url: 'master' }}" alt="Hover Image" class="media-content hover-image" >
+              {% endif %}
+            </div>
+            {% if section.settings.enable_button %}
+              <a href="{{ block.settings.button_link }}" class="custom-button">
+                {{ block.settings.button_text }}
+              </a>
+            {% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+    <!-- Mobile Slider View -->
+    <div class="swiper-container mobile-view">
+      <div class="swiper-wrapper">
+        {% for block in section.blocks %}
+          {% assign main_image = block.settings.image %}
+          {% if main_image == blank and block.settings.collection != blank and block.settings.collection.featured_image != blank %}
+            {% assign main_image = block.settings.collection.featured_image %}
+          {% endif %}
+          <div class="swiper-slide">
+            <a href="{{ block.settings.product_link }}" class="card-item-link">
+              <div class="card-item {{ section.settings.hover_animation }}">
+                <div class="media-wrapper">
+                  {% if block.settings.video_url != blank %}
+                    <video class="media-content" autoplay muted loop playsinline>
+                      <source src="{{ block.settings.video_url }}" type="video/mp4">
+                      Your browser does not support the video tag.
+                    </video>
+                  {% else %}
+                    {% if main_image != blank %}
+                      <img src="{{ main_image | img_url: 'master' }}" alt="Card Image" class="media-content main-image" >
+                    {% else %}
+                      <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E" alt="Card Image" class="media-content main-image" >
+                    {% endif %}
+                  {% endif %}
+                  {% if section.settings.enable_hover_secondary and block.settings.hover_image != blank %}
+                    <img src="{{ block.settings.hover_image | img_url: 'master' }}" alt="Hover Image" class="media-content hover-image" >
+                  {% endif %}
+                </div>
+                {% if section.settings.enable_button %}
+                  <a href="{{ block.settings.button_link }}" class="custom-button">
+                    {{ block.settings.button_text }}
+                  </a>
+                {% endif %}
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+      {% if section.settings.show_arrows %}
+        <!-- Add Navigation Buttons -->
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+      {% endif %}
+      {%- comment -%} Only render pagination markup if dots_style is not "none". If "modern" -> show always, If "mobile_only" -> show on mobile only (handled via CSS). {%- endcomment -%}
+      {% if section.settings.dots_style != 'none' %}
+        <div class="swiper-pagination custom-swiper-pagination"></div>
+      {% endif %}
+    </div>
+  </div>
+  <!-- Swiper.js CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+  <style>
+    /* Container Styles */
+    #collection-image-video-2 {
+      position: relative;
+      overflow: hidden;
+    }
+    /* Adjust container padding for mobile via media query */
+    @media (max-width: 768px) {
+      .container {
+        padding-left: {{ section.settings.mobile_padding_left }}px !important;
+        padding-right: {{ section.settings.mobile_padding_right }}px !important;
+      }
+    }
+    #collection-image-video-2 .collection-title,
+    #collection-image-video-2 .collection-subheading {
+      font-family: inherit;
+    }
+    /* Card Items Wrapper - Desktop View */
+    #collection-image-video-2 .card-items-wrapper.desktop-view {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    /* Card Item Link */
+    #collection-image-video-2 .card-item-link {
+      text-decoration: none;
+      color: inherit;
+    }
+    /* Card Item Styles */
+    #collection-image-video-2 .card-item {
+      position: relative;
+      width: {{ section.settings.card_item_size }}px;
+      {% if section.settings.make_cards_square %}
+        height: {{ section.settings.card_item_size }}px;
+      {% else %}
+        height: calc({{ section.settings.card_item_size }}px * 1.6);
+      {% endif %}
+      border-radius: {{ section.settings.card_border_radius }}px;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+      background-color: #f9f9f9;
+    }
+    /* Media Wrapper */
+    #collection-image-video-2 .media-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    #collection-image-video-2 .media-content {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #collection-image-video-2 .hover-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.4s ease-in-out;
+    }
+    #collection-image-video-2 .card-item:hover .hover-image {
+      opacity: 1;
+    }
+    /* Hover Animations */
+    #collection-image-video-2 .card-item.none:hover {
+    }
+    #collection-image-video-2 .card-item.smooth-zoom:hover {
+      transform: scale(1.05);
+    }
+    #collection-image-video-2 .card-item.scale-in:hover {
+      transform: scale(1.1);
+    }
+    #collection-image-video-2 .card-item.scale-in-up:hover {
+      transform: scale(1.1) translateY(-5px);
+    }
+    #collection-image-video-2 .card-item.subtle-shadow:hover {
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    #collection-image-video-2 .card-item.subtle-white-glow-pulse:hover {
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+      animation: pulseWhiteGlow 1.5s infinite;
+    }
+    #collection-image-video-2 .card-item.subtle-gray-glow-pulse:hover {
+      box-shadow: 0 0 10px rgba(128, 128, 128, 0.7);
+      animation: pulseGrayGlow 1.5s infinite;
+    }
+    @keyframes pulseWhiteGlow {
+      0% {
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+      }
+      50% {
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
+      }
+      100% {
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+      }
+    }
+    @keyframes pulseGrayGlow {
+      0% {
+        box-shadow: 0 0 10px rgba(128, 128, 128, 0.7);
+      }
+      50% {
+        box-shadow: 0 0 20px rgba(128, 128, 128, 0.9);
+      }
+      100% {
+        box-shadow: 0 0 10px rgba(128, 128, 128, 0.7);
+      }
+    }
+    /* Button Styles */
+    #collection-image-video-2 .custom-button {
+      position: absolute;
+      bottom: {{ section.settings.button_vertical_position }}px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: {{ section.settings.button_background_color }};
+      color: {{ section.settings.button_text_color }};
+      border: none;
+      border-radius: {{ section.settings.button_border_radius }}px;
+      padding: 8px 16px;
+      text-decoration: none;
+      transition: background-color 0.3s ease, filter 0.3s ease;
+      font-size: 14px;
+      white-space: nowrap;
+      display: inline-block;
+      will-change: filter;
+    }
+    #collection-image-video-2 .custom-button:hover {
+      filter: brightness(0.94);
+    }
+    /* Swiper Styles - Mobile View */
+    #collection-image-video-2 .swiper-container.mobile-view {
+      display: none;
+      width: 100%;
+      padding-bottom: 40px;
+      position: relative;
+    }
+    #collection-image-video-2 .swiper-slide {
+      display: flex;
+      justify-content: center;
+    }
+    /* Swiper Navigation Buttons Styles */
+    #collection-image-video-2 .swiper-button-prev,
+    #collection-image-video-2 .swiper-button-next {
+      color: {{ section.settings.arrow_color }};
+      width: {{ section.settings.arrow_size }}px;
+      height: {{ section.settings.arrow_size }}px;
+      transition: color 0.3s ease;
+      display: block;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+    }
+    #collection-image-video-2 .swiper-button-prev:hover,
+    #collection-image-video-2 .swiper-button-next:hover {
+      color: {{ section.settings.arrow_hover_color }};
+    }
+    #collection-image-video-2 .swiper-button-prev::after,
+    #collection-image-video-2 .swiper-button-next::after {
+      font-size: {{ section.settings.arrow_size }}px;
+    }
+    #collection-image-video-2 .swiper-button-prev {
+      left: 10px;
+    }
+    #collection-image-video-2 .swiper-button-next {
+      right: 10px;
+    }
+    /* Dots (Pagination) Styles */
+    #collection-image-video-2 .custom-swiper-pagination {
+      bottom: 15px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    #collection-image-video-2 .swiper-pagination-bullet {
+      width: {{ section.settings.dots_size }}px;
+      height: {{ section.settings.dots_size }}px;
+      background: transparent;
+      opacity: 1;
+      margin: 0 2px !important;
+      transition: background 0.3s, transform 0.2s;
+    }
+    #collection-image-video-2 .swiper-pagination-bullet:hover {
+      transform: scale(1.15);
+    }
+    #collection-image-video-2 .swiper-pagination-bullet-active {
+      background: {{ section.settings.dots_filled_color }} !important;
+    }
+    /* Show/hide pagination depending on dots_style */
+    {% if section.settings.dots_style == 'mobile_only' %}
+      /* Hide on desktop, show on mobile */
+      @media (min-width: 769px) {
+        #collection-image-video-2 .custom-swiper-pagination {
+          display: none;
+        }
+      }
+    {% endif %}
+    {% if section.settings.dots_style == 'none' %}
+      /* If 'none', we wouldn't even render the markup, but just in case: */
+      #collection-image-video-2 .custom-swiper-pagination {
+        display: none !important;
+      }
+    {% endif %}
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      #collection-image-video-2 .card-items-wrapper.desktop-view {
+        display: none;
+      }
+      #collection-image-video-2 .swiper-container.mobile-view {
+        display: block;
+      }
+      #collection-image-video-2 .collection-title {
+        font-size: {{ section.settings.title_font_size | minus: 4 }}px;
+        margin-bottom: {{ section.settings.space_between_title_subheading_mobile }}px !important;
+      }
+      #collection-image-video-2 .collection-subheading {
+        font-size: {{ section.settings.subheading_font_size | minus: 2 }}px;
+        margin-bottom: {{ section.settings.space_between_subheading_video_mobile }}px !important;
+      }
+      #collection-image-video-2 .swiper-container.mobile-view .swiper-slide .card-item {
+        width: {{ section.settings.mobile_card_item_width }}px;
+        {% if section.settings.make_cards_square %}
+          height: {{ section.settings.mobile_card_item_width }}px;
+        {% else %}
+          height: calc({{ section.settings.mobile_card_item_width }}px * 1.6);
+        {% endif %}
+        border-radius: {{ section.settings.card_border_radius }}px;
+      }
+      #collection-image-video-2 .swiper-container.mobile-view .card-item.smooth-zoom:hover {
+        transform: scale(1.03);
+      }
+      #collection-image-video-2 .swiper-container.mobile-view .card-item.scale-in:hover {
+        transform: scale(1.05);
+      }
+      #collection-image-video-2 .swiper-container.mobile-view .card-item.scale-in-up:hover {
+        transform: scale(1.05) translateY(0);
+      }
+      #collection-image-video-2 .swiper-container.mobile-view .card-item.subtle-shadow:hover {
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      }
+      #collection-image-video-2 .swiper-container.mobile-view .card-item.subtle-white-glow-pulse:hover {
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+        animation: pulseWhiteGlow 1.5s infinite;
+      }
+      #collection-image-video-2 .swiper-container.mobile-view .card-item.subtle-gray-glow-pulse:hover {
+        box-shadow: 0 0 8px rgba(128, 128, 128, 0.7);
+        animation: pulseGrayGlow 1.5s infinite;
+      
+}
+media (max-width: 768px) {
+  #collection-image-video-2 .custom-swiper-pagination {
+    bottom: 15px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+  }
+
+  #collection-image-video-2 .custom-swiper-pagination .swiper-pagination-bullet {
+    margin: 0 2px; /* tighter gap on mobile */
+  }
+}
+      #collection-image-video-2 .swiper-container.mobile-view .card-item {
+        touch-action: manipulation;
+      }
+    }
+    @media (max-width: 480px) {
+      #collection-image-video-2 .collection-title {
+        font-size: {{ section.settings.title_font_size | minus: 6 }}px;
+      }
+      #collection-image-video-2 .collection-subheading {
+        font-size: {{ section.settings.subheading_font_size | minus: 4 }}px;
+      }
+      /* Retain card dimensions from the 768px media query for consistency */
+    }
+  </style>
+  <!-- Swiper.js JS -->
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+  <script>
+    (function() {
+      const section = document.getElementById('collection-image-video-2');
+      if (!section) return;
+      let swiperInstance = null;
+      function initSwiper() {
+        if (window.innerWidth <= 768) {
+          if (!swiperInstance) {
+            const swiperOptions = {
+              loop: true,
+              autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+              },
+              slidesPerView: {{ section.settings.mobile_column_count }},
+              spaceBetween: {{ section.settings.video_cards_gap_mobile }},
+              effect: 'slide',
+              grabCursor: true,
+              speed: 600
+            };
+            {% if section.settings.show_arrows %}
+              swiperOptions.navigation = {
+                nextEl: '#collection-image-video-2 .swiper-button-next',
+                prevEl: '#collection-image-video-2 .swiper-button-prev',
+              };
+            {% endif %}
+            {% if section.settings.dots_style != 'none' %}
+              swiperOptions.pagination = {
+                el: '#collection-image-video-2 .custom-swiper-pagination',
+                clickable: true
+              };
+            {% endif %}
+            swiperInstance = new Swiper(section.querySelector('.swiper-container.mobile-view'), swiperOptions);
+          }
+        } else {
+          if (swiperInstance) {
+            swiperInstance.destroy(true, true);
+            swiperInstance = null;
+          }
+        }
+      }
+      function handleSectionLoad() {
+        initSwiper();
+      }
+      function handleSectionUnload() {
+        if (swiperInstance) {
+          swiperInstance.destroy(true, true);
+          swiperInstance = null;
+        }
+      }
+      document.addEventListener('DOMContentLoaded', function() {
+        initSwiper();
+      });
+      window.addEventListener('resize', function() {
+        initSwiper();
+      });
+      document.addEventListener('shopify:section:load', handleSectionLoad);
+      document.addEventListener('shopify:section:unload', handleSectionUnload);
+      document.addEventListener('shopify:block:select', function() {
+        initSwiper();
+      });
+    })();
+  </script>
+</section>
+{% schema %}
+{
+  "name": "Collection Showcase 2",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Background Settings",
+      "info": "Customize the background for the section."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Title and Subheading Settings",
+      "info": "Adjust the main text and subheading settings."
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Featured Collections"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "title_font_weight",
+      "label": "Title Font Weight",
+      "options": [
+        {
+          "value": "300",
+          "label": "Light"
+        },
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "label": "Title Font Size (px)",
+      "min": 16,
+      "max": 48,
+      "step": 1,
+      "default": 30
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Express your style with our standout collection—fashion meets sophistication."
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading Color",
+      "default": "#555555"
+    },
+    {
+      "type": "range",
+      "id": "subheading_font_size",
+      "label": "Subheading Font Size (px)",
+      "min": 12,
+      "max": 36,
+      "step": 1,
+      "default": 17
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings",
+      "info": "Customize padding, spacing, and layout for desktop and mobile."
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top Padding (px)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom Padding (px)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_left",
+      "label": "Section Left Padding (Desktop) (px)",
+      "min": -100,
+      "max": 200,
+      "step": 5,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_right",
+      "label": "Section Right Padding (Desktop) (px)",
+      "min": -100,
+      "max": 200,
+      "step": 5,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_left",
+      "label": "Section Left Padding (Mobile) (px)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_right",
+      "label": "Section Right Padding (Mobile) (px)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "space_between_title_subheading_desktop",
+      "label": "Space Between Title and Subheading (Desktop) (px)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "space_between_title_subheading_mobile",
+      "label": "Space Between Title and Subheading (Mobile) (px)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "space_between_subheading_video_desktop",
+      "label": "Space Between Subheading and Cards (Desktop) (px)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 35
+    },
+    {
+      "type": "range",
+      "id": "space_between_subheading_video_mobile",
+      "label": "Space Between Subheading and Cards (Mobile) (px)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 25
+    },
+    {
+      "type": "range",
+      "id": "video_cards_gap_desktop",
+      "label": "Cards Gap (Desktop) (px)",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "video_cards_gap_mobile",
+      "label": "Cards Gap (Mobile) (px)",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "mobile_column_count",
+      "label": "Mobile Column Count",
+      "min": 1,
+      "max": 2,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "type": "header",
+      "content": "Card Item Customization",
+      "info": "Control card item size, animations, and style settings."
+    },
+    {
+      "type": "range",
+      "id": "card_item_size",
+      "label": "Card Item Width (px)",
+      "min": 150,
+      "max": 300,
+      "step": 10,
+      "default": 240
+    },
+    {
+      "type": "range",
+      "id": "mobile_card_item_width",
+      "label": "Mobile Card Item Width (px)",
+      "min": 150,
+      "max": 300,
+      "step": 10,
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Card Border Radius (px)",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_hover_secondary",
+      "label": "Enable Image Hover Secondary",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "hover_animation",
+      "label": "Card Item Hover Animation",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "smooth-zoom",
+          "label": "Smooth Zoom"
+        },
+        {
+          "value": "scale-in",
+          "label": "Scale In"
+        },
+        {
+          "value": "scale-in-up",
+          "label": "Scale In Up"
+        },
+        {
+          "value": "subtle-shadow",
+          "label": "Subtle Shadow"
+        },
+        {
+          "value": "subtle-white-glow-pulse",
+          "label": "Subtle White Glow Pulse"
+        },
+        {
+          "value": "subtle-gray-glow-pulse",
+          "label": "Subtle Gray Glow Pulse"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "checkbox",
+      "id": "make_cards_square",
+      "label": "Make Cards Square",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Button Settings",
+      "info": "Customize button options."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_button",
+      "label": "Enable Button",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "button_vertical_position",
+      "label": "Button Vertical Position (px)",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 25
+    },
+    {
+      "type": "color",
+      "id": "button_background_color",
+      "label": "Button Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Button Border Radius (px)",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 25
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Pagination Dots Settings",
+      "info": "Customize the pagination dots for the mobile slider."
+    },
+    {
+      "type": "select",
+      "id": "dots_style",
+      "label": "Enable Dots Navigation ",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "modern",
+          "label": "Modern Dots"
+        }
+      ],
+      "default": "modern"
+    },
+    {
+      "type": "header",
+      "content": "Font Settings",
+      "info": "Customize the fonts used in your section."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_fonts",
+      "label": "Enable Custom Fonts",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "selected_custom_font",
+      "label": "Select Font",
+      "options": [
+        {
+          "value": "Roboto",
+          "label": "Roboto"
+        },
+        {
+          "value": "Open Sans",
+          "label": "Open Sans"
+        },
+        {
+          "value": "Lato",
+          "label": "Lato"
+        },
+        {
+          "value": "Montserrat",
+          "label": "Montserrat"
+        },
+        {
+          "value": "Oswald",
+          "label": "Oswald"
+        },
+        {
+          "value": "Source Sans Pro",
+          "label": "Source Sans Pro"
+        },
+        {
+          "value": "Raleway",
+          "label": "Raleway"
+        },
+        {
+          "value": "Yanone Kaffeesatz",
+          "label": "Yanone Kaffeesatz"
+        },
+        {
+          "value": "Merriweather",
+          "label": "Merriweather"
+        },
+        {
+          "value": "PT Sans",
+          "label": "PT Sans"
+        },
+        {
+          "value": "Noto Sans",
+          "label": "Noto Sans"
+        },
+        {
+          "value": "Nunito",
+          "label": "Nunito"
+        },
+        {
+          "value": "Ubuntu",
+          "label": "Ubuntu"
+        },
+        {
+          "value": "Poppins",
+          "label": "Poppins"
+        },
+        {
+          "value": "Playfair Display",
+          "label": "Playfair Display"
+        },
+        {
+          "value": "Slabo 27px",
+          "label": "Slabo 27px"
+        },
+        {
+          "value": "Lora",
+          "label": "Lora"
+        },
+        {
+          "value": "Fira Sans",
+          "label": "Fira Sans"
+        },
+        {
+          "value": "Libre Baskerville",
+          "label": "Libre Baskerville"
+        },
+        {
+          "value": "Indie Flower",
+          "label": "Indie Flower"
+        },
+        {
+          "value": "Bebas Neue",
+          "label": "Bebas Neue"
+        },
+        {
+          "value": "Cabin",
+          "label": "Cabin"
+        },
+        {
+          "value": "Cinzel",
+          "label": "Cinzel"
+        },
+        {
+          "value": "Dosis",
+          "label": "Dosis"
+        },
+        {
+          "value": "Exo 2",
+          "label": "Exo 2"
+        },
+        {
+          "value": "Fjalla One",
+          "label": "Fjalla One"
+        },
+        {
+          "value": "Gilda Display",
+          "label": "Gilda Display"
+        },
+        {
+          "value": "Heebo",
+          "label": "Heebo"
+        },
+        {
+          "value": "Karla",
+          "label": "Karla"
+        },
+        {
+          "value": "Muli",
+          "label": "Muli"
+        },
+        {
+          "value": "Noto Serif",
+          "label": "Noto Serif"
+        },
+        {
+          "value": "Quicksand",
+          "label": "Quicksand"
+        },
+        {
+          "value": "Roboto Slab",
+          "label": "Roboto Slab"
+        },
+        {
+          "value": "Signika",
+          "label": "Signika"
+        },
+        {
+          "value": "Titillium Web",
+          "label": "Titillium Web"
+        },
+        {
+          "value": "Varela Round",
+          "label": "Varela Round"
+        },
+        {
+          "value": "Work Sans",
+          "label": "Work Sans"
+        },
+        {
+          "value": "Zilla Slab",
+          "label": "Zilla Slab"
+        }
+      ],
+      "default": "Roboto"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_font_url",
+      "label": "Custom Font URL",
+      "info": "Enter the URL of the custom font you want to use. Ensure that the font-family is correctly referenced in the imported CSS."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card_item",
+      "name": "Card Item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "url",
+          "id": "video_url",
+          "label": "Video URL",
+          "info": "Enter video URL to display video instead of image. Ensure the video is in mp4 format."
+        },
+        {
+          "type": "image_picker",
+          "id": "hover_image",
+          "label": "Hover Image"
+        },
+        {
+          "type": "url",
+          "id": "product_link",
+          "label": "Collection Link",
+          "default": "/"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button Link",
+          "default": "/"
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button Text",
+          "default": "See All"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 5,
+  "presets": [
+    {
+      "name": "Collection Showcase 2",
+      "category": "Collections",
+      "blocks": [
+        {
+          "type": "card_item",
+          "settings": {
+            "product_link": "/"
+          }
+        },
+        {
+          "type": "card_item",
+          "settings": {
+            "product_link": "/"
+          }
+        },
+        {
+          "type": "card_item",
+          "settings": {
+            "product_link": "/"
+          }
+        },
+        {
+          "type": "card_item",
+          "settings": {
+            "product_link": "/"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

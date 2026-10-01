@@ -1,0 +1,821 @@
+{% schema %}
+{
+  "name": "Gallery Interactive",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Background",
+      "info": "Set the background color for the gallery section."
+    },
+    {
+      "type": "color",
+      "id": "section_background_color",
+      "label": "Background Color",
+      "default": "#ffffff",
+      "info": "Select the background color for the gallery section."
+    },
+    {
+      "type": "header",
+      "content": "Section Padding",
+      "info": "Adjust the padding around the gallery section for both desktop and mobile devices."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_desktop",
+      "label": "Section Top Padding (Desktop)",
+      "min": 20,
+      "max": 200,
+      "step": 5,
+      "default": 75,
+      "unit": "px",
+      "info": "Set the top padding of the gallery section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_desktop",
+      "label": "Section Bottom Padding (Desktop)",
+      "min": 20,
+      "max": 200,
+      "step": 5,
+      "default": 65,
+      "unit": "px",
+      "info": "Set the bottom padding of the gallery section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left_desktop",
+      "label": "Section Left Padding (Desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 150,
+      "unit": "px",
+      "info": "Set the left padding of the gallery section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_right_desktop",
+      "label": "Section Right Padding (Desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 150,
+      "unit": "px",
+      "info": "Set the right padding of the gallery section on desktop."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "label": "Section Top Padding (Mobile)",
+      "min": 20,
+      "max": 200,
+      "step": 5,
+      "default": 40,
+      "unit": "px",
+      "info": "Set the top padding of the gallery section on mobile."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "label": "Section Bottom Padding (Mobile)",
+      "min": 20,
+      "max": 200,
+      "step": 5,
+      "default": 40,
+      "unit": "px",
+      "info": "Set the bottom padding of the gallery section on mobile."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_left_mobile",
+      "label": "Section Left Padding (Mobile)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 25,
+      "unit": "px",
+      "info": "Set the left padding of the gallery section on mobile."
+    },
+    {
+      "type": "range",
+      "id": "section_padding_right_mobile",
+      "label": "Section Right Padding (Mobile)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 25,
+      "unit": "px",
+      "info": "Set the right padding of the gallery section on mobile."
+    },
+    {
+      "type": "header",
+      "content": "Display Settings",
+      "info": "Control on which devices the gallery section is displayed."
+    },
+    {
+      "type": "select",
+      "id": "display_section_on",
+      "label": "Display Section On",
+      "options": [
+        { "value": "all_devices", "label": "All Devices" },
+        { "value": "mobile_only", "label": "Mobile Devices Only" },
+        { "value": "desktop_only", "label": "Desktop / Larger Screens Only" },
+        { "value": "no_devices", "label": "No Devices" }
+      ],
+      "default": "all_devices",
+      "info": "Choose the devices on which the gallery section will be visible."
+    },
+    {
+      "type": "header",
+      "content": "Spacing Settings",
+      "info": "Adjust vertical spacing between elements."
+    },
+    {
+      "type": "range",
+      "id": "vertical_space_title_subheading",
+      "label": "Vertical Space Between Title and Subheading",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 20,
+      "unit": "px",
+      "info": "Adjust the vertical space between the gallery title and subheading."
+    },
+    {
+      "type": "range",
+      "id": "vertical_space_subheading_gallery",
+      "label": "Vertical Space Between Subheading and Gallery",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 30,
+      "unit": "px",
+      "info": "Adjust the vertical space between the gallery subheading and the gallery."
+    },
+    {
+      "type": "header",
+      "content": "Gallery Wrap Settings",
+      "info": "Customize the appearance of the gallery container, including border radius and shadow."
+    },
+    {
+      "type": "range",
+      "id": "gallery_wrap_border_radius",
+      "label": "Gallery Wrap Border Radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 3,
+      "unit": "px",
+      "info": "Adjust the border radius of the gallery container for rounded corners."
+    },
+    {
+      "type": "select",
+      "id": "gallery_wrap_shadow",
+      "label": "Gallery Wrap Shadow",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "low", "label": "Low Shadow" },
+        { "value": "medium", "label": "Medium Shadow" },
+        { "value": "high", "label": "High Shadow" }
+      ],
+      "default": "low",
+      "info": "Select the shadow intensity for the gallery container."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading Text",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "title",
+          "label": "Heading Text",
+          "default": "<strong>Discover Our Gallery</strong>",
+          "info": "Enter the heading text that will be displayed above the gallery."
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_custom_fonts",
+          "label": "Enable Custom Fonts",
+          "default": false,
+          "info": "Toggle to use custom fonts for the heading text."
+        },
+        {
+          "type": "select",
+          "id": "font_family",
+          "label": "Heading Font",
+          "options": [
+            { "value": "Roboto", "label": "Roboto" },
+            { "value": "Open Sans", "label": "Open Sans" },
+            { "value": "Lato", "label": "Lato" },
+            { "value": "Oswald", "label": "Oswald" },
+            { "value": "Montserrat", "label": "Montserrat" },
+            { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+            { "value": "Raleway", "label": "Raleway" },
+            { "value": "Poppins", "label": "Poppins" },
+            { "value": "Merriweather", "label": "Merriweather" },
+            { "value": "Ubuntu", "label": "Ubuntu" },
+            { "value": "Noto Sans", "label": "Noto Sans" },
+            { "value": "PT Sans", "label": "PT Sans" },
+            { "value": "Libre Baskerville", "label": "Libre Baskerville" },
+            { "value": "Playfair Display", "label": "Playfair Display" },
+            { "value": "Merriweather Sans", "label": "Merriweather Sans" },
+            { "value": "Alegreya", "label": "Alegreya" },
+            { "value": "Bebas Neue", "label": "Bebas Neue" },
+            { "value": "Cabin", "label": "Cabin" },
+            { "value": "Dancing Script", "label": "Dancing Script" },
+            { "value": "EB Garamond", "label": "EB Garamond" },
+            { "value": "Fira Sans", "label": "Fira Sans" },
+            { "value": "Georgia", "label": "Georgia" },
+            { "value": "IBM Plex Sans", "label": "IBM Plex Sans" },
+            { "value": "Inter", "label": "Inter" },
+            { "value": "Josefin Sans", "label": "Josefin Sans" },
+            { "value": "Karla", "label": "Karla" },
+            { "value": "Lobster", "label": "Lobster" },
+            { "value": "Merriweather Serif", "label": "Merriweather Serif" },
+            { "value": "Mukta", "label": "Mukta" },
+            { "value": "Nunito", "label": "Nunito" },
+            { "value": "Overpass", "label": "Overpass" },
+            { "value": "Pacifico", "label": "Pacifico" },
+            { "value": "Play", "label": "Play" },
+            { "value": "Quicksand", "label": "Quicksand" },
+            { "value": "Rubik", "label": "Rubik" },
+            { "value": "Spectral", "label": "Spectral" },
+            { "value": "Teko", "label": "Teko" },
+            { "value": "Titillium Web", "label": "Titillium Web" },
+            { "value": "Varela Round", "label": "Varela Round" },
+            { "value": "Zilla Slab", "label": "Zilla Slab" },
+            { "value": "Arvo", "label": "Arvo" },
+            { "value": "Bitter", "label": "Bitter" },
+            { "value": "Cairo", "label": "Cairo" },
+            { "value": "Caveat", "label": "Caveat" },
+            { "value": "Comfortaa", "label": "Comfortaa" },
+            { "value": "Cormorant Garamond", "label": "Cormorant Garamond" },
+            { "value": "Crimson Pro", "label": "Crimson Pro" },
+            { "value": "DM Sans", "label": "DM Sans" },
+            { "value": "Exo 2", "label": "Exo 2" },
+            { "value": "Fredoka One", "label": "Fredoka One" },
+            { "value": "Heebo", "label": "Heebo" },
+            { "value": "Hind", "label": "Hind" },
+            { "value": "Indie Flower", "label": "Indie Flower" },
+            { "value": "Kanit", "label": "Kanit" },
+            { "value": "Lora", "label": "Lora" },
+            { "value": "Manrope", "label": "Manrope" },
+            { "value": "Maven Pro", "label": "Maven Pro" },
+            { "value": "Noto Serif", "label": "Noto Serif" },
+            { "value": "Open Dyslexic", "label": "Open Dyslexic" },
+            { "value": "Permanent Marker", "label": "Permanent Marker" },
+            { "value": "Raleway Dots", "label": "Raleway Dots" },
+            { "value": "Rokkitt", "label": "Rokkitt" },
+            { "value": "Secular One", "label": "Secular One" },
+            { "value": "Shadows Into Light", "label": "Shadows Into Light" },
+            { "value": "Sora", "label": "Sora" },
+            { "value": "Space Grotesk", "label": "Space Grotesk" },
+            { "value": "Tinos", "label": "Tinos" },
+            { "value": "Vollkorn", "label": "Vollkorn" },
+            { "value": "Work Sans", "label": "Work Sans" },
+            { "value": "Yeseva One", "label": "Yeseva One" },
+            { "value": "Abril Fatface", "label": "Abril Fatface" },
+            { "value": "Acme", "label": "Acme" },
+            { "value": "Alfa Slab One", "label": "Alfa Slab One" },
+            { "value": "Anton", "label": "Anton" },
+            { "value": "Archivo", "label": "Archivo" },
+            { "value": "Atkinson Hyperlegible", "label": "Atkinson Hyperlegible" },
+            { "value": "Barlow", "label": "Barlow" },
+            { "value": "Bangers", "label": "Bangers" },
+            { "value": "Cardo", "label": "Cardo" },
+            { "value": "Chivo", "label": "Chivo" },
+            { "value": "Cinzel", "label": "Cinzel" },
+            { "value": "Domine", "label": "Domine" },
+            { "value": "Great Vibes", "label": "Great Vibes" },
+            { "value": "League Gothic", "label": "League Gothic" },
+            { "value": "Merienda", "label": "Merienda" },
+            { "value": "Notable", "label": "Notable" },
+            { "value": "Prata", "label": "Prata" },
+            { "value": "Rufina", "label": "Rufina" },
+            { "value": "Syncopate", "label": "Syncopate" },
+            { "value": "Urbanist", "label": "Urbanist" }
+          ],
+          "default": "Oswald",
+          "info": "Select a font from Google Fonts for the heading text."
+        },
+        {
+          "type": "select",
+          "id": "font_weight",
+          "label": "Font Weight",
+          "options": [
+            { "value": "inherit", "label": "Inherit" },
+            { "value": "100", "label": "100 (Thin)" },
+            { "value": "200", "label": "200 (Extra Light)" },
+            { "value": "300", "label": "300 (Light)" },
+            { "value": "400", "label": "400 (Normal)" },
+            { "value": "500", "label": "500 (Medium)" },
+            { "value": "600", "label": "600 (Semi Bold)" },
+            { "value": "700", "label": "700 (Bold)" },
+            { "value": "800", "label": "800 (Extra Bold)" },
+            { "value": "900", "label": "900 (Black)" }
+          ],
+          "default": "inherit",
+          "info": "Select the font weight for the heading text."
+        },
+        {
+          "type": "range",
+          "id": "size_desktop",
+          "label": "Heading Size (Desktop)",
+          "min": 20,
+          "max": 100,
+          "step": 1,
+          "default": 32,
+          "unit": "px",
+          "info": "Adjust the font size of the heading on desktop devices."
+        },
+        {
+          "type": "range",
+          "id": "size_mobile",
+          "label": "Heading Size (Mobile)",
+          "min": 20,
+          "max": 100,
+          "step": 1,
+          "default": 30,
+          "unit": "px",
+          "info": "Adjust the font size of the heading on mobile devices."
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "label": "Heading Color",
+          "default": "#3A3A3A",
+          "info": "Choose the color of the heading text."
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Subheading Text",
+          "default": "Explore the latest trends and styles in our collection",
+          "info": "Enter the subheading that will be displayed below the heading."
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_custom_fonts",
+          "label": "Enable Custom Fonts",
+          "default": false,
+          "info": "Toggle to use custom fonts for the subheading text."
+        },
+        {
+          "type": "select",
+          "id": "font_family",
+          "label": "Subheading Font",
+          "options": [
+            { "value": "Roboto", "label": "Roboto" },
+            { "value": "Open Sans", "label": "Open Sans" },
+            { "value": "Lato", "label": "Lato" },
+            { "value": "Oswald", "label": "Oswald" },
+            { "value": "Montserrat", "label": "Montserrat" },
+            { "value": "Source Sans Pro", "label": "Source Sans Pro" },
+            { "value": "Raleway", "label": "Raleway" },
+            { "value": "Poppins", "label": "Poppins" },
+            { "value": "Merriweather", "label": "Merriweather" },
+            { "value": "Ubuntu", "label": "Ubuntu" },
+            { "value": "Noto Sans", "label": "Noto Sans" },
+            { "value": "PT Sans", "label": "PT Sans" },
+            { "value": "Libre Baskerville", "label": "Libre Baskerville" },
+            { "value": "Playfair Display", "label": "Playfair Display" },
+            { "value": "Merriweather Sans", "label": "Merriweather Sans" },
+            { "value": "Alegreya", "label": "Alegreya" },
+            { "value": "Bebas Neue", "label": "Bebas Neue" },
+            { "value": "Cabin", "label": "Cabin" },
+            { "value": "Dancing Script", "label": "Dancing Script" },
+            { "value": "EB Garamond", "label": "EB Garamond" },
+            { "value": "Fira Sans", "label": "Fira Sans" },
+            { "value": "Georgia", "label": "Georgia" },
+            { "value": "IBM Plex Sans", "label": "IBM Plex Sans" },
+            { "value": "Inter", "label": "Inter" },
+            { "value": "Josefin Sans", "label": "Josefin Sans" },
+            { "value": "Karla", "label": "Karla" },
+            { "value": "Lobster", "label": "Lobster" },
+            { "value": "Merriweather Serif", "label": "Merriweather Serif" },
+            { "value": "Mukta", "label": "Mukta" },
+            { "value": "Nunito", "label": "Nunito" },
+            { "value": "Overpass", "label": "Overpass" },
+            { "value": "Pacifico", "label": "Pacifico" },
+            { "value": "Play", "label": "Play" },
+            { "value": "Quicksand", "label": "Quicksand" },
+            { "value": "Rubik", "label": "Rubik" },
+            { "value": "Spectral", "label": "Spectral" },
+            { "value": "Teko", "label": "Teko" },
+            { "value": "Titillium Web", "label": "Titillium Web" },
+            { "value": "Varela Round", "label": "Varela Round" },
+            { "value": "Zilla Slab", "label": "Zilla Slab" },
+            { "value": "Arvo", "label": "Arvo" },
+            { "value": "Bitter", "label": "Bitter" },
+            { "value": "Cairo", "label": "Cairo" },
+            { "value": "Caveat", "label": "Caveat" },
+            { "value": "Comfortaa", "label": "Comfortaa" },
+            { "value": "Cormorant Garamond", "label": "Cormorant Garamond" },
+            { "value": "Crimson Pro", "label": "Crimson Pro" },
+            { "value": "DM Sans", "label": "DM Sans" },
+            { "value": "Exo 2", "label": "Exo 2" },
+            { "value": "Fredoka One", "label": "Fredoka One" },
+            { "value": "Heebo", "label": "Heebo" },
+            { "value": "Hind", "label": "Hind" },
+            { "value": "Indie Flower", "label": "Indie Flower" },
+            { "value": "Kanit", "label": "Kanit" },
+            { "value": "Lora", "label": "Lora" },
+            { "value": "Manrope", "label": "Manrope" },
+            { "value": "Maven Pro", "label": "Maven Pro" },
+            { "value": "Noto Serif", "label": "Noto Serif" },
+            { "value": "Open Dyslexic", "label": "Open Dyslexic" },
+            { "value": "Permanent Marker", "label": "Permanent Marker" },
+            { "value": "Raleway Dots", "label": "Raleway Dots" },
+            { "value": "Rokkitt", "label": "Rokkitt" },
+            { "value": "Secular One", "label": "Secular One" },
+            { "value": "Shadows Into Light", "label": "Shadows Into Light" },
+            { "value": "Sora", "label": "Sora" },
+            { "value": "Space Grotesk", "label": "Space Grotesk" },
+            { "value": "Tinos", "label": "Tinos" },
+            { "value": "Vollkorn", "label": "Vollkorn" },
+            { "value": "Work Sans", "label": "Work Sans" },
+            { "value": "Yeseva One", "label": "Yeseva One" },
+            { "value": "Abril Fatface", "label": "Abril Fatface" },
+            { "value": "Acme", "label": "Acme" },
+            { "value": "Alfa Slab One", "label": "Alfa Slab One" },
+            { "value": "Anton", "label": "Anton" },
+            { "value": "Archivo", "label": "Archivo" },
+            { "value": "Atkinson Hyperlegible", "label": "Atkinson Hyperlegible" },
+            { "value": "Barlow", "label": "Barlow" },
+            { "value": "Bangers", "label": "Bangers" },
+            { "value": "Cardo", "label": "Cardo" },
+            { "value": "Chivo", "label": "Chivo" },
+            { "value": "Cinzel", "label": "Cinzel" },
+            { "value": "Domine", "label": "Domine" },
+            { "value": "Great Vibes", "label": "Great Vibes" },
+            { "value": "League Gothic", "label": "League Gothic" },
+            { "value": "Merienda", "label": "Merienda" },
+            { "value": "Notable", "label": "Notable" },
+            { "value": "Prata", "label": "Prata" },
+            { "value": "Rufina", "label": "Rufina" },
+            { "value": "Syncopate", "label": "Syncopate" },
+            { "value": "Urbanist", "label": "Urbanist" }
+          ],
+          "default": "Roboto",
+          "info": "Select a font from Google Fonts for the subheading text."
+        },
+        {
+          "type": "select",
+          "id": "font_weight",
+          "label": "Font Weight",
+          "options": [
+            { "value": "inherit", "label": "Inherit" },
+            { "value": "100", "label": "100 (Thin)" },
+            { "value": "200", "label": "200 (Extra Light)" },
+            { "value": "300", "label": "300 (Light)" },
+            { "value": "400", "label": "400 (Normal)" },
+            { "value": "500", "label": "500 (Medium)" },
+            { "value": "600", "label": "600 (Semi Bold)" },
+            { "value": "700", "label": "700 (Bold)" },
+            { "value": "800", "label": "800 (Extra Bold)" },
+            { "value": "900", "label": "900 (Black)" }
+          ],
+          "default": "inherit",
+          "info": "Select the font weight for the subheading text."
+        },
+        {
+          "type": "range",
+          "id": "size_desktop",
+          "label": "Subheading Font Size (Desktop)",
+          "min": 10,
+          "max": 60,
+          "step": 1,
+          "default": 16,
+          "unit": "px",
+          "info": "Adjust the font size of the subheading on desktop devices."
+        },
+        {
+          "type": "range",
+          "id": "size_mobile",
+          "label": "Subheading Font Size (Mobile)",
+          "min": 10,
+          "max": 60,
+          "step": 1,
+          "default": 15,
+          "unit": "px",
+          "info": "Adjust the font size of the subheading on mobile devices."
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "label": "Subheading Color",
+          "default": "#555555",
+          "info": "Choose the color of the subheading text."
+        },
+        {
+          "type": "range",
+          "id": "padding_left_mobile",
+          "label": "Subheading Left Padding (Mobile)",
+          "min": 0,
+          "max": 50,
+          "step": 1,
+          "default": 10,
+          "unit": "px",
+          "info": "Set the left padding of the subheading on mobile devices."
+        },
+        {
+          "type": "range",
+          "id": "padding_right_mobile",
+          "label": "Subheading Right Padding (Mobile)",
+          "min": 0,
+          "max": 50,
+          "step": 1,
+          "default": 10,
+          "unit": "px",
+          "info": "Set the right padding of the subheading on mobile devices."
+        },
+        {
+          "type": "range",
+          "id": "padding_left_desktop",
+          "label": "Subheading Left Padding (Desktop)",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 20,
+          "unit": "px",
+          "info": "Set the left padding of the subheading on desktop devices."
+        },
+        {
+          "type": "range",
+          "id": "padding_right_desktop",
+          "label": "Subheading Right Padding (Desktop)",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 20,
+          "unit": "px",
+          "info": "Set the right padding of the subheading on desktop devices."
+        }
+      ]
+    },
+    {
+      "type": "gallery_image",
+      "name": "Gallery Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Gallery Image"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gallery Interactive",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "subheading"
+        },
+        {
+          "type": "gallery_image"
+        },
+        {
+          "type": "gallery_image"
+        },
+        {
+          "type": "gallery_image"
+        },
+        {
+          "type": "gallery_image"
+        },
+        {
+          "type": "gallery_image"
+        }
+      ],
+      "category": "Gallery"
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+  {% assign heading_block = section.blocks | where: 'type', 'heading' | first %}
+  {% if heading_block and heading_block.settings.enable_custom_fonts %}
+    @import url('https://fonts.googleapis.com/css2?family={{ heading_block.settings.font_family | replace: ' ', '+' }}&display=swap');
+  {% endif %}
+
+  {% assign subheading_block = section.blocks | where: 'type', 'subheading' | first %}
+  {% if subheading_block and subheading_block.settings.enable_custom_fonts %}
+    @import url('https://fonts.googleapis.com/css2?family={{ subheading_block.settings.font_family | replace: ' ', '+' }}&display=swap');
+  {% endif %}
+
+  /* Gallery Section Styles */
+  .custom-gallery {
+    width: 100%;
+    padding-top: {{ section.settings.section_padding_top_desktop }}px;
+    padding-bottom: {{ section.settings.section_padding_bottom_desktop }}px;
+    padding-left: {{ section.settings.section_padding_left_desktop }}px;
+    padding-right: {{ section.settings.section_padding_right_desktop }}px;
+    margin: 0 auto;
+    max-width: 100%;
+    position: relative;
+    box-sizing: border-box;
+    background-color: {{ section.settings.section_background_color }};
+    {% comment %}
+      Handle Display Section On
+      - all_devices: display normally
+      - mobile_only: hide on desktop
+      - desktop_only: hide on mobile
+      - no_devices: hide on all
+    {% endcomment %}
+    {% if section.settings.display_section_on == 'mobile_only' %}
+      display: block;
+    {% elsif section.settings.display_section_on == 'desktop_only' %}
+      display: block;
+    {% elsif section.settings.display_section_on == 'no_devices' %}
+      display: none;
+    {% endif %}
+  }
+
+  /* Responsive Display Handling */
+  {% if section.settings.display_section_on == 'mobile_only' %}
+    @media (min-width: 769px) {
+      .custom-gallery {
+        display: none;
+      }
+    }
+  {% elsif section.settings.display_section_on == 'desktop_only' %}
+    @media (max-width: 768px) {
+      .custom-gallery {
+        display: none;
+      }
+    }
+  {% endif %}
+
+  {% if heading_block %}
+    .custom-gallery h1 {
+      position: relative;
+      margin-bottom: 0;
+      {% if heading_block.settings.enable_custom_fonts %}
+        font-family: '{{ heading_block.settings.font_family }}', sans-serif;
+      {% endif %}
+      font-weight: {{ heading_block.settings.font_weight }};
+      font-size: {{ heading_block.settings.size_desktop }}px;
+      text-transform: normal;
+      color: {{ heading_block.settings.color }} !important;
+      text-align: center;
+    }
+  {% endif %}
+
+  {% if subheading_block %}
+    .custom-gallery h2 {
+      text-align: center;
+      {% if subheading_block.settings.enable_custom_fonts %}
+        font-family: '{{ subheading_block.settings.font_family }}', sans-serif;
+      {% else %}
+        font-family: 'Roboto', sans-serif;
+      {% endif %}
+      font-weight: {{ subheading_block.settings.font_weight }};
+      font-size: {{ subheading_block.settings.size_desktop }}px;
+      color: {{ subheading_block.settings.color }} !important;
+      padding-left: {{ subheading_block.settings.padding_left_desktop }}px;
+      padding-right: {{ subheading_block.settings.padding_right_desktop }}px;
+      margin-top: {{ section.settings.vertical_space_title_subheading }}px;
+      margin-bottom: {{ section.settings.vertical_space_subheading_gallery }}px;
+    }
+  {% endif %}
+
+  .gallery-wrap {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 70vh;
+    overflow: hidden;
+    border-radius: {{ section.settings.gallery_wrap_border_radius }}px;
+    {% comment %}
+      Apply Box Shadow based on selection
+    {% endcomment %}
+    {% case section.settings.gallery_wrap_shadow %}
+      {% when 'low' %}
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      {% when 'medium' %}
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      {% when 'high' %}
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      {% else %}
+        box-shadow: none;
+    {% endcase %}
+  }
+
+  .gallery-wrap .item {
+    flex: 1;
+    height: 100%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    transition: flex 0.8s ease;
+    cursor: pointer;
+    border-radius: inherit;
+  }
+
+  .gallery-wrap .item:hover {
+    flex: 7;
+  }
+
+  .social {
+    position: absolute;
+    right: 35px;
+    bottom: 35px;
+  }
+
+  .social a img {
+    display: block;
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 1200px) {
+    .custom-gallery {
+      width: 100%;
+      padding-top: {{ section.settings.section_padding_top_desktop }}px;
+      padding-bottom: {{ section.settings.section_padding_bottom_desktop }}px;
+      padding-left: {{ section.settings.section_padding_left_mobile }}px;
+      padding-right: {{ section.settings.section_padding_right_mobile }}px;
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .gallery-wrap {
+      flex-direction: row; /* Keep items in a row on mobile */
+      height: auto;
+    }
+
+    .gallery-wrap .item {
+      height: 80vw; /* Adjust height for mobile devices */
+    }
+
+    /* Enable hover effects on mobile */
+    .gallery-wrap .item:hover {
+      flex: 7;
+    }
+
+    {% if heading_block %}
+      .custom-gallery h1 {
+        font-size: {{ heading_block.settings.size_mobile }}px;
+        margin-bottom: 0;
+      }
+    {% endif %}
+
+    {% if subheading_block %}
+      .custom-gallery h2 {
+        font-size: {{ subheading_block.settings.size_mobile }}px;
+        padding-left: {{ subheading_block.settings.padding_left_mobile }}px;
+        padding-right: {{ subheading_block.settings.padding_right_mobile }}px;
+        margin-top: {{ section.settings.vertical_space_title_subheading }}px;
+        margin-bottom: {{ section.settings.vertical_space_subheading_gallery }}px;
+      }
+    {% endif %}
+
+    .custom-gallery {
+      padding-top: {{ section.settings.section_padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.section_padding_bottom_mobile }}px;
+    }
+  }
+</style>
+
+<div class="custom-gallery">
+  {% for block in section.blocks %}
+    {% if block.type == 'heading' %}
+      <h1>{{ block.settings.title }}</h1>
+    {% elsif block.type == 'subheading' %}
+      <h2>{{ block.settings.text }}</h2>
+    {% endif %}
+  {% endfor %}
+  <div class="gallery-wrap">
+    {% for block in section.blocks %}
+      {% if block.type == 'gallery_image' %}
+        <div
+          class="item"
+          style="background-image: url('{% if block.settings.image %}{{ block.settings.image | img_url: 'original' }}{% else %}data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E{% endif %}');"
+        ></div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {% if section.settings.twitter_link and section.settings.twitter_icon %}
+    <div class="social">
+      <a href="{{ section.settings.twitter_link }}" target="_blank" rel="noopener">
+        <img src="{{ section.settings.twitter_icon | img_url: '32x32' }}" alt="Twitter">
+      </a>
+    </div>
+  {% endif %}
+</div>

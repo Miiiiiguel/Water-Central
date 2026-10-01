@@ -1,0 +1,156 @@
+{% liquid
+  assign theme_st = settings
+  assign section_st = section.settings
+  assign hidden_price = theme_st.hidden_price
+%}
+{%- unless template == 'index' or template == '404' -%}
+  {%- assign t = template | split: '.' | first -%}
+  {%- if t == 'product' -%}
+    <div class="flex flex-wrap gap-10 align-center justify-between">
+  {% endif %}
+  <ul
+    class="breadcrumb-list list-none my-0 px-0 fs-small-1 flex flex-wrap justify-content-{{ section_st.alignment }} {{ class }}"
+    role="navigation"
+    aria-label="breadcrumbs"
+  >
+    <li class="breadcrumb-item inline-flex align-center light-dark-grey">
+      <a class="breadcrumb-link no-underline light-dark-grey" href="{{ routes.root_url }}">
+        {{- 'general.breadcrumb.home' | t -}}
+      </a>
+      <span class="light-dark-grey breadcrumb-dot" style="margin:0 8px;" aria-hidden="true">•</span>
+    </li>
+    {%- case t -%}
+      {%- when 'page' -%}
+        <li class="breadcrumb-item inline-flex align-center">
+          <span class="breadcrumb-link no-underline heading-color" aria-current="page">{{ page.title }}</span>
+        </li>
+      {%- when 'product' -%}
+        {%- if collection.url -%}
+          <li class="breadcrumb-item inline-flex align-center light-dark-grey">
+            {{ collection.title | link_to: collection.url }}
+            <span class="light-dark-grey breadcrumb-dot" style="margin:0 10px;" aria-hidden="true">•</span>
+          </li>
+        {%- endif -%}
+        <li class="breadcrumb-item inline-flex align-center">
+          <span class="breadcrumb-link no-underline heading-color" aria-current="page">{{ product.title }}</span>
+        </li>
+      {%- when 'collection' -%}
+        {%- if current_tags -%}
+          <li class="breadcrumb-item inline-flex align-center light-dark-grey">
+            {{ collection.title | link_to: collection.url }}
+            <span class="light-dark-grey breadcrumb-dot" style="margin:0 10px;" aria-hidden="true">•</span>
+          </li>
+          <li class="breadcrumb-item inline-flex align-center">
+            <span class="breadcrumb-link no-underline heading-color" aria-current="page">
+              {{- current_tags | join: ' + ' -}}
+            </span>
+          </li>
+        {%- else -%}
+          <li class="breadcrumb-item inline-flex align-center">
+            <span class="breadcrumb-link no-underline heading-color" aria-current="page">
+              {{- collection.title -}}
+            </span>
+          </li>
+        {%- endif -%}
+      {%- when 'blog' -%}
+        {%- if current_tags -%}
+          <li class="breadcrumb-item inline-flex align-center light-dark-grey">
+            {{ blog.title | link_to: blog.url }}
+            <span class="light-dark-grey breadcrumb-dot" style="margin:0 10px;" aria-hidden="true">•</span>
+          </li>
+          <li class="breadcrumb-item inline-flex align-center">
+            <span class="breadcrumb-link no-underline heading-color" aria-current="page">
+              {{- current_tags | join: ' + ' -}}
+            </span>
+          </li>
+        {%- else -%}
+          <li class="breadcrumb-item inline-flex align-center">
+            <span class="breadcrumb-link no-underline heading-color" aria-current="page">{{ blog.title }}</span>
+          </li>
+        {%- endif -%}
+      {%- when 'article' -%}
+        <li class="breadcrumb-item inline-flex align-center light-dark-grey">
+          {{ blog.title | link_to: blog.url }}
+          <span class="light-dark-grey breadcrumb-dot" style="margin:0 10px;" aria-hidden="true">•</span>
+        </li>
+        <li class="breadcrumb-item inline-flex align-center">
+          <span class="breadcrumb-link no-underline heading-color" aria-current="page">{{ article.title }}</span>
+        </li>
+      {%- else -%}
+        <li class="breadcrumb-item inline-flex align-center">
+          <span class="breadcrumb-link no-underline heading-color" aria-current="page">{{ page_title }}</span>
+        </li>
+    {%- endcase -%}
+  </ul>
+  {%- if t == 'product' -%}
+    <div
+      class="next-prev inline-flex gap-custom relative align-center{% if settings.rtl %} ltr{% endif %}"
+      style="--gap: 7;"
+    >
+      <!-- Dashboard Button with Updated SVG -->
+      <a href="{{ dashboard_redirect_url }}" class="nav-back lh-1 text-color tooltip relative">
+        <!-- Updated Dashboard SVG with custom color -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 448 448"
+          id="svg2"
+          version="1.1"
+          class="dashboard-icon"
+          style="width: 16px; height: 16px; color: {{ dashboard_icon_color }};"
+        >
+          <defs id="defs4" />
+          <g
+             inkscape:label="Layer 1"
+             inkscape:groupmode="layer"
+             id="layer1"
+             transform="translate(0,-604.36224)">
+            <rect
+               style="fill: currentColor; fill-opacity:1; stroke:none; stroke-opacity:1"
+               id="rect3334"
+               width="192"
+               height="256"
+               x="0"
+               y="604.36224" />
+            <rect
+               y="796.36224"
+               x="256"
+               height="255.99995"
+               width="192"
+               id="rect3336"
+               style="fill: currentColor; fill-opacity:1; stroke:none; stroke-opacity:1" />
+            <rect
+               y="924.36224"
+               x="0"
+               height="127.99995"
+               width="192"
+               id="rect3338"
+               style="fill: currentColor; fill-opacity:1; stroke:none; stroke-opacity:1" />
+            <rect
+               style="fill: currentColor; fill-opacity:1; stroke:none; stroke-opacity:1"
+               id="rect3340"
+               width="192"
+               height="128.00002"
+               x="256"
+               y="604.36224" />
+          </g>
+        </svg>
+        <span class="tooltip-content tool-tip-top invisible hidden block-md rounded-3 absolute pointer-none z-20">
+          {{- 'products.product.back_to_product' | t -}}
+        </span>
+      </a>
+    </div>
+  {%- endif -%}
+  {%- if t == 'product' -%}</div>{% endif %}
+{%- endunless -%}
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{%- when 'collection' and collection.handle -%}"
+  to: "{%- when 'collection' -%}"
+  position: 1647..1672
+{% endcomment %}

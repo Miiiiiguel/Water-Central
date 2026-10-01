@@ -1,0 +1,600 @@
+{% schema %}
+{
+  "name": "Title & Subtitle",
+  "tag": "section",
+  "class": "no-monthly-fees-promo",
+
+  "settings": [
+    {
+      "type": "text",
+      "id": "subheading_text",
+      "label": "Subheading Text",
+      "default": "Lorem ipsum dolor sit amet. Nulla feugiat sem vitae elit. Pellentesque habitant morbi tristique senectus et netus. Integer non turpis euismod nulla facilisis posuere."
+    },
+    {
+      "type": "checkbox",
+      "id": "inverse_title_and_subtitle",
+      "label": "Inverse Title & Subtitle",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "padding_top_desktop",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Top Padding (Desktop)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_desktop",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom Padding (Desktop)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top Padding (Mobile)",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom Padding (Mobile)",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "title_subheading_gap_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Vertical Space between Subtitle and Subheading (Desktop)",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "title_subheading_gap_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Vertical Space between Subtitle and Subheading (Mobile)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "title_subtitle_gap_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Vertical Space between Main Title and Subtitle (Desktop)",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "title_subtitle_gap_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Vertical Space between Main Title and Subtitle (Mobile)",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_left_desktop",
+      "min": 0,
+      "max": 600,
+      "step": 20,
+      "unit": "px",
+      "label": "Subheading Left Padding (Desktop)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_right_desktop",
+      "min": 0,
+      "max": 600,
+      "step": 20,
+      "unit": "px",
+      "label": "Subheading Right Padding (Desktop)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_left_mobile",
+      "min": 0,
+      "max": 300,
+      "step": 20,
+      "unit": "px",
+      "label": "Subheading Left Padding (Mobile)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "subheading_padding_right_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "label": "Subheading Right Padding (Mobile)",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "title_mobile_font_size",
+      "label": "Title Mobile Font Size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 35
+    },
+    {
+      "type": "range",
+      "id": "subtitle_mobile_font_size",
+      "label": "Subtitle Mobile Font Size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 31
+
+    },
+    {
+      "type": "range",
+      "id": "title_font_size_desktop",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Title Font Size (Desktop)",
+      "default": 37
+    },
+    {
+      "type": "range",
+      "id": "subtitle_font_size_desktop",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle Font Size (Desktop)",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "subheading_font_size_desktop",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading Font Size (Desktop)",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "subheading_line_height_desktop",
+      "min": 1,
+      "max": 3,
+      "step": 0.1,
+      "label": "Subheading Line Height (Desktop)",
+      "default": 1.6
+    },
+    {
+      "type": "range",
+      "id": "subheading_font_size_mobile",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading Font Size (Mobile)",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "subheading_line_height_mobile",
+      "min": 1,
+      "max": 3,
+      "step": 0.1,
+      "label": "Subheading Line Height (Mobile)",
+      "default": 1.4
+    },
+    {
+      "type": "select",
+      "id": "title_font_weight",
+      "label": "Title Font Weight",
+      "default": "700",
+      "options": [
+        { "value": "300", "label": "300" },
+        { "value": "400", "label": "400" },
+        { "value": "450", "label": "450" },
+        { "value": "500", "label": "500" },
+        { "value": "550", "label": "550" },
+        { "value": "600", "label": "600" },
+        { "value": "700", "label": "700" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "subtitle_font_weight",
+      "label": "Subtitle Font Weight",
+      "default": "700",
+      "options": [
+        { "value": "300", "label": "300" },
+        { "value": "400", "label": "400" },
+        { "value": "500", "label": "500" },
+        { "value": "550", "label": "550" },
+        { "value": "600", "label": "600" },
+        { "value": "700", "label": "700" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_fonts",
+      "label": "Enable Custom Fonts for Title & Subtitle",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "custom_font_url",
+      "label": "Custom Font URL",
+      "info": "Example: https://fonts.googleapis.com/css?family=Roboto"
+    },
+    {
+      "type": "text",
+      "id": "custom_font_family",
+      "label": "Custom Font Family",
+      "info": "Font family name loaded by the URL above (e.g., Roboto)"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "name": "Title",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Title Text",
+          "default": "Beatiful Design."
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_gradient",
+          "label": "Enable Title Gradient",
+          "default": false
+        },
+        {
+          "type": "color",
+          "id": "gradient_start",
+          "label": "Title Gradient Start Color",
+          "default": "#2C49F2"
+        },
+        {
+          "type": "color",
+          "id": "gradient_middle",
+          "label": "Title Gradient Middle Color",
+          "default": "#4240FF"
+        },
+        {
+          "type": "color",
+          "id": "gradient_end",
+          "label": "Title Gradient End Color",
+          "default": "#9B94FC"
+        },
+        {
+          "type": "select",
+          "id": "gradient_direction",
+          "label": "Title Gradient Direction",
+          "default": "to right",
+          "options": [
+            { "value": "to right", "label": "To Right" },
+            { "value": "to left", "label": "To Left" },
+            { "value": "to top", "label": "To Top" },
+            { "value": "to bottom", "label": "To Bottom" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "subtitle",
+      "name": "Subtitle",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Subtitle Text",
+          "default": "Here Is Your Subtitle"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_gradient",
+          "label": "Enable Subtitle Gradient",
+          "default": false
+        },
+        {
+          "type": "color",
+          "id": "gradient_start",
+          "label": "Subtitle Gradient Start Color",
+          "default": "#FF6B6B"
+        },
+        {
+          "type": "color",
+          "id": "gradient_middle",
+          "label": "Subtitle Gradient Middle Color",
+          "default": "#FF8E53"
+        },
+        {
+          "type": "color",
+          "id": "gradient_end",
+          "label": "Subtitle Gradient End Color",
+          "default": "#FFC371"
+        },
+        {
+          "type": "select",
+          "id": "gradient_direction",
+          "label": "Subtitle Gradient Direction",
+          "default": "to right",
+          "options": [
+            { "value": "to right", "label": "To Right" },
+            { "value": "to left", "label": "To Left" },
+            { "value": "to top", "label": "To Top" },
+            { "value": "to bottom", "label": "To Bottom" }
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Title & Subtitle",
+        "category": "Other",
+      "blocks": [
+        {
+          "type": "title"
+        },
+        {
+          "type": "subtitle"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+{% if section.settings.enable_custom_fonts and section.settings.custom_font_url != blank %}
+  <!-- Load the custom font only if user enabled it and provided a URL -->
+  <link href="{{ section.settings.custom_font_url }}" rel="stylesheet">
+  <style>
+    .no-monthly-fees-promo .title,
+    .no-monthly-fees-promo .subtitle {
+      font-family: "{{ section.settings.custom_font_family | escape }}", sans-serif !important;
+    }
+  </style>
+{% endif %}
+
+<style>
+  .no-monthly-fees-promo {
+    text-align: center;
+    /* Desktop padding defaults */
+    padding: var(--top-padding-desktop, 40px) 15px var(--bottom-padding-desktop, 40px);
+  }
+
+  /* Ensure any strong tags inherit font-weight so custom weights apply */
+  .no-monthly-fees-promo .title strong,
+  .no-monthly-fees-promo .subtitle strong {
+    font-weight: inherit;
+  }
+
+  .no-monthly-fees-promo .title {
+    /* Use desktop custom property; fallback 37px if not set */
+    font-size: var(--title-font-size-desktop, 37px);
+    font-weight: var(--title-font-weight, 700);
+    /* Fix overlapping letters like “g” by increasing line-height */
+    line-height: 1.2 !important;
+    margin: 0;
+    color: var(--title-text-color, #2C49F2);
+  }
+
+  .no-monthly-fees-promo .subtitle {
+    font-size: var(--subtitle-font-size-desktop, 36px) !important;
+    font-weight: var(--subtitle-font-weight, 700) !important;
+    line-height: 1.2 !important;
+    margin: var(--title-subtitle-gap-desktop, 10px) 0 var(--title-subheading-gap-desktop, 30px);
+    color: var(--subtitle-text-color, #121212);
+  }
+
+  /* Subheading (the <p> tag) Desktop styles */
+  .no-monthly-fees-promo p {
+    padding-left: var(--subheading-padding-left-desktop, 20px);
+    padding-right: var(--subheading-padding-right-desktop, 20px);
+    font-size: var(--subheading-font-size-desktop, 16px);
+    line-height: var(--subheading-line-height-desktop, 1.6);
+    margin: 0 auto;
+    max-width: 1000px;
+  }
+
+  /* Gradient text styling */
+  .no-monthly-fees-promo .gradient-text {
+    display: block;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    .no-monthly-fees-promo {
+      padding-top: var(--top-padding-mobile, 32px);
+      padding-bottom: var(--bottom-padding-mobile, 32px);
+    }
+
+    .no-monthly-fees-promo .title {
+      font-size: var(--title-mobile-font-size, 35px) !important;
+      line-height: 1.2 !important;
+      margin: 0;
+    }
+
+    .no-monthly-fees-promo .subtitle {
+      font-size: var(--subtitle-mobile-font-size, 31px) !important;
+      line-height: 1.2 !important;
+      margin-top: var(--title-subtitle-gap-mobile, 10px) !important;
+      margin-bottom: var(--title-subheading-gap-mobile, 20px) !important;
+    }
+
+    .no-monthly-fees-promo p {
+      font-size: var(--subheading-font-size-mobile, 15px);
+      line-height: var(--subheading-line-height-mobile, 1.4);
+      padding-left: var(--subheading-padding-left-mobile, 20px);
+      padding-right: var(--subheading-padding-right-mobile, 10px);
+    }
+  }
+</style>
+
+<div
+  class="no-monthly-fees-promo"
+  style="
+    --top-padding-desktop: {{ section.settings.padding_top_desktop }}px;
+    --bottom-padding-desktop: {{ section.settings.padding_bottom_desktop }}px;
+    --top-padding-mobile: {{ section.settings.padding_top_mobile }}px;
+    --bottom-padding-mobile: {{ section.settings.padding_bottom_mobile }}px;
+
+    --title-subheading-gap-desktop: {{ section.settings.title_subheading_gap_desktop }}px;
+    --title-subheading-gap-mobile: {{ section.settings.title_subheading_gap_mobile }}px;
+    --title-subtitle-gap-desktop: {{ section.settings.title_subtitle_gap_desktop }}px;
+    --title-subtitle-gap-mobile: {{ section.settings.title_subtitle_gap_mobile }}px;
+
+    --subheading-padding-left-desktop: {{ section.settings.subheading_padding_left_desktop }}px;
+    --subheading-padding-right-desktop: {{ section.settings.subheading_padding_right_desktop }}px;
+    --subheading-padding-left-mobile: {{ section.settings.subheading_padding_left_mobile }}px;
+    --subheading-padding-right-mobile: {{ section.settings.subheading_padding_right_mobile }}px;
+
+    --title-mobile-font-size: {{ section.settings.title_mobile_font_size }}px;
+    --subtitle-mobile-font-size: {{ section.settings.subtitle_mobile_font_size }}px;
+
+    --title-text-color: {{ section.settings.title_text_color }};
+    --subtitle-text-color: {{ section.settings.subtitle_text_color }};
+
+    --title-font-size-desktop: {{ section.settings.title_font_size_desktop }}px;
+    --subtitle-font-size-desktop: {{ section.settings.subtitle_font_size_desktop }}px;
+
+    --subheading-font-size-desktop: {{ section.settings.subheading_font_size_desktop }}px;
+    --subheading-line-height-desktop: {{ section.settings.subheading_line_height_desktop }};
+    --subheading-font-size-mobile: {{ section.settings.subheading_font_size_mobile }}px;
+    --subheading-line-height-mobile: {{ section.settings.subheading_line_height_mobile }};
+
+    --title-font-weight: {{ section.settings.title_font_weight }};
+    --subtitle-font-weight: {{ section.settings.subtitle_font_weight }};
+  "
+>
+
+  {% assign title_block = nil %}
+  {% assign subtitle_block = nil %}
+  {% for block in section.blocks %}
+    {% if block.type == 'title' and title_block == nil %}
+      {% assign title_block = block %}
+    {% elsif block.type == 'subtitle' and subtitle_block == nil %}
+      {% assign subtitle_block = block %}
+    {% endif %}
+  {% endfor %}
+
+  {% assign main_title = blank %}
+  {% assign main_subtitle = blank %}
+  {% assign gradient_enabled = false %}
+  {% assign gradient_start = '#2C49F2' %}
+  {% assign gradient_middle = '#4240FF' %}
+  {% assign gradient_end = '#9B94FC' %}
+  {% assign gradient_direction = 'to right' %}
+
+  {% assign subtitle_gradient_enabled = false %}
+  {% assign subtitle_gradient_start = '#FF6B6B' %}
+  {% assign subtitle_gradient_middle = '#FF8E53' %}
+  {% assign subtitle_gradient_end = '#FFC371' %}
+  {% assign subtitle_gradient_direction = 'to right' %}
+
+  {% if title_block != nil %}
+    {% assign main_title = title_block.settings.text %}
+    {% assign gradient_enabled = title_block.settings.enable_gradient %}
+    {% assign gradient_start = title_block.settings.gradient_start %}
+    {% assign gradient_middle = title_block.settings.gradient_middle %}
+    {% assign gradient_end = title_block.settings.gradient_end %}
+    {% assign gradient_direction = title_block.settings.gradient_direction %}
+  {% endif %}
+
+  {% if subtitle_block != nil %}
+    {% assign main_subtitle = subtitle_block.settings.text %}
+    {% assign subtitle_gradient_enabled = subtitle_block.settings.enable_gradient %}
+    {% assign subtitle_gradient_start = subtitle_block.settings.gradient_start %}
+    {% assign subtitle_gradient_middle = subtitle_block.settings.gradient_middle %}
+    {% assign subtitle_gradient_end = subtitle_block.settings.gradient_end %}
+    {% assign subtitle_gradient_direction = subtitle_block.settings.gradient_direction %}
+  {% endif %}
+
+  {% assign inverse = section.settings.inverse_title_and_subtitle %}
+
+  {% if inverse and main_title != blank and main_subtitle != blank %}
+    {% assign temp_title = main_title %}
+    {% assign main_title = main_subtitle %}
+    {% assign main_subtitle = temp_title %}
+  {% endif %}
+
+  {% if title_block != nil and main_title != blank %}
+    {% if gradient_enabled %}
+      <!-- Title with gradient -->
+      <h2 class="title gradient-text" style="
+           background-image: linear-gradient(
+             {{ gradient_direction }},
+             {{ gradient_start }},
+             {{ gradient_middle }},
+             {{ gradient_end }}
+           );">
+        <strong>{{ main_title }}</strong>
+      </h2>
+    {% else %}
+      <!-- Title with solid color -->
+      <h2 class="title">
+        <strong>{{ main_title }}</strong>
+      </h2>
+    {% endif %}
+  {% endif %}
+
+  {% if subtitle_block != nil and main_subtitle != blank %}
+    {% if subtitle_gradient_enabled %}
+      <!-- Subtitle with gradient -->
+      <h3 class="subtitle gradient-text" style="
+           background-image: linear-gradient(
+             {{ subtitle_gradient_direction }},
+             {{ subtitle_gradient_start }},
+             {{ subtitle_gradient_middle }},
+             {{ subtitle_gradient_end }}
+           );">
+        <strong>{{ main_subtitle }}</strong>
+      </h3>
+    {% else %}
+      <!-- Subtitle with solid color -->
+      <h3 class="subtitle">
+        <strong>{{ main_subtitle }}</strong>
+      </h3>
+    {% endif %}
+  {% endif %}
+
+  <p>{{ section.settings.subheading_text }}</p>
+</div>

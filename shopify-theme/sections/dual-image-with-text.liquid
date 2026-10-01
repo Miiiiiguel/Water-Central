@@ -1,0 +1,996 @@
+{% style %}
+:root {
+--loudz-neutral-70: #5e5e5e;
+--loudz-neutral-01: #fff;
+--loudz-size-1: 1px;
+--loudz-size-2: 2px;
+--loudz-size-4: 4px;
+--loudz-size-8: 8px;
+--loudz-size-12: 12px;
+--loudz-size-14: 14px;
+--loudz-size-16: 16px;
+--loudz-size-20: 20px;
+--loudz-size-24: 24px;
+--loudz-size-32: 32px;
+--loudz-size-40: 40px;
+--loudz-size-80: 80px;
+--loudz-font-weight-400: 400;
+--loudz-line-height-140: 1.4;
+--loudz-text-decoration-none: none;
+--loudz-text-decoration-underline: underline;
+--loudz-border-width-1: var(--loudz-size-1);
+--loudz-color-bg-fill-inverse-on-light: var(--loudz-neutral-01);
+--loudz-color-text-disable-on-light: var(--loudz-neutral-70);
+--loudz-space-2: var(--loudz-size-2);
+--loudz-space-4: var(--loudz-size-4);
+--loudz-space-8: var(--loudz-size-8);
+--loudz-space-12: var(--loudz-size-12);
+--loudz-space-16: var(--loudz-size-16);
+--loudz-space-20: var(--loudz-size-20);
+--loudz-space-24: var(--loudz-size-24);
+--loudz-space-32: var(--loudz-size-32);
+--loudz-space-40: var(--loudz-size-40);
+--loudz-space-80: var(--loudz-size-80);
+--loudz-font-size-14: var(--loudz-size-14);
+}
+{% endstyle %}
+
+{%- liquid
+	assign mobile_image = section.settings.image_mobile
+	assign second_mobile_image = section.settings.second_image_mobile
+
+	if mobile_image == blank
+		assign mobile_image = section.settings.image_desktop
+	endif
+
+	if second_mobile_image == blank
+		assign second_mobile_image = section.settings.second_image_desktop
+	endif
+-%}
+
+<section class="Loudz-{{ section.id | handle }}">
+	<div
+		class="LoudzImgsOverlapContainer"
+	>
+		<div class="LoudzImgsOverlap LoudzImgsOverlap--desktopPosition-{{ section.settings.image_position }} LoudzImgsOverlap--mobilePosition-{{ section.settings.image_mobile_position }}">
+			<div class="LoudzImgsOverlap__Media LoudzImgsOverlap__Media--layout-{{ section.settings.image_layout }} LoudzImgsOverlap__Media--aspectRatio-{{ section.settings.aspect_ratio }}">
+				<div class="LoudzImgsOverlapImages">
+					{%- if section.settings.image_desktop != blank -%}
+						{{-
+							section.settings.image_desktop
+							| image_url: width: section.settings.image_desktop.width
+							| image_tag:
+								sizes: "100vw",
+								widths: "400, 600, 800, 1200, 1600, 1800, 2400, 2800, 3200",
+								fetchpriority: "low",
+								loading: "lazy",
+								class: "LoudzImgsOverlap__Media--desktop"
+						-}}
+					{%- else -%}
+						<img
+							src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+							alt="Image with an abstract figure"
+							width="580"
+							height="580"
+							loading="lazy"
+							sizes="100vw"
+							fetchpriority="low"
+							class="LoudzImgsOverlap__Media--desktop"
+						>
+					{%- endif -%}
+					{%- if section.settings.second_image_desktop != blank -%}
+						{{-
+							section.settings.second_image_desktop
+							| image_url: width: section.settings.second_image_desktop.width
+							| image_tag:
+								sizes: "100vw",
+								widths: "400, 600, 800, 1200, 1600, 1800, 2400, 2800, 3200",
+								fetchpriority: "low",
+								loading: "lazy",
+								class: "LoudzImgsOverlap__Media--second-desktop"
+						-}}
+					{%- else -%}
+						<img
+							src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+							alt="Image with an abstract figure"
+							width="580"
+							height="580"
+							loading="lazy"
+							sizes="100vw"
+							fetchpriority="low"
+							class="LoudzImgsOverlap__Media--second-desktop"
+						>
+					{%- endif -%}
+					{%- if mobile_image != blank -%}
+						{{-
+							mobile_image
+							| image_url: width: mobile_image.width
+							| image_tag:
+								sizes: "100vw",
+								widths: "400, 600, 800, 1200, 1600, 1800, 2400, 2800, 3200",
+								fetchpriority: "low",
+								loading: "lazy",
+								class: "LoudzImgsOverlap__Media--mobile"
+						-}}
+					{%- else -%}
+						<img
+							src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+							alt="Image with an abstract figure"
+							width="580"
+							height="580"
+							loading="lazy"
+							sizes="100vw"
+							fetchpriority="low"
+							class="LoudzImgsOverlap__Media--mobile"
+						>
+					{%- endif -%}
+					{%- if second_mobile_image != blank -%}
+						{{-
+							second_mobile_image
+							| image_url: width: second_mobile_image.width
+							| image_tag:
+								sizes: "100vw",
+								widths: "400, 600, 800, 1200, 1600, 1800, 2400, 2800, 3200",
+								fetchpriority: "low",
+								loading: "lazy",
+								class: "LoudzImgsOverlap__Media--second-mobile"
+						-}}
+					{%- else -%}
+						<img
+							src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E"
+							alt="Image with an abstract figure"
+							width="580"
+							height="580"
+							loading="lazy"
+							sizes="100vw"
+							fetchpriority="low"
+							class="LoudzImgsOverlap__Media--second-mobile"
+						>
+					{%- endif -%}
+				</div>
+			</div>
+			<div class="LoudzImgsOverlap__Content">
+				<div class="LoudzTextBox">
+					{%- for block in section.blocks -%}
+						{%- case block.type -%}
+							{%- when "heading" -%}
+								{%- if block.settings.heading_alternative_font -%}
+									<style>
+										{{- block.settings.heading_font | font_face: font_display: 'swap' -}}
+									</style>
+								{%- endif -%}
+								{%- capture heading_css_variables -%}
+									--block-heading-size-desktop: {{- block.settings.heading_size_desktop -}}px;
+									--block-heading-size-mobile: {{- block.settings.heading_size_mobile -}}px;
+									--block-heading-left-padding-desktop: {{- block.settings.heading_left_padding_desktop -}}px;
+									--block-heading-right-padding-desktop: {{- block.settings.heading_right_padding_desktop -}}px;
+									--block-heading-left-padding-mobile: {{- block.settings.heading_left_padding_mobile -}}px;
+									--block-heading-right-padding-mobile: {{- block.settings.heading_right_padding_mobile -}}px;
+									--block-heading-color: {{- block.settings.heading_color -}};
+									--block-heading-font: {{- block.settings.heading_font.family -}};
+									--block-heading-font-weight: {{- block.settings.heading_font_weight -}};
+                  				{%- endcapture -%}
+								<h2
+									style="{{- heading_css_variables | strip_newlines | escape -}}"
+									class="LoudzTextBox__Heading {% if block.settings.heading_alternative_font == true %}LoudzTextBox__Heading--alternativeFont{% endif %}"
+									{{ block.shopify_attributes }}
+								>
+									{{- block.settings.heading -}}
+								</h2>
+							{%- when "text" -%}
+								{%- if block.settings.description_alternative_font -%}
+									{%- liquid
+										assign body_font_bold = block.settings.description_font | font_modify: 'weight', 'bold'
+										assign body_font_italic = block.settings.description_font | font_modify: 'style', 'italic'
+										assign body_font_bold_italic = body_font_bold | font_modify: 'style', 'italic'
+									%}
+									<style>
+										{{- block.settings.description_font | font_face: font_display: 'swap' -}}
+										{{ body_font_bold | font_face: font_display: 'swap' }}
+										{{ body_font_italic | font_face: font_display: 'swap' }}
+										{{ body_font_bold_italic | font_face: font_display: 'swap' }}
+									</style>
+								{%- endif -%}
+								{%- capture description_css_variables -%}
+									--block-description-size-desktop: {{- block.settings.description_size_desktop -}}px;
+									--block-description-size-mobile: {{- block.settings.description_size_mobile -}}px;
+									--block-description-color: {{- block.settings.description_color -}};
+									--block-description-font: {{- block.settings.description_font.family -}};
+                  				{%- endcapture -%}
+								<div
+									style="{{- description_css_variables | strip_newlines | escape -}}"
+									class="LoudzTextBox__Description LoudzTextBox__Description--alignment-{{ section.settings.text_alignment }} {% if block.settings.description_alternative_font == true %}LoudzTextBox__Description--alternativeFont{% endif %}"
+									{{ block.shopify_attributes }}
+								>
+									{{- block.settings.description -}}
+								</div>
+							{%- when "buttons" -%}
+								{%- capture buttons_css_variables -%}
+									--block-primary-button-text-color: {{- block.settings.primary_text_color -}};
+									--block-primary-button-background-color: {{- block.settings.primary_background_color -}};
+									--block-primary-button-corner-radius: {{- block.settings.primary_button_corner -}}px;
+									--block-primary-button-border-color: {{- block.settings.primary_border_color -}};
+					
+									--block-secondary-button-text-color: {{- block.settings.secondary_text_color -}};
+									--block-secondary-button-background-color: {{- block.settings.secondary_background_color -}};
+									--block-secondary-button-corner-radius: {{- block.settings.secondary_button_corner -}}px;
+									--block-secondary-button-border-color: {{- block.settings.secondary_border_color -}};
+                  				{%- endcapture -%}
+								<div
+									style="{{- buttons_css_variables | strip_newlines | escape -}}"
+									class="LoudzImgsOverlapButtons"
+									{{ block.shopify_attributes }}
+								>
+									{%- if block.settings.primary_button_label != blank -%}
+										<a
+											{% if block.settings.primary_new_tab == true %}
+												target="_blank"
+											{% endif %}
+											class="LoudzImgsOverlapButtons__Primary LoudzImgsOverlapButtons__Primary--{{ block.settings.primary_button_style }}"
+											href="{{ block.settings.primary_button_link }}"
+										>
+											{{- block.settings.primary_button_label | escape -}}
+										</a>
+									{%- endif -%}
+									{%- if block.settings.secondary_button_label != blank -%}
+										<a
+											{% if block.settings.secondary_new_tab == true %}
+												target="_blank"
+											{% endif %}
+											class="LoudzImgsOverlapButtons__Secondary LoudzImgsOverlapButtons__Secondary--{{ block.settings.secondary_button_style }}"
+											href="{{ block.settings.secondary_button_link }}"
+										>
+											{{- block.settings.secondary_button_label | escape -}}
+										</a>
+									{%- endif -%}
+								</div>
+						{%- endcase -%}
+					{%- endfor -%}
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+{% schema %}
+{
+	"name": "Image With Text Dual ",
+	"disabled_on": {
+		"groups": ["header", "footer"]
+	},
+	"settings": [
+		{
+			"type": "header",
+			"content": "Layout"
+		},
+		{
+			"type": "range",
+			"id": "top_padding_desktop",
+			"min": 0,
+			"max": 200,
+			"step": 10,
+			"unit": "px",
+			"label": "Top padding (desktop)",
+			"default": 50
+		},
+		{
+			"type": "range",
+			"id": "bottom_padding_desktop",
+			"min": 0,
+			"max": 200,
+			"step": 10,
+			"unit": "px",
+			"label": "Bottom padding (desktop)",
+			"default": 50
+		},
+		{
+			"type": "range",
+			"id": "top_margin_desktop",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Top margin (desktop)",
+			"default": 0
+		},
+		{
+			"type": "range",
+			"id": "bottom_margin_desktop",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Bottom margin (desktop)",
+			"default": 0
+		},
+		{
+			"type": "range",
+			"id": "left_padding_desktop",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Left padding (desktop)",
+			"default": 40
+		},
+		{
+			"type": "range",
+			"id": "right_padding_desktop",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Right padding (desktop)",
+			"default": 40
+		},
+		{
+			"type": "range",
+			"id": "top_padding_mobile",
+			"min": 0,
+			"max": 200,
+			"step": 10,
+			"unit": "px",
+			"label": "Top padding (mobile)",
+			"default": 50
+		},
+		{
+			"type": "range",
+			"id": "bottom_padding_mobile",
+			"min": 0,
+			"max": 200,
+			"step": 10,
+			"unit": "px",
+			"label": "Bottom padding (mobile)",
+			"default": 50
+		},
+		{
+			"type": "range",
+			"id": "top_margin_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Top margin (mobile)",
+			"default": 0
+		},
+		{
+			"type": "range",
+			"id": "bottom_margin_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Bottom margin (mobile)",
+			"default": 0
+		},
+		{
+			"type": "range",
+			"id": "left_padding_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Left padding (mobile)",
+			"default": 10
+		},
+		{
+			"type": "range",
+			"id": "right_padding_mobile",
+			"min": 0,
+			"max": 100,
+			"step": 2,
+			"unit": "px",
+			"label": "Right padding (mobile)",
+			"default": 10
+		},
+		{
+			"type": "range",
+			"id": "mobile_vertical_gap",
+			"min": 0,
+			"max": 100,
+			"step": 4,
+			"unit": "px",
+			"label": "Vertical gap between heading text and media (mobile version)",
+			"default": 20
+		},
+		{
+			"type": "range",
+			"id": "desktop_horizontal_gap",
+			"min": 0,
+			"max": 100,
+			"step": 4,
+			"unit": "px",
+			"label": "Horizontal column gap between media and content (desktop version)",
+			"default": 40
+		},
+		{
+			"type": "range",
+			"id": "section_max_width",
+			"min": 800,
+			"max": 1600,
+			"step": 50,
+			"unit": "px",
+			"label": "Max width",
+			"default": 1200
+		},
+		{
+			"type": "range",
+			"id": "section_width_desktop",
+			"min": 70,
+			"max": 100,
+			"step": 1,
+			"unit": "%",
+			"label": "Section width (desktop version)",
+			"default": 91
+		},
+		{
+			"type": "range",
+			"id": "section_width_mobile",
+			"min": 70,
+			"max": 100,
+			"step": 1,
+			"unit": "%",
+			"label": "Section width (mobile version)",
+			"default": 91
+		},
+		{
+			"type": "header",
+			"content": "Images settings"
+		},
+		{
+			"type": "select",
+			"id": "aspect_ratio",
+			"label": "Aspect ratio",
+			"info": "Applies to both images.",
+			"options": [
+				{
+					"value": "square",
+					"label": "Square"
+				},
+				{
+					"value": "portrait",
+					"label": "Portrait"
+				},
+				{
+					"value": "landscape",
+					"label": "Landscape"
+				}
+			],
+			"default": "portrait"
+		},
+		{
+			"type": "select",
+			"id": "image_layout",
+			"label": "Image layout",
+			"options": [
+				{
+					"value": "front-bottom",
+					"label": "Front bottom"
+				},
+				{
+					"value": "front-top",
+					"label": "Front top"
+				},
+				{
+					"value": "back-bottom",
+					"label": "Back bottom"
+				},
+				{
+					"value": "back-top",
+					"label": "Back top"
+				}
+			],
+			"default": "front-top"
+		},
+		{
+			"type": "range",
+			"id": "images_border_radius",
+			"min": 0,
+			"max": 50,
+			"step": 1,
+			"unit": "px",
+			"label": "Border radius",
+			"default": 6
+		},
+		{
+			"type": "header",
+			"content": "Images on desktop"
+		},
+		{
+			"type": "select",
+			"id": "image_position",
+			"label": "Position",
+			"options": [
+				{
+					"value": "left",
+					"label": "Left"
+				},
+				{
+					"value": "right",
+					"label": "Right"
+				}
+			],
+			"default": "left"
+		},
+		{
+			"type": "image_picker",
+			"id": "image_desktop",
+			"label": "Image"
+		},
+		{
+			"type": "image_picker",
+			"id": "second_image_desktop",
+			"label": "Second image"
+		},
+		{
+			"type": "header",
+			"content": "Images on mobile (optional)"
+		},
+		{
+			"type": "select",
+			"id": "image_mobile_position",
+			"label": "Position",
+			"options": [
+				{
+					"value": "above",
+					"label": "Above content"
+				},
+				{
+					"value": "bellow",
+					"label": "Bellow content"
+				}
+			],
+			"default": "above"
+		},
+		{
+			"type": "image_picker",
+			"id": "image_mobile",
+			"label": "Image"
+		},
+		{
+			"type": "image_picker",
+			"id": "second_image_mobile",
+			"label": "Second image"
+		},
+		{
+			"type": "header",
+			"content": "Text appearance"
+		},
+		{
+			"type": "select",
+			"id": "text_alignment",
+			"label": "Text alignment",
+			"options": [
+				{
+					"value": "left",
+					"label": "Left"
+				},
+				{
+					"value": "center",
+					"label": "Center"
+				},
+				{
+					"value": "right",
+					"label": "Right"
+				}
+			],
+			"default": "left"
+		},
+		{
+			"type": "range",
+			"id": "text_box_width",
+			"min": 30,
+			"max": 70,
+			"step": 1,
+			"unit": "%",
+			"label": "Text box width",
+			"default": 50
+		},
+		{
+			"type": "header",
+			"content": "Design"
+		},
+		{
+			"type": "color",
+			"id": "section_background",
+			"label": "Section background"
+		
+		}
+	],
+	"blocks": [
+		{
+			"type": "heading",
+			"name": "Heading",
+			"limit": 1,
+			"settings": [
+				{
+					"type": "text",
+					"id": "heading",
+					"default": "Image & Text - Overlap",
+					"label": "Heading"
+				},
+				{
+					"type": "range",
+					"id": "heading_size_desktop",
+					"min": 20,
+					"max": 60,
+					"step": 1,
+					"unit": "px",
+					"label": "Heading text size (desktop version)",
+					"default": 34
+				},
+				{
+					"type": "range",
+					"id": "heading_size_mobile",
+					"min": 20,
+					"max": 60,
+					"step": 1,
+					"unit": "px",
+					"label": "Heading text size (mobile version)",
+					"default": 31
+				},
+				{
+					"type": "color",
+					"id": "heading_color",
+					"label": "Text color",
+					"default": "#222222"
+				},
+				{
+					"type": "header",
+					"content": "Alternative font"
+				},
+				{
+					"type": "checkbox",
+					"id": "heading_alternative_font",
+					"label": "Apply alternative font",
+					"default": false
+				},
+				{
+					"type": "font_picker",
+					"id": "heading_font",
+					"label": "Font",
+					"default": "sans_serif_n4"
+				},
+				{
+					"type": "select",
+					"id": "heading_font_weight",
+					"label": "Font weight",
+					"options": [
+						{
+							"value": "300",
+							"label": "Light"
+						},
+						{
+							"value": "400",
+							"label": "Normal"
+						},
+						{
+							"value": "500",
+							"label": "Medium"
+						},
+						{
+							"value": "600",
+							"label": "Semi-bold"
+						},
+						{
+							"value": "700",
+							"label": "Bold"
+						}
+					],
+					"default": "400"
+				},
+				{
+					"type": "header",
+					"content": "Heading padding (desktop)"
+				},
+				{
+					"type": "range",
+					"id": "heading_left_padding_desktop",
+					"min": 0,
+					"max": 100,
+					"step": 2,
+					"unit": "px",
+					"label": "Left padding (desktop)",
+					"default": 0
+				},
+				{
+					"type": "range",
+					"id": "heading_right_padding_desktop",
+					"min": 0,
+					"max": 100,
+					"step": 2,
+					"unit": "px",
+					"label": "Right padding (desktop)",
+					"default": 46
+				},
+				{
+					"type": "header",
+					"content": "Heading padding (mobile)"
+				},
+				{
+					"type": "range",
+					"id": "heading_left_padding_mobile",
+					"min": 0,
+					"max": 100,
+					"step": 2,
+					"unit": "px",
+					"label": "Left padding (mobile)",
+					"default": 0
+				},
+				{
+					"type": "range",
+					"id": "heading_right_padding_mobile",
+					"min": 0,
+					"max": 100,
+					"step": 2,
+					"unit": "px",
+					"label": "Right padding (mobile)",
+					"default": 0
+				}
+			]
+		},
+		{
+			"type": "text",
+			"name": "Description",
+			"limit": 1,
+			"settings": [
+				{
+					"type": "richtext",
+					"id": "description",
+					"default": "<p>Pair large text with an image to tell a story, explain a detail about your product, or describe a new promotion</p>",
+					"label": "Text"
+				},
+				{
+					"type": "range",
+					"id": "description_size_desktop",
+					"min": 12,
+					"max": 32,
+					"step": 1,
+					"unit": "px",
+					"label": "Subheading text size (desktop version)",
+					"default": 16
+				},
+				{
+					"type": "range",
+					"id": "description_size_mobile",
+					"min": 12,
+					"max": 32,
+					"step": 1,
+					"unit": "px",
+					"label": "Subheading text size (mobile version)",
+					"default": 14
+				},
+				{
+					"type": "color",
+					"id": "description_color",
+					"label": "Text color",
+					"default": "#222222"
+				},
+				{
+					"type": "header",
+					"content": "Alternative font"
+				},
+				{
+					"type": "checkbox",
+					"id": "description_alternative_font",
+					"label": "Apply alternative font",
+					"default": false
+				},
+				{
+					"type": "font_picker",
+					"id": "description_font",
+					"label": "Font",
+					"default": "sans_serif_n4"
+				}
+			]
+		},
+		{
+			"type": "buttons",
+			"name": "Buttons",
+			"limit": 1,
+			"settings": [
+				{
+					"type": "header",
+					"content": "Primary button"
+				},
+				{
+					"type": "text",
+					"id": "primary_button_label",
+					"default": "Shop Now",
+					"label": "Label"
+				},
+				{
+					"type": "url",
+					"id": "primary_button_link",
+					"label": "URL"
+				},
+				{
+					"type": "select",
+					"id": "primary_button_style",
+					"label": "Button style",
+					"options": [
+						{
+							"value": "solid",
+							"label": "Filled"
+						},
+						{
+							"value": "outline",
+							"label": "Outline"
+						},
+						{
+							"value": "link",
+							"label": "Link"
+						}
+					],
+					"default": "solid"
+				},
+				{
+					"type": "color",
+					"id": "primary_text_color",
+					"label": "Text color",
+					"default": "#ffffff"
+				},
+				{
+					"type": "color",
+					"id": "primary_background_color",
+					"label": "Background color",
+					"default": "#222222",
+					"visible_if": "{{ block.settings.primary_button_style == 'solid' }}"
+				},
+				{
+					"type": "color",
+					"id": "primary_border_color",
+					"label": "Border color",
+					"default": "#222222",
+					"visible_if": "{{ block.settings.primary_button_style == 'outline' }}"
+				},
+				{
+					"type": "range",
+					"id": "primary_button_corner",
+					"min": 0,
+					"max": 100,
+					"step": 2,
+					"unit": "px",
+					"label": "Corner radius",
+					"visible_if": "{{ block.settings.primary_button_style != 'link' }}",
+					"default": 8
+				},
+				{
+					"type": "checkbox",
+					"id": "primary_new_tab",
+					"label": "Open link in a new tab",
+					"default": false
+				},
+				{
+					"type": "header",
+					"content": "Secondary button"
+				},
+				{
+					"type": "text",
+					"id": "secondary_button_label",
+					"label": "Label"
+				},
+				{
+					"type": "url",
+					"id": "secondary_button_link",
+					"label": "URL"
+				},
+				{
+					"type": "select",
+					"id": "secondary_button_style",
+					"label": "Button style",
+					"options": [
+						{
+							"value": "solid",
+							"label": "Filled"
+						},
+						{
+							"value": "outline",
+							"label": "Outline"
+						},
+						{
+							"value": "link",
+							"label": "Link"
+						}
+					],
+					"default": "link"
+				},
+				{
+					"type": "color",
+					"id": "secondary_text_color",
+					"label": "Text color",
+					"default": "#222222"
+				},
+				{
+					"type": "color",
+					"id": "secondary_background_color",
+					"label": "Background color",
+					"visible_if": "{{ block.settings.secondary_button_style == 'solid' }}"
+				},
+				{
+					"type": "color",
+					"id": "secondary_border_color",
+					"label": "Border color",
+					"visible_if": "{{ block.settings.secondary_button_style == 'outline' }}"
+				},
+				{
+					"type": "range",
+					"id": "secondary_button_corner",
+					"min": 0,
+					"max": 100,
+					"step": 2,
+					"unit": "px",
+					"label": "Corner radius",
+					"visible_if": "{{ block.settings.secondary_button_style != 'link' }}",
+					"default": 8
+				},
+				{
+					"type": "checkbox",
+					"id": "secondary_new_tab",
+					"label": "Open link in a new tab",
+					"default": false
+				}
+			]
+		}
+	],
+	"presets": [
+		{
+			"name": "Image & Text Dual ",
+			"category": "Image With Text",
+			"blocks": [
+				{
+					"type": "heading"
+				},
+				{
+					"type": "text"
+				},
+				{
+					"type": "buttons"
+				}
+			]
+		}
+	]
+}
+{% endschema %}
+
+{% style %}
+	.Loudz-{{ section.id | handle }} {
+	 --section-margin-top-desktop: {{- section.settings.top_margin_desktop -}}px;
+	 --section-margin-bottom-desktop: {{- section.settings.bottom_margin_desktop -}}px;
+	 --section-margin-top-mobile: {{- section.settings.top_margin_mobile -}}px;
+	 --section-margin-bottom-mobile: {{- section.settings.bottom_margin_mobile -}}px;
+	 --section-background-color: {{- section.settings.section_background -}};
+	 --section-images-border-radius: {{- section.settings.images_border_radius -}}px;
+	 --section-overlay-color: {{- section.settings.overlay_color -}};
+	 --section-overlay-opacity: {{ section.settings.overlay_opacity | times: 0.01 }};
+	 --section-padding-top-desktop: {{- section.settings.top_padding_desktop -}}px;
+	 --section-padding-bottom-desktop: {{- section.settings.bottom_padding_desktop -}}px;
+	 --section-padding-top-mobile: {{- section.settings.top_padding_mobile -}}px;
+	 --section-padding-bottom-mobile: {{- section.settings.bottom_padding_mobile -}}px;
+	 --section-left-padding-desktop: {{- section.settings.left_padding_desktop -}}px;
+	 --section-right-padding-desktop: {{- section.settings.right_padding_desktop -}}px;
+	 --section-left-padding-mobile: {{- section.settings.left_padding_mobile -}}px;
+	 --section-right-padding-mobile: {{- section.settings.right_padding_mobile -}}px;
+	 --section-text-alignment: {{- section.settings.text_alignment -}};
+	 --section-max-width: {{- section.settings.section_max_width -}}px;
+	 --section-width-mobile: {{- section.settings.section_width_mobile -}}%;
+	 --section-width-desktop: {{- section.settings.section_width_desktop -}}%;
+	 --section-text-box-width: {{- section.settings.text_box_width -}}%;
+	 --section-mobile-vertical-gap: {{ section.settings.mobile_vertical_gap }}px;
+	 --section-desktop-horizontal-gap: {{ section.settings.desktop_horizontal_gap }}px;
+	}
+
+	
+
+.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer{position:relative;margin-top:var(--section-margin-top-mobile);margin-bottom:var(--section-margin-bottom-mobile);background-color:var(--section-background-color)}@media(min-width: 992px){.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer{margin-top:var(--section-margin-top-desktop);margin-bottom:var(--section-margin-bottom-desktop)}}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer::before{position:absolute;top:0;left:0;display:block;width:100%;height:100%;content:"";background-color:var(--section-overlay-color);opacity:var(--section-overlay-opacity);z-index:0}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap{padding-top:var(--section-padding-top-mobile);padding-bottom:var(--section-padding-bottom-mobile);padding-left:var(--section-left-padding-mobile);padding-right:var(--section-right-padding-mobile);display:flex;max-width:var(--section-max-width);width:var(--section-width-mobile);margin:0 auto;gap: var(--section-mobile-vertical-gap);}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap--mobilePosition-above{flex-direction:column}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap--mobilePosition-bellow{flex-direction:column-reverse}@media(min-width: 992px){.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap{display:flex;padding-top:var(--section-padding-top-desktop);padding-bottom:var(--section-padding-bottom-desktop);padding-left:var(--section-left-padding-desktop);padding-right:var(--section-right-padding-desktop);max-width:var(--section-max-width);width:var(--section-width-desktop);margin:0 auto;gap: var(--section-desktop-horizontal-gap);}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap--desktopPosition-left{flex-direction:row}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap--desktopPosition-right{flex-direction:row-reverse}}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media{width:100%;display:flex;justify-content:center;align-items:center}@media(min-width: 992px){.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media{width:calc(100% - var(--section-text-box-width));flex:1 0 calc(100% - var(--section-text-box-width));padding:0;aspect-ratio:1}}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media img{width:100%;height:100%;object-fit:cover;border:var(--loudz-border-width-1) solid transparent;border-radius:var(--section-images-border-radius);color:rgba(0,0,0,0)}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media .LoudzImgsOverlapImages{display:grid;grid-template-columns:repeat(10, 1fr);grid-template-rows:repeat(10, 1fr)}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-front-bottom .LoudzImgsOverlap__Media--desktop,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-front-bottom .LoudzImgsOverlap__Media--mobile{grid-column-start:1;grid-column-end:7;grid-row-start:3;grid-row-end:11;z-index:2}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-front-bottom .LoudzImgsOverlap__Media--second-desktop,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-front-bottom .LoudzImgsOverlap__Media--second-mobile{grid-column-start:5;grid-column-end:11;grid-row-start:1;grid-row-end:9;z-index:1}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-front-top .LoudzImgsOverlap__Media--desktop,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-front-top .LoudzImgsOverlap__Media--mobile{grid-column-start:1;grid-column-end:7;grid-row-start:1;z-index:2;grid-row-end:9}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-front-top .LoudzImgsOverlap__Media--second-desktop,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-front-top .LoudzImgsOverlap__Media--second-mobile{grid-column-start:5;grid-column-end:11;grid-row-start:3;grid-row-end:11;z-index:1}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-back-top .LoudzImgsOverlap__Media--desktop,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-back-top .LoudzImgsOverlap__Media--mobile{grid-column-start:1;grid-column-end:7;grid-row-start:1;grid-row-end:9;z-index:1}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-back-top .LoudzImgsOverlap__Media--second-desktop,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-back-top .LoudzImgsOverlap__Media--second-mobile{grid-column-start:5;grid-column-end:11;grid-row-start:3;grid-row-end:11;z-index:2}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-back-bottom .LoudzImgsOverlap__Media--desktop,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-back-bottom .LoudzImgsOverlap__Media--mobile{grid-column-start:1;grid-column-end:7;grid-row-start:3;grid-row-end:11;z-index:1}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-back-bottom .LoudzImgsOverlap__Media--second-desktop,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--layout-back-bottom .LoudzImgsOverlap__Media--second-mobile{grid-column-start:5;grid-column-end:11;grid-row-start:1;grid-row-end:9;z-index:2}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--desktop,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--second-desktop{display:none}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--mobile,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--second-mobile{display:block}@media(min-width: 992px){.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--desktop,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--second-desktop{display:block;position:relative;z-index:2}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--mobile,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--second-mobile{display:none}}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--aspectRatio-square img{aspect-ratio:1/1}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--aspectRatio-portrait img{aspect-ratio:2/3}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Media--aspectRatio-landscape img{aspect-ratio:16/9}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content{width:100%;display:flex;align-items:center;z-index:1;padding:var(--loudz-space-16);justify-content:var(--section-text-alignment)}@media(min-width: 992px){.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content{width:var(--section-text-box-width);display:flex;align-items:center;justify-content:var(--section-text-alignment);flex:1 0 var(--section-text-box-width);padding:var(--loudz-space-20) var(--loudz-space-80)}}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox{text-align:var(--section-text-alignment);display:flex;flex-direction:column;gap:var(--loudz-space-8)}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Heading{margin:0;font-size:var(--block-heading-size-mobile);color:var(--block-heading-color);font-weight:var(--block-heading-font-weight);padding-left:var(--block-heading-left-padding-mobile);padding-right:var(--block-heading-right-padding-mobile)}@media(min-width: 992px){.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Heading{font-size:var(--block-heading-size-desktop);padding-left:var(--block-heading-left-padding-desktop);padding-right:var(--block-heading-right-padding-desktop)}}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Heading--alternativeFont{font-family:var(--block-heading-font)}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description p,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description ul,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description ol{margin:var(--loudz-space-8) 0;max-width:550px;font-size:var(--block-description-size-mobile);color:var(--block-description-color)}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description h1,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description h2,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description h3,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description h4,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description h5,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description h6{color:var(--block-description-color);margin:0;padding:0}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description a{color:var(--block-description-color);margin:0;padding:0;text-decoration:underline;text-underline-offset:var(--loudz-space-2);transition:opacity .3s ease-in}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description a:hover{opacity:.85}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description ul,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description ol{padding-left:var(--loudz-space-20)}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description--alignment-center ul,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description--alignment-center ol,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description--alignment-right ul,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description--alignment-right ol{list-style-position:inside}@media(min-width: 992px){.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description p,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description ul,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description ol{font-size:var(--block-description-size-desktop)}}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description--alternativeFont p,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description--alternativeFont ul,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description--alternativeFont ol,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description--alternativeFont h1,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description--alternativeFont h2,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description--alternativeFont h3,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description--alternativeFont h4,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description--alternativeFont h5,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzTextBox__Description--alternativeFont h6{font-family:var(--block-description-font)}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzImgsOverlapButtons{display:flex;gap:var(--loudz-space-12);flex-wrap:wrap;justify-content:var(--section-text-alignment)}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzImgsOverlapButtons__Primary,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzImgsOverlapButtons__Secondary{display:inline-flex;justify-content:center;align-items:center;cursor:pointer;font:inherit;font-size:var(--loudz-font-size-14);text-decoration:var(--loudz-text-decoration-none);-webkit-appearance:none;appearance:none;width:fit-content;padding:var(--loudz-space-16) var(--loudz-space-20);transition:all .3s ease-in;line-height:1}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzImgsOverlapButtons__Primary:hover,.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzImgsOverlapButtons__Secondary:hover{opacity:.85}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzImgsOverlapButtons__Primary--solid{color:var(--block-primary-button-text-color);background:var(--block-primary-button-background-color);border-radius:var(--block-primary-button-corner-radius)}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzImgsOverlapButtons__Primary--outline{color:var(--block-primary-button-text-color);background:rgba(0,0,0,0);border:var(--loudz-border-width-1) solid var(--block-primary-button-border-color);border-radius:var(--block-primary-button-corner-radius)}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzImgsOverlapButtons__Primary--link{color:var(--block-primary-button-text-color);background:rgba(0,0,0,0);border:0;padding:0;border-radius:0;text-decoration:var(--loudz-text-decoration-underline);text-underline-offset:var(--loudz-space-4)}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzImgsOverlapButtons__Secondary--solid{color:var(--block-secondary-button-text-color);background:var(--block-secondary-button-background-color);border-radius:var(--block-secondary-button-corner-radius)}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzImgsOverlapButtons__Secondary--outline{color:var(--block-secondary-button-text-color);background:rgba(0,0,0,0);border:var(--loudz-border-width-1) solid var(--block-secondary-button-border-color);border-radius:var(--block-secondary-button-corner-radius)}.Loudz-{{ section.id | handle }} .LoudzImgsOverlapContainer .LoudzImgsOverlap__Content .LoudzImgsOverlapButtons__Secondary--link{color:var(--block-secondary-button-text-color);background:rgba(0,0,0,0);border:0;border-radius:0;padding:0;text-decoration:var(--loudz-text-decoration-underline);text-underline-offset:var(--loudz-space-4)}
+
+{% endstyle %}
+
+
+
+{% style %}
+	
+
+.LoudzUninstallBG{background-color:var(--loudz-color-bg-fill-inverse-on-light);background-image:url("data:image/avif;base64,iVBORw0KGgoAAAANSUhEUgAABOcAAABkCAQAAABnAJxfAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAACYktHRAD/h4/MvwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+gLFQgmAgUXFkMAAARaSURBVHja7daxbSRBEATB8ZzvKw0h1dcIlJS4jl25Azlavffn9/3v++e//+vvCwqFQqFQKBRKSklEUCgUCoVCoVAMOgqFQqFQKJSzSiKCQqFQKBQKhWLQUSgUCoVCoZxVEhEUCoVCoVAoFIOOQqFQKBQK5VOURASFQqFQKBQKZVUSERQKhUKhUCiUVUlEUCgUCoVCoVBWZbtOPoVCoVAoFArlovIKERQKhUKhUCiUVXmFCAqFQqFQKBTKqrxCBIVCoVAoFAplVV4hgkKhUCgUCoUyK4kICoVCoVAoFMqqJCIoFAqFQqFQKKuSiKBQKBQKhUKhrEoigkKhUCgUCoVi0FEoFAqFQqGcVRIRFAqFQqFQKBSDjkKhUCgUCuWskoigUCgUCoVCoRh0FAqFQqFQKGeVRASFQqFQKBQKxaCjUCgUCoVCOaskIigUCoVCoVAoBh2FQqFQKBTKWSURQaFQKBQKhUIx6CgUCoVCoVDOKokICoVCoVAoFIpBR6FQKBQKhXJWSURQKBQKhUKhUAw6CoVCoVAolLNKIoJCoVAoFAqFYtBRKBQKhUKhnFUSERQKhUKhUCgUg45CoVAoFArlrJKIoFAoFAqFQqEYdBQKhUKhUChnlUQEhUKhUCgUCsWgo1AoFAqFQvkUJRFBoVAoFAqFQlmVRASFQqFQKBQKZVUSERQKhUKhUCiUVdmuk0+hUCgUCoVCuai8QgSFQqFQKBQKZVVeIYJCoVAoFAqFsiqvEEGhUCgUCoVCWZVXiKBQKBQKhUKhzEoigkKhUCgUCoWyKokICoVCoVAoFMqqJCIoFAqFQqFQKAYdhUKhUCgUylklEUGhUCgUCoVCMegoFAqFQqFQziqJCAqFQqFQKBSKQUehUCgUCoVyVklEUCgUCoVCoVAMOgqFQqFQKJSzSiKCQqFQKBQKhWLQUSgUCoVCoZxVEhEUCoVCoVAoFIOOQqFQKBQK5dOVX5nMB52iezhxAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI0LTExLTIxVDA4OjM4OjAyKzAwOjAw30WrCwAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNC0xMS0yMVQwODozODowMiswMDowMK4YE7cAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjQtMTEtMjFUMDg6Mzg6MDIrMDA6MDD5DTJoAAAAAElFTkSuQmCC");background-position:center;background-size:cover;text-align:center;padding:var(--loudz-space-32);margin:0}.LoudzUninstallBG__Text{color:var(--loudz-color-text-disable-on-light);font-family:Inter,sans-serif;font-size:var(--loudz-font-size-14);font-weight:var(--loudz-font-weight-400);line-height:var(--loudz-line-height-140);padding:var(--loudz-space-16) var(--loudz-space-16) var(--loudz-space-16) var(--loudz-space-40);background-color:var(--loudz-color-bg-fill-inverse-on-light);display:inline-block}.LoudzUninstallBG__Text::before{content:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%0A%09%09%09%3Cpath%20d%3D%22M9.99994%206.75C10.4142%206.75%2010.7499%207.08579%2010.7499%207.5V11C10.7499%2011.4142%2010.4142%2011.75%209.99994%2011.75C9.58573%2011.75%209.24994%2011.4142%209.24994%2011V7.5C9.24994%207.08579%209.58573%206.75%209.99994%206.75Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%09%3Cpath%20d%3D%22M11%2013.5C11%2014.0523%2010.5523%2014.5%2010%2014.5C9.44772%2014.5%209%2014.0523%209%2013.5C9%2012.9477%209.44772%2012.5%2010%2012.5C10.5523%2012.5%2011%2012.9477%2011%2013.5Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%09%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M10%203.5C8.95471%203.5%208.21616%204.20232%207.84762%204.94672C7.65565%205.33448%206.75984%207.0441%205.84305%208.79353L5.81531%208.84646C4.9229%2010.5493%204.01714%2012.2777%203.80716%2012.702C3.4351%2013.4537%203.32931%2014.4519%203.89953%2015.316C4.46911%2016.1791%205.44222%2016.5%206.36356%2016.5L13.6364%2016.5C14.5577%2016.5%2015.5308%2016.1791%2016.1004%2015.316C16.6707%2014.4519%2016.5649%2013.4537%2016.1928%2012.702C15.9832%2012.2784%2015.08%2010.555%2014.1889%208.85476L14.1569%208.79352C13.24%207.044%2012.3443%205.33454%2012.1524%204.94693C11.784%204.20242%2011.0454%203.5%2010%203.5ZM9.1919%205.61225C9.59605%204.79592%2010.4041%204.79592%2010.8081%205.61225C11.0102%206.02061%2011.9201%207.75686%2012.8296%209.49243C13.7383%2011.2262%2014.6466%2012.9594%2014.8485%2013.3673C15.2525%2014.1837%2014.8485%2015%2013.6364%2015L6.36356%2015C5.1515%2015%204.74746%2014.1837%205.1515%2013.3673C5.35376%2012.9587%206.26468%2011.2205%207.1748%209.4838C8.08283%207.75111%208.99005%206.01994%209.1919%205.61225Z%22%20fill%3D%22%23B28400%22%2F%3E%0A%09%09%3C%2Fsvg%3E");position:absolute;width:var(--loudz-space-20);height:var(--loudz-space-20);margin-left:calc(-1*var(--loudz-space-24))}.LoudzUninstallBG__Text a{color:var(--loudz-color-text-disable-on-light)}.LoudzUninstallBG__Text a:hover{text-decoration:none}
+
+{% endstyle %}
