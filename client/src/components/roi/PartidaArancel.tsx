@@ -212,7 +212,7 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
               </div>
               {sinServicio && (
                 <p className="mt-2 text-sm text-amber-800">
-                  {es ? 'El buscador de partidas no respondió. Mientras tanto, el cálculo usa el supuesto del equipo.' : 'The tariff search did not respond. Meanwhile the projection uses the team’s assumption.'}
+                  {es ? 'El buscador de partidas no respondió. Mientras tanto, el cálculo usa un arancel estimado.' : 'The tariff search did not respond. Meanwhile the projection uses an estimated duty.'}
                 </p>
               )}
               {buscando && <p className="mt-2 text-sm text-muted-foreground">{es ? 'Buscando…' : 'Searching…'}</p>}
@@ -248,8 +248,8 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
           )}
           <p className="mt-3 text-xs text-muted-foreground">
             {es
-              ? 'Mientras no elijas una partida, el cálculo usa el supuesto del equipo: 8 % si el producto no cumple un acuerdo comercial.'
-              : 'Until you pick a code, the projection uses the team’s assumption: 8% when the product does not qualify under a trade agreement.'}
+              ? 'Mientras no elijas una partida, el cálculo usa un arancel estimado. Con tu partida, usa el real.'
+              : 'Until you pick a code, the projection uses an estimated duty. With your code, it uses the real one.'}
           </p>
         </>
       )}

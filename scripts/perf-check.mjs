@@ -377,8 +377,8 @@ try {
 try {
   await page.goto(base + '/roi', { waitUntil: 'load' });
   await page.waitForTimeout(1200);
-  const statsOf = async () =>
-    (await page.locator('text=/RETURN ON INVESTMENT|RETORNO SOBRE/i').first().locator('xpath=ancestor::section[1]').innerText());
+  // The live result card next to the inputs (data-roi-resultado).
+  const statsOf = async () => await page.locator('[data-roi-resultado]').first().innerText();
   const before = await statsOf();
   await page.fill('#in_price', '95');
   await page.waitForTimeout(600);

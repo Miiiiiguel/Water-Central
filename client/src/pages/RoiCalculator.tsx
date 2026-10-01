@@ -9,7 +9,7 @@ import {
   ENTRADA_INICIAL, mesEnQue, pedirProyeccion, relleno,
   type AnioUnoResumen, type FilaDesglose, type Pronostico, type Proyeccion, type RoiEntrada, type Scenario,
 } from '@/lib/roi';
-import { MONTH_LABELS, MONTH_LABELS_EN, fmtInt, fmtMoney, pctOf, setRoiLocale, xOf } from '@/lib/roiFormat';
+import { MONTH_LABELS, MONTH_LABELS_EN, fmtInt, fmtMoney, fmtMoney2, pctOf, setRoiLocale, xOf } from '@/lib/roiFormat';
 import RoiTable, { type RoiRow } from '@/components/roi/RoiTable';
 import PartidaArancel from '@/components/roi/PartidaArancel';
 import EnvioEEUU from '@/components/roi/EnvioEEUU';
@@ -66,15 +66,6 @@ function NumberField({
   );
 }
 
-function FieldGroup({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="mb-6 last:mb-0">
-      <p className="mb-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{title}</p>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3.5">{children}</div>
-    </div>
-  );
-}
-
 function ScenarioToggle({
   value, onChange, labels, dark = false,
 }: {
@@ -101,6 +92,110 @@ function ScenarioToggle({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+function Paso({ n, title, help, children }: { n: number; title: string; help: string; children: React.ReactNode }) {
+  return (
+    <div className="mb-7 border-b border-dashed border-gray-100 pb-7 last-of-type:border-0">
+      <div className="mb-4 flex items-start gap-3">
+        <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary text-sm font-black text-white">{n}</span>
+        <div>
+          <h3 className="text-base font-bold leading-snug text-primary md:text-lg">{title}</h3>
+          <p className="text-sm text-muted-foreground">{help}</p>
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * El resultado, en palabras: qué tan bueno es el negocio, cuánto deja el
+ * primer año, cuánto hay que poner y cuándo vuelve. Queda fijo al lado de
+ * los datos para que se vea cambiar mientras se escribe.
+ */
+function ResultadoVivo({
+  es, proy, sinRespuesta, hero, inversion, paybackMonth, escenario, onEscenario, labels,
+}: {
+  es: boolean;
+  proy: Proyeccion | null;
+  sinRespuesta: boolean;
+  hero: AnioUnoResumen | null;
+  inversion: Proyeccion['inversion'] | undefined;
+  paybackMonth: number | null;
+  escenario: Scenario;
+  onEscenario: (s: Scenario) => void;
+  labels: { conservador: string; optimista: string };
+}) {
+  if (!proy || !hero || !inversion) {
+    return (
+      <div className="flex min-h-[260px] items-center justify-center rounded-3xl border border-gray-100 bg-secondary/40 p-8 text-center text-muted-foreground">
+        {sinRespuesta
+          ? es ? 'No pudimos calcular tu proyección. Revisa tu conexión e intenta de nuevo.' : 'We could not run your projection. Check your connection and try again.'
+          : es ? 'Calculando tu proyección…' : 'Running your projection…'}
+      </div>
+    );
+  }
+
+  const gana = hero.utilidad > 0;
+  const veredicto = !gana
+    ? { tono: 'bg-red-500/15 text-red-200', icono: '✕', texto: es ? 'Con estos números el primer año da pérdida. Prueba subir el precio o bajar costos.' : 'With these numbers year one loses money. Try a higher price or lower costs.' }
+    : paybackMonth
+      ? { tono: 'bg-green-500/15 text-green-200', icono: '✓', texto: es ? `Buen negocio: recuperas lo invertido en el mes ${paybackMonth}.` : `Good business: you get your investment back in month ${paybackMonth}.` }
+      : { tono: 'bg-amber-500/15 text-amber-200', icono: '!', texto: es ? 'Ganas dinero, pero la inversión vuelve después del primer año.' : 'You make money, but the investment comes back after year one.' };
+  const porDolar = inversion.total > 0 ? hero.utilidad / inversion.total : 0;
+  const unidadMadura = hero.profitUnit[hero.profitUnit.length - 1] ?? 0;
+
+  return (
+    <div data-roi-resultado className="overflow-hidden rounded-3xl bg-gradient-to-br from-[#130B2E] via-primary to-[#1F2E73] p-6 text-white shadow-glow-lg">
+      <p className="text-[11px] font-bold uppercase tracking-wider text-indigo-200">{es ? 'Tu resultado · Año 1' : 'Your result · Year 1'}</p>
+      <div className="mt-3">
+        <ScenarioToggle value={escenario} onChange={onEscenario} labels={labels} dark />
+      </div>
+
+      <p className={`mt-4 flex items-start gap-2 rounded-2xl px-3.5 py-2.5 text-sm font-semibold ${veredicto.tono}`}>
+        <span aria-hidden="true" className="font-black">{veredicto.icono}</span>
+        <span>{veredicto.texto}</span>
+      </p>
+
+      <p className="mt-5 text-sm text-indigo-200">{es ? 'Ganancia del primer año' : 'Year-one profit'}</p>
+      <p className={`text-4xl font-black tabular-nums md:text-5xl ${gana ? 'text-white' : 'text-red-300'}`}>{fmtMoney(hero.utilidad)}</p>
+      <p className="mt-1 text-sm text-indigo-300">
+        {es ? 'de ' : 'from '}{fmtMoney(hero.revenue)}{es ? ' en ventas · margen ' : ' in sales · margin '}{pctOf(hero.utilidad, hero.revenue)}
+      </p>
+
+      <dl className="mt-6 space-y-3.5 border-t border-white/15 pt-5">
+        <div className="flex items-baseline justify-between gap-3">
+          <dt>
+            <span className="block text-sm font-semibold">{es ? 'Para arrancar necesitas' : 'To start you need'}</span>
+            <span className="block text-xs text-indigo-300">{es ? 'inventario, envío y 3 meses de marketing' : 'inventory, shipping and 3 months of marketing'}</span>
+          </dt>
+          <dd className="whitespace-nowrap text-lg font-black tabular-nums">{fmtMoney(inversion.total)}</dd>
+        </div>
+        <div className="flex items-baseline justify-between gap-3">
+          <dt>
+            <span className="block text-sm font-semibold">{es ? 'Por cada dólar que inviertes' : 'For every dollar you invest'}</span>
+            <span className="block text-xs text-indigo-300">{es ? 'ganas en el primer año' : 'you earn in year one'}</span>
+          </dt>
+          <dd className={`whitespace-nowrap text-lg font-black tabular-nums ${porDolar >= 0 ? 'text-accent' : 'text-red-300'}`}>{fmtMoney2(porDolar)}</dd>
+        </div>
+        <div className="flex items-baseline justify-between gap-3">
+          <dt>
+            <span className="block text-sm font-semibold">{es ? 'Recuperas la inversión' : 'You get the investment back'}</span>
+            <span className="block text-xs text-indigo-300">{es ? 'cuando la caja cubre lo que pusiste' : 'when cash covers what you put in'}</span>
+          </dt>
+          <dd className="whitespace-nowrap text-lg font-black">{paybackMonth ? `${es ? 'Mes' : 'Month'} ${paybackMonth}` : es ? 'Después del mes 12' : 'After month 12'}</dd>
+        </div>
+        <div className="flex items-baseline justify-between gap-3">
+          <dt>
+            <span className="block text-sm font-semibold">{es ? 'Cada unidad te deja' : 'Each unit leaves you'}</span>
+            <span className="block text-xs text-indigo-300">{es ? 'cuando ya vendes estable (mes 12)' : 'once sales are steady (month 12)'}</span>
+          </dt>
+          <dd className={`whitespace-nowrap text-lg font-black tabular-nums ${unidadMadura >= 0 ? '' : 'text-red-300'}`}>{fmtMoney2(unidadMadura)}</dd>
+        </div>
+      </dl>
     </div>
   );
 }
@@ -197,7 +292,6 @@ export default function RoiCalculator() {
   const detail1: AnioUnoResumen | null = r ? (detailScenario === 'optimista' ? r.opt1 : r.cons1) : null;
   const inversion = proy?.inversion;
 
-  const breakevenMonth = hero ? mesEnQue(hero.saldo, 0) : null;
   const paybackMonth = hero && inversion ? mesEnQue(hero.saldo, inversion.total) : null;
   const consBreak = r ? mesEnQue(r.cons1.saldo, 0) : null;
   const optBreak = r ? mesEnQue(r.opt1.saldo, 0) : null;
@@ -302,175 +396,158 @@ export default function RoiCalculator() {
           </p>
         </section>
 
-        {/* Inputs */}
-        <section className="my-8 rounded-3xl border border-gray-100 bg-white p-6 app-shadow md:p-8">
-          <div className="mb-6 flex flex-wrap items-baseline justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-bold text-primary">{es ? 'Tus números' : 'Your numbers'}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {es ? 'Cambia cualquier campo — los resultados de abajo se actualizan solos.' : 'Change any field — the results below update on their own.'}
-              </p>
-            </div>
-            <span className="inline-flex flex-none items-center gap-2 rounded-full bg-green-50 px-3.5 py-1.5 text-xs font-bold text-green-700">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />
-              {es ? 'Cálculo en vivo' : 'Live calculation'}
-            </span>
-          </div>
-
-          <FieldGroup title={es ? 'Producto' : 'Product'}>
-            <NumberField id="in_price" label={es ? 'Precio de venta en USA' : 'US selling price'} value={inputs.price} onChange={(v) => set('price', v)} prefix="$" step={0.1} />
-            <NumberField id="in_cost" label={es ? 'Costo de producción (Latinoamérica)' : 'Production cost (Latin America)'} value={inputs.cost} onChange={(v) => set('cost', v)} prefix="$" step={0.1} />
-            <NumberField id="in_weight" label={es ? 'Peso empacado por producto' : 'Packed weight per product'} value={inputs.weightG} onChange={(v) => set('weightG', v)} suffix="g" step={10} min={1} />
-            <NumberField id="in_lot" label={es ? 'Inventario inicial (unidades)' : 'Initial inventory (units)'} value={inputs.lot} onChange={(v) => set('lot', v)} step={50} min={1} />
-          </FieldGroup>
-
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <label className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-              <span className="whitespace-nowrap">{es ? 'País de destino' : 'Destination country'}</span>
-              <select
-                value={destinoIso}
-                onChange={(e) => cambiarDestino(e.target.value)}
-                className="w-48 max-w-full rounded-lg border-[1.5px] border-gray-200 bg-white px-2 py-1.5 text-sm font-bold text-primary outline-none focus:border-accent"
-              >
-                {DESTINOS.map((d) => (
-                  <option key={d.iso} value={d.iso}>{es ? d.nombre : d.nombreEn}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <PartidaArancel
-            soloSubpartida={!esUS}
-            es={es}
-            detalle={partida}
-            onDetalle={setPartida}
-            pais={pais}
-            onPais={setPais}
-            cumple={inputs.meetsAgreement}
-            derecho={esUS ? derecho : null}
-          />
-
-          {!esUS && partida && (
-            <LineaDestino
-              es={es}
-              destino={dest}
-              hs6={partida.digitos.slice(0, 6)}
-              origen={pais}
-              cumple={inputs.meetsAgreement}
-              arancel={arancelDestino}
-              onArancel={setArancelDestino}
-              derecho={derecho}
-            />
-          )}
-
-          <FieldGroup title={es ? 'Operación y aranceles' : 'Operations and tariffs'}>
-            <NumberField id="in_returns" label={es ? 'Devoluciones' : 'Returns'} value={inputs.returnsPct * 100} onChange={(v) => set('returnsPct', v / 100)} suffix="%" step={0.5} />
-            <NumberField id="in_ugc" label={es ? 'Comisión red comercial' : 'Sales-network commission'} value={inputs.ugcPct * 100} onChange={(v) => set('ugcPct', v / 100)} suffix="%" step={1} />
-            <div>
-              <p className="mb-1.5 text-sm font-semibold text-muted-foreground">
-                {es ? '¿Cumple las reglas de origen de un acuerdo comercial?' : 'Does it meet a trade agreement’s rules of origin?'}
-              </p>
-              <div className="flex gap-2">
-                {[
-                  { value: false, label: 'No' },
-                  { value: true, label: es ? 'Sí' : 'Yes' },
-                ].map((opt) => {
-                  const active = inputs.meetsAgreement === opt.value;
-                  return (
-                    <button
-                      key={opt.label}
-                      type="button"
-                      aria-pressed={active}
-                      onClick={() => set('meetsAgreement', opt.value)}
-                      className={`tap-scale-sm flex-1 cursor-pointer rounded-xl border-[1.5px] px-3 py-2.5 text-sm font-bold transition-colors ${
-                        active ? 'border-primary bg-primary text-white' : 'border-gray-200 bg-secondary/60 text-muted-foreground hover:border-gray-300'
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  );
-                })}
+        {/* Inputs + live result */}
+        <div className="my-8 grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_390px]">
+          <section className="rounded-3xl border border-gray-100 bg-white p-5 app-shadow md:p-8">
+            <div className="mb-7 flex flex-wrap items-baseline justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-bold text-primary">{es ? 'Tus números' : 'Your numbers'}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {es ? 'Llena los 4 pasos. El resultado se actualiza solo mientras escribes.' : 'Fill in the 4 steps. The result updates as you type.'}
+                </p>
               </div>
+              <span className="inline-flex flex-none items-center gap-2 rounded-full bg-green-50 px-3.5 py-1.5 text-xs font-bold text-green-700">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />
+                {es ? 'Cálculo en vivo' : 'Live calculation'}
+              </span>
             </div>
-            {pideLitros && (
-              <NumberField
-                id="in_liters"
-                label={es ? 'Contenido por unidad' : 'Content per unit'}
-                value={Math.round(inputs.litersPerUnit * 1000)}
-                onChange={(v) => set('litersPerUnit', v / 1000)}
-                suffix="ml"
-                step={50}
+
+            <Paso n={1} title={es ? 'Tu producto' : 'Your product'} help={es ? 'Lo que cobras en EE. UU., lo que te cuesta hacerlo y cuánto mandas en el primer envío.' : 'What you charge in the US, what it costs you to make, and how much you ship first.'}>
+              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+                <NumberField id="in_price" label={es ? 'Precio de venta en EE. UU.' : 'US selling price'} value={inputs.price} onChange={(v) => set('price', v)} prefix="$" step={0.1} />
+                <NumberField id="in_cost" label={es ? 'Costo de producirlo' : 'Production cost'} value={inputs.cost} onChange={(v) => set('cost', v)} prefix="$" step={0.1} />
+                <NumberField id="in_weight" label={es ? 'Peso con empaque' : 'Packed weight'} value={inputs.weightG} onChange={(v) => set('weightG', v)} suffix="g" step={10} min={1} />
+                <NumberField id="in_lot" label={es ? 'Unidades del primer envío' : 'Units in the first shipment'} value={inputs.lot} onChange={(v) => set('lot', v)} step={50} min={1} />
+              </div>
+            </Paso>
+
+            <Paso n={2} title={es ? 'Dónde vendes y su arancel' : 'Where you sell and its duty'} help={es ? 'Elige el país y busca tu producto: el arancel sale de la tarifa oficial de ese país.' : 'Pick the country and find your product: the duty comes from that country’s official tariff.'}>
+              <label className="mb-4 block">
+                <span className="mb-1.5 block text-sm font-semibold text-muted-foreground">{es ? 'País de destino' : 'Destination country'}</span>
+                <select
+                  value={destinoIso}
+                  onChange={(e) => cambiarDestino(e.target.value)}
+                  className="w-full rounded-xl border-[1.5px] border-gray-200 bg-secondary/60 px-3 py-2.5 font-bold text-primary outline-none focus:border-accent focus:bg-white sm:w-64"
+                >
+                  {DESTINOS.map((d) => (
+                    <option key={d.iso} value={d.iso}>{es ? d.nombre : d.nombreEn}</option>
+                  ))}
+                </select>
+              </label>
+
+              <PartidaArancel
+                soloSubpartida={!esUS}
+                es={es}
+                detalle={partida}
+                onDetalle={setPartida}
+                pais={pais}
+                onPais={setPais}
+                cumple={inputs.meetsAgreement}
+                derecho={esUS ? derecho : null}
               />
+
+              {!esUS && partida && (
+                <LineaDestino
+                  es={es}
+                  destino={dest}
+                  hs6={partida.digitos.slice(0, 6)}
+                  origen={pais}
+                  cumple={inputs.meetsAgreement}
+                  arancel={arancelDestino}
+                  onArancel={setArancelDestino}
+                  derecho={derecho}
+                />
+              )}
+
+              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+                <div>
+                  <p className="mb-1.5 text-sm font-semibold text-muted-foreground">
+                    {es ? '¿Cumple las reglas de origen de un acuerdo comercial?' : 'Does it meet a trade agreement’s rules of origin?'}
+                  </p>
+                  <div className="flex gap-2">
+                    {[
+                      { value: false, label: 'No' },
+                      { value: true, label: es ? 'Sí' : 'Yes' },
+                    ].map((opt) => {
+                      const active = inputs.meetsAgreement === opt.value;
+                      return (
+                        <button
+                          key={opt.label}
+                          type="button"
+                          aria-pressed={active}
+                          onClick={() => set('meetsAgreement', opt.value)}
+                          className={`tap-scale-sm flex-1 cursor-pointer rounded-xl border-[1.5px] px-3 py-2.5 text-sm font-bold transition-colors ${
+                            active ? 'border-primary bg-primary text-white' : 'border-gray-200 bg-secondary/60 text-muted-foreground hover:border-gray-300'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                {pideLitros && (
+                  <NumberField
+                    id="in_liters"
+                    label={es ? 'Contenido por unidad' : 'Content per unit'}
+                    value={Math.round(inputs.litersPerUnit * 1000)}
+                    onChange={(v) => set('litersPerUnit', v / 1000)}
+                    suffix="ml"
+                    step={50}
+                  />
+                )}
+              </div>
+            </Paso>
+
+            {esUS && (
+              <Paso n={3} title={es ? 'Envío de cada pedido' : 'Shipping each order'} help={es ? 'Opcional: cotiza el envío real desde tu bodega en EE. UU.' : 'Optional: quote the real shipping from your US warehouse.'}>
+                <EnvioEEUU
+                  es={es}
+                  pesoG={inputs.weightG}
+                  aplica={proy?.envioAplica ?? false}
+                  valor={inputs.domesticShipUsd}
+                  onValor={setEnvio}
+                />
+              </Paso>
             )}
-          </FieldGroup>
 
-          {esUS && <EnvioEEUU
-            es={es}
-            pesoG={inputs.weightG}
-            aplica={proy?.envioAplica ?? false}
-            valor={inputs.domesticShipUsd}
-            onValor={setEnvio}
-          />}
+            <Paso n={esUS ? 4 : 3} title={es ? 'Tu marketing del mes' : 'Your monthly marketing'} help={es ? 'Lo que vas a invertir cada mes para vender.' : 'What you will invest every month to sell.'}>
+              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-3">
+                <NumberField id="in_ads" label={es ? 'Publicidad (ADS)' : 'Advertising (ads)'} value={inputs.adsBudget} onChange={(v) => set('adsBudget', v)} prefix="$" step={50} />
+                <NumberField id="in_content" label={es ? 'Contenido' : 'Content'} value={inputs.contentBudget} onChange={(v) => set('contentBudget', v)} prefix="$" step={50} />
+                <NumberField id="in_channel" label={es ? 'Manejo del canal' : 'Channel management'} value={inputs.channelBudget} onChange={(v) => set('channelBudget', v)} prefix="$" step={50} />
+              </div>
+            </Paso>
 
-          <FieldGroup title={es ? 'Marketing y operación (presupuesto mensual)' : 'Marketing and operations (monthly budget)'}>
-            <NumberField id="in_ads" label={es ? 'Publicidad (ADS)' : 'Advertising (ads)'} value={inputs.adsBudget} onChange={(v) => set('adsBudget', v)} prefix="$" step={50} />
-            <NumberField id="in_content" label={es ? 'Generación de contenido' : 'Content production'} value={inputs.contentBudget} onChange={(v) => set('contentBudget', v)} prefix="$" step={50} />
-            <NumberField id="in_channel" label={es ? 'Administración de canal' : 'Channel management'} value={inputs.channelBudget} onChange={(v) => set('channelBudget', v)} prefix="$" step={50} />
-          </FieldGroup>
-        </section>
-
-        {!proy && (
-          <section className="my-9 flex min-h-[200px] items-center justify-center rounded-3xl border border-gray-100 bg-secondary/40 p-8 text-center text-muted-foreground">
-            {sinRespuesta
-              ? es ? 'No pudimos calcular tu proyección. Revisa tu conexión e intenta de nuevo.' : 'We could not run your projection. Check your connection and try again.'
-              : es ? 'Calculando tu proyección…' : 'Running your projection…'}
+            <details className="group rounded-2xl border border-gray-100 bg-secondary/40 px-4 py-3">
+              <summary className="cursor-pointer list-none text-sm font-bold text-primary">
+                <span className="mr-1.5 inline-block transition-transform group-open:rotate-90">›</span>
+                {es ? 'Ajustes finos (opcional)' : 'Fine-tuning (optional)'}
+                <span className="ml-2 font-normal text-muted-foreground">{es ? 'devoluciones y comisión de vendedores' : 'returns and sales commission'}</span>
+              </summary>
+              <div className="mt-4 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+                <NumberField id="in_returns" label={es ? 'Devoluciones' : 'Returns'} value={inputs.returnsPct * 100} onChange={(v) => set('returnsPct', v / 100)} suffix="%" step={0.5} />
+                <NumberField id="in_ugc" label={es ? 'Comisión de la red comercial' : 'Sales-network commission'} value={inputs.ugcPct * 100} onChange={(v) => set('ugcPct', v / 100)} suffix="%" step={1} />
+              </div>
+            </details>
           </section>
-        )}
+
+          <aside className="lg:sticky lg:top-24">
+            <ResultadoVivo
+              es={es}
+              proy={proy}
+              sinRespuesta={sinRespuesta}
+              hero={hero}
+              inversion={inversion}
+              paybackMonth={paybackMonth}
+              escenario={heroScenario}
+              onEscenario={setHeroScenario}
+              labels={scenarioLabels}
+            />
+          </aside>
+        </div>
 
         {proy && r && hero && detail1 && inversion && (<>
-        {/* Headline stats */}
-        <section className="my-9 rounded-3xl bg-gradient-to-br from-[#130B2E] via-primary to-[#1F2E73] p-8 md:p-10">
-          <div className="grid grid-cols-1 gap-7 md:grid-cols-3">
-            <div>
-              <p className="mb-2 text-xs font-semibold tracking-wide text-indigo-200">
-                {es ? 'RETORNO SOBRE LA INVERSIÓN · AÑO 1' : 'RETURN ON INVESTMENT · YEAR 1'}
-              </p>
-              <p className="text-4xl font-black text-white md:text-5xl">
-                {(inversion.total > 0 ? hero.utilidad / inversion.total : 0).toFixed(1)}
-                <span className="text-accent">x</span>
-              </p>
-              <p className="mt-1.5 text-sm text-indigo-300">
-                {es ? 'Sobre inversión inicial de ' : 'On an initial investment of '}{fmtMoney(inversion.total)}
-              </p>
-            </div>
-            <div>
-              <p className="mb-2 text-xs font-semibold tracking-wide text-indigo-200">
-                {es ? 'UTILIDAD NETA · AÑO 1' : 'NET PROFIT · YEAR 1'}
-              </p>
-              <p className="text-4xl font-black text-white md:text-5xl">{fmtMoney(hero.utilidad)}</p>
-              <p className="mt-1.5 text-sm text-indigo-300">
-                {es ? 'Margen ' : 'Margin '}{pctOf(hero.utilidad, hero.revenue)}
-                {es ? ' sobre ' : ' on '}{fmtMoney(hero.revenue)}{es ? ' en ventas' : ' in sales'}
-              </p>
-            </div>
-            <div>
-              <p className="mb-2 text-xs font-semibold tracking-wide text-indigo-200">
-                {es ? 'RECUPERACIÓN DE LA INVERSIÓN' : 'PAYBACK'}
-              </p>
-              <p className="text-4xl font-black text-white md:text-5xl">
-                {paybackMonth ? `${es ? 'Mes' : 'Month'} ${paybackMonth}` : es ? '12+ meses' : '12+ months'}
-              </p>
-              <p className="mt-1.5 text-sm text-indigo-300">
-                {es ? 'Caja acumulada positiva desde ' : 'Cash balance turns positive from '}
-                {breakevenMonth ? `${es ? 'el mes' : 'month'} ${breakevenMonth}` : es ? 'no en 12 meses' : 'not within 12 months'}
-              </p>
-            </div>
-          </div>
-          <div className="mt-7 flex justify-center">
-            <ScenarioToggle value={heroScenario} onChange={setHeroScenario} labels={scenarioLabels} dark />
-          </div>
-        </section>
-
         {/* Scenario comparison */}
         <section className="my-12">
           <SectionHead
