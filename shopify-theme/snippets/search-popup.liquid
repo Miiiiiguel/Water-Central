@@ -233,7 +233,7 @@
         {{ routes.search_url }}?type=product&options%5Bfields%5D=title,tag,vendor,product_type,variants.title,variants.sku&options%5Bunavailable_products%5D=last&options%5Bprefix%5D=last&q=
       {%- endcapture -%}
       <div id="quick-search" class="quick-search mt-25" style="color: var(--color-heading) !important;">
-        <h3 class="quick-search-title h5 m-0" style="color: var(--color-heading) !important;">Trending Search</h3>
+        <h3 class="quick-search-title h5 m-0" style="color: var(--color-heading) !important;">{{ 'sudafin.trending_search' | t }}</h3>
         <ul class="quick-search-list mt-15 list-unstyled flex flex-wrap gap-10">
           {%- assign popular_key_word = popular_key_word | replace: ' ,', ',' | replace: ', ', ',' | split: ',' -%}
           {%- for qr in popular_key_word -%}

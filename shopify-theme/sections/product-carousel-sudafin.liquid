@@ -176,7 +176,7 @@
                   {%- endif -%}
                 </div>
                 <a href="{{ product.url }}" class="ai-pc-btn">
-                  {{ section.settings.btn_label | default: 'View product' }}
+                  {%- if section.settings.btn_label != blank -%}{{ section.settings.btn_label }}{%- else -%}{{ 'sudafin.view_product' | t }}{%- endif -%}
                 </a>
               </div>
             </div>

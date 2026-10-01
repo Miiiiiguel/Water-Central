@@ -1349,7 +1349,7 @@ html.no-default-spacing-{{ section.id }} main#MainContent > .shopify-section:fir
               {% if enable_buy_now_icon and buy_now_icon != blank %}
                 <img src="{{ buy_now_icon | image_url }}" class="buy-now-icon" alt="Icon">
               {% endif %}
-              {{ buy_now_text | default: 'Shop Now' }}
+              {%- if buy_now_text != blank -%}{{ buy_now_text }}{%- else -%}{{ 'sudafin.shop_now' | t }}{%- endif -%}
             </a>
           </div>
         {% endif %}

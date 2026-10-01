@@ -41,14 +41,14 @@
             <input type="hidden" name="form_type" value="customer">
             <input type="hidden" name="utf8" value="✓">
             <input type="hidden" name="contact[tags]" value="waitlist">
-            <input type="email" name="contact[email]" placeholder="Enter your email" required>
-            <button type="submit">Subscribe</button>
+            <input type="email" name="contact[email]" placeholder="{{ 'sudafin.coming_soon_email' | t }}" required>
+            <button type="submit">{{ 'sudafin.coming_soon_subscribe' | t }}</button>
           </form>
       {% endcase %}
     {% endfor %}
   </div>
   <div class="store-owner-login">
-    <a href="/admin">Are you the store owner? Log in here!</a>
+    <a href="/admin">{{ 'sudafin.coming_soon_owner' | t }}</a>
   </div>
 </section>
 

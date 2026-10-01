@@ -223,3 +223,8 @@ select:focus {
     min-height: 52px !important;
   }
 }
+
+/* Insignia de pago seguro en español */
+html:lang(es) .checkout-button-wrapper::after {
+  content: "🔒 Pago 100% seguro y encriptado";
+}
