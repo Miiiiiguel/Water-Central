@@ -5,32 +5,27 @@ import { getAnonClient, getUserFromRequest } from './supabaseAdmin';
 import { logSecurityEvent } from './log';
 import data from './freightData.json';
 
-// Calculadora de fletes — réplica exacta de EasyComex Calculator v2.2.4
-// (Engine.php / TariffRepository.php / VolumetricCalculator.php), con los
-// datos reales exportados de las CCT de JetEngine en freightData.json.
+// Calculadora de fletes, con la tarifa pública de exportación desde
+// Colombia del servicio express internacional (precios de lista 2026,
+// paquetes), menos el descuento de cada tipo de cliente.
 //
-// Todo el cálculo ocurre acá, en el servidor, a propósito: la tabla de
-// tarifas y los descuentos por tipo de cliente son información comercial.
-// El navegador recibe la lista de destinos (sin zona) y, por cada
-// cotización, el resultado — nunca la tabla.
+// Todo el cálculo ocurre acá, en el servidor, a propósito: los descuentos
+// por tipo de cliente son información comercial. El navegador recibe la
+// lista de destinos (sin zona) y, por cada cotización, el resultado —
+// nunca la tabla.
 //
-// Pipeline (idéntico al plugin):
-//   destino (_ID del zonificador) → zona
-//   peso real        = Σ peso × cantidad
-//   peso volumétrico = Σ (L×W×H / 5000) × cantidad
-//   peso facturable  = max(real, volumétrico)                 (sum_max)
-//   tarifa           = banda plana que contiene el peso, si no la banda
-//                      por kilo, si no la banda más alta
-//   base             = plana ? precio : precio × facturable
-//   final            = base − base × descuento%
-// Bandas [min, max): mínimo inclusivo, máximo exclusivo.
-
-export interface Bracket {
-  min: number;
-  max: number;
-  price: number;
-  multiplier: boolean;
-}
+// Cómo se cobra, tal como lo publica la tarifa:
+//   destino → zona (1 a 7; EE. UU. son dos: Miami zona 2, resto zona 3)
+//   peso de cada pieza = máx(real, L×A×H / 5000), redondeado hacia arriba
+//                        al medio kilo
+//   peso facturable    = suma de las piezas; hasta 30 kg va en medios
+//                        kilos, de ahí en adelante en kilos enteros
+//   precio de lista    = el de la tabla para ese peso; entre los pesos que
+//                        la tabla no trae (10,5 kg, 31 kg, 85 kg…) se suma
+//                        el cargo "por cada medio kilo / kilo adicional"
+//                        del tramo, desde el último peso publicado
+//   final              = lista − descuento del tipo de cliente
+// Más de 3 000 kg no se acepta en la red: se cotiza aparte.
 
 export interface ZoneRow {
   id: string;
@@ -48,22 +43,36 @@ export interface Package {
   quantity?: number;
 }
 
-interface Bundle {
-  settings: { volumetric_divisor: number; weight_aggregation: string; min_billable_weight: number; currency: string; currency_symbol: string };
-  client_types: { type: string; discount_percent: number }[];
-  zones: ZoneRow[];
-  tariffs: Record<string, Bracket[]>;
+/** Cargo por cada `paso` kg adicional, para pesos en (desde, hasta]. */
+export interface Tramo {
+  desde: number;
+  hasta: number;
+  paso: number;
+  precio: number;
 }
 
-const bundle = data as Bundle;
+export interface Tarifa {
+  /** [peso kg, precio de lista USD], como la publica la tabla. */
+  table: [number, number][];
+  extra: Tramo[];
+}
 
-const SETTINGS = {
-  volumetric_divisor: bundle.settings?.volumetric_divisor ?? 5000,
-  weight_aggregation: bundle.settings?.weight_aggregation ?? 'sum_max',
-  min_billable_weight: bundle.settings?.min_billable_weight ?? 0,
-  currency: bundle.settings?.currency ?? 'COP',
-  currency_symbol: bundle.settings?.currency_symbol ?? '$',
-};
+interface Bundle {
+  settings: {
+    volumetric_divisor: number;
+    min_billable_weight: number;
+    max_billable_weight: number;
+    currency: string;
+    currency_symbol: string;
+  };
+  client_types: { type: string; discount_percent: number }[];
+  zones: ZoneRow[];
+  rates: Record<string, Tarifa>;
+}
+
+const bundle = data as unknown as Bundle;
+
+const SETTINGS = bundle.settings;
 
 /** Tipo de cliente (minúsculas) → % de descuento. */
 export const DISCOUNTS: Record<string, number> = Object.fromEntries(
@@ -74,15 +83,15 @@ export const CLIENT_TYPES = bundle.client_types.map((c) => c.type.trim());
 
 export const ZONES: ZoneRow[] = bundle.zones;
 
-/** Tarifas por zona, ordenadas por límite inferior. */
-export const TARIFFS: Record<string, Bracket[]> = Object.fromEntries(
-  Object.entries(bundle.tariffs).map(([zone, brackets]) => [
-    zone.toUpperCase(),
-    brackets
-      .map((b) => ({ min: Number(b.min), max: Number(b.max), price: Number(b.price), multiplier: b.multiplier === true }))
-      .sort((a, b) => a.min - b.min),
+/** Tarifa por zona, con la tabla ordenada por peso. */
+export const RATES: Record<string, Tarifa> = Object.fromEntries(
+  Object.entries(bundle.rates).map(([zone, t]) => [
+    zone,
+    { table: [...t.table].sort((a, b) => a[0] - b[0]), extra: [...t.extra].sort((a, b) => a.desde - b.desde) },
   ])
 );
+
+export const MAX_KG = SETTINGS.max_billable_weight;
 
 export class CalculationError extends Error {}
 
@@ -95,21 +104,20 @@ export function discountFor(type: string): number {
 }
 
 /**
- * Zona desde el _ID del zonificador, el código ISO o el nombre exacto —
- * en ese orden, como ZoneRepository. El _ID es el único determinista:
- * "US" existe dos veces (196 = Estados Unidos excepto Miami → B,
- * 197 = Miami → I), igual que "BT".
+ * Zona desde el id del destino, el código ISO o el nombre exacto — en ese
+ * orden. El id es el único determinista: "US" existe dos veces
+ * (196 = Estados Unidos excepto Miami → 3, 197 = Miami → 2).
  */
 export function resolveZone(destination: string): string | null {
   const dest = String(destination).trim();
   if (!dest) return null;
   const byId = ZONES.find((r) => r.id === dest);
-  if (byId) return byId.zone.toUpperCase() || null;
+  if (byId) return byId.zone || null;
   const needle = dest.toLowerCase();
   const byCode = ZONES.find((r) => r.country_code.toLowerCase() === needle);
-  if (byCode) return byCode.zone.toUpperCase() || null;
+  if (byCode) return byCode.zone || null;
   const byName = ZONES.find((r) => r.country_es.toLowerCase() === needle || r.country_en.toLowerCase() === needle);
-  return byName ? byName.zone.toUpperCase() || null : null;
+  return byName ? byName.zone || null : null;
 }
 
 export function countryLabel(destination: string, lang: 'es' | 'en' = 'es'): string {
@@ -118,34 +126,51 @@ export function countryLabel(destination: string, lang: 'es' | 'en' = 'es'): str
   return (lang === 'en' ? row.country_en : row.country_es) || row.country_es || row.country_en;
 }
 
+/** Hacia arriba al múltiplo de `paso`, sin que 2.0000001 se vuelva 2.5. */
+const haciaArriba = (kg: number, paso: number) => Math.ceil(kg / paso - 1e-9) * paso;
+
+/** Medio kilo hasta 30 kg, kilo entero de ahí en adelante. */
+export function redondearFacturable(kg: number): number {
+  const w = Math.max(kg, SETTINGS.min_billable_weight);
+  return w <= 30 ? haciaArriba(w, 0.5) : haciaArriba(w, 1);
+}
+
 export function aggregateWeights(packages: Package[]) {
   const divisor = Math.max(1, SETTINGS.volumetric_divisor);
-  const perPiece = SETTINGS.weight_aggregation === 'per_piece_max';
   let real = 0;
   let volumetric = 0;
-  let perPieceBillable = 0;
+  let piezas = 0;
   for (const p of packages) {
     const qty = Math.max(1, Math.trunc(Number(p.quantity ?? 1)) || 1);
     const w = Number(p.weight) || 0;
-    const L = Number(p.length) || 0;
-    const W = Number(p.width) || 0;
-    const H = Number(p.height) || 0;
-    const vol = ((L * W * H) / divisor) * qty;
+    const vol = ((Number(p.length) || 0) * (Number(p.width) || 0) * (Number(p.height) || 0)) / divisor;
     real += w * qty;
-    volumetric += vol;
-    perPieceBillable += Math.max(w, vol / qty) * qty;
+    volumetric += vol * qty;
+    piezas += haciaArriba(Math.max(w, vol), 0.5) * qty;
   }
-  return { real, volumetric, billable: perPiece ? perPieceBillable : Math.max(real, volumetric) };
+  return { real, volumetric, billable: redondearFacturable(piezas) };
 }
 
-/** Igual que TariffRepository::findBracket. */
-export function findBracket(zone: string, weight: number): Bracket | null {
-  const brackets = TARIFFS[zone.toUpperCase()];
-  if (!brackets) return null;
-  const w = Math.max(0, weight);
-  const eps = 0.0001;
-  const contains = (b: Bracket) => w >= b.min - eps && w < b.max - eps;
-  return brackets.find((b) => !b.multiplier && contains(b)) ?? brackets.find((b) => b.multiplier && contains(b)) ?? brackets[brackets.length - 1] ?? null;
+/** Precio de lista de una tarifa para un peso ya facturable. */
+export function precioEnTabla(tarifa: Tarifa, kg: number): number {
+  const eps = 1e-9;
+  const publicado = tarifa.table.filter(([w]) => w <= kg + eps);
+  let [actual, precio] = publicado.length ? publicado[publicado.length - 1] : tarifa.table[0];
+  while (actual < kg - eps) {
+    const tramo = tarifa.extra.find((t) => actual >= t.desde - eps && actual + t.paso <= t.hasta + eps);
+    if (!tramo) throw new CalculationError('No se encontró una tarifa para el peso facturable.');
+    actual += tramo.paso;
+    precio += tramo.precio;
+  }
+  return round(precio, 2);
+}
+
+/** Precio de lista de la zona para un peso ya facturable. */
+export function listPrice(zone: string, kg: number): number {
+  const tarifa = RATES[zone];
+  if (!tarifa) throw new CalculationError('No hay tarifas disponibles para el destino seleccionado.');
+  if (kg > MAX_KG) throw new CalculationError(`Más de ${MAX_KG.toLocaleString('es-CO')} kg se cotiza aparte: escríbenos.`);
+  return precioEnTabla(tarifa, kg);
 }
 
 export function isValidPackage(p: Package): boolean {
@@ -162,9 +187,7 @@ export interface Quote {
   zone: string;
   weights: { real: number; volumetric: number; billable: number };
   pricing: {
-    is_multiplier: boolean;
-    unit_rate: number;
-    base_price: number;
+    list_price: number;
     discount_percent: number;
     discount_amount: number;
     final_price: number;
@@ -178,32 +201,24 @@ export function quote(input: { customerType: string; destination: string; packag
   const valid = (input.packages || []).filter(isValidPackage);
   if (valid.length === 0) throw new CalculationError('Agrega al menos un paquete con peso o medidas válidas.');
   const zone = resolveZone(input.destination);
-  if (!zone || !TARIFFS[zone]) throw new CalculationError('No hay tarifas disponibles para el destino seleccionado.');
+  if (!zone || !RATES[zone]) throw new CalculationError('No hay tarifas disponibles para el destino seleccionado.');
 
   const weights = aggregateWeights(valid);
-  const billable = Math.max(weights.billable, SETTINGS.min_billable_weight);
-  const bracket = findBracket(zone, billable);
-  if (!bracket) throw new CalculationError('No se encontró una tarifa para el peso facturable.');
-
-  const basePrice = bracket.multiplier ? bracket.price * billable : bracket.price;
-  const unitRate = bracket.multiplier ? bracket.price : 0;
+  const lista = listPrice(zone, weights.billable);
   const discountPercent = discountFor(input.customerType);
-  const discountAmount = basePrice * (discountPercent / 100);
-  const finalPrice = Math.max(0, basePrice - discountAmount);
+  const discountAmount = round(lista * (discountPercent / 100), 2);
 
   return {
     customer_type: input.customerType,
     destination: countryLabel(input.destination, input.lang),
     destination_id: String(input.destination).trim(),
     zone,
-    weights: { real: round(weights.real, 3), volumetric: round(weights.volumetric, 3), billable: round(billable, 3) },
+    weights: { real: round(weights.real, 3), volumetric: round(weights.volumetric, 3), billable: weights.billable },
     pricing: {
-      is_multiplier: bracket.multiplier,
-      unit_rate: round(unitRate, 2),
-      base_price: Math.round(basePrice),
+      list_price: lista,
       discount_percent: round(discountPercent, 2),
-      discount_amount: Math.round(discountAmount),
-      final_price: Math.round(finalPrice),
+      discount_amount: discountAmount,
+      final_price: round(Math.max(0, lista - discountAmount), 2),
     },
     currency: SETTINGS.currency,
     currency_symbol: SETTINGS.currency_symbol,
@@ -272,7 +287,7 @@ freightRouter.post('/freight/quote', freightLimiter, express.json({ limit: JSON_
     const user = await getUserFromRequest(req);
     const email = user?.email ?? parsed.data.email ?? null;
     if (email) {
-      const { error } = await supabase.from('freight_quotes').insert({
+      const fila = {
         user_id: user?.id ?? null,
         email,
         name: (user?.user_metadata?.full_name as string | undefined) ?? null,
@@ -281,8 +296,15 @@ freightRouter.post('/freight/quote', freightLimiter, express.json({ limit: JSON_
         weight_kg: result.weights.billable,
         client_type: result.customer_type,
         zone: result.zone,
-        quote_cop: result.pricing.final_price,
-      });
+        quote_usd: result.pricing.final_price,
+      };
+      let { error } = await supabase.from('freight_quotes').insert(fila);
+      // Una base a la que todavía no se le corrió schema.sql no tiene
+      // quote_usd: el lead se guarda igual, sin el precio, en vez de perderse.
+      if (error && /quote_usd/.test(error.message)) {
+        const { quote_usd: _sinColumna, ...sinPrecio } = fila;
+        ({ error } = await supabase.from('freight_quotes').insert(sinPrecio));
+      }
       if (error) console.error('freight quote insert failed:', error.message);
     }
   }

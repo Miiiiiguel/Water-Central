@@ -821,6 +821,9 @@ create trigger on_diagnostic_created
 -- ---------------------------------------------------------------------
 alter table public.freight_quotes add column if not exists zone text;
 alter table public.freight_quotes add column if not exists quote_cop integer;
+-- Desde la tarifa 2026 la calculadora cotiza en dólares, con centavos.
+-- quote_cop queda para las cotizaciones viejas.
+alter table public.freight_quotes add column if not exists quote_usd numeric(12, 2);
 
 -- ---------------------------------------------------------------------
 -- Ruta exportadora: qué tareas de los 7 pasos ya marcó cada cliente.

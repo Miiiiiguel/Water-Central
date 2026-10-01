@@ -308,32 +308,43 @@ Tu equipo ve cada diagnóstico terminado como notificación ("Nuevo
 diagnóstico de madurez: empresa, 56 %, 7 brechas") y en la tabla
 `diagnostics` de Supabase con el correo y celular del lead.
 
-## 2c. Calculadora de fletes (tarifa real)
+## 2c. Calculadora de fletes (tarifa pública con descuento)
 
-La calculadora de la portada cotiza **con tu tabla real** — la misma de
-EasyComex Calculator v2.2.4 en WordPress — pero el cálculo ocurre en el
-servidor (`server/freight.ts`) y la tabla (`server/freightData.json`)
-nunca llega al navegador: el cliente ve destinos y su precio, no tus
-tarifas ni tus descuentos.
+La calculadora de la portada cotiza con la **tarifa pública 2026 de
+exportación desde Colombia del servicio express internacional** (la de
+paquetes, en USD), menos el descuento de cada tipo de cliente. El
+cálculo ocurre en el servidor (`server/freight.ts`) y la tabla
+(`server/freightData.json`) nunca llega al navegador: el cliente ve
+destinos y su precio, no tus descuentos.
 
-- **Datos:** 211 destinos, 9 zonas (A–I) con 48 bandas cada una, y los
-  tres tipos de cliente (Normal 30 %, Multiplicador 40 %, VIP 50 %).
-  Estados Unidos son dos filas: "excepto Miami" (zona B) y "Miami"
-  (zona I); el selector muestra las dos.
-- **Cálculo:** peso facturable = máx(real, volumétrico ÷ 5000) sumando
-  paquetes; banda plana `[min, max)` hasta 21 kg, por kilo de ahí en
-  adelante; descuento sobre la base. `server/freight.test.ts` compara
-  216 combinaciones contra el motor original (`server/fixtures/`) y
-  fallan si alguien cambia un número.
-- **Zona F corregida:** el JSON trae la banda `[18, 18.5) = 2 232 851`
-  que a la tabla de WordPress le falta. **Agrégala también en JetEngine**
-  (`flete_tarifa_base`: zona F, no multiplicador, 18 – 18.5, 2232851) o
-  el sitio viejo seguirá cotizando mal ese rango.
-- **Actualizar tarifas:** reemplaza `server/freightData.json` con el
-  nuevo export (mismo formato) y corre `pnpm test`. Sin migraciones.
+- **Tipos de cliente:** Normal 25 % y VIP 45 % de descuento sobre el
+  precio de lista. (El tipo "Multiplicador" ya no existe.)
+- **Zonas:** 7, como las publica la guía. 232 destinos. Estados Unidos
+  son dos filas: Miami (zona 2) y el resto del país (zona 3); el
+  selector muestra las dos y arranca en Miami.
+- **Peso facturable:** cada pieza cobra el mayor entre su peso real y el
+  volumétrico (L×A×H ÷ 5000), redondeado hacia arriba al medio kilo; el
+  envío se cobra en medios kilos hasta 30 kg y en kilos enteros de ahí
+  en adelante.
+- **Precio de lista:** el de la tabla para ese peso. Entre los pesos que
+  la tabla no publica (10,5 kg, 31 kg, 85 kg…) se suma el cargo "por
+  cada medio kilo / kilo adicional" del tramo, desde el último peso
+  publicado. Más de 3 000 kg se cotiza aparte.
+- **No incluye** impuestos, aranceles, liberación aduanal ni los cargos
+  adicionales del transportista (recargo por combustible, temporada
+  alta, zona remota). La calculadora lo dice debajo del precio.
+- **Pruebas:** `server/freight.test.ts` fija precios copiados de la
+  tabla impresa y comprueba que cada peso publicado de 10 a 70 kg sea el
+  anterior más los cargos por kilo — así se validó la transcripción.
+- **Actualizar tarifas:** cambia `rates` (tabla y tramos por zona),
+  `zones` o `client_types` en `server/freightData.json` y corre
+  `pnpm test`. Sin migraciones.
 - **Leads:** cada cotización con correo (o con sesión) queda en
-  `freight_quotes` con `zone` y `quote_cop`, visible en el panel y en
-  el CSV del equipo.
+  `freight_quotes` con `zone` y `quote_usd`, visible en el panel y en el
+  CSV del equipo. **Corre `supabase/schema.sql` otra vez** para crear la
+  columna `quote_usd`; mientras no exista, el lead se guarda sin precio.
+- **El WordPress viejo** sigue con la tabla anterior en pesos (JetEngine):
+  si ese sitio sigue publicado, va a cotizar distinto que la app.
 
 ## 2d. Analizar producto: leer la etiqueta y clasificarla
 
