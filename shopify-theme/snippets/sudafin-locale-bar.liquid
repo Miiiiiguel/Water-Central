@@ -1,9 +1,9 @@
 {%- comment -%}SUDAFIN — Selector idioma/moneda premium v3{%- endcomment -%}
-{%- if localization.available_languages.size > 1 or localization.available_countries.size > 1 -%}
+{%- if localization.available_countries.size > 1 -%}
 
-<div id="sdlb" role="navigation" aria-label="Idioma y moneda">
+<div id="sdlb" role="navigation" aria-label="Currency">
 
-  {%- if localization.available_languages.size > 1 -%}
+  {%- if false -%}
   <div class="sdlb-pill" id="sdlb-lang">
     <button class="sdlb-trigger" id="sdlb-lang-btn" type="button"
             aria-expanded="false" aria-haspopup="listbox" aria-controls="sdlb-lang-menu">
@@ -24,7 +24,7 @@
     <div class="sdlb-menu" id="sdlb-lang-menu" role="listbox" hidden>
       <div class="sdlb-menu-header">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        Idioma
+        Language
       </div>
       {%- form 'localization' -%}
         <input type="hidden" name="language_code" id="sdlb-lang-val" value="{{ localization.language.iso_code }}">
@@ -46,7 +46,7 @@
   </div>
   {%- endif -%}
 
-  {%- if localization.available_languages.size > 1 and localization.available_countries.size > 1 -%}
+  {%- if false -%}
     <span class="sdlb-divider" aria-hidden="true"></span>
   {%- endif -%}
 
@@ -66,7 +66,7 @@
     <div class="sdlb-menu" id="sdlb-curr-menu" role="listbox" hidden>
       <div class="sdlb-menu-header">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        Moneda
+        Currency
       </div>
       {%- form 'localization' -%}
         <input type="hidden" name="country_code" id="sdlb-curr-val" value="{{ localization.country.iso_code }}">

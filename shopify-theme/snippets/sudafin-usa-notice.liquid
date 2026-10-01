@@ -1,0 +1,25 @@
+{%- comment -%}SUDAFIN — US store notice{%- endcomment -%}
+<div class="sudafin-usa-notice" role="note">
+  <span class="sudafin-usa-notice__flag" aria-hidden="true">🇺🇸</span>
+  <span>This store is for customers in the <strong>United States</strong>. All prices are in USD and orders ship within the USA.</span>
+</div>
+<style>
+  .sudafin-usa-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 16px;
+    background: #000;
+    color: #f1d27a;
+    border-bottom: 1px solid #d4af37;
+    font-size: 13px;
+    line-height: 1.4;
+    text-align: center;
+    letter-spacing: 0.02em;
+  }
+  .sudafin-usa-notice strong { color: #fff; font-weight: 600; }
+  @media (max-width: 600px) {
+    .sudafin-usa-notice { font-size: 12px; padding: 8px 12px; }
+  }
+</style>

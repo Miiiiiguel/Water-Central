@@ -188,7 +188,7 @@ select:focus {
 
 /* ─── Checkout Trust Badge ──────────────────────────────────── */
 .checkout-button-wrapper::after {
-  content: "🔒 Pago 100% Seguro y Encriptado";
+  content: "🔒 100% Secure & Encrypted Payment";
   display: block;
   text-align: center;
   font-size: 12px;

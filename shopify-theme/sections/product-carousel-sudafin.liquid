@@ -176,18 +176,18 @@
                   {%- endif -%}
                 </div>
                 <a href="{{ product.url }}" class="ai-pc-btn">
-                  {{ section.settings.btn_label | default: 'Ver producto' }}
+                  {{ section.settings.btn_label | default: 'View product' }}
                 </a>
               </div>
             </div>
           {%- else -%}
             <p style="color:rgba(255,255,255,0.5);padding:20px;">
-              Selecciona una colección en los ajustes de la sección.
+              Select a collection in the section settings.
             </p>
           {%- endfor -%}
         {%- else -%}
           <p style="color:rgba(255,255,255,0.5);padding:20px;">
-            Selecciona una colección en los ajustes de la sección.
+            Select a collection in the section settings.
           </p>
         {%- endif -%}
       </div>
