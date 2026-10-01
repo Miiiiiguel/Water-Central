@@ -1046,6 +1046,8 @@ la tarifa real de ese código:
     son insumos de fuera del acuerdo. ≤ 10 %: califica; hasta 55 % (EE.
     UU.) o 50 % (UE/Reino Unido): "probablemente califica"; más: no.
   - "Ya tengo certificación de origen" salta las preguntas.
+  - Sin acuerdo que aplicar (China, Brasil, una línea sin preferencia),
+    en ropa y textiles igual se pide la composición: decide la partida.
   Es una estimación con las reglas generales; la regla exacta es por
   partida y la confirma el certificado de origen.
 - **Formatos**: porcentaje, "Free", ¢/kg (usa el peso del producto), por

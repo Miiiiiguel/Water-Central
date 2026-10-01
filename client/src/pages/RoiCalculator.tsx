@@ -19,7 +19,7 @@ import type { DetallePartida } from '@/lib/hts';
 import { paisDeOrigen, parseTasa } from '@/lib/tasaArancel';
 import ReglasOrigen from '@/components/roi/ReglasOrigen';
 import {
-  RESPUESTAS_INICIALES, aplicaAcuerdo, capituloDe, choqueConPartida, evaluarOrigen, regionDelAcuerdo, type RespuestasOrigen,
+  RESPUESTAS_INICIALES, aplicaAcuerdo, capituloDe, choqueConPartida, esCapituloTextil, evaluarOrigen, regionDelAcuerdo, type RespuestasOrigen,
 } from '@/lib/reglasOrigen';
 import RoiPaywall from '@/components/roi/RoiPaywall';
 import CashChart from '@/components/roi/CashChart';
@@ -261,6 +261,10 @@ export default function RoiCalculator() {
   const cumple = preguntarOrigen && aplicaAcuerdo(veredicto);
   const destinoRegion = dest.iso === 'GB' ? (es ? 'el Reino Unido' : 'the UK') : es ? 'la Unión Europea' : 'the EU';
   const region = regionDelAcuerdo(pais, origenInfo?.nombre ?? pais, esUS, es, destinoRegion);
+  // Sin acuerdo que aplicar, en ropa y textiles igual se pregunta la
+  // composición: decide la partida (y avisa si la elegida no cuadra).
+  // Fuera de EE. UU. espera a la línea del destino, que dice si hay acuerdo.
+  const composicionSola = !preguntarOrigen && (esUS || arancelDestino !== null) && (capitulo === null || esCapituloTextil(capitulo));
   const choque = partida ? choqueConPartida(respOrigen.fibras, { capitulo, descripcion: partida.descripcion }) : null;
 
   const aplicada = esUS
@@ -482,10 +486,10 @@ export default function RoiCalculator() {
                 />
               )}
 
-              {preguntarOrigen && acuerdoNombre && (
+              {(preguntarOrigen || composicionSola) && (
                 <ReglasOrigen
                   es={es}
-                  acuerdo={acuerdoNombre}
+                  acuerdo={preguntarOrigen ? acuerdoNombre : null}
                   paisNombre={origenInfo?.nombre ?? pais}
                   region={region}
                   capitulo={capitulo}

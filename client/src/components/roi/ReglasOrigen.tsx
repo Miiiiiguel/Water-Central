@@ -14,11 +14,18 @@ import {
 // las reglas de origen? Sí / No": la persona dice de qué está hecho su
 // producto y la página estima si califica para el acuerdo (la lógica está
 // en lib/reglasOrigen, con sus pruebas).
+//
+// Sin acuerdo que aplicar (China, Brasil, o una línea sin preferencia)
+// queda sólo la composición de la tela: en ropa decide la partida, y con
+// ella el arancel, así que se pregunta igual.
 
 interface Props {
   es: boolean;
-  /** Nombre del acuerdo que se está evaluando, p. ej. "TPA Colombia – EE. UU.". */
-  acuerdo: string;
+  /**
+   * Nombre del acuerdo que se está evaluando, p. ej. "TPA Colombia – EE. UU.".
+   * Null si no hay acuerdo que aplicar: sólo se pregunta la composición.
+   */
+  acuerdo: string | null;
   paisNombre: string;
   /** La región cuyos hilos e insumos cuentan como del acuerdo. */
   region: string;
@@ -123,17 +130,29 @@ export default function ReglasOrigen({ es, acuerdo, paisNombre, region, capitulo
 
   return (
     <div data-reglas-origen className="mb-5 rounded-2xl border border-gray-100 bg-secondary/40 p-4 md:p-5">
-      <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{es ? 'Reglas de origen' : 'Rules of origin'}</p>
-      <p className="mt-1 text-sm font-bold text-primary">
-        {es ? `¿Tu producto califica para ${acuerdo}?` : `Does your product qualify under ${acuerdo}?`}
+      <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+        {acuerdo ? (es ? 'Reglas de origen' : 'Rules of origin') : es ? 'De qué está hecho' : 'What it is made of'}
       </p>
+      {acuerdo ? (
+        <p className="mt-1 text-sm font-bold text-primary">
+          {es ? `¿Tu producto califica para ${acuerdo}?` : `Does your product qualify under ${acuerdo}?`}
+        </p>
+      ) : (
+        <p className="mt-1 text-sm text-muted-foreground">
+          {es
+            ? `Desde ${paisNombre} no hay tarifa preferencial que aplicar: se paga la general. En ropa, la fibra que más pesa decide la partida y el arancel.`
+            : `From ${paisNombre} there is no preferential rate to apply: the general rate is paid. In clothing, the heaviest fiber decides the code and the duty.`}
+        </p>
+      )}
 
-      <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm font-semibold text-muted-foreground">
-        <input type="checkbox" checked={valor.certificado} onChange={(e) => set('certificado', e.target.checked)} className="h-4 w-4 accent-primary" />
-        {es ? 'Ya tengo certificación de origen para este producto' : 'I already have origin certification for this product'}
-      </label>
+      {acuerdo && (
+        <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm font-semibold text-muted-foreground">
+          <input type="checkbox" checked={valor.certificado} onChange={(e) => set('certificado', e.target.checked)} className="h-4 w-4 accent-primary" />
+          {es ? 'Ya tengo certificación de origen para este producto' : 'I already have origin certification for this product'}
+        </label>
+      )}
 
-      {!valor.certificado && (
+      {(!acuerdo || !valor.certificado) && (
         <div className="mt-4 space-y-4">
           {capitulo === null && (
             <div>
@@ -153,12 +172,17 @@ export default function ReglasOrigen({ es, acuerdo, paisNombre, region, capitulo
             <>
               <div>
                 <p className="text-sm font-semibold text-muted-foreground">{es ? 'Composición de la tela (% del peso, como en la etiqueta)' : 'Fabric composition (% of weight, as on the label)'}</p>
-                <p className="mb-2 text-xs text-muted-foreground">
-                  {es ? `Marca de dónde viene el hilo o la tela de cada fibra: de ${region} o de otro país.` : `Mark where each fiber’s yarn or fabric comes from: ${region} or another country.`}
-                </p>
+                {acuerdo && (
+                  <p className="mb-2 text-xs text-muted-foreground">
+                    {es ? `Marca de dónde viene el hilo o la tela de cada fibra: de ${region} o de otro país.` : `Mark where each fiber’s yarn or fabric comes from: ${region} or another country.`}
+                  </p>
+                )}
                 <div className="space-y-3 sm:space-y-2">
                   {valor.fibras.map((f, i) => (
-                    <div key={i} className="grid grid-cols-[minmax(0,1fr)_6.5rem_auto] items-center gap-2 sm:grid-cols-[11rem_6.5rem_minmax(0,1fr)_auto]">
+                    <div
+                      key={i}
+                      className={`grid grid-cols-[minmax(0,1fr)_6.5rem_auto] items-center gap-2 ${acuerdo ? 'sm:grid-cols-[11rem_6.5rem_minmax(0,1fr)_auto]' : 'sm:grid-cols-[11rem_6.5rem_auto]'}`}
+                    >
                       <select aria-label={es ? 'Fibra' : 'Fiber'} value={f.fibra} onChange={(e) => setFila(i, { fibra: e.target.value as FilaFibra['fibra'] })} className={`${campo} min-w-0`}>
                         {FIBRAS.filter((o) => o.id === f.fibra || !usadas.has(o.id)).map((o) => (
                           <option key={o.id} value={o.id}>{es ? o.es : o.en}</option>
@@ -177,7 +201,7 @@ export default function ReglasOrigen({ es, acuerdo, paisNombre, region, capitulo
                         />
                         <span className="text-sm font-bold text-muted-foreground">%</span>
                       </div>
-                      <select
+                      {acuerdo && <select
                         aria-label={es ? 'Origen del hilo o la tela' : 'Origin of the yarn or fabric'}
                         value={f.importada ? 'fuera' : 'region'}
                         onChange={(e) => setFila(i, { importada: e.target.value === 'fuera' })}
@@ -185,7 +209,7 @@ export default function ReglasOrigen({ es, acuerdo, paisNombre, region, capitulo
                       >
                         <option value="region">{es ? `De ${region}` : `From ${region}`}</option>
                         <option value="fuera">{es ? 'De otro país' : 'From another country'}</option>
-                      </select>
+                      </select>}
                       <button
                         type="button"
                         aria-label={es ? 'Quitar fibra' : 'Remove fiber'}
@@ -216,14 +240,16 @@ export default function ReglasOrigen({ es, acuerdo, paisNombre, region, capitulo
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm font-semibold text-muted-foreground">{es ? `¿Se corta y se cose en ${paisNombre}?` : `Is it cut and sewn in ${paisNombre}?`}</p>
-                <SiNo es={es} valor={valor.cosidoEnOrigen} onChange={(v) => set('cosidoEnOrigen', v)} />
-              </div>
+              {acuerdo && (
+                <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm font-semibold text-muted-foreground">{es ? `¿Se corta y se cose en ${paisNombre}?` : `Is it cut and sewn in ${paisNombre}?`}</p>
+                  <SiNo es={es} valor={valor.cosidoEnOrigen} onChange={(v) => set('cosidoEnOrigen', v)} />
+                </div>
+              )}
             </>
           )}
 
-          {tipo === 'otro' && (
+          {tipo === 'otro' && acuerdo && (
             <>
               <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm font-semibold text-muted-foreground">{es ? `¿Lo fabricas o transformas en ${paisNombre}?` : `Do you make or transform it in ${paisNombre}?`}</p>
@@ -265,10 +291,12 @@ export default function ReglasOrigen({ es, acuerdo, paisNombre, region, capitulo
         </p>
       )}
 
-      <p className={`mt-4 flex items-start gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold ${tono.caja}`}>
-        <tono.Icono size={17} className="mt-0.5 flex-none" />
-        <span>{texto(veredicto, es, region, paisNombre)}</span>
-      </p>
+      {acuerdo && (
+        <p className={`mt-4 flex items-start gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold ${tono.caja}`}>
+          <tono.Icono size={17} className="mt-0.5 flex-none" />
+          <span>{texto(veredicto, es, region, paisNombre)}</span>
+        </p>
+      )}
     </div>
   );
 }
