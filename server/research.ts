@@ -6,6 +6,7 @@ import { getSupabaseAdmin } from './supabaseAdmin';
 import { logSecurityEvent } from './log';
 import { runAmazon, runKalodata, runSicex, isConfigured, type ResearchResult } from './connectors';
 import { CATALOG } from './catalog';
+import { esCuentaMaestra } from './maestros';
 
 // Marco Polo's research desk.
 //
@@ -177,9 +178,22 @@ export type Cobro = { ok: true; billed: string } | { ok: false; motivo: 'sin_sal
  * un token del plan del mes o un token de paquete, en ese orden. Es una
  * sola función en la base, así dos pedidos a la vez no gastan el mismo
  * token.
+ *
+ * Una cuenta maestra (los dueños, ver maestros.ts) no paga: la consulta
+ * queda anotada como 'maestra', para saber quién usó qué, y no toca ni
+ * la cuota del día ni los tokens.
  */
-export async function cobrarConsulta(userId: string, fuente: string, texto: string): Promise<Cobro> {
+export async function cobrarConsulta(userId: string, fuente: string, texto: string, opciones: { maestra?: boolean } = {}): Promise<Cobro> {
   const admin = getSupabaseAdmin();
+  if (opciones.maestra) {
+    if (admin) {
+      const { error } = await admin
+        .from('research_usage')
+        .insert({ user_id: userId, source: fuente, query: texto.slice(0, 160), billed: 'maestra' });
+      if (error) console.error('research_usage (maestra) insert failed:', error.message);
+    }
+    return { ok: true, billed: 'maestra' };
+  }
   const plan = await getUserPlan(userId);
   const dailyLimit = DAILY_QUOTA[plan] ?? DAILY_QUOTA.free;
   if (!admin) return { ok: false, motivo: 'sin_base', dailyLimit };
@@ -201,7 +215,7 @@ export async function cobrarConsulta(userId: string, fuente: string, texto: stri
 /** Devuelve lo cobrado cuando la falla no fue de quien pidió. */
 export async function devolverConsulta(userId: string, billed: string): Promise<void> {
   const admin = getSupabaseAdmin();
-  if (!admin) return;
+  if (!admin || billed === 'maestra') return;
   await admin.rpc('refund_research_quota', { p_user_id: userId, p_billed: billed });
 }
 
@@ -216,10 +230,12 @@ type QuotaView = {
   /** Cuándo termina el plan que vence primero. */
   planEndsAt: string | null;
   canQuery: boolean;
+  /** Cuenta maestra: consulta sin límite y sin pagar. */
+  unlimited: boolean;
   sources: Record<PublicSource, boolean>;
 };
 
-async function getQuota(userId: string): Promise<QuotaView> {
+async function getQuota(userId: string, maestra = false): Promise<QuotaView> {
   const admin = getSupabaseAdmin();
   const plan = await getUserPlan(userId);
   const dailyLimit = DAILY_QUOTA[plan] ?? DAILY_QUOTA.free;
@@ -256,7 +272,8 @@ async function getQuota(userId: string): Promise<QuotaView> {
     credits,
     planTokens,
     planEndsAt,
-    canQuery: freeRemaining > 0 || credits > 0 || planTokens > 0,
+    canQuery: maestra || freeRemaining > 0 || credits > 0 || planTokens > 0,
+    unlimited: maestra,
     sources: {
       tiktok: isConfigured('kalodata'),
       aduanas: isConfigured('sicex'),
@@ -288,7 +305,7 @@ researchRouter.get('/research/status', apiRateLimiter, (_req, res) => {
 // How many lookups are left today, and what the account is entitled to.
 researchRouter.get('/research/quota', apiRateLimiter, requireUser(), async (_req, res) => {
   const auth = res.locals.auth!;
-  res.json(await getQuota(auth.user.id));
+  res.json(await getQuota(auth.user.id, esCuentaMaestra(auth.user)));
 });
 
 researchRouter.post('/research', researchRateLimiter, requireUser(), express.json({ limit: JSON_BODY_LIMIT }), async (req, res) => {
@@ -320,11 +337,12 @@ researchRouter.post('/research', researchRateLimiter, requireUser(), express.jso
     });
   }
 
-  const cobro = await cobrarConsulta(auth.user.id, provider, query);
+  const maestra = esCuentaMaestra(auth.user);
+  const cobro = await cobrarConsulta(auth.user.id, provider, query, { maestra });
   if (!cobro.ok) {
     if (cobro.motivo === 'sin_base') return res.status(503).json({ error: 'database_not_configured' });
     if (cobro.motivo === 'error') return res.status(500).json({ error: 'quota_check_failed' });
-    const quota = await getQuota(auth.user.id);
+    const quota = await getQuota(auth.user.id, maestra);
     return res.status(402).json({
       error: 'quota_exhausted',
       quota,
@@ -348,7 +366,7 @@ researchRouter.post('/research', researchRateLimiter, requireUser(), express.jso
     return res.status(502).json({ error: 'source_failed', source, message: 'La fuente no respondió. No te descontamos la consulta.' });
   }
 
-  const quota = await getQuota(auth.user.id);
+  const quota = await getQuota(auth.user.id, maestra);
   // `sourceUrl` apunta al endpoint del proveedor. Aunque hoy no se pinte
   // en pantalla, viaja en el JSON y cualquiera lo ve abriendo las
   // herramientas del navegador — es regalar de dónde salen los datos.

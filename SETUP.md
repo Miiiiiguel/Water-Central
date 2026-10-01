@@ -591,6 +591,53 @@ necesita configuración extra — corre solo con `supabase/schema.sql` ya
 aplicado. Si más adelante querés pagar comisiones reales, avísame y
 agrego una tabla de comisiones y un flujo de aprobación.
 
+## 5b. Revendedores y cuentas maestras
+
+**Cuentas maestras (los dueños).** Pon los correos en la variable
+`CUENTAS_MAESTRAS` de Render, separados por coma (por ejemplo
+`duena@easycomex.com,socio@easycomex.com`). Esas cuentas:
+
+- consultan sin pagar: ni las consultas gratis del día ni tokens (la
+  consulta queda anotada como `maestra` en `research_usage`);
+- son las únicas que entran a **`/admin/revendedores`**.
+
+Tienen que ser cuentas ya creadas en la app (con correo o Google) y con
+el correo confirmado. Se definen en el servidor y no en la base a
+propósito: nadie puede volverse maestro editando su perfil.
+
+**Revendedores.** Se crean desde `/admin/revendedores` (también hay un
+acceso en el panel de la cuenta maestra):
+
+1. Nombre, empresa y contacto opcionales, y los tokens de regalo para
+   consultar. Al crearlo aparece el **número de serie**
+   (`ECX-XXXX-XXXX-XXXX-XXXX`) **una sola vez**: cópialo y entrégaselo.
+   La base guarda sólo su hash y los últimos 4 caracteres.
+2. El revendedor entra en **`/revendedores`** (hay un enlace en
+   `/login`) con ese número. Ve a la izquierda el portafolio de planes
+   con sus precios y un botón para copiar el enlace de cada uno —el
+   enlace lleva su código de referido, así el cliente que se registre
+   queda a su nombre— y a la derecha su **billetera**: saldo por
+   pagarle, comisiones, pagado, clientes y movimientos, y sus tokens.
+3. **Comisiones y pagos, a mano:** en la fila del revendedor, "Cargar en
+   la billetera". *Comisión* (cliente que exportó, monto en USD, fecha)
+   suma a lo que se le debe; *Pago* (lo que ya se le transfirió) resta.
+   Un movimiento mal cargado se borra con el ícono de la papelera.
+4. Otras acciones: regalar más tokens, generar un serial nuevo (el
+   anterior deja de servir) y pausar o reactivar el acceso. Pausar
+   también bloquea la cuenta en Supabase, así que no puede volver a
+   entrar ni renovar la sesión que tenía abierta.
+
+**Cómo entra con un serial sin contraseña:** cada revendedor es una
+cuenta normal de Supabase con un correo interno
+(`revendedor-…@revendedores.easycomex.com`, no recibe nada). Con el
+serial correcto, el servidor pide a Supabase un enlace de acceso para esa
+cuenta sin enviar correo y lo canjea ahí mismo por una sesión. La entrada
+admite 10 intentos por IP cada 15 minutos.
+
+**Antes de usarlo:** corre `supabase/schema.sql` (crea `resellers` y
+`reseller_movements`, sin acceso desde el navegador) y verifica que
+`SUPABASE_SERVICE_ROLE_KEY` esté puesta en Render.
+
 ## 6. Notificaciones (campanita en el dashboard + push real)
 
 Las notificaciones **dentro de la app** (la campanita) ya funcionan solo

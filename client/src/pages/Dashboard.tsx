@@ -19,6 +19,7 @@ import DeleteAccount from '@/components/DeleteAccount';
 import MfaChallenge from '@/components/MfaChallenge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { fetchQuota, type ResearchQuota } from '@/lib/research';
+import { leerAcceso } from '@/lib/revendedores';
 import { estadoDe, type EstadoRuta } from '@/lib/ruta';
 import { cargarAvance } from '@/lib/rutaProgreso';
 
@@ -410,6 +411,12 @@ function ResearchQuotaCard() {
         </button>
       </div>
 
+      {quota.unlimited ? (
+        <p className="mb-3 text-sm font-semibold text-primary">
+          {es ? 'Cuenta maestra: consultas sin límite y sin costo.' : 'Master account: unlimited lookups at no cost.'}
+        </p>
+      ) : (
+      <>
       <div className="flex items-baseline gap-2 mb-2">
         <span className="text-3xl font-black text-primary">{quota.freeRemaining}</span>
         <span className="text-sm text-muted-foreground">
@@ -421,6 +428,8 @@ function ResearchQuotaCard() {
       <div className="h-2 rounded-full bg-gray-100 overflow-hidden mb-3">
         <div className="h-full rounded-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-500" style={{ width: `${pct}%` }} />
       </div>
+      </>
+      )}
 
       <p className="text-xs text-muted-foreground">
         {connected
@@ -468,6 +477,44 @@ function SubscriptionCard({ sub }: { sub: Subscription }) {
 
 // La ruta exportadora, resumida: el avance y el paso en que está. El
 // detalle vive en /ruta.
+// Acceso al programa de revendedores: el portal para un revendedor y la
+// administración para una cuenta maestra. Lo decide el servidor.
+function AccesoRevendedores() {
+  const { language } = useLanguage();
+  const { getAccessToken } = useAuth();
+  const [acceso, setAcceso] = useState<{ maestra: boolean; revendedor: boolean } | null>(null);
+  const es = language === 'es';
+
+  useEffect(() => {
+    void leerAcceso(getAccessToken()).then((r) => r.ok && setAcceso(r.data));
+  }, [getAccessToken]);
+
+  if (!acceso || (!acceso.maestra && !acceso.revendedor)) return null;
+  const href = acceso.maestra ? '/admin/revendedores' : '/revendedores';
+  return (
+    <Link
+      href={href}
+      className="tap-scale flex items-center justify-between gap-4 rounded-3xl border border-gray-100 bg-white p-5 app-shadow hover:border-accent/40"
+    >
+      <div>
+        <p className="font-bold text-primary">
+          {acceso.maestra ? (es ? 'Administrar revendedores' : 'Manage resellers') : es ? 'Tu portal de revendedor' : 'Your reseller portal'}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {acceso.maestra
+            ? es
+              ? 'Crea revendedores, entrega seriales y carga comisiones y pagos.'
+              : 'Create resellers, issue serials and record commissions and payouts.'
+            : es
+              ? 'Tu portafolio de planes y tu billetera.'
+              : 'Your plan portfolio and your wallet.'}
+        </p>
+      </div>
+      <span className="text-accent font-bold">→</span>
+    </Link>
+  );
+}
+
 function RutaCard() {
   const { language } = useLanguage();
   const { user } = useAuth();
@@ -578,6 +625,8 @@ function ClienteDashboard() {
       </div>
 
       {subscription && <SubscriptionCard sub={subscription} />}
+
+      <AccesoRevendedores />
 
       <RutaCard />
 
@@ -928,6 +977,8 @@ function VendedorDashboard() {
         <StatCard icon={FileText} label={language === 'es' ? 'Cotizaciones pendientes' : 'Pending quotes'} value={pendingQuotes ?? 0} />
         <StatCard icon={TrendingUp} label={language === 'es' ? 'Leads este mes' : 'Leads this month'} value={leadsThisMonth ?? 0} />
       </div>
+
+      <AccesoRevendedores />
 
       <IntegrationsPanel />
 

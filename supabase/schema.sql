@@ -853,3 +853,52 @@ create policy "export_route: update own"
   on public.export_route for update
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- =======================================================================
+-- Revendedores.
+--
+-- Cada revendedor es una cuenta normal de la app (profiles) que además
+-- tiene una fila acá. Entra con un número de serie, no con correo: el
+-- servidor guarda sólo el hash del serial (ver server/revendedores).
+--
+-- La billetera es la lista de movimientos: comisiones que se le deben
+-- (por cada cliente que exportó con él) y pagos que ya se le hicieron.
+-- El saldo por pagarle es comisiones − pagos. Por ahora los carga a mano
+-- una cuenta maestra desde /admin/revendedores.
+--
+-- Las dos tablas son sólo del servidor: sin políticas, ningún navegador
+-- las lee ni las escribe directo. El revendedor ve lo suyo a través de
+-- /api/revendedores/yo.
+-- =======================================================================
+
+create table if not exists public.resellers (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null unique references public.profiles (id) on delete cascade,
+  nombre text not null,
+  empresa text,
+  contacto text,
+  serial_hash text not null unique,
+  serial_pista text not null,
+  activo boolean not null default true,
+  tokens_regalados integer not null default 0 check (tokens_regalados >= 0),
+  created_at timestamptz not null default now()
+);
+
+alter table public.resellers enable row level security;
+
+create table if not exists public.reseller_movements (
+  id uuid primary key default gen_random_uuid(),
+  reseller_id uuid not null references public.resellers (id) on delete cascade,
+  tipo text not null check (tipo in ('comision', 'pago')),
+  monto_usd numeric(12, 2) not null check (monto_usd > 0),
+  cliente text,
+  nota text,
+  fecha date not null default current_date,
+  creado_por text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.reseller_movements enable row level security;
+
+create index if not exists reseller_movements_reseller_idx
+  on public.reseller_movements (reseller_id, fecha desc, created_at desc);

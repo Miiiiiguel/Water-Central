@@ -187,6 +187,12 @@ export default function Login() {
                 <Link href="/registro" className="text-accent font-bold hover:underline">
                   {language === 'es' ? 'Regístrate' : 'Sign up'}
                 </Link>
+                <span className="mt-3 block">
+                  {language === 'es' ? '¿Eres revendedor?' : 'Are you a reseller?'}{' '}
+                  <Link href="/revendedores" className="text-accent font-bold hover:underline">
+                    {language === 'es' ? 'Entra con tu número de serie' : 'Sign in with your serial number'}
+                  </Link>
+                </span>
               </>
             )}
           </p>

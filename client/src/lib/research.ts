@@ -65,6 +65,8 @@ export interface ResearchQuota {
   planTokens?: number;
   planEndsAt?: string | null;
   canQuery: boolean;
+  /** Cuenta maestra: consulta sin límite y sin pagar. */
+  unlimited?: boolean;
   sources: Record<ResearchSource, boolean>;
 }
 
@@ -201,8 +203,11 @@ export function formatResult(result: ResearchOk, language: 'es' | 'en'): string 
       : `${head}\nTry another term, or the English name.`;
   }
   const body = result.rows.map((r) => `• ${r.label} — ${r.value}`).join('\n');
-  const left =
-    result.quota.freeRemaining > 0
+  const left = result.quota.unlimited
+    ? language === 'es'
+      ? 'Cuenta maestra: consultas sin límite.'
+      : 'Master account: unlimited lookups.'
+    : result.quota.freeRemaining > 0
       ? language === 'es'
         ? `Te quedan ${result.quota.freeRemaining} consultas gratis hoy.`
         : `${result.quota.freeRemaining} free lookups left today.`
