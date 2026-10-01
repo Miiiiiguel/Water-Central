@@ -91,8 +91,10 @@ export function aInputs(e: EntradaRoi): RoiInputs {
     contentBudget: e.contentBudget,
     channelBudget: e.channelBudget,
     // La sobretasa recíproca es una medida de EE. UU. y la fija el equipo:
-    // el cliente no la ve ni la cambia.
-    reciprocalPct: esUS ? RECIPROCAL_TARIFF : 0,
+    // el cliente no la ve ni la cambia. Un producto que cumple las reglas
+    // de origen de un acuerdo comercial no la paga (antes el equipo la
+    // ponía en 0 a mano cuando el producto calificaba).
+    reciprocalPct: esUS && !e.meetsAgreement ? RECIPROCAL_TARIFF : 0,
     // EE. UU. cobra el arancel sobre el valor del producto (FOB); el
     // Reino Unido y la UE, sobre producto + flete (CIF).
     dutyBase: esUS ? 'fob' : 'cif',

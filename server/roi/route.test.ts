@@ -24,6 +24,8 @@ describe('lo que decide el servidor', () => {
   it('applies the reciprocal surcharge only to the US, whatever the browser sends', () => {
     expect(aInputs(BASE).reciprocalPct).toBe(RECIPROCAL_TARIFF);
     expect(aInputs({ ...BASE, destino: 'ES' }).reciprocalPct).toBe(0);
+    // Under a trade agreement the product does not pay it.
+    expect(aInputs({ ...BASE, meetsAgreement: true }).reciprocalPct).toBe(0);
     // A reciprocalPct in the body is not part of the schema: it is dropped.
     const conTrampa = entradaSchema.parse({ ...BASE, reciprocalPct: 0 });
     expect('reciprocalPct' in conTrampa).toBe(false);
