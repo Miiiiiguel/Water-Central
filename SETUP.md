@@ -308,32 +308,54 @@ Tu equipo ve cada diagnóstico terminado como notificación ("Nuevo
 diagnóstico de madurez: empresa, 56 %, 7 brechas") y en la tabla
 `diagnostics` de Supabase con el correo y celular del lead.
 
-## 2c. Calculadora de fletes (tarifa real)
+## 2c. Calculadora de fletes (tarifa pública con descuento)
 
-La calculadora de la portada cotiza **con tu tabla real** — la misma de
-EasyComex Calculator v2.2.4 en WordPress — pero el cálculo ocurre en el
-servidor (`server/freight.ts`) y la tabla (`server/freightData.json`)
-nunca llega al navegador: el cliente ve destinos y su precio, no tus
-tarifas ni tus descuentos.
+La calculadora de la portada cotiza con la **tarifa pública 2026 de
+exportación desde Colombia del servicio express internacional** (la de
+paquetes, en USD), menos el descuento de cada tipo de cliente. El
+cálculo ocurre en el servidor (`server/freight.ts`) y la tabla
+(`server/freightData.json`) nunca llega al navegador: el cliente ve
+destinos y su precio, no tus descuentos.
 
-- **Datos:** 211 destinos, 9 zonas (A–I) con 48 bandas cada una, y los
-  tres tipos de cliente (Normal 30 %, Multiplicador 40 %, VIP 50 %).
-  Estados Unidos son dos filas: "excepto Miami" (zona B) y "Miami"
-  (zona I); el selector muestra las dos.
-- **Cálculo:** peso facturable = máx(real, volumétrico ÷ 5000) sumando
-  paquetes; banda plana `[min, max)` hasta 21 kg, por kilo de ahí en
-  adelante; descuento sobre la base. `server/freight.test.ts` compara
-  216 combinaciones contra el motor original (`server/fixtures/`) y
-  fallan si alguien cambia un número.
-- **Zona F corregida:** el JSON trae la banda `[18, 18.5) = 2 232 851`
-  que a la tabla de WordPress le falta. **Agrégala también en JetEngine**
-  (`flete_tarifa_base`: zona F, no multiplicador, 18 – 18.5, 2232851) o
-  el sitio viejo seguirá cotizando mal ese rango.
-- **Actualizar tarifas:** reemplaza `server/freightData.json` con el
-  nuevo export (mismo formato) y corre `pnpm test`. Sin migraciones.
+- **Tipos de cliente:** Normal 25 % y VIP 45 % de descuento sobre el
+  precio de lista. (El tipo "Multiplicador" ya no existe.)
+- **Zonas:** 7, como las publica la guía. 232 destinos. Estados Unidos
+  son dos filas: Miami (zona 2) y el resto del país (zona 3); el
+  selector muestra las dos y arranca en Miami.
+- **Peso facturable:** cada pieza cobra el mayor entre su peso real y el
+  volumétrico (L×A×H ÷ 5000), redondeado hacia arriba al medio kilo; el
+  envío se cobra en medios kilos hasta 30 kg y en kilos enteros de ahí
+  en adelante.
+- **Precio de lista:** el de la tabla para ese peso. Entre los pesos que
+  la tabla no publica (10,5 kg, 31 kg, 85 kg…) se suma el cargo "por
+  cada medio kilo / kilo adicional" del tramo, desde el último peso
+  publicado. Más de 3 000 kg se cotiza aparte.
+- **Recargo por combustible:** se suma sobre el precio con descuento,
+  con el **promedio de los últimos 12 meses** del porcentaje de
+  exportación publicado para Colombia, ponderado por los días que rigió
+  cada uno (hasta abril de 2026 era mensual; desde entonces es semanal).
+  El historial va en `fuel_surcharge.history` de
+  `server/freightData.json`, una fila por período:
+  `{ "from": "2026-09-28", "to": "2026-10-04", "export_pct": 31.5 }`.
+  Se saca de mydhl.express.dhl → Colombia → Envíos → Recargos →
+  Recargo por combustible. Mientras el historial esté vacío, la
+  cotización sale sin recargo y la calculadora lo advierte. Agrega cada
+  semana nueva al historial; el promedio se corre solo con la fecha.
+- **No incluye** impuestos, aranceles, liberación aduanal ni los otros
+  cargos del transportista (temporada alta, zona remota). La calculadora
+  lo dice debajo del precio.
+- **Pruebas:** `server/freight.test.ts` fija precios copiados de la
+  tabla impresa y comprueba que cada peso publicado de 10 a 70 kg sea el
+  anterior más los cargos por kilo — así se validó la transcripción.
+- **Actualizar tarifas:** cambia `rates` (tabla y tramos por zona),
+  `zones` o `client_types` en `server/freightData.json` y corre
+  `pnpm test`. Sin migraciones.
 - **Leads:** cada cotización con correo (o con sesión) queda en
-  `freight_quotes` con `zone` y `quote_cop`, visible en el panel y en
-  el CSV del equipo.
+  `freight_quotes` con `zone` y `quote_usd`, visible en el panel y en el
+  CSV del equipo. **Corre `supabase/schema.sql` otra vez** para crear la
+  columna `quote_usd`; mientras no exista, el lead se guarda sin precio.
+- **El WordPress viejo** sigue con la tabla anterior en pesos (JetEngine):
+  si ese sitio sigue publicado, va a cotizar distinto que la app.
 
 ## 2d. Analizar producto: leer la etiqueta y clasificarla
 
@@ -568,6 +590,53 @@ copiar y contador de cuántas personas se registraron con ese link. No
 necesita configuración extra — corre solo con `supabase/schema.sql` ya
 aplicado. Si más adelante querés pagar comisiones reales, avísame y
 agrego una tabla de comisiones y un flujo de aprobación.
+
+## 5b. Revendedores y cuentas maestras
+
+**Cuentas maestras (los dueños).** Pon los correos en la variable
+`CUENTAS_MAESTRAS` de Render, separados por coma (por ejemplo
+`duena@easycomex.com,socio@easycomex.com`). Esas cuentas:
+
+- consultan sin pagar: ni las consultas gratis del día ni tokens (la
+  consulta queda anotada como `maestra` en `research_usage`);
+- son las únicas que entran a **`/admin/revendedores`**.
+
+Tienen que ser cuentas ya creadas en la app (con correo o Google) y con
+el correo confirmado. Se definen en el servidor y no en la base a
+propósito: nadie puede volverse maestro editando su perfil.
+
+**Revendedores.** Se crean desde `/admin/revendedores` (también hay un
+acceso en el panel de la cuenta maestra):
+
+1. Nombre, empresa y contacto opcionales, y los tokens de regalo para
+   consultar. Al crearlo aparece el **número de serie**
+   (`ECX-XXXX-XXXX-XXXX-XXXX`) **una sola vez**: cópialo y entrégaselo.
+   La base guarda sólo su hash y los últimos 4 caracteres.
+2. El revendedor entra en **`/revendedores`** (hay un enlace en
+   `/login`) con ese número. Ve a la izquierda el portafolio de planes
+   con sus precios y un botón para copiar el enlace de cada uno —el
+   enlace lleva su código de referido, así el cliente que se registre
+   queda a su nombre— y a la derecha su **billetera**: saldo por
+   pagarle, comisiones, pagado, clientes y movimientos, y sus tokens.
+3. **Comisiones y pagos, a mano:** en la fila del revendedor, "Cargar en
+   la billetera". *Comisión* (cliente que exportó, monto en USD, fecha)
+   suma a lo que se le debe; *Pago* (lo que ya se le transfirió) resta.
+   Un movimiento mal cargado se borra con el ícono de la papelera.
+4. Otras acciones: regalar más tokens, generar un serial nuevo (el
+   anterior deja de servir) y pausar o reactivar el acceso. Pausar
+   también bloquea la cuenta en Supabase, así que no puede volver a
+   entrar ni renovar la sesión que tenía abierta.
+
+**Cómo entra con un serial sin contraseña:** cada revendedor es una
+cuenta normal de Supabase con un correo interno
+(`revendedor-…@revendedores.easycomex.com`, no recibe nada). Con el
+serial correcto, el servidor pide a Supabase un enlace de acceso para esa
+cuenta sin enviar correo y lo canjea ahí mismo por una sesión. La entrada
+admite 10 intentos por IP cada 15 minutos.
+
+**Antes de usarlo:** corre `supabase/schema.sql` (crea `resellers` y
+`reseller_movements`, sin acceso desde el navegador) y verifica que
+`SUPABASE_SERVICE_ROLE_KEY` esté puesta en Render.
 
 ## 6. Notificaciones (campanita en el dashboard + push real)
 
@@ -929,13 +998,20 @@ por ROI / rentabilidad / cuánto gano.
 
 ### Cómo está armada
 
-- **`client/src/lib/roiModel.ts`** — toda la matemática, pura y sin DOM:
+- **`server/roi/model.ts`** — toda la matemática, pura y sin DOM:
   rampas de unidades, aranceles, fletes, crecimiento de Año 2, inversión
   inicial. Es tu modelo, portado tal cual; **no lo "mejores" sin querer**,
   porque estos son los números que el equipo defiende en una reunión.
-- **`client/src/lib/roiModel.test.ts`** — 18 pruebas que fijan esa
-  matemática con valores calculados a mano (`pnpm test`). Si alguien
-  cambia una fórmula sin querer, el build falla.
+  Vive en el servidor a propósito: ni el cliente ni la competencia ven
+  los supuestos, ni siquiera abriendo las herramientas del navegador.
+- **`server/roi/model.test.ts`** — las pruebas que fijan esa matemática
+  con valores calculados a mano (`pnpm test`).
+- **`server/roi/route.ts`** — `POST /api/roi/proyeccion`: recibe los
+  números del cliente y devuelve sólo resultados. La sobretasa recíproca
+  la pone el servidor (no se ve ni se edita) y en el desglose va sumada a
+  los aranceles. El desglose y el pronóstico a 2 años sólo viajan a quien
+  compró ese reporte (o a una cuenta maestra); al resto le llega la tabla
+  vacía y la página muestra relleno desenfocado.
 - **`client/src/pages/RoiCalculator.tsx`** — solo entradas, layout y los
   dos reportes de pago.
 
@@ -964,8 +1040,8 @@ la tarifa real de ese código:
   pieza, tarifas condicionadas) se muestra con su texto y la leyenda
   "confírmala con tu agente de aduanas" — nunca como un 0 silencioso.
 - **No se incluyen** las sobretasas 232 (acero, aluminio, cobre: se
-  avisan en la partida) ni la 301. La **sobretasa recíproca** es un campo
-  editable que arranca en el 12,5 % del modelo del equipo.
+  avisan en la partida) ni la 301. La **sobretasa recíproca** la aplica
+  el servidor con el valor del modelo (abajo); el cliente no la ve.
 - Sin partida elegida, el cálculo es el de siempre (8 % si no cumple).
 
 API pública (el arancel es público): `GET /api/hts/buscar?q=`,
@@ -973,7 +1049,7 @@ API pública (el arancel es público): `GET /api/hts/buscar?q=`,
 `/api/hts/partida/:codigo` (404 si el código no existe en el arancel
 cargado). Límite propio de 600 consultas cada 15 min por IP.
 
-### Supuestos fijos (en `roiModel.ts`, arriba del todo)
+### Supuestos fijos (en `server/roi/model.ts`, arriba del todo)
 
 Flete USD 6.90/kg · arancel recíproco 12.5% (siempre) · arancel de
 acuerdo comercial 8% (solo si el producto **no** califica) · envío
@@ -1031,6 +1107,15 @@ el archivo de la TIGIE, igual que el HTS.
 
 ### Envío dentro de EE. UU. (USPS)
 
+> **¿Y Pirate Ship?** No tiene API: su página de ayuda lo dice
+> ("Does Pirate Ship have an API? No"). No hay forma oficial de pedirle
+> tarifas desde la app. Lo que sí se puede: la cotización de acá usa la
+> **tarifa comercial de USPS**, que es la que Pirate Ship cobra en las
+> guías de USPS. Las guías se siguen comprando en Pirate Ship; el ROI
+> estima con esa misma tarifa. Pirate Ship puede salir algo más barato
+> en paquetes chicos y pesados, por su precio Cubic, que acá no se
+> calcula.
+
 Los USD 7 de envío doméstico son un supuesto. Si el cliente escribe el
 código postal (ZIP) de su bodega en EE. UU. y aprieta **Cotizar envío
 real**, la calculadora usa la tarifa de USPS Ground Advantage para su
@@ -1074,6 +1159,45 @@ Sin las variables, el bloque de envío aparece igual y al cotizar dice
 que las tarifas reales todavía no están activadas; el cálculo sigue con
 los USD 7. El panel de integraciones del dashboard muestra si USPS está
 conectado.
+
+### Inteligencia Amazon (Jungle Scout)
+
+Marco Polo contesta "¿cuánto venden las marcas de café en Amazon?" con:
+- el ranking de marcas: ingresos y unidades estimados de los últimos 30
+  días, número de productos y participación;
+- los 3 productos que más venden.
+
+Sale de la API de Jungle Scout (`server/junglescout.ts`). El cliente ve
+"Amazon", nunca el nombre del proveedor.
+
+- **Son estimaciones.** Amazon no publica las ventas de nadie, y la
+  respuesta lo dice siempre.
+- **Idioma de la búsqueda.** En amazon.com la palabra se busca en inglés
+  ("café tostado" → "roasted coffee"). En México y España se deja en
+  español.
+- **Mercados:** EE. UU., Canadá, Reino Unido, Alemania, Francia, Italia,
+  España, México, India y Japón. Si la pregunta nombra el país, se usa;
+  si no, EE. UU.
+- **Cobro:** cada consulta usa 1 token, igual que TikTok Shop. Si la API
+  falla, el token vuelve.
+
+Qué hay que poner en Render:
+
+| Variable | Qué es |
+|---|---|
+| `JUNGLESCOUT_API_KEY_NAME` | El **nombre** que le diste a la llave al crearla en Jungle Scout |
+| `JUNGLESCOUT_API_KEY` | La llave |
+
+Para sacarlas: en Jungle Scout (web) → **Settings** → **API Keys** →
+**Generate API Key**. Dale un nombre (por ejemplo `easycomex`) y copia el
+nombre y la llave; la llave se muestra una sola vez. El plan tiene que
+incluir acceso a la API. Si no ves la opción, tu plan no lo incluye y hay
+que pedírselo a Jungle Scout.
+
+La API no se pudo alcanzar desde donde se construyó esto. El conector
+sigue la forma que documenta Jungle Scout y está probado con respuestas
+armadas; la primera prueba real es una consulta en el chat, en
+producción.
 
 ### Ruta exportadora (`/ruta`)
 

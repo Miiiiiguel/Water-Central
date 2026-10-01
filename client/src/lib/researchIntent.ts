@@ -40,7 +40,7 @@ const normalize = (s: string) =>
 /** Señales de que la pregunta pide un DATO. */
 const PIDE_DATOS = [
   /\bmas vendid/, /\bmejor(es)? (producto|articulo|venta|vendido)/, /\bque se vende/, /\bque se venden/,
-  /\bse vende mas/, /\bcuanto se vende/, /\bmas vend/, /\bvenden mas\b/, /\bmas venta/, /\btop\b/, /\branking\b/, /\btendencia/, /\bde moda\b/,
+  /\bse vende mas/, /\bcuanto se vende/, /\bcuanto (vende|venden|factura|facturan)\b/, /\bmas vend/, /\bvenden mas\b/, /\bmas venta/, /\btop\b/, /\branking\b/, /\btendencia/, /\bde moda\b/,
   /\bque vender\b/, /\bproductos? ganador/, /\bmercado de\b/, /\bque hay de nuevo/, /\binteligencia\b/,
   /\bquien (importa|exporta|compra|vende)/, /\bque empresas/, /\bcuanto se (importa|exporta)/,
   /\bcompetencia\b/, /\bcompetidor/, /\bdemanda\b/, /\bnicho/, /\boportunidad/, /\bestadistica/,
@@ -86,8 +86,9 @@ const SENAL_ADUANAS = [
   /\bque empresas/, /\bquien compra/, /\bquien vende/, /\bcomercio exterior/,
   /\bimports?\b/, /\bexports?\b/, /\bcustoms\b/, /\bsuppliers?\b/, /\bwhich companies\b/,
 ];
+const SENAL_AMAZON = [/\bamazon\b/, /\basin\b/, /\bfba\b/];
 const SENAL_TIKTOK = [
-  /\btik ?tok\b/, /\bshop\b/, /\bamazon\b/, /\bmarketplace/, /\bcreador/, /\bcreator/,
+  /\btik ?tok\b/, /\bshop\b/, /\bmarketplace/, /\bcreador/, /\bcreator/,
   /\bgmv\b/, /\bvendid/, /\bse vende/, /\btendencia/, /\btrending\b/, /\bsells?\b/, /\bselling\b/,
 ];
 
@@ -202,11 +203,14 @@ export function detectKind(text: string): ResearchKind {
  */
 export function aConsulta(source: ResearchSource, texto: string): { term: string; kind: ResearchKind; country?: string } {
   const tiktok = source === 'tiktok';
+  // TikTok Shop y Amazon son por mercado (EE. UU., México, España…);
+  // comercio exterior no.
+  const porMercado = source !== 'aduanas';
   const larga = texto.trim().split(/\s+/).length > 3;
   return {
-    term: larga ? extractTerm(texto, { sinMercado: tiktok }) : texto.trim(),
+    term: larga ? extractTerm(texto, { sinMercado: porMercado }) : texto.trim(),
     kind: tiktok ? detectKind(texto) : 'product',
-    country: tiktok ? detectMarket(texto) : undefined,
+    country: porMercado ? detectMarket(texto) : undefined,
   };
 }
 
@@ -230,6 +234,13 @@ export function detectResearch(text: string): ResearchIntent | null {
 
   const aduanas = hit(SENAL_ADUANAS, q);
   const tiktok = hit(SENAL_TIKTOK, q);
+  const amazon = hit(SENAL_AMAZON, q);
+
+  // Amazon, cuando la pregunta lo nombra y no nombra TikTok: "¿cuánto
+  // venden las marcas de café en Amazon?".
+  if (amazon && !/\btik ?tok\b/.test(q)) {
+    return { source: 'amazon', kind: 'product', country: detectMarket(text), term: extractTerm(text, { sinMercado: true }) };
+  }
 
   // Las dos señales a la vez, o ninguna: manda aduanas sólo si es la
   // única, porque es la más específica. Sin ninguna, el ranking de

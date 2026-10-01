@@ -19,6 +19,8 @@ import { etiquetaRouter } from "./etiqueta/route";
 import { htsRouter } from "./hts/route";
 import { enviosRouter } from "./usps/route";
 import { destinosRouter } from "./destinos/route";
+import { revendedoresRouter } from "./revendedores/route";
+import { roiRouter } from "./roi/route";
 import { securityHeaders, permissionsPolicy, corsPolicy, methodAllowlist, apiRateLimiter } from "./security";
 import compression from "compression";
 import { validateEnv } from "./env";
@@ -60,6 +62,8 @@ async function startServer() {
   app.use("/api", cspRouter);
   app.use("/api", accountRouter);
   app.use("/api", etiquetaRouter);
+  app.use("/api", revendedoresRouter);
+  app.use("/api", roiRouter);
   app.use("/api", htsRouter);
   app.use("/api", enviosRouter);
   app.use("/api", destinosRouter);

@@ -13,6 +13,8 @@ import Home from "./pages/Home";
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Revendedores = lazy(() => import("./pages/Revendedores"));
+const AdminRevendedores = lazy(() => import("./pages/AdminRevendedores"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const PaymentResult = lazy(() => import("./pages/PaymentResult"));
@@ -136,6 +138,16 @@ function Router() {
           <Route path={"/estado"}>
             <Suspense fallback={<PageFallback />}>
               <Estado />
+            </Suspense>
+          </Route>
+          <Route path={"/revendedores"}>
+            <Suspense fallback={<PageFallback />}>
+              <Revendedores />
+            </Suspense>
+          </Route>
+          <Route path={"/admin/revendedores"}>
+            <Suspense fallback={<PageFallback />}>
+              <AdminRevendedores />
             </Suspense>
           </Route>
           <Route path={"/404"} component={NotFound} />

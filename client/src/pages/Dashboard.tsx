@@ -19,6 +19,7 @@ import DeleteAccount from '@/components/DeleteAccount';
 import MfaChallenge from '@/components/MfaChallenge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { fetchQuota, type ResearchQuota } from '@/lib/research';
+import { leerAcceso } from '@/lib/revendedores';
 import { estadoDe, type EstadoRuta } from '@/lib/ruta';
 import { cargarAvance } from '@/lib/rutaProgreso';
 
@@ -383,7 +384,7 @@ function ResearchQuotaCard() {
     window.location.href = '/tokens';
   };
 
-  const connected = quota.sources.tiktok || quota.sources.aduanas;
+  const connected = quota.sources.tiktok || quota.sources.aduanas || Boolean(quota.sources.amazon);
   const pct = quota.dailyLimit > 0 ? Math.round((quota.freeRemaining / quota.dailyLimit) * 100) : 0;
 
   return (
@@ -400,16 +401,22 @@ function ResearchQuotaCard() {
             </p>
           </div>
         </div>
-        <button
+        {!quota.unlimited && <button
           onClick={buy}
           disabled={busy}
           className="tap-scale-sm inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent hover:bg-accent/90 text-white text-xs font-bold border-0 cursor-pointer disabled:opacity-50 transition-colors"
         >
           {busy ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
           {es ? 'Comprar tokens' : 'Buy tokens'}
-        </button>
+        </button>}
       </div>
 
+      {quota.unlimited ? (
+        <p className="mb-3 text-sm font-semibold text-primary">
+          {es ? 'Cuenta maestra: consultas sin límite y sin costo.' : 'Master account: unlimited lookups at no cost.'}
+        </p>
+      ) : (
+      <>
       <div className="flex items-baseline gap-2 mb-2">
         <span className="text-3xl font-black text-primary">{quota.freeRemaining}</span>
         <span className="text-sm text-muted-foreground">
@@ -421,6 +428,8 @@ function ResearchQuotaCard() {
       <div className="h-2 rounded-full bg-gray-100 overflow-hidden mb-3">
         <div className="h-full rounded-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-500" style={{ width: `${pct}%` }} />
       </div>
+      </>
+      )}
 
       <p className="text-xs text-muted-foreground">
         {connected
@@ -468,6 +477,44 @@ function SubscriptionCard({ sub }: { sub: Subscription }) {
 
 // La ruta exportadora, resumida: el avance y el paso en que está. El
 // detalle vive en /ruta.
+// Acceso al programa de revendedores: el portal para un revendedor y la
+// administración para una cuenta maestra. Lo decide el servidor.
+function AccesoRevendedores() {
+  const { language } = useLanguage();
+  const { getAccessToken } = useAuth();
+  const [acceso, setAcceso] = useState<{ maestra: boolean; revendedor: boolean } | null>(null);
+  const es = language === 'es';
+
+  useEffect(() => {
+    void leerAcceso(getAccessToken()).then((r) => r.ok && setAcceso(r.data));
+  }, [getAccessToken]);
+
+  if (!acceso || (!acceso.maestra && !acceso.revendedor)) return null;
+  const href = acceso.maestra ? '/admin/revendedores' : '/revendedores';
+  return (
+    <Link
+      href={href}
+      className="tap-scale flex items-center justify-between gap-4 rounded-3xl border border-gray-100 bg-white p-5 app-shadow hover:border-accent/40"
+    >
+      <div>
+        <p className="font-bold text-primary">
+          {acceso.maestra ? (es ? 'Administrar revendedores' : 'Manage resellers') : es ? 'Tu portal de revendedor' : 'Your reseller portal'}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {acceso.maestra
+            ? es
+              ? 'Crea revendedores, entrega seriales y carga comisiones y pagos.'
+              : 'Create resellers, issue serials and record commissions and payouts.'
+            : es
+              ? 'Tu portafolio de planes y tu billetera.'
+              : 'Your plan portfolio and your wallet.'}
+        </p>
+      </div>
+      <span className="text-accent font-bold">→</span>
+    </Link>
+  );
+}
+
 function RutaCard() {
   const { language } = useLanguage();
   const { user } = useAuth();
@@ -579,6 +626,8 @@ function ClienteDashboard() {
 
       {subscription && <SubscriptionCard sub={subscription} />}
 
+      <AccesoRevendedores />
+
       <RutaCard />
 
       <ResearchQuotaCard />
@@ -613,7 +662,7 @@ function ClienteDashboard() {
                     <p className="font-semibold text-foreground truncate">{q.origin} → {q.destination}</p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(q.created_at).toLocaleDateString()} {q.weight_kg ? `· ${q.weight_kg} kg` : ''}
-                      {q.quote_cop ? ` · ${q.quote_cop.toLocaleString('es-CO')} COP` : ''}
+                      {q.quote_usd ? ` · USD ${Number(q.quote_usd).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : q.quote_cop ? ` · ${q.quote_cop.toLocaleString('es-CO')} COP` : ''}
                     </p>
                   </div>
                 </div>
@@ -781,6 +830,7 @@ function IntegrationsPanel() {
     // en todas partes.
     { key: 'tiktok', name: sources?.tiktok ?? 'Inteligencia TikTok Shop', group: 'intel', description: { es: 'Productos en tendencia, ventas y competidores en TikTok Shop.', en: 'Trending products, sales and competitors on TikTok Shop.' } },
     { key: 'clasificacion', name: sources?.clasificacion ?? 'Partidas sugeridas', group: 'intel', description: { es: 'Partidas posibles al leer una etiqueta, siempre verificadas contra el arancel cargado.', en: 'Possible tariff lines after reading a label, always checked against the loaded schedule.' } },
+    { key: 'amazon', name: sources?.amazon ?? 'Inteligencia Amazon', group: 'intel', description: { es: 'Ventas estimadas por marca y producto en Amazon (últimos 30 días).', en: 'Estimated sales by brand and product on Amazon (last 30 days).' } },
     { key: 'aduanas', name: sources?.aduanas ?? 'Comercio exterior', group: 'intel', description: { es: 'Datos reales de importación/exportación por país y producto.', en: 'Real import/export data by country and product.' } },
     { key: 'supabase', name: 'Supabase', group: 'core', description: { es: 'Login, registro, base de datos, notificaciones.', en: 'Login, sign-up, database, notifications.' } },
     { key: 'stripe', name: 'Stripe', group: 'core', description: { es: 'Opcional: cobros en dólares. Sin esto, todo se cobra por Wompi.', en: 'Optional: charges in US dollars. Without it, everything goes through Wompi.' } },
@@ -912,7 +962,7 @@ function VendedorDashboard() {
   })));
   const exportQuotes = () => downloadCSV('easycomex-cotizaciones.csv', (quotes ?? []).map((q) => ({
     nombre: q.name ?? '', email: q.email ?? '', telefono: q.phone ?? '', origen: q.origin, destino: q.destination,
-    peso_kg: q.weight_kg ?? '', tipo_cliente: q.client_type ?? '', zona: q.zone ?? '', cotizacion_cop: q.quote_cop ?? '', estado: q.status, fecha: q.created_at,
+    peso_kg: q.weight_kg ?? '', tipo_cliente: q.client_type ?? '', zona: q.zone ?? '', cotizacion_usd: q.quote_usd ?? '', cotizacion_cop: q.quote_cop ?? '', estado: q.status, fecha: q.created_at,
   })));
   const exportLeads = () => downloadCSV('easycomex-leads.csv', (leads ?? []).map((l) => ({
     nombre: `${l.first_name ?? ''} ${l.last_name ?? ''}`.trim(), email: l.email ?? '', telefono: l.phone ?? '',
@@ -927,6 +977,8 @@ function VendedorDashboard() {
         <StatCard icon={FileText} label={language === 'es' ? 'Cotizaciones pendientes' : 'Pending quotes'} value={pendingQuotes ?? 0} />
         <StatCard icon={TrendingUp} label={language === 'es' ? 'Leads este mes' : 'Leads this month'} value={leadsThisMonth ?? 0} />
       </div>
+
+      <AccesoRevendedores />
 
       <IntegrationsPanel />
 

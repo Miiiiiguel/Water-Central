@@ -3,6 +3,7 @@ import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
 import { formRateLimiter, checkoutRateLimiter, JSON_BODY_LIMIT } from './security';
 import { getSupabaseAdmin, getUserFromRequest } from './supabaseAdmin';
+import { esCuentaMaestra } from './maestros';
 import { logSecurityEvent } from './log';
 import { captureException } from './monitoring';
 import { ACTIONS } from './diagnosticActions';
@@ -210,9 +211,13 @@ diagnosticRouter.post('/diagnostic', formRateLimiter, express.json({ limit: JSON
   const gaps = gapsIn(answers).length;
   const user = await getUserFromRequest(req);
   const ref = newRef();
+  // Una cuenta maestra (los dueños) no paga el plan de acción: el
+  // diagnóstico se guarda ya desbloqueado.
+  const maestra = esCuentaMaestra(user);
 
   const { error } = await admin.from('diagnostics').insert({
     ref,
+    ...(maestra ? { paid: true, paid_at: new Date().toISOString() } : {}),
     user_id: user?.id ?? null,
     empresa: parsed.data.empresa || null,
     nombre: parsed.data.nombre,

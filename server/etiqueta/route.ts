@@ -9,6 +9,7 @@ import { diagnosticarIA, modeloDeOcr } from '../anthropicError';
 import { configurado as partidasConectadas, FalloFedex } from '../fedex/cliente';
 import { sugerirPartidas } from '../fedex/partidas';
 import { cobrarConsulta, devolverConsulta } from '../research';
+import { esCuentaMaestra } from '../maestros';
 
 // La mesa de análisis de producto: foto -> texto -> datos.
 //
@@ -99,7 +100,7 @@ etiquetaRouter.post(
     }
 
     const auth = res.locals.auth!;
-    const cobro = await cobrarConsulta(auth.user.id, 'etiqueta', 'lectura de etiqueta');
+    const cobro = await cobrarConsulta(auth.user.id, 'etiqueta', 'lectura de etiqueta', { maestra: esCuentaMaestra(auth.user) });
     if (!cobro.ok && cobro.motivo === 'sin_saldo') {
       return res.status(402).json({
         error: 'sin_tokens',

@@ -7,12 +7,11 @@ import { trackLead } from '@/lib/analytics';
 import { whatsappUrl } from '@/lib/contact';
 import { isNative, openExternal } from '@/lib/native';
 
-// Calculadora de fletes — the real one. The tariff table lives on the
+// Calculadora de fletes — the real one. The rate table lives on the
 // server (server/freight.ts + freightData.json); this form collects
 // destination, client type and packages, asks /api/freight/quote and
-// shows the price in COP with the same breakdown the WordPress
-// calculator gave: billable weight (real vs volumetric), zone, base,
-// discount, final.
+// shows the price in USD with its breakdown: billable weight (real vs
+// volumetric), zone, list price, the client type's discount, final.
 
 interface Destination {
   id: string;
@@ -35,11 +34,12 @@ interface Quote {
   zone: string;
   weights: { real: number; volumetric: number; billable: number };
   pricing: {
-    is_multiplier: boolean;
-    unit_rate: number;
-    base_price: number;
+    list_price: number;
     discount_percent: number;
     discount_amount: number;
+    /** 12-month average fuel surcharge; null while no history is loaded. */
+    fuel_percent: number | null;
+    fuel_amount: number;
     final_price: number;
   };
   currency: string;
@@ -53,11 +53,10 @@ const DEFAULT_DESTINATION = '197';
 const inputCls =
   'w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold text-primary outline-none transition-all placeholder:font-normal placeholder:text-gray-400 focus:border-accent focus:ring-2 focus:ring-accent/20';
 
-const cop = (n: number) => `$${Math.round(n).toLocaleString('es-CO')}`;
+const usd = (n: number) => `US$ ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const CLIENT_TYPE_HELP: Record<string, { es: string; en: string }> = {
   Normal: { es: 'Envías de vez en cuando', en: 'You ship now and then' },
-  Multiplicador: { es: 'Envías cada mes', en: 'You ship every month' },
   VIP: { es: 'Operación recurrente con nosotros', en: 'Ongoing operation with us' },
 };
 
@@ -67,7 +66,7 @@ export default function FreightSection() {
   const es = language === 'es';
 
   const [destinations, setDestinations] = useState<Destination[] | null>(null);
-  const [clientTypes, setClientTypes] = useState<string[]>(['Normal', 'Multiplicador', 'VIP']);
+  const [clientTypes, setClientTypes] = useState<string[]>(['Normal', 'VIP']);
   const [loadError, setLoadError] = useState(false);
 
   const [destination, setDestination] = useState(DEFAULT_DESTINATION);
@@ -145,7 +144,7 @@ export default function FreightSection() {
         return;
       }
       setQuote(data as Quote);
-      trackLead({ content_name: 'freight_calculator', client_type: clientType, value: (data as Quote).pricing.final_price, currency: 'COP' });
+      trackLead({ content_name: 'freight_calculator', client_type: clientType, value: (data as Quote).pricing.final_price, currency: 'USD' });
     } catch {
       setError(es ? 'Sin conexión. Intenta de nuevo.' : 'No connection. Please try again.');
     } finally {
@@ -161,8 +160,8 @@ export default function FreightSection() {
   const whatsapp = quote
     ? whatsappUrl(
         es
-          ? `Hola Easycomex. Coticé un envío a ${quote.destination} (${quote.weights.billable} kg facturables, cliente ${quote.customer_type}) por ${cop(quote.pricing.final_price)} COP y quiero reservarlo.`
-          : `Hi Easycomex. I quoted a shipment to ${quote.destination} (${quote.weights.billable} billable kg, ${quote.customer_type} client) at ${cop(quote.pricing.final_price)} COP and I want to book it.`
+          ? `Hola Easycomex. Coticé un envío a ${quote.destination} (${quote.weights.billable} kg facturables, cliente ${quote.customer_type}) por ${usd(quote.pricing.final_price)} y quiero reservarlo.`
+          : `Hi Easycomex. I quoted a shipment to ${quote.destination} (${quote.weights.billable} billable kg, ${quote.customer_type} client) at ${usd(quote.pricing.final_price)} and I want to book it.`
       )
     : '';
 
@@ -195,9 +194,11 @@ export default function FreightSection() {
             </p>
             <div className="space-y-3">
               {[
-                es ? 'Tarifa puerta a puerta desde Colombia a 211 destinos' : 'Door-to-door rates from Colombia to 211 destinations',
+                es
+                  ? `Tarifa express puerta a puerta desde Colombia a ${destinations ? destinations.length : 'más de 200'} destinos`
+                  : `Express door-to-door rates from Colombia to ${destinations ? destinations.length : 'over 200'} destinations`,
                 es ? 'Peso real vs. volumétrico, como lo cobra la aerolínea' : 'Real vs. volumetric weight, the way the airline charges it',
-                es ? 'Descuento según qué tanto envías con nosotros' : 'A discount based on how much you ship with us',
+                es ? 'Hasta 45 % menos que la tarifa pública, según qué tanto envías con nosotros' : 'Up to 45% off the public rate, depending on how much you ship with us',
               ].map((item) => (
                 <div key={item} className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-orange-500 flex-shrink-0" />
@@ -222,10 +223,10 @@ export default function FreightSection() {
                 </div>
 
                 <p className="mt-5 text-4xl font-black tabular-nums text-primary md:text-5xl">
-                  {cop(quote.pricing.final_price)} <span className="text-base font-bold text-muted-foreground">COP</span>
+                  {usd(quote.pricing.final_price)}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {es ? 'Flete internacional puerta a puerta · IVA no incluido' : 'Door-to-door international freight · VAT not included'}
+                  {es ? 'Flete internacional puerta a puerta · sin impuestos ni aranceles' : 'Door-to-door international freight · taxes and duties not included'}
                 </p>
 
                 <dl className="mt-6 grid grid-cols-2 gap-3 text-sm">
@@ -238,20 +239,27 @@ export default function FreightSection() {
                     </dd>
                   </div>
                   <div className="rounded-2xl bg-secondary/50 p-4">
-                    <dt className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{es ? 'Tarifa' : 'Rate'}</dt>
-                    <dd className="mt-1 text-lg font-black text-primary">
-                      {quote.pricing.is_multiplier ? `${cop(quote.pricing.unit_rate)} / kg` : cop(quote.pricing.base_price)}
-                    </dd>
-                    <dd className="text-xs text-muted-foreground">
-                      {quote.pricing.is_multiplier ? (es ? 'por kilo facturable' : 'per billable kilo') : es ? 'tarifa plana de la banda' : 'flat band rate'}
-                    </dd>
+                    <dt className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{es ? 'Tarifa pública' : 'Public rate'}</dt>
+                    <dd className="mt-1 text-lg font-black text-primary line-through decoration-2 decoration-muted-foreground/50">{usd(quote.pricing.list_price)}</dd>
+                    <dd className="text-xs text-muted-foreground">{es ? 'precio de lista 2026 del servicio express' : '2026 list price for express service'}</dd>
                   </div>
                   <div className="col-span-2 flex items-center justify-between rounded-2xl border border-green-100 bg-green-50 px-4 py-3">
                     <span className="text-sm font-semibold text-green-800">
                       {es ? `Descuento ${quote.customer_type}` : `${quote.customer_type} discount`} · {quote.pricing.discount_percent}%
                     </span>
-                    <span className="font-black text-green-700">−{cop(quote.pricing.discount_amount)}</span>
+                    <span className="font-black text-green-700">−{usd(quote.pricing.discount_amount)}</span>
                   </div>
+                  {quote.pricing.fuel_percent !== null && (
+                    <div className="col-span-2 flex items-center justify-between rounded-2xl bg-secondary/50 px-4 py-3">
+                      <span className="text-sm font-semibold text-foreground">
+                        {es ? 'Recargo por combustible' : 'Fuel surcharge'} · {quote.pricing.fuel_percent}%
+                        <span className="block text-xs font-normal text-muted-foreground">
+                          {es ? 'promedio de los últimos 12 meses' : 'average of the last 12 months'}
+                        </span>
+                      </span>
+                      <span className="font-black text-primary">+{usd(quote.pricing.fuel_amount)}</span>
+                    </div>
+                  )}
                 </dl>
 
                 <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -279,9 +287,16 @@ export default function FreightSection() {
                   </button>
                 </div>
                 <p className="mt-4 text-xs text-muted-foreground">
+                  {quote.pricing.fuel_percent !== null
+                    ? es
+                      ? 'Precio válido para carga general. El recargo por combustible usa el promedio publicado de los últimos 12 meses; el de la semana de tu envío puede ser mayor o menor. No incluye otros cargos del transportista (temporada alta, zona remota). '
+                      : 'Valid for general cargo. The fuel surcharge uses the published average of the last 12 months; the one for your shipping week may be higher or lower. Other carrier charges (peak season, remote area) are not included. '
+                    : es
+                      ? 'Precio válido para carga general. No incluye el recargo por combustible ni otros cargos del transportista (temporada alta, zona remota), que cambian cada semana. '
+                      : 'Valid for general cargo. Does not include the fuel surcharge or other carrier charges (peak season, remote area), which change weekly. '}
                   {es
-                    ? 'Precio válido para carga general. Mercancía peligrosa, perecederos o valores declarados altos se cotizan aparte.'
-                    : 'Valid for general cargo. Dangerous goods, perishables or high declared values are quoted separately.'}
+                    ? 'Mercancía peligrosa, perecederos, valores declarados altos o más de 3.000 kg se cotizan aparte.'
+                    : 'Dangerous goods, perishables, high declared values or over 3,000 kg are quoted separately.'}
                 </p>
               </div>
             ) : (

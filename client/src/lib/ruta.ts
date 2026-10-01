@@ -18,7 +18,7 @@ import type { Answer } from './diagnosticContent';
 
 export type Herramienta =
   | { tipo: 'ruta'; href: string; es: string; en: string }
-  | { tipo: 'buscar'; fuente: 'tiktok' | 'aduanas'; es: string; en: string }
+  | { tipo: 'buscar'; fuente: 'tiktok' | 'aduanas' | 'amazon'; es: string; en: string }
   | { tipo: 'asesor'; mensaje: string; es: string; en: string };
 
 export interface Tarea {

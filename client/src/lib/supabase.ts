@@ -272,6 +272,7 @@ export interface FreightQuote {
   client_type: string | null;
   zone?: string | null;
   quote_cop?: number | null;
+  quote_usd?: number | null;
   status: QuoteStatus;
   created_at: string;
 }

@@ -74,6 +74,16 @@ function texto(v: unknown): string {
   return typeof v === 'string' ? v : '';
 }
 
+/**
+ * La descripción de una línea. El servicio la manda en campos distintos
+ * según la línea (texto plano, con formato o sólo HTML); en las líneas
+ * "Other" a veces viene vacía y la persona veía un código sin nombre.
+ */
+function descripcionDe(a: Record<string, unknown> | undefined): string {
+  const d = limpiar(texto(a?.description_plain) || texto(a?.description) || texto(a?.formatted_description));
+  return d || 'Otros (resto de la subpartida)';
+}
+
 // ---- Las líneas de una subpartida --------------------------------------
 
 export interface LineaDestino {
@@ -111,7 +121,7 @@ export function leerLineas(cuerpo: unknown, hs6: string): LineaDestino[] {
     const hoja = a.leaf === true || a.declarable === true;
     const sufijo = texto(a.producline_suffix) || '80';
     if (!hoja || sufijo !== '80') continue;
-    lineas.push({ codigo, descripcion: limpiar(texto(a.description_plain) || texto(a.description)) });
+    lineas.push({ codigo, descripcion: descripcionDe(a) });
   }
   return lineas;
 }
@@ -232,7 +242,7 @@ export function leerArancel(cuerpo: unknown, servicio: Servicio, origen: string)
 
   return {
     codigo: texto(data.attributes?.goods_nomenclature_item_id),
-    descripcion: limpiar(texto(data.attributes?.description_plain) || texto(data.attributes?.description)),
+    descripcion: descripcionDe(data.attributes),
     general,
     preferencial,
     avisos,

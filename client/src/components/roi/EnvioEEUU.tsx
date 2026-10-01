@@ -4,7 +4,7 @@ import { cotizarEnvioEEUU, type CotizacionEnvio } from '@/lib/envios';
 
 // El envío de cada pedido dentro de EE. UU., cotizado con la tarifa real
 // desde el código postal del depósito de la marca. Sin cotizar, la
-// calculadora usa el valor fijo del modelo del equipo.
+// calculadora usa el valor estándar del modelo (que vive en el servidor).
 //
 // Se cotiza al apretar el botón, no mientras se escribe: cada cotización
 // nueva gasta cuota del servicio de envíos.
@@ -15,7 +15,6 @@ interface Props {
   pesoG: number;
   /** El precio supera el mínimo del envío gratis: la marca lo paga. */
   aplica: boolean;
-  fijoUsd: number;
   valor: number | null;
   onValor: (usd: number | null) => void;
 }
@@ -23,7 +22,7 @@ interface Props {
 const inputCls =
   'w-full rounded-xl border-[1.5px] border-gray-200 bg-white py-2.5 px-3 font-bold text-primary outline-none transition-colors focus:border-accent';
 
-export default function EnvioEEUU({ es, pesoG, aplica, fijoUsd, valor, onValor }: Props) {
+export default function EnvioEEUU({ es, pesoG, aplica, valor, onValor }: Props) {
   const [zip, setZip] = useState('');
   const [caja, setCaja] = useState({ largo: 23, ancho: 15, alto: 8 });
   const [cargando, setCargando] = useState(false);
@@ -86,8 +85,8 @@ export default function EnvioEEUU({ es, pesoG, aplica, fijoUsd, valor, onValor }
       <p className="mb-3 text-sm text-muted-foreground">
         {aplica
           ? es
-            ? `Tu precio supera el mínimo del envío gratis: el envío lo pagas tú. Sin cotizar se usan USD ${fijoUsd} por pedido.`
-            : `Your price is above the free-shipping threshold, so you pay shipping. Without a quote, USD ${fijoUsd} per order is used.`
+            ? 'Tu precio supera el mínimo del envío gratis: el envío lo pagas tú. Sin cotizar se usa un valor estándar por pedido; cotízalo para usar el real.'
+            : 'Your price is above the free-shipping threshold, so you pay shipping. Without a quote a standard per-order value is used; quote it to use the real one.'
           : es
             ? 'Con este precio el envío lo paga el comprador, así que no entra en tu costo. Puedes cotizarlo igual.'
             : 'At this price the buyer pays shipping, so it is not part of your cost. You can still get a quote.'}
@@ -124,8 +123,8 @@ export default function EnvioEEUU({ es, pesoG, aplica, fijoUsd, valor, onValor }
           </ul>
           <p className="mt-2 text-xs text-muted-foreground">
             {es
-              ? 'Tarifa comercial (la de quien imprime la guía en línea), hacia cuatro ciudades de zonas distintas. Tu costo real depende de dónde esté cada comprador.'
-              : 'Commercial rate (what you pay printing labels online), to four cities in different zones. Your real cost depends on where each buyer is.'}
+              ? 'Tarifa comercial de USPS: la que pagas imprimiendo la guía en Pirate Ship, Shopify Shipping o tu cuenta de USPS. Hacia cuatro ciudades de zonas distintas; tu costo real depende de dónde esté cada comprador.'
+              : 'USPS commercial rate: what you pay printing the label on Pirate Ship, Shopify Shipping or your USPS account. To four cities in different zones; your real cost depends on where each buyer is.'}
           </p>
         </div>
       ) : (

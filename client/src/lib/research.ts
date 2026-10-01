@@ -13,7 +13,7 @@
  * quien lo leyera tenía a un clic el contratarlo directo. El servidor
  * traduce estos ids a sus proveedores y no los devuelve nunca.
  */
-export type ResearchSource = 'tiktok' | 'aduanas';
+export type ResearchSource = 'tiktok' | 'aduanas' | 'amazon';
 
 /**
  * Any part of the site can ask Marco Polo to run a lookup by dispatching
@@ -65,6 +65,8 @@ export interface ResearchQuota {
   planTokens?: number;
   planEndsAt?: string | null;
   canQuery: boolean;
+  /** Cuenta maestra: consulta sin límite y sin pagar. */
+  unlimited?: boolean;
   sources: Record<ResearchSource, boolean>;
 }
 
@@ -102,6 +104,7 @@ export type ResearchOutcome =
 export const SOURCE_LABEL: Record<ResearchSource, string> = {
   tiktok: 'TikTok Shop',
   aduanas: 'Comercio exterior',
+  amazon: 'Amazon',
 };
 
 export const SOURCE_BLURB: Record<ResearchSource, { es: string; en: string }> = {
@@ -112,6 +115,10 @@ export const SOURCE_BLURB: Record<ResearchSource, { es: string; en: string }> = 
   aduanas: {
     es: 'importaciones y exportaciones reales por país y producto',
     en: 'real import and export records by country and product',
+  },
+  amazon: {
+    es: 'cuánto vende cada marca y cada producto (estimado, últimos 30 días)',
+    en: 'how much each brand and product sells (estimated, last 30 days)',
   },
 };
 
@@ -196,8 +203,11 @@ export function formatResult(result: ResearchOk, language: 'es' | 'en'): string 
       : `${head}\nTry another term, or the English name.`;
   }
   const body = result.rows.map((r) => `• ${r.label} — ${r.value}`).join('\n');
-  const left =
-    result.quota.freeRemaining > 0
+  const left = result.quota.unlimited
+    ? language === 'es'
+      ? 'Cuenta maestra: consultas sin límite.'
+      : 'Master account: unlimited lookups.'
+    : result.quota.freeRemaining > 0
       ? language === 'es'
         ? `Te quedan ${result.quota.freeRemaining} consultas gratis hoy.`
         : `${result.quota.freeRemaining} free lookups left today.`

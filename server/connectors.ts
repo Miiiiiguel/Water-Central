@@ -19,6 +19,7 @@
 //                      exponga una API HTTP directa.
 
 import { isConfigured as kalodataConfigured, missingConfig as kalodataMissing, runKalodata as kalodataQuery, type Kind } from './kalodata';
+import { isConfigured as amazonConfigured, missingConfig as amazonMissing, runJungleScout } from './junglescout';
 
 export interface ResearchRow {
   label: string;
@@ -71,16 +72,18 @@ function readConfig(id: 'kalodata' | 'sicex'): ProviderConfig {
   };
 }
 
-export function isConfigured(id: 'kalodata' | 'sicex'): boolean {
+export function isConfigured(id: 'kalodata' | 'sicex' | 'junglescout'): boolean {
   // Kalodata tiene endpoint conocido: le basta la llave.
   if (id === 'kalodata') return kalodataConfigured();
+  if (id === 'junglescout') return amazonConfigured();
   const c = readConfig(id);
   return !!(c.key && c.url);
 }
 
 /** What is still missing before this source can be used. */
-export function missingConfig(id: 'kalodata' | 'sicex'): string[] {
+export function missingConfig(id: 'kalodata' | 'sicex' | 'junglescout'): string[] {
   if (id === 'kalodata') return kalodataMissing();
+  if (id === 'junglescout') return amazonMissing();
   const c = readConfig(id);
   const missing: string[] = [];
   if (!c.key) missing.push(`${id.toUpperCase()}_API_KEY`);
@@ -179,6 +182,11 @@ async function call(config: ProviderConfig, query: string, country?: string): Pr
 // currency / date_range. Vive en su propio módulo, con pruebas.
 export function runKalodata(query: string, country?: string, kind?: Kind): Promise<ResearchResult> {
   return kalodataQuery(query, country, { kind });
+}
+
+// Amazon: ventas estimadas por marca y producto (server/junglescout.ts).
+export function runAmazon(query: string, country?: string): Promise<ResearchResult> {
+  return runJungleScout(query, country);
 }
 
 export function runSicex(query: string, country?: string): Promise<ResearchResult> {

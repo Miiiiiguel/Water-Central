@@ -82,20 +82,20 @@ export default function Header() {
           </span>
         </button>
 
-        <nav className="hidden lg:flex items-center gap-2 flex-1 justify-center">
+        <nav className="hidden xl:flex min-w-0 items-center gap-1 2xl:gap-2 flex-1 justify-center">
           {toolPills.map((item) => {
             const Icon = item.icon;
             return (
               <button
                 key={item.label}
                 onClick={() => handleNavClick(item.href)}
-                className={`tap-scale-sm pill-nav-item flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold whitespace-nowrap border-0 cursor-pointer transition-all duration-300 hover:scale-105 ${
+                className={`tap-scale-sm pill-nav-item flex items-center gap-2 rounded-full px-3 2xl:px-4 py-2.5 text-[13px] 2xl:text-sm font-bold whitespace-nowrap border-0 cursor-pointer transition-all duration-300 hover:scale-105 ${
                   dark
                     ? 'bg-white/10 text-white hover:bg-white/20 backdrop-blur-md'
                     : 'bg-secondary text-secondary-foreground hover:bg-orange-100'
                 }`}
               >
-                <Icon size={16} strokeWidth={2.5} />
+                <Icon size={16} strokeWidth={2.5} className="hidden 2xl:block" />
                 {item.label}
               </button>
             );
@@ -125,7 +125,7 @@ export default function Header() {
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className={`lg:hidden p-2 rounded-full transition-colors bg-transparent border-0 cursor-pointer ${dark ? 'text-white hover:bg-white/10' : 'text-primary hover:bg-orange-50'}`}
+            className={`xl:hidden p-2 rounded-full transition-colors bg-transparent border-0 cursor-pointer ${dark ? 'text-white hover:bg-white/10' : 'text-primary hover:bg-orange-50'}`}
             aria-label={isOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isOpen}
           >
@@ -135,7 +135,7 @@ export default function Header() {
       </div>
 
       <div
-        className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`xl:hidden overflow-hidden transition-all duration-300 ease-in-out ${
           isOpen ? 'max-h-[640px] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >

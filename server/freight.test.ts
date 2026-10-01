@@ -1,140 +1,195 @@
 import { describe, expect, it } from 'vitest';
-import { CLIENT_TYPES, DISCOUNTS, TARIFFS, ZONES, aggregateWeights, findBracket, quote, resolveZone } from './freight';
+import { CLIENT_TYPES, DISCOUNTS, RATES, ZONES, aggregateWeights, listPrice, precioEnTabla, promedioCombustible, quote, redondearFacturable, resolveZone } from './freight';
 
-// These pin the engine to the plugin it replaces (EasyComex Calculator
-// v2.2.4) and to the exported data, so a bad edit to freightData.json or
-// to the arithmetic changes a test, not a customer's price.
+// These pin the engine to the published 2026 export rate table (express
+// worldwide service, packages, from Colombia), so a bad edit to
+// freightData.json or to the arithmetic changes a test, not a customer's
+// price. The expected numbers are copied from the printed table.
 
 describe('the data', () => {
-  it('has the three client types with their real discounts', () => {
-    expect(CLIENT_TYPES).toEqual(['Normal', 'Multiplicador', 'VIP']);
-    expect(DISCOUNTS).toEqual({ normal: 30, multiplicador: 40, vip: 50 });
+  it('has the two client types with their discounts', () => {
+    expect(CLIENT_TYPES).toEqual(['Normal', 'VIP']);
+    expect(DISCOUNTS).toEqual({ normal: 25, vip: 45 });
   });
 
-  it('has 211 destinations across the nine zones', () => {
-    expect(ZONES).toHaveLength(211);
-    expect(Object.keys(TARIFFS).sort()).toEqual(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']);
+  it('has every destination in one of the seven zones, with no duplicate id', () => {
+    expect(Object.keys(RATES).sort()).toEqual(['1', '2', '3', '4', '5', '6', '7']);
+    expect(ZONES.length).toBeGreaterThan(200);
+    expect(new Set(ZONES.map((z) => z.id)).size).toBe(ZONES.length);
+    for (const z of ZONES) expect(RATES[z.zone], `${z.country_es} → zona ${z.zone}`).toBeDefined();
   });
 
-  it('has no gap in any zone from 0 to 10 000 kg', () => {
-    for (const [zone, brackets] of Object.entries(TARIFFS)) {
-      // Every 0.5 kg step up to 21 kg must hit a flat band; above that a per-kilo band.
-      for (let w = 0; w < 21; w += 0.25) {
-        const b = findBracket(zone, w)!;
-        expect(b.multiplier, `${zone} ${w}kg fell through to per-kilo`).toBe(false);
-        expect(w >= b.min && w < b.max, `${zone} ${w}kg → [${b.min},${b.max})`).toBe(true);
+  it('puts the countries where the rate guide puts them', () => {
+    const zona = (code: string) => ZONES.filter((z) => z.country_code === code).map((z) => z.zone);
+    expect(zona('BR')).toEqual(['1']);
+    expect(zona('PE')).toEqual(['1']);
+    expect(zona('MX')).toEqual(['3']);
+    expect(zona('CA')).toEqual(['3']);
+    expect(zona('PR')).toEqual(['3']);
+    expect(zona('CL')).toEqual(['4']);
+    expect(zona('ES')).toEqual(['5']);
+    expect(zona('GB')).toEqual(['5']);
+    expect(zona('CN')).toEqual(['6']);
+    expect(zona('AU')).toEqual(['7']);
+    expect(zona('CO')).toEqual([]); // the origin is not a destination
+  });
+
+  it('every published weight from 10 to 70 kg equals the previous one plus the per-kilo charges', () => {
+    // This is what caught any misread digit when the table was transcribed:
+    // the guide prints both the prices and the per-0.5/1 kg increments.
+    for (const zone of Object.keys(RATES)) {
+      const t = new Map(RATES[zone].table);
+      const hasta10 = { ...RATES[zone], table: RATES[zone].table.filter(([kg]) => kg <= 10) };
+      for (const w of [11, 15, 20, 21, 25, 30, 40, 50, 60, 70]) {
+        expect(precioEnTabla(hasta10, w), `zona ${zone}, ${w} kg`).toBeCloseTo(t.get(w)!, 2);
       }
-      for (const w of [21, 44.9, 45, 70, 71, 99, 100, 299, 300, 999, 1000, 9999]) {
-        const b = findBracket(zone, w)!;
-        expect(b.multiplier).toBe(true);
-        expect(w >= b.min && w < b.max).toBe(true);
-      }
-      expect(brackets).toHaveLength(48);
     }
   });
 
-  it('carries the Zone F [18, 18.5) band the WordPress table was missing', () => {
-    const b = findBracket('F', 18.2)!;
-    expect(b).toMatchObject({ min: 18, max: 18.5, price: 2232851, multiplier: false });
+  it('list prices only go up with weight', () => {
+    for (const zone of Object.keys(RATES)) {
+      let antes = 0;
+      for (let kg = 0.5; kg <= 400; kg += kg < 30 ? 0.5 : 1) {
+        const p = listPrice(zone, kg);
+        expect(p, `zona ${zone}, ${kg} kg`).toBeGreaterThan(antes);
+        antes = p;
+      }
+    }
+  });
+});
+
+describe('listPrice', () => {
+  it('reads the table where it has the weight', () => {
+    expect(listPrice('1', 0.5)).toBe(89.27);
+    expect(listPrice('2', 12)).toBe(383.8);
+    expect(listPrice('3', 2)).toBe(145.81);
+    expect(listPrice('5', 10)).toBe(671.99);
+    expect(listPrice('7', 70)).toBe(3811.09);
+  });
+
+  it('adds the per-half-kilo charge between published weights up to 30 kg', () => {
+    // Zone 2, 10.5 kg: 347.20 + 9.15
+    expect(listPrice('2', 10.5)).toBe(356.35);
+    // Zone 3, 20.5 kg: 541.74 + 9.03
+    expect(listPrice('3', 20.5)).toBe(550.77);
+  });
+
+  it('adds the per-kilo charge of each tranche above 30 kg', () => {
+    // Zone 3, 35 kg: 722.34 + 5 × 18.14
+    expect(listPrice('3', 35)).toBe(813.04);
+    // Zone 2, 100 kg: 1,404.60 + 30 × 20.79
+    expect(listPrice('2', 100)).toBe(2028.3);
+    // Zone 3, 301 kg: 1,447.94 + 230 × 24.65 + 1 × 27.15
+    expect(listPrice('3', 301)).toBe(7144.59);
+  });
+
+  it('refuses more than 3,000 kg', () => {
+    expect(listPrice('1', 3000)).toBeGreaterThan(0);
+    expect(() => listPrice('1', 3001)).toThrow(/3\.000 kg/);
   });
 });
 
 describe('resolveZone', () => {
-  it('tells Miami from the rest of the United States by _ID', () => {
-    expect(resolveZone('196')).toBe('B');
-    expect(resolveZone('197')).toBe('I');
-    // The ISO code is ambiguous: first row wins, as in the plugin.
-    expect(resolveZone('US')).toBe('B');
+  it('tells Miami from the rest of the United States by id', () => {
+    expect(resolveZone('196')).toBe('3');
+    expect(resolveZone('197')).toBe('2');
+    // The ISO code is ambiguous: first row wins.
+    expect(resolveZone('US')).toBe('3');
   });
 
   it('also accepts an ISO code or an exact name, and rejects the unknown', () => {
-    expect(resolveZone('CO')).toBe(resolveZone('Colombia'));
-    expect(resolveZone('Afganistán')).toBe('H');
-    expect(resolveZone('Afghanistan')).toBe('H');
+    expect(resolveZone('ES')).toBe(resolveZone('España'));
+    expect(resolveZone('Spain')).toBe('5');
     expect(resolveZone('Narnia')).toBeNull();
     expect(resolveZone('')).toBeNull();
   });
 });
 
-describe('aggregateWeights', () => {
-  it('bills the greater of real and volumetric weight (sum_max, divisor 5000)', () => {
-    // 40×30×25 cm = 30 000 cm³ → 6 kg volumetric; 12 kg real wins.
+describe('weights', () => {
+  it('rounds the billable weight up: half kilos to 30 kg, whole kilos above', () => {
+    expect(redondearFacturable(0.1)).toBe(0.5);
+    expect(redondearFacturable(2)).toBe(2);
+    expect(redondearFacturable(2.01)).toBe(2.5);
+    expect(redondearFacturable(30)).toBe(30);
+    expect(redondearFacturable(30.2)).toBe(31);
+  });
+
+  it('bills the greater of real and volumetric weight of each piece (divisor 5000)', () => {
+    // 40×30×25 cm = 6 kg volumetric; 12 kg real wins.
     expect(aggregateWeights([{ weight: 12, length: 40, width: 30, height: 25 }])).toEqual({ real: 12, volumetric: 6, billable: 12 });
     // 1 kg real in a 50×50×50 box → 25 kg volumetric wins.
     expect(aggregateWeights([{ weight: 1, length: 50, width: 50, height: 50 }])).toEqual({ real: 1, volumetric: 25, billable: 25 });
   });
 
-  it('multiplies by quantity and sums across packages', () => {
-    const w = aggregateWeights([{ weight: 2, quantity: 3 }, { weight: 1.5 }]);
-    expect(w.real).toBe(7.5);
-    expect(w.billable).toBe(7.5);
+  it('rounds each piece to the half kilo, then adds them up', () => {
+    // 3 × 1.2 kg = 3 × 1.5 billable = 4.5; plus a 0.3 kg piece → 0.5.
+    const w = aggregateWeights([{ weight: 1.2, quantity: 3 }, { weight: 0.3 }]);
+    expect(w.real).toBeCloseTo(3.9, 6);
+    expect(w.billable).toBe(5);
   });
 });
 
-describe('findBracket', () => {
-  it('treats bands as [min, max): 10 kg is in [10, 10.5), not [9.5, 10)', () => {
-    const b = findBracket('B', 10)!;
-    expect(b.min).toBe(10);
-    expect(b.max).toBe(10.5);
+const HOY = new Date('2026-10-01T15:00:00Z');
+
+describe('promedioCombustible', () => {
+  it('weights each published percentage by the days it was in force', () => {
+    // 30 days at 20 % and 10 days at 30 % → (600 + 300) / 40 = 22.5 %
+    const p = promedioCombustible(
+      [
+        { from: '2026-08-01', to: '2026-08-30', export_pct: 20 },
+        { from: '2026-08-31', to: '2026-09-09', export_pct: 30 },
+      ],
+      HOY
+    );
+    expect(p).toEqual({ pct: 22.5, desde: '2025-10-02', hasta: '2026-10-01', dias: 40 });
   });
 
-  it('falls back to the highest band for absurd weights', () => {
-    const b = findBracket('B', 999999)!;
-    expect(b.min).toBe(1000);
+  it('only counts the last 12 months, and the part of a period inside them', () => {
+    const p = promedioCombustible(
+      [
+        { from: '2024-01-01', to: '2025-09-30', export_pct: 99 }, // entirely before the window
+        { from: '2025-10-01', to: '2025-10-02', export_pct: 10 }, // only Oct 2 counts
+        { from: '2025-10-03', to: '2025-10-03', export_pct: 40 },
+        { from: '2026-10-02', to: '2026-10-08', export_pct: 99 }, // published ahead: not yet in force
+      ],
+      HOY
+    );
+    expect(p).toMatchObject({ pct: 25, dias: 2 });
+  });
+
+  it('is null with no history, so the quote goes out without the surcharge', () => {
+    expect(promedioCombustible([], HOY)).toBeNull();
   });
 });
 
 describe('quote', () => {
-  it('reproduces the README example: 12 kg to the US (not Miami), VIP', () => {
-    const q = quote({ customerType: 'VIP', destination: '196', packages: [{ weight: 12, length: 40, width: 30, height: 25, quantity: 1 }] });
-    const band = findBracket('B', 12)!;
-    expect(q.zone).toBe('B');
+  it('12 kg to Miami, Normal: list price minus 25%', () => {
+    const q = quote({ customerType: 'Normal', destination: '197', packages: [{ weight: 12, length: 40, width: 30, height: 25, quantity: 1 }] }, HOY, []);
+    expect(q.zone).toBe('2');
     expect(q.weights.billable).toBe(12);
-    expect(q.pricing.is_multiplier).toBe(false);
-    expect(q.pricing.base_price).toBe(band.price);
-    expect(q.pricing.discount_percent).toBe(50);
-    expect(q.pricing.final_price).toBe(Math.round(band.price * 0.5));
-    expect(q.currency).toBe('COP');
+    expect(q.pricing).toEqual({ list_price: 383.8, discount_percent: 25, discount_amount: 95.95, fuel_percent: null, fuel_amount: 0, final_price: 287.85 });
+    expect(q.fuel).toBeNull();
+    expect(q.currency).toBe('USD');
   });
 
-  it('charges per kilo above 21 kg', () => {
-    const q = quote({ customerType: 'Normal', destination: '197', packages: [{ weight: 30 }] });
-    expect(q.zone).toBe('I');
-    expect(q.pricing.is_multiplier).toBe(true);
-    expect(q.pricing.unit_rate).toBe(41936);
-    expect(q.pricing.base_price).toBe(Math.round(41936 * 30));
-    expect(q.pricing.final_price).toBe(Math.round(41936 * 30 * 0.7));
+  it('5 kg to the rest of the US, VIP: list price minus 45% (case-insensitive type)', () => {
+    const q = quote({ customerType: 'vip', destination: '196', packages: [{ weight: 5 }] }, HOY, []);
+    expect(q.zone).toBe('3');
+    expect(q.pricing).toEqual({ list_price: 240.24, discount_percent: 45, discount_amount: 108.11, fuel_percent: null, fuel_amount: 0, final_price: 132.13 });
   });
 
-  it('applies Normal 30 / Multiplicador 40 / VIP 50', () => {
-    const base = (t: string) => quote({ customerType: t, destination: '196', packages: [{ weight: 5 }] }).pricing;
-    const b = base('Normal').base_price;
-    expect(base('Normal').final_price).toBe(Math.round(b * 0.7));
-    expect(base('Multiplicador').final_price).toBe(Math.round(b * 0.6));
-    expect(base('vip').final_price).toBe(Math.round(b * 0.5)); // case-insensitive, like the plugin
+  it('adds the 12-month average fuel surcharge on top of the discounted price', () => {
+    const historial = [{ from: '2025-10-02', to: '2026-10-01', export_pct: 30 }];
+    const q = quote({ customerType: 'Normal', destination: '197', packages: [{ weight: 12 }] }, HOY, historial);
+    // 287.85 × 30 % = 86.355 → 86.36
+    expect(q.pricing).toEqual({ list_price: 383.8, discount_percent: 25, discount_amount: 95.95, fuel_percent: 30, fuel_amount: 86.36, final_price: 374.21 });
+    expect(q.fuel).toEqual({ desde: '2025-10-02', hasta: '2026-10-01' });
   });
 
-  it('refuses what the plugin refuses', () => {
-    expect(() => quote({ customerType: 'Gold', destination: '196', packages: [{ weight: 1 }] })).toThrow(/tipo de cliente/);
+  it('refuses what it cannot price', () => {
+    expect(() => quote({ customerType: 'Multiplicador', destination: '196', packages: [{ weight: 1 }] })).toThrow(/tipo de cliente/);
     expect(() => quote({ customerType: 'VIP', destination: '196', packages: [{ weight: 0 }] })).toThrow(/paquete/);
     expect(() => quote({ customerType: 'VIP', destination: 'Narnia', packages: [{ weight: 1 }] })).toThrow(/destino/);
-  });
-
-  it('matches the JS reference engine on a sweep of inputs', async () => {
-    // The vendor's own CommonJS engine (kept as a fixture), run against the same data.
-    const { createRequire } = await import('node:module');
-    const require = createRequire(import.meta.url);
-    const Ref = require('./fixtures/easycomex-pricing.reference.cjs');
-    const data = require('./freightData.json');
-    const ref = new Ref(data);
-    for (const dest of ['1', '5', '196', '197', '50', '120'])
-      for (const type of ['Normal', 'Multiplicador', 'VIP'])
-        for (const w of [0.3, 0.5, 2.25, 10, 17.9, 18.2, 20.9, 21, 33.3, 71, 250, 1500]) {
-          const mine = quote({ customerType: type, destination: dest, packages: [{ weight: w, length: 20, width: 20, height: 20 }] });
-          const theirs = ref.quote({ customerType: type, destination: dest, packages: [{ weight: w, length: 20, width: 20, height: 20 }] });
-          expect(mine.pricing, `${dest}/${type}/${w}`).toEqual(theirs.pricing);
-          expect(mine.weights).toEqual(theirs.weights);
-          expect(mine.zone).toBe(theirs.zone);
-        }
+    expect(() => quote({ customerType: 'VIP', destination: '196', packages: [{ weight: 1001, quantity: 3 }] })).toThrow(/aparte/);
   });
 });

@@ -12,8 +12,8 @@ import {
   totalFreightFor,
   WAREHOUSING,
   type RoiInputs,
-} from './roiModel';
-import { parseTasa } from './tasaArancel';
+} from './model';
+import { parseTasa } from '../../client/src/lib/tasaArancel';
 
 // The expected values below are derived by hand from the model's stated
 // rules, never read back out of the code — otherwise the test would only
