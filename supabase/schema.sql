@@ -902,3 +902,9 @@ alter table public.reseller_movements enable row level security;
 
 create index if not exists reseller_movements_reseller_idx
   on public.reseller_movements (reseller_id, fecha desc, created_at desc);
+
+-- El servidor (service_role) lee y escribe estas dos tablas. Supabase
+-- suele dar este permiso solo, pero si el proyecto cambió los permisos
+-- por defecto, sin esto la API responde "permission denied".
+grant select, insert, update, delete on public.resellers to service_role;
+grant select, insert, update, delete on public.reseller_movements to service_role;

@@ -102,10 +102,23 @@ export async function entrarConSerial(serial: string, admin: SupabaseClient | nu
   return { ok: true, session: { access_token: s.access_token, refresh_token: s.refresh_token, expires_at: s.expires_at ?? null } };
 }
 
-/** Correo interno de la cuenta: no recibe nada, sólo identifica. */
+/**
+ * Correo interno de la cuenta: no recibe nada (se crea confirmado y el
+ * enlace de acceso no se envía), sólo identifica. Va con el dominio real
+ * de la empresa porque Supabase puede rechazar un dominio sin correo
+ * configurado (como un subdominio inventado).
+ */
 function correoInterno(): string {
-  return `revendedor-${randomBytes(6).toString('hex')}@revendedores.easycomex.com`;
+  return `revendedor.${randomBytes(6).toString('hex')}@easycomex.com`;
 }
+
+/**
+ * El panel de administración lo usan sólo las cuentas maestras, así que
+ * a ellas sí se les dice qué contestó Supabase: sin eso, "no se pudo"
+ * no se puede arreglar.
+ */
+const conDetalle = (mensaje: string, error: { message?: string; code?: string } | null | undefined) =>
+  error?.message ? `${mensaje} Detalle: ${error.message}${error.code ? ` (${error.code})` : ''}` : mensaje;
 
 export const revendedoresRouter = express.Router();
 
@@ -213,7 +226,7 @@ revendedoresRouter.get('/revendedores/admin', adminLimiter, requireUser(), soloM
     .from('resellers')
     .select('id, user_id, nombre, empresa, contacto, serial_pista, activo, tokens_regalados, created_at')
     .order('created_at', { ascending: false });
-  if (error) return res.status(500).json({ error: 'base', message: 'No se pudo leer la tabla de revendedores. ¿Corriste schema.sql?' });
+  if (error) return res.status(500).json({ error: 'base', message: conDetalle('No se pudo leer la tabla de revendedores.', error) });
 
   const ids = (filas ?? []).map((f) => f.id as string);
   const usuarios = (filas ?? []).map((f) => f.user_id as string);
@@ -255,7 +268,7 @@ revendedoresRouter.post('/revendedores/admin', adminLimiter, requireUser(), solo
   });
   if (errCrear || !creado?.user) {
     console.error('reseller createUser failed:', errCrear?.message);
-    return res.status(500).json({ error: 'crear_cuenta', message: 'No se pudo crear la cuenta del revendedor.' });
+    return res.status(500).json({ error: 'crear_cuenta', message: conDetalle('No se pudo crear la cuenta del revendedor.', errCrear) });
   }
   const userId = creado.user.id;
 
@@ -280,7 +293,7 @@ revendedoresRouter.post('/revendedores/admin', adminLimiter, requireUser(), solo
   if (errFila || !fila) {
     console.error('reseller insert failed:', errFila?.message);
     await admin.auth.admin.deleteUser(userId);
-    return res.status(500).json({ error: 'crear_revendedor', message: 'No se pudo guardar el revendedor. ¿Corriste schema.sql?' });
+    return res.status(500).json({ error: 'crear_revendedor', message: conDetalle('No se pudo guardar el revendedor.', errFila) });
   }
   if (tokens > 0) await admin.rpc('grant_research_credits', { p_user_id: userId, p_credits: tokens });
 
@@ -316,7 +329,7 @@ revendedoresRouter.post('/revendedores/admin/:id/movimientos', adminLimiter, req
   });
   if (error) {
     console.error('reseller movement insert failed:', error.message);
-    return res.status(500).json({ error: 'base', message: 'No se pudo guardar el movimiento.' });
+    return res.status(500).json({ error: 'base', message: conDetalle('No se pudo guardar el movimiento.', error) });
   }
   res.status(201).json({ ok: true });
 });
@@ -326,7 +339,7 @@ revendedoresRouter.delete('/revendedores/admin/:id/movimientos/:mov', adminLimit
   const admin = conAdmin(res);
   if (!admin) return;
   const { error } = await admin.from('reseller_movements').delete().eq('id', req.params.mov).eq('reseller_id', req.params.id);
-  if (error) return res.status(500).json({ error: 'base', message: 'No se pudo borrar el movimiento.' });
+  if (error) return res.status(500).json({ error: 'base', message: conDetalle('No se pudo borrar el movimiento.', error) });
   res.json({ ok: true });
 });
 
@@ -339,7 +352,7 @@ revendedoresRouter.post('/revendedores/admin/:id/tokens', adminLimiter, requireU
   const { data: fila } = await admin.from('resellers').select('user_id, tokens_regalados').eq('id', req.params.id).maybeSingle();
   if (!fila) return res.status(404).json({ error: 'no_existe' });
   const { error } = await admin.rpc('grant_research_credits', { p_user_id: fila.user_id, p_credits: parsed.data.cantidad });
-  if (error) return res.status(500).json({ error: 'base', message: 'No se pudieron dar los tokens.' });
+  if (error) return res.status(500).json({ error: 'base', message: conDetalle('No se pudieron dar los tokens.', error) });
   await admin.from('resellers').update({ tokens_regalados: (fila.tokens_regalados as number) + parsed.data.cantidad }).eq('id', req.params.id);
   res.json({ ok: true });
 });
