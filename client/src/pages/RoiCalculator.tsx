@@ -18,6 +18,7 @@ import { DESTINOS, DESTINOS_PRINCIPALES, destino as destinoDe, type ArancelDesti
 import type { DetallePartida } from '@/lib/hts';
 import { paisDeOrigen, parseTasa } from '@/lib/tasaArancel';
 import ReglasOrigen from '@/components/roi/ReglasOrigen';
+import FabricantesSugeridos from '@/components/FabricantesPatrocinados';
 import {
   RESPUESTAS_INICIALES, aplicaAcuerdo, capituloDe, choqueConPartida, esCapituloTextil, evaluarOrigen, regionDelAcuerdo, type RespuestasOrigen,
 } from '@/lib/reglasOrigen';
@@ -559,6 +560,17 @@ export default function RoiCalculator() {
                   veredicto={veredicto}
                   choque={choque}
                 />
+              )}
+
+              {partida && (
+                <div className="mb-5 empty:hidden">
+                  <FabricantesSugeridos
+                    codigo={partida.codigo}
+                    contexto={`${partida.codigo} · ${partida.descripcion.slice(-1)[0] ?? ''}`.slice(0, 200)}
+                    lugar="roi"
+                    es={es}
+                  />
+                </div>
               )}
 
               <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">

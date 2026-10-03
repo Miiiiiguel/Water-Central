@@ -638,6 +638,48 @@ admite 10 intentos por IP cada 15 minutos.
 `reseller_movements`, sin acceso desde el navegador) y verifica que
 `SUPABASE_SERVICE_ROLE_KEY` esté puesta en Render.
 
+## 5c. Fabricantes patrocinados ("fabrícalo con tu marca")
+
+Marcas, laboratorios y maquiladores pagan una pauta mensual para salir
+de primeros cuando alguien investiga un producto que ellos pueden
+fabricar. Salen marcados como **Patrocinado** en:
+
+- **Marco Polo**: después del resultado de una investigación, si hay
+  fabricantes para lo que se buscó.
+- **Calculadora ROI**: al elegir la partida arancelaria.
+- **`/fabricantes`**: el directorio público, con el formulario "¿Eres
+  fabricante? Aparece aquí" (enlazado también desde el pie de página).
+
+**Base de datos:** las tablas `manufacturers` y `manufacturer_events`
+están al final de `supabase/schema.sql`. Corre ese bloque en el SQL
+Editor de Supabase (o el archivo entero: es idempotente).
+
+**Cómo se administra** (`/admin/fabricantes`, sólo cuentas maestras; hay
+un acceso en el dashboard):
+
+1. Se crea el fabricante, o se aprueba la solicitud que llegó desde
+   `/fabricantes` (queda "pendiente" hasta que alguien la revise).
+2. **Categorías**: capítulos o partidas del arancel que puede fabricar
+   (`33`, `3401`, `6109`). **Palabras**: cómo lo busca la gente
+   (`shampoo, crema, arena para gatos`). Sale si la partida elegida cae en
+   una categoría o si lo buscado nombra una palabra (sin importar tildes
+   ni plurales). Si no encaja con nada, no sale.
+3. **Pauta**: el cobro es manual. Cuando paga el mes, "Pagó: extender 1
+   mes" corre la fecha `pauta_hasta`. Sale mientras esté aprobado, activo
+   y con la fecha vigente (hora de Colombia). A igual encaje, sale primero
+   el de más **prioridad**: eso es lo que se vende como "aparecer de
+   primero".
+4. **Métricas**: vistas y contactos de los últimos 30 días, y los últimos
+   contactos con su mensaje. Es lo que se le muestra al fabricante para
+   que renueve.
+
+**El contacto:** el cliente llena nombre, correo y mensaje. Queda guardado
+(y contado), le llega al correo del fabricante con "responder a" el del
+cliente, y una copia al equipo (`TEAM_EMAIL`, si Resend está
+configurado). Después se le ofrece el WhatsApp del fabricante. El correo
+y el WhatsApp del fabricante no se muestran antes del formulario: así
+cada contacto se cuenta.
+
 ## 6. Notificaciones (campanita en el dashboard + push real)
 
 Las notificaciones **dentro de la app** (la campanita) ya funcionan solo

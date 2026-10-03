@@ -15,6 +15,8 @@ const Register = lazy(() => import("./pages/Register"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Revendedores = lazy(() => import("./pages/Revendedores"));
 const AdminRevendedores = lazy(() => import("./pages/AdminRevendedores"));
+const Fabricantes = lazy(() => import("./pages/Fabricantes"));
+const AdminFabricantes = lazy(() => import("./pages/AdminFabricantes"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const PaymentResult = lazy(() => import("./pages/PaymentResult"));
@@ -98,6 +100,16 @@ function Router() {
           <Route path={"/plantillas"}>
             <Suspense fallback={<PageFallback />}>
               <Plantillas />
+            </Suspense>
+          </Route>
+          <Route path={"/fabricantes"}>
+            <Suspense fallback={<PageFallback />}>
+              <Fabricantes />
+            </Suspense>
+          </Route>
+          <Route path={"/admin/fabricantes"}>
+            <Suspense fallback={<PageFallback />}>
+              <AdminFabricantes />
             </Suspense>
           </Route>
           <Route path={"/ruta"}>

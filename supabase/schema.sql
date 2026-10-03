@@ -908,3 +908,69 @@ create index if not exists reseller_movements_reseller_idx
 -- por defecto, sin esto la API responde "permission denied".
 grant select, insert, update, delete on public.resellers to service_role;
 grant select, insert, update, delete on public.reseller_movements to service_role;
+
+-- ---------------------------------------------------------------------
+-- Fabricantes patrocinados ("fabrícalo con nosotros")
+--
+-- Marcas, laboratorios y maquiladores pagan una pauta para aparecer de
+-- primeros cuando alguien investiga un producto que ellos pueden fabricar
+-- (en Marco Polo, en la calculadora ROI y en /fabricantes). Lo
+-- administran las cuentas maestras desde /admin/fabricantes; el
+-- navegador no lee estas tablas (sin políticas): todo pasa por
+-- /api/fabricantes.
+--
+-- estado 'pendiente' = un fabricante pidió aparecer desde el formulario
+-- público y nadie lo ha revisado. Sólo sale si está 'aprobado', activo y
+-- con la pauta vigente (pauta_hasta >= hoy).
+-- ---------------------------------------------------------------------
+create table if not exists public.manufacturers (
+  id uuid primary key default gen_random_uuid(),
+  nombre text not null,
+  descripcion text,
+  pais text not null default 'CO',
+  ciudad text,
+  -- Capítulos o partidas del arancel que puede fabricar ('33', '3304', '6109').
+  categorias text[] not null default '{}',
+  -- Palabras con las que lo buscan ('shampoo', 'arena para gatos').
+  palabras text[] not null default '{}',
+  pedido_minimo text,
+  certificaciones text,
+  contacto_nombre text,
+  contacto_email text,
+  contacto_whatsapp text,
+  sitio_web text,
+  estado text not null default 'aprobado' check (estado in ('pendiente', 'aprobado')),
+  activo boolean not null default true,
+  pauta_hasta date,
+  prioridad integer not null default 0,
+  plan text,
+  precio_mensual_usd numeric(12, 2),
+  notas text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.manufacturers enable row level security;
+
+create table if not exists public.manufacturer_events (
+  id uuid primary key default gen_random_uuid(),
+  manufacturer_id uuid not null references public.manufacturers (id) on delete cascade,
+  tipo text not null check (tipo in ('impresion', 'contacto')),
+  -- Dónde se mostró o desde dónde lo contactaron: 'chat', 'roi', 'directorio'.
+  lugar text,
+  -- Qué buscaba la persona (el producto o la partida).
+  contexto text,
+  user_id uuid references public.profiles (id) on delete set null,
+  nombre text,
+  correo text,
+  telefono text,
+  mensaje text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.manufacturer_events enable row level security;
+
+create index if not exists manufacturer_events_idx
+  on public.manufacturer_events (manufacturer_id, tipo, created_at desc);
+
+grant select, insert, update, delete on public.manufacturers to service_role;
+grant select, insert, update, delete on public.manufacturer_events to service_role;

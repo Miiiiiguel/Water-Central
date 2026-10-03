@@ -441,7 +441,7 @@ try {
 const PENDIENTE = /\[(completa|complete|fill|todo|pendiente|reemplaza|replace)\b|lorem ipsum|xxx+/i;
 const sinPendientes = [];
 
-for (const route of ['/login', '/registro', '/dashboard', '/roi', '/diagnostico', '/restablecer', '/privacidad', '/terminos', '/pago/exito', '/pago/cancelado', '/no-existe-404']) {
+for (const route of ['/login', '/registro', '/dashboard', '/roi', '/diagnostico', '/fabricantes', '/restablecer', '/privacidad', '/terminos', '/pago/exito', '/pago/cancelado', '/no-existe-404']) {
   const before = errors.length;
   try {
     await page.goto(base + route, { waitUntil: 'domcontentloaded' });
@@ -482,7 +482,7 @@ try {
 // no nos escribe.
 try {
   const problemas = [];
-  const rutas = ['/', '/roi', '/diagnostico', '/login', '/registro', '/analizar'];
+  const rutas = ['/', '/roi', '/diagnostico', '/login', '/registro', '/analizar', '/fabricantes'];
   for (const route of rutas) {
     await page.goto(base + route, { waitUntil: 'load' });
     await page.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 400) window.scrollTo(0, y); });

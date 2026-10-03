@@ -17,12 +17,14 @@ export default function Footer() {
         { label: 'Logística internacional', href: '#servicios' },
         { label: 'Prep Center en USA', href: '#servicios' },
         { label: 'Inteligencia de mercado', href: '#servicios' },
+        { label: 'Fabricantes con tu marca', href: '/fabricantes' },
       ]
     : [
         { label: 'New sales channels', href: '#servicios' },
         { label: 'International logistics', href: '#servicios' },
         { label: 'US Prep Center', href: '#servicios' },
         { label: 'Market intelligence', href: '#servicios' },
+        { label: 'Private-label manufacturers', href: '/fabricantes' },
       ];
 
   const company = language === 'es'
@@ -43,10 +45,12 @@ export default function Footer() {
     ? [
         { label: '¿Quieres ser nuestro aliado?', href: '#contacto' },
         { label: 'Únete a nuestra red de afiliados', href: '#contacto' },
+        { label: '¿Eres fabricante? Aparece aquí', href: '/fabricantes#aparecer' },
       ]
     : [
         { label: 'Want to be our partner?', href: '#contacto' },
         { label: 'Join our affiliate network', href: '#contacto' },
+        { label: 'Are you a manufacturer? Get listed', href: '/fabricantes#aparecer' },
       ];
 
   const legal = language === 'es'

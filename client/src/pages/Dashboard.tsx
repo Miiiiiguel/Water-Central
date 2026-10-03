@@ -492,6 +492,23 @@ function AccesoRevendedores() {
   if (!acceso || (!acceso.maestra && !acceso.revendedor)) return null;
   const href = acceso.maestra ? '/admin/revendedores' : '/revendedores';
   return (
+    <>
+    {acceso.maestra && (
+      <Link
+        href="/admin/fabricantes"
+        className="tap-scale flex items-center justify-between gap-4 rounded-3xl border border-gray-100 bg-white p-5 app-shadow hover:border-accent/40"
+      >
+        <div>
+          <p className="font-bold text-primary">{es ? 'Fabricantes patrocinados' : 'Sponsored manufacturers'}</p>
+          <p className="text-sm text-muted-foreground">
+            {es
+              ? 'Aprueba solicitudes, activa la pauta y mira vistas y contactos de cada fabricante.'
+              : 'Approve requests, turn listings on and see each manufacturer’s views and contacts.'}
+          </p>
+        </div>
+        <span className="text-accent font-bold">→</span>
+      </Link>
+    )}
     <Link
       href={href}
       className="tap-scale flex items-center justify-between gap-4 rounded-3xl border border-gray-100 bg-white p-5 app-shadow hover:border-accent/40"
@@ -512,6 +529,7 @@ function AccesoRevendedores() {
       </div>
       <span className="text-accent font-bold">→</span>
     </Link>
+    </>
   );
 }
 

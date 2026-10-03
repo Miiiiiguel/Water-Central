@@ -24,12 +24,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { fetchQuota, runResearch, formatResult, consumePendingResearch, SOURCE_LABEL, SOURCE_BLURB, RESEARCH_EVENT, type ResearchKind, type ResearchQuota, type ResearchRequest, type ResearchSource } from '@/lib/research';
 import { analizarFoto, estadoDelLector, pedirPartidas, prepararFoto, reinterpretar, type Analisis, type Respuestas } from '@/lib/etiqueta';
 import { leerChip, textoDePartidas, turnoDe, type Turno } from '@/lib/etiquetaChat';
+import { fabricantesSugeridos, type Fabricante } from '@/lib/fabricantes';
+import { ListaFabricantes } from '@/components/FabricantesPatrocinados';
 
 interface ChatMessage {
   role: 'user' | 'bot';
   content: string;
   at: number;
   quickReplies?: { label: string; value: string }[];
+  /** Fabricantes patrocinados que pueden hacer lo que se investigó. */
+  fabricantes?: { lista: Fabricante[]; contexto: string };
 }
 
 const STORAGE_KEY = 'mp_chat_v1';
@@ -343,6 +347,23 @@ export default function ChatbotWidget() {
           { label: language === 'es' ? 'Otra consulta' : 'Another lookup', value: `__research:${source}__` },
           { label: language === 'es' ? 'Hablar con una persona' : 'Talk to a person', value: '__human__' },
         ],
+      });
+      // Si hay fabricantes con pauta para lo que se investigó, se ofrecen
+      // después del resultado (nunca mezclados con los datos).
+      void fabricantesSugeridos({ q: term, lugar: 'chat' }).then((lista) => {
+        if (!lista.length) return;
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: 'bot',
+            content:
+              language === 'es'
+                ? '¿Quieres fabricar este producto con tu propia marca? Estos fabricantes pueden hacerlo:'
+                : 'Want to make this product under your own brand? These manufacturers can do it:',
+            at: Date.now(),
+            fabricantes: { lista, contexto: term },
+          },
+        ]);
       });
       return;
     }
@@ -969,6 +990,11 @@ export default function ChatbotWidget() {
                     >
                       <span className="whitespace-pre-line">{m.content}</span>
                     </div>
+                    {m.fabricantes && (
+                      <div className="mt-2 w-full">
+                        <ListaFabricantes fabricantes={m.fabricantes.lista} es={language === 'es'} contexto={m.fabricantes.contexto} lugar="chat" />
+                      </div>
+                    )}
                     <span className="text-[10px] text-muted-foreground mt-1 px-1">{timeLabel(m.at)}</span>
                     {m.quickReplies && (
                       <div className="flex flex-wrap gap-1.5 mt-1.5">
