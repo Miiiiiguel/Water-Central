@@ -47,6 +47,14 @@ export const DESTINOS: Destino[] = [
 
 const POR_ISO = new Map(DESTINOS.map((d) => [d.iso, d]));
 
+/**
+ * Los mercados a los que más exportan los clientes, arriba del selector
+ * y en este orden. El resto va debajo: la UE y después todos los demás.
+ */
+export const DESTINOS_PRINCIPALES = [
+  'US', 'CA', 'MX', 'GB', 'ES', 'DE', 'FR', 'IT', 'NL', 'JP', 'KR', 'AU', 'CN', 'AE', 'SA', 'CH', 'CL', 'CO', 'PE', 'BR', 'PA', 'CR',
+];
+
 export function destino(iso: string): Destino | null {
   return POR_ISO.get(iso) ?? null;
 }

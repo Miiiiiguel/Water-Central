@@ -14,7 +14,7 @@ import RoiTable, { type RoiRow } from '@/components/roi/RoiTable';
 import PartidaArancel from '@/components/roi/PartidaArancel';
 import EnvioEEUU from '@/components/roi/EnvioEEUU';
 import LineaDestino from '@/components/roi/LineaDestino';
-import { DESTINOS, destino as destinoDe, type ArancelDestino } from '@/lib/destinos';
+import { DESTINOS, DESTINOS_PRINCIPALES, destino as destinoDe, type ArancelDestino } from '@/lib/destinos';
 import type { DetallePartida } from '@/lib/hts';
 import { paisDeOrigen, parseTasa } from '@/lib/tasaArancel';
 import ReglasOrigen from '@/components/roi/ReglasOrigen';
@@ -467,13 +467,18 @@ export default function RoiCalculator() {
                   onChange={(e) => cambiarDestino(e.target.value)}
                   className="w-full rounded-xl border-[1.5px] border-gray-200 bg-secondary/60 px-3 py-2.5 font-bold text-primary outline-none focus:border-accent focus:bg-white sm:w-64"
                 >
-                  <optgroup label={es ? 'Con arancel oficial en vivo' : 'With live official tariff'}>
-                    {DESTINOS.filter((d) => d.fuente !== 'manual').map((d) => (
+                  <optgroup label={es ? 'Mercados principales' : 'Main markets'}>
+                    {DESTINOS_PRINCIPALES.map((iso) => destinoDe(iso)).filter((d): d is NonNullable<typeof d> => d !== null).map((d) => (
                       <option key={d.iso} value={d.iso}>{es ? d.nombre : d.nombreEn}</option>
                     ))}
                   </optgroup>
-                  <optgroup label={es ? 'Otros países (escribes la tarifa)' : 'Other countries (you type the rate)'}>
-                    {DESTINOS.filter((d) => d.fuente === 'manual')
+                  <optgroup label={es ? 'Unión Europea' : 'European Union'}>
+                    {DESTINOS.filter((d) => d.fuente === 'xi' && !DESTINOS_PRINCIPALES.includes(d.iso)).map((d) => (
+                      <option key={d.iso} value={d.iso}>{es ? d.nombre : d.nombreEn}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label={es ? 'Todos los demás países' : 'All other countries'}>
+                    {DESTINOS.filter((d) => d.fuente === 'manual' && !DESTINOS_PRINCIPALES.includes(d.iso))
                       .map((d) => ({ iso: d.iso, nombre: es ? d.nombre : d.nombreEn }))
                       .sort((a, b) => a.nombre.localeCompare(b.nombre, es ? 'es' : 'en'))
                       .map((d) => (

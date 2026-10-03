@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DESTINOS, destino } from './destinos';
+import { DESTINOS, DESTINOS_PRINCIPALES, destino } from './destinos';
 import { PAISES, UNION_EUROPEA } from './paises';
 
 describe('DESTINOS', () => {
@@ -26,4 +26,10 @@ describe('DESTINOS', () => {
   it('leaves out US territories, which enter under the US tariff', () => {
     for (const iso of ['PR', 'VI', 'GU']) expect(destino(iso)).toBeNull();
   });
+});
+
+it('every main market is a real destination, Canada right after the US', () => {
+  for (const iso of DESTINOS_PRINCIPALES) expect(destino(iso), iso).not.toBeNull();
+  expect(DESTINOS_PRINCIPALES.slice(0, 2)).toEqual(['US', 'CA']);
+  expect(new Set(DESTINOS_PRINCIPALES).size).toBe(DESTINOS_PRINCIPALES.length);
 });
