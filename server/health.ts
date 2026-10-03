@@ -1,7 +1,8 @@
 import express from 'express';
-import { getProfileFromRequest } from './supabaseAdmin';
+import { getProfileFromRequest, getUserFromRequest } from './supabaseAdmin';
 import { isConfigured as kalodataConfigured } from './kalodata';
-import { isConfigured as amazonConfigured } from './junglescout';
+import { isConfigured as amazonConfigured, probarAmazon } from './junglescout';
+import { esCuentaMaestra } from './maestros';
 import { configurado as fedexConfigurado } from './fedex/cliente';
 import { configurado as uspsConfigurado } from './usps/cliente';
 
@@ -72,4 +73,17 @@ healthRouter.get('/health', async (req, res) => {
       emailTeamInbox: set('TEAM_EMAIL'),
     },
   });
+});
+
+// Para el equipo: una consulta real a la fuente de Amazon, para saber
+// desde el panel por qué no trae datos (llave, plan, límite o caída).
+// Sólo vendedores y cuentas maestras: la respuesta nombra al proveedor.
+healthRouter.get('/health/amazon', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const ctx = await getProfileFromRequest(req);
+  const permitido = ctx ? ctx.profile.role === 'vendedor' || esCuentaMaestra(ctx.user) : esCuentaMaestra(await getUserFromRequest(req));
+  if (!permitido) {
+    return res.status(403).json({ error: 'forbidden' });
+  }
+  res.json(await probarAmazon());
 });

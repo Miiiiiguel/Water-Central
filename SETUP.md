@@ -1309,6 +1309,14 @@ Qué hay que poner en Render:
 |---|---|
 | `JUNGLESCOUT_API_KEY_NAME` | El **nombre** que le diste a la llave al crearla en Jungle Scout |
 | `JUNGLESCOUT_API_KEY` | La llave |
+| `JUNGLESCOUT_API_TYPE` | Opcional: `junglescout` (cuenta normal) o `cobalt` (Enterprise). Vacío: se prueba `junglescout` y, si la API dice 401/403, `cobalt` |
+
+**Si no trae datos:** en el dashboard, "Inteligencia Amazon: prueba real"
+→ **Probar** (lo ven vendedores y cuentas maestras). Hace una consulta de
+verdad y dice qué pasó: faltan variables, la llave no es reconocida (401:
+nombre o llave mal copiados), la cuenta no tiene acceso a la API (403: el
+acceso a la API es un plan aparte), límite de consultas (429) o la API
+caída (5xx).
 
 Para sacarlas: en Jungle Scout (web) → **Settings** → **API Keys** →
 **Generate API Key**. Dale un nombre (por ejemplo `easycomex`) y copia el

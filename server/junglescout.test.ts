@@ -134,3 +134,48 @@ describe('la llamada', () => {
     expect(llamadas).toBe(0);
   });
 });
+
+describe('tipo de API y diagnóstico', async () => {
+  const { runJungleScout, probarAmazon, olvidarTipo } = await import('./junglescout');
+  const ENV = { JUNGLESCOUT_API_KEY_NAME: 'nombre', JUNGLESCOUT_API_KEY: 'llave' } as NodeJS.ProcessEnv;
+  const ok = { data: [{ id: 'us/B01', attributes: { title: 'Coffee', brand: 'Marca', price: 10, approximate_30_day_revenue: 1000, approximate_30_day_units_sold: 100 } }], meta: { total_items: 1 } };
+  const respuesta = (status: number, cuerpo: unknown) => ({ status, ok: status < 400, json: async () => cuerpo }) as unknown as Response;
+
+  it('retries as an Enterprise (cobalt) account when the regular type is not authorized, and remembers it', async () => {
+    olvidarTipo();
+    const tipos: string[] = [];
+    const hacer = (async (_u: string, init: RequestInit) => {
+      const t = (init.headers as Record<string, string>)['X-API-Type'];
+      tipos.push(t);
+      return t === 'cobalt' ? respuesta(200, ok) : respuesta(401, { errors: [{ title: 'Unauthorized' }] });
+    }) as unknown as typeof fetch;
+    const r = await runJungleScout('coffee', 'US', hacer, ENV);
+    expect(r.rows.length).toBeGreaterThan(0);
+    expect(tipos).toEqual(['junglescout', 'cobalt']);
+    await runJungleScout('coffee', 'US', hacer, ENV);
+    expect(tipos.slice(2)).toEqual(['cobalt']);
+    olvidarTipo();
+  });
+
+  it('respects a fixed JUNGLESCOUT_API_TYPE and says why it failed', async () => {
+    olvidarTipo();
+    const tipos: string[] = [];
+    const hacer = (async (_u: string, init: RequestInit) => {
+      tipos.push((init.headers as Record<string, string>)['X-API-Type']);
+      return respuesta(403, { errors: [{ detail: 'API access not enabled' }] });
+    }) as unknown as typeof fetch;
+    await expect(runJungleScout('coffee', 'US', hacer, { ...ENV, JUNGLESCOUT_API_TYPE: 'junglescout' })).rejects.toThrow(/403 \(API access not enabled\).*plan con API/);
+    expect(tipos).toEqual(['junglescout']);
+  });
+
+  it('probarAmazon reports missing variables, a working key, and a rejected one', async () => {
+    olvidarTipo();
+    expect(await probarAmazon(fetch, {} as NodeJS.ProcessEnv)).toMatchObject({ ok: false, status: null, detalle: 'faltan JUNGLESCOUT_API_KEY_NAME y JUNGLESCOUT_API_KEY' });
+    expect(await probarAmazon((async () => respuesta(200, ok)) as unknown as typeof fetch, ENV)).toMatchObject({ ok: true, status: 200, tipo: 'junglescout', productos: 1 });
+    olvidarTipo();
+    const rechazo = await probarAmazon((async () => respuesta(401, { errors: [{ title: 'Unauthorized' }] })) as unknown as typeof fetch, ENV);
+    expect(rechazo).toMatchObject({ ok: false, status: 401, detalle: 'Unauthorized' });
+    expect(rechazo.explicacion).toMatch(/JUNGLESCOUT_API_KEY_NAME/);
+    olvidarTipo();
+  });
+});

@@ -22,6 +22,11 @@ import { aIngles } from './hts/glosario';
 // Con guion, no con guion bajo: la primera versión mandaba X_API_Type y
 // los servidores que descartan encabezados con guion bajo (la mayoría de
 // los proxys) la dejaban sin el tipo de API, así que no devolvía nada.
+//
+// El tipo es 'junglescout' para las cuentas normales y 'cobalt' para las
+// Enterprise. Se puede fijar con JUNGLESCOUT_API_TYPE; si no, se prueba
+// 'junglescout' y, si la API contesta 401 o 403, se reintenta una vez con
+// 'cobalt'. El que funcione se recuerda mientras el servidor esté arriba.
 
 const BASE = 'https://developer.junglescout.com/api';
 const ESPERA_MS = 15_000;
@@ -44,6 +49,21 @@ export function leerConfiguracion(env: NodeJS.ProcessEnv = process.env): { nombr
   const nombre = env.JUNGLESCOUT_API_KEY_NAME?.trim();
   const llave = env.JUNGLESCOUT_API_KEY?.trim();
   return nombre && llave ? { nombre, llave } : null;
+}
+
+export type TipoApi = 'junglescout' | 'cobalt';
+
+/** El tipo que se fijó a mano, si se fijó. */
+export function tipoFijado(env: NodeJS.ProcessEnv = process.env): TipoApi | null {
+  const t = env.JUNGLESCOUT_API_TYPE?.trim().toLowerCase();
+  return t === 'junglescout' || t === 'cobalt' ? t : null;
+}
+
+let tipoQueFunciono: TipoApi | null = null;
+
+/** Para las pruebas: olvidar el tipo recordado. */
+export function olvidarTipo() {
+  tipoQueFunciono = null;
 }
 
 export function isConfigured(env: NodeJS.ProcessEnv = process.env): boolean {
@@ -162,25 +182,23 @@ export function toResult(consulta: string, mercado: string, cuerpo: unknown): Re
 
 type Fetch = typeof fetch;
 
-/** Falla con el detalle para el log; el mensaje al cliente lo arma quien llama. */
-export async function runJungleScout(consulta: string, pais?: string, hacer: Fetch = fetch, env: NodeJS.ProcessEnv = process.env): Promise<ResearchResult> {
-  const config = leerConfiguracion(env);
-  if (!config) throw new Error(`amazon no configurado (${missingConfig(env).join(', ')})`);
-  const mercado = pais && MERCADOS[pais.toUpperCase()] ? pais.toUpperCase() : 'US';
-  const m = MERCADOS[mercado];
-  const clave = palabraClave(consulta, m.ingles);
-  if (!clave) throw new Error('amazon: consulta vacía');
+/** Lo que contestó la API, sin interpretar. */
+interface Respuesta {
+  status: number;
+  cuerpo: unknown;
+  tipo: TipoApi;
+}
 
-  const url = `${BASE}/product_database_query?marketplace=${m.codigo}&sort=-revenue&page[size]=50`;
+async function consultar(clave: string, codigoMercado: string, tipo: TipoApi, config: { nombre: string; llave: string }, hacer: Fetch): Promise<Respuesta> {
+  const url = `${BASE}/product_database_query?marketplace=${codigoMercado}&sort=-revenue&page[size]=50`;
   const control = new AbortController();
   const reloj = setTimeout(() => control.abort(), ESPERA_MS);
-  let res: Response;
   try {
-    res = await hacer(url, {
+    const res = await hacer(url, {
       method: 'POST',
       headers: {
         Authorization: `${config.nombre}:${config.llave}`,
-        'X-API-Type': 'junglescout',
+        'X-API-Type': tipo,
         Accept: 'application/vnd.junglescout.v1+json',
         'Content-Type': 'application/vnd.api+json',
       },
@@ -192,15 +210,93 @@ export async function runJungleScout(consulta: string, pais?: string, hacer: Fet
       }),
       signal: control.signal,
     });
+    return { status: res.status, cuerpo: await res.json().catch(() => null), tipo };
   } finally {
     clearTimeout(reloj);
   }
+}
 
-  const cuerpo = await res.json().catch(() => null);
-  if (!res.ok) {
-    const errores = (cuerpo as { errors?: Array<{ title?: string; detail?: string }> } | null)?.errors;
-    const detalle = Array.isArray(errores) ? errores.map((e) => e.detail || e.title).filter(Boolean).join(' | ').slice(0, 200) : '';
-    throw new Error(`jungle scout respondió ${res.status}${detalle ? ` (${detalle})` : ''}`);
+/**
+ * Consulta con el tipo de API que corresponde: el fijado, el que ya
+ * funcionó, o 'junglescout' con un reintento como 'cobalt' si la API dice
+ * que no está autorizado.
+ */
+async function consultarConTipo(clave: string, codigoMercado: string, config: { nombre: string; llave: string }, hacer: Fetch, env: NodeJS.ProcessEnv): Promise<Respuesta> {
+  const fijo = tipoFijado(env);
+  const primero: TipoApi = fijo ?? tipoQueFunciono ?? 'junglescout';
+  let r = await consultar(clave, codigoMercado, primero, config, hacer);
+  if (!fijo && (r.status === 401 || r.status === 403)) {
+    const otro: TipoApi = primero === 'junglescout' ? 'cobalt' : 'junglescout';
+    const segundo = await consultar(clave, codigoMercado, otro, config, hacer);
+    if (segundo.status < 400 || (segundo.status !== 401 && segundo.status !== 403)) r = segundo;
   }
-  return toResult(consulta, mercado, cuerpo);
+  if (r.status < 400) tipoQueFunciono = r.tipo;
+  return r;
+}
+
+const detalleDeError = (cuerpo: unknown) => {
+  const errores = (cuerpo as { errors?: Array<{ title?: string; detail?: string }> } | null)?.errors;
+  return Array.isArray(errores) ? errores.map((e) => e.detail || e.title).filter(Boolean).join(' | ').slice(0, 200) : '';
+};
+
+/** Falla con el detalle para el log; el mensaje al cliente lo arma quien llama. */
+export async function runJungleScout(consulta: string, pais?: string, hacer: Fetch = fetch, env: NodeJS.ProcessEnv = process.env): Promise<ResearchResult> {
+  const config = leerConfiguracion(env);
+  if (!config) throw new Error(`amazon no configurado (${missingConfig(env).join(', ')})`);
+  const mercado = pais && MERCADOS[pais.toUpperCase()] ? pais.toUpperCase() : 'US';
+  const m = MERCADOS[mercado];
+  const clave = palabraClave(consulta, m.ingles);
+  if (!clave) throw new Error('amazon: consulta vacía');
+
+  const r = await consultarConTipo(clave, m.codigo, config, hacer, env);
+  if (r.status >= 400) {
+    const detalle = detalleDeError(r.cuerpo);
+    throw new Error(`jungle scout respondió ${r.status}${detalle ? ` (${detalle})` : ''} · ${explicar(r.status)}`);
+  }
+  return toResult(consulta, mercado, r.cuerpo);
+}
+
+/** Qué hacer según lo que contestó la API, para el equipo. */
+export function explicar(status: number): string {
+  if (status === 401) return 'la API no reconoce la llave: revisa en Render que JUNGLESCOUT_API_KEY_NAME sea el NOMBRE de la llave y JUNGLESCOUT_API_KEY la llave, copiadas sin espacios, de la misma cuenta.';
+  if (status === 403) return 'la llave es válida pero la cuenta no tiene acceso a la API (hace falta un plan con API, que se compra aparte) o a este endpoint.';
+  if (status === 429) return 'se pasó el límite de consultas de la API; espera unos minutos o sube el plan.';
+  if (status === 400 || status === 422) return 'la API rechazó la consulta; manda este detalle para corregirla.';
+  if (status >= 500) return 'la API está caída o lenta; prueba de nuevo más tarde.';
+  return 'respuesta inesperada de la API.';
+}
+
+export interface Prueba {
+  ok: boolean;
+  status: number | null;
+  tipo: TipoApi | null;
+  productos: number;
+  detalle: string;
+  explicacion: string;
+}
+
+/** Una consulta real ("coffee" en Amazon US) para el panel de integraciones. */
+export async function probarAmazon(hacer: Fetch = fetch, env: NodeJS.ProcessEnv = process.env): Promise<Prueba> {
+  const config = leerConfiguracion(env);
+  if (!config) {
+    return { ok: false, status: null, tipo: null, productos: 0, detalle: `faltan ${missingConfig(env).join(' y ')}`, explicacion: 'Agrega esas variables en Render (Environment) y vuelve a desplegar.' };
+  }
+  try {
+    const r = await consultarConTipo('coffee', 'us', config, hacer, env);
+    if (r.status >= 400) {
+      return { ok: false, status: r.status, tipo: r.tipo, productos: 0, detalle: detalleDeError(r.cuerpo), explicacion: explicar(r.status) };
+    }
+    const { productos } = leerProductos(r.cuerpo);
+    return {
+      ok: productos.length > 0,
+      status: r.status,
+      tipo: r.tipo,
+      productos: productos.length,
+      detalle: '',
+      explicacion: productos.length ? 'Funciona.' : 'La API respondió pero sin productos para "coffee": revisa que el plan incluya Product Database.',
+    };
+  } catch (err) {
+    const msg = (err as Error).name === 'AbortError' ? 'la API no respondió en 15 segundos' : (err as Error).message;
+    return { ok: false, status: null, tipo: null, productos: 0, detalle: msg.slice(0, 200), explicacion: 'No se pudo llegar a la API desde el servidor.' };
+  }
 }

@@ -519,6 +519,7 @@ function AccesoRevendedores() {
   const href = acceso.maestra ? '/admin/revendedores' : '/revendedores';
   return (
     <>
+    {acceso.maestra && <ProbarAmazon es={es} token={getAccessToken()} tarjeta />}
     {acceso.maestra && (
       <Link
         href="/admin/fabricantes"
@@ -847,6 +848,51 @@ function ProbarAranceles({ es, token }: { es: boolean; token: string | null }) {
   );
 }
 
+/**
+ * Prueba real de la fuente de Amazon: dice si responde y, si no, por qué
+ * (llave, plan sin API, límite, caída). La ven vendedores y cuentas
+ * maestras; el servidor lo exige.
+ */
+function ProbarAmazon({ es, token, tarjeta = false }: { es: boolean; token: string | null; tarjeta?: boolean }) {
+  type Prueba = { ok: boolean; status: number | null; tipo: string | null; productos: number; detalle: string; explicacion: string };
+  const [estado, setEstado] = useState<'idle' | 'cargando' | Prueba>('idle');
+  const probar = () => {
+    setEstado('cargando');
+    fetch('/api/health/amazon', { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(r.status === 403 ? (es ? 'sólo vendedores o cuentas maestras' : 'vendors or master accounts only') : String(r.status)))))
+      .then((d: Prueba) => setEstado(d))
+      .catch((e: Error) => setEstado({ ok: false, status: null, tipo: null, productos: 0, detalle: e.message, explicacion: '' }));
+  };
+  return (
+    <div className={tarjeta ? 'rounded-3xl border border-gray-100 bg-white p-5 app-shadow' : 'px-6 py-4 border-t border-gray-100'}>
+      <div className="flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <p className="font-semibold text-foreground text-sm">{es ? 'Inteligencia Amazon: prueba real' : 'Amazon intelligence: live test'}</p>
+          <p className="text-xs text-muted-foreground">{es ? 'Hace una consulta de verdad y dice por qué falla, si falla.' : 'Runs a real lookup and says why it fails, if it does.'}</p>
+        </div>
+        <button
+          type="button"
+          onClick={probar}
+          disabled={estado === 'cargando'}
+          className="tap-scale-sm flex-none cursor-pointer rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-bold text-primary hover:border-gray-300 disabled:opacity-50"
+        >
+          {estado === 'cargando' ? (es ? 'Probando…' : 'Testing…') : es ? 'Probar' : 'Test'}
+        </button>
+      </div>
+      {typeof estado === 'object' && (
+        <div className={`mt-2 rounded-xl px-3 py-2 text-xs ${estado.ok ? 'bg-green-50 text-green-800' : 'bg-orange-50 text-orange-900'}`}>
+          <p className="font-bold">
+            {estado.ok
+              ? es ? `Funciona: ${estado.productos} productos (tipo de cuenta: ${estado.tipo}).` : `Works: ${estado.productos} products (account type: ${estado.tipo}).`
+              : `${es ? 'No funciona' : 'Not working'}${estado.status ? ` · ${es ? 'respuesta' : 'status'} ${estado.status}` : ''}${estado.detalle ? ` · ${estado.detalle}` : ''}`}
+          </p>
+          {!estado.ok && estado.explicacion && <p className="mt-1">{estado.explicacion}</p>}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function IntegrationsPanel() {
   const { language } = useLanguage();
   const { getAccessToken } = useAuth();
@@ -952,6 +998,7 @@ function IntegrationsPanel() {
         ))}
       </ul>
       <ProbarAranceles es={language === 'es'} token={getAccessToken()} />
+      <ProbarAmazon es={language === 'es'} token={getAccessToken()} />
       <div className="px-6 py-4 border-t border-gray-100">
         <p className="text-xs text-muted-foreground">
           {language === 'es'
