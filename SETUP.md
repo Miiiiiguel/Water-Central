@@ -673,6 +673,30 @@ un acceso en el dashboard):
    contactos con su mensaje. Es lo que se le muestra al fabricante para
    que renueve.
 
+**Portal del fabricante (`/fabricante`):** el fabricante entra con una
+cuenta normal de Easycomex (registro con correo o Google) cuyo correo,
+confirmado, sea el **correo de acceso** que le pusiste en el panel (si lo
+dejas vacío, vale el de contacto). En el dashboard le aparece "Tu portal
+de fabricante". Ve:
+
+- Si está al aire y hasta cuándo.
+- Vistas y contactos de 30 días, la tasa de contacto y la gráfica por día
+  (con su tabla).
+- Dónde lo vieron (Marco Polo, ROI, directorio) y qué buscaba la gente.
+- Sus contactos con el mensaje, el correo y el WhatsApp.
+- Sus pagos, y cómo lo ven los clientes.
+
+**Pago en línea de la pauta:** con el **precio mensual (USD)** que le
+fijes en el panel, el fabricante paga 1, 3, 6 o 12 meses desde su portal
+(Wompi, en pesos con `USD_COP_RATE`, como el resto del catálogo). Cuando
+Wompi confirma (la vuelta del navegador o el evento firmado, lo que
+llegue primero), la pauta se extiende sola desde hoy o desde que vence, y
+el fabricante queda aprobado y activo; una sola vez por pago. Le llega un
+correo, y otro al equipo. El pago queda en `payments` con el plan
+`pauta_fabricante` y su fabricante en `manufacturer_payments`. Sin precio
+o sin Wompi configurado, el portal le dice que escriba al equipo; el
+botón "Pagó: extender 1 mes" del panel sigue para los pagos por fuera.
+
 **El contacto:** el cliente llena nombre, correo y mensaje. Queda guardado
 (y contado), le llega al correo del fabricante con "responder a" el del
 cliente, y una copia al equipo (`TEAM_EMAIL`, si Resend está

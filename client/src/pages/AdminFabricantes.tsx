@@ -37,6 +37,7 @@ const VACIO: FabricanteEditable = {
   contacto_email: null,
   contacto_whatsapp: null,
   sitio_web: null,
+  acceso_email: null,
   estado: 'aprobado',
   activo: true,
   pauta_hasta: null,
@@ -121,10 +122,16 @@ function Formulario({ inicial, onGuardar, ocupado, textoBoton }: { inicial: Fabr
       <Campo label="WhatsApp (con indicativo, ej.: +57 300…)">
         <input {...texto('contacto_whatsapp')} className={inputCls} />
       </Campo>
+      <Campo label="Correo de acceso a su portal (si es otro)" ancho>
+        <input {...texto('acceso_email')} type="email" placeholder="Si lo dejas vacío, entra con el correo de arriba" className={inputCls} />
+        <span className="mt-1 block text-xs font-normal text-muted-foreground">
+          El fabricante crea su cuenta en easycomex.com/registro con ese correo (o entra con Google) y ve sus métricas y paga en /fabricante.
+        </span>
+      </Campo>
       <Campo label="Plan">
         <input {...texto('plan')} placeholder="Destacado cosméticos" className={inputCls} />
       </Campo>
-      <Campo label="Precio mensual (USD)">
+      <Campo label="Precio mensual (USD) · con esto paga en línea">
         <input
           value={f.precio_mensual_usd ?? ''}
           onChange={(e) => set('precio_mensual_usd', e.target.value === '' ? null : Math.max(0, Number(e.target.value)))}

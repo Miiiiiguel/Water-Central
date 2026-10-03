@@ -24,6 +24,8 @@ export interface FabricanteFila {
   contacto_email: string | null;
   contacto_whatsapp: string | null;
   sitio_web: string | null;
+  /** Correo con que entra a su portal; si falta, vale contacto_email. */
+  acceso_email?: string | null;
   estado: 'pendiente' | 'aprobado';
   activo: boolean;
   pauta_hasta: string | null;

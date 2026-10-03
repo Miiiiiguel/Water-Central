@@ -69,7 +69,20 @@ function Contacto({ f, es, contexto, lugar }: { f: Fabricante; es: boolean; cont
   );
 }
 
-export function TarjetaFabricante({ f, es, contexto, lugar }: { f: Fabricante; es: boolean; contexto: string; lugar: Lugar }) {
+export function TarjetaFabricante({
+  f,
+  es,
+  contexto,
+  lugar,
+  vistaPrevia = false,
+}: {
+  f: Fabricante;
+  es: boolean;
+  contexto: string;
+  lugar: Lugar;
+  /** Para el portal del fabricante: se ve igual, pero el botón no abre el formulario. */
+  vistaPrevia?: boolean;
+}) {
   const [abierta, setAbierta] = useState(false);
   const ubicacion = [f.ciudad, es ? pais(f.pais)?.es : pais(f.pais)?.en].filter(Boolean).join(', ');
   return (
@@ -104,7 +117,12 @@ export function TarjetaFabricante({ f, es, contexto, lugar }: { f: Fabricante; e
       )}
       <div className="mt-3 flex flex-wrap items-center gap-3">
         {!abierta && (
-          <button type="button" onClick={() => setAbierta(true)} className="tap-scale-sm rounded-full bg-primary px-4 py-2 text-sm font-bold text-white">
+          <button
+            type="button"
+            disabled={vistaPrevia}
+            onClick={() => setAbierta(true)}
+            className="tap-scale-sm rounded-full bg-primary px-4 py-2 text-sm font-bold text-white disabled:cursor-default"
+          >
             {es ? 'Contactar' : 'Contact'}
           </button>
         )}

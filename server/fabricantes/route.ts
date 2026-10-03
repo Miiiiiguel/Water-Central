@@ -7,6 +7,10 @@ import { getSupabaseAdmin, getUserFromRequest } from '../supabaseAdmin';
 import { logSecurityEvent } from '../log';
 import { esCuentaMaestra } from '../maestros';
 import { escapeHtml, sendEmail, teamAddress } from '../email';
+import { copDisplay } from '../catalog';
+import { checkoutUrl, integritySignature, wompiConfigured } from '../wompi';
+import { newRef, orderId } from '../ordenes';
+import { MESES_PAUTA, PLAN_PAUTA, esSuyo, hoyColombia, porLugar, precioPauta, serieDiaria, topBusquedas, type Evento } from './portal';
 import { directorio, metricas, pautaVigente, publico, sugeridos, terminos, type FabricanteFila } from './match';
 
 // Fabricantes patrocinados: marcas, laboratorios y maquiladores que pagan
@@ -25,11 +29,10 @@ const lecturaLimiter = makeLimiter('fabricantes_lectura', 300);
 const contactoLimiter = makeLimiter('fabricantes_contacto', 10);
 const adminLimiter = makeLimiter('fabricantes_admin', 200);
 
-/** La fecha de hoy en Colombia: la pauta vence al final del día de allá. */
-export const hoyColombia = (ahora = new Date()) => ahora.toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
+export { hoyColombia };
 
 const COLUMNAS =
-  'id, nombre, descripcion, pais, ciudad, categorias, palabras, pedido_minimo, certificaciones, contacto_nombre, contacto_email, contacto_whatsapp, sitio_web, estado, activo, pauta_hasta, prioridad, plan, precio_mensual_usd, notas, created_at';
+  'id, nombre, descripcion, pais, ciudad, categorias, palabras, pedido_minimo, certificaciones, contacto_nombre, contacto_email, contacto_whatsapp, sitio_web, acceso_email, estado, activo, pauta_hasta, prioridad, plan, precio_mensual_usd, notas, created_at';
 
 const aFila = (r: Record<string, unknown>): FabricanteFila =>
   ({
@@ -278,6 +281,14 @@ export const fabricanteSchema = z.object({
     .transform((v) => (v ? v : null))
     .refine((v) => v === null || z.string().email().safeParse(v).success, 'correo inválido'),
   contacto_whatsapp: textoOpcional(40),
+  acceso_email: z
+    .string()
+    .trim()
+    .max(200)
+    .nullable()
+    .optional()
+    .transform((v) => (v ? v.toLowerCase() : null))
+    .refine((v) => v === null || z.string().email().safeParse(v).success, 'correo de acceso inválido'),
   sitio_web: z
     .string()
     .trim()
@@ -368,4 +379,166 @@ fabricantesRouter.delete('/fabricantes/admin/:id', adminLimiter, requireUser(), 
   const { error } = await admin.from('manufacturers').delete().eq('id', id);
   if (error) return res.status(500).json({ error: 'base', message: conDetalle('No se pudo borrar.', error) });
   res.json({ ok: true });
+});
+
+// ---------------------------------------------------------------------
+// El portal del fabricante (/fabricante)
+//
+// Entra con una cuenta normal de Easycomex cuyo correo confirmado sea el
+// de acceso que le puso el equipo (o el de contacto). Ve su pauta, sus
+// métricas, sus contactos y sus pagos, y paga la pauta en línea.
+// ---------------------------------------------------------------------
+
+const portalLimiter = makeLimiter('fabricantes_portal', 120);
+
+/** Los fabricantes de quien llama (casi siempre uno). La tabla es chica: se filtra acá. */
+async function suyos(admin: SupabaseClient, user: Parameters<typeof esSuyo>[1]): Promise<FabricanteFila[]> {
+  if (!user?.email || !user.email_confirmed_at) return [];
+  const { data, error } = await admin.from('manufacturers').select(COLUMNAS);
+  if (error) {
+    console.error('[fabricantes] portal: lectura falló:', error.message);
+    return [];
+  }
+  return (data ?? []).map((r) => aFila(r as Record<string, unknown>)).filter((f) => esSuyo(f, user));
+}
+
+fabricantesRouter.get('/fabricantes/portal/acceso', portalLimiter, requireUser(), async (_req, res) => {
+  const admin = getSupabaseAdmin();
+  res.setHeader('Cache-Control', 'no-store');
+  if (!admin) return res.json({ fabricante: false });
+  res.json({ fabricante: (await suyos(admin, res.locals.auth!.user)).length > 0 });
+});
+
+fabricantesRouter.get('/fabricantes/portal', portalLimiter, requireUser(), async (_req, res) => {
+  const admin = conAdmin(res);
+  if (!admin) return;
+  const user = res.locals.auth!.user;
+  if (!user.email_confirmed_at) {
+    return res.status(403).json({ error: 'correo_sin_confirmar', message: 'Confirma tu correo (te llegó un enlace) para entrar a tu portal de fabricante.' });
+  }
+  const lista = await suyos(admin, user);
+  if (!lista.length) return res.status(404).json({ error: 'no_es_fabricante', message: 'Tu correo no está registrado como fabricante.' });
+
+  const ahora = new Date();
+  const hoy = hoyColombia(ahora);
+  const hace30 = new Date(ahora.getTime() - 31 * 24 * 3600 * 1000).toISOString();
+  const pagoEnLinea = wompiConfigured();
+
+  const fabricantes = await Promise.all(
+    lista.map(async (f) => {
+      const [{ data: eventos }, { data: contactos }, { data: pagos }] = await Promise.all([
+        admin.from('manufacturer_events').select('tipo, lugar, contexto, created_at').eq('manufacturer_id', f.id).gte('created_at', hace30).limit(50000),
+        admin
+          .from('manufacturer_events')
+          .select('id, lugar, contexto, nombre, correo, telefono, mensaje, created_at')
+          .eq('manufacturer_id', f.id)
+          .eq('tipo', 'contacto')
+          .order('created_at', { ascending: false })
+          .limit(200),
+        admin
+          .from('manufacturer_payments')
+          .select('meses, aplicado, pauta_hasta_nueva, created_at, payments(status, amount_cents, currency)')
+          .eq('manufacturer_id', f.id)
+          .order('created_at', { ascending: false })
+          .limit(50),
+      ]);
+      const ev = (eventos ?? []) as Evento[];
+      const todosContactos = (contactos ?? []) as Array<{ created_at: string }>;
+      return {
+        perfil: {
+          ...publico(f),
+          estado: f.estado,
+          activo: f.activo,
+          pauta_hasta: f.pauta_hasta,
+          vigente: pautaVigente(f, hoy),
+          plan: f.plan,
+          precio_mensual_usd: f.precio_mensual_usd,
+        },
+        metricas: metricas([...ev.filter((e) => e.tipo === 'impresion'), ...todosContactos.map((c) => ({ tipo: 'contacto', created_at: c.created_at }))], ahora),
+        serie: serieDiaria(ev, hoy, 30),
+        lugares: porLugar(ev),
+        busquedas: topBusquedas(ev, 8),
+        contactos: contactos ?? [],
+        pagos: (pagos ?? []).map((p) => {
+          const pago = (Array.isArray(p.payments) ? p.payments[0] : p.payments) as { status?: string; amount_cents?: number; currency?: string } | null;
+          return {
+            meses: p.meses,
+            aplicado: p.aplicado,
+            pauta_hasta_nueva: p.pauta_hasta_nueva,
+            created_at: p.created_at,
+            estado: pago?.status ?? 'pending',
+            monto: pago?.amount_cents ? copDisplay(pago.amount_cents) : null,
+          };
+        }),
+        precios: MESES_PAUTA.map((meses) => {
+          const pr = precioPauta(f.precio_mensual_usd, meses);
+          return { meses, usd: pr ? pr.usdCents / 100 : null, cop: pr ? copDisplay(pr.amountInCents) : null };
+        }),
+        pagoEnLinea: pagoEnLinea && f.precio_mensual_usd !== null && f.precio_mensual_usd > 0,
+      };
+    })
+  );
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({ fabricantes, hoy });
+});
+
+const pagarSchema = z.object({
+  meses: z.number().int().refine((m) => (MESES_PAUTA as readonly number[]).includes(m), 'meses inválidos'),
+  platform: z.enum(['web', 'native']).default('web'),
+});
+
+fabricantesRouter.post('/fabricantes/portal/:id/pagar', contactoLimiter, requireUser(), express.json({ limit: JSON_BODY_LIMIT }), async (req, res) => {
+  const id = String(req.params.id);
+  const p = pagarSchema.safeParse(req.body);
+  if (!esId(id) || !p.success) return res.status(400).json({ error: 'datos_invalidos', message: 'Elige por cuántos meses quieres pagar.' });
+  const admin = conAdmin(res);
+  if (!admin) return;
+  const user = res.locals.auth!.user;
+
+  const f = (await suyos(admin, user)).find((x) => x.id === id);
+  if (!f) {
+    logSecurityEvent('forbidden', req, { route: 'fabricantes.pagar' });
+    return res.status(404).json({ error: 'no_es_fabricante', message: 'Ese fabricante no está a tu nombre.' });
+  }
+  const precio = precioPauta(f.precio_mensual_usd, p.data.meses);
+  if (!precio) return res.status(409).json({ error: 'sin_precio', message: 'Tu plan todavía no tiene precio. Escríbenos y lo activamos.' });
+  if (!wompiConfigured()) return res.status(503).json({ error: 'sin_pasarela', message: 'El pago en línea no está disponible ahora. Escríbenos y te mandamos el enlace de pago.' });
+
+  const ref = newRef();
+  const { data: orden, error } = await admin
+    .from('payments')
+    .insert({
+      stripe_session_id: orderId(ref),
+      user_id: user.id,
+      email: user.email ?? null,
+      plan: PLAN_PAUTA,
+      amount_cents: precio.amountInCents,
+      currency: precio.currency,
+      status: 'pending',
+    })
+    .select('id')
+    .single();
+  if (error || !orden) {
+    console.error('[fabricantes] no se pudo crear la orden de pauta:', error?.message);
+    return res.status(500).json({ error: 'orden_fallida', message: 'No pudimos crear el pago. Intenta de nuevo.' });
+  }
+  const { error: errLigar } = await admin.from('manufacturer_payments').insert({ payment_id: orden.id, manufacturer_id: f.id, meses: p.data.meses });
+  if (errLigar) {
+    // Sin esta fila el pago no sabría qué pauta extender: mejor no cobrar.
+    await admin.from('payments').delete().eq('id', orden.id).eq('status', 'pending');
+    console.error('[fabricantes] no se pudo ligar la orden de pauta:', errLigar.message);
+    return res.status(500).json({ error: 'orden_fallida', message: conDetalle('No pudimos crear el pago.', esCuentaMaestra(user) ? errLigar : null) });
+  }
+
+  const appUrl = process.env.PUBLIC_APP_URL || `${req.protocol}://${req.get('host')}`;
+  const url = checkoutUrl({
+    publicKey: process.env.WOMPI_PUBLIC_KEY!,
+    reference: ref,
+    amountInCents: precio.amountInCents,
+    currency: precio.currency,
+    signature: integritySignature(ref, precio.amountInCents, precio.currency, process.env.WOMPI_INTEGRITY_SECRET!),
+    redirectUrl: `${appUrl}/pago/exito${p.data.platform === 'native' ? '?native=1' : ''}`,
+    email: user.email ?? null,
+  });
+  res.json({ url, gateway: 'wompi', reference: ref });
 });

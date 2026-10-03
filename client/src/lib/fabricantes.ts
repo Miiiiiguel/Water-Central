@@ -3,6 +3,8 @@
 // aparecer y la administración (cuentas maestras). Todo pasa por
 // /api/fabricantes; las tablas no se leen desde acá.
 
+import { isNative, openExternal } from '@/lib/native';
+
 export interface Fabricante {
   id: string;
   nombre: string;
@@ -46,6 +48,8 @@ export interface FabricanteEditable {
   contacto_email: string | null;
   contacto_whatsapp: string | null;
   sitio_web: string | null;
+  /** Correo con que entra a /fabricante; si falta, vale contacto_email. */
+  acceso_email: string | null;
   estado: 'pendiente' | 'aprobado';
   activo: boolean;
   pauta_hasta: string | null;
@@ -118,6 +122,48 @@ export const guardarFabricante = (token: string | null, id: string, f: Fabricant
 
 export const borrarFabricante = (token: string | null, id: string) => pedir<{ ok: true }>(`/admin/${id}`, token, { method: 'DELETE' });
 
+// ---------------------------------------------------------------------
+// El portal del fabricante
+// ---------------------------------------------------------------------
+
+export interface PortalFabricante {
+  perfil: Fabricante & {
+    estado: 'pendiente' | 'aprobado';
+    activo: boolean;
+    pauta_hasta: string | null;
+    vigente: boolean;
+    plan: string | null;
+    precio_mensual_usd: number | null;
+  };
+  metricas: Metricas;
+  serie: Array<{ dia: string; vistas: number; contactos: number }>;
+  lugares: Record<'chat' | 'roi' | 'directorio' | 'etiqueta', number>;
+  busquedas: Array<{ texto: string; veces: number }>;
+  contactos: ContactoRecibido[];
+  pagos: Array<{ meses: number; aplicado: boolean; pauta_hasta_nueva: string | null; created_at: string; estado: string; monto: string | null }>;
+  precios: Array<{ meses: number; usd: number | null; cop: string | null }>;
+  pagoEnLinea: boolean;
+}
+
+export const leerPortal = (token: string | null) => pedir<{ fabricantes: PortalFabricante[]; hoy: string }>('/portal', token);
+
+export const esFabricante = async (token: string | null) => {
+  const r = await pedir<{ fabricante: boolean }>('/portal/acceso', token);
+  return r.ok && r.data.fabricante;
+};
+
+/** Abre el pago de la pauta (Wompi). En la app nativa, en el navegador del sistema. */
+export async function pagarPauta(token: string | null, id: string, meses: number): Promise<{ ok: true } | { ok: false; message: string }> {
+  const r = await pedir<{ url: string }>(`/portal/${id}/pagar`, token, {
+    method: 'POST',
+    body: JSON.stringify({ meses, platform: isNative ? 'native' : 'web' }),
+  });
+  if (!r.ok) return { ok: false, message: r.message };
+  if (isNative) await openExternal(r.data.url);
+  else window.location.href = r.data.url;
+  return { ok: true };
+}
+
 /** "33, 3304" o "shampoo, crema" → lista. */
 export const aLista = (texto: string) =>
   texto
@@ -125,12 +171,18 @@ export const aLista = (texto: string) =>
     .map((s) => s.trim())
     .filter(Boolean);
 
-/** Un mes más de pauta desde hoy o desde que vence, lo que sea más tarde. */
-export function extenderUnMes(pautaHasta: string | null, hoy: string): string {
+/**
+ * La pauta extendida `meses` meses desde hoy o desde que vence, lo que sea
+ * más tarde (pagar antes de que venza no pierde días). Si el mes de
+ * llegada no tiene ese día (31 de enero + 1 mes), queda en su último día.
+ */
+export function extenderMeses(pautaHasta: string | null, hoy: string, meses: number): string {
   const base = pautaHasta && pautaHasta >= hoy ? pautaHasta : hoy;
   const [y, m, d] = base.split('-').map(Number);
-  const fin = new Date(Date.UTC(y, m, d));
-  // Si el mes siguiente no tiene ese día (31 de enero → 3 de marzo), se queda en su último día.
+  const fin = new Date(Date.UTC(y, m - 1 + meses, d));
   if (fin.getUTCDate() !== d) fin.setUTCDate(0);
   return fin.toISOString().slice(0, 10);
 }
+
+/** Un mes más de pauta: lo que hace el botón "Pagó: extender 1 mes". */
+export const extenderUnMes = (pautaHasta: string | null, hoy: string) => extenderMeses(pautaHasta, hoy, 1);

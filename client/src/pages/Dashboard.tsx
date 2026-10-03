@@ -20,6 +20,7 @@ import MfaChallenge from '@/components/MfaChallenge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { fetchQuota, type ResearchQuota } from '@/lib/research';
 import { leerAcceso } from '@/lib/revendedores';
+import { esFabricante } from '@/lib/fabricantes';
 import { estadoDe, type EstadoRuta } from '@/lib/ruta';
 import { cargarAvance } from '@/lib/rutaProgreso';
 
@@ -479,6 +480,31 @@ function SubscriptionCard({ sub }: { sub: Subscription }) {
 // detalle vive en /ruta.
 // Acceso al programa de revendedores: el portal para un revendedor y la
 // administración para una cuenta maestra. Lo decide el servidor.
+function AccesoFabricante() {
+  const { language } = useLanguage();
+  const { getAccessToken } = useAuth();
+  const [es_, setEs] = useState(false);
+  const es = language === 'es';
+  useEffect(() => {
+    void esFabricante(getAccessToken()).then(setEs);
+  }, [getAccessToken]);
+  if (!es_) return null;
+  return (
+    <Link
+      href="/fabricante"
+      className="tap-scale flex items-center justify-between gap-4 rounded-3xl border border-gray-100 bg-white p-5 app-shadow hover:border-accent/40"
+    >
+      <div>
+        <p className="font-bold text-primary">{es ? 'Tu portal de fabricante' : 'Your manufacturer portal'}</p>
+        <p className="text-sm text-muted-foreground">
+          {es ? 'Tus vistas, tus contactos y el pago de tu pauta.' : 'Your views, your contacts and your listing payment.'}
+        </p>
+      </div>
+      <span className="text-accent font-bold">→</span>
+    </Link>
+  );
+}
+
 function AccesoRevendedores() {
   const { language } = useLanguage();
   const { getAccessToken } = useAuth();
@@ -645,6 +671,7 @@ function ClienteDashboard() {
       {subscription && <SubscriptionCard sub={subscription} />}
 
       <AccesoRevendedores />
+      <AccesoFabricante />
 
       <RutaCard />
 
@@ -997,6 +1024,7 @@ function VendedorDashboard() {
       </div>
 
       <AccesoRevendedores />
+      <AccesoFabricante />
 
       <IntegrationsPanel />
 

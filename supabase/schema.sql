@@ -974,3 +974,28 @@ create index if not exists manufacturer_events_idx
 
 grant select, insert, update, delete on public.manufacturers to service_role;
 grant select, insert, update, delete on public.manufacturer_events to service_role;
+
+-- El portal del fabricante (/fabricante): entra con una cuenta normal de
+-- Easycomex cuyo correo (confirmado) sea acceso_email; si está vacío,
+-- vale contacto_email.
+alter table public.manufacturers add column if not exists acceso_email text;
+
+-- Pagos en línea de la pauta: cada orden de `payments` (plan
+-- 'pauta_fabricante') con su fabricante y cuántos meses compra. `aplicado`
+-- se marca una sola vez, al extender la pauta, para que el webhook y la
+-- vuelta del navegador no la extiendan dos veces.
+create table if not exists public.manufacturer_payments (
+  payment_id uuid primary key references public.payments (id) on delete cascade,
+  manufacturer_id uuid not null references public.manufacturers (id) on delete cascade,
+  meses integer not null check (meses between 1 and 24),
+  aplicado boolean not null default false,
+  pauta_hasta_nueva date,
+  created_at timestamptz not null default now()
+);
+
+alter table public.manufacturer_payments enable row level security;
+
+create index if not exists manufacturer_payments_idx
+  on public.manufacturer_payments (manufacturer_id, created_at desc);
+
+grant select, insert, update, delete on public.manufacturer_payments to service_role;

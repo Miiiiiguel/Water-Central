@@ -1,5 +1,4 @@
 import express from 'express';
-import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
 import { checkoutRateLimiter, apiRateLimiter, JSON_BODY_LIMIT } from './security';
 import { getSupabaseAdmin, getUserFromRequest } from './supabaseAdmin';
@@ -13,6 +12,9 @@ import {
 } from './wompi';
 import { stripeCheckoutUrl, stripeConfiguredFor } from './stripe';
 import { settleDiagnosticTransaction } from './diagnostic';
+import { REF_RE, newRef, orderId } from './ordenes';
+import { PLAN_PAUTA, PLAN_PAUTA_LABEL } from './fabricantes/portal';
+import { aplicarPagoDePauta } from './fabricantes/pagos';
 
 // Una sola puerta de cobro para todo lo que se vende.
 //
@@ -32,11 +34,6 @@ import { settleDiagnosticTransaction } from './diagnostic';
 // navegador del sistema de la app nativa, y no hay un script de terceros
 // más en la página.
 
-const REF_RE = /^ecp_[a-f0-9]{32}$/;
-const newRef = () => `ecp_${randomBytes(16).toString('hex')}`;
-
-/** El id de orden que guardamos en payments.stripe_session_id. */
-const orderId = (ref: string) => `wompi_${ref}`;
 
 const bodySchema = z.object({
   plan: z.enum(PLAN_IDS),
@@ -264,7 +261,7 @@ async function settle(tx: Partial<WompiTransaction>, req: express.Request) {
     paid: status === 'paid',
     status,
     plan: order.plan,
-    planLabel: order.plan in CATALOG ? CATALOG[order.plan as PlanId].label : order.plan,
+    planLabel: order.plan in CATALOG ? CATALOG[order.plan as PlanId].label : order.plan === PLAN_PAUTA ? PLAN_PAUTA_LABEL : order.plan,
     amountCents: order.amount_cents,
     currency: order.currency,
   });
@@ -308,4 +305,6 @@ async function grantEntitlements(order: OrderRow) {
   const admin = getSupabaseAdmin();
   if (!admin) return;
   await entregarCompra(admin, { userId: order.user_id, plan: order.plan, ref: `orden:${order.id}` });
+  // La pauta de un fabricante: se extiende acá, una sola vez por pago.
+  if (order.plan === PLAN_PAUTA) await aplicarPagoDePauta(admin, order.id);
 }
