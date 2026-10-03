@@ -310,6 +310,17 @@ diagnóstico de madurez: empresa, 56 %, 7 brechas") y en la tabla
 
 ## 2c. Calculadora de fletes (tarifa pública con descuento)
 
+**Exportar o importar.** La calculadora tiene dos direcciones con las
+mismas zonas y las mismas reglas de peso: **exportar** (de Colombia al
+país, tabla `rates` de `server/freightData.json`, páginas 25-26 de la
+guía) e **importar** (del país a Colombia, tabla `rates_import`, páginas
+27-28, "DHL Express Worldwide Import"). Los descuentos Normal/VIP aplican
+igual a las dos. La tabla de importación se leyó del PDF por OCR y se
+validó contra los cargos por kilo adicional publicados (168 precios de 11
+a 70 kg, sin diferencias); la única celda mal leída (zona 6, 2 kg: 302.39)
+se corrigió a mano y tiene su prueba en `server/freight.test.ts`. El lead
+queda en `freight_quotes` con origen y destino según la dirección.
+
 La calculadora de la portada cotiza con la **tarifa pública 2026 de
 exportación desde Colombia del servicio express internacional** (la de
 paquetes, en USD), menos el descuento de cada tipo de cliente. El

@@ -28,7 +28,10 @@ interface Pkg {
   quantity: string;
 }
 
+type Direccion = 'exportar' | 'importar';
+
 interface Quote {
+  direction: Direccion;
   customer_type: string;
   destination: string;
   zone: string;
@@ -70,6 +73,10 @@ export default function FreightSection() {
   const [loadError, setLoadError] = useState(false);
 
   const [destination, setDestination] = useState(DEFAULT_DESTINATION);
+  // Exportar: Colombia → el país. Importar: el país → Colombia. La misma
+  // lista de países y zonas; cada dirección tiene su propia tarifa.
+  const [direccion, setDireccion] = useState<Direccion>('exportar');
+  const importa = direccion === 'importar';
   const [clientType, setClientType] = useState('Normal');
   const [packages, setPackages] = useState<Pkg[]>([{ ...EMPTY_PKG }]);
   const [email, setEmail] = useState('');
@@ -115,6 +122,7 @@ export default function FreightSection() {
     const body = {
       customerType: clientType,
       destination,
+      direction: direccion,
       packages: packages.map((p) => ({
         weight: num(p.weight),
         length: num(p.length),
@@ -160,8 +168,8 @@ export default function FreightSection() {
   const whatsapp = quote
     ? whatsappUrl(
         es
-          ? `Hola Easycomex. Coticé un envío a ${quote.destination} (${quote.weights.billable} kg facturables, cliente ${quote.customer_type}) por ${usd(quote.pricing.final_price)} y quiero reservarlo.`
-          : `Hi Easycomex. I quoted a shipment to ${quote.destination} (${quote.weights.billable} billable kg, ${quote.customer_type} client) at ${usd(quote.pricing.final_price)} and I want to book it.`
+          ? `Hola Easycomex. Coticé ${quote.direction === 'importar' ? `una importación desde ${quote.destination} a Colombia` : `un envío a ${quote.destination}`} (${quote.weights.billable} kg facturables, cliente ${quote.customer_type}) por ${usd(quote.pricing.final_price)} y quiero reservarlo.`
+          : `Hi Easycomex. I quoted ${quote.direction === 'importar' ? `an import from ${quote.destination} to Colombia` : `a shipment to ${quote.destination}`} (${quote.weights.billable} billable kg, ${quote.customer_type} client) at ${usd(quote.pricing.final_price)} and I want to book it.`
       )
     : '';
 
@@ -185,18 +193,18 @@ export default function FreightSection() {
               </span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-primary mb-6">
-              {es ? '¿Cuánto cuesta sacar tu producto del país?' : 'What does it cost to ship your product abroad?'}
+              {es ? '¿Cuánto cuesta enviar o traer tu producto?' : 'What does it cost to ship your product out or bring it in?'}
             </h2>
             <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
               {es
-                ? 'El precio real, con nuestra tarifa, al instante. Sin "te escribimos": destino, peso y medidas, y sale el número.'
-                : 'The real price, from our own rate table, instantly. No "we will get back to you": destination, weight, dimensions, and out comes the number.'}
+                ? 'El precio real, con nuestra tarifa, al instante. Sin "te escribimos": exportar o importar, país, peso y medidas, y sale el número.'
+                : 'The real price, from our own rate table, instantly. No "we will get back to you": export or import, country, weight, dimensions, and out comes the number.'}
             </p>
             <div className="space-y-3">
               {[
                 es
-                  ? `Tarifa express puerta a puerta desde Colombia a ${destinations ? destinations.length : 'más de 200'} destinos`
-                  : `Express door-to-door rates from Colombia to ${destinations ? destinations.length : 'over 200'} destinations`,
+                  ? `Tarifa express puerta a puerta para exportar desde Colombia o importar a Colombia, con ${destinations ? destinations.length : 'más de 200'} países`
+                  : `Express door-to-door rates to export from or import into Colombia, with ${destinations ? destinations.length : 'over 200'} countries`,
                 es ? 'Peso real vs. volumétrico, como lo cobra la aerolínea' : 'Real vs. volumetric weight, the way the airline charges it',
                 es ? 'Hasta 25 % menos que la tarifa pública, según qué tanto envías con nosotros' : 'Up to 25% off the public rate, depending on how much you ship with us',
               ].map((item) => (
@@ -216,7 +224,16 @@ export default function FreightSection() {
                   <div>
                     <p className="text-[11px] font-bold uppercase tracking-wider text-accent">{es ? 'Tu cotización' : 'Your quote'}</p>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Colombia → <span className="font-semibold text-primary">{quote.destination}</span> · {es ? 'zona' : 'zone'} {quote.zone}
+                      {quote.direction === 'importar' ? (
+                        <>
+                          <span className="font-semibold text-primary">{quote.destination}</span> → Colombia · {es ? 'importación' : 'import'}
+                        </>
+                      ) : (
+                        <>
+                          Colombia → <span className="font-semibold text-primary">{quote.destination}</span>
+                        </>
+                      )}{' '}
+                      · {es ? 'zona' : 'zone'} {quote.zone}
                     </p>
                   </div>
                   <span className="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-primary">{quote.customer_type}</span>
@@ -301,10 +318,33 @@ export default function FreightSection() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
+                <div role="group" aria-label={es ? 'Tipo de envío' : 'Shipment type'} className="grid grid-cols-2 gap-2 rounded-2xl bg-secondary/60 p-1">
+                  {(
+                    [
+                      ['exportar', es ? 'Exportar desde Colombia' : 'Export from Colombia'],
+                      ['importar', es ? 'Importar a Colombia' : 'Import into Colombia'],
+                    ] as Array<[Direccion, string]>
+                  ).map(([d, texto]) => (
+                    <button
+                      key={d}
+                      type="button"
+                      aria-pressed={direccion === d}
+                      onClick={() => {
+                        setDireccion(d);
+                        setError(null);
+                      }}
+                      className={`tap-scale-sm rounded-xl px-3 py-2.5 text-sm font-bold transition-colors ${
+                        direccion === d ? 'bg-white text-primary app-shadow' : 'text-muted-foreground hover:text-primary'
+                      }`}
+                    >
+                      {texto}
+                    </button>
+                  ))}
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="freight-destination" className="block text-sm font-semibold text-foreground mb-2">
-                      {es ? 'Destino' : 'Destination'}
+                      {importa ? (es ? 'País de origen' : 'Origin country') : es ? 'Destino' : 'Destination'}
                     </label>
                     <select
                       id="freight-destination"
@@ -321,7 +361,9 @@ export default function FreightSection() {
                         </option>
                       ))}
                     </select>
-                    <p className="mt-1 text-xs text-muted-foreground">{es ? 'Origen: Colombia' : 'Origin: Colombia'}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {importa ? (es ? 'Destino: Colombia' : 'Destination: Colombia') : es ? 'Origen: Colombia' : 'Origin: Colombia'}
+                    </p>
                   </div>
                   <div>
                     <label htmlFor="freight-client-type" className="block text-sm font-semibold text-foreground mb-2">

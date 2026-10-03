@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CLIENT_TYPES, DISCOUNTS, RATES, ZONES, aggregateWeights, listPrice, precioEnTabla, promedioCombustible, quote, redondearFacturable, resolveZone } from './freight';
+import { CLIENT_TYPES, DISCOUNTS, RATES, RATES_IMPORT, ZONES, aggregateWeights, listPrice, precioEnTabla, promedioCombustible, quote, redondearFacturable, resolveZone } from './freight';
 
 // These pin the engine to the published 2026 export rate table (express
 // worldwide service, packages, from Colombia), so a bad edit to
@@ -191,5 +191,43 @@ describe('quote', () => {
     expect(() => quote({ customerType: 'VIP', destination: '196', packages: [{ weight: 0 }] })).toThrow(/paquete/);
     expect(() => quote({ customerType: 'VIP', destination: 'Narnia', packages: [{ weight: 1 }] })).toThrow(/destino/);
     expect(() => quote({ customerType: 'VIP', destination: '196', packages: [{ weight: 1001, quantity: 3 }] })).toThrow(/aparte/);
+  });
+});
+
+describe('importar (hacia Colombia)', () => {
+  it('has its own table for the same seven zones', () => {
+    expect(Object.keys(RATES_IMPORT).sort()).toEqual(['1', '2', '3', '4', '5', '6', '7']);
+    expect(RATES_IMPORT['2'].table).not.toEqual(RATES['2'].table);
+  });
+
+  it('every published weight from 10 to 70 kg equals the previous one plus the per-kilo charges', () => {
+    for (const zone of Object.keys(RATES_IMPORT)) {
+      const t = new Map(RATES_IMPORT[zone].table);
+      const hasta10 = { ...RATES_IMPORT[zone], table: RATES_IMPORT[zone].table.filter(([kg]) => kg <= 10) };
+      for (const w of [11, 15, 20, 21, 25, 30, 40, 50, 60, 70]) {
+        expect(precioEnTabla(hasta10, w), `zona ${zone}, ${w} kg`).toBeCloseTo(t.get(w)!, 2);
+      }
+    }
+  });
+
+  it('reads the printed import prices', () => {
+    expect(listPrice('1', 0.5, 'importar')).toBe(109.33);
+    expect(listPrice('2', 12, 'importar')).toBe(299.8);
+    // The cell OCR misread: the guide prints 302.39.
+    expect(listPrice('6', 2, 'importar')).toBe(302.39);
+    expect(listPrice('7', 70, 'importar')).toBe(3624.84);
+    // Zone 3, 35 kg: 736.11 + 5 × 16.71
+    expect(listPrice('3', 35, 'importar')).toBe(819.66);
+  });
+
+  it('quotes an import from the rest of the US, VIP: list minus 25%', () => {
+    const q = quote({ customerType: 'VIP', destination: '196', direction: 'importar', packages: [{ weight: 5 }] }, HOY, []);
+    expect(q.direction).toBe('importar');
+    expect(q.zone).toBe('3');
+    expect(q.pricing).toEqual({ list_price: 236.81, discount_percent: 25, discount_amount: 59.2, fuel_percent: null, fuel_amount: 0, final_price: 177.61 });
+  });
+
+  it('exports by default', () => {
+    expect(quote({ customerType: 'Normal', destination: '197', packages: [{ weight: 12 }] }, HOY, []).direction).toBe('exportar');
   });
 });

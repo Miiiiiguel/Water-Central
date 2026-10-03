@@ -5,9 +5,11 @@ import { getAnonClient, getUserFromRequest } from './supabaseAdmin';
 import { logSecurityEvent } from './log';
 import data from './freightData.json';
 
-// Calculadora de fletes, con la tarifa pública de exportación desde
-// Colombia del servicio express internacional (precios de lista 2026,
-// paquetes), menos el descuento de cada tipo de cliente.
+// Calculadora de fletes, con la tarifa pública del servicio express
+// internacional desde y hacia Colombia (precios de lista 2026, paquetes),
+// menos el descuento de cada tipo de cliente. Dos direcciones, con las
+// mismas zonas y las mismas reglas de peso: exportar (Colombia → el país)
+// e importar (el país → Colombia), cada una con su propia tabla.
 //
 // Todo el cálculo ocurre acá, en el servidor, a propósito: los descuentos
 // por tipo de cliente son información comercial. El navegador recibe la
@@ -15,7 +17,8 @@ import data from './freightData.json';
 // nunca la tabla.
 //
 // Cómo se cobra, tal como lo publica la tarifa:
-//   destino → zona (1 a 7; EE. UU. son dos: Miami zona 2, resto zona 3)
+//   país → zona (1 a 7; EE. UU. son dos: Miami zona 2, resto zona 3),
+//          el país de destino al exportar o el de origen al importar
 //   peso de cada pieza = máx(real, L×A×H / 5000), redondeado hacia arriba
 //                        al medio kilo
 //   peso facturable    = suma de las piezas; hasta 30 kg va en medios
@@ -72,6 +75,7 @@ interface Bundle {
   client_types: { type: string; discount_percent: number }[];
   zones: ZoneRow[];
   rates: Record<string, Tarifa>;
+  rates_import: Record<string, Tarifa>;
   fuel_surcharge?: { window_months: number; history: PeriodoCombustible[] };
 }
 
@@ -95,13 +99,22 @@ export const CLIENT_TYPES = bundle.client_types.map((c) => c.type.trim());
 
 export const ZONES: ZoneRow[] = bundle.zones;
 
-/** Tarifa por zona, con la tabla ordenada por peso. */
-export const RATES: Record<string, Tarifa> = Object.fromEntries(
-  Object.entries(bundle.rates).map(([zone, t]) => [
-    zone,
-    { table: [...t.table].sort((a, b) => a[0] - b[0]), extra: [...t.extra].sort((a, b) => a.desde - b.desde) },
-  ])
-);
+export type Direccion = 'exportar' | 'importar';
+
+const ordenar = (rates: Record<string, Tarifa>): Record<string, Tarifa> =>
+  Object.fromEntries(
+    Object.entries(rates).map(([zone, t]) => [
+      zone,
+      { table: [...t.table].sort((a, b) => a[0] - b[0]), extra: [...t.extra].sort((a, b) => a.desde - b.desde) },
+    ])
+  );
+
+/** Tarifa de exportación por zona, con la tabla ordenada por peso. */
+export const RATES: Record<string, Tarifa> = ordenar(bundle.rates);
+/** Tarifa de importación por zona. */
+export const RATES_IMPORT: Record<string, Tarifa> = ordenar(bundle.rates_import);
+
+const tarifasDe = (direccion: Direccion) => (direccion === 'importar' ? RATES_IMPORT : RATES);
 
 export const MAX_KG = SETTINGS.max_billable_weight;
 
@@ -181,8 +194,8 @@ export function precioEnTabla(tarifa: Tarifa, kg: number): number {
 }
 
 /** Precio de lista de la zona para un peso ya facturable. */
-export function listPrice(zone: string, kg: number): number {
-  const tarifa = RATES[zone];
+export function listPrice(zone: string, kg: number, direccion: Direccion = 'exportar'): number {
+  const tarifa = tarifasDe(direccion)[zone];
   if (!tarifa) throw new CalculationError('No hay tarifas disponibles para el destino seleccionado.');
   if (kg > MAX_KG) throw new CalculationError(`Más de ${MAX_KG.toLocaleString('es-CO')} kg se cotiza aparte: escríbenos.`);
   return precioEnTabla(tarifa, kg);
@@ -233,6 +246,7 @@ export function isValidPackage(p: Package): boolean {
 const round = (n: number, d: number) => Math.round((n + Number.EPSILON) * 10 ** d) / 10 ** d;
 
 export interface Quote {
+  direction: Direccion;
   customer_type: string;
   destination: string;
   destination_id: string;
@@ -253,18 +267,21 @@ export interface Quote {
 }
 
 export function quote(
-  input: { customerType: string; destination: string; packages: Package[]; lang?: 'es' | 'en' },
+  input: { customerType: string; destination: string; packages: Package[]; lang?: 'es' | 'en'; direction?: Direccion },
   hoy: Date = new Date(),
   historial: PeriodoCombustible[] = FUEL_HISTORY
 ): Quote {
   if (!isValidType(input.customerType)) throw new CalculationError('El tipo de cliente no es válido.');
   const valid = (input.packages || []).filter(isValidPackage);
   if (valid.length === 0) throw new CalculationError('Agrega al menos un paquete con peso o medidas válidas.');
+  const direccion: Direccion = input.direction ?? 'exportar';
   const zone = resolveZone(input.destination);
-  if (!zone || !RATES[zone]) throw new CalculationError('No hay tarifas disponibles para el destino seleccionado.');
+  if (!zone || !tarifasDe(direccion)[zone]) {
+    throw new CalculationError(direccion === 'importar' ? 'No hay tarifas disponibles para el origen seleccionado.' : 'No hay tarifas disponibles para el destino seleccionado.');
+  }
 
   const weights = aggregateWeights(valid);
-  const lista = listPrice(zone, weights.billable);
+  const lista = listPrice(zone, weights.billable, direccion);
   const discountPercent = discountFor(input.customerType);
   const discountAmount = round(lista * (discountPercent / 100), 2);
   const neto = round(Math.max(0, lista - discountAmount), 2);
@@ -272,6 +289,7 @@ export function quote(
   const fuelAmount = combustible ? round(neto * (combustible.pct / 100), 2) : 0;
 
   return {
+    direction: direccion,
     customer_type: input.customerType,
     destination: countryLabel(input.destination, input.lang),
     destination_id: String(input.destination).trim(),
@@ -308,6 +326,8 @@ const packageSchema = z.object({
 const quoteSchema = z.object({
   customerType: z.string().trim().min(1).max(40),
   destination: z.string().trim().min(1).max(10),
+  // Al importar, `destination` es el país de origen (el envío llega a Colombia).
+  direction: z.enum(['exportar', 'importar']).default('exportar'),
   packages: z.array(packageSchema).min(1).max(20),
   email: z.string().trim().toLowerCase().email().max(160).optional(),
   lang: z.enum(['es', 'en']).default('es'),
@@ -357,8 +377,8 @@ freightRouter.post('/freight/quote', freightLimiter, express.json({ limit: JSON_
         user_id: user?.id ?? null,
         email,
         name: (user?.user_metadata?.full_name as string | undefined) ?? null,
-        origin: 'Colombia',
-        destination: result.destination,
+        origin: result.direction === 'importar' ? result.destination : 'Colombia',
+        destination: result.direction === 'importar' ? 'Colombia' : result.destination,
         weight_kg: result.weights.billable,
         client_type: result.customer_type,
         zone: result.zone,
