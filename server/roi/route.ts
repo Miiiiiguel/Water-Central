@@ -5,6 +5,7 @@ import { getSupabaseAdmin, getUserFromRequest } from '../supabaseAdmin';
 import { logSecurityEvent } from '../log';
 import { esCuentaMaestra } from '../maestros';
 import { derechoPorUnidad, type Tasa } from '../../client/src/lib/tasaArancel';
+import { destino as destinoDe } from '../../client/src/lib/destinos';
 import {
   DEFAULT_INPUTS,
   FREE_SHIP_THRESHOLD,
@@ -29,7 +30,6 @@ import { recargoAdicional } from './recargos';
 // viajan a quien los compró: antes se mandaban a todos y se tapaban con
 // un desenfoque, que se quita desde las herramientas del navegador.
 
-export const DESTINOS_ROI = ['US', 'GB', 'DE', 'FR', 'IT', 'ES'] as const;
 export const PLAN_DETALLE = 'reporte_detalle';
 export const PLAN_PRONOSTICO = 'reporte_pronostico';
 
@@ -66,7 +66,7 @@ export const entradaSchema = z.object({
   adsBudget: num(100_000_000),
   contentBudget: num(100_000_000),
   channelBudget: num(100_000_000),
-  destino: z.enum(DESTINOS_ROI),
+  destino: z.string().refine((iso) => destinoDe(iso) !== null, 'destino desconocido'),
   // País de origen (ISO). Las páginas viejas no lo mandan: era Colombia.
   origen: z.string().regex(/^[A-Z]{2}$/).default('CO'),
   hts: z.object({ codigo: z.string().max(20), tasa: tasaSchema }).nullable(),
@@ -75,8 +75,12 @@ export const entradaSchema = z.object({
 export type EntradaRoi = z.infer<typeof entradaSchema>;
 
 /** Lo que el modelo necesita, con lo que no decide el cliente puesto acá. */
+/** La parte ad valorem de una tarifa, como fracción (0 si no tiene). */
+const advalorem = (t: Tasa) => t.componentes.reduce((s, c) => s + (c.tipo === 'advalorem' ? c.pct / 100 : 0), 0);
+
 export function aInputs(e: EntradaRoi): RoiInputs {
   const esUS = e.destino === 'US';
+  const base = destinoDe(e.destino)?.base ?? 'cif';
   return {
     ...DEFAULT_INPUTS,
     price: e.price,
@@ -96,10 +100,17 @@ export function aInputs(e: EntradaRoi): RoiInputs {
     // forzoso y, para China, su Sección 301 de siempre) salen de
     // ./recargos: el cliente no los ve ni los cambia. Un TLC no los
     // exime, salvo T-MEC y textiles de CAFTA-DR que califican.
-    reciprocalPct: recargoAdicional({ destino: e.destino, origen: e.origen, codigo: e.hts?.codigo ?? null, califica: e.meetsAgreement }),
-    // EE. UU. cobra el arancel sobre el valor del producto (FOB); el
-    // Reino Unido y la UE, sobre producto + flete (CIF).
-    dutyBase: esUS ? 'fob' : 'cif',
+    reciprocalPct: recargoAdicional({
+      destino: e.destino,
+      origen: e.origen,
+      codigo: e.hts?.codigo ?? null,
+      califica: e.meetsAgreement,
+      nmf: e.hts ? advalorem(e.hts.tasa as Tasa) : 0,
+    }),
+    // Cada país valora la mercancía a su manera: EE. UU., Canadá, Australia
+    // y unos pocos más sobre el producto (FOB); casi todos, sobre producto
+    // + flete (CIF). Ver lib/destinos.
+    dutyBase: base,
     hts: e.hts ? { codigo: e.hts.codigo, tasa: e.hts.tasa as Tasa } : null,
   };
 }

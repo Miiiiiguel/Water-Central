@@ -240,6 +240,11 @@ export default function RoiCalculator() {
   const [destinoIso, setDestinoIso] = useState('US');
   const dest = destinoDe(destinoIso) ?? DESTINOS[0];
   const esUS = dest.fuente === 'hts';
+  // Reino Unido y UE: arancel oficial en vivo. Los demás países: la
+  // tarifa de la subpartida la escribe el cliente.
+  const enVivo = dest.fuente === 'uk' || dest.fuente === 'xi';
+  const manual = dest.fuente === 'manual';
+  const [tarifaManual, setTarifaManual] = useState<number | null>(null);
   const [partida, setPartida] = useState<DetallePartida | null>(null);
   const [pais, setPais] = useState('CO');
   const [arancelDestino, setArancelDestino] = useState<ArancelDestino | null>(null);
@@ -254,7 +259,7 @@ export default function RoiCalculator() {
   // En EE. UU., con la partida elegida, preguntar sólo si cambia algo: la
   // tarifa preferencial de la línea o, en México y CAFTA-DR, el recargo.
   const preguntarOrigen = Boolean(
-    acuerdoNombre && (!esUS || !partida || preferencial || pais === 'MX' || ['CR', 'DO', 'SV', 'GT', 'HN', 'NI'].includes(pais))
+    acuerdoNombre && (!esUS || !partida || preferencial || ['MX', 'CA', 'JO', 'CR', 'DO', 'SV', 'GT', 'HN', 'NI'].includes(pais))
   );
   const capitulo = partida ? capituloDe(partida.codigo) : null;
   const veredicto = evaluarOrigen(respOrigen, { destinoUS: esUS, capitulo });
@@ -264,7 +269,7 @@ export default function RoiCalculator() {
   // Sin acuerdo que aplicar, en ropa y textiles igual se pregunta la
   // composición: decide la partida (y avisa si la elegida no cuadra).
   // Fuera de EE. UU. espera a la línea del destino, que dice si hay acuerdo.
-  const composicionSola = !preguntarOrigen && (esUS || arancelDestino !== null) && (capitulo === null || esCapituloTextil(capitulo));
+  const composicionSola = !preguntarOrigen && (!enVivo || arancelDestino !== null) && (capitulo === null || esCapituloTextil(capitulo));
   const choque = partida ? choqueConPartida(respOrigen.fibras, { capitulo, descripcion: partida.descripcion }) : null;
 
   const aplicada = esUS
@@ -273,12 +278,17 @@ export default function RoiCalculator() {
         ? { tasa: preferencial.tasa, preferencial: true }
         : { tasa: partida.general?.tasa ?? parseTasa(''), preferencial: false }
       : null
-    : arancelDestino
+    : manual
+      ? partida && tarifaManual !== null
+        ? { tasa: parseTasa(`${tarifaManual}%`), preferencial: false }
+        : null
+      : arancelDestino
       ? cumple && arancelDestino.preferencial
         ? { tasa: arancelDestino.preferencial.tasa, preferencial: true }
         : { tasa: arancelDestino.general ?? parseTasa(''), preferencial: false }
       : null;
-  const codigoAplicado = esUS ? partida?.codigo : arancelDestino?.codigo;
+  const hs6 = partida ? `${partida.digitos.slice(0, 4)}.${partida.digitos.slice(4, 6)}` : null;
+  const codigoAplicado = esUS ? partida?.codigo : manual ? hs6 ?? undefined : arancelDestino?.codigo;
   const hts = aplicada && codigoAplicado ? { codigo: codigoAplicado, tasa: aplicada.tasa } : null;
 
   // La proyección la calcula el servidor. Se pide con una pausa corta
@@ -311,6 +321,7 @@ export default function RoiCalculator() {
     if (!nuevo) return;
     setDestinoIso(iso);
     setArancelDestino(null);
+    setTarifaManual(null);
   };
   const pideLitros = Boolean(aplicada?.tasa.necesita.includes('volumen'));
 
@@ -340,7 +351,7 @@ export default function RoiCalculator() {
   const breakdownRows = (filas: FilaDesglose[] | null): RoiRow[] => {
     const pick = (key: keyof FilaDesglose, base: number, paso: number) => (filas ? filas.map((f) => f[key]) : relleno(12, base, paso));
     return [
-      { label: es ? 'Precio de venta en USA' : 'US selling price', values: pick('price', 50, 0), fmt: 'currency2' },
+      { label: es ? `Precio de venta en ${esUS ? 'USA' : dest.nombre}` : esUS ? 'US selling price' : `Selling price in ${dest.nombreEn}`, values: pick('price', 50, 0), fmt: 'currency2' },
       { label: es ? 'Costo del producto en Latinoamérica' : 'Production cost in Latin America', values: pick('product', 12, 0), fmt: 'currency2' },
       { label: es ? 'Flete internacional por unidad' : 'International freight per unit', values: pick('freight', 2, 0.1), fmt: 'currency2' },
       {
@@ -441,7 +452,7 @@ export default function RoiCalculator() {
 
             <Paso n={1} title={es ? 'Tu producto' : 'Your product'} help={es ? 'Lo que cobras en EE. UU., lo que te cuesta hacerlo y cuánto mandas en el primer envío.' : 'What you charge in the US, what it costs you to make, and how much you ship first.'}>
               <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                <NumberField id="in_price" label={es ? 'Precio de venta en EE. UU.' : 'US selling price'} value={inputs.price} onChange={(v) => set('price', v)} prefix="$" step={0.1} />
+                <NumberField id="in_price" label={es ? `Precio de venta en ${esUS ? 'EE. UU.' : dest.nombre}` : esUS ? 'US selling price' : `Selling price in ${dest.nombreEn}`} value={inputs.price} onChange={(v) => set('price', v)} prefix="$" step={0.1} />
                 <NumberField id="in_cost" label={es ? 'Costo de producirlo' : 'Production cost'} value={inputs.cost} onChange={(v) => set('cost', v)} prefix="$" step={0.1} />
                 <NumberField id="in_weight" label={es ? 'Peso con empaque' : 'Packed weight'} value={inputs.weightG} onChange={(v) => set('weightG', v)} suffix="g" step={10} min={1} />
                 <NumberField id="in_lot" label={es ? 'Unidades del primer envío' : 'Units in the first shipment'} value={inputs.lot} onChange={(v) => set('lot', v)} step={50} min={1} />
@@ -456,9 +467,19 @@ export default function RoiCalculator() {
                   onChange={(e) => cambiarDestino(e.target.value)}
                   className="w-full rounded-xl border-[1.5px] border-gray-200 bg-secondary/60 px-3 py-2.5 font-bold text-primary outline-none focus:border-accent focus:bg-white sm:w-64"
                 >
-                  {DESTINOS.map((d) => (
-                    <option key={d.iso} value={d.iso}>{es ? d.nombre : d.nombreEn}</option>
-                  ))}
+                  <optgroup label={es ? 'Con arancel oficial en vivo' : 'With live official tariff'}>
+                    {DESTINOS.filter((d) => d.fuente !== 'manual').map((d) => (
+                      <option key={d.iso} value={d.iso}>{es ? d.nombre : d.nombreEn}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label={es ? 'Otros países (escribes la tarifa)' : 'Other countries (you type the rate)'}>
+                    {DESTINOS.filter((d) => d.fuente === 'manual')
+                      .map((d) => ({ iso: d.iso, nombre: es ? d.nombre : d.nombreEn }))
+                      .sort((a, b) => a.nombre.localeCompare(b.nombre, es ? 'es' : 'en'))
+                      .map((d) => (
+                        <option key={d.iso} value={d.iso}>{d.nombre}</option>
+                      ))}
+                  </optgroup>
                 </select>
               </label>
 
@@ -473,7 +494,42 @@ export default function RoiCalculator() {
                 derecho={esUS ? derecho : null}
               />
 
-              {!esUS && partida && (
+              {manual && partida && (
+                <div className="mb-6 rounded-2xl border border-gray-100 bg-secondary/40 p-4 md:p-5">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                    {es ? `Arancel en ${dest.nombre}` : `Duty in ${dest.nombreEn}`}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {es
+                      ? `Busca la subpartida ${hs6} en el arancel de ${dest.nombre} (por ejemplo en macmap.org, gratis) y escribe la tarifa que paga tu producto desde tu país. Si hay acuerdo comercial y tu producto cumple, pon la preferencial.`
+                      : `Look up subheading ${hs6} in ${dest.nombreEn}’s tariff (for example on macmap.org, free) and type the rate your product pays from your country. If there is a trade agreement and your product qualifies, use the preferential rate.`}
+                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <div className="flex w-40 items-center rounded-xl border-[1.5px] border-gray-200 bg-white pr-3 focus-within:border-accent">
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        min={0}
+                        max={1000}
+                        step={0.1}
+                        aria-label={es ? `Arancel en ${dest.nombre}` : `Duty in ${dest.nombreEn}`}
+                        placeholder={es ? 'Ej.: 12' : 'E.g. 12'}
+                        value={tarifaManual ?? ''}
+                        onChange={(e) => setTarifaManual(e.target.value === '' ? null : Math.max(0, Number(e.target.value)))}
+                        className="w-full min-w-0 rounded-xl bg-transparent px-3 py-2.5 font-bold text-primary outline-none"
+                      />
+                      <span className="font-bold text-muted-foreground">%</span>
+                    </div>
+                    <p className="text-sm text-primary">
+                      {derecho
+                        ? <>{es ? 'Arancel por unidad' : 'Duty per unit'}: <b>${derecho.usd.toFixed(2)}</b> ({es ? `sobre el valor ${dest.base === 'fob' ? 'FOB' : 'CIF'}` : `on the ${dest.base === 'fob' ? 'FOB' : 'CIF'} value`})</>
+                        : es ? 'Mientras no la escribas, el cálculo usa un arancel estimado.' : 'Until you type it, the projection uses an estimated duty.'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {enVivo && partida && (
                 <LineaDestino
                   es={es}
                   destino={dest}

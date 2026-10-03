@@ -1028,12 +1028,16 @@ la tarifa real de ese código:
 - **Explorar por capítulo**: capítulo → partida → subpartida → línea de
   10 dígitos. Garantiza que cualquier código se alcanza aunque la
   búsqueda no lo encuentre.
-- **País de origen**: Latinoamérica y **China**. Si el país tiene acuerdo
-  (TPA Colombia, T-MEC, Perú, Chile, Panamá, CAFTA-DR) y esa partida lo
-  lista en la columna *Special*, y el producto **cumple las reglas de
+- **País de origen**: todos los países del mundo (`client/src/lib/paises.ts`;
+  arriba los frecuentes: Latinoamérica y China). Si el país tiene acuerdo
+  con EE. UU. (TPA Colombia, Perú, Panamá; T-MEC con México y Canadá;
+  CAFTA-DR; TLC con Chile, Australia, Baréin, Corea, Israel, Jordania,
+  Marruecos, Omán y Singapur; acuerdo con Japón) y esa partida lo lista
+  en la columna *Special*, y el producto **cumple las reglas de
   origen** (ver abajo), se usa la tarifa preferencial (casi siempre
   "Free"). Si no, la general. China no tiene acuerdo: siempre la general.
-  El SGP ("A") venció en 2020 y nunca se aplica.
+  El SGP ("A") venció en 2020 y nunca se aplica; tampoco AGOA, Cuenca
+  del Caribe ni Nepal (vigencia incierta).
 - **Reglas de origen** (`client/src/lib/reglasOrigen.ts`, con pruebas):
   reemplazan el viejo "¿cumple? Sí / No". Se pregunta según el producto:
   - Ropa y textiles (capítulos 50 a 63): la **composición de la tela**
@@ -1058,12 +1062,13 @@ la tarifa real de ese código:
   "confírmala con tu agente de aduanas" — nunca como un 0 silencioso.
 - **Recargos por origen** (`server/roi/recargos.ts`, con pruebas), sobre
   el valor del producto, encima del arancel de la partida:
-  - **Sección 301 por trabajo forzoso** (desde el 24-jul-2026): 12,5 %
-    Colombia, Perú, Chile, Brasil, Costa Rica, R. Dominicana, Nicaragua,
-    Uruguay, Venezuela y China; 10 % México, Ecuador, Argentina, El
-    Salvador, Guatemala y Honduras; 0 % Panamá, Paraguay y Bolivia. **Un
-    TLC no lo exime**, salvo T-MEC (México) y textiles de CAFTA-DR que
-    califican. Excluidos para todos: café, cacao, banano y frutas,
+  - **Sección 301 por trabajo forzoso** (desde el 24-jul-2026), las 60
+    economías: 12,5 % plano (Colombia, Perú, Chile, Brasil, China, Vietnam
+    y 32 más), 10 % plano (México, Canadá, India, Reino Unido, Ecuador,
+    Argentina y 11 más), 10 % neto del arancel general (UE y Taiwán) y
+    12,5 % neto (Japón, Corea, Suiza). Los demás, 0 (Panamá, Paraguay,
+    Bolivia...). **Un TLC no lo exime**, salvo T-MEC (México y Canadá) y
+    textiles de CAFTA-DR y Jordania que califican. Excluidos para todos: café, cacao, banano y frutas,
     pescados, petróleo, gas, carbón, oro, cobre y minerales críticos,
     fármacos y aeronaves civiles (los anexos oficiales tienen además
     subpartidas sueltas que no están: ahí el cálculo cobra de más).
@@ -1091,11 +1096,20 @@ Año 2: precio +4%, costo +6%, ADS 6% de ventas.
 Cambiar cualquiera de esos es editar una constante con nombre, en un
 solo lugar.
 
-### Países de destino (Reino Unido y UE)
+### Países de destino (todos)
 
-La calculadora tiene un selector de **país de destino**: Estados Unidos,
-Reino Unido, Alemania, Francia, Italia y España. Los cuatro de la UE
-comparten el mismo arancel, así que dan lo mismo.
+El selector de **país de destino** tiene todos los países
+(`client/src/lib/destinos.ts`), en dos grupos:
+
+- **Con arancel oficial en vivo**: Estados Unidos, Reino Unido y los 27
+  de la UE (comparten el arancel común, así que dan lo mismo).
+- **Otros países**: la persona busca su producto, la página le dice la
+  subpartida de 6 dígitos y le pide la tarifa que paga en ese país
+  (sugiere macmap.org, gratis). Mientras no la escriba, se usa el 8 %
+  del modelo. El arancel se cobra sobre FOB en Canadá, Australia, Nueva
+  Zelanda y la unión aduanera del sur de África, y sobre CIF en el resto.
+  Para traer la tarifa sola hay que conectar la fuente oficial de cada
+  país (cambiar su `fuente` y agregar el lector en `server/destinos`).
 
 - **Estados Unidos**: todo igual que antes. El arancel sale del HTS
   cargado y se suman los recargos por país de origen.

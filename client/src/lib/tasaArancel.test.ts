@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { derechoPorUnidad, parseEspecial, parseTasa, tasaPreferencial } from './tasaArancel';
+import { PAISES_DE_ORIGEN, derechoPorUnidad, paisDeOrigen, parseEspecial, parseTasa, tasaPreferencial } from './tasaArancel';
 
 describe('leer una tarifa', () => {
   it('porcentaje, libre y centavos por kilo', () => {
@@ -86,6 +86,23 @@ describe('tarifas preferenciales por país', () => {
   it('sin acuerdo, o si la partida no lo lista, paga la general', () => {
     expect(tasaPreferencial(ESPECIAL, 'BR')).toBeNull();
     expect(tasaPreferencial('Free (A,AU,KR)', 'CO')).toBeNull();
+  });
+
+  it('los demás TLC de EE. UU. también: Corea, Australia, Canadá, Japón...', () => {
+    expect(tasaPreferencial(ESPECIAL, 'KR')).toMatchObject({ programa: 'KR', acuerdo: 'KORUS (Corea – EE. UU.)' });
+    expect(tasaPreferencial(ESPECIAL, 'AU')?.programa).toBe('AU');
+    expect(tasaPreferencial(ESPECIAL, 'CA')?.programa).toBe('CA');
+    expect(tasaPreferencial('Free (S,SG)', 'CA')?.programa).toBe('S');
+    expect(tasaPreferencial(ESPECIAL, 'JP')?.tasa.componentes).toEqual([{ tipo: 'advalorem', pct: 3.2 }]);
+    expect(tasaPreferencial(ESPECIAL, 'IL')?.programa).toBe('IL');
+  });
+
+  it('todo el mundo es origen, y los programas unilaterales no se aplican', () => {
+    expect(PAISES_DE_ORIGEN.length).toBeGreaterThan(230);
+    expect(PAISES_DE_ORIGEN.some((p) => p.iso === 'US')).toBe(false);
+    expect(new Set(PAISES_DE_ORIGEN.map((p) => p.iso)).size).toBe(PAISES_DE_ORIGEN.length);
+    expect(paisDeOrigen('IN')).toMatchObject({ nombre: 'India', acuerdo: null });
+    expect(tasaPreferencial('Free (D,E,NP)', 'KE')).toBeNull();
   });
 
   it('el SGP vencido nunca cuenta', () => {

@@ -70,3 +70,26 @@ it('textiles are chapters 50 to 63', () => {
   expect(esTextil('6302.21.90')).toBe(true);
   expect(esTextil('6403.99.60')).toBe(false);
 });
+
+describe('the 60 economies', () => {
+  it('covers each tier: flat 10 %, flat 12.5 %, and net of the general rate', () => {
+    expect(caso({ origen: 'IN' })).toBe(0.1);
+    expect(caso({ origen: 'VN' })).toBe(0.125);
+    // EU and Taiwan: 10 % minus the line's general rate.
+    expect(caso({ origen: 'DE', nmf: 0.04 })).toBeCloseTo(0.06, 9);
+    expect(caso({ origen: 'IT', nmf: 0.16 })).toBe(0);
+    expect(caso({ origen: 'TW' })).toBe(0.1);
+    // Japan, Korea, Switzerland: 12.5 % minus the general rate.
+    expect(caso({ origen: 'JP', nmf: 0.025 })).toBeCloseTo(0.1, 9);
+    expect(caso({ origen: 'CH', nmf: 0.2 })).toBe(0);
+    // Not among the 60.
+    expect(caso({ origen: 'FJ' })).toBe(0);
+  });
+
+  it('waives it for USMCA goods from Canada and qualifying Jordan textiles', () => {
+    expect(caso({ origen: 'CA', califica: true })).toBe(0);
+    expect(caso({ origen: 'CA' })).toBe(0.1);
+    expect(caso({ origen: 'JO', califica: true, codigo: '6110.20.20' })).toBe(0);
+    expect(caso({ origen: 'JO', califica: true, codigo: '3304.99.50' })).toBe(0.1);
+  });
+});

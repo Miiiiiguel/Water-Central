@@ -8,9 +8,10 @@
 // 1. Sección 301 por trabajo forzoso (USTR, acción final del 23 de julio
 //    de 2026, en vigor desde el 24 de julio de 2026, partidas 9903.05.20
 //    a 9903.06.21). 10 % o 12,5 % según la economía, encima de todo lo
-//    demás. Un TLC NO lo exime: las únicas excepciones por acuerdo son
-//    los productos que califican por el T-MEC (México) y los textiles y
-//    prendas que califican por CAFTA-DR. Hay productos excluidos para
+//    demás (para la UE, Taiwán, Japón, Corea y Suiza, neto del arancel
+//    general). Un TLC NO lo exime: las únicas excepciones por acuerdo son
+//    los productos que califican por el T-MEC (México y Canadá) y los
+//    textiles y prendas que califican por CAFTA-DR o el TLC con Jordania. Hay productos excluidos para
 //    todos los orígenes (anexos I y II de la acción final).
 //
 // 2. Sección 301 a China (listas 1 a 4A de 2018–2019 y alzas de la
@@ -21,31 +22,36 @@
 // mano desde los anuncios oficiales: el arancel cargado (htsdata.csv) no
 // trae las notas del capítulo 99 que dicen qué partida va en qué lista.
 
-/** Sección 301 por trabajo forzoso, por país de origen (ISO). Los que no están, 0. */
-export const TRABAJO_FORZOSO: Record<string, number> = {
-  // 12,5 %
-  CO: 0.125,
-  PE: 0.125,
-  CL: 0.125,
-  BR: 0.125,
-  CR: 0.125,
-  DO: 0.125,
-  NI: 0.125,
-  UY: 0.125,
-  VE: 0.125,
-  CN: 0.125,
-  // 10 %
-  MX: 0.1,
-  EC: 0.1,
-  AR: 0.1,
-  SV: 0.1,
-  GT: 0.1,
-  HN: 0.1,
-  // Panamá, Paraguay y Bolivia no están entre las 60 economías.
-};
+import { UNION_EUROPEA } from '../../client/src/lib/paises';
 
-/** CAFTA-DR: sus textiles y prendas que califican no pagan el recargo. */
-const CAFTA = new Set(['CR', 'DO', 'SV', 'GT', 'HN', 'NI']);
+/**
+ * Sección 301 por trabajo forzoso, por país de origen (ISO): las 60
+ * economías de la acción final, en sus cuatro grupos. Los que no están
+ * (Panamá, Paraguay, Bolivia y el resto del mundo), 0.
+ *
+ * - `tasa`: el recargo.
+ * - `netoDeNMF`: el recargo es lo que falta para llegar a esa tasa con el
+ *   arancel general (NMF) de la partida; si el general ya la alcanza, 0.
+ */
+const PLANO_10 = ['AR', 'BD', 'KH', 'CA', 'EC', 'SV', 'GT', 'HN', 'IN', 'ID', 'JO', 'MY', 'MX', 'PK', 'LK', 'TT', 'GB'];
+const NETO_10 = [...UNION_EUROPEA, 'TW'];
+const NETO_125 = ['JP', 'KR', 'CH'];
+const PLANO_125 = [
+  'DZ', 'AO', 'AU', 'BS', 'BH', 'BR', 'CL', 'CN', 'CO', 'CR', 'DO', 'EG', 'GY', 'HK', 'IQ', 'IL', 'KZ', 'KW', 'LY', 'MA',
+  'NZ', 'NI', 'NG', 'NO', 'OM', 'PE', 'PH', 'QA', 'RU', 'SA', 'SG', 'ZA', 'TH', 'TR', 'AE', 'UY', 'VE', 'VN',
+];
+
+export const TRABAJO_FORZOSO: Record<string, { tasa: number; netoDeNMF: boolean }> = Object.fromEntries([
+  ...PLANO_10.map((c) => [c, { tasa: 0.1, netoDeNMF: false }]),
+  ...NETO_10.map((c) => [c, { tasa: 0.1, netoDeNMF: true }]),
+  ...NETO_125.map((c) => [c, { tasa: 0.125, netoDeNMF: true }]),
+  ...PLANO_125.map((c) => [c, { tasa: 0.125, netoDeNMF: false }]),
+]);
+
+/** T-MEC: lo que califica no paga el recargo. */
+const TMEC = new Set(['MX', 'CA']);
+/** CAFTA-DR y Jordania: sus textiles y prendas que califican no lo pagan. */
+const TEXTILES_EXENTOS = new Set(['CR', 'DO', 'SV', 'GT', 'HN', 'NI', 'JO']);
 
 /**
  * Productos excluidos del recargo por trabajo forzoso, para cualquier
@@ -117,16 +123,23 @@ export interface Caso {
   codigo: string | null;
   /** El producto cumple las reglas de origen del acuerdo con EE. UU. */
   califica: boolean;
+  /**
+   * El arancel ad valorem de la partida, como fracción, para los recargos
+   * "netos de NMF". Sin partida (o con una tarifa no ad valorem) se toma
+   * 0: el recargo completo, que es lo más prudente.
+   */
+  nmf?: number;
 }
 
 /** Fracción sobre el valor del producto (FOB) que se suma al arancel de la partida. */
-export function recargoAdicional({ destino, origen, codigo, califica }: Caso): number {
+export function recargoAdicional({ destino, origen, codigo, califica, nmf = 0 }: Caso): number {
   if (destino !== 'US') return 0;
 
-  let forzoso = TRABAJO_FORZOSO[origen] ?? 0;
+  const regla = TRABAJO_FORZOSO[origen];
+  let forzoso = regla ? (regla.netoDeNMF ? Math.max(0, regla.tasa - nmf) : regla.tasa) : 0;
   if (codigo && empiezaCon(digitos(codigo), EXCLUIDOS_TRABAJO_FORZOSO)) forzoso = 0;
-  if (califica && origen === 'MX') forzoso = 0;
-  if (califica && CAFTA.has(origen) && codigo && esTextil(codigo)) forzoso = 0;
+  if (califica && TMEC.has(origen)) forzoso = 0;
+  if (califica && TEXTILES_EXENTOS.has(origen) && codigo && esTextil(codigo)) forzoso = 0;
 
   const deChina = origen === 'CN' ? china301(codigo) : 0;
   return forzoso + deChina;

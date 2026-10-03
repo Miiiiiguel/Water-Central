@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronRight, FolderOpen, Search, X } from 'lucide-react';
 import { buscarPartidas, detallePartida, listarCapitulos, ramas, type DetallePartida, type ItemPartida, type Nodo } from '@/lib/hts';
-import { PAISES_DE_ORIGEN, paisDeOrigen } from '@/lib/tasaArancel';
+import { ORIGENES_FRECUENTES, PAISES_DE_ORIGEN, paisDeOrigen } from '@/lib/tasaArancel';
 
 // Elegir la partida arancelaria del producto, entre todas las del
 // arancel de EE. UU. cargado. Dos caminos: buscar (en español, en inglés
@@ -79,11 +79,21 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
           <select
             value={pais}
             onChange={(e) => onPais(e.target.value)}
-            className="w-40 max-w-full rounded-lg border-[1.5px] border-gray-200 bg-white px-2 py-1.5 text-sm font-bold text-primary outline-none focus:border-accent"
+            className="w-48 max-w-full rounded-lg border-[1.5px] border-gray-200 bg-white px-2 py-1.5 text-sm font-bold text-primary outline-none focus:border-accent"
           >
-            {PAISES_DE_ORIGEN.map((p) => (
-              <option key={p.iso} value={p.iso}>{p.nombre}</option>
-            ))}
+            <optgroup label={es ? 'Frecuentes' : 'Most used'}>
+              {PAISES_DE_ORIGEN.filter((p) => ORIGENES_FRECUENTES.includes(p.iso)).map((p) => (
+                <option key={p.iso} value={p.iso}>{es ? p.nombre : p.nombreEn ?? p.nombre}</option>
+              ))}
+            </optgroup>
+            <optgroup label={es ? 'Todos los países' : 'All countries'}>
+              {PAISES_DE_ORIGEN.filter((p) => !ORIGENES_FRECUENTES.includes(p.iso))
+                .map((p) => ({ iso: p.iso, nombre: es ? p.nombre : p.nombreEn ?? p.nombre }))
+                .sort((a, b) => a.nombre.localeCompare(b.nombre, es ? 'es' : 'en'))
+                .map((p) => (
+                  <option key={p.iso} value={p.iso}>{p.nombre}</option>
+                ))}
+            </optgroup>
           </select>
         </label>
       </div>

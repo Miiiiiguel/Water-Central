@@ -16,6 +16,8 @@
 // Es puro (sin red, sin DOM) y lo usan los dos lados: el servidor para
 // describir una partida, la calculadora ROI para sumar el arancel.
 
+import { PAISES, pais as paisIso } from './paises';
+
 export type Base = 'valor' | 'kg' | 'unidad' | 'par' | 'docena' | 'gruesa' | 'litro';
 
 export type Componente =
@@ -186,13 +188,20 @@ export interface PaisDeOrigen {
   acuerdo: string | null;
   /** Las siglas con que la USITC marca ese acuerdo en la columna Special. */
   programas: string[];
+  nombreEn?: string;
 }
 
 // Sólo acuerdos vigentes. El SGP ("A", "A+", "A*") venció en 2020 y no se
-// ha renovado: aunque la columna lo siga listando, no se aplica.
+// ha renovado: aunque la columna lo siga listando, no se aplica. Tampoco
+// los programas unilaterales de vigencia incierta (AGOA "D", Cuenca del
+// Caribe "E"/"R", Nepal "NP"): mejor la general que una preferencia que
+// la aduana puede negar.
 const CAFTA = ['P', 'P+'];
 
-export const PAISES_DE_ORIGEN: PaisDeOrigen[] = [
+// Los países con un acuerdo con EE. UU. que la columna Special marca. Van
+// primero, con Latinoamérica y China, que es de donde exportan los
+// clientes; después, todos los demás países del mundo (sin acuerdo).
+const CON_ACUERDO_O_FRECUENTES: PaisDeOrigen[] = [
   { iso: 'CO', nombre: 'Colombia', acuerdo: 'TPA Colombia – EE. UU.', programas: ['CO'] },
   { iso: 'MX', nombre: 'México', acuerdo: 'T-MEC (USMCA)', programas: ['S', 'S+', 'MX'] },
   { iso: 'PE', nombre: 'Perú', acuerdo: 'TPA Perú – EE. UU.', programas: ['PE'] },
@@ -212,6 +221,33 @@ export const PAISES_DE_ORIGEN: PaisDeOrigen[] = [
   { iso: 'BO', nombre: 'Bolivia', acuerdo: null, programas: [] },
   { iso: 'VE', nombre: 'Venezuela', acuerdo: null, programas: [] },
   { iso: 'CN', nombre: 'China', acuerdo: null, programas: [] },
+  // Los demás tratados de libre comercio de EE. UU.
+  { iso: 'CA', nombre: 'Canadá', acuerdo: 'T-MEC (USMCA)', programas: ['S', 'S+', 'CA'] },
+  { iso: 'AU', nombre: 'Australia', acuerdo: 'TLC Australia – EE. UU.', programas: ['AU'] },
+  { iso: 'BH', nombre: 'Baréin', acuerdo: 'TLC Baréin – EE. UU.', programas: ['BH'] },
+  { iso: 'IL', nombre: 'Israel', acuerdo: 'TLC Israel – EE. UU.', programas: ['IL'] },
+  { iso: 'JO', nombre: 'Jordania', acuerdo: 'TLC Jordania – EE. UU.', programas: ['JO'] },
+  { iso: 'KR', nombre: 'Corea del Sur', acuerdo: 'KORUS (Corea – EE. UU.)', programas: ['KR'] },
+  { iso: 'MA', nombre: 'Marruecos', acuerdo: 'TLC Marruecos – EE. UU.', programas: ['MA'] },
+  { iso: 'OM', nombre: 'Omán', acuerdo: 'TLC Omán – EE. UU.', programas: ['OM'] },
+  { iso: 'SG', nombre: 'Singapur', acuerdo: 'TLC Singapur – EE. UU.', programas: ['SG'] },
+  { iso: 'JP', nombre: 'Japón', acuerdo: 'Acuerdo comercial Japón – EE. UU.', programas: ['JP'] },
+];
+
+/** Los que van arriba en el selector. */
+export const ORIGENES_FRECUENTES = CON_ACUERDO_O_FRECUENTES.slice(0, 19).map((p) => p.iso);
+
+export const PAISES_DE_ORIGEN: PaisDeOrigen[] = [
+  ...CON_ACUERDO_O_FRECUENTES.map((p) => ({ ...p, nombreEn: paisIso(p.iso)?.en })),
+  // Todos los demás, sin acuerdo con EE. UU. Estados Unidos no: no se
+  // exporta a sí mismo.
+  ...PAISES.filter((p) => p.iso !== 'US' && !CON_ACUERDO_O_FRECUENTES.some((c) => c.iso === p.iso)).map((p) => ({
+    iso: p.iso,
+    nombre: p.es,
+    nombreEn: p.en,
+    acuerdo: null,
+    programas: [],
+  })),
 ];
 
 export function paisDeOrigen(iso: string): PaisDeOrigen | null {

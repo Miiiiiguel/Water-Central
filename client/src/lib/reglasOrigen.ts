@@ -211,7 +211,7 @@ export function choqueConPartida(
 /** La región cuyos hilos y telas cuentan como "del acuerdo". */
 export function regionDelAcuerdo(pais: string, nombrePais: string, destinoUS: boolean, es: boolean, destinoNombre: string): string {
   if (!destinoUS) return es ? `${nombrePais} o ${destinoNombre}` : `${nombrePais} or ${destinoNombre}`;
-  if (pais === 'MX') return es ? 'México, EE. UU. o Canadá' : 'Mexico, the US or Canada';
+  if (pais === 'MX' || pais === 'CA') return es ? 'México, EE. UU. o Canadá' : 'Mexico, the US or Canada';
   if (['CR', 'DO', 'SV', 'GT', 'HN', 'NI'].includes(pais)) {
     return es ? 'Centroamérica, R. Dominicana o EE. UU.' : 'Central America, the Dominican Rep. or the US';
   }

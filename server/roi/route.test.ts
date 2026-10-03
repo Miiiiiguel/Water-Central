@@ -37,9 +37,17 @@ describe('lo que decide el servidor', () => {
     expect('reciprocalPct' in conTrampa).toBe(false);
   });
 
-  it('charges duty on FOB in the US and on CIF elsewhere', () => {
+  it('charges duty on FOB where the destination does, CIF elsewhere', () => {
     expect(aInputs(BASE).dutyBase).toBe('fob');
     expect(aInputs({ ...BASE, destino: 'DE' }).dutyBase).toBe('cif');
+    expect(aInputs({ ...BASE, destino: 'CA' }).dutyBase).toBe('fob');
+    expect(aInputs({ ...BASE, destino: 'JP' }).dutyBase).toBe('cif');
+  });
+
+  it('takes any country as destination, and nothing else', () => {
+    expect(entradaSchema.safeParse({ ...BASE, destino: 'KE' }).success).toBe(true);
+    expect(entradaSchema.safeParse({ ...BASE, destino: 'XX' }).success).toBe(false);
+    expect(entradaSchema.safeParse({ ...BASE, destino: 'PR' }).success).toBe(false);
   });
 
   it('only quotes US domestic shipping for the US', () => {
