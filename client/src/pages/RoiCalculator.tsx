@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'wouter';
-import { ArrowLeft, MessageCircle, Phone, Sparkles, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Check, ChevronDown, Info, MessageCircle, Phone, SlidersHorizontal, Sparkles, TrendingUp, Wallet } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { whatsappUrl } from '@/lib/contact';
@@ -39,34 +39,117 @@ const REPORTS = {
   pronostico: { plan: 'reporte_pronostico', priceCents: 9990, oldPriceCents: 12090 },
 };
 
+/**
+ * Un número del cliente. Mientras no lo escriba, `sugerido`: la casilla
+ * queda vacía y el valor de un producto típico se ve en gris claro, como
+ * sugerencia (el cálculo sí lo usa). Al escribir, queda el suyo en oscuro;
+ * si la borra, vuelve la sugerencia (`onChange(null)`).
+ */
 function NumberField({
-  id, label, value, onChange, prefix, suffix, step = 1, min = 0,
+  id, label, value, onChange, prefix, suffix, step = 1, min = 0, sugerido = false, es = true, ayuda,
 }: {
-  id: string; label: string; value: number; onChange: (v: number) => void;
-  prefix?: string; suffix?: string; step?: number; min?: number;
+  id: string; label: string; value: number; onChange: (v: number | null) => void;
+  prefix?: string; suffix?: string; step?: number; min?: number; sugerido?: boolean; es?: boolean; ayuda?: string;
 }) {
+  const texto = Number.isFinite(value) ? String(Math.round(value * 100) / 100) : '';
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-sm font-semibold text-muted-foreground">{label}</label>
+      <div className="mb-1.5 flex items-baseline justify-between gap-2">
+        <label htmlFor={id} className="text-sm font-semibold text-muted-foreground">{label}</label>
+        {sugerido && <span className="text-[10px] font-bold uppercase tracking-wider text-gray-300">{es ? 'sugerido' : 'suggested'}</span>}
+      </div>
       <div className="relative">
-        {prefix && <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">{prefix}</span>}
+        {prefix && (
+          <span className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold ${sugerido ? 'text-gray-300' : 'text-muted-foreground'}`}>{prefix}</span>
+        )}
         <input
           id={id}
           name={id}
           type="number"
           inputMode="decimal"
-          value={Number.isFinite(value) ? value : ''}
+          value={sugerido ? '' : texto}
+          placeholder={sugerido ? texto : undefined}
           step={step}
           min={min}
           onChange={(e) => {
+            if (e.target.value === '') return onChange(null);
             const parsed = parseFloat(e.target.value);
-            onChange(Number.isFinite(parsed) ? Math.max(min, parsed) : min);
+            onChange(Number.isFinite(parsed) ? Math.max(min, parsed) : null);
           }}
-          className={`w-full rounded-xl border-[1.5px] border-gray-200 bg-secondary/60 py-2.5 font-bold text-primary outline-none transition-colors focus:border-accent focus:bg-white ${
-            prefix ? 'pl-7' : 'pl-3'
-          } ${suffix ? 'pr-9' : 'pr-3'}`}
+          className={`w-full rounded-xl border-[1.5px] py-2.5 font-bold text-primary outline-none transition-colors placeholder:font-semibold placeholder:text-gray-400 focus:border-accent focus:bg-white ${
+            sugerido ? 'border-dashed border-gray-200 bg-white' : 'border-gray-200 bg-secondary/60'
+          } ${prefix ? 'pl-7' : 'pl-3'} ${suffix ? 'pr-9' : 'pr-3'}`}
         />
-        {suffix && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">{suffix}</span>}
+        {suffix && (
+          <span className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm font-bold ${sugerido ? 'text-gray-300' : 'text-muted-foreground'}`}>{suffix}</span>
+        )}
+      </div>
+      {ayuda && <p className="mt-1 text-xs text-muted-foreground">{ayuda}</p>}
+    </div>
+  );
+}
+
+/** Un deslizador para los porcentajes de "Ajustes finos", amarrado a su casilla. */
+function Deslizador({
+  label, value, max, step, onChange, sugerido, marcas,
+}: {
+  label: string; value: number; max: number; step: number; onChange: (v: number) => void; sugerido: boolean; marcas: [string, string];
+}) {
+  return (
+    <div className="mt-2.5">
+      <input
+        type="range"
+        aria-label={label}
+        min={0}
+        max={max}
+        step={step}
+        value={Math.min(value, max)}
+        onChange={(e) => onChange(Number(e.target.value))}
+        style={{ background: `linear-gradient(to right, ${sugerido ? '#D1D5DB' : '#FF5A36'} ${(Math.min(value, max) / max) * 100}%, #EEF0F4 0)` }}
+        className={`h-2 w-full cursor-pointer appearance-none rounded-full outline-none [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:bg-white [&::-webkit-slider-thumb]:h-[18px] [&::-webkit-slider-thumb]:w-[18px] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow ${
+          sugerido ? '[&::-moz-range-thumb]:border-gray-300 [&::-webkit-slider-thumb]:border-gray-300' : '[&::-moz-range-thumb]:border-accent [&::-webkit-slider-thumb]:border-accent'
+        }`}
+      />
+      <div className="mt-0.5 flex justify-between text-[10px] font-semibold text-muted-foreground">
+        <span>{marcas[0]}</span>
+        <span>{marcas[1]}</span>
+      </div>
+    </div>
+  );
+}
+
+/** El saldo de caja del año 1 en miniatura, para la tarjeta del resultado. */
+function MiniCaja({ saldo, payback, es }: { saldo: number[]; payback: number | null; es: boolean }) {
+  const W = 300, H = 64, P = 4;
+  const min = Math.min(0, ...saldo), max = Math.max(0, ...saldo);
+  const rango = max - min || 1;
+  const x = (i: number) => P + (i * (W - 2 * P)) / 11;
+  const y = (v: number) => P + ((max - v) / rango) * (H - 2 * P);
+  const d = saldo.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join('');
+  const cero = y(0);
+  const fin = saldo[11] ?? 0;
+  return (
+    <div className="mt-5 rounded-2xl bg-white/[0.06] px-3.5 pb-2.5 pt-3">
+      <div className="flex items-baseline justify-between text-xs">
+        <span className="font-semibold text-indigo-200">{es ? 'Tu caja, mes a mes' : 'Your cash, month by month'}</span>
+        <span className={`font-black tabular-nums ${fin >= 0 ? 'text-green-300' : 'text-red-300'}`}>{fmtMoney(fin)}</span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="mt-1.5 block h-16 w-full" aria-hidden="true">
+        <defs>
+          <linearGradient id="mini-caja" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stopColor="#FF5A36" stopOpacity="0.45" />
+            <stop offset="1" stopColor="#FF5A36" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d={`${d}L${x(11)},${cero}L${x(0)},${cero}Z`} fill="url(#mini-caja)" />
+        <line x1={0} x2={W} y1={cero} y2={cero} stroke="rgba(255,255,255,.3)" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
+        <path d={d} fill="none" stroke="#FF8A6B" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        {payback && <line x1={x(payback - 1)} x2={x(payback - 1)} y1={0} y2={H} stroke="#86EFAC" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />}
+      </svg>
+      <div className="mt-1 flex justify-between text-[10px] font-semibold text-indigo-300">
+        <span>{es ? 'Mes 1' : 'Month 1'}</span>
+        {payback && <span className="text-green-300">{es ? `recuperas en el mes ${payback}` : `back in month ${payback}`}</span>}
+        <span>{es ? 'Mes 12' : 'Month 12'}</span>
       </div>
     </div>
   );
@@ -102,11 +185,16 @@ function ScenarioToggle({
   );
 }
 
-function Paso({ n, title, help, children }: { n: number; title: string; help: string; children: React.ReactNode }) {
+function Paso({ n, title, help, children, listo = false }: { n: number; title: string; help: string; children: React.ReactNode; listo?: boolean }) {
   return (
     <div className="mb-7 border-b border-dashed border-gray-100 pb-7 last-of-type:border-0">
       <div className="mb-4 flex items-start gap-3">
-        <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary text-sm font-black text-white">{n}</span>
+        <span
+          className={`flex h-8 w-8 flex-none items-center justify-center rounded-full text-sm font-black text-white transition-colors ${listo ? 'bg-green-500' : 'bg-primary'}`}
+          aria-label={listo ? `${n} ✓` : undefined}
+        >
+          {listo ? <Check size={16} strokeWidth={3} /> : n}
+        </span>
         <div>
           <h3 className="text-base font-bold leading-snug text-primary md:text-lg">{title}</h3>
           <p className="text-sm text-muted-foreground">{help}</p>
@@ -123,9 +211,11 @@ function Paso({ n, title, help, children }: { n: number; title: string; help: st
  * los datos para que se vea cambiar mientras se escribe.
  */
 function ResultadoVivo({
-  es, proy, sinRespuesta, hero, inversion, paybackMonth, escenario, onEscenario, labels, aviso = null,
+  es, proy, sinRespuesta, hero, inversion, paybackMonth, escenario, onEscenario, labels, aviso = null, conSugeridos = false,
 }: {
   es: boolean;
+  /** Si el precio o el costo siguen siendo los sugeridos (en gris). */
+  conSugeridos?: boolean;
   /** Algo que le falta al cálculo y cambia el resultado (p. ej. el arancel del destino). */
   aviso?: string | null;
   proy: Proyeccion | null;
@@ -167,6 +257,17 @@ function ResultadoVivo({
         <p className="mt-4 rounded-2xl bg-amber-300 px-3.5 py-2.5 text-sm font-bold text-amber-950">⚠ {aviso}</p>
       )}
 
+      {conSugeridos && (
+        <p className="mt-4 flex items-start gap-2 rounded-2xl border border-dashed border-white/25 px-3.5 py-2.5 text-xs text-indigo-100">
+          <Info size={14} className="mt-px flex-none" />
+          <span>
+            {es
+              ? 'Calculado con valores sugeridos (los grises). Escribe el precio y el costo de tu producto para ver tu número real.'
+              : 'Calculated with suggested values (the grey ones). Type your product’s price and cost to see your real number.'}
+          </span>
+        </p>
+      )}
+
       <p className={`mt-4 flex items-start gap-2 rounded-2xl px-3.5 py-2.5 text-sm font-semibold ${veredicto.tono}`}>
         <span aria-hidden="true" className="font-black">{veredicto.icono}</span>
         <span>{veredicto.texto}</span>
@@ -186,6 +287,13 @@ function ResultadoVivo({
           </dt>
           <dd className="whitespace-nowrap text-lg font-black tabular-nums">{fmtMoney(inversion.total)}</dd>
         </div>
+        {inversion.total > 0 && (
+          <div className="-mt-1.5 flex h-1.5 w-full overflow-hidden rounded-full bg-white/10" aria-hidden="true">
+            <span className="h-full bg-accent" style={{ width: `${(inversion.productCost / inversion.total) * 100}%` }} />
+            <span className="h-full bg-[#7C8FF0]" style={{ width: `${(inversion.logistics / inversion.total) * 100}%` }} />
+            <span className="h-full bg-white/70" style={{ width: `${(inversion.marketing3 / inversion.total) * 100}%` }} />
+          </div>
+        )}
         <div className="flex items-baseline justify-between gap-3">
           <dt>
             <span className="block text-sm font-semibold">{es ? 'Por cada dólar que inviertes' : 'For every dollar you invest'}</span>
@@ -208,6 +316,8 @@ function ResultadoVivo({
           <dd className={`whitespace-nowrap text-lg font-black tabular-nums ${unidadMadura >= 0 ? '' : 'text-red-300'}`}>{fmtMoney2(unidadMadura)}</dd>
         </div>
       </dl>
+
+      <MiniCaja saldo={hero.saldo} payback={paybackMonth} es={es} />
     </div>
   );
 }
@@ -237,6 +347,28 @@ export default function RoiCalculator() {
 
   const set = <K extends keyof RoiEntrada>(key: K, value: RoiEntrada[K]) =>
     setInputs((prev) => ({ ...prev, [key]: value }));
+  // Los números que el cliente ya escribió. Los demás son sugerencias (de
+  // un producto típico) y se ven en gris; borrar uno lo devuelve a la
+  // sugerencia.
+  const [escritos, setEscritos] = useState<ReadonlySet<keyof RoiEntrada>>(() => new Set());
+  const sugerido = (key: keyof RoiEntrada) => !escritos.has(key);
+  const fijar = <K extends keyof RoiEntrada>(key: K, value: RoiEntrada[K] | null) => {
+    set(key, value ?? ENTRADA_INICIAL[key]);
+    setEscritos((prev) => {
+      const next = new Set(prev);
+      if (value === null) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+  /** Las props de una casilla del modelo, con su sugerencia. */
+  const campo = (key: 'price' | 'cost' | 'weightG' | 'lot' | 'adsBudget' | 'contentBudget' | 'channelBudget') => ({
+    id: `in_${{ price: 'price', cost: 'cost', weightG: 'weight', lot: 'lot', adsBudget: 'ads', contentBudget: 'content', channelBudget: 'channel' }[key]}`,
+    value: inputs[key],
+    onChange: (v: number | null) => fijar(key, v),
+    sugerido: sugerido(key),
+    es,
+  });
   const setEnvio = useCallback((usd: number | null) => setInputs((prev) => ({ ...prev, domesticShipUsd: usd })), []);
 
   // El destino, la partida y el país de origen. En EE. UU. el arancel sale
@@ -253,6 +385,12 @@ export default function RoiCalculator() {
   const enVivo = dest.fuente === 'uk' || dest.fuente === 'xi';
   const manual = dest.fuente === 'manual';
   const [tarifaManual, setTarifaManual] = useState<number | null>(null);
+  // Si la tarifa del destino la puso la norma (gris) o el cliente.
+  const [tarifaSugerida, setTarifaSugerida] = useState(false);
+  const escribirTarifa = (v: number | null) => {
+    setTarifaManual(v);
+    setTarifaSugerida(false);
+  };
   const [partida, setPartida] = useState<DetallePartida | null>(null);
   const [pais, setPais] = useState('CO');
   const [arancelDestino, setArancelDestino] = useState<ArancelDestino | null>(null);
@@ -309,6 +447,7 @@ export default function RoiCalculator() {
   useEffect(() => {
     if (!sugerencia) return;
     setTarifaManual(tarifaInicial(sugerencia));
+    setTarifaSugerida(tarifaInicial(sugerencia) !== null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [claveSugerencia]);
   const codigoAplicado = esUS ? partida?.codigo : manual ? hs6 ?? undefined : arancelDestino?.codigo;
@@ -345,6 +484,7 @@ export default function RoiCalculator() {
     setDestinoIso(iso);
     setArancelDestino(null);
     setTarifaManual(null);
+    setTarifaSugerida(false);
   };
   const pideLitros = Boolean(aplicada?.tasa.necesita.includes('volumen'));
 
@@ -466,6 +606,10 @@ export default function RoiCalculator() {
                 <p className="mt-1 text-sm text-muted-foreground">
                   {es ? 'Llena los 4 pasos. El resultado se actualiza solo mientras escribes.' : 'Fill in the 4 steps. The result updates as you type.'}
                 </p>
+                <p className="mt-2 inline-flex items-center gap-2 rounded-lg border border-dashed border-gray-200 px-2.5 py-1 text-xs text-muted-foreground">
+                  <span className="font-bold text-gray-400">$ 54.9</span>
+                  {es ? 'En gris: sugerencias de un producto típico. Escribe encima las tuyas.' : 'In grey: suggestions from a typical product. Type yours over them.'}
+                </p>
               </div>
               <span className="inline-flex flex-none items-center gap-2 rounded-full bg-green-50 px-3.5 py-1.5 text-xs font-bold text-green-700">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />
@@ -473,16 +617,16 @@ export default function RoiCalculator() {
               </span>
             </div>
 
-            <Paso n={1} title={es ? 'Tu producto' : 'Your product'} help={es ? 'Lo que cobras en EE. UU., lo que te cuesta hacerlo y cuánto mandas en el primer envío.' : 'What you charge in the US, what it costs you to make, and how much you ship first.'}>
+            <Paso n={1} listo={!sugerido('price') && !sugerido('cost')} title={es ? 'Tu producto' : 'Your product'} help={es ? 'Lo que cobras en EE. UU., lo que te cuesta hacerlo y cuánto mandas en el primer envío.' : 'What you charge in the US, what it costs you to make, and how much you ship first.'}>
               <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                <NumberField id="in_price" label={es ? `Precio de venta en ${esUS ? 'EE. UU.' : dest.nombre}` : esUS ? 'US selling price' : `Selling price in ${dest.nombreEn}`} value={inputs.price} onChange={(v) => set('price', v)} prefix="$" step={0.1} />
-                <NumberField id="in_cost" label={es ? 'Costo de producirlo' : 'Production cost'} value={inputs.cost} onChange={(v) => set('cost', v)} prefix="$" step={0.1} />
-                <NumberField id="in_weight" label={es ? 'Peso con empaque' : 'Packed weight'} value={inputs.weightG} onChange={(v) => set('weightG', v)} suffix="g" step={10} min={1} />
-                <NumberField id="in_lot" label={es ? 'Unidades del primer envío' : 'Units in the first shipment'} value={inputs.lot} onChange={(v) => set('lot', v)} step={50} min={1} />
+                <NumberField {...campo('price')} label={es ? `Precio de venta en ${esUS ? 'EE. UU.' : dest.nombre}` : esUS ? 'US selling price' : `Selling price in ${dest.nombreEn}`} prefix="$" step={0.1} />
+                <NumberField {...campo('cost')} label={es ? 'Costo de producirlo' : 'Production cost'} prefix="$" step={0.1} />
+                <NumberField {...campo('weightG')} label={es ? 'Peso con empaque' : 'Packed weight'} suffix="g" step={10} min={1} />
+                <NumberField {...campo('lot')} label={es ? 'Unidades del primer envío' : 'Units in the first shipment'} step={50} min={1} />
               </div>
             </Paso>
 
-            <Paso n={2} title={es ? 'Dónde vendes y su arancel' : 'Where you sell and its duty'} help={es ? 'Elige el país y busca tu producto: el arancel sale de la tarifa oficial de ese país.' : 'Pick the country and find your product: the duty comes from that country’s official tariff.'}>
+            <Paso n={2} listo={Boolean(partida && aplicada)} title={es ? 'Dónde vendes y su arancel' : 'Where you sell and its duty'} help={es ? 'Elige el país y busca tu producto: el arancel sale de la tarifa oficial de ese país.' : 'Pick the country and find your product: the duty comes from that country’s official tariff.'}>
               <label className="mb-4 block">
                 <span className="mb-1.5 block text-sm font-semibold text-muted-foreground">{es ? 'País de destino' : 'Destination country'}</span>
                 <select
@@ -562,7 +706,7 @@ export default function RoiCalculator() {
                               key={o.pct}
                               type="button"
                               aria-pressed={tarifaManual === o.pct}
-                              onClick={() => setTarifaManual(o.pct)}
+                              onClick={() => escribirTarifa(o.pct)}
                               className={`tap-scale-sm rounded-full border px-3 py-1 text-xs font-bold ${tarifaManual === o.pct ? 'border-primary bg-primary text-white' : 'border-gray-200 bg-white text-primary'}`}
                             >
                               {o.pct} % · {o.texto}
@@ -573,7 +717,7 @@ export default function RoiCalculator() {
                     </div>
                   )}
                   <div className="mt-3 flex flex-wrap items-center gap-3">
-                    <div className="flex w-40 items-center rounded-xl border-[1.5px] border-gray-200 bg-white pr-3 focus-within:border-accent">
+                    <div className={`flex w-40 items-center rounded-xl border-[1.5px] border-gray-200 bg-white pr-3 focus-within:border-accent ${tarifaSugerida ? 'border-dashed' : ''}`}>
                       <input
                         type="number"
                         inputMode="decimal"
@@ -583,12 +727,15 @@ export default function RoiCalculator() {
                         aria-label={es ? `Arancel en ${dest.nombre}` : `Duty in ${dest.nombreEn}`}
                         placeholder={es ? 'Ej.: 12' : 'E.g. 12'}
                         value={tarifaManual ?? ''}
-                        onChange={(e) => setTarifaManual(e.target.value === '' ? null : Math.max(0, Number(e.target.value)))}
-                        className="w-full min-w-0 rounded-xl bg-transparent px-3 py-2.5 font-bold text-primary outline-none"
+                        onChange={(e) => escribirTarifa(e.target.value === '' ? null : Math.max(0, Number(e.target.value)))}
+                        className={`w-full min-w-0 rounded-xl bg-transparent px-3 py-2.5 font-bold outline-none ${tarifaSugerida ? 'text-gray-400' : 'text-primary'}`}
                       />
                       <span className="font-bold text-muted-foreground">%</span>
                     </div>
                     <p className="text-sm text-primary">
+                      {tarifaSugerida && (
+                        <span className="mr-2 text-[10px] font-bold uppercase tracking-wider text-gray-400">{es ? 'sugerido por norma' : 'suggested by rule'}</span>
+                      )}
                       {derecho
                         ? <>{es ? 'Arancel por unidad' : 'Duty per unit'}: <b>${derecho.usd.toFixed(2)}</b> ({es ? `sobre el valor ${dest.base === 'fob' ? 'FOB' : 'CIF'}` : `on the ${dest.base === 'fob' ? 'FOB' : 'CIF'} value`})</>
                         : es ? 'Mientras no la escribas, el cálculo usa un arancel estimado.' : 'Until you type it, the projection uses an estimated duty.'}
@@ -641,7 +788,9 @@ export default function RoiCalculator() {
                     id="in_liters"
                     label={es ? 'Contenido por unidad' : 'Content per unit'}
                     value={Math.round(inputs.litersPerUnit * 1000)}
-                    onChange={(v) => set('litersPerUnit', v / 1000)}
+                    onChange={(v) => fijar('litersPerUnit', v === null ? null : v / 1000)}
+                    sugerido={sugerido('litersPerUnit')}
+                    es={es}
                     suffix="ml"
                     step={50}
                   />
@@ -650,7 +799,7 @@ export default function RoiCalculator() {
             </Paso>
 
             {esUS && (
-              <Paso n={3} title={es ? 'Envío de cada pedido' : 'Shipping each order'} help={es ? 'Opcional: cotiza el envío real desde tu bodega en EE. UU.' : 'Optional: quote the real shipping from your US warehouse.'}>
+              <Paso n={3} listo={inputs.domesticShipUsd !== null} title={es ? 'Envío de cada pedido' : 'Shipping each order'} help={es ? 'Opcional: cotiza el envío real desde tu bodega en EE. UU.' : 'Optional: quote the real shipping from your US warehouse.'}>
                 <EnvioEEUU
                   es={es}
                   pesoG={inputs.weightG}
@@ -661,23 +810,83 @@ export default function RoiCalculator() {
               </Paso>
             )}
 
-            <Paso n={esUS ? 4 : 3} title={es ? 'Tu marketing del mes' : 'Your monthly marketing'} help={es ? 'Lo que vas a invertir cada mes para vender.' : 'What you will invest every month to sell.'}>
+            <Paso n={esUS ? 4 : 3} listo={!sugerido('adsBudget') || !sugerido('contentBudget') || !sugerido('channelBudget')} title={es ? 'Tu marketing del mes' : 'Your monthly marketing'} help={es ? 'Lo que vas a invertir cada mes para vender.' : 'What you will invest every month to sell.'}>
               <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-3">
-                <NumberField id="in_ads" label={es ? 'Publicidad (ADS)' : 'Advertising (ads)'} value={inputs.adsBudget} onChange={(v) => set('adsBudget', v)} prefix="$" step={50} />
-                <NumberField id="in_content" label={es ? 'Contenido' : 'Content'} value={inputs.contentBudget} onChange={(v) => set('contentBudget', v)} prefix="$" step={50} />
-                <NumberField id="in_channel" label={es ? 'Manejo del canal' : 'Channel management'} value={inputs.channelBudget} onChange={(v) => set('channelBudget', v)} prefix="$" step={50} />
+                <NumberField {...campo('adsBudget')} label={es ? 'Publicidad (ADS)' : 'Advertising (ads)'} prefix="$" step={50} />
+                <NumberField {...campo('contentBudget')} label={es ? 'Contenido' : 'Content'} prefix="$" step={50} />
+                <NumberField {...campo('channelBudget')} label={es ? 'Manejo del canal' : 'Channel management'} prefix="$" step={50} />
               </div>
+              <p className="mt-3 flex items-center justify-between rounded-xl bg-secondary/50 px-3.5 py-2 text-sm">
+                <span className="text-muted-foreground">{es ? 'Total de marketing al mes' : 'Total marketing per month'}</span>
+                <b className="tabular-nums text-primary">{fmtMoney(inputs.adsBudget + inputs.contentBudget + inputs.channelBudget)}</b>
+              </p>
             </Paso>
 
-            <details className="group rounded-2xl border border-gray-100 bg-secondary/40 px-4 py-3">
-              <summary className="cursor-pointer list-none text-sm font-bold text-primary">
-                <span className="mr-1.5 inline-block transition-transform group-open:rotate-90">›</span>
-                {es ? 'Ajustes finos (opcional)' : 'Fine-tuning (optional)'}
-                <span className="ml-2 font-normal text-muted-foreground">{es ? 'devoluciones y comisión de vendedores' : 'returns and sales commission'}</span>
+            <details className="group overflow-hidden rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-secondary/60 transition-shadow open:app-shadow">
+              <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3.5 [&::-webkit-details-marker]:hidden">
+                <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-primary/5 text-primary">
+                  <SlidersHorizontal size={17} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-bold text-primary">{es ? 'Ajustes finos' : 'Fine-tuning'} <span className="font-normal text-muted-foreground">{es ? '(opcional)' : '(optional)'}</span></span>
+                  <span className="mt-1 flex flex-wrap gap-1.5">
+                    {[
+                      { k: 'returnsPct' as const, t: es ? 'Devoluciones' : 'Returns' },
+                      { k: 'ugcPct' as const, t: es ? 'Comisión red' : 'Network fee' },
+                    ].map(({ k, t }) => (
+                      <span key={k} className={`rounded-full border px-2 py-0.5 text-[11px] font-bold ${sugerido(k) ? 'border-dashed border-gray-200 text-gray-400' : 'border-accent/30 bg-orange-50 text-accent'}`}>
+                        {t} {Math.round(inputs[k] * 1000) / 10}%
+                      </span>
+                    ))}
+                  </span>
+                </span>
+                <ChevronDown size={18} className="flex-none text-muted-foreground transition-transform group-open:rotate-180" />
               </summary>
-              <div className="mt-4 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                <NumberField id="in_returns" label={es ? 'Devoluciones' : 'Returns'} value={inputs.returnsPct * 100} onChange={(v) => set('returnsPct', v / 100)} suffix="%" step={0.5} />
-                <NumberField id="in_ugc" label={es ? 'Comisión de la red comercial' : 'Sales-network commission'} value={inputs.ugcPct * 100} onChange={(v) => set('ugcPct', v / 100)} suffix="%" step={1} />
+              <div className="grid grid-cols-1 gap-3 border-t border-gray-100 px-4 pb-4 pt-4 sm:grid-cols-2">
+                <div className="rounded-xl border border-gray-100 bg-white p-3.5">
+                  <NumberField
+                    id="in_returns"
+                    label={es ? 'Devoluciones' : 'Returns'}
+                    value={inputs.returnsPct * 100}
+                    onChange={(v) => fijar('returnsPct', v === null ? null : v / 100)}
+                    sugerido={sugerido('returnsPct')}
+                    es={es}
+                    suffix="%"
+                    step={0.5}
+                    ayuda={es ? 'De cada 100 pedidos, cuántos vuelven. En belleza y alimentos suele ser 1–3 %; en ropa, 8–15 %.' : 'Out of 100 orders, how many come back. Beauty and food: 1–3%; apparel: 8–15%.'}
+                  />
+                  <Deslizador
+                    label={es ? 'Devoluciones' : 'Returns'}
+                    value={inputs.returnsPct * 100}
+                    max={25}
+                    step={0.5}
+                    onChange={(v) => fijar('returnsPct', v / 100)}
+                    sugerido={sugerido('returnsPct')}
+                    marcas={['0 %', '25 %']}
+                  />
+                </div>
+                <div className="rounded-xl border border-gray-100 bg-white p-3.5">
+                  <NumberField
+                    id="in_ugc"
+                    label={es ? 'Comisión de la red comercial' : 'Sales-network commission'}
+                    value={inputs.ugcPct * 100}
+                    onChange={(v) => fijar('ugcPct', v === null ? null : v / 100)}
+                    sugerido={sugerido('ugcPct')}
+                    es={es}
+                    suffix="%"
+                    step={1}
+                    ayuda={es ? 'Lo que se lleva por venta quien recomienda tu producto (creadores, afiliados).' : 'What whoever recommends your product (creators, affiliates) takes per sale.'}
+                  />
+                  <Deslizador
+                    label={es ? 'Comisión de la red comercial' : 'Sales-network commission'}
+                    value={inputs.ugcPct * 100}
+                    max={40}
+                    step={1}
+                    onChange={(v) => fijar('ugcPct', v / 100)}
+                    sugerido={sugerido('ugcPct')}
+                    marcas={['0 %', '40 %']}
+                  />
+                </div>
               </div>
             </details>
           </section>
@@ -693,6 +902,7 @@ export default function RoiCalculator() {
               escenario={heroScenario}
               onEscenario={setHeroScenario}
               labels={scenarioLabels}
+              conSugeridos={sugerido('price') || sugerido('cost')}
               aviso={
                 manual && tarifaManual === null
                   ? es
@@ -705,6 +915,87 @@ export default function RoiCalculator() {
         </div>
 
         {proy && r && hero && detail1 && inversion && (<>
+        {/* Cash flow + suggested budget: right under the numbers */}
+        <section className="my-10">
+          <SectionHead
+            kicker={es ? 'Tu plan de arranque' : 'Your launch plan'}
+            title={es ? 'Cuándo vuelve tu plata y cuánto necesitas para arrancar' : 'When your money comes back and how much you need to start'}
+            body={es
+              ? `El conservador ${consBreak ? `encuentra equilibrio en el mes ${consBreak}` : 'no llega a equilibrio en 12 meses'}; el optimista ${optBreak ? `lo alcanza en el mes ${optBreak}` : 'no llega a equilibrio en 12 meses'}. Toca la gráfica para ver cada mes.`
+              : `The conservative case ${consBreak ? `breaks even in month ${consBreak}` : 'does not break even within 12 months'}; the optimistic one ${optBreak ? `gets there in month ${optBreak}` : 'does not break even within 12 months'}. Tap the chart to see each month.`}
+          />
+          <div className="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+            <div className="rounded-3xl border border-gray-100 bg-white p-5 app-shadow md:p-6">
+              <div className="mb-4 flex items-center gap-2.5">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-accent"><TrendingUp size={18} /></span>
+                <div>
+                  <h3 className="text-base font-bold text-primary">{es ? 'Saldo de caja acumulado' : 'Cumulative cash balance'}</h3>
+                  <p className="text-xs text-muted-foreground">{es ? 'Primeros 12 meses, sin financiamiento externo' : 'First 12 months, no external financing'}</p>
+                </div>
+              </div>
+              <CashChart
+                conservative={r.cons1.saldo}
+                optimistic={r.opt1.saldo}
+                labels={{
+                  conservative: scenarioLabels.conservador,
+                  optimistic: scenarioLabels.optimista,
+                  month: (n) => (es ? `Mes ${n}` : `Month ${n}`),
+                  monthShort: (n) => `M${n}`,
+                  breakEven: es ? 'Equilibrio' : 'Break-even',
+                  lossZone: es ? 'Zona de pérdida' : 'Loss zone',
+                  title: es
+                    ? 'Saldo de caja acumulado durante los 12 meses del año 1, comparando escenario conservador y optimista'
+                    : 'Cumulative cash balance across the 12 months of year 1, comparing the conservative and optimistic scenarios',
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col rounded-3xl border border-gray-100 bg-white p-5 app-shadow md:p-6">
+              <div className="mb-4 flex items-center gap-2.5">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-[#4A63D6]"><Wallet size={18} /></span>
+                <div>
+                  <h3 className="text-base font-bold text-primary">{es ? 'Presupuesto sugerido' : 'Suggested budget'}</h3>
+                  <p className="text-xs text-muted-foreground">{es ? 'Capital para arrancar, con tus números' : 'Capital to start, from your numbers'}</p>
+                </div>
+              </div>
+              <p className="font-heading text-4xl font-black tabular-nums text-primary md:text-5xl">{fmtMoney(inversion.total)}</p>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                {fmtInt(inputs.lot)} {es ? 'unidades + logística de salida + 3 meses de marketing y operación.' : 'units + outbound logistics + 3 months of marketing and operations.'}
+              </p>
+
+              <div className="mt-5 flex h-3 w-full gap-0.5 overflow-hidden rounded-full bg-secondary">
+                <span className="h-full rounded-l-full bg-accent transition-all duration-300" style={{ width: `${invPct(inversion.productCost)}%` }} />
+                <span className="h-full bg-[#4A63D6] transition-all duration-300" style={{ width: `${invPct(inversion.logistics)}%` }} />
+                <span className="h-full rounded-r-full bg-primary transition-all duration-300" style={{ width: `${invPct(inversion.marketing3)}%` }} />
+              </div>
+              <ul className="mb-4 mt-4 flex flex-col gap-2">
+                {[
+                  { color: 'bg-accent', label: es ? 'Inventario inicial' : 'Initial inventory', sub: `${fmtInt(inputs.lot)} × ${fmtMoney2(inputs.cost)}`, value: inversion.productCost },
+                  { color: 'bg-[#4A63D6]', label: es ? 'Logística de salida' : 'Outbound logistics', sub: es ? 'flete y aduana del primer envío' : 'freight and customs, first shipment', value: inversion.logistics },
+                  { color: 'bg-primary', label: es ? 'Marketing y operación' : 'Marketing and operations', sub: es ? '3 meses del canal digital' : '3 months of the digital channel', value: inversion.marketing3 },
+                ].map((row) => (
+                  <li key={row.label} className="flex items-center gap-3 rounded-xl bg-secondary/40 px-3 py-2.5">
+                    <span className={`h-8 w-1.5 flex-none rounded-full ${row.color}`} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold text-primary">{row.label}</span>
+                      <span className="block truncate text-xs text-muted-foreground">{row.sub}</span>
+                    </span>
+                    <span className="text-right">
+                      <b className="block text-sm tabular-nums text-foreground">{fmtMoney(row.value)}</b>
+                      <span className="block text-[11px] font-semibold tabular-nums text-muted-foreground">{Math.round(invPct(row.value))}%</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p className={`mt-4 rounded-xl px-3 py-2.5 text-sm font-semibold lg:mt-auto ${paybackMonth ? 'bg-green-50 text-green-800' : 'bg-amber-50 text-amber-900'}`}>
+                {paybackMonth
+                  ? es ? `En el escenario ${scenarioLabels[heroScenario].toLowerCase()} la recuperas en el mes ${paybackMonth}.` : `In the ${scenarioLabels[heroScenario].toLowerCase()} case you get it back in month ${paybackMonth}.`
+                  : es ? `En el escenario ${scenarioLabels[heroScenario].toLowerCase()} vuelve después del primer año.` : `In the ${scenarioLabels[heroScenario].toLowerCase()} case it comes back after year one.`}
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Scenario comparison */}
         <section className="my-12">
           <SectionHead
@@ -870,84 +1161,17 @@ export default function RoiCalculator() {
           </div>
         </section>
 
-        {/* Cash-flow chart */}
-        <section className="my-12">
-          <SectionHead
-            kicker={es ? 'Flujo de caja' : 'Cash flow'}
-            title={es ? 'Saldo acumulado — primeros 12 meses' : 'Cumulative balance — first 12 months'}
-            body={es
-              ? `El conservador ${consBreak ? `encuentra equilibrio en el mes ${consBreak}` : 'no llega a equilibrio en 12 meses'}; el optimista ${optBreak ? `lo alcanza en el mes ${optBreak}` : 'no llega a equilibrio en 12 meses'}.`
-              : `The conservative case ${consBreak ? `breaks even in month ${consBreak}` : 'does not break even within 12 months'}; the optimistic one ${optBreak ? `gets there in month ${optBreak}` : 'does not break even within 12 months'}.`}
-          />
-          <CashChart
-            conservative={r.cons1.saldo}
-            optimistic={r.opt1.saldo}
-            labels={{
-              conservative: scenarioLabels.conservador,
-              optimistic: scenarioLabels.optimista,
-              month: (n) => (es ? `Mes ${n}` : `Month ${n}`),
-              title: es
-                ? 'Saldo de caja acumulado durante los 12 meses del año 1, comparando escenario conservador y optimista'
-                : 'Cumulative cash balance across the 12 months of year 1, comparing the conservative and optimistic scenarios',
-            }}
-          />
-          <p className="mt-2.5 text-sm text-muted-foreground">
-            {es
-              ? 'Saldo de caja acumulado (utilidad mensual menos egresos), sin financiamiento externo.'
-              : 'Cumulative cash balance (monthly profit less outflows), with no external financing.'}
-          </p>
-        </section>
-
-        {/* Investment */}
-        <section className="my-12">
-          <SectionHead
-            kicker={es ? 'Capital de arranque' : 'Start-up capital'}
-            title={es ? 'Inversión inicial recomendada' : 'Recommended initial investment'}
-            body={es
-              ? 'Cubre tu inventario inicial, la logística de salida y tres meses de operación y marketing del canal digital — se recalcula con los mismos números que escribiste arriba.'
-              : 'Covers your initial inventory, outbound logistics and three months of digital-channel operations and marketing — recalculated from the numbers you typed above.'}
-          />
-          <div className="grid grid-cols-1 items-center gap-8 rounded-3xl border border-gray-100 bg-white p-7 app-shadow lg:grid-cols-[1fr_1.15fr]">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                {es ? 'Total recomendado' : 'Recommended total'}
-              </p>
-              <p className="mt-1.5 font-heading text-4xl font-black text-primary md:text-5xl">{fmtMoney(inversion.total)}</p>
-              <p className="mt-2.5 text-sm text-muted-foreground">
-                {fmtInt(inputs.lot)} {es ? 'unidades iniciales + logística de salida + 3 meses de marketing y operación del canal digital.' : 'initial units + outbound logistics + 3 months of digital-channel marketing and operations.'}
-              </p>
-            </div>
-            <div>
-              <div className="flex h-4 w-full overflow-hidden rounded-full bg-secondary">
-                <span className="h-full bg-accent transition-all duration-200" style={{ width: `${invPct(inversion.productCost)}%` }} />
-                <span className="h-full bg-[#4A63D6] transition-all duration-200" style={{ width: `${invPct(inversion.logistics)}%` }} />
-                <span className="h-full bg-primary transition-all duration-200" style={{ width: `${invPct(inversion.marketing3)}%` }} />
-              </div>
-              <div className="mt-4 flex flex-col gap-2.5">
-                {[
-                  { color: 'bg-accent', label: es ? 'Inventario inicial' : 'Initial inventory', value: inversion.productCost },
-                  { color: 'bg-[#4A63D6]', label: es ? 'Logística de salida' : 'Outbound logistics', value: inversion.logistics },
-                  { color: 'bg-primary', label: es ? 'Marketing y operación (3 meses)' : 'Marketing and operations (3 months)', value: inversion.marketing3 },
-                ].map((row) => (
-                  <div key={row.label} className="flex items-center gap-2.5 text-sm">
-                    <span className={`h-2.5 w-2.5 flex-none rounded ${row.color}`} />
-                    <span className="text-muted-foreground">{row.label}</span>
-                    <b className="ml-auto tabular-nums text-foreground">{fmtMoney(row.value)}</b>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
         </>)}
 
         {/* Method note */}
-        <p className="rounded-2xl border border-gray-100 bg-secondary/60 p-5 text-sm leading-relaxed text-muted-foreground">
+        <p className="flex gap-3 rounded-2xl border border-gray-100 bg-secondary/60 p-5 text-sm leading-relaxed text-muted-foreground">
+          <Info size={18} className="mt-0.5 flex-none text-primary/60" />
+          <span>
           <strong className="text-foreground">{es ? 'Nota.' : 'Note.'}</strong>{' '}
           {es
             ? 'Cifras en USD, antes de impuestos, calculadas con el modelo financiero de Easycomex a partir de tus números. Los aranceles salen de la partida que elegiste en el arancel oficial del país de destino; la partida definitiva la confirma tu agente de aduanas. Es una proyección, no una promesa de resultados.'
             : 'Figures in USD, before taxes, computed with Easycomex’s financial model from your numbers. Duties come from the code you picked in the destination’s official tariff; your customs broker confirms the final code. This is a projection, not a promise of results.'}
+          </span>
         </p>
 
         {/* CTA */}
