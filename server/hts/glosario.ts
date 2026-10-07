@@ -227,8 +227,23 @@ export function normalizar(texto: string): string {
  * La consulta en inglés: las palabras traducidas y, además, las que no
  * se tradujeron (puede que ya estuvieran en inglés: "t-shirt", "jeans").
  */
+/**
+ * El singular de una palabra que el glosario no tiene en plural:
+ * "fajas" → "faja", "pantalones" → "pantalon", "lapices" → "lapiz". Si
+ * ni el plural ni el singular están, la palabra queda como vino.
+ */
+export function singular(palabra: string): string {
+  if (GLOSARIO[palabra]) return palabra;
+  const candidatos = [
+    palabra.endsWith('ces') ? `${palabra.slice(0, -3)}z` : null,
+    palabra.endsWith('es') ? palabra.slice(0, -2) : null,
+    palabra.endsWith('s') ? palabra.slice(0, -1) : null,
+  ];
+  return candidatos.find((c): c is string => Boolean(c && GLOSARIO[c])) ?? palabra;
+}
+
 export function aIngles(consulta: string): { terminos: string[]; traducidas: number } {
-  let resto = ` ${normalizar(consulta)} `;
+  let resto = ` ${normalizar(consulta).split(' ').map(singular).join(' ')} `;
   const terminos: string[] = [];
   let traducidas = 0;
   for (const frase of FRASES) {

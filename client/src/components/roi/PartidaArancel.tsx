@@ -247,7 +247,8 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
                         >
                           <span className="flex items-baseline justify-between gap-3">
                             <span className="font-mono text-sm font-bold text-primary">{r.codigo}</span>
-                            <span className="text-sm font-bold text-primary">{eligiendo === r.codigo ? '…' : r.tarifa ?? ''}</span>
+                            {/* La tarifa de la lista es la de EE. UU.: con otro destino confunde. */}
+                            <span className="text-sm font-bold text-primary">{eligiendo === r.codigo ? '…' : soloSubpartida ? '' : r.tarifa ?? ''}</span>
                           </span>
                           <span className="mt-0.5 block text-sm text-muted-foreground">{r.descripcion}</span>
                         </button>
@@ -262,7 +263,7 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
               )}
             </div>
           ) : (
-            <Explorador es={es} onElegir={elegir} eligiendo={eligiendo} />
+            <Explorador es={es} onElegir={elegir} eligiendo={eligiendo} sinTarifa={soloSubpartida} />
           )}
           <p className="mt-3 text-xs text-muted-foreground">
             {es
@@ -276,7 +277,18 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
 }
 
 /** Capítulo → partida → subpartida → línea de 10 dígitos. */
-function Explorador({ es, onElegir, eligiendo }: { es: boolean; onElegir: (codigo: string) => void; eligiendo: string | null }) {
+function Explorador({
+  es,
+  onElegir,
+  eligiendo,
+  sinTarifa = false,
+}: {
+  es: boolean;
+  onElegir: (codigo: string) => void;
+  eligiendo: string | null;
+  /** Destino distinto a EE. UU.: no mostrar la tarifa de EE. UU. */
+  sinTarifa?: boolean;
+}) {
   const [capitulos, setCapitulos] = useState<Array<{ codigo: string; nombre: string }> | null>(null);
   const [pila, setPila] = useState<Array<{ titulo: string; nodos: Nodo[] }>>([]);
   const [cargando, setCargando] = useState(false);
@@ -339,7 +351,7 @@ function Explorador({ es, onElegir, eligiendo }: { es: boolean; onElegir: (codig
                 <span className="flex items-baseline justify-between gap-3">
                   <span className="font-mono text-sm font-bold text-primary">{n.codigo ?? ''}</span>
                   <span className="flex items-center gap-1 text-sm font-bold text-primary">
-                    {eligiendo && eligiendo === n.codigo ? '…' : n.tarifa ?? ''}
+                    {eligiendo && eligiendo === n.codigo ? '…' : sinTarifa ? '' : n.tarifa ?? ''}
                     {n.tieneHijos ? <ChevronRight size={14} className="text-muted-foreground" /> : null}
                   </span>
                 </span>

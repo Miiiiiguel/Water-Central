@@ -1187,6 +1187,13 @@ El selector de **país de destino** tiene todos los países
   Zelanda y la unión aduanera del sur de África, y sobre CIF en el resto.
   Para traer la tarifa sola hay que conectar la fuente oficial de cada
   país (cambiar su `fuente` y agregar el lector en `server/destinos`).
+- **Colombia, ropa (capítulos 61 y 62):** la casilla se llena sola con
+  **40 %** si el origen no tiene TLC con Colombia (China, India, Vietnam…),
+  por el Decreto 2598 de 2022. Con TLC ofrece 0 % (con certificado de
+  origen) o 40 % (sin él), y arranca en 40 %. La regla y la lista de
+  países con TLC están en `client/src/lib/arancelColombia.ts`.
+- Con un destino distinto a EE. UU., la lista de partidas no muestra la
+  tarifa de EE. UU. (confundía: las fajas decían 20 %).
 
 - **Estados Unidos**: todo igual que antes. El arancel sale del HTS
   cargado y se suman los recargos por país de origen.

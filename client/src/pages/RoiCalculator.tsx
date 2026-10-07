@@ -18,6 +18,7 @@ import { DESTINOS, DESTINOS_PRINCIPALES, destino as destinoDe, type ArancelDesti
 import type { DetallePartida } from '@/lib/hts';
 import { paisDeOrigen, parseTasa } from '@/lib/tasaArancel';
 import ReglasOrigen from '@/components/roi/ReglasOrigen';
+import { sugerenciaColombia } from '@/lib/arancelColombia';
 import FabricantesSugeridos from '@/components/FabricantesPatrocinados';
 import {
   RESPUESTAS_INICIALES, aplicaAcuerdo, capituloDe, choqueConPartida, esCapituloTextil, evaluarOrigen, regionDelAcuerdo, type RespuestasOrigen,
@@ -289,6 +290,17 @@ export default function RoiCalculator() {
         : { tasa: arancelDestino.general ?? parseTasa(''), preferencial: false }
       : null;
   const hs6 = partida ? `${partida.digitos.slice(0, 4)}.${partida.digitos.slice(4, 6)}` : null;
+
+  // Lo que se sabe del arancel de Colombia (hoy: la ropa, capítulos 61 y
+  // 62). Se llena solo al elegir producto u origen; el cliente lo puede
+  // cambiar. Ante la duda (TLC sin certificado) se pone la tarifa plena.
+  const sugerencia = destinoIso === 'CO' && partida ? sugerenciaColombia(pais, partida.digitos) : null;
+  const claveSugerencia = sugerencia ? `${destinoIso}|${pais}|${partida?.digitos}` : null;
+  useEffect(() => {
+    if (!sugerencia) return;
+    setTarifaManual(sugerencia.tipo === 'fija' ? sugerencia.pct : sugerencia.sinCertificado);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claveSugerencia]);
   const codigoAplicado = esUS ? partida?.codigo : manual ? hs6 ?? undefined : arancelDestino?.codigo;
   const hts = aplicada && codigoAplicado ? { codigo: codigoAplicado, tasa: aplicada.tasa } : null;
 
@@ -510,6 +522,38 @@ export default function RoiCalculator() {
                       ? `Busca la subpartida ${hs6} en el arancel de ${dest.nombre} (por ejemplo en macmap.org, gratis) y escribe la tarifa que paga tu producto desde tu país. Si hay acuerdo comercial y tu producto cumple, pon la preferencial.`
                       : `Look up subheading ${hs6} in ${dest.nombreEn}’s tariff (for example on macmap.org, free) and type the rate your product pays from your country. If there is a trade agreement and your product qualifies, use the preferential rate.`}
                   </p>
+                  {sugerencia?.tipo === 'fija' && (
+                    <p className="mt-2 rounded-lg border border-accent/20 bg-orange-50 px-3 py-2 text-sm text-primary">
+                      {es
+                        ? `Ropa desde un país sin TLC con Colombia: paga ${sugerencia.pct} % (${sugerencia.norma}). Ya quedó escrito.`
+                        : `Clothing from a country without an FTA with Colombia: ${sugerencia.pct}% (${sugerencia.norma}). Already filled in.`}
+                    </p>
+                  )}
+                  {sugerencia?.tipo === 'segun_origen' && (
+                    <div className="mt-2 rounded-lg border border-accent/20 bg-orange-50 px-3 py-2 text-sm text-primary">
+                      <p>
+                        {es
+                          ? `Con el ${sugerencia.acuerdo}, la ropa entra con ${sugerencia.preferencial} % si trae certificado de origen; sin él paga ${sugerencia.sinCertificado} % (${sugerencia.norma}).`
+                          : `Under the ${sugerencia.acuerdo}, clothing enters at ${sugerencia.preferencial}% with a certificate of origin; without it, ${sugerencia.sinCertificado}% (${sugerencia.norma}).`}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {[
+                          { pct: sugerencia.preferencial, texto: es ? `${sugerencia.preferencial} % · con certificado` : `${sugerencia.preferencial}% · with certificate` },
+                          { pct: sugerencia.sinCertificado, texto: es ? `${sugerencia.sinCertificado} % · sin certificado` : `${sugerencia.sinCertificado}% · without certificate` },
+                        ].map((o) => (
+                          <button
+                            key={o.pct}
+                            type="button"
+                            aria-pressed={tarifaManual === o.pct}
+                            onClick={() => setTarifaManual(o.pct)}
+                            className={`tap-scale-sm rounded-full border px-3 py-1 text-xs font-bold ${tarifaManual === o.pct ? 'border-primary bg-primary text-white' : 'border-gray-200 bg-white text-primary'}`}
+                          >
+                            {o.texto}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div className="mt-3 flex flex-wrap items-center gap-3">
                     <div className="flex w-40 items-center rounded-xl border-[1.5px] border-gray-200 bg-white pr-3 focus-within:border-accent">
                       <input

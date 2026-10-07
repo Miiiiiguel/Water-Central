@@ -109,3 +109,13 @@ describe('el detalle de una partida', () => {
     expect(detalle('6109.10.00.99')).toBeNull();
   });
 });
+
+describe('plurales en español', async () => {
+  const { aIngles, singular } = await import('./glosario');
+  it('turns a plural the glossary lacks into its singular', () => {
+    expect(singular('fajas')).toBe('faja');
+    expect(singular('faja')).toBe('faja');
+    expect(singular('xyzs')).toBe('xyzs');
+    expect(aIngles('fajas reductoras').terminos).toContain('girdles');
+  });
+});
