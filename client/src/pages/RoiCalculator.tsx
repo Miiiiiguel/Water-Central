@@ -18,7 +18,7 @@ import { DESTINOS, DESTINOS_PRINCIPALES, destino as destinoDe, type ArancelDesti
 import type { DetallePartida } from '@/lib/hts';
 import { paisDeOrigen, parseTasa } from '@/lib/tasaArancel';
 import ReglasOrigen from '@/components/roi/ReglasOrigen';
-import { sugerenciaColombia } from '@/lib/arancelColombia';
+import { sugerenciaArancel, tarifaInicial } from '@/lib/sugerenciasArancel';
 import FabricantesSugeridos from '@/components/FabricantesPatrocinados';
 import {
   RESPUESTAS_INICIALES, aplicaAcuerdo, capituloDe, choqueConPartida, esCapituloTextil, evaluarOrigen, regionDelAcuerdo, type RespuestasOrigen,
@@ -123,9 +123,11 @@ function Paso({ n, title, help, children }: { n: number; title: string; help: st
  * los datos para que se vea cambiar mientras se escribe.
  */
 function ResultadoVivo({
-  es, proy, sinRespuesta, hero, inversion, paybackMonth, escenario, onEscenario, labels,
+  es, proy, sinRespuesta, hero, inversion, paybackMonth, escenario, onEscenario, labels, aviso = null,
 }: {
   es: boolean;
+  /** Algo que le falta al cálculo y cambia el resultado (p. ej. el arancel del destino). */
+  aviso?: string | null;
   proy: Proyeccion | null;
   sinRespuesta: boolean;
   hero: AnioUnoResumen | null;
@@ -160,6 +162,10 @@ function ResultadoVivo({
       <div className="mt-3">
         <ScenarioToggle value={escenario} onChange={onEscenario} labels={labels} dark />
       </div>
+
+      {aviso && (
+        <p className="mt-4 rounded-2xl bg-amber-300 px-3.5 py-2.5 text-sm font-bold text-amber-950">⚠ {aviso}</p>
+      )}
 
       <p className={`mt-4 flex items-start gap-2 rounded-2xl px-3.5 py-2.5 text-sm font-semibold ${veredicto.tono}`}>
         <span aria-hidden="true" className="font-black">{veredicto.icono}</span>
@@ -291,14 +297,18 @@ export default function RoiCalculator() {
       : null;
   const hs6 = partida ? `${partida.digitos.slice(0, 4)}.${partida.digitos.slice(4, 6)}` : null;
 
-  // Lo que se sabe del arancel de Colombia (hoy: la ropa, capítulos 61 y
-  // 62). Se llena solo al elegir producto u origen; el cliente lo puede
-  // cambiar. Ante la duda (TLC sin certificado) se pone la tarifa plena.
-  const sugerencia = destinoIso === 'CO' && partida ? sugerenciaColombia(pais, partida.digitos) : null;
-  const claveSugerencia = sugerencia ? `${destinoIso}|${pais}|${partida?.digitos}` : null;
+  // Lo que se sabe del arancel del destino por norma (Colombia, México,
+  // Chile; ver lib/sugerenciasArancel). Se llena solo al elegir producto,
+  // origen o precio; el cliente lo puede cambiar. Ante la duda (TLC sin
+  // certificado) se pone la tarifa plena.
+  const sugerencia = manual && partida ? sugerenciaArancel({ destino: destinoIso, origen: pais, codigo: partida.digitos, fobUnidad: inputs.cost }) : null;
+  // La clave no incluye la nota (que menciona el precio): cambiar el
+  // costo no debe pisar una tarifa escrita a mano, salvo que cambie la
+  // regla que aplica (p. ej. el calzado cruza su umbral).
+  const claveSugerencia = sugerencia ? `${destinoIso}|${pais}|${partida?.digitos}|${sugerencia.tipo}|${tarifaInicial(sugerencia)}` : null;
   useEffect(() => {
     if (!sugerencia) return;
-    setTarifaManual(sugerencia.tipo === 'fija' ? sugerencia.pct : sugerencia.sinCertificado);
+    setTarifaManual(tarifaInicial(sugerencia));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [claveSugerencia]);
   const codigoAplicado = esUS ? partida?.codigo : manual ? hs6 ?? undefined : arancelDestino?.codigo;
@@ -522,36 +532,44 @@ export default function RoiCalculator() {
                       ? `Busca la subpartida ${hs6} en el arancel de ${dest.nombre} (por ejemplo en macmap.org, gratis) y escribe la tarifa que paga tu producto desde tu país. Si hay acuerdo comercial y tu producto cumple, pon la preferencial.`
                       : `Look up subheading ${hs6} in ${dest.nombreEn}’s tariff (for example on macmap.org, free) and type the rate your product pays from your country. If there is a trade agreement and your product qualifies, use the preferential rate.`}
                   </p>
-                  {sugerencia?.tipo === 'fija' && (
-                    <p className="mt-2 rounded-lg border border-accent/20 bg-orange-50 px-3 py-2 text-sm text-primary">
-                      {es
-                        ? `Ropa desde un país sin TLC con Colombia: paga ${sugerencia.pct} % (${sugerencia.norma}). Ya quedó escrito.`
-                        : `Clothing from a country without an FTA with Colombia: ${sugerencia.pct}% (${sugerencia.norma}). Already filled in.`}
-                    </p>
-                  )}
-                  {sugerencia?.tipo === 'segun_origen' && (
+                  {sugerencia && (
                     <div className="mt-2 rounded-lg border border-accent/20 bg-orange-50 px-3 py-2 text-sm text-primary">
                       <p>
-                        {es
-                          ? `Con el ${sugerencia.acuerdo}, la ropa entra con ${sugerencia.preferencial} % si trae certificado de origen; sin él paga ${sugerencia.sinCertificado} % (${sugerencia.norma}).`
-                          : `Under the ${sugerencia.acuerdo}, clothing enters at ${sugerencia.preferencial}% with a certificate of origin; without it, ${sugerencia.sinCertificado}% (${sugerencia.norma}).`}
+                        {sugerencia.tipo === 'fija'
+                          ? es
+                            ? `Por ${sugerencia.norma}, este producto paga ${sugerencia.pct} % desde ${origenInfo?.nombre ?? pais}${sugerencia.nota ? ` (${sugerencia.nota})` : ''}. Ya quedó escrito.`
+                            : `Under ${sugerencia.norma}, this product pays ${sugerencia.pct}% from ${origenInfo?.nombreEn ?? origenInfo?.nombre ?? pais}${sugerencia.nota ? ` (${sugerencia.nota})` : ''}. Already filled in.`
+                          : sugerencia.tipo === 'segun_origen'
+                            ? es
+                              ? `Con el ${sugerencia.acuerdo} entra con ${sugerencia.preferencial} % si trae certificado de origen; sin él paga ${sugerencia.sinCertificado} % (${sugerencia.norma}).`
+                              : `Under the ${sugerencia.acuerdo} it enters at ${sugerencia.preferencial}% with a certificate of origin; without it, ${sugerencia.sinCertificado}% (${sugerencia.norma}).`
+                            : sugerencia.tipo === 'opciones'
+                              ? es
+                                ? `Por ${sugerencia.norma}, depende del tipo de producto:`
+                                : `Under ${sugerencia.norma}, it depends on the kind of product:`
+                              : sugerencia.nota}
                       </p>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {[
-                          { pct: sugerencia.preferencial, texto: es ? `${sugerencia.preferencial} % · con certificado` : `${sugerencia.preferencial}% · with certificate` },
-                          { pct: sugerencia.sinCertificado, texto: es ? `${sugerencia.sinCertificado} % · sin certificado` : `${sugerencia.sinCertificado}% · without certificate` },
-                        ].map((o) => (
-                          <button
-                            key={o.pct}
-                            type="button"
-                            aria-pressed={tarifaManual === o.pct}
-                            onClick={() => setTarifaManual(o.pct)}
-                            className={`tap-scale-sm rounded-full border px-3 py-1 text-xs font-bold ${tarifaManual === o.pct ? 'border-primary bg-primary text-white' : 'border-gray-200 bg-white text-primary'}`}
-                          >
-                            {o.texto}
-                          </button>
-                        ))}
-                      </div>
+                      {(sugerencia.tipo === 'segun_origen' || sugerencia.tipo === 'opciones') && (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {(sugerencia.tipo === 'segun_origen'
+                            ? [
+                                { pct: sugerencia.preferencial, texto: es ? 'con certificado' : 'with certificate' },
+                                { pct: sugerencia.sinCertificado, texto: es ? 'sin certificado' : 'without certificate' },
+                              ]
+                            : sugerencia.opciones
+                          ).map((o) => (
+                            <button
+                              key={o.pct}
+                              type="button"
+                              aria-pressed={tarifaManual === o.pct}
+                              onClick={() => setTarifaManual(o.pct)}
+                              className={`tap-scale-sm rounded-full border px-3 py-1 text-xs font-bold ${tarifaManual === o.pct ? 'border-primary bg-primary text-white' : 'border-gray-200 bg-white text-primary'}`}
+                            >
+                              {o.pct} % · {o.texto}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                   <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -675,6 +693,13 @@ export default function RoiCalculator() {
               escenario={heroScenario}
               onEscenario={setHeroScenario}
               labels={scenarioLabels}
+              aviso={
+                manual && tarifaManual === null
+                  ? es
+                    ? `Falta el arancel de ${dest.nombre}: el resultado usa un 8 % estimado. ${partida ? 'Escríbelo en el paso 2.' : 'Elige tu producto en el paso 2 y escríbelo.'}`
+                    : `${dest.nombreEn}'s duty is missing: the result uses an estimated 8%. ${partida ? 'Type it in step 2.' : 'Pick your product in step 2 and type it.'}`
+                  : null
+              }
             />
           </aside>
         </div>

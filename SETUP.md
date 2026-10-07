@@ -1187,11 +1187,21 @@ El selector de **país de destino** tiene todos los países
   Zelanda y la unión aduanera del sur de África, y sobre CIF en el resto.
   Para traer la tarifa sola hay que conectar la fuente oficial de cada
   país (cambiar su `fuente` y agregar el lector en `server/destinos`).
-- **Colombia, ropa (capítulos 61 y 62):** la casilla se llena sola con
-  **40 %** si el origen no tiene TLC con Colombia (China, India, Vietnam…),
-  por el Decreto 2598 de 2022. Con TLC ofrece 0 % (con certificado de
-  origen) o 40 % (sin él), y arranca en 40 %. La regla y la lista de
-  países con TLC están en `client/src/lib/arancelColombia.ts`.
+- **Tarifas que se llenan solas** (`client/src/lib/sugerenciasArancel.ts`,
+  con pruebas; cada regla cita su norma). Con TLC se ofrecen dos botones
+  (0 % con certificado de origen / tarifa plena sin él) y se arranca en la
+  plena:
+  - **Colombia:** ropa (61-62) 40 % desde países sin TLC (Decreto 2598 de
+    2022); calzado (6401-6405) 35 % desde países sin TLC si el FOB por par
+    es ≤ US$ 7 (6401, 6402, 6404), US$ 8 (6405) o US$ 11 (6403) (Decreto
+    0594 de 2026); por encima, la tarifa general, que se escribe.
+  - **México** (desde el 1-ene-2026, países sin TLC): ropa 35 %, calzado
+    20 % básico / 35 % de más valor, juguetes (9503) 30 %.
+  - **Chile:** 6 % general sobre CIF para todo; 0 % con TLC.
+  - Lo demás no se adivina: si falta la tarifa, el resultado lo avisa en
+    grande y usa el 8 % estimado del modelo hasta que se escriba.
+- **EE. UU., metales:** la partida avisa la Sección 232 con sus tasas
+  (50 % entero de acero/aluminio/cobre, 25 % derivados); no se suma.
 - Con un destino distinto a EE. UU., la lista de partidas no muestra la
   tarifa de EE. UU. (confundía: las fajas decían 20 %).
 

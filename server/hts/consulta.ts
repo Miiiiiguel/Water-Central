@@ -199,11 +199,17 @@ export interface Detalle {
 // Las sobretasas de la Sección 232 dependen del material, no de una
 // columna del arancel, y cambian por proclamación. No se calculan: se
 // avisan, para que nadie crea que el número de arriba es el total.
+// Sección 232 (proclamación vigente en 2026): 50 % sobre el valor total
+// de lo que es entera o casi enteramente acero, aluminio o cobre; 25 %
+// sobre sus derivados; 10 % si el metal es de EE. UU. Qué línea va en qué
+// anexo no está en el arancel cargado, así que se avisa con las tasas y
+// no se suma (el cálculo podría quedar corto en estos capítulos). Estos
+// productos no pagan además el recargo por trabajo forzoso.
 const AVISOS_232: Record<string, string> = {
-  '72': 'Productos de acero: pueden pagar además la sobretasa de la Sección 232. Confírmalo con tu agente de aduanas.',
-  '73': 'Artículos de acero: pueden pagar además la sobretasa de la Sección 232 sobre el contenido de acero. Confírmalo con tu agente de aduanas.',
-  '76': 'Aluminio: puede pagar además la sobretasa de la Sección 232. Confírmalo con tu agente de aduanas.',
-  '74': 'Cobre: algunos productos pagan además la sobretasa de la Sección 232. Confírmalo con tu agente de aduanas.',
+  '72': 'Hierro y acero: paga además 50 % (Sección 232) sobre el valor total. No está sumado en el cálculo: confírmalo con tu agente de aduanas.',
+  '73': 'Artículos de acero: pagan además 50 % si son casi enteramente de acero o 25 % si son derivados (Sección 232). No está sumado en el cálculo: confírmalo con tu agente de aduanas.',
+  '76': 'Aluminio: paga además 50 % si es casi enteramente de aluminio o 25 % si es derivado (Sección 232). No está sumado en el cálculo: confírmalo con tu agente de aduanas.',
+  '74': 'Cobre: los semielaborados pagan además 50 % y otros artículos 25 % (Sección 232). No está sumado en el cálculo: confírmalo con tu agente de aduanas.',
 };
 
 export function detalle(codigo: string, idx: Indice = cargar()): Detalle | null {
