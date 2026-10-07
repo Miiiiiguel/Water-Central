@@ -539,17 +539,25 @@ export default function RoiCalculator() {
   const paybackMonth = hero && inversion ? mesEnQue(hero.saldo, inversion.total) : null;
   const consBreak = r ? mesEnQue(r.cons1.saldo, 0) : null;
   const optBreak = r ? mesEnQue(r.opt1.saldo, 0) : null;
+  // El mismo criterio de la tarjeta: el saldo cubre lo que pusiste.
+  const consPayback = r && inversion ? mesEnQue(r.cons1.saldo, inversion.total) : null;
+  const optPayback = r && inversion ? mesEnQue(r.opt1.saldo, inversion.total) : null;
 
   const scenarioLabels = {
     conservador: es ? 'Conservador' : 'Conservative',
     optimista: es ? 'Optimista' : 'Optimistic',
   };
 
+  // La tabla gratis cuenta lo mismo que la gráfica: las unidades que hay
+  // que vender, lo que deja cada mes y, al final, su suma acumulada (que
+  // es exactamente la línea de la gráfica).
   const freeRows = (d: AnioUnoResumen): RoiRow[] => [
+    { label: es ? 'Unidades que tienes que vender' : 'Units you need to sell', values: d.unidades, fmt: 'int', bold: true },
     { label: es ? 'Costo total por unidad vendida' : 'Total cost per unit sold', values: d.costUnit, fmt: 'currency2' },
     { label: es ? 'Utilidad o pérdida antes de impuestos por unidad' : 'Pre-tax profit or loss per unit', values: d.profitUnit, fmt: 'currency2', colorize: true },
-    { label: es ? 'Utilidad o pérdida del mes' : 'Profit or loss for the month', values: d.profitMonth, fmt: 'currency1', colorize: true },
     { label: es ? 'Retorno por unidad antes de impuestos' : 'Pre-tax return per unit', values: d.roiUnit, fmt: 'pct', colorize: true },
+    { label: es ? 'Utilidad o pérdida del mes' : 'Profit or loss for the month', values: d.profitMonth, fmt: 'currency1', colorize: true },
+    { label: es ? 'Saldo acumulado (la línea de la gráfica)' : 'Cumulative balance (the chart line)', values: d.saldo, fmt: 'currency', colorize: true, bold: true },
   ];
 
   // Sin el reporte comprado no llegan datos: detrás del desenfoque van
@@ -957,8 +965,8 @@ export default function RoiCalculator() {
             kicker={es ? 'Tu plan de arranque' : 'Your launch plan'}
             title={es ? 'Cuándo vuelve tu plata y cuánto necesitas para arrancar' : 'When your money comes back and how much you need to start'}
             body={es
-              ? `El conservador ${consBreak ? `encuentra equilibrio en el mes ${consBreak}` : 'no llega a equilibrio en 12 meses'}; el optimista ${optBreak ? `lo alcanza en el mes ${optBreak}` : 'no llega a equilibrio en 12 meses'}. Toca la gráfica para ver cada mes.`
-              : `The conservative case ${consBreak ? `breaks even in month ${consBreak}` : 'does not break even within 12 months'}; the optimistic one ${optBreak ? `gets there in month ${optBreak}` : 'does not break even within 12 months'}. Tap the chart to see each month.`}
+              ? `Cada punto es la suma de la utilidad de los meses anteriores (la última fila de la tabla de abajo). Conservador: caja en positivo ${consBreak ? `en el mes ${consBreak}` : 'después del mes 12'} y recuperas lo invertido ${consPayback ? `en el mes ${consPayback}` : 'después del mes 12'}. Optimista: ${optBreak ? `mes ${optBreak}` : 'después del mes 12'} y ${optPayback ? `mes ${optPayback}` : 'después del mes 12'}. Toca la gráfica para ver cada mes.`
+              : `Each point is the sum of the profit of the months so far (the last row of the table below). Conservative: cash turns positive ${consBreak ? `in month ${consBreak}` : 'after month 12'} and you get the investment back ${consPayback ? `in month ${consPayback}` : 'after month 12'}. Optimistic: ${optBreak ? `month ${optBreak}` : 'after month 12'} and ${optPayback ? `month ${optPayback}` : 'after month 12'}. Tap the chart to see each month.`}
           />
           <div className="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
             <div className="rounded-3xl border border-gray-100 bg-white p-5 app-shadow md:p-6">
@@ -972,12 +980,17 @@ export default function RoiCalculator() {
               <CashChart
                 conservative={r.cons1.saldo}
                 optimistic={r.opt1.saldo}
+                inversion={inversion.total}
+                unidades={{ conservative: r.cons1.unidades, optimistic: r.opt1.unidades }}
                 labels={{
                   conservative: scenarioLabels.conservador,
                   optimistic: scenarioLabels.optimista,
                   month: (n) => (es ? `Mes ${n}` : `Month ${n}`),
                   monthShort: (n) => `M${n}`,
-                  breakEven: es ? 'Equilibrio' : 'Break-even',
+                  breakEven: es ? 'Caja en positivo' : 'Cash positive',
+                  payback: es ? 'Recuperas lo invertido' : 'Investment back',
+                  investment: es ? 'Inversión' : 'Investment',
+                  units: es ? 'unidades' : 'units',
                   lossZone: es ? 'Zona de pérdida' : 'Loss zone',
                   title: es
                     ? 'Saldo de caja acumulado durante los 12 meses del año 1, comparando escenario conservador y optimista'
@@ -1094,8 +1107,8 @@ export default function RoiCalculator() {
             kicker={es ? 'Detalle mensual · Gratis' : 'Monthly detail · Free'}
             title={es ? 'Mes a mes, unidad por unidad' : 'Month by month, unit by unit'}
             body={es
-              ? 'Costo total, utilidad antes de impuestos y retorno por unidad — los 12 meses del Año 1, calculados con tus números de arriba.'
-              : 'Total cost, pre-tax profit and return per unit — all 12 months of year 1, from the numbers you typed above.'}
+              ? 'Cuántas unidades tienes que vender, cuánto te cuesta y te deja cada una, y la utilidad del mes — los 12 meses del Año 1. La última fila es la línea de la gráfica de arriba.'
+              : 'How many units you need to sell, what each one costs and leaves you, and the month’s profit — all 12 months of year 1. The last row is the chart line above.'}
           />
 
           <div className="mb-6 flex justify-center">

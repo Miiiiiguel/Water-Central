@@ -121,8 +121,9 @@ const anio1Libre = (y: YearOne) => ({
   egresos: y.egresos,
   utilidad: y.utilidad,
   saldo: y.saldo,
-  // Sin `units`: las unidades por mes son la rampa de ventas del modelo.
-  // Viajan sólo dentro del pronóstico pagado.
+  // Las unidades que hay que vender cada mes: la meta que el cliente
+  // necesita para que el resto de la tabla (y la gráfica) se entienda.
+  unidades: y.units,
   costUnit: y.costUnit,
   profitUnit: y.profitUnit,
   profitMonth: y.profitMonth,

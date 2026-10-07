@@ -50,9 +50,10 @@ export default function RoiTable({ months, rows }: { months: string[]; rows: Roi
               {row.values.map((v, i) => (
                 <td
                   key={i}
-                  className={`whitespace-nowrap px-3 py-2.5 text-right ${
-                    row.colorize ? (v < 0 ? 'font-bold text-accent' : v > 0 ? 'font-bold text-green-700' : '') : ''
-                  } ${row.bold ? 'font-bold text-foreground' : 'text-foreground'}`}
+                  className={`whitespace-nowrap px-3 py-2.5 text-right ${row.bold ? 'font-bold' : ''} ${
+                    // El color de una fila coloreada no lo pisa el de texto normal.
+                    row.colorize && v < 0 ? 'font-bold text-accent' : row.colorize && v > 0 ? 'font-bold text-green-700' : 'text-foreground'
+                  }`}
                 >
                   {cellText(v, row.fmt)}
                 </td>

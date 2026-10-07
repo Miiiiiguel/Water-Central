@@ -42,6 +42,8 @@ export interface AnioUnoResumen {
   egresos: number;
   utilidad: number;
   saldo: number[];
+  /** Unidades que hay que vender cada mes. */
+  unidades: number[];
   costUnit: number[];
   profitUnit: number[];
   profitMonth: number[];

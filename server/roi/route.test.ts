@@ -69,6 +69,18 @@ describe('lo que viaja al navegador', () => {
     expect(r.inversion.total).toBeCloseTo(p.investment.total, 6);
   });
 
+  it('the free summary carries the units to sell each month and the balance the chart draws', () => {
+    const r = proyeccion(BASE, { detalle: false, pronostico: false });
+    const p = project(aInputs(BASE));
+    expect(r.resumen.cons1.unidades).toEqual(p.cons1.units);
+    // The chart's cumulative balance is the running sum of the monthly profit row.
+    let acc = 0;
+    r.resumen.cons1.profitMonth.forEach((v, i) => {
+      acc += v;
+      expect(r.resumen.cons1.saldo[i]).toBeCloseTo(acc, 6);
+    });
+  });
+
   it('the bought breakdown folds the reciprocal surcharge into duties, with the same total', () => {
     const r = proyeccion(BASE, { detalle: true, pronostico: false });
     const p = project(aInputs(BASE));
