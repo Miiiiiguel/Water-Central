@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'wouter';
-import { ArrowLeft, Check, ChevronDown, Info, MessageCircle, Phone, SlidersHorizontal, Sparkles, TrendingUp, Wallet } from 'lucide-react';
+import { ArrowLeft, Check, Info, MessageCircle, Phone, Sparkles, TrendingUp, Wallet } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { whatsappUrl } from '@/lib/contact';
@@ -89,7 +89,7 @@ function NumberField({
   );
 }
 
-/** Un deslizador para los porcentajes de "Ajustes finos", amarrado a su casilla. */
+/** Un deslizador para un porcentaje (devoluciones, comisión), amarrado a su casilla. */
 function Deslizador({
   label, value, max, step, onChange, sugerido, marcas,
 }: {
@@ -617,12 +617,38 @@ export default function RoiCalculator() {
               </span>
             </div>
 
-            <Paso n={1} listo={!sugerido('price') && !sugerido('cost')} title={es ? 'Tu producto' : 'Your product'} help={es ? 'Lo que cobras en EE. UU., lo que te cuesta hacerlo y cuánto mandas en el primer envío.' : 'What you charge in the US, what it costs you to make, and how much you ship first.'}>
+            <Paso n={1} listo={!sugerido('price') && !sugerido('cost')} title={es ? 'Tu producto' : 'Your product'} help={es ? 'Lo que cobras, lo que te cuesta hacerlo, cuánto mandas en el primer envío y cuántos pedidos vuelven.' : 'What you charge, what it costs you to make, how much you ship first and how many orders come back.'}>
               <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
                 <NumberField {...campo('price')} label={es ? `Precio de venta en ${esUS ? 'EE. UU.' : dest.nombre}` : esUS ? 'US selling price' : `Selling price in ${dest.nombreEn}`} prefix="$" step={0.1} />
                 <NumberField {...campo('cost')} label={es ? 'Costo de producirlo' : 'Production cost'} prefix="$" step={0.1} />
                 <NumberField {...campo('weightG')} label={es ? 'Peso con empaque' : 'Packed weight'} suffix="g" step={10} min={1} />
                 <NumberField {...campo('lot')} label={es ? 'Unidades del primer envío' : 'Units in the first shipment'} step={50} min={1} />
+                <div className="grid grid-cols-1 items-center gap-x-5 gap-y-1 rounded-2xl border border-gray-100 bg-secondary/30 p-3.5 sm:grid-cols-2 sm:col-span-2">
+                  <div>
+                    <NumberField
+                      id="in_returns"
+                      label={es ? 'Devoluciones' : 'Returns'}
+                      value={inputs.returnsPct * 100}
+                      onChange={(v) => fijar('returnsPct', v === null ? null : v / 100)}
+                      sugerido={sugerido('returnsPct')}
+                      es={es}
+                      suffix="%"
+                      step={0.5}
+                      ayuda={es ? 'De cada 100 pedidos, cuántos vuelven. En belleza y alimentos suele ser 1–3 %; en ropa, 8–15 %.' : 'Out of 100 orders, how many come back. Beauty and food: 1–3%; apparel: 8–15%.'}
+                    />
+                  </div>
+                  <div>
+                    <Deslizador
+                      label={es ? 'Devoluciones' : 'Returns'}
+                      value={inputs.returnsPct * 100}
+                      max={25}
+                      step={0.5}
+                      onChange={(v) => fijar('returnsPct', v / 100)}
+                      sugerido={sugerido('returnsPct')}
+                      marcas={['0 %', '25 %']}
+                    />
+                  </div>
+                </div>
               </div>
             </Paso>
 
@@ -810,85 +836,43 @@ export default function RoiCalculator() {
               </Paso>
             )}
 
-            <Paso n={esUS ? 4 : 3} listo={!sugerido('adsBudget') || !sugerido('contentBudget') || !sugerido('channelBudget')} title={es ? 'Tu marketing del mes' : 'Your monthly marketing'} help={es ? 'Lo que vas a invertir cada mes para vender.' : 'What you will invest every month to sell.'}>
+            <Paso n={esUS ? 4 : 3} listo={!sugerido('adsBudget') || !sugerido('contentBudget') || !sugerido('channelBudget') || !sugerido('ugcPct')} title={es ? 'Tu mercadeo del mes' : 'Your monthly marketing'} help={es ? 'Lo que vas a invertir cada mes para vender y la comisión de quien te ayuda a vender.' : 'What you will invest every month to sell, and the commission of whoever helps you sell.'}>
               <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-3">
                 <NumberField {...campo('adsBudget')} label={es ? 'Publicidad (ADS)' : 'Advertising (ads)'} prefix="$" step={50} />
                 <NumberField {...campo('contentBudget')} label={es ? 'Contenido' : 'Content'} prefix="$" step={50} />
                 <NumberField {...campo('channelBudget')} label={es ? 'Manejo del canal' : 'Channel management'} prefix="$" step={50} />
               </div>
               <p className="mt-3 flex items-center justify-between rounded-xl bg-secondary/50 px-3.5 py-2 text-sm">
-                <span className="text-muted-foreground">{es ? 'Total de marketing al mes' : 'Total marketing per month'}</span>
+                <span className="text-muted-foreground">{es ? 'Total de mercadeo al mes' : 'Total marketing per month'}</span>
                 <b className="tabular-nums text-primary">{fmtMoney(inputs.adsBudget + inputs.contentBudget + inputs.channelBudget)}</b>
               </p>
+                <div className="grid grid-cols-1 items-center gap-x-5 gap-y-1 mt-3.5 rounded-2xl border border-gray-100 bg-secondary/30 p-3.5 sm:grid-cols-2">
+                  <div>
+                    <NumberField
+                      id="in_ugc"
+                      label={es ? 'Comisión de la red comercial' : 'Sales-network commission'}
+                      value={inputs.ugcPct * 100}
+                      onChange={(v) => fijar('ugcPct', v === null ? null : v / 100)}
+                      sugerido={sugerido('ugcPct')}
+                      es={es}
+                      suffix="%"
+                      step={1}
+                      ayuda={es ? 'Lo que se lleva por venta quien recomienda tu producto (creadores, afiliados).' : 'What whoever recommends your product (creators, affiliates) takes per sale.'}
+                    />
+                  </div>
+                  <div>
+                    <Deslizador
+                      label={es ? 'Comisión de la red comercial' : 'Sales-network commission'}
+                      value={inputs.ugcPct * 100}
+                      max={40}
+                      step={1}
+                      onChange={(v) => fijar('ugcPct', v / 100)}
+                      sugerido={sugerido('ugcPct')}
+                      marcas={['0 %', '40 %']}
+                    />
+                  </div>
+                </div>
             </Paso>
-
-            <details className="group overflow-hidden rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-secondary/60 transition-shadow open:app-shadow">
-              <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3.5 [&::-webkit-details-marker]:hidden">
-                <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-primary/5 text-primary">
-                  <SlidersHorizontal size={17} />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-bold text-primary">{es ? 'Ajustes finos' : 'Fine-tuning'} <span className="font-normal text-muted-foreground">{es ? '(opcional)' : '(optional)'}</span></span>
-                  <span className="mt-1 flex flex-wrap gap-1.5">
-                    {[
-                      { k: 'returnsPct' as const, t: es ? 'Devoluciones' : 'Returns' },
-                      { k: 'ugcPct' as const, t: es ? 'Comisión red' : 'Network fee' },
-                    ].map(({ k, t }) => (
-                      <span key={k} className={`rounded-full border px-2 py-0.5 text-[11px] font-bold ${sugerido(k) ? 'border-dashed border-gray-200 text-gray-400' : 'border-accent/30 bg-orange-50 text-accent'}`}>
-                        {t} {Math.round(inputs[k] * 1000) / 10}%
-                      </span>
-                    ))}
-                  </span>
-                </span>
-                <ChevronDown size={18} className="flex-none text-muted-foreground transition-transform group-open:rotate-180" />
-              </summary>
-              <div className="grid grid-cols-1 gap-3 border-t border-gray-100 px-4 pb-4 pt-4 sm:grid-cols-2">
-                <div className="rounded-xl border border-gray-100 bg-white p-3.5">
-                  <NumberField
-                    id="in_returns"
-                    label={es ? 'Devoluciones' : 'Returns'}
-                    value={inputs.returnsPct * 100}
-                    onChange={(v) => fijar('returnsPct', v === null ? null : v / 100)}
-                    sugerido={sugerido('returnsPct')}
-                    es={es}
-                    suffix="%"
-                    step={0.5}
-                    ayuda={es ? 'De cada 100 pedidos, cuántos vuelven. En belleza y alimentos suele ser 1–3 %; en ropa, 8–15 %.' : 'Out of 100 orders, how many come back. Beauty and food: 1–3%; apparel: 8–15%.'}
-                  />
-                  <Deslizador
-                    label={es ? 'Devoluciones' : 'Returns'}
-                    value={inputs.returnsPct * 100}
-                    max={25}
-                    step={0.5}
-                    onChange={(v) => fijar('returnsPct', v / 100)}
-                    sugerido={sugerido('returnsPct')}
-                    marcas={['0 %', '25 %']}
-                  />
-                </div>
-                <div className="rounded-xl border border-gray-100 bg-white p-3.5">
-                  <NumberField
-                    id="in_ugc"
-                    label={es ? 'Comisión de la red comercial' : 'Sales-network commission'}
-                    value={inputs.ugcPct * 100}
-                    onChange={(v) => fijar('ugcPct', v === null ? null : v / 100)}
-                    sugerido={sugerido('ugcPct')}
-                    es={es}
-                    suffix="%"
-                    step={1}
-                    ayuda={es ? 'Lo que se lleva por venta quien recomienda tu producto (creadores, afiliados).' : 'What whoever recommends your product (creators, affiliates) takes per sale.'}
-                  />
-                  <Deslizador
-                    label={es ? 'Comisión de la red comercial' : 'Sales-network commission'}
-                    value={inputs.ugcPct * 100}
-                    max={40}
-                    step={1}
-                    onChange={(v) => fijar('ugcPct', v / 100)}
-                    sugerido={sugerido('ugcPct')}
-                    marcas={['0 %', '40 %']}
-                  />
-                </div>
-              </div>
-            </details>
           </section>
 
           <aside className="lg:sticky lg:top-24">
