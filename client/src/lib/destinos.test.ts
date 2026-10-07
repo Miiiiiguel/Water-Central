@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DESTINOS, DESTINOS_PRINCIPALES, destino } from './destinos';
+import { DESTINOS, DESTINOS_PRINCIPALES, destino, mismoMercado } from './destinos';
 import { PAISES, UNION_EUROPEA } from './paises';
 
 describe('DESTINOS', () => {
@@ -32,4 +32,13 @@ it('every main market is a real destination, Canada right after the US', () => {
   for (const iso of DESTINOS_PRINCIPALES) expect(destino(iso), iso).not.toBeNull();
   expect(DESTINOS_PRINCIPALES.slice(0, 2)).toEqual(['US', 'CA']);
   expect(new Set(DESTINOS_PRINCIPALES).size).toBe(DESTINOS_PRINCIPALES.length);
+});
+
+describe('mismoMercado', () => {
+  it('the same country, or two EU countries, pay no import duty', () => {
+    expect(mismoMercado('CO', 'CO')).toBe(true);
+    expect(mismoMercado('ES', 'DE')).toBe(true);
+    expect(mismoMercado('GB', 'ES')).toBe(false);
+    expect(mismoMercado('US', 'CO')).toBe(false);
+  });
 });

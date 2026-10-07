@@ -186,18 +186,18 @@ export function costBreakdown(units: number, inp: RoiInputs, warehousing: number
  * Import duty per unit. With an HTS code: that code's rate on the
  * production cost (and weight or volume for specific rates). A rate that
  * cannot be computed from one price (garment ensembles, watches priced
- * per part) contributes 0 here and the page says it must be confirmed.
+ * per part) uses the 8 % estimate and the page says it must be confirmed.
  * In a CIF destination (UK, EU) the rate applies to the product plus the
  * international freight per unit, which is how those customs value goods.
  */
 export function dutyPerUnit(inp: RoiInputs): number {
   if (!inp.hts) return inp.meetsAgreement ? 0 : inp.cost * TRADE_AGREEMENT_TARIFF;
   const freightPerUnit = inp.dutyBase === 'cif' ? totalFreightFor(inp) / inp.lot : 0;
-  return derechoPorUnidad(inp.hts.tasa, {
-    valor: inp.cost + freightPerUnit,
-    pesoKg: inp.weightG / 1000,
-    litros: inp.litersPerUnit,
-  }).usd;
+  const valor = inp.cost + freightPerUnit;
+  const d = derechoPorUnidad(inp.hts.tasa, { valor, pesoKg: inp.weightG / 1000, litros: inp.litersPerUnit });
+  // A rate that cannot be computed (compound, or missing the volume) is
+  // never a silent $0: the estimate stands in until it is confirmed.
+  return d.calculable ? d.usd : valor * TRADE_AGREEMENT_TARIFF;
 }
 
 export function costPerUnit(units: number, inp: RoiInputs, warehousing: number, totalFreight: number): number {

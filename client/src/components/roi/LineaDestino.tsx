@@ -16,16 +16,24 @@ interface Props {
   arancel: ArancelDestino | null;
   onArancel: (a: ArancelDestino | null) => void;
   derecho: { usd: number; texto: string; calculable: boolean; preferencial: boolean } | null;
+  /**
+   * La fuente en vivo no respondió (true) o volvió (false). La página
+   * ofrece entonces escribir la tarifa a mano, para no quedar trabada.
+   */
+  onFallo?: (fallo: boolean) => void;
 }
 
 const fmt = (n: number) => (n === 0 ? '$0' : `$${n.toFixed(n < 1 ? 3 : 2)}`);
 const codigo10 = (c: string) => `${c.slice(0, 4)}.${c.slice(4, 6)}.${c.slice(6, 8)}.${c.slice(8, 10)}`;
 
-export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel, onArancel, derecho }: Props) {
+export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel, onArancel, derecho, onFallo }: Props) {
   const [lineas, setLineas] = useState<Linea[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [cargando, setCargando] = useState(false);
   const [elegida, setElegida] = useState<string | null>(null);
+  // Reintentos: de la lista de líneas y de la tarifa de la línea elegida.
+  const [intento, setIntento] = useState(0);
+  const [intentoLinea, setIntentoLinea] = useState(0);
 
   // Otra subpartida u otro destino: la línea anterior ya no vale.
   useEffect(() => {
@@ -40,12 +48,13 @@ export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel
       setCargando(false);
       if (r.ok) setLineas(r.datos.lineas);
       else setError(r.mensaje);
+      onFallo?.(!r.ok);
     });
     return () => {
       vivo = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [destino.iso, hs6]);
+  }, [destino.iso, hs6, intento]);
 
   // La preferencial depende del origen: al cambiarlo se vuelve a consultar.
   useEffect(() => {
@@ -59,12 +68,13 @@ export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel
         onArancel(null);
         setError(r.mensaje);
       }
+      onFallo?.(!r.ok);
     });
     return () => {
       vivo = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [elegida, origen, destino.iso]);
+  }, [elegida, origen, destino.iso, intentoLinea]);
 
   const pais = paisDeOrigen(origen);
 
@@ -120,7 +130,10 @@ export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel
                   {es ? 'sobre producto + flete' : 'on product + freight'}: <b>{fmt(derecho.usd)}</b> {es ? 'de arancel por unidad.' : 'of duty per unit.'}
                 </>
               ) : (
-                <>{es ? 'Esta tarifa no se puede calcular con un solo precio' : 'This rate cannot be computed from a single price'} (<b>{derecho.texto || '—'}</b>). {es ? 'El cálculo no la suma: confírmala con tu agente de aduanas.' : 'The projection leaves it out: confirm it with your customs broker.'}</>
+                <>
+                  {es ? 'Esta tarifa no se puede calcular con un solo precio' : 'This rate cannot be computed from a single price'} (<b>{derecho.texto || '—'}</b>).{' '}
+                  {es ? 'Mientras la confirmas con tu agente de aduanas, el cálculo usa un 8 % estimado' : 'Until your customs broker confirms it, the projection uses an 8% estimate'}: <b>{fmt(derecho.usd)}</b> {es ? 'por unidad.' : 'per unit.'}
+                </>
               )}
             </p>
           )}
@@ -156,7 +169,21 @@ export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel
         </p>
       ) : null}
 
-      {error && <p role="alert" className="mt-2 text-sm font-semibold text-accent">{error}</p>}
+      {error && (
+        <div role="alert" className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+          <p className="font-semibold text-accent">{error}</p>
+          <button
+            type="button"
+            onClick={() => (lineas ? setIntentoLinea((n) => n + 1) : setIntento((n) => n + 1))}
+            className="tap-scale-sm cursor-pointer rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-bold text-primary"
+          >
+            {es ? 'Reintentar' : 'Retry'}
+          </button>
+          <p className="w-full text-xs text-muted-foreground">
+            {es ? 'Mientras tanto, escribe la tarifa a mano en la casilla de arriba.' : 'Meanwhile, type the rate by hand in the box above.'}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

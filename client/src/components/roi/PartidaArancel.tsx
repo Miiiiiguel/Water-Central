@@ -17,17 +17,19 @@ interface Props {
   onPais: (iso: string) => void;
   cumple: boolean;
   /** Arancel por unidad que resulta, para mostrarlo junto a la partida. */
-  derecho: { usd: number; texto: string; calculable: boolean; preferencial: boolean } | null;
+  derecho: { usd: number; texto: string; calculable: boolean; preferencial: boolean; falta?: string } | null;
   /**
    * El destino no es EE. UU.: el código sólo sirve para llegar a la
    * subpartida de 6 dígitos, y las tarifas de EE. UU. no se muestran.
    */
   soloSubpartida?: boolean;
+  /** Fuera de EE. UU., de dónde sale el arancel: la línea en vivo, la tarifa escrita, o no hay (mismo mercado). */
+  fuenteDestino?: 'linea' | 'escrita' | 'ninguna';
 }
 
 const fmt = (n: number) => (n === 0 ? '$0' : `$${n.toFixed(n < 1 ? 3 : 2)}`);
 
-export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, cumple, derecho, soloSubpartida = false }: Props) {
+export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, cumple, derecho, soloSubpartida = false, fuenteDestino = 'linea' }: Props) {
   const [modo, setModo] = useState<'buscar' | 'explorar'>('buscar');
   const [q, setQ] = useState('');
   const [resultados, setResultados] = useState<ItemPartida[] | null>(null);
@@ -122,8 +124,12 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
           {soloSubpartida ? (
             <p className="mt-3 text-sm text-muted-foreground">
               {es
-                ? `La subpartida ${detalle.digitos.slice(0, 4)}.${detalle.digitos.slice(4, 6)} es la misma en todo el mundo. El arancel sale de la línea del destino que elijas abajo.`
-                : `Subheading ${detalle.digitos.slice(0, 4)}.${detalle.digitos.slice(4, 6)} is the same worldwide. The duty comes from the destination line you pick below.`}
+                ? `La subpartida ${detalle.digitos.slice(0, 4)}.${detalle.digitos.slice(4, 6)} es la misma en todo el mundo.${
+                    fuenteDestino === 'linea' ? ' El arancel sale de la línea del destino que elijas abajo.' : fuenteDestino === 'escrita' ? ' Con ella buscas la tarifa del destino, abajo.' : ''
+                  }`
+                : `Subheading ${detalle.digitos.slice(0, 4)}.${detalle.digitos.slice(4, 6)} is the same worldwide.${
+                    fuenteDestino === 'linea' ? ' The duty comes from the destination line you pick below.' : fuenteDestino === 'escrita' ? ' Use it to find the destination rate, below.' : ''
+                  }`}
             </p>
           ) : (
             <>
@@ -160,7 +166,14 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
                   <b>{fmt(derecho.usd)}</b> {es ? 'de arancel por unidad.' : 'of duty per unit.'}
                 </>
               ) : (
-                <>{es ? 'Esta tarifa no se puede calcular con un solo precio' : 'This rate cannot be computed from a single price'} (<b>{derecho.texto}</b>). {es ? 'El cálculo no la suma: confírmala con tu agente de aduanas.' : 'The projection leaves it out: confirm it with your customs broker.'}</>
+                <>
+                  {derecho.falta === 'volumen'
+                    ? es ? 'Esta tarifa se cobra por litro' : 'This rate is charged per liter'
+                    : es ? 'Esta tarifa no se puede calcular con un solo precio' : 'This rate cannot be computed from a single price'}{' '}
+                  (<b>{derecho.texto || '—'}</b>).{' '}
+                  {derecho.falta === 'volumen' && (es ? 'Escribe abajo el contenido por unidad (ml). ' : 'Type the content per unit (ml) below. ')}
+                  {es ? 'Mientras la confirmas con tu agente de aduanas, el cálculo usa un 8 % estimado' : 'Until your customs broker confirms it, the projection uses an 8% estimate'}: <b>{fmt(derecho.usd)}</b> {es ? 'por unidad.' : 'per unit.'}
+                </>
               )}
             </p>
           )}
@@ -257,7 +270,7 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
                   </ul>
                 ) : (
                   <p className="mt-2 text-sm text-muted-foreground">
-                    {es ? 'No encontramos esa partida. Probá con otra palabra, en inglés, o explorá por capítulo.' : 'No match. Try another word, or browse by chapter.'}
+                    {es ? 'No encontramos esa partida. Prueba con otra palabra, en inglés, o explora por capítulo.' : 'No match. Try another word, or browse by chapter.'}
                   </p>
                 )
               )}

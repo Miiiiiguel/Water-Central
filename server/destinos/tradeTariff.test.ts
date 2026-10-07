@@ -57,6 +57,13 @@ describe('leer el arancel de una línea', () => {
     expect(a.preferencial?.acuerdo).toBe('Andean countries (CO, EC, PE)');
   });
 
+  it('la unión aduanera (medida 106, Turquía con la UE) cuenta como preferencia', () => {
+    const cuerpo = commodity('6109100010', [medida('1', '103', '1011', '12.00 %'), medida('2', '106', 'TR', '0.00 %')], [...AREAS, geo('TR', 'Turkey')]);
+    const a = leerArancel(cuerpo, 'xi', 'TR');
+    expect(a.preferencial?.tasa.libre).toBe(true);
+    expect(a.preferencial?.acuerdo).toBe('Turkey');
+  });
+
   it('un país fuera del grupo paga la general', () => {
     const cuerpo = commodity('6109100010', [medida('1', '103', '1011', '12.00 %'), medida('2', '142', '2005', '0.00 %')], AREAS);
     expect(leerArancel(cuerpo, 'uk', 'BR').preferencial).toBeNull();

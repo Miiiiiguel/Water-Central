@@ -14,7 +14,7 @@ import RoiTable, { type RoiRow } from '@/components/roi/RoiTable';
 import PartidaArancel from '@/components/roi/PartidaArancel';
 import EnvioEEUU from '@/components/roi/EnvioEEUU';
 import LineaDestino from '@/components/roi/LineaDestino';
-import { DESTINOS, DESTINOS_PRINCIPALES, destino as destinoDe, type ArancelDestino } from '@/lib/destinos';
+import { DESTINOS, DESTINOS_PRINCIPALES, destino as destinoDe, mismoMercado, type ArancelDestino } from '@/lib/destinos';
 import type { DetallePartida } from '@/lib/hts';
 import { paisDeOrigen, parseTasa } from '@/lib/tasaArancel';
 import ReglasOrigen from '@/components/roi/ReglasOrigen';
@@ -381,9 +381,11 @@ export default function RoiCalculator() {
   const dest = destinoDe(destinoIso) ?? DESTINOS[0];
   const esUS = dest.fuente === 'hts';
   // Reino Unido y UE: arancel oficial en vivo. Los demás países: la
-  // tarifa de la subpartida la escribe el cliente.
+  // tarifa de la subpartida la escribe el cliente; también en el Reino
+  // Unido y la UE si la fuente en vivo no responde, para no quedar trabado.
   const enVivo = dest.fuente === 'uk' || dest.fuente === 'xi';
-  const manual = dest.fuente === 'manual';
+  const [falloVivo, setFalloVivo] = useState(false);
+  const manual = dest.fuente === 'manual' || (enVivo && falloVivo);
   const [tarifaManual, setTarifaManual] = useState<number | null>(null);
   // Si la tarifa del destino la puso la norma (gris) o el cliente.
   const [tarifaSugerida, setTarifaSugerida] = useState(false);
@@ -394,6 +396,8 @@ export default function RoiCalculator() {
   const [partida, setPartida] = useState<DetallePartida | null>(null);
   const [pais, setPais] = useState('CO');
   const [arancelDestino, setArancelDestino] = useState<ArancelDestino | null>(null);
+  // Vender en el propio mercado (mismo país, o dentro de la UE): sin arancel.
+  const mismo = mismoMercado(destinoIso, pais);
   const preferencial = partida ? partida.preferencial[pais] : undefined;
 
   // ¿Califica para el acuerdo? Lo estiman las preguntas de reglas de
@@ -405,7 +409,7 @@ export default function RoiCalculator() {
   // En EE. UU., con la partida elegida, preguntar sólo si cambia algo: la
   // tarifa preferencial de la línea o, en México y CAFTA-DR, el recargo.
   const preguntarOrigen = Boolean(
-    acuerdoNombre && (!esUS || !partida || preferencial || ['MX', 'CA', 'JO', 'CR', 'DO', 'SV', 'GT', 'HN', 'NI'].includes(pais))
+    !mismo && acuerdoNombre && (!esUS || !partida || preferencial || ['MX', 'CA', 'JO', 'CR', 'DO', 'SV', 'GT', 'HN', 'NI'].includes(pais))
   );
   const capitulo = partida ? capituloDe(partida.codigo) : null;
   const veredicto = evaluarOrigen(respOrigen, { destinoUS: esUS, capitulo });
@@ -415,10 +419,12 @@ export default function RoiCalculator() {
   // Sin acuerdo que aplicar, en ropa y textiles igual se pregunta la
   // composición: decide la partida (y avisa si la elegida no cuadra).
   // Fuera de EE. UU. espera a la línea del destino, que dice si hay acuerdo.
-  const composicionSola = !preguntarOrigen && (!enVivo || arancelDestino !== null) && (capitulo === null || esCapituloTextil(capitulo));
+  const composicionSola = !mismo && !preguntarOrigen && (!enVivo || arancelDestino !== null) && (capitulo === null || esCapituloTextil(capitulo));
   const choque = partida ? choqueConPartida(respOrigen.fibras, { capitulo, descripcion: partida.descripcion }) : null;
 
-  const aplicada = esUS
+  const aplicada = mismo
+    ? { tasa: parseTasa('Free'), preferencial: false }
+    : esUS
     ? partida
       ? cumple && preferencial
         ? { tasa: preferencial.tasa, preferencial: true }
@@ -439,18 +445,31 @@ export default function RoiCalculator() {
   // Chile; ver lib/sugerenciasArancel). Se llena solo al elegir producto,
   // origen o precio; el cliente lo puede cambiar. Ante la duda (TLC sin
   // certificado) se pone la tarifa plena.
-  const sugerencia = manual && partida ? sugerenciaArancel({ destino: destinoIso, origen: pais, codigo: partida.digitos, fobUnidad: inputs.cost }) : null;
+  const sugerencia = manual && partida && !mismo ? sugerenciaArancel({ destino: destinoIso, origen: pais, codigo: partida.digitos, fobUnidad: inputs.cost }) : null;
   // La clave no incluye la nota (que menciona el precio): cambiar el
   // costo no debe pisar una tarifa escrita a mano, salvo que cambie la
   // regla que aplica (p. ej. el calzado cruza su umbral).
   const claveSugerencia = sugerencia ? `${destinoIso}|${pais}|${partida?.digitos}|${sugerencia.tipo}|${tarifaInicial(sugerencia)}` : null;
+  // Otro producto: la tarifa escrita era de la subpartida anterior. Va
+  // antes que la sugerencia, que vuelve a llenar la del producto nuevo.
   useEffect(() => {
-    if (!sugerencia) return;
-    setTarifaManual(tarifaInicial(sugerencia));
-    setTarifaSugerida(tarifaInicial(sugerencia) !== null);
+    setTarifaManual(null);
+    setTarifaSugerida(false);
+    setFalloVivo(false);
+  }, [hs6]);
+  useEffect(() => {
+    if (sugerencia) {
+      setTarifaManual(tarifaInicial(sugerencia));
+      setTarifaSugerida(tarifaInicial(sugerencia) !== null);
+    } else if (tarifaSugerida) {
+      // La norma dejó de aplicar (otro origen, otro destino): la tarifa
+      // que había puesto ya no vale, y no se deja como si fuera del cliente.
+      setTarifaManual(null);
+      setTarifaSugerida(false);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [claveSugerencia]);
-  const codigoAplicado = esUS ? partida?.codigo : manual ? hs6 ?? undefined : arancelDestino?.codigo;
+  const codigoAplicado = mismo ? hs6 ?? 'nacional' : esUS ? partida?.codigo : manual ? hs6 ?? undefined : arancelDestino?.codigo;
   const hts = aplicada && codigoAplicado ? { codigo: codigoAplicado, tasa: aplicada.tasa } : null;
 
   // La proyección la calcula el servidor. Se pide con una pausa corta
@@ -485,8 +504,32 @@ export default function RoiCalculator() {
     setArancelDestino(null);
     setTarifaManual(null);
     setTarifaSugerida(false);
+    setFalloVivo(false);
   };
   const pideLitros = Boolean(aplicada?.tasa.necesita.includes('volumen'));
+
+  // Lo que le falta al arancel y cambia el resultado: se dice arriba, en
+  // la tarjeta del resultado, no sólo en el paso 2.
+  const nombreDest = es ? dest.nombre : dest.nombreEn;
+  const avisoArancel = mismo
+    ? null
+    : !esUS && !partida
+      ? es
+        ? `Falta el arancel de ${nombreDest}: el resultado usa un 8 % estimado. Elige tu producto en el paso 2.`
+        : `${nombreDest}'s duty is missing: the result uses an estimated 8%. Pick your product in step 2.`
+      : manual && partida && tarifaManual === null
+        ? es
+          ? `Falta el arancel de ${nombreDest}: el resultado usa un 8 % estimado. Escríbelo en el paso 2.`
+          : `${nombreDest}'s duty is missing: the result uses an estimated 8%. Type it in step 2.`
+        : enVivo && !manual && partida && !arancelDestino
+          ? es
+            ? `Elige la línea arancelaria de ${nombreDest} en el paso 2: mientras tanto el resultado usa un 8 % estimado.`
+            : `Pick ${nombreDest}'s tariff line in step 2: meanwhile the result uses an estimated 8%.`
+          : derecho && !derecho.calculable
+            ? es
+              ? 'La tarifa de tu partida no se puede calcular sola: el resultado usa un 8 % estimado hasta que la confirmes.'
+              : 'Your code’s rate cannot be computed on its own: the result uses an 8% estimate until you confirm it.'
+            : null;
 
   const r = proy?.resumen;
   const hero: AnioUnoResumen | null = r ? (heroScenario === 'optimista' ? r.opt1 : r.cons1) : null;
@@ -683,6 +726,7 @@ export default function RoiCalculator() {
 
               <PartidaArancel
                 soloSubpartida={!esUS}
+                fuenteDestino={mismo ? 'ninguna' : manual ? 'escrita' : 'linea'}
                 es={es}
                 detalle={partida}
                 onDetalle={setPartida}
@@ -692,7 +736,20 @@ export default function RoiCalculator() {
                 derecho={esUS ? derecho : null}
               />
 
-              {manual && partida && (
+              {mismo && (
+                <p className="mb-6 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-900">
+                  <b>{es ? 'Sin arancel de importación.' : 'No import duty.'}</b>{' '}
+                  {destinoIso === pais
+                    ? es
+                      ? `Produces y vendes en ${dest.nombre}: es venta nacional, no importación.`
+                      : `You make and sell in ${dest.nombreEn}: a domestic sale, not an import.`
+                    : es
+                      ? 'Dentro de la Unión Europea la mercancía circula libre: no paga arancel entre países miembros (sí el IVA del país donde vendes).'
+                      : 'Goods move freely inside the European Union: no duty between member states (VAT of the country where you sell still applies).'}
+                </p>
+              )}
+
+              {manual && partida && !mismo && (
                 <div className="mb-6 rounded-2xl border border-gray-100 bg-secondary/40 p-4 md:p-5">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                     {es ? `Arancel en ${dest.nombre}` : `Duty in ${dest.nombreEn}`}
@@ -770,7 +827,7 @@ export default function RoiCalculator() {
                 </div>
               )}
 
-              {enVivo && partida && (
+              {enVivo && partida && !mismo && (
                 <LineaDestino
                   es={es}
                   destino={dest}
@@ -780,6 +837,7 @@ export default function RoiCalculator() {
                   arancel={arancelDestino}
                   onArancel={setArancelDestino}
                   derecho={derecho}
+                  onFallo={setFalloVivo}
                 />
               )}
 
@@ -887,13 +945,7 @@ export default function RoiCalculator() {
               onEscenario={setHeroScenario}
               labels={scenarioLabels}
               conSugeridos={sugerido('price') || sugerido('cost')}
-              aviso={
-                manual && tarifaManual === null
-                  ? es
-                    ? `Falta el arancel de ${dest.nombre}: el resultado usa un 8 % estimado. ${partida ? 'Escríbelo en el paso 2.' : 'Elige tu producto en el paso 2 y escríbelo.'}`
-                    : `${dest.nombreEn}'s duty is missing: the result uses an estimated 8%. ${partida ? 'Type it in step 2.' : 'Pick your product in step 2 and type it.'}`
-                  : null
-              }
+              aviso={avisoArancel}
             />
           </aside>
         </div>

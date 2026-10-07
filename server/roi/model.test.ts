@@ -203,6 +203,14 @@ describe('arancel real del HTS', () => {
     expect(dutyPerUnit(vino)).toBeCloseTo(0.04725, 6);
   });
 
+  it('una tarifa que no se puede calcular usa el estimado, nunca $0', () => {
+    const reloj = { ...base, hts: { codigo: '9102.11.10', tasa: parseTasa('51¢ each + 6.25% on the case + 5.3% on the strap') } };
+    expect(dutyPerUnit(reloj)).toBeCloseTo(0.96, 6);
+    // Por litro sin el contenido escrito: también el estimado, hasta que se escriba.
+    const vino = { ...base, hts: { codigo: '2204.21.50', tasa: parseTasa('6.3¢/liter') } };
+    expect(dutyPerUnit(vino)).toBeCloseTo(0.96, 6);
+  });
+
   it('la sobretasa recíproca se puede ajustar', () => {
     expect(costBreakdown(100, { ...base, reciprocalPct: 0.1 }, 3.5, 100).reciprocalTariff).toBeCloseTo(1.2, 6);
   });

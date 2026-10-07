@@ -1,11 +1,37 @@
 import { describe, expect, it } from 'vitest';
-import { arbol, buscarPartidas, capitulos, detalle } from './consulta';
-import { existe } from './store';
+import { arbol, buscarPartidas, capitulos, detalle, PREFERIDAS } from './consulta';
+import { cargar, existe } from './store';
 
 // Contra el arancel real: lo que escribiría una marca latinoamericana.
 
 const primeros = (q: string, n = 5) => buscarPartidas(q).slice(0, n).map((x) => x.digitos);
 const algunoEmpieza = (q: string, prefijo: string, n = 5) => primeros(q, n).some((d) => d.startsWith(prefijo));
+
+describe('el primer resultado es el producto común, no un caso raro', () => {
+  const casos: Array<[string, string]> = [
+    ['café tostado', '090121'],
+    ['café', '090111'],
+    ['jeans', '62034245'],
+    ['jeans de mujer', '62046280'],
+    ['zapatos de cuero', '640399'],
+    ['chocolate', '180632'],
+    ['crema facial', '33049950'],
+    ['fajas', '621220'],
+    ['tenis', '640411'],
+  ];
+  for (const [q, prefijo] of casos) {
+    it(`"${q}" → ${prefijo}…`, () => {
+      expect(primeros(q, 1)[0], JSON.stringify(primeros(q))).toMatch(new RegExp(`^${prefijo}`));
+    });
+  }
+
+  it('cada partida preferida existe en el arancel cargado', () => {
+    const idx = cargar();
+    for (const [, prefijos] of PREFERIDAS) {
+      for (const p of prefijos) expect(idx.registros.some((r) => r.digitos.length >= 8 && r.digitos.startsWith(p)), p).toBe(true);
+    }
+  });
+});
 
 describe('buscar en español', () => {
   const casos: Array<[string, string]> = [

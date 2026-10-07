@@ -59,6 +59,14 @@ export function destino(iso: string): Destino | null {
   return POR_ISO.get(iso) ?? null;
 }
 
+/**
+ * Vender en el propio mercado: el mismo país, o dos países de la UE (un
+ * solo territorio aduanero). Ahí no hay arancel de importación.
+ */
+export function mismoMercado(destinoIso: string, origenIso: string): boolean {
+  return destinoIso === origenIso || (UE.has(destinoIso) && UE.has(origenIso));
+}
+
 /** El destino trae su arancel oficial en vivo (no lo escribe el cliente). */
 export const conArancelEnVivo = (d: Destino) => d.fuente !== 'manual';
 
@@ -88,7 +96,7 @@ async function pedir<T>(ruta: string): Promise<{ ok: true; datos: T } | { ok: fa
     const res = await fetch(ruta);
     const cuerpo = await res.json().catch(() => null);
     if (res.ok && cuerpo) return { ok: true, datos: cuerpo as T };
-    return { ok: false, mensaje: (cuerpo as { mensaje?: string } | null)?.mensaje ?? 'El arancel del destino no respondió. Probá de nuevo en unos minutos.' };
+    return { ok: false, mensaje: (cuerpo as { mensaje?: string } | null)?.mensaje ?? 'El arancel del destino no respondió. Prueba de nuevo en unos minutos.' };
   } catch {
     return { ok: false, mensaje: 'Sin conexión: no se pudo consultar el arancel del destino.' };
   }

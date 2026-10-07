@@ -8,6 +8,7 @@ import { derechoPorUnidad, type Tasa } from '../../client/src/lib/tasaArancel';
 import { destino as destinoDe } from '../../client/src/lib/destinos';
 import {
   DEFAULT_INPUTS,
+  dutyPerUnit,
   FREE_SHIP_THRESHOLD,
   project,
   totalFreightFor,
@@ -172,13 +173,16 @@ export function proyeccion(e: EntradaRoi, desbloqueado: { detalle: boolean; pron
   const derecho = inp.hts
     ? derechoPorUnidad(inp.hts.tasa, { valor: inp.cost + fletePorUnidad, pesoKg: inp.weightG / 1000, litros: inp.litersPerUnit })
     : null;
+  // Lo mismo que suma el modelo (model.dutyPerUnit): la tarifa que no se
+  // puede calcular entra con el estimado, nunca como $0.
+  const derechoUsd = inp.hts && derecho ? (derecho.calculable ? derecho.usd : dutyPerUnit(inp)) : 0;
 
   // Pagar el pronóstico incluye el desglose (así lo dice la oferta).
   const verDesglose = desbloqueado.detalle || desbloqueado.pronostico;
   return {
     resumen: { cons1: anio1Libre(p.cons1), opt1: anio1Libre(p.opt1), cons2: anio2Libre(p.cons2), opt2: anio2Libre(p.opt2) },
     inversion: p.investment,
-    derecho: derecho ? { usd: derecho.usd, calculable: derecho.calculable, falta: derecho.falta } : null,
+    derecho: derecho ? { usd: derechoUsd, calculable: derecho.calculable, falta: derecho.falta } : null,
     envioAplica: inp.price >= FREE_SHIP_THRESHOLD,
     desbloqueado: { detalle: verDesglose, pronostico: desbloqueado.pronostico },
     ...(verDesglose ? { desglose: { cons: desgloseDe(p.cons1.breakdown), opt: desgloseDe(p.opt1.breakdown) } } : {}),

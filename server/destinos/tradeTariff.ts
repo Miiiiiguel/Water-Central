@@ -28,6 +28,8 @@ const ESPERA_MS = 12_000;
 /** Tipos de medida del TARIC (los mismos códigos en el Reino Unido). */
 const TERCER_PAIS = '103';
 const PREFERENCIA = '142';
+/** Arancel de la unión aduanera (Turquía, Andorra, San Marino con la UE): hace las veces de preferencia. */
+const UNION_ADUANERA = '106';
 /** Antidumping y compensatorios, definitivos y provisionales. */
 const DEFENSA_COMERCIAL = new Set(['551', '552', '553', '554', '555', '561', '562', '564', '565', '566', '570']);
 /** "Erga omnes": todos los países. */
@@ -215,10 +217,11 @@ export function leerArancel(cuerpo: unknown, servicio: Servicio, origen: string)
     if (basica) general = tasaDeDestino(basica, moneda);
   }
 
-  // Preferencial: una 142 cuyo país o grupo incluye al de origen.
+  // Preferencial: una 142 (o la 106 de una unión aduanera) cuyo país o
+  // grupo incluye al de origen.
   let preferencial: ArancelDestino['preferencial'] = null;
   for (const m of medidas) {
-    if (tipoDe(m) !== PREFERENCIA) continue;
+    if (tipoDe(m) !== PREFERENCIA && tipoDe(m) !== UNION_ADUANERA) continue;
     const { si, area } = alcanza(m, origen, todos);
     if (!si) continue;
     const t = derechoDe(m);
@@ -275,7 +278,7 @@ async function pedir(servicio: Servicio, ruta: string, hacer: Fetch, ahora: numb
   try {
     res = await hacer(url, { headers: { accept: 'application/json' }, signal: control.signal });
   } catch (err) {
-    throw new FalloArancelDestino('no_disponible', `sin respuesta de trade-tariff (${servicio}${ruta}): ${(err as Error).name}`, 'El arancel del destino no respondió. Probá de nuevo en unos minutos.');
+    throw new FalloArancelDestino('no_disponible', `sin respuesta de trade-tariff (${servicio}${ruta}): ${(err as Error).name}`, 'El arancel del destino no respondió. Prueba de nuevo en unos minutos.');
   } finally {
     clearTimeout(reloj);
   }
@@ -283,7 +286,7 @@ async function pedir(servicio: Servicio, ruta: string, hacer: Fetch, ahora: numb
     throw new FalloArancelDestino('no_existe', `trade-tariff ${servicio}${ruta} 404`, 'Ese código no existe en el arancel del destino.');
   }
   if (!res.ok) {
-    throw new FalloArancelDestino('no_disponible', `trade-tariff ${servicio}${ruta} respondió ${res.status}`, 'El arancel del destino no respondió. Probá de nuevo en unos minutos.');
+    throw new FalloArancelDestino('no_disponible', `trade-tariff ${servicio}${ruta} respondió ${res.status}`, 'El arancel del destino no respondió. Prueba de nuevo en unos minutos.');
   }
   const cuerpo = await res.json().catch(() => null);
   if (!cuerpo) throw new FalloArancelDestino('respuesta_rara', `trade-tariff ${servicio}${ruta} sin JSON`, 'El arancel del destino respondió algo que no se pudo leer.');
