@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronRight, FolderOpen, Search, X } from 'lucide-react';
-import { buscarPartidas, detallePartida, listarCapitulos, ramas, type DetallePartida, type ItemPartida, type Nodo } from '@/lib/hts';
+import { buscarPartidasConCausa, detallePartida, listarCapitulos, mensajeFalloHts, ramas, type DetallePartida, type FalloHts, type ItemPartida, type Nodo } from '@/lib/hts';
 import { ORIGENES_FRECUENTES, PAISES_DE_ORIGEN, paisDeOrigen } from '@/lib/tasaArancel';
 
 // Elegir la partida arancelaria del producto, entre todas las del
@@ -34,7 +34,8 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
   const [q, setQ] = useState('');
   const [resultados, setResultados] = useState<ItemPartida[] | null>(null);
   const [buscando, setBuscando] = useState(false);
-  const [sinServicio, setSinServicio] = useState(false);
+  const [fallo, setFallo] = useState<FalloHts | null>(null);
+  const [intento, setIntento] = useState(0);
   const [eligiendo, setEligiendo] = useState<string | null>(null);
 
   // Búsqueda mientras se escribe, con una pausa para no pedir por cada letra.
@@ -42,29 +43,33 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
     const texto = q.trim();
     if (texto.length < 2) {
       setResultados(null);
+      setFallo(null);
       return;
     }
     const control = new AbortController();
     const reloj = window.setTimeout(async () => {
       setBuscando(true);
-      const r = await buscarPartidas(texto, control.signal);
+      const r = await buscarPartidasConCausa(texto, control.signal);
       if (control.signal.aborted) return;
       setBuscando(false);
-      setSinServicio(r === null);
-      setResultados(r ?? []);
+      // Un fallo no es "no encontramos nada": se dice el fallo y nada más.
+      setFallo(r.ok ? null : r.fallo);
+      setResultados(r.ok ? r.datos : null);
     }, 280);
     return () => {
       control.abort();
       window.clearTimeout(reloj);
     };
-  }, [q]);
+  }, [q, intento]);
 
   const elegir = async (codigo: string) => {
     setEligiendo(codigo);
     const d = await detallePartida(codigo);
     setEligiendo(null);
-    if (d) onDetalle(d);
-    else setSinServicio(true);
+    if (d) {
+      setFallo(null);
+      onDetalle(d);
+    } else setFallo('servidor');
   };
 
   const pref = detalle ? detalle.preferencial[pais] : undefined;
@@ -241,10 +246,17 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
                   </button>
                 )}
               </div>
-              {sinServicio && (
-                <p className="mt-2 text-sm text-amber-800">
-                  {es ? 'El buscador de partidas no respondió. Mientras tanto, el cálculo usa un arancel estimado.' : 'The tariff search did not respond. Meanwhile the projection uses an estimated duty.'}
-                </p>
+              {fallo && !buscando && (
+                <div role="alert" className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
+                  <span className="flex-1">{mensajeFalloHts(fallo, es)}</span>
+                  <button
+                    type="button"
+                    onClick={() => setIntento((n) => n + 1)}
+                    className="tap-scale-sm cursor-pointer rounded-full border border-amber-300 bg-white px-3 py-1 text-xs font-bold text-amber-900"
+                  >
+                    {es ? 'Reintentar' : 'Retry'}
+                  </button>
+                </div>
               )}
               {buscando && <p className="mt-2 text-sm text-muted-foreground">{es ? 'Buscando…' : 'Searching…'}</p>}
               {resultados && !buscando && (
