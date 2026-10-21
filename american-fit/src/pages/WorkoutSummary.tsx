@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Clock, Dumbbell, Flame, Layers, Share2, Trash2, Trophy } from "lucide-react";
 import { useLocation, useParams } from "wouter";
 import { MuscleMap } from "@/components/body/MuscleMap";
+import { Confetti } from "@/components/fx";
 import { Button, Stat } from "@/components/ui";
 import { getExercise } from "@/data/exercises";
 import { actions, useApp } from "@/lib/store";
@@ -37,6 +38,7 @@ export default function WorkoutSummary() {
 
   return (
     <div className="mx-auto max-w-2xl">
+      {fresh && <Confetti />}
       <motion.section
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}

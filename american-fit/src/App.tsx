@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Redirect, Route, Router, Switch, useLocation } from "wouter";
 import { memoryLocation } from "wouter/memory-location";
 import { AppShell } from "@/components/layout/AppShell";
@@ -31,6 +31,7 @@ const Plans = lazy(() => import("@/pages/Plans"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Login = lazy(() => import("@/pages/Login"));
 const Shop = lazy(() => import("@/pages/Shop"));
+const Achievements = lazy(() => import("@/pages/Achievements"));
 const HelpCenter = lazy(() => import("@/pages/HelpCenter"));
 const ProductCheckout = lazy(() => import("@/pages/ProductCheckout"));
 const History = lazy(() => import("@/pages/History"));
@@ -44,6 +45,55 @@ function Fallback() {
       <div className="skeleton h-44 w-full" />
       <div className="skeleton h-24 w-full" />
     </div>
+  );
+}
+
+/** Brand moment on launch, gone in under a second. */
+function Splash() {
+  const [show, setShow] = useState(() => {
+    try {
+      return !sessionStorage.getItem("af-splash");
+    } catch {
+      return true;
+    }
+  });
+  useEffect(() => {
+    if (!show) return;
+    try {
+      sessionStorage.setItem("af-splash", "1");
+    } catch {
+      // Ignore.
+    }
+    const t = setTimeout(() => setShow(false), 950);
+    return () => clearTimeout(t);
+  }, [show]);
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          className="fixed inset-0 z-[100] grid place-items-center bg-ink-950"
+          exit={{ opacity: 0, scale: 1.04 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <motion.div
+            initial={{ scale: 0.7, opacity: 0, rotate: -8 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 18 }}
+            className="flex flex-col items-center gap-4"
+          >
+            <span className="grid size-24 place-items-center rounded-[28px] bg-gradient-brand shadow-[0_20px_60px_-10px_rgb(255_59_78/0.8)]">
+              <svg viewBox="0 0 40 40" className="size-14" aria-hidden>
+                <path d="M20 7.5l3.4 7.6 8.3.8-6.3 5.5 1.9 8.1L20 25.3l-7.3 4.2 1.9-8.1-6.3-5.5 8.3-.8z" fill="#fff" />
+                <rect x="9" y="31.5" width="22" height="2.6" rx="1.3" fill="#fff" opacity="0.9" />
+              </svg>
+            </span>
+            <span className="title-display text-4xl">
+              American <span className="text-gradient-brand">Fit</span>
+            </span>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -64,6 +114,7 @@ export default function App() {
     <AuthProvider>
       <Routes />
       <SupportWidget />
+      <Splash />
     </AuthProvider>
   );
   return memory ? <Router hook={memory.hook}>{app}</Router> : app;
@@ -130,6 +181,7 @@ function Routes() {
               <Route path="/pago/producto/:id" component={ProductCheckout} />
               <Route path="/pago/:plan/:period" component={Checkout} />
               <Route path="/tienda" component={Shop} />
+              <Route path="/logros" component={Achievements} />
               <Route path="/ayuda" component={HelpCenter} />
               <Route component={NotFound} />
             </Switch>

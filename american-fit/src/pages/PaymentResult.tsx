@@ -1,6 +1,7 @@
 import { CheckCircle2, Clock, Loader2, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useParams, useSearch } from "wouter";
+import { Confetti } from "@/components/fx";
 import { Button } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
 import { PRODUCT_BY_ID } from "@/data/shop";
@@ -43,7 +44,12 @@ export default function PaymentResult() {
 
   return (
     <div className="mx-auto flex max-w-lg flex-col items-center py-10 text-center">
-      {state === "ok" && <CheckCircle2 className="size-20 text-success" />}
+      {state === "ok" && (
+        <>
+          <Confetti />
+          <CheckCircle2 className="size-20 text-success" />
+        </>
+      )}
       {state === "no" && <XCircle className="size-20 text-brand" />}
       {state === "pending" && <Clock className="size-20 text-warn" />}
       {state === "wait" && <Loader2 className="size-20 animate-spin text-fg" />}

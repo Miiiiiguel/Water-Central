@@ -1,6 +1,9 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Bell, BellRing, ChevronRight, Droplets, Flame, Headset, History, Play, Plus, Radio, ShoppingBag, Sparkles, Timer, Utensils } from "lucide-react";
+import { ArrowRight, Bell, BellRing, ChevronRight, Droplets, Flame, Headset, History, Play, Plus, Radio, ShoppingBag, Sparkles, Timer, Trophy, Utensils } from "lucide-react";
 import { UpsellBanner } from "@/components/monetize";
+import { ActivityRings, CountUp, type Ring } from "@/components/fx";
+import { Medal } from "@/components/Medal";
+import { evaluate } from "@/lib/achievements";
 import { showSupport } from "@/components/SupportWidget";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
@@ -63,6 +66,18 @@ export default function Home() {
   const continueVideos = VIDEOS.filter(v => watched[v.id]);
   const rowVideos = continueVideos.length ? continueVideos : VIDEOS.filter(v => v.isNew || v.isReplay);
   const firstEx = next ? getExercise(next.day.exercises[0]!.id) : undefined;
+  const weekStart = new Date(now);
+  weekStart.setHours(0, 0, 0, 0);
+  weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
+  const thisWeek = workouts.filter(w => w.startedAt >= weekStart.getTime());
+  const rings: Ring[] = [
+    { label: "Moverte", value: thisWeek.reduce((a, w) => a + w.durationSec, 0) / 60, goal: profile.daysPerWeek * profile.minutes, unit: "min", from: "#ff3b4e", to: "#ff8a5c" },
+    { label: "Entrenar", value: thisWeek.filter(w => w.exercises.length).length, goal: profile.daysPerWeek, unit: "días", from: "#2be09a", to: "#9cf7c6" },
+    { label: "Nutrir", value: totals.kcal, goal: targets.kcal, unit: "kcal", from: "#3c7bff", to: "#8db3ff" },
+  ];
+  const nextMedal = evaluate(getState())
+    .filter(a => !a.done)
+    .sort((a, b) => b.current / b.goal - a.current / a.goal)[0];
 
   const start = () => {
     if (!active && !next) return navigate("/entrenar");
@@ -72,39 +87,76 @@ export default function Home() {
 
   return (
     <div className="space-y-8">
-      <motion.section {...fade(0)} className="flex items-end justify-between gap-4">
-        <div>
-          <p className="text-sm text-muted">{fmtLongDate(now)}</p>
-          <h1 className="title-display mt-1 text-[44px] sm:text-6xl">
-            {greeting(now)}, <span className="text-gradient-brand">{profile.name.split(" ")[0]}</span>
-          </h1>
-        </div>
-        <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-line bg-ink-900 px-3 py-2">
-          <Flame className="size-5 text-ember" />
-          <div className="leading-tight">
-            <div className="tabular text-lg font-bold">{streak}</div>
-            <div className="text-xs text-muted">sem. seguidas</div>
+      <motion.section {...fade(0)} className="card grain relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(70%_90%_at_100%_0%,rgb(255_59_78/0.22),transparent_60%),radial-gradient(60%_80%_at_0%_100%,rgb(60_123_255/0.16),transparent_65%)]" />
+        <div className="relative grid items-center gap-6 p-5 sm:grid-cols-[1fr_auto] sm:p-7">
+          <div className="min-w-0">
+            <p className="text-[15px] font-semibold text-fg">{fmtLongDate(now)}</p>
+            <h1 className="title-display mt-1 text-[46px] sm:text-6xl">
+              {greeting(now)},<br />
+              <span className="text-gradient-brand">{profile.name.split(" ")[0]}</span>
+            </h1>
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-ember/15 px-3 py-1.5 text-sm font-bold text-ember">
+              <Flame className="size-4" /> {streak} {streak === 1 ? "semana" : "semanas"} seguidas
+            </div>
+          </div>
+          <div className="flex items-center gap-5">
+            <div className="relative">
+              <ActivityRings rings={rings} size={156} stroke={15} />
+            </div>
+            <ul className="space-y-3">
+              {rings.map(r => (
+                <li key={r.label}>
+                  <div className="flex items-center gap-2 text-sm font-bold">
+                    <span className="size-2.5 rounded-full" style={{ background: r.from }} /> {r.label}
+                  </div>
+                  <div className="text-xl font-bold leading-tight">
+                    <CountUp value={Math.round(r.value)} />
+                    <span className="text-sm font-semibold text-muted">
+                      /{r.goal.toLocaleString("es")} {r.unit}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </motion.section>
 
-      <motion.section {...fade(1)} className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+      <motion.section {...fade(1)} className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 sm:mx-0 sm:justify-between sm:px-0">
         {(
           [
-            ["Entrenar", <Play key="a" className="size-6" fill="currentColor" />, start, "bg-gradient-brand text-white"],
-            ["Comida", <Utensils key="b" className="size-6" />, () => navigate("/nutricion"), "bg-success text-[#03140c]"],
-            ["En vivo", <Radio key="c" className="size-6" />, () => navigate("/live"), "bg-sky text-white"],
-            ["Tienda", <ShoppingBag key="d" className="size-6" />, () => navigate("/tienda"), "bg-warn text-[#241500]"],
-            ["Historial", <History key="e" className="size-6" />, () => navigate("/historial"), "bg-fg text-ink-950"],
-            ["Ayuda 24/7", <Headset key="f" className="size-6" />, () => showSupport(), "bg-violet text-white"],
+            ["Entrenar", <Play key="a" className="size-6" fill="currentColor" />, start, "from-[#ff3b4e] to-[#ff7a45]"],
+            ["Comida", <Utensils key="b" className="size-6" />, () => navigate("/nutricion"), "from-[#0fb37a] to-[#2be09a]"],
+            ["En vivo", <Radio key="c" className="size-6" />, () => navigate("/live"), "from-[#3c7bff] to-[#7b5cff]"],
+            ["Logros", <Trophy key="g" className="size-6" />, () => navigate("/logros"), "from-[#e0a419] to-[#ffcf5a]"],
+            ["Tienda", <ShoppingBag key="d" className="size-6" />, () => navigate("/tienda"), "from-[#c2410c] to-[#ff7a45]"],
+            ["Historial", <History key="e" className="size-6" />, () => navigate("/historial"), "from-[#334155] to-[#64748b]"],
+            ["Ayuda", <Headset key="f" className="size-6" />, () => showSupport(), "from-[#7b5cff] to-[#b07bff]"],
           ] as [string, React.ReactNode, () => void, string][]
-        ).map(([label, icon, go, cls]) => (
-          <button key={label} onClick={go} className={cn("flex h-20 flex-col items-center justify-center gap-1.5 rounded-2xl text-[15px] font-bold transition active:scale-95", cls)}>
-            {icon}
-            {label}
+        ).map(([label, icon, go, grad]) => (
+          <button key={label} onClick={go} className="flex shrink-0 flex-col items-center gap-2 transition active:scale-95">
+            <span className={cn("grid size-[60px] place-items-center rounded-[20px] bg-gradient-to-br text-white shadow-[0_10px_24px_-12px_rgb(0_0_0/0.6)]", grad)}>{icon}</span>
+            <span className="text-sm font-bold">{label}</span>
           </button>
         ))}
       </motion.section>
+
+      {nextMedal && (
+        <motion.div {...fade(2)}>
+          <Link href="/logros" className="card card-hover flex items-center gap-4 p-4">
+            <Medal a={nextMedal} done={false} progress={nextMedal.current / nextMedal.goal} size={60} />
+            <span className="min-w-0 flex-1">
+              <span className="block text-xs font-bold uppercase tracking-wider text-warn">Próximo logro</span>
+              <span className="block text-[17px] font-bold">{nextMedal.title}</span>
+              <span className="block text-sm text-fg">
+                {nextMedal.text} · {nextMedal.current.toLocaleString("es")}/{nextMedal.goal.toLocaleString("es")}
+              </span>
+            </span>
+            <ChevronRight className="size-5 shrink-0" />
+          </Link>
+        </motion.div>
+      )}
 
       <UpsellBanner title="Desbloquea todo American Fit" text="Programas completos, clases en vivo ilimitadas y videos desde $33.325 COP al mes." />
 

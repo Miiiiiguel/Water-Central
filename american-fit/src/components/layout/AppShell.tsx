@@ -5,6 +5,8 @@ import {
   Flame,
   History,
   LifeBuoy,
+  Medal,
+  Plus,
   ShoppingBag,
   Type,
   Home,
@@ -19,6 +21,7 @@ import {
 } from "lucide-react";
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
+import { QuickActions } from "@/components/QuickActions";
 import { ReadingSheet } from "@/components/ReadingSheet";
 import { Avatar } from "@/components/ui";
 import { useApp } from "@/lib/store";
@@ -61,6 +64,7 @@ const SECONDARY = [
   { href: "/videos", label: "Videos", icon: PlayCircle },
   { href: "/progreso", label: "Progreso", icon: LineChart },
   { href: "/historial", label: "Historial", icon: History },
+  { href: "/logros", label: "Logros", icon: Medal },
   { href: "/comunidad", label: "Comunidad", icon: Users },
   { href: "/tienda", label: "Tienda", icon: ShoppingBag },
   { href: "/planes", label: "Planes", icon: Trophy },
@@ -94,7 +98,7 @@ function ActiveSessionPill() {
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 30, opacity: 0 }}
-          className="fixed inset-x-3 bottom-[calc(76px+env(safe-area-inset-bottom))] z-40 lg:bottom-6 lg:left-auto lg:right-6 lg:w-96"
+          className="fixed inset-x-3 bottom-[calc(92px+env(safe-area-inset-bottom))] z-40 lg:bottom-6 lg:left-auto lg:right-6 lg:w-96"
         >
           <Link
             href="/entrenar/sesion"
@@ -121,10 +125,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const plan = useApp(s => s.plan);
   const immersive = loc.startsWith("/entrenar/sesion") || /^\/live\/[^/]+$/.test(loc);
   const [reading, setReading] = useState(false);
+  const [quick, setQuick] = useState(false);
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[248px_1fr]">
-      <aside className="sticky top-0 hidden h-dvh flex-col border-r border-line bg-ink-950 px-4 py-6 lg:flex">
+      <aside className="no-scrollbar sticky top-0 hidden h-dvh flex-col overflow-y-auto border-r border-line bg-ink-950 px-4 py-6 lg:flex">
         <Link href="/" className="mb-8 px-2">
           <Logo />
         </Link>
@@ -188,47 +193,50 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main
           className={cn(
             "mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10",
-            immersive ? "pb-10 pt-safe" : "pb-[calc(96px+env(safe-area-inset-bottom))] pt-5 lg:pb-16 lg:pt-10"
+            immersive ? "pb-10 pt-safe" : "pb-[calc(120px+env(safe-area-inset-bottom))] pt-5 lg:pb-16 lg:pt-10"
           )}
         >
           {children}
         </main>
 
         {!immersive && (
-          <nav className="glass pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-line lg:hidden" aria-label="Principal">
-            <div className="mx-auto grid h-[68px] max-w-lg grid-cols-5">
-              {PRIMARY.map(({ href, label, icon: Icon }) => {
-                const active = isActive(loc, href);
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={cn(
-                      "relative flex flex-col items-center justify-center gap-1 text-[13px] font-bold transition-colors",
-                      active ? "text-fg" : "text-muted"
-                    )}
-                    aria-current={active ? "page" : undefined}
-                  >
-                    {active && (
-                      <motion.span
-                        layoutId="tab-pill"
-                        className="absolute top-1.5 h-8 w-14 rounded-full bg-fg/8"
-                        transition={{ type: "spring", stiffness: 500, damping: 38 }}
-                      />
-                    )}
-                    <span className="relative">
-                      <Icon className={cn("size-[22px]", active && href === "/live" && "text-brand")} strokeWidth={active ? 2.4 : 2} />
-                      {href === "/live" && <span className="absolute -right-1 -top-0.5 size-2 rounded-full bg-brand ring-2 ring-ink-950" />}
-                    </span>
-                    <span className="relative">{label}</span>
-                  </Link>
-                );
-              })}
+          <nav className="fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-40 lg:hidden" aria-label="Principal">
+            <div className="glass mx-auto flex h-[70px] max-w-lg items-center gap-1 rounded-[28px] border border-line-strong p-1.5 shadow-[0_18px_50px_-12px_rgb(0_0_0/0.55)]">
+              <div className="grid h-full flex-1 grid-cols-5">
+                {PRIMARY.map(({ href, label, icon: Icon }) => {
+                  const active = isActive(loc, href);
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      className={cn("relative flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-[22px] text-[11.5px] font-semibold tracking-tight transition-colors", active ? "text-fg" : "text-muted")}
+                      aria-current={active ? "page" : undefined}
+                    >
+                      {active && (
+                        <motion.span layoutId="tab-pill" className="absolute inset-0.5 rounded-[20px] bg-fg/10" transition={{ type: "spring", stiffness: 500, damping: 38 }} />
+                      )}
+                      <span className="relative">
+                        <Icon className={cn("size-[22px]", active && "text-brand")} strokeWidth={active ? 2.5 : 2} />
+                        {href === "/live" && <span className="absolute -right-1 -top-0.5 size-2 rounded-full bg-brand ring-2 ring-ink-900" />}
+                      </span>
+                      <span className="relative">{label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => setQuick(true)}
+                className="grid size-[52px] shrink-0 place-items-center rounded-[20px] bg-gradient-brand text-white shadow-[0_10px_24px_-8px_rgb(255_59_78/0.9)] transition active:scale-90"
+                aria-label="Registrar o empezar algo"
+              >
+                <Plus className="size-7" strokeWidth={2.6} />
+              </button>
             </div>
           </nav>
         )}
         <ActiveSessionPill />
         <ReadingSheet open={reading} onClose={() => setReading(false)} />
+        <QuickActions open={quick} onClose={() => setQuick(false)} />
       </div>
     </div>
   );

@@ -99,7 +99,7 @@ export function SupportWidget() {
     setBody("");
   };
 
-  const bottom = active ? "bottom-[calc(150px+env(safe-area-inset-bottom))]" : "bottom-[calc(84px+env(safe-area-inset-bottom))]";
+  const bottom = active ? "bottom-[calc(170px+env(safe-area-inset-bottom))]" : "bottom-[calc(98px+env(safe-area-inset-bottom))]";
 
   return (
     <>
@@ -108,12 +108,12 @@ export function SupportWidget() {
         animate={{ scale: 1, opacity: 1 }}
         onClick={() => setOpen(true)}
         className={cn(
-          "fixed right-4 z-40 flex h-14 items-center gap-2 rounded-full bg-sky pl-4 pr-5 text-[15px] font-bold text-white shadow-[0_10px_30px_-6px_rgb(60_123_255/0.7)] transition active:scale-95 lg:bottom-6",
+          "fixed right-4 z-40 grid size-14 place-items-center rounded-full bg-sky text-white shadow-[0_10px_30px_-6px_rgb(60_123_255/0.7)] ring-4 ring-ink-950 transition active:scale-95 lg:bottom-6 lg:flex lg:h-14 lg:w-auto lg:gap-2 lg:pl-4 lg:pr-5 lg:text-[15px] lg:font-bold",
           user ? bottom : "bottom-[max(1rem,env(safe-area-inset-bottom))]"
         )}
         aria-label="Abrir soporte"
       >
-        <Headset className="size-6" /> Ayuda
+        <Headset className="size-6" /> <span className="hidden lg:inline">Ayuda</span>
       </motion.button>
 
       <Sheet open={open} onClose={() => setOpen(false)} title={<span className="flex items-center gap-2"><LifeBuoy className="size-5 text-sky" /> Soporte 24/7</span>} className="sm:max-w-lg">

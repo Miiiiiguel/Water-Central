@@ -140,6 +140,11 @@ export default function Profile() {
           <span className="flex-1 font-medium">Progreso y récords</span>
           <ChevronRight className="size-4 text-muted" />
         </Link>
+        <Link href="/logros" className="card card-hover flex items-center gap-3 p-4">
+          <Trophy className="size-5 text-warn" />
+          <span className="flex-1 font-medium">Mis logros</span>
+          <ChevronRight className="size-4 text-muted" />
+        </Link>
         <Link href="/comunidad" className="card card-hover flex items-center gap-3 p-4">
           <Trophy className="size-5 text-warn" />
           <span className="flex-1 font-medium">Retos y ranking</span>
