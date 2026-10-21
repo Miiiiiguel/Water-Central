@@ -138,7 +138,7 @@ export function Figure({ demo, s, ghosts, trail, wrong, compact, className }: Fi
 
   const near = `url(#${id}-near)`;
   const hot = wrong ? `url(#${id}-bad)` : `url(#${id}-hot)`;
-  const far = "#384259";
+  const far = "#56627e";
   const farHot = wrong ? "#6b4a1f" : "#7a2633";
   const glow = compact ? undefined : `url(#${id}-glow)`;
 

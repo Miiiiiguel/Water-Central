@@ -31,8 +31,9 @@ Tomamos lo mejor de las apps líderes y lo juntamos en una sola:
 | **Videos** (`/videos`) | Peloton, Les Mills+, Centr | American Fit TV: series por episodios, filtros, “continuar viendo”, mi lista, capítulos, marcar clase como hecha. |
 | **Progreso, Comunidad, Planes, Perfil** | — | Peso con tendencia de 7 días, volumen semanal, constancia, mejores marcas; retos y ranking; planes Free/Pro/Elite; ajustes y exportar datos. |
 
-Todo funciona **sin cuenta y sin conexión** (los datos viven en el dispositivo,
-`src/lib/store.ts`), lo que permite probar y presentar la app desde ya.
+Sin configurar nada, todo funciona en el dispositivo (cuentas locales y
+pagos en modo de prueba), lo que permite probar y presentar la app desde
+ya. Ver "Cuentas, historial y pagos" para activar la nube y los cobros.
 
 ## Videos reales y en vivo
 
@@ -68,15 +69,63 @@ demo animada), plano frontal para elevaciones laterales y jumping jacks; 3–5
 repeticiones limpias a velocidad normal + 1 en cámara lenta; una toma del error
 común; 16:9, 1080p.
 
-## Qué falta conectar (cada punto es independiente)
+## Cuentas, historial y pagos
+
+**Cuentas.** La app pide iniciar sesión (correo y contraseña, o Google).
+Cada cuenta tiene su propio historial. Sin Supabase funciona en *modo
+dispositivo*: las cuentas viven en el navegador (contraseñas con hash
+PBKDF2) y la pantalla lo indica. Con Supabase, todo pasa a la nube y se
+sincroniza entre dispositivos.
+
+**Historial** (`/historial`): línea de tiempo de entrenos, clases, comidas,
+peso, pagos e inicios de sesión, con filtros y resumen del mes.
+
+**Pagos** (`/planes` → `/pago/:plan/:periodo`):
+
+- **Wompi** (Colombia, COP): PSE, Nequi, Bancolombia y tarjetas.
+- **Stripe** (internacional, USD): tarjetas, Apple Pay y Google Pay, con
+  renovación automática y cancelación desde Perfil.
+
+El navegador nunca ve una llave secreta: pide la URL del checkout a la
+función `checkout`, y el plan solo se activa cuando la función
+`payments-webhook` recibe la confirmación firmada de la pasarela. Sin
+Supabase, el pago queda en *modo de prueba* (botón "Simular pago
+aprobado", sin cobro).
+
+### Activarlo (una vez)
+
+1. Crea un proyecto en [supabase.com](https://supabase.com) y ejecuta
+   `supabase/schema.sql` en el SQL Editor.
+2. En `.env` (o en el hosting) pon `VITE_SUPABASE_URL` y
+   `VITE_SUPABASE_ANON_KEY` (Project Settings → API).
+3. Auth → Providers: activa Email y Google. En Auth → URL Configuration
+   añade la URL pública de la app.
+4. Despliega las funciones:
+   ```bash
+   supabase functions deploy checkout
+   supabase functions deploy payments-webhook --no-verify-jwt
+   supabase secrets set PUBLIC_APP_URL=https://tu-dominio \
+     WOMPI_PUBLIC_KEY=pub_… WOMPI_INTEGRITY_SECRET=… WOMPI_EVENTS_SECRET=… \
+     STRIPE_SECRET_KEY=sk_… STRIPE_WEBHOOK_SECRET=whsec_… \
+     STRIPE_PRICE_PRO_MONTHLY=price_… STRIPE_PRICE_PRO_YEARLY=price_… \
+     STRIPE_PRICE_ELITE_MONTHLY=price_… STRIPE_PRICE_ELITE_YEARLY=price_…
+   ```
+5. Webhooks → `https://<proyecto>.supabase.co/functions/v1/payments-webhook`:
+   - Wompi: Desarrolladores → URL de eventos.
+   - Stripe: Developers → Webhooks, eventos `checkout.session.completed`,
+     `invoice.paid` y `customer.subscription.deleted`.
+6. Prueba con las llaves de prueba de cada pasarela antes de pasar a
+   producción. Los precios están en `src/lib/payments.ts` y en
+   `supabase/functions/checkout/index.ts` (mantenlos iguales).
+
+## Qué falta conectar
 
 | Pieza | Para qué | Dónde se engancha |
 |---|---|---|
-| Cuentas y base de datos (p. ej. Supabase, como Easycomex) | Sincronizar el progreso entre dispositivos | `src/lib/store.ts` (`actions` y `persist`) |
-| Chat y ranking en tiempo real | Que la sala en vivo y la comunidad sean reales (hoy muestran datos de ejemplo marcados como “vista previa”) | `src/pages/LiveRoom.tsx`, `src/pages/Community.tsx` |
-| Pagos | Planes Pro/Elite: Stripe en web, compras dentro de la app en iOS/Android | `src/pages/Plans.tsx` (hoy solo cambia el plan localmente) |
-| Notificaciones push | Avisar antes de una clase reservada o de un estreno | `actions.toggleReminder` en `src/lib/store.ts` |
-| Coaches y precios reales | Los nombres, biografías y precios son de ejemplo | `src/data/coaches.ts`, `src/pages/Plans.tsx` |
+| Chat y ranking en tiempo real | Que la sala en vivo y la comunidad sean reales (hoy muestran datos de ejemplo marcados como "vista previa") | `src/pages/LiveRoom.tsx`, `src/pages/Community.tsx` |
+| Compras dentro de la app | Apple y Google exigen su propio sistema de pago para suscripciones dentro de las apps nativas | `src/pages/Plans.tsx` |
+| Notificaciones push | Avisar antes de una clase reservada, de un estreno o de un plan por vencer | `actions.toggleReminder` en `src/lib/store.ts` |
+| Coaches y precios reales | Los nombres, biografías y precios son de ejemplo | `src/data/coaches.ts`, `src/lib/payments.ts` |
 
 ## Apps nativas
 

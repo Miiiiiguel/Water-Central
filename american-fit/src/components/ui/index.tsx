@@ -33,7 +33,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex shrink-0 items-center justify-center font-semibold transition duration-200 ease-snappy active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40",
+        "inline-flex shrink-0 items-center justify-center font-semibold transition duration-200 ease-snappy active:scale-[0.97] disabled:pointer-events-none disabled:opacity-55",
         VARIANT[variant],
         SIZE[size],
         className
@@ -81,7 +81,7 @@ export function Badge({
   className?: string;
 }) {
   const tones = {
-    neutral: "bg-white/8 text-muted",
+    neutral: "bg-white/12 text-fg/90",
     brand: "bg-brand/15 text-brand-300",
     sky: "bg-sky/15 text-sky-300",
     success: "bg-success/12 text-success",
@@ -203,7 +203,7 @@ export function Chip({
       aria-pressed={active}
       className={cn(
         "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium transition active:scale-95",
-        active ? "border-fg bg-fg text-ink-950" : "border-line bg-white/4 text-muted hover:text-fg",
+        active ? "border-fg bg-fg text-ink-950" : "border-line-strong bg-white/6 text-fg/85 hover:text-fg",
         className
       )}
     >
@@ -217,7 +217,7 @@ export function ProgressRing({
   size = 64,
   stroke = 7,
   color = "var(--color-brand)",
-  track = "rgb(255 255 255 / 0.08)",
+  track = "rgb(255 255 255 / 0.12)",
   children,
   className,
 }: {
@@ -256,7 +256,7 @@ export function ProgressRing({
 
 export function Bar({ value, color = "var(--color-brand)", className }: { value: number; color?: string; className?: string }) {
   return (
-    <div className={cn("h-1.5 overflow-hidden rounded-full bg-white/8", className)}>
+    <div className={cn("h-1.5 overflow-hidden rounded-full bg-white/12", className)}>
       <div
         className="h-full rounded-full transition-[width] duration-700 ease-snappy"
         style={{ width: `${Math.max(0, Math.min(1, value)) * 100}%`, background: color }}

@@ -101,7 +101,7 @@ export default function Videos() {
       <div className="space-y-3">
         <label className="flex h-12 items-center gap-2 rounded-2xl border border-line bg-ink-900 px-4">
           <Search className="size-4 text-muted" />
-          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar clases, coaches…" className="flex-1 bg-transparent outline-none placeholder:text-faint" />
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Buscar clases, coaches…" className="flex-1 bg-transparent outline-none placeholder:text-muted" />
           {q && (
             <button onClick={() => setQ("")} aria-label="Limpiar">
               <X className="size-4 text-muted" />

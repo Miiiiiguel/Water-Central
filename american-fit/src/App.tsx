@@ -3,6 +3,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { Redirect, Route, Router, Switch, useLocation } from "wouter";
 import { memoryLocation } from "wouter/memory-location";
 import { AppShell } from "@/components/layout/AppShell";
+import { AuthProvider, useAuth } from "@/lib/auth";
 import { useApp } from "@/lib/store";
 import Home from "@/pages/Home";
 
@@ -27,6 +28,10 @@ const Community = lazy(() => import("@/pages/Community"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const Plans = lazy(() => import("@/pages/Plans"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
+const Login = lazy(() => import("@/pages/Login"));
+const History = lazy(() => import("@/pages/History"));
+const Checkout = lazy(() => import("@/pages/Checkout"));
+const PaymentResult = lazy(() => import("@/pages/PaymentResult"));
 
 function Fallback() {
   return (
@@ -51,19 +56,27 @@ function ScrollToTop() {
 const memory = import.meta.env.VITE_TARGET === "artifact" ? memoryLocation({ path: "/" }) : null;
 
 export default function App() {
-  return memory ? (
-    <Router hook={memory.hook}>
+  const app = (
+    <AuthProvider>
       <Routes />
-    </Router>
-  ) : (
-    <Routes />
+    </AuthProvider>
   );
+  return memory ? <Router hook={memory.hook}>{app}</Router> : app;
 }
 
 function Routes() {
+  const { ready, user } = useAuth();
   const onboarded = useApp(s => !!s.profile);
   const [loc] = useLocation();
 
+  if (!ready) return <div className="min-h-dvh bg-ink-950" />;
+  if (!user) {
+    return (
+      <Suspense fallback={null}>
+        <Login />
+      </Suspense>
+    );
+  }
   if (!onboarded && loc !== "/bienvenida") return <Redirect to="/bienvenida" />;
   if (loc === "/bienvenida") {
     return (
@@ -106,6 +119,10 @@ function Routes() {
               <Route path="/comunidad" component={Community} />
               <Route path="/perfil" component={Profile} />
               <Route path="/planes" component={Plans} />
+              <Route path="/historial" component={History} />
+              <Route path="/pago/resultado" component={PaymentResult} />
+              <Route path="/pago/resultado/:provider" component={PaymentResult} />
+              <Route path="/pago/:plan/:period" component={Checkout} />
               <Route component={NotFound} />
             </Switch>
           </Suspense>

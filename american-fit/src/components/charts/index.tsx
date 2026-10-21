@@ -251,7 +251,7 @@ export function MacroRings({
             const v = Math.min(1, it.target ? it.value / it.target : 0);
             return (
               <g key={it.label}>
-                <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgb(255 255 255 / 0.07)" strokeWidth={stroke} />
+                <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgb(255 255 255 / 0.11)" strokeWidth={stroke} />
                 <circle
                   cx={size / 2}
                   cy={size / 2}

@@ -1,9 +1,11 @@
-import { ChevronRight, Download, LineChart, LogOut, RotateCcw, Sparkles, Trash2, Trophy } from "lucide-react";
+import { ChevronRight, CreditCard, Download, History, LineChart, LogOut, Mail, RotateCcw, Sparkles, Trash2, Trophy } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Avatar, Badge, Button, PageHeader, Segmented, Sheet, Stepper } from "@/components/ui";
 import { PROGRAM_BY_ID } from "@/data/programs";
 import { ACTIVITY_LABEL, GOAL_LABEL, targetsFor, tdee } from "@/lib/nutrition";
+import { useAuth } from "@/lib/auth";
+import { cancelPlan, formatMoney, PLAN_NAME } from "@/lib/payments";
 import { actions, getState, useApp } from "@/lib/store";
 import type { Activity, Goal, Level } from "@/lib/types";
 
@@ -14,7 +16,19 @@ export default function Profile() {
   const enrolled = useApp(s => s.enrolled);
   const hasDemo = useApp(s => s.hasDemoData);
   const workouts = useApp(s => s.workouts.length);
+  const sub = useApp(s => s.subscription);
+  const payments = useApp(s => s.payments);
+  const { user, mode, signOut } = useAuth();
   const [confirmReset, setConfirmReset] = useState(false);
+  const [confirmCancel, setConfirmCancel] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+
+  const cancel = async () => {
+    const err = await cancelPlan();
+    if (err) return setCancelError(err);
+    actions.cancelSubscription();
+    setConfirmCancel(false);
+  };
   const t = targetsFor(profile);
 
   const exportData = () => {
@@ -48,7 +62,78 @@ export default function Profile() {
         )}
       </section>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <section className="card divide-y divide-line">
+        <h2 className="p-4 font-bold">Cuenta</h2>
+        <div className="flex items-center gap-3 px-4 py-3">
+          <Mail className="size-5 shrink-0 text-muted" />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[15px] font-medium">{user?.email}</span>
+            <span className="block text-sm text-fg/85">
+              {user?.provider === "google" ? "Acceso con Google" : "Acceso con correo y contraseña"} ·{" "}
+              {mode === "cloud" ? "sincronizado en la nube" : "guardado en este dispositivo"}
+            </span>
+          </span>
+        </div>
+        <button
+          onClick={() => {
+            void signOut();
+            navigate("/");
+          }}
+          className="flex w-full items-center gap-3 px-4 py-3.5 text-left text-[15px] font-semibold hover:bg-white/[0.04]"
+        >
+          <LogOut className="size-5 text-muted" /> Cerrar sesión
+        </button>
+      </section>
+
+      <section className="card divide-y divide-line">
+        <div className="flex items-center justify-between p-4">
+          <h2 className="font-bold">Suscripción y pagos</h2>
+          <Link href="/planes" className="text-sm font-semibold text-sky-300 hover:underline">
+            {plan === "free" ? "Ver planes" : "Cambiar plan"}
+          </Link>
+        </div>
+        <div className="flex items-center gap-3 px-4 py-3">
+          <CreditCard className="size-5 shrink-0 text-muted" />
+          <span className="min-w-0 flex-1">
+            <span className="block text-[15px] font-semibold">Plan {PLAN_NAME[plan]}</span>
+            <span className="block text-sm text-fg/85">
+              {sub
+                ? `${sub.status === "canceled" ? "Termina" : "Se renueva"} el ${new Date(sub.renewsAt).toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" })}`
+                : "Sin cobros"}
+            </span>
+          </span>
+          {sub && sub.status === "active" && (
+            <Button size="sm" variant="secondary" onClick={() => setConfirmCancel(true)}>
+              Cancelar
+            </Button>
+          )}
+        </div>
+        {payments.slice(0, 4).map(p => (
+          <div key={p.id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+            <span className="min-w-0">
+              <span className="block font-medium">
+                {PLAN_NAME[p.plan]} {p.period === "monthly" ? "mensual" : "anual"}
+              </span>
+              <span className="block text-fg/80">
+                {new Date(p.at).toLocaleDateString("es", { day: "numeric", month: "short", year: "numeric" })} · {p.provider === "demo" ? "prueba" : p.provider === "wompi" ? "Wompi" : "Stripe"}
+              </span>
+            </span>
+            <span className="text-right">
+              <span className="tabular block font-semibold">{formatMoney(p.amount, p.currency)}</span>
+              <span className={p.status === "approved" ? "text-success" : p.status === "pending" ? "text-warn" : "text-brand-300"}>
+                {p.status === "approved" ? "Aprobado" : p.status === "pending" ? "Pendiente" : "Rechazado"}
+              </span>
+            </span>
+          </div>
+        ))}
+      </section>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Link href="/historial" className="card card-hover flex items-center gap-3 p-4">
+          <History className="size-5 text-success" />
+          <span className="flex-1 font-medium">Historial</span>
+          <ChevronRight className="size-4 text-muted" />
+        </Link>
         <Link href="/progreso" className="card card-hover flex items-center gap-3 p-4">
           <LineChart className="size-5 text-sky" />
           <span className="flex-1 font-medium">Progreso y récords</span>
@@ -173,11 +258,26 @@ export default function Profile() {
       </section>
 
       <p className="flex items-center justify-center gap-2 pb-4 text-xs text-faint">
-        <LogOut className="size-3.5" /> American Fit v0.1 · tus datos se guardan en este dispositivo
+        American Fit v0.2
       </p>
 
+      <Sheet open={confirmCancel} onClose={() => setConfirmCancel(false)} title="¿Cancelar la renovación?">
+        <p className="mb-4 text-[15px] text-fg/90">
+          Seguirás con tu plan hasta el {sub ? new Date(sub.renewsAt).toLocaleDateString("es", { day: "numeric", month: "long" }) : ""} y después pasarás a Free. No se harán más cobros.
+        </p>
+        {cancelError && <p className="mb-3 rounded-xl bg-brand/12 p-3 text-sm text-brand-300">{cancelError}</p>}
+        <div className="grid gap-2 pb-2">
+          <Button variant="danger" size="lg" onClick={cancel}>
+            Sí, cancelar renovación
+          </Button>
+          <Button variant="secondary" onClick={() => setConfirmCancel(false)}>
+            Mantener mi plan
+          </Button>
+        </div>
+      </Sheet>
+
       <Sheet open={confirmReset} onClose={() => setConfirmReset(false)} title="¿Borrar todo?">
-        <p className="mb-4 text-sm text-muted">Se eliminarán tu perfil, entrenos, comidas y registros de peso de este dispositivo. No se puede deshacer.</p>
+        <p className="mb-4 text-[15px] text-fg/90">Se eliminarán tu perfil, entrenos, comidas y registros de peso de este dispositivo. No se puede deshacer.</p>
         <div className="grid gap-2 pb-2">
           <Button
             variant="danger"

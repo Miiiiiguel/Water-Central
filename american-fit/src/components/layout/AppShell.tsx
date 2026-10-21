@@ -3,6 +3,7 @@ import {
   Apple,
   Dumbbell,
   Flame,
+  History,
   Home,
   LineChart,
   PlayCircle,
@@ -53,6 +54,7 @@ const PRIMARY = [
 const SECONDARY = [
   { href: "/videos", label: "Videos", icon: PlayCircle },
   { href: "/progreso", label: "Progreso", icon: LineChart },
+  { href: "/historial", label: "Historial", icon: History },
   { href: "/comunidad", label: "Comunidad", icon: Users },
   { href: "/planes", label: "Planes", icon: Trophy },
   { href: "/perfil", label: "Perfil", icon: UserRound },

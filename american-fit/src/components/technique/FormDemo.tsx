@@ -198,7 +198,7 @@ function Chip({
           ? tone === "warn"
             ? "border-warn/40 bg-warn/15 text-warn"
             : "border-sky/40 bg-sky/15 text-sky-300"
-          : "border-line bg-white/4 text-muted hover:text-fg"
+          : "border-line-strong bg-white/6 text-fg/85 hover:text-fg"
       )}
     >
       {children}

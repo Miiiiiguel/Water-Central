@@ -167,7 +167,7 @@ export default function Live() {
                   </div>
                   <div className="flex items-center gap-1.5 truncate text-xs text-muted">
                     <Avatar name={coach.name} hue={coach.hue} size={16} />
-                    {coach.name} · {CATEGORY_LABEL[c.category]} · {LEVEL_LABEL[c.level]}
+                    {coach.name}<span className="hidden sm:inline"> · {CATEGORY_LABEL[c.category]} · {LEVEL_LABEL[c.level]}</span>
                     {c.kcal > 0 && (
                       <>
                         {" "}

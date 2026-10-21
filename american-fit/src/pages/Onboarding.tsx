@@ -8,6 +8,7 @@ import { Button, Stepper, Toggle } from "@/components/ui";
 import { EQUIPMENT_LABEL } from "@/data/exercises";
 import { PROGRAMS } from "@/data/programs";
 import { ACTIVITY_LABEL, GOAL_LABEL, targetsFor, tdee } from "@/lib/nutrition";
+import { useAuth } from "@/lib/auth";
 import { actions } from "@/lib/store";
 import type { Activity, Equipment, Goal, Level, Place, Profile } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -77,12 +78,13 @@ const GOAL_TEXT: Record<Goal, string> = {
 };
 
 export default function Onboarding() {
+  const { user } = useAuth();
   const [, navigate] = useLocation();
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
   const [demo, setDemo] = useState(true);
   const [p, setP] = useState<Profile>({
-    name: "",
+    name: user?.name ?? "",
     sex: "hombre",
     age: 28,
     heightCm: 175,

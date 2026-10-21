@@ -36,7 +36,7 @@ const BACK: Shape[] = [
 ];
 
 function Silhouette() {
-  const fill = "var(--color-ink-800)";
+  const fill = "var(--color-ink-700)";
   const half = (
     <>
       <path d="M100,58 L110,58 Q124,62 134,66 Q150,70 154,88 L150,112 Q140,110 138,118 Q138,150 132,186 Q136,200 138,210 L100,212Z" fill={fill} />
@@ -61,7 +61,7 @@ function Silhouette() {
 export type MapMode = "target" | "recovery";
 
 function colorFor(level: number | undefined, mode: MapMode) {
-  if (level === undefined) return { fill: "var(--color-ink-600)", opacity: 0.55 };
+  if (level === undefined) return { fill: "var(--color-ink-500)", opacity: 0.7 };
   if (mode === "target") {
     return level >= 0.75
       ? { fill: "var(--color-brand)", opacity: 1 }

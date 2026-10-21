@@ -20,6 +20,7 @@
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource/bebas-neue": "^5.2.7",
+    "@supabase/supabase-js": "^2.116.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.22",
     "hls.js": "^1.6.13",

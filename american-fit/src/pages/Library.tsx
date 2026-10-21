@@ -32,14 +32,14 @@ function ExerciseCard({ ex, fav }: { ex: Exercise; fav: boolean }) {
           </div>
         </div>
         <div className="border-t border-line p-4">
-          <div className="truncate font-semibold">{ex.name}</div>
+          <div className="line-clamp-2 min-h-[2.5em] font-semibold leading-tight">{ex.name}</div>
           <div className="mt-0.5 truncate text-xs text-muted">
             {ex.primary.map(m => MUSCLE_LABEL[m]).join(" · ")}
           </div>
           <div className="mt-2.5 flex items-center gap-1.5 text-xs text-muted">
             <span className="rounded-md bg-white/6 px-1.5 py-0.5">{PATTERN_LABEL[ex.pattern]}</span>
             <span className="rounded-md bg-white/6 px-1.5 py-0.5">{LEVEL_LABEL[ex.level]}</span>
-            <span className="truncate rounded-md bg-white/6 px-1.5 py-0.5">{EQUIPMENT_LABEL[ex.equipment[0]!]}</span>
+            <span className="hidden truncate rounded-md bg-white/6 px-1.5 py-0.5 sm:inline">{EQUIPMENT_LABEL[ex.equipment[0]!]}</span>
           </div>
         </div>
       </Link>
@@ -105,7 +105,7 @@ export default function Library() {
                   value={q}
                   onChange={e => setQ(e.target.value)}
                   placeholder="Buscar: sentadilla, glúteos, dominadas…"
-                  className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-faint"
+                  className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-muted"
                 />
                 {q && (
                   <button onClick={() => setQ("")} aria-label="Limpiar búsqueda">

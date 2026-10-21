@@ -177,7 +177,7 @@ export default function WorkoutPlayer() {
                           value={s.weight || ""}
                           placeholder={prev?.weight ? String(prev.weight) : "0"}
                           onChange={ev => actions.updateSet(ei, si, { weight: Number(ev.target.value.replace(",", ".")) || 0 })}
-                          className="tabular h-10 rounded-lg bg-white/6 text-center font-semibold outline-none focus:bg-white/10 placeholder:text-faint"
+                          className="tabular h-10 rounded-lg bg-white/6 text-center font-semibold outline-none focus:bg-white/10 placeholder:text-muted"
                         />
                       )}
                       <input

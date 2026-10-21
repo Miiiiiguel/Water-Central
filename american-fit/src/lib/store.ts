@@ -17,17 +17,41 @@ import type {
 import { addDays, dayKey, seededRandom, uid } from "./utils";
 
 /*
- * App state, persisted to localStorage.
+ * App state, one copy per signed-in account.
  *
- * Everything a person logs lives here so the app works offline and with
- * no account. The shape is versioned; when Supabase (or any backend) is
- * connected, `sync` is the seam to push/pull it — see README.md.
+ * Everything a person logs lives here so the app works offline. Each
+ * account's state is saved on the device under its own key; with Supabase
+ * configured, lib/sync.ts also mirrors it to the cloud so the history
+ * follows the person to any device.
  */
 
 export type Plan = "free" | "pro" | "elite";
+export type BillingPeriod = "monthly" | "yearly";
+export type PaymentProvider = "wompi" | "stripe" | "demo";
+
+export interface Payment {
+  id: string;
+  at: number;
+  plan: Plan;
+  period: BillingPeriod;
+  amount: number;
+  currency: "COP" | "USD";
+  provider: PaymentProvider;
+  status: "approved" | "pending" | "declined";
+  reference: string;
+}
+
+export interface Subscription {
+  plan: Plan;
+  period: BillingPeriod;
+  provider: PaymentProvider;
+  status: "active" | "canceled";
+  renewsAt: number;
+}
 
 export interface AppState {
   version: 1;
+  updatedAt: number;
   profile: Profile | null;
   workouts: WorkoutLog[];
   active: ActiveSession | null;
@@ -39,15 +63,20 @@ export interface AppState {
   watched: Record<string, number>;
   challenges: string[];
   plan: Plan;
+  subscription: Subscription | null;
+  payments: Payment[];
+  logins: { at: number; method: "password" | "google" | "signup"; device: string }[];
   customFoods: Food[];
   recentFoods: string[];
   hasDemoData: boolean;
 }
 
-const KEY = "americanfit:v1";
+const LEGACY_KEY = "americanfit:v1";
+const keyFor = (userId: string) => `americanfit:v1:${userId}`;
 
 const initial = (): AppState => ({
   version: 1,
+  updatedAt: 0,
   profile: null,
   workouts: [],
   active: null,
@@ -59,37 +88,92 @@ const initial = (): AppState => ({
   watched: {},
   challenges: [],
   plan: "free",
+  subscription: null,
+  payments: [],
+  logins: [],
   customFoods: [],
   recentFoods: [],
   hasDemoData: false,
 });
 
-function load(): AppState {
+function read(key: string): AppState | null {
   try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return initial();
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
     const parsed = JSON.parse(raw) as AppState;
-    return parsed.version === 1 ? { ...initial(), ...parsed } : initial();
+    return parsed.version === 1 ? { ...initial(), ...parsed } : null;
   } catch {
-    return initial();
+    return null;
   }
 }
 
-let state: AppState = load();
+let userId: string | null = null;
+let state: AppState = initial();
 const listeners = new Set<() => void>();
+const changeListeners = new Set<(s: AppState, userId: string) => void>();
 
 function persist() {
+  if (!userId) return;
   try {
-    localStorage.setItem(KEY, JSON.stringify(state));
+    localStorage.setItem(keyFor(userId), JSON.stringify(state));
   } catch {
     // Private mode or quota: the app keeps working in memory.
   }
 }
 
-function set(fn: (s: AppState) => AppState) {
-  state = fn(state);
-  persist();
+function emit() {
   listeners.forEach(l => l());
+}
+
+function set(fn: (s: AppState) => AppState) {
+  state = { ...fn(state), updatedAt: Date.now() };
+  persist();
+  emit();
+  if (userId) changeListeners.forEach(l => l(state, userId!));
+}
+
+/**
+ * Loads the state of the account that just signed in (or clears it on
+ * sign-out). Data logged before accounts existed is adopted by the first
+ * account that signs in on this device.
+ */
+export function switchUser(id: string | null) {
+  userId = id;
+  if (!id) {
+    state = initial();
+  } else {
+    let s = read(keyFor(id));
+    if (!s) {
+      const legacy = read(LEGACY_KEY);
+      if (legacy) {
+        s = legacy;
+        try {
+          localStorage.removeItem(LEGACY_KEY);
+        } catch {
+          // Ignore.
+        }
+      }
+    }
+    state = s ?? initial();
+    // A paid period that ended drops the account back to Free.
+    if (state.subscription && state.subscription.renewsAt < Date.now()) {
+      state = { ...state, plan: "free", subscription: null };
+    }
+    persist();
+  }
+  emit();
+}
+
+/** Replaces the whole state, e.g. with a newer copy pulled from the cloud. */
+export function replaceState(next: AppState) {
+  state = { ...initial(), ...next };
+  persist();
+  emit();
+}
+
+export function onStateChange(fn: (s: AppState, userId: string) => void) {
+  changeListeners.add(fn);
+  return () => changeListeners.delete(fn);
 }
 
 export function getState() {
@@ -149,7 +233,34 @@ export const actions = {
     set(s => (s.profile ? { ...s, profile: { ...s.profile, ...patch } } : s));
   },
   setPlan(plan: Plan) {
-    set(s => ({ ...s, plan }));
+    set(s => ({ ...s, plan, subscription: plan === "free" ? null : s.subscription }));
+  },
+  /** Records a payment and, when approved, activates the plan it paid for. */
+  recordPayment(p: Payment, activate = true) {
+    set(s => {
+      const payments = [p, ...s.payments.filter(x => x.id !== p.id)].sort((a, b) => b.at - a.at);
+      if (p.status !== "approved" || !activate) return { ...s, payments };
+      const days = p.period === "yearly" ? 365 : 30;
+      const base = s.subscription?.plan === p.plan && s.subscription.renewsAt > Date.now() ? s.subscription.renewsAt : Date.now();
+      return {
+        ...s,
+        payments,
+        plan: p.plan,
+        subscription: { plan: p.plan, period: p.period, provider: p.provider, status: "active", renewsAt: base + days * 86_400_000 },
+      };
+    });
+  },
+  recordLogin(entry: AppState["logins"][number]) {
+    set(s => {
+      if (s.logins[0] && entry.at - s.logins[0].at < 60_000) return s;
+      return { ...s, logins: [entry, ...s.logins].slice(0, 50) };
+    });
+  },
+  setSubscription(sub: Subscription | null) {
+    set(s => ({ ...s, subscription: sub, plan: sub && sub.status === "active" && sub.renewsAt > Date.now() ? sub.plan : sub?.status === "canceled" && sub.renewsAt > Date.now() ? sub.plan : "free" }));
+  },
+  cancelSubscription() {
+    set(s => (s.subscription ? { ...s, subscription: { ...s.subscription, status: "canceled" } } : s));
   },
 
   // Training
