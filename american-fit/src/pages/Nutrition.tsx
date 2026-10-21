@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { MacroRings } from "@/components/charts";
 import { AddFoodSheet } from "@/components/nutrition/AddFoodSheet";
+import { UpsellBanner } from "@/components/monetize";
 import { Badge, Bar, PageHeader, SectionHeader } from "@/components/ui";
 import { ARTICLES } from "@/data/articles";
 import { RECIPES } from "@/data/recipes";
@@ -41,19 +42,19 @@ export default function Nutrition() {
       <PageHeader eyebrow="Diario de alimentación" title="Nutrición" />
 
       <div className="flex items-center justify-between rounded-2xl border border-line bg-ink-900 p-1.5">
-        <button onClick={() => shift(-1)} className="grid size-10 place-items-center rounded-xl hover:bg-white/6" aria-label="Día anterior">
+        <button onClick={() => shift(-1)} className="grid size-10 place-items-center rounded-xl hover:bg-fg/6" aria-label="Día anterior">
           <ChevronLeft className="size-5" />
         </button>
         <div className="text-center">
           <div className="text-sm font-semibold">{isToday ? "Hoy" : fmtLongDate(fromDayKey(date))}</div>
           {isToday && <div className="text-xs text-muted">{fmtLongDate(fromDayKey(date))}</div>}
         </div>
-        <button onClick={() => shift(1)} disabled={isToday} className="grid size-10 place-items-center rounded-xl hover:bg-white/6 disabled:opacity-30" aria-label="Día siguiente">
+        <button onClick={() => shift(1)} disabled={isToday} className="grid size-10 place-items-center rounded-xl hover:bg-fg/6 disabled:opacity-30" aria-label="Día siguiente">
           <ChevronRight className="size-5" />
         </button>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
+      <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr] [&>*]:min-w-0">
         <section className="card p-5">
           <div className="mb-5 flex items-end justify-between">
             <div>
@@ -76,7 +77,7 @@ export default function Nutrition() {
             center={
               <div>
                 <div className="tabular text-lg font-bold">{Math.round((totals.protein / targets.protein) * 100) || 0}%</div>
-                <div className="text-[11px] text-muted">proteína</div>
+                <div className="text-xs text-muted">proteína</div>
               </div>
             }
           />
@@ -99,7 +100,7 @@ export default function Nutrition() {
                   <button
                     key={i}
                     onClick={() => actions.addWater(date, filled ? -250 : (i + 1) * 250 - water)}
-                    className={cn("grid h-11 place-items-center rounded-xl transition", filled ? "bg-sky/20 text-sky" : "bg-white/5 text-faint hover:text-muted")}
+                    className={cn("grid h-11 place-items-center rounded-xl transition", filled ? "bg-sky/20 text-sky" : "bg-fg/5 text-faint hover:text-muted")}
                     aria-label={`${(i + 1) * 250} ml`}
                   >
                     <GlassWater className="size-5" />
@@ -109,6 +110,7 @@ export default function Nutrition() {
             </div>
           </section>
 
+          <UpsellBanner title="Plan de comidas a tu medida" text="Nuestra nutricionista arma tu menú de 4 semanas con comida latina." cta="Ver plan" href="/pago/producto/plan-nutricional" />
           <section className="card p-5">
             <h2 className="mb-1 flex items-center gap-2 font-bold">
               <BrainCircuit className="size-5 text-violet" /> Coach adaptativo
@@ -165,7 +167,7 @@ export default function Nutrition() {
                         </div>
                       </div>
                       <span className="tabular text-sm font-semibold">{e.kcal}</span>
-                      <button onClick={() => actions.removeFood(date, m.id, e.id)} className="grid size-8 place-items-center rounded-full text-faint hover:bg-white/6 hover:text-brand" aria-label="Eliminar">
+                      <button onClick={() => actions.removeFood(date, m.id, e.id)} className="grid size-8 place-items-center rounded-full text-faint hover:bg-fg/6 hover:text-brand" aria-label="Eliminar">
                         <Trash2 className="size-4" />
                       </button>
                     </li>

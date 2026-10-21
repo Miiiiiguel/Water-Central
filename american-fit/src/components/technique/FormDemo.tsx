@@ -53,10 +53,12 @@ export function DemoThumb({
   demoId,
   className,
   animate = false,
+  tile = true,
 }: {
   demoId: string;
   className?: string;
   animate?: boolean;
+  tile?: boolean;
 }) {
   const demo = DEMOS[demoId];
   const { segs, total } = useMemo(() => (demo ? timeline(demo) : { segs: [], total: 1 }), [demo]);
@@ -65,7 +67,7 @@ export function DemoThumb({
   const pose = animate
     ? poseAt(demo.poses, segs, total, time).pose
     : demo.poses[demo.thumb ?? 0]!;
-  return <Figure demo={demo} s={solve(demo, pose)} compact className={className} />;
+  return <Figure demo={demo} s={solve(demo, pose)} compact tile={tile} className={className} />;
 }
 
 export function FormDemo({ demoId, className }: { demoId: string; className?: string }) {
@@ -97,7 +99,7 @@ export function FormDemo({ demoId, className }: { demoId: string; className?: st
   };
 
   return (
-    <div ref={ref} className={cn("relative overflow-hidden rounded-3xl border border-line bg-ink-900", className)}>
+    <div ref={ref} className={cn("stage relative overflow-hidden rounded-3xl border border-line bg-ink-900", className)}>
       <div
         className={cn(
           "pointer-events-none absolute inset-0 transition-colors duration-500",
@@ -117,7 +119,7 @@ export function FormDemo({ demoId, className }: { demoId: string; className?: st
           {wrong ? "Error común" : "Técnica correcta"}
         </span>
         {metric !== undefined && demo.metric && (
-          <span className="tabular rounded-full bg-white/5 px-2.5 py-1 text-xs text-muted">
+          <span className="tabular rounded-full bg-fg/5 px-2.5 py-1 text-xs text-muted">
             {demo.metric.label}{" "}
             <span className="font-semibold text-fg">{Math.round(metric)}°</span>
           </span>
@@ -136,7 +138,7 @@ export function FormDemo({ demoId, className }: { demoId: string; className?: st
       <div className="relative space-y-3 px-4 pb-4">
         <div className="flex gap-1">
           {segs.map((sg, i) => (
-            <div key={i} className="h-1 flex-1 overflow-hidden rounded-full bg-white/8" style={{ flexGrow: sg.end - sg.start }}>
+            <div key={i} className="h-1 flex-1 overflow-hidden rounded-full bg-fg/8" style={{ flexGrow: sg.end - sg.start }}>
               <div
                 className={cn("h-full rounded-full", wrong ? "bg-warn" : "bg-brand")}
                 style={{ width: i < index ? "100%" : i === index ? `${progress * 100}%` : "0%" }}
@@ -193,12 +195,12 @@ function Chip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "inline-flex h-10 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium transition active:scale-95",
+        "inline-flex h-10 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition active:scale-95",
         active
           ? tone === "warn"
             ? "border-warn/40 bg-warn/15 text-warn"
             : "border-sky/40 bg-sky/15 text-sky-300"
-          : "border-line-strong bg-white/6 text-fg/85 hover:text-fg"
+          : "border-line-strong bg-fg/6 text-fg/85 hover:text-fg"
       )}
     >
       {children}

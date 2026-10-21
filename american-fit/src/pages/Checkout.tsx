@@ -1,12 +1,47 @@
 import { ArrowLeft, Check, CreditCard, Landmark, Loader2, Lock, ShieldCheck, TriangleAlert } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
+import { HelpLink } from "@/components/SupportWidget";
 import { Button, Segmented } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
 import { formatMoney, paymentsLive, PLAN_NAME, PRICES, startCheckout, type Gateway } from "@/lib/payments";
 import { actions, type BillingPeriod } from "@/lib/store";
 import { cn, uid } from "@/lib/utils";
 import NotFound from "./NotFound";
+
+export function GatewayPicker({ gateway, onChange }: { gateway: Gateway; onChange: (g: Gateway) => void }) {
+  const setGateway = onChange;
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+              {(
+                [
+                  ["wompi", <Landmark key="w" className="size-6" />, "Colombia", "PSE, Nequi, Bancolombia, tarjeta débito o crédito", "Pago en pesos con Wompi"],
+                  ["stripe", <CreditCard key="s" className="size-6" />, "Tarjeta internacional", "Visa, Mastercard, Amex, Apple Pay, Google Pay", "Pago en dólares con Stripe"],
+                ] as [Gateway, React.ReactNode, string, string, string][]
+              ).map(([g, icon, title, text, foot]) => (
+                <button
+                  key={g}
+                  onClick={() => setGateway(g)}
+                  aria-pressed={gateway === g}
+                  className={cn(
+                    "rounded-2xl border-2 p-4 text-left transition",
+                    gateway === g ? "border-brand bg-brand/10" : "border-line-strong bg-ink-850 hover:border-fg/40"
+                  )}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className={gateway === g ? "text-brand" : "text-fg"}>{icon}</span>
+                    <span className={cn("grid size-6 place-items-center rounded-full border-2", gateway === g ? "border-brand bg-brand" : "border-fg/40")}>
+                      {gateway === g && <Check className="size-3.5 text-white" strokeWidth={3} />}
+                    </span>
+                  </div>
+                  <div className="mt-3 font-bold">{title}</div>
+                  <div className="text-[15px] text-fg">{text}</div>
+                  <div className="mt-2 text-sm font-bold text-fg">{foot}</div>
+                </button>
+              ))}
+            </div>
+  );
+}
 
 const FEATURES: Record<"pro" | "elite", string[]> = {
   pro: ["Clases en vivo ilimitadas", "Todos los programas y videos", "Entreno inteligente y mapa de recuperación", "Coach adaptativo de calorías"],
@@ -76,35 +111,8 @@ export default function Checkout() {
 
           <section className="card p-5">
             <h2 className="mb-3 text-lg font-bold">2. Método de pago</h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {(
-                [
-                  ["wompi", <Landmark key="w" className="size-6" />, "Colombia", "PSE, Nequi, Bancolombia, tarjeta débito o crédito", "Pago en pesos con Wompi"],
-                  ["stripe", <CreditCard key="s" className="size-6" />, "Tarjeta internacional", "Visa, Mastercard, Amex, Apple Pay, Google Pay", "Pago en dólares con Stripe"],
-                ] as [Gateway, React.ReactNode, string, string, string][]
-              ).map(([g, icon, title, text, foot]) => (
-                <button
-                  key={g}
-                  onClick={() => setGateway(g)}
-                  aria-pressed={gateway === g}
-                  className={cn(
-                    "rounded-2xl border-2 p-4 text-left transition",
-                    gateway === g ? "border-brand bg-brand/10" : "border-line-strong bg-ink-850 hover:border-fg/40"
-                  )}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className={gateway === g ? "text-brand" : "text-fg"}>{icon}</span>
-                    <span className={cn("grid size-6 place-items-center rounded-full border-2", gateway === g ? "border-brand bg-brand" : "border-fg/40")}>
-                      {gateway === g && <Check className="size-3.5 text-white" strokeWidth={3} />}
-                    </span>
-                  </div>
-                  <div className="mt-3 font-bold">{title}</div>
-                  <div className="text-sm text-fg/90">{text}</div>
-                  <div className="mt-2 text-xs font-semibold text-muted">{foot}</div>
-                </button>
-              ))}
-            </div>
-            <p className="mt-3 text-sm text-fg/85">
+            <GatewayPicker gateway={gateway} onChange={setGateway} />
+            <p className="mt-3 text-[15px] text-fg">
               {gateway === "wompi"
                 ? "Con Wompi pagas el periodo completo. Te avisaremos antes de que venza para renovarlo."
                 : "Con Stripe la suscripción se renueva sola. Puedes cancelarla cuando quieras desde tu perfil."}
@@ -158,6 +166,9 @@ export default function Checkout() {
               </p>
             </div>
           </section>
+          <div className="mt-4 text-center">
+            <HelpLink />
+          </div>
         </aside>
       </div>
     </div>

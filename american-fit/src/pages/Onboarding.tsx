@@ -37,13 +37,13 @@ function Option({
       )}
     >
       {icon && (
-        <span className={cn("grid size-11 shrink-0 place-items-center rounded-xl", selected ? "bg-gradient-brand text-white" : "bg-white/6 text-muted")}>
+        <span className={cn("grid size-11 shrink-0 place-items-center rounded-xl", selected ? "bg-gradient-brand text-white" : "bg-fg/6 text-muted")}>
           {icon}
         </span>
       )}
       <span className="min-w-0 flex-1">
         <span className="block font-semibold">{title}</span>
-        {text && <span className="block text-[13px] text-muted">{text}</span>}
+        {text && <span className="block text-sm text-muted">{text}</span>}
       </span>
       <span className={cn("grid size-6 shrink-0 place-items-center rounded-full border", selected ? "border-brand bg-brand" : "border-line-strong")}>
         {selected && <Check className="size-3.5 text-white" strokeWidth={3} />}
@@ -132,7 +132,7 @@ export default function Onboarding() {
       <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(70%_50%_at_80%_0%,rgb(255_59_78/0.18),transparent_70%),radial-gradient(60%_40%_at_0%_100%,rgb(60_123_255/0.14),transparent_70%)]" />
       <div className="flex h-12 items-center justify-between">
         {step > 0 ? (
-          <button onClick={() => go(-1)} className="grid size-10 place-items-center rounded-full bg-white/6" aria-label="Atrás">
+          <button onClick={() => go(-1)} className="grid size-10 place-items-center rounded-full bg-fg/6" aria-label="Atrás">
             <ArrowLeft className="size-5" />
           </button>
         ) : (
@@ -141,7 +141,7 @@ export default function Onboarding() {
         {step > 0 && (
           <div className="flex flex-1 justify-center gap-1.5 px-6">
             {STEPS.slice(1).map((_, i) => (
-              <span key={i} className={cn("h-1 flex-1 rounded-full transition-colors", i < step ? "bg-brand" : "bg-white/10")} />
+              <span key={i} className={cn("h-1 flex-1 rounded-full transition-colors", i < step ? "bg-brand" : "bg-fg/10")} />
             ))}
           </div>
         )}
@@ -406,7 +406,7 @@ export default function Onboarding() {
                   <div className="min-w-0">
                     <div className="eyebrow">Programa recomendado</div>
                     <div className="font-semibold">{recommended.name}</div>
-                    <div className="text-[13px] text-muted">
+                    <div className="text-sm text-muted">
                       {recommended.weeks} semanas · {recommended.daysPerWeek} días · {recommended.minutes} min
                     </div>
                   </div>
@@ -414,7 +414,7 @@ export default function Onboarding() {
                 <div className="card flex items-center gap-4 p-4">
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold">Cargar historial de ejemplo</div>
-                    <div className="text-[13px] text-muted">4 semanas de entrenos, peso y comidas para explorar la app. Puedes borrarlo en Perfil.</div>
+                    <div className="text-sm text-muted">4 semanas de entrenos, peso y comidas para explorar la app. Puedes borrarlo en Perfil.</div>
                   </div>
                   <Toggle checked={demo} onChange={setDemo} label="Cargar historial de ejemplo" />
                 </div>

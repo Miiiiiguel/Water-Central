@@ -102,7 +102,7 @@ export default function Progress() {
           <div className="mb-1 flex items-start justify-between gap-3">
             <div>
               <h2 className="font-bold">Peso corporal</h2>
-              <p className="text-[13px] text-muted">Tendencia de 7 días sobre las mediciones diarias</p>
+              <p className="text-sm text-muted">Tendencia de 7 días sobre las mediciones diarias</p>
             </div>
             <Segmented
               value={range}
@@ -133,7 +133,7 @@ export default function Progress() {
 
         <section className="card p-5">
           <h2 className="font-bold">Volumen semanal</h2>
-          <p className="mb-4 text-[13px] text-muted">Kilos totales levantados (series × reps × peso)</p>
+          <p className="mb-4 text-sm text-muted">Kilos totales levantados (series × reps × peso)</p>
           <ColumnChart data={weekly} unit="kg" height={220} />
         </section>
       </div>
@@ -143,7 +143,7 @@ export default function Progress() {
           <h2 className="mb-3 font-bold">Constancia · últimas 5 semanas</h2>
           <div className="grid grid-cols-7 gap-1.5">
             {["L", "M", "X", "J", "V", "S", "D"].map(d => (
-              <span key={d} className="text-center text-[11px] text-faint">
+              <span key={d} className="text-center text-xs text-faint">
                 {d}
               </span>
             ))}
@@ -154,7 +154,7 @@ export default function Progress() {
               <span
                 key={d.toISOString()}
                 title={fmtDayMonth(d)}
-                className={cn("aspect-square rounded-lg", on ? "bg-gradient-brand" : "bg-white/5", dayKey(d) === dayKey() && "ring-1 ring-fg/50")}
+                className={cn("aspect-square rounded-lg", on ? "bg-gradient-brand" : "bg-fg/5", dayKey(d) === dayKey() && "ring-1 ring-fg/50")}
               />
             ))}
           </div>

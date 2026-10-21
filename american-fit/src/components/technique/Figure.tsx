@@ -17,6 +17,8 @@ interface FigureProps {
   wrong?: boolean;
   /** Smaller strokes and no decorations, for list thumbnails. */
   compact?: boolean;
+  /** Paint a dark tile behind the figure so it reads on light surfaces too. */
+  tile?: boolean;
   className?: string;
 }
 
@@ -129,7 +131,7 @@ function Ghost({ s }: { s: Skeleton }) {
   );
 }
 
-export function Figure({ demo, s, ghosts, trail, wrong, compact, className }: FigureProps) {
+export function Figure({ demo, s, ghosts, trail, wrong, compact, tile, className }: FigureProps) {
   const id = useId().replace(/:/g, "");
   const vb = demo.vb ?? DEFAULT_VB;
   const ground = demo.ground === false ? vb[1] + vb[3] + 40 : demo.ground ?? DEFAULT_GROUND;
@@ -207,6 +209,8 @@ export function Figure({ demo, s, ghosts, trail, wrong, compact, className }: Fi
           </feMerge>
         </filter>
       </defs>
+
+      {tile && <rect x={vb[0]} y={vb[1]} width={vb[2]} height={vb[3]} rx={22} fill="#161c29" />}
 
       {demo.ground !== false && (
         <g>

@@ -12,6 +12,9 @@ import { nextProgramDay } from "@/lib/selectors";
 import { actions, useApp } from "@/lib/store";
 import { FOCUS_LABEL, generateWorkout, recoveryLevels, type Focus } from "@/lib/training";
 import type { Muscle } from "@/lib/types";
+import { ProBadge } from "@/components/monetize";
+import { canUseProgram } from "@/lib/access";
+import { getState } from "@/lib/store";
 import { cn, fmtDayMonth, fmtDuration, fromDayKey } from "@/lib/utils";
 
 export default function Train() {
@@ -20,6 +23,8 @@ export default function Train() {
   const workouts = useApp(s => s.workouts);
   const enrolled = useApp(s => s.enrolled);
   const active = useApp(s => s.active);
+  const userPlan = useApp(s => s.plan);
+  const purchases = useApp(s => s.purchases);
   const [focus, setFocus] = useState<Focus>("auto");
   const [minutes, setMinutes] = useState(profile.minutes);
   const [seed, setSeed] = useState(() => Date.now());
@@ -61,7 +66,7 @@ export default function Train() {
                 <h2 className="title-display mt-1 text-4xl">{next.program.name}</h2>
                 <p className="text-sm text-muted">{next.program.tagline}</p>
               </div>
-              <Link href={`/entrenar/programa/${next.program.id}`} className="grid size-10 shrink-0 place-items-center rounded-full bg-white/8" aria-label="Ver programa">
+              <Link href={`/entrenar/programa/${next.program.id}`} className="grid size-10 shrink-0 place-items-center rounded-full bg-fg/8" aria-label="Ver programa">
                 <ChevronRight className="size-5" />
               </Link>
             </div>
@@ -123,7 +128,7 @@ export default function Train() {
               <button
                 key={m}
                 onClick={() => setMinutes(m)}
-                className={cn("h-8 rounded-full px-3 text-[13px] font-semibold", minutes === m ? "bg-white/12 text-fg" : "text-muted hover:text-fg")}
+                className={cn("h-8 rounded-full px-3 text-sm font-semibold", minutes === m ? "bg-fg/12 text-fg" : "text-muted hover:text-fg")}
               >
                 {m}′
               </button>
@@ -137,7 +142,7 @@ export default function Train() {
                   {plan.exercises.length} ejercicios · ~{minutes} min
                 </div>
               </div>
-              <button onClick={() => setSeed(Date.now())} className="inline-flex items-center gap-1.5 rounded-full bg-white/6 px-3 py-1.5 text-xs font-semibold text-muted hover:text-fg">
+              <button onClick={() => setSeed(Date.now())} className="inline-flex items-center gap-1.5 rounded-full bg-fg/6 px-3 py-1.5 text-xs font-semibold text-muted hover:text-fg">
                 <Shuffle className="size-3.5" /> Otra opción
               </button>
             </div>
@@ -176,7 +181,7 @@ export default function Train() {
           <MuscleMap levels={recovery} mode="recovery" className="mx-auto h-64 max-w-[280px]" />
           <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
             {ready.slice(0, 8).map(({ m, f }) => (
-              <div key={m} className="flex items-center gap-2 text-[13px]">
+              <div key={m} className="flex items-center gap-2 text-sm">
                 <span className={cn("size-2 rounded-full", f >= 0.66 ? "bg-brand" : f >= 0.33 ? "bg-warn" : "bg-success")} />
                 <span className="flex-1 truncate">{MUSCLE_LABEL[m]}</span>
                 <span className="tabular text-muted">{Math.round((1 - f) * 100)}%</span>
@@ -195,7 +200,7 @@ export default function Train() {
               <div className="relative">
                 <div className="flex items-center justify-between">
                   <Badge>{GOAL_LABEL[p.goal]}</Badge>
-                  {enrolled?.programId === p.id && <Badge tone="success">Activo</Badge>}
+                  {enrolled?.programId === p.id ? <Badge tone="success">Activo</Badge> : !canUseProgram({ ...getState(), plan: userPlan, purchases }, p.id) && <ProBadge />}
                 </div>
                 <h3 className="title-display mt-3 text-3xl">{p.name}</h3>
                 <p className="text-sm text-muted">{p.tagline}</p>
@@ -222,8 +227,8 @@ export default function Train() {
         ) : (
           <div className="card divide-y divide-line">
             {recent.map(w => (
-              <Link key={w.id} href={`/entrenar/resumen/${w.id}`} className="flex items-center gap-4 p-4 hover:bg-white/[0.02]">
-                <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-white/6 text-center">
+              <Link key={w.id} href={`/entrenar/resumen/${w.id}`} className="flex items-center gap-4 p-4 hover:bg-fg/[0.02]">
+                <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-fg/6 text-center">
                   <div>
                     <div className="text-sm font-bold leading-none">{fromDayKey(w.date).getDate()}</div>
                     <div className="text-[9px] uppercase text-muted">{fmtDayMonth(fromDayKey(w.date)).split(" ")[1]}</div>

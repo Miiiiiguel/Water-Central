@@ -4,6 +4,9 @@ import "./index.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { apply as applyPrefs } from "./lib/prefs";
+
+applyPrefs();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

@@ -1,4 +1,5 @@
-import { Eye, EyeOff, Info, Loader2, Lock, Mail, User } from "lucide-react";
+import { Eye, EyeOff, Info, Loader2, Lock, Mail, Type, User } from "lucide-react";
+import { ReadingSheet } from "@/components/ReadingSheet";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { Logo } from "@/components/layout/AppShell";
 import { DemoThumb } from "@/components/technique/FormDemo";
@@ -48,6 +49,7 @@ export default function Login() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [reading, setReading] = useState(false);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -80,12 +82,12 @@ export default function Login() {
 
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
-      <aside className="relative hidden overflow-hidden border-r border-line lg:block">
+      <aside className="stage relative hidden overflow-hidden border-r border-line bg-ink-950 lg:block">
         <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_40%_40%,rgb(255_59_78/0.28),transparent_70%),radial-gradient(50%_50%_at_90%_100%,rgb(60_123_255/0.2),transparent_70%)]" />
         <div className="relative flex h-full flex-col p-10">
           <Logo />
           <div className="flex flex-1 items-center justify-center">
-            <DemoThumb demoId="deadlift" animate className="h-[52vh] max-h-[460px]" />
+            <DemoThumb demoId="deadlift" animate tile={false} className="h-[52vh] max-h-[460px]" />
           </div>
           <h2 className="title-display max-w-lg text-6xl">
             Cada repetición, <span className="text-gradient-brand">bien hecha</span>
@@ -96,8 +98,13 @@ export default function Login() {
 
       <main className="flex flex-col justify-center px-5 py-10 sm:px-10">
         <div className="mx-auto w-full max-w-md">
-          <div className="mb-8 lg:hidden">
-            <Logo />
+          <div className="mb-8 flex items-center justify-between">
+            <span className="lg:invisible">
+              <Logo />
+            </span>
+            <button onClick={() => setReading(true)} className="flex h-11 items-center gap-1.5 rounded-full border-2 border-line-strong px-4 text-[15px] font-bold" aria-label="Pantalla y lectura">
+              <Type className="size-4" /> Aa · Lectura
+            </button>
           </div>
           <h1 className="title-display text-5xl">
             {mode === "registro" ? "Crea tu cuenta" : mode === "recuperar" ? "Recupera tu acceso" : "Bienvenido de vuelta"}
@@ -187,7 +194,7 @@ export default function Login() {
               </div>
               <button
                 onClick={google}
-                className="flex h-13 w-full items-center justify-center gap-3 rounded-full border border-line-strong bg-white text-[15px] font-semibold text-ink-950 transition hover:bg-white/90"
+                className="flex h-13 w-full items-center justify-center gap-3 rounded-full border border-line-strong bg-white text-[15px] font-semibold text-[#0b0f17] transition hover:bg-[#eef0f4]"
               >
                 <GoogleIcon /> Continuar con Google
               </button>
@@ -202,6 +209,7 @@ export default function Login() {
           </p>
         </div>
       </main>
+      <ReadingSheet open={reading} onClose={() => setReading(false)} />
     </div>
   );
 }

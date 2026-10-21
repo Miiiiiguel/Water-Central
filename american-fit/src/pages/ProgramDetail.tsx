@@ -9,6 +9,10 @@ import { PROGRAM_BY_ID } from "@/data/programs";
 import { GOAL_LABEL } from "@/lib/nutrition";
 import { actions, useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { Paywall, ProBadge } from "@/components/monetize";
+import { PROGRAM_PRODUCT } from "@/data/shop";
+import { canUseProgram } from "@/lib/access";
+import { getState } from "@/lib/store";
 import NotFound from "./NotFound";
 
 export default function ProgramDetail() {
@@ -17,10 +21,13 @@ export default function ProgramDetail() {
   const [, navigate] = useLocation();
   const enrolled = useApp(s => s.enrolled);
   const active = useApp(s => s.active);
+  const planNow = useApp(s => s.plan);
+  const purchases = useApp(s => s.purchases);
   const [open, setOpen] = useState<string | null>(p?.days[0]?.key ?? null);
   if (!p) return <NotFound />;
   const coach = COACH_BY_ID[p.coachId]!;
   const isMine = enrolled?.programId === p.id;
+  const unlocked = canUseProgram({ ...getState(), plan: planNow, purchases }, p.id);
 
   const startDay = (key: string) => {
     if (!isMine) actions.enroll(p.id);
@@ -30,7 +37,7 @@ export default function ProgramDetail() {
 
   return (
     <div>
-      <Link href="/entrenar" className="mb-3 inline-flex text-[13px] font-medium text-muted hover:text-fg">
+      <Link href="/entrenar" className="mb-3 inline-flex text-sm font-medium text-muted hover:text-fg">
         ← Entrenar
       </Link>
       <section className="card grain relative mb-6 overflow-hidden p-6 sm:p-8">
@@ -55,8 +62,13 @@ export default function ProgramDetail() {
               </div>
             ))}
           </div>
+          {!unlocked && <ProBadge className="mt-4" />}
           <div className="mt-6 flex flex-wrap gap-2">
-            {isMine ? (
+            {!unlocked ? (
+              <Button size="lg" onClick={() => navigate("/pago/pro/yearly")}>
+                <Target className="size-4" /> Desbloquear programa
+              </Button>
+            ) : isMine ? (
               <Button size="lg" onClick={() => navigate("/entrenar")}>
                 <Play className="size-4" fill="currentColor" /> Ir a mi semana
               </Button>
@@ -74,6 +86,15 @@ export default function ProgramDetail() {
         </div>
       </section>
 
+      {!unlocked && (
+        <Paywall
+          className="mb-6"
+          title={`Desbloquea ${p.name}`}
+          text={`Este programa es parte de American Fit Pro. Hazte Pro para tener todos los programas, o cómpralo una sola vez y es tuyo para siempre.`}
+          product={PROGRAM_PRODUCT[p.id]}
+        />
+      )}
+
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-3">
           <h2 className="text-lg font-bold">Sesiones</h2>
@@ -82,10 +103,10 @@ export default function ProgramDetail() {
             return (
               <div key={d.key} className="card overflow-hidden">
                 <button onClick={() => setOpen(isOpen ? null : d.key)} className="flex w-full items-center gap-4 p-4 text-left">
-                  <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-white/6 font-bold">{d.key}</span>
+                  <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-fg/6 font-bold">{d.key}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block font-semibold">{d.name}</span>
-                    <span className="block text-[13px] text-muted">
+                    <span className="block text-sm text-muted">
                       {d.focus} · {d.exercises.length} ejercicios
                     </span>
                   </span>
@@ -99,7 +120,7 @@ export default function ProgramDetail() {
                         const ex = getExercise(it.id)!;
                         return (
                           <li key={it.id}>
-                            <Link href={`/tecnica/${ex.id}`} className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02]">
+                            <Link href={`/tecnica/${ex.id}`} className="flex items-center gap-3 px-4 py-2.5 hover:bg-fg/[0.02]">
                               <div className="h-12 w-14 shrink-0">
                                 <DemoThumb demoId={ex.demo} className="size-full" />
                               </div>
@@ -116,8 +137,8 @@ export default function ProgramDetail() {
                       })}
                     </ul>
                     <div className="p-3">
-                      <Button className="w-full" onClick={() => startDay(d.key)} disabled={!!active}>
-                        <Play className="size-4" fill="currentColor" /> {active ? "Termina tu entreno en curso" : `Empezar día ${d.key}`}
+                      <Button className="w-full" onClick={() => (unlocked ? startDay(d.key) : navigate("/pago/pro/yearly"))} disabled={!!active && unlocked}>
+                        <Play className="size-4" fill="currentColor" /> {!unlocked ? "Desbloquear con Pro" : active ? "Termina tu entreno en curso" : `Empezar día ${d.key}`}
                       </Button>
                     </div>
                   </div>

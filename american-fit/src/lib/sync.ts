@@ -57,8 +57,9 @@ export async function refreshSubscription(userId: string) {
     actions.recordPayment({
       id: p.id,
       at: new Date(p.created_at).getTime(),
-      plan: p.plan,
-      period: p.period,
+      plan: p.plan ?? "free",
+      period: p.period ?? "monthly",
+      productId: p.product ?? undefined,
       amount: p.amount,
       currency: p.currency,
       provider: p.provider,

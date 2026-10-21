@@ -31,7 +31,7 @@ export default function ArticleDetail() {
           </section>
         ))}
       </div>
-      <p className="mt-8 flex gap-2 rounded-2xl border border-line bg-white/[0.02] p-4 text-xs text-muted">
+      <p className="mt-8 flex gap-2 rounded-2xl border border-line bg-fg/[0.02] p-4 text-xs text-muted">
         <Info className="size-4 shrink-0" />
         Contenido educativo general, no sustituye el consejo de un profesional de la salud. Si tienes una condición médica, consulta a tu médico o nutricionista.
       </p>

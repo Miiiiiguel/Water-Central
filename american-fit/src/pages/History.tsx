@@ -3,6 +3,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { Link } from "wouter";
 import { Chip, Empty, PageHeader } from "@/components/ui";
 import { dayTotals } from "@/lib/nutrition";
+import { PRODUCT_BY_ID } from "@/data/shop";
 import { formatMoney, PLAN_NAME } from "@/lib/payments";
 import { useApp } from "@/lib/store";
 import { cn, fmtDuration, fmtLongDate, fmtTime, fromDayKey } from "@/lib/utils";
@@ -24,7 +25,7 @@ const META: Record<Kind, { label: string; icon: ReactNode; color: string }> = {
   nutricion: { label: "Nutrición", icon: <Utensils className="size-5" />, color: "bg-success/18 text-success" },
   peso: { label: "Peso", icon: <Scale className="size-5" />, color: "bg-sky/22 text-sky-300" },
   pago: { label: "Pagos", icon: <CreditCard className="size-5" />, color: "bg-warn/20 text-warn" },
-  acceso: { label: "Accesos", icon: <LogIn className="size-5" />, color: "bg-white/12 text-fg" },
+  acceso: { label: "Accesos", icon: <LogIn className="size-5" />, color: "bg-fg/12 text-fg" },
 };
 
 const LOGIN_LABEL = { password: "Inicio de sesión", google: "Inicio de sesión con Google", signup: "Cuenta creada" };
@@ -81,7 +82,7 @@ export default function History() {
       list.push({
         at: p.at,
         kind: "pago",
-        title: `Plan ${PLAN_NAME[p.plan]} ${p.period === "monthly" ? "mensual" : "anual"}`,
+        title: p.productId ? PRODUCT_BY_ID[p.productId]?.name ?? "Compra" : `Plan ${PLAN_NAME[p.plan]} ${p.period === "monthly" ? "mensual" : "anual"}`,
         detail: `${formatMoney(p.amount, p.currency)} · ${p.provider === "demo" ? "pago simulado" : p.provider === "wompi" ? "Wompi" : "Stripe"} · ref. ${p.reference.slice(0, 14)}`,
         badge:
           p.status === "approved"
@@ -178,7 +179,7 @@ export default function History() {
                   return (
                     <li key={i}>
                       {e.href ? (
-                        <Link href={e.href} className="flex items-center gap-3 p-4 hover:bg-white/[0.04]">
+                        <Link href={e.href} className="flex items-center gap-3 p-4 hover:bg-fg/[0.04]">
                           {body}
                         </Link>
                       ) : (
@@ -191,7 +192,7 @@ export default function History() {
             </section>
           ))}
           {shown.length > limit && (
-            <button onClick={() => setLimit(l => l + 40)} className="mx-auto block rounded-full border border-line-strong px-5 py-2.5 text-sm font-semibold hover:bg-white/5">
+            <button onClick={() => setLimit(l => l + 40)} className="mx-auto block rounded-full border border-line-strong px-5 py-2.5 text-sm font-semibold hover:bg-fg/5">
               Ver más actividad
             </button>
           )}

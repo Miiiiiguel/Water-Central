@@ -9,6 +9,9 @@ import { EQUIPMENT_LABEL, LEVEL_LABEL } from "@/data/exercises";
 import { CATEGORY_HUE, CATEGORY_LABEL, SERIES, VIDEO_BY_ID, VIDEOS } from "@/data/media";
 import { actions, useApp } from "@/lib/store";
 import { cn, fmtDuration } from "@/lib/utils";
+import { Paywall } from "@/components/monetize";
+import { canWatch } from "@/lib/access";
+import { getState } from "@/lib/store";
 import NotFound from "./NotFound";
 import { VideoCard } from "./Videos";
 
@@ -19,6 +22,7 @@ export default function VideoDetail() {
   const watched = useApp(s => s.watched[id] ?? 0);
   const reminders = useApp(s => s.reminders);
   const [done, setDone] = useState(false);
+  const plan = useApp(s => s.plan);
   if (!v) return <NotFound />;
   const coach = COACH_BY_ID[v.coachId]!;
   const series = v.seriesId ? SERIES.find(s => s.id === v.seriesId) : undefined;
@@ -30,9 +34,12 @@ export default function VideoDetail() {
     <div className="space-y-8">
       <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
         <div className="space-y-4">
-          <Link href="/videos" className="inline-flex text-[13px] font-medium text-muted hover:text-fg">
+          <Link href="/videos" className="inline-flex text-sm font-medium text-muted hover:text-fg">
             ← American Fit TV
           </Link>
+          {!canWatch({ ...getState(), plan }, v) ? (
+            <Paywall title="Esta clase es parte de Pro" text="El primer episodio de cada serie es gratis. Hazte Pro para ver todas las clases, repeticiones de las clases en vivo y los programas completos." />
+          ) : (
           <VideoPlayer
             src={v.video.src}
             poster={v.video.poster}
@@ -49,6 +56,7 @@ export default function VideoDetail() {
               />
             }
           />
+          )}
           <div>
             {series && (
               <div className="eyebrow mb-1">
@@ -120,7 +128,7 @@ export default function VideoDetail() {
               <ul className="divide-y divide-line">
                 {episodes.map(e => (
                   <li key={e.id}>
-                    <Link href={`/videos/${e.id}`} className={cn("flex items-center gap-3 p-3 hover:bg-white/[0.03]", e.id === v.id && "bg-white/[0.05]")}>
+                    <Link href={`/videos/${e.id}`} className={cn("flex items-center gap-3 p-3 hover:bg-fg/[0.03]", e.id === v.id && "bg-fg/[0.05]")}>
                       <div className="relative aspect-video w-28 shrink-0 overflow-hidden rounded-xl">
                         <ClassArt hue={CATEGORY_HUE[e.category]} word="" category={e.category} />
                       </div>

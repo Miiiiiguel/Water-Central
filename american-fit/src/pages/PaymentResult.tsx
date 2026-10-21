@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useParams, useSearch } from "wouter";
 import { Button } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
+import { PRODUCT_BY_ID } from "@/data/shop";
 import { formatMoney, PLAN_NAME } from "@/lib/payments";
 import { useApp } from "@/lib/store";
 import { refreshSubscription } from "@/lib/sync";
@@ -22,7 +23,11 @@ export default function PaymentResult() {
   const last = useApp(s => s.payments[0]);
   const [tries, setTries] = useState(0);
 
-  const approved = provider === "demo" ? last?.status === "approved" : !!sub && sub.status === "active" && sub.renewsAt > Date.now() && last?.status === "approved";
+  const isProduct = !!last?.productId;
+  const approved =
+    provider === "demo" || isProduct
+      ? last?.status === "approved"
+      : !!sub && sub.status === "active" && sub.renewsAt > Date.now() && last?.status === "approved";
   const declined = last?.status === "declined";
 
   useEffect(() => {
@@ -47,7 +52,9 @@ export default function PaymentResult() {
       </h1>
       <p className="mt-3 text-lg text-fg/90">
         {state === "ok"
-          ? `Ya tienes American Fit ${PLAN_NAME[plan]}.${sub ? ` Vigente hasta el ${new Date(sub.renewsAt).toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" })}.` : ""}`
+          ? isProduct
+            ? `Compraste ${PRODUCT_BY_ID[last!.productId!]?.name ?? "tu producto"}. Te escribiremos al correo con los siguientes pasos.`
+            : `Ya tienes American Fit ${PLAN_NAME[plan]}.${sub ? ` Vigente hasta el ${new Date(sub.renewsAt).toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" })}.` : ""}`
           : state === "no"
             ? "Tu banco no aprobó el pago. No se hizo ningún cobro; puedes intentarlo otra vez con otro método."
             : state === "pending"

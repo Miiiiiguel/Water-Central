@@ -105,20 +105,21 @@ export function InProduction({
   className?: string;
 }) {
   return (
-    <div className={cn("relative aspect-video overflow-hidden rounded-3xl border border-line", className)}>
-      <div className="absolute inset-0">{art}</div>
-      <div className="absolute inset-0 bg-gradient-to-t from-ink-950/95 via-ink-950/55 to-ink-950/10" />
-      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
-        <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-fg backdrop-blur">
-          <Clapperboard className="size-3.5" /> {title}
+    <div className={cn("overflow-hidden rounded-3xl border border-line bg-ink-900", className)}>
+      <div className="relative aspect-video">
+        {art}
+        <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/75 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
+          <Clapperboard className="size-4" /> {title}
         </div>
-        <p className="max-w-md text-sm text-fg/90">{text}</p>
+      </div>
+      <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:p-5">
+        <p className="flex-1 text-[15px] leading-relaxed text-fg">{text}</p>
         {onNotify && (
           <button
             onClick={onNotify}
             className={cn(
-              "mt-3 inline-flex h-9 items-center gap-2 rounded-full px-4 text-[13px] font-semibold transition active:scale-95",
-              notified ? "bg-success/15 text-success" : "bg-fg text-ink-950"
+              "inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full px-5 text-sm font-bold transition active:scale-95",
+              notified ? "bg-success/20 text-success" : "bg-fg text-ink-950"
             )}
           >
             {notified ? <BellRing className="size-4" /> : <Bell className="size-4" />}

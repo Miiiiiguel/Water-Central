@@ -4,6 +4,9 @@ import {
   Dumbbell,
   Flame,
   History,
+  LifeBuoy,
+  ShoppingBag,
+  Type,
   Home,
   LineChart,
   PlayCircle,
@@ -14,23 +17,26 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
+import { ReadingSheet } from "@/components/ReadingSheet";
 import { Avatar } from "@/components/ui";
 import { useApp } from "@/lib/store";
 import { cn, fmtDuration } from "@/lib/utils";
 
 export function Logo({ className, compact }: { className?: string; compact?: boolean }) {
+  // Unique per instance: a hidden copy (desktop sidebar) would otherwise own the gradient.
+  const gid = `af-logo-${useId().replace(/:/g, "")}`;
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
       <svg viewBox="0 0 40 40" className="size-8 shrink-0" aria-hidden>
         <defs>
-          <linearGradient id="af-logo" x1="0" y1="0" x2="1" y2="1">
+          <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stopColor="#ff3b4e" />
             <stop offset="1" stopColor="#ff7a45" />
           </linearGradient>
         </defs>
-        <rect width="40" height="40" rx="11" fill="url(#af-logo)" />
+        <rect width="40" height="40" rx="11" fill={`url(#${gid})`} />
         <path d="M20 7.5l3.4 7.6 8.3.8-6.3 5.5 1.9 8.1L20 25.3l-7.3 4.2 1.9-8.1-6.3-5.5 8.3-.8z" fill="#fff" />
         <rect x="9" y="31.5" width="22" height="2.6" rx="1.3" fill="#fff" opacity="0.9" />
       </svg>
@@ -56,7 +62,9 @@ const SECONDARY = [
   { href: "/progreso", label: "Progreso", icon: LineChart },
   { href: "/historial", label: "Historial", icon: History },
   { href: "/comunidad", label: "Comunidad", icon: Users },
+  { href: "/tienda", label: "Tienda", icon: ShoppingBag },
   { href: "/planes", label: "Planes", icon: Trophy },
+  { href: "/ayuda", label: "Ayuda 24/7", icon: LifeBuoy },
   { href: "/perfil", label: "Perfil", icon: UserRound },
 ];
 
@@ -112,6 +120,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const profile = useApp(s => s.profile);
   const plan = useApp(s => s.plan);
   const immersive = loc.startsWith("/entrenar/sesion") || /^\/live\/[^/]+$/.test(loc);
+  const [reading, setReading] = useState(false);
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[248px_1fr]">
@@ -131,6 +140,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           ))}
         </nav>
         <div className="mt-auto">
+          <button onClick={() => setReading(true)} className="mb-3 flex w-full items-center gap-3 rounded-xl border-2 border-line-strong px-3 py-2.5 text-sm font-bold">
+            <Type className="size-[18px]" /> Pantalla y lectura
+          </button>
           {plan === "free" && (
             <Link href="/planes" className="mb-4 block overflow-hidden rounded-2xl border border-brand/25 bg-brand/8 p-4">
               <div className="mb-1 flex items-center gap-1.5 text-sm font-bold">
@@ -140,7 +152,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Link>
           )}
           {profile && (
-            <Link href="/perfil" className="flex items-center gap-3 rounded-2xl p-2 hover:bg-white/5">
+            <Link href="/perfil" className="flex items-center gap-3 rounded-2xl p-2 hover:bg-fg/5">
               <Avatar name={profile.name} hue={352} size={36} />
               <span className="min-w-0">
                 <span className="block truncate text-sm font-semibold">{profile.name}</span>
@@ -159,8 +171,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Logo />
               </Link>
               <div className="flex items-center gap-2">
-                <Link href="/comunidad" className="grid size-9 place-items-center rounded-full bg-white/6 text-muted" aria-label="Comunidad">
-                  <Users className="size-[18px]" />
+                <button onClick={() => setReading(true)} className="flex h-10 items-center gap-1 rounded-full border-2 border-line-strong px-3 text-[15px] font-bold" aria-label="Pantalla y lectura">
+                  <Type className="size-4" /> Aa
+                </button>
+                <Link href="/tienda" className="grid size-10 place-items-center rounded-full border-2 border-line-strong" aria-label="Tienda">
+                  <ShoppingBag className="size-5" />
                 </Link>
                 <Link href="/perfil" aria-label="Perfil">
                   <Avatar name={profile?.name ?? "AF"} hue={352} size={34} />
@@ -189,7 +204,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     key={href}
                     href={href}
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors",
+                      "relative flex flex-col items-center justify-center gap-1 text-[13px] font-bold transition-colors",
                       active ? "text-fg" : "text-muted"
                     )}
                     aria-current={active ? "page" : undefined}
@@ -197,7 +212,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     {active && (
                       <motion.span
                         layoutId="tab-pill"
-                        className="absolute top-1.5 h-8 w-14 rounded-full bg-white/8"
+                        className="absolute top-1.5 h-8 w-14 rounded-full bg-fg/8"
                         transition={{ type: "spring", stiffness: 500, damping: 38 }}
                       />
                     )}
@@ -213,6 +228,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
         )}
         <ActiveSessionPill />
+        <ReadingSheet open={reading} onClose={() => setReading(false)} />
       </div>
     </div>
   );
@@ -234,12 +250,12 @@ function SideLink({
       href={href}
       className={cn(
         "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-        active ? "bg-white/8 text-fg" : "text-muted hover:bg-white/4 hover:text-fg"
+        active ? "bg-fg/8 text-fg" : "text-muted hover:bg-fg/4 hover:text-fg"
       )}
     >
       <Icon className={cn("size-[18px]", active && "text-brand")} />
       {label}
-      {href === "/live" && <span className="ml-auto rounded-md bg-brand px-1.5 py-0.5 text-[11px] font-bold text-white">LIVE</span>}
+      {href === "/live" && <span className="ml-auto rounded-md bg-brand px-1.5 py-0.5 text-xs font-bold text-white">LIVE</span>}
     </Link>
   );
 }

@@ -118,6 +118,23 @@ aprobado", sin cobro).
    producción. Los precios están en `src/lib/payments.ts` y en
    `supabase/functions/checkout/index.ts` (mantenlos iguales).
 
+## Ingresos y soporte
+
+**Más formas de cobrar**
+- **Planes** Pro y Elite, mensuales o anuales (`/planes`).
+- **Tienda** (`/tienda`): compras únicas sin suscripción. Incluye revisiones de técnica, sesiones 1:1, plan de alimentación, programas para siempre, clases privadas, retos guiados y tarjetas regalo. El catálogo está en `src/data/shop.ts` y los precios que se cobran en `supabase/functions/checkout/index.ts` (mantenlos iguales).
+- **Propinas** al coach desde la sala en vivo.
+- **Contenido Pro**: los programas Hipertrofia, Fuerza y Glúteos, y los videos a partir del episodio 2 y las repeticiones, muestran un muro con "Desbloquear con Pro" y "Comprar solo esto". Las reglas están en `src/lib/access.ts`.
+- Banners de mejora de plan en Inicio, Live, Videos, Nutrición y Tienda. Solo aparecen en cuentas Free.
+
+**Soporte 24/7**
+- Botón **Ayuda** en todas las pantallas, también en la de inicio de sesión. Lleva a un asistente que responde al instante con `src/data/support.ts`.
+- **Casos** para el equipo: se guardan en `af_support_tickets` (`supabase/schema.sql`).
+- **WhatsApp y correo**: aparecen si configuras `VITE_SUPPORT_WHATSAPP` y `VITE_SUPPORT_EMAIL`.
+- **Centro de ayuda** con buscador en `/ayuda`.
+
+**Lectura**: botón **Aa** (arriba) con tema claro, oscuro o automático, alto contraste y tres tamaños de letra. Los tokens de cada tema están en `src/index.css`.
+
 ## Qué falta conectar
 
 | Pieza | Para qué | Dónde se engancha |

@@ -45,15 +45,15 @@ export default function Recipes() {
                   ["Carb", `${r.carbs}g`],
                   ["Grasa", `${r.fat}g`],
                 ].map(([l, v]) => (
-                  <div key={l} className="rounded-lg bg-white/5 py-1.5">
+                  <div key={l} className="rounded-lg bg-fg/5 py-1.5">
                     <div className="tabular text-sm font-bold">{v}</div>
-                    <div className="text-[11px] text-muted">{l}</div>
+                    <div className="text-xs text-muted">{l}</div>
                   </div>
                 ))}
               </div>
               <div className="mt-2 flex flex-wrap gap-1">
                 {r.tags.map(t => (
-                  <span key={t} className="rounded-full bg-white/6 px-2 py-0.5 text-xs text-muted">
+                  <span key={t} className="rounded-full bg-fg/6 px-2 py-0.5 text-xs text-muted">
                     {t}
                   </span>
                 ))}

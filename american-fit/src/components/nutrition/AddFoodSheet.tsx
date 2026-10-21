@@ -167,7 +167,7 @@ function FoodList({ foods, onPick }: { foods: Food[]; onPick: (f: Food) => void 
     <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line">
       {foods.map(f => (
         <li key={f.id}>
-          <button onClick={() => onPick(f)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-white/4">
+          <button onClick={() => onPick(f)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-fg/4">
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-semibold">{f.name}</div>
               <div className="truncate text-xs text-muted">
@@ -239,7 +239,7 @@ function Portion({
         <Stepper value={grams} step={food.serving.grams >= 100 ? 10 : 5} onChange={setGrams} suffix="g" />
       </div>
       <div>
-        <div className="flex h-2.5 overflow-hidden rounded-full bg-white/8">
+        <div className="flex h-2.5 overflow-hidden rounded-full bg-fg/8">
           <div style={{ width: `${((p.protein * 4) / macroKcal) * 100}%`, background: "var(--color-protein)" }} />
           <div className="ml-0.5" style={{ width: `${((p.carbs * 4) / macroKcal) * 100}%`, background: "var(--color-carbs)" }} />
           <div className="ml-0.5" style={{ width: `${((p.fat * 9) / macroKcal) * 100}%`, background: "var(--color-fat)" }} />

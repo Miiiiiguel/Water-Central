@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Bell, BellRing, ChevronRight, Droplets, Flame, Play, Plus, Radio, Sparkles, Timer, Utensils } from "lucide-react";
+import { ArrowRight, Bell, BellRing, ChevronRight, Droplets, Flame, Headset, History, Play, Plus, Radio, ShoppingBag, Sparkles, Timer, Utensils } from "lucide-react";
+import { UpsellBanner } from "@/components/monetize";
+import { showSupport } from "@/components/SupportWidget";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { MuscleMap } from "@/components/body/MuscleMap";
@@ -63,6 +65,7 @@ export default function Home() {
   const firstEx = next ? getExercise(next.day.exercises[0]!.id) : undefined;
 
   const start = () => {
+    if (!active && !next) return navigate("/entrenar");
     if (!active && next) actions.startProgramDay(next.program.id, next.day.key);
     navigate("/entrenar/sesion");
   };
@@ -80,10 +83,30 @@ export default function Home() {
           <Flame className="size-5 text-ember" />
           <div className="leading-tight">
             <div className="tabular text-lg font-bold">{streak}</div>
-            <div className="text-[11px] text-muted">sem. seguidas</div>
+            <div className="text-xs text-muted">sem. seguidas</div>
           </div>
         </div>
       </motion.section>
+
+      <motion.section {...fade(1)} className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+        {(
+          [
+            ["Entrenar", <Play key="a" className="size-6" fill="currentColor" />, start, "bg-gradient-brand text-white"],
+            ["Comida", <Utensils key="b" className="size-6" />, () => navigate("/nutricion"), "bg-success text-[#03140c]"],
+            ["En vivo", <Radio key="c" className="size-6" />, () => navigate("/live"), "bg-sky text-white"],
+            ["Tienda", <ShoppingBag key="d" className="size-6" />, () => navigate("/tienda"), "bg-warn text-[#241500]"],
+            ["Historial", <History key="e" className="size-6" />, () => navigate("/historial"), "bg-fg text-ink-950"],
+            ["Ayuda 24/7", <Headset key="f" className="size-6" />, () => showSupport(), "bg-violet text-white"],
+          ] as [string, React.ReactNode, () => void, string][]
+        ).map(([label, icon, go, cls]) => (
+          <button key={label} onClick={go} className={cn("flex h-20 flex-col items-center justify-center gap-1.5 rounded-2xl text-[15px] font-bold transition active:scale-95", cls)}>
+            {icon}
+            {label}
+          </button>
+        ))}
+      </motion.section>
+
+      <UpsellBanner title="Desbloquea todo American Fit" text="Programas completos, clases en vivo ilimitadas y videos desde $33.325 COP al mes." />
 
       <div className="grid gap-4 lg:grid-cols-[1.35fr_1fr]">
         {/* Today's workout */}
@@ -155,14 +178,13 @@ export default function Home() {
           <Link href={`/live/${featured.c.id}`} className="block">
             <div className="relative h-36">
               <ClassArt hue={CATEGORY_HUE[featured.c.category]} word={CATEGORY_LABEL[featured.c.category]} category={featured.c.category} />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/30 to-transparent" />
               <div className="absolute left-4 top-4 flex gap-2">
                 {featured.live ? <Badge tone="live">En vivo</Badge> : <Badge tone="neutral">En {countdown(featured.at, now)}</Badge>}
               </div>
             </div>
-            <div className="-mt-6 relative px-4 pb-4">
+            <div className="px-4 pb-4 pt-3">
               <h3 className="text-lg font-bold">{featured.c.title}</h3>
-              <div className="mt-1 flex items-center gap-2 text-[13px] text-muted">
+              <div className="mt-1 flex items-center gap-2 text-sm text-muted">
                 <Avatar name={COACH_BY_ID[featured.c.coachId]!.name} hue={COACH_BY_ID[featured.c.coachId]!.hue} size={22} />
                 {COACH_BY_ID[featured.c.coachId]!.name} · {featured.c.durationMin} min · {fmtTime(featured.at)}
               </div>
@@ -172,10 +194,10 @@ export default function Home() {
             {live.slice(1, 4).map(({ c, at, live: isLive }) => {
               const on = reminders.includes(c.id);
               return (
-                <div key={c.id} className="flex items-center gap-3 rounded-xl p-2 hover:bg-white/4">
+                <div key={c.id} className="flex items-center gap-3 rounded-xl p-2 hover:bg-fg/4">
                   <div className="w-12 shrink-0 text-center">
                     <div className="tabular text-sm font-bold">{fmtTime(at)}</div>
-                    <div className="text-[11px] uppercase text-muted">{dayKey(at) === dayKey(now) ? "hoy" : fmtWeekday(at)}</div>
+                    <div className="text-xs uppercase text-muted">{dayKey(at) === dayKey(now) ? "hoy" : fmtWeekday(at)}</div>
                   </div>
                   <Link href={`/live/${c.id}`} className="min-w-0 flex-1">
                     <div className="truncate text-sm font-semibold">{c.title}</div>
@@ -188,7 +210,7 @@ export default function Home() {
                   ) : (
                     <button
                       onClick={() => actions.toggleReminder(c.id)}
-                      className={cn("grid size-9 place-items-center rounded-full", on ? "bg-success/15 text-success" : "bg-white/6 text-muted")}
+                      className={cn("grid size-9 place-items-center rounded-full", on ? "bg-success/15 text-success" : "bg-fg/6 text-muted")}
                       aria-label={on ? "Quitar recordatorio" : "Recordarme"}
                     >
                       {on ? <BellRing className="size-4" /> : <Bell className="size-4" />}
@@ -197,7 +219,7 @@ export default function Home() {
                 </div>
               );
             })}
-            <Link href="/live" className="flex items-center justify-center gap-1 rounded-xl p-2 text-[13px] font-medium text-muted hover:text-fg">
+            <Link href="/live" className="flex items-center justify-center gap-1 rounded-xl p-2 text-sm font-medium text-muted hover:text-fg">
               <Radio className="size-4" /> Ver agenda completa
             </Link>
           </div>
@@ -218,7 +240,7 @@ export default function Home() {
             center={
               <div>
                 <div className="tabular text-xl font-bold">{Math.max(0, targets.kcal - totals.kcal).toLocaleString("es")}</div>
-                <div className="text-[11px] text-muted">kcal restantes</div>
+                <div className="text-xs text-muted">kcal restantes</div>
               </div>
             }
             items={[
@@ -265,7 +287,7 @@ export default function Home() {
               <div>
                 <h3 className="text-xl font-bold">{techniqueOfDay.name}</h3>
                 <p className="mt-1 line-clamp-3 text-sm text-muted">{techniqueOfDay.summary}</p>
-                <div className="mt-3 inline-flex items-center gap-1 text-[13px] font-semibold text-fg">
+                <div className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-fg">
                   Ver cómo se hace <ArrowRight className="size-4" />
                 </div>
               </div>
@@ -283,7 +305,7 @@ export default function Home() {
             <span
               className={cn(
                 "grid size-9 place-items-center rounded-full text-sm font-semibold",
-                d.trained ? "bg-gradient-brand text-white" : "bg-white/5 text-faint",
+                d.trained ? "bg-gradient-brand text-white" : "bg-fg/5 text-faint",
                 d.key === dayKey(now) && !d.trained && "ring-1 ring-fg/40"
               )}
             >
@@ -327,7 +349,7 @@ export default function Home() {
               </div>
               <div className="min-w-0">
                 <div className="font-semibold">{a.title}</div>
-                <div className="line-clamp-1 text-[13px] text-muted">{a.summary}</div>
+                <div className="line-clamp-1 text-sm text-muted">{a.summary}</div>
                 <div className="mt-0.5 text-xs text-faint">{a.minutes} min de lectura</div>
               </div>
             </Link>

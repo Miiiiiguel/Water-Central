@@ -64,7 +64,8 @@ async function handleWompi(body: any) {
       return new Response("amount mismatch", { status: 400 });
     }
     await admin.from("af_payments").update({ status: "approved" }).eq("id", pay.id);
-    await activate(pay.user_id, pay.plan, pay.period, "wompi", tx.id);
+    // Tienda products are one-time: approving the payment is all it takes.
+    if (!pay.product) await activate(pay.user_id, pay.plan, pay.period, "wompi", tx.id);
   } else if (["DECLINED", "VOIDED", "ERROR"].includes(tx.status)) {
     await admin.from("af_payments").update({ status: "declined" }).eq("id", pay.id);
   }
@@ -87,9 +88,10 @@ async function handleStripe(raw: string, header: string) {
   const obj = event.data.object;
 
   if (event.type === "checkout.session.completed") {
-    const { user_id, plan, period } = obj.metadata ?? {};
+    const { user_id, plan, period, product } = obj.metadata ?? {};
     if (!user_id) return new Response("ok");
     await admin.from("af_payments").update({ status: "approved" }).eq("reference", obj.id);
+    if (product) return new Response("ok");
     const sub = obj.subscription ? await stripeGet(`subscriptions/${obj.subscription}`) : null;
     const endSec = sub?.current_period_end ?? sub?.items?.data?.[0]?.current_period_end;
     await activate(user_id, plan, period, "stripe", obj.subscription ?? null, endSec ? endSec * 1000 : undefined);

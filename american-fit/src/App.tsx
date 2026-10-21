@@ -3,6 +3,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { Redirect, Route, Router, Switch, useLocation } from "wouter";
 import { memoryLocation } from "wouter/memory-location";
 import { AppShell } from "@/components/layout/AppShell";
+import { SupportWidget } from "@/components/SupportWidget";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { useApp } from "@/lib/store";
 import Home from "@/pages/Home";
@@ -29,6 +30,9 @@ const Profile = lazy(() => import("@/pages/Profile"));
 const Plans = lazy(() => import("@/pages/Plans"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Login = lazy(() => import("@/pages/Login"));
+const Shop = lazy(() => import("@/pages/Shop"));
+const HelpCenter = lazy(() => import("@/pages/HelpCenter"));
+const ProductCheckout = lazy(() => import("@/pages/ProductCheckout"));
 const History = lazy(() => import("@/pages/History"));
 const Checkout = lazy(() => import("@/pages/Checkout"));
 const PaymentResult = lazy(() => import("@/pages/PaymentResult"));
@@ -59,6 +63,7 @@ export default function App() {
   const app = (
     <AuthProvider>
       <Routes />
+      <SupportWidget />
     </AuthProvider>
   );
   return memory ? <Router hook={memory.hook}>{app}</Router> : app;
@@ -122,7 +127,10 @@ function Routes() {
               <Route path="/historial" component={History} />
               <Route path="/pago/resultado" component={PaymentResult} />
               <Route path="/pago/resultado/:provider" component={PaymentResult} />
+              <Route path="/pago/producto/:id" component={ProductCheckout} />
               <Route path="/pago/:plan/:period" component={Checkout} />
+              <Route path="/tienda" component={Shop} />
+              <Route path="/ayuda" component={HelpCenter} />
               <Route component={NotFound} />
             </Switch>
           </Suspense>

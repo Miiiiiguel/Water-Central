@@ -53,7 +53,7 @@ export default function ExerciseDetail() {
 
   return (
     <div>
-      <Link href="/tecnica" className="mb-3 inline-flex items-center gap-1 text-[13px] font-medium text-muted hover:text-fg">
+      <Link href="/tecnica" className="mb-3 inline-flex items-center gap-1 text-sm font-medium text-muted hover:text-fg">
         ← Biblioteca
       </Link>
       <div className="mb-5 flex items-start justify-between gap-4">
@@ -146,7 +146,7 @@ export default function ExerciseDetail() {
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {ex.primary.map(m => (
-                      <span key={m} className="rounded-full bg-white/7 px-2.5 py-1 font-medium">
+                      <span key={m} className="rounded-full bg-fg/7 px-2.5 py-1 font-medium">
                         {MUSCLE_LABEL[m]}
                       </span>
                     ))}
@@ -159,7 +159,7 @@ export default function ExerciseDetail() {
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {ex.secondary.map(m => (
-                        <span key={m} className="rounded-full bg-white/5 px-2.5 py-1 text-muted">
+                        <span key={m} className="rounded-full bg-fg/5 px-2.5 py-1 text-muted">
                           {MUSCLE_LABEL[m]}
                         </span>
                       ))}
@@ -185,7 +185,7 @@ export default function ExerciseDetail() {
             <ol className="space-y-3">
               {ex.steps.map((s, i) => (
                 <li key={s} className="flex gap-3 text-[15px]">
-                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-white/8 text-xs font-bold tabular">{i + 1}</span>
+                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-fg/8 text-xs font-bold tabular">{i + 1}</span>
                   <span className="pt-0.5 text-fg/95">{s}</span>
                 </li>
               ))}
@@ -205,7 +205,7 @@ export default function ExerciseDetail() {
           <Section title="Errores comunes">
             <div className="space-y-2.5">
               {ex.mistakes.map(m => (
-                <div key={m.mistake} className="rounded-2xl border border-line bg-white/[0.02] p-3.5">
+                <div key={m.mistake} className="rounded-2xl border border-line bg-fg/[0.02] p-3.5">
                   <div className="flex gap-2 text-[15px] font-semibold">
                     <XCircle className="mt-0.5 size-4 shrink-0 text-brand" /> {m.mistake}
                   </div>
@@ -276,7 +276,7 @@ function Variant({ id, kind }: { id: string; kind: "easier" | "harder" }) {
   if (!v) return null;
   return (
     <Link href={`/tecnica/${v.id}`} className="card card-hover flex items-center gap-3 p-2.5 pr-4">
-      <div className="h-16 w-20 shrink-0 rounded-xl bg-white/[0.03]">
+      <div className="h-16 w-20 shrink-0 rounded-xl bg-fg/[0.03]">
         <DemoThumb demoId={v.demo} className="size-full" />
       </div>
       <div className="min-w-0 flex-1">

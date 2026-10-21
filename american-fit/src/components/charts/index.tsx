@@ -107,13 +107,13 @@ export function TrendChart({
           {ticks.map(t => (
             <g key={t}>
               <line x1={pad.l} x2={width - pad.r} y1={y(t)} y2={y(t)} stroke="var(--color-line)" />
-              <text x={pad.l - 8} y={y(t)} dy="0.32em" textAnchor="end" className="fill-faint text-[11px] tabular">
+              <text x={pad.l - 8} y={y(t)} dy="0.32em" textAnchor="end" className="fill-faint text-xs tabular">
                 {compact(t)}
               </text>
             </g>
           ))}
           {[0, Math.floor((data.length - 1) / 2), data.length - 1].map(i => (
-            <text key={i} x={x(i)} y={height - 6} textAnchor={i === 0 ? "start" : i === data.length - 1 ? "end" : "middle"} className="fill-faint text-[11px]">
+            <text key={i} x={x(i)} y={height - 6} textAnchor={i === 0 ? "start" : i === data.length - 1 ? "end" : "middle"} className="fill-faint text-xs">
               {data[i]?.label}
             </text>
           ))}
@@ -188,7 +188,7 @@ export function ColumnChart({
           {ticks.map(t => (
             <g key={t}>
               <line x1={pad.l} x2={width - pad.r} y1={y(t)} y2={y(t)} stroke="var(--color-line)" />
-              <text x={pad.l - 8} y={y(t)} dy="0.32em" textAnchor="end" className="fill-faint text-[11px] tabular">
+              <text x={pad.l - 8} y={y(t)} dy="0.32em" textAnchor="end" className="fill-faint text-xs tabular">
                 {compact(t)}
               </text>
             </g>
@@ -209,7 +209,7 @@ export function ColumnChart({
                     opacity={isLast || hover === i ? 1 : 0.55}
                   />
                 )}
-                <text x={cx} y={height - 6} textAnchor="middle" className="fill-faint text-[11px]">
+                <text x={cx} y={height - 6} textAnchor="middle" className="fill-faint text-xs">
                   {d.label}
                 </text>
               </g>
@@ -242,7 +242,7 @@ export function MacroRings({
   const stroke = 9;
   const gap = 4;
   return (
-    <div className="flex items-center gap-5">
+    <div className="flex flex-wrap items-center justify-center gap-5">
       <div className="relative shrink-0" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90" role="img" aria-label="Progreso de macronutrientes">
           {items.map((it, i) => {
@@ -251,7 +251,7 @@ export function MacroRings({
             const v = Math.min(1, it.target ? it.value / it.target : 0);
             return (
               <g key={it.label}>
-                <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgb(255 255 255 / 0.11)" strokeWidth={stroke} />
+                <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgb(128 136 152 / 0.25)" strokeWidth={stroke} />
                 <circle
                   cx={size / 2}
                   cy={size / 2}
@@ -270,12 +270,12 @@ export function MacroRings({
         </svg>
         {center && <div className="absolute inset-0 grid place-items-center text-center">{center}</div>}
       </div>
-      <ul className="min-w-0 flex-1 space-y-2.5">
+      <ul className="min-w-[11rem] flex-1 space-y-2.5">
         {items.map(it => (
           <li key={it.label} className="flex items-center gap-2.5">
             <span className="size-2.5 shrink-0 rounded-full" style={{ background: it.color }} />
-            <span className="flex-1 text-[13px] text-muted">{it.label}</span>
-            <span className="tabular text-[13px] font-semibold">
+            <span className="min-w-0 flex-1 text-[15px] text-fg">{it.label}</span>
+            <span className="tabular shrink-0 text-[15px] font-bold">
               {Math.round(it.value)}
               <span className="font-normal text-muted">
                 /{Math.round(it.target)}

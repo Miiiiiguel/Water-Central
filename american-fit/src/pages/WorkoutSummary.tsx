@@ -100,7 +100,7 @@ export default function WorkoutSummary() {
                 </div>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {e.sets.map((s, i) => (
-                    <span key={i} className="tabular rounded-lg bg-white/6 px-2 py-1 text-xs">
+                    <span key={i} className="tabular rounded-lg bg-fg/6 px-2 py-1 text-xs">
                       {s.weight ? `${s.weight} × ${s.reps}` : `${s.reps}${ex?.loadType === "time" ? " s" : ""}`}
                     </span>
                   ))}

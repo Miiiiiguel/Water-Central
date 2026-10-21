@@ -48,7 +48,7 @@ export function ClassArt({
       </span>
       {figure && demoId && (
         <div className="absolute inset-y-0 right-0 flex w-[62%] items-end justify-center opacity-90">
-          <DemoThumb demoId={demoId} className="h-[118%] w-auto drop-shadow-[0_10px_30px_rgb(0_0_0/0.5)]" />
+          <DemoThumb demoId={demoId} tile={false} className="h-[118%] w-auto drop-shadow-[0_10px_30px_rgb(0_0_0/0.5)]" />
         </div>
       )}
       {figure && category === "nutricion" && (

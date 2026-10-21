@@ -6,6 +6,7 @@ import { Avatar, Badge, Button, Chip, HScroll, PageHeader, SectionHeader } from 
 import { COACH_BY_ID, COACHES } from "@/data/coaches";
 import { LEVEL_LABEL } from "@/data/exercises";
 import { CATEGORY_HUE, CATEGORY_LABEL, classesOn, isLiveNow, nextOccurrence, VIDEOS } from "@/data/media";
+import { UpsellBanner } from "@/components/monetize";
 import { upcomingLive } from "@/lib/selectors";
 import { actions, useApp } from "@/lib/store";
 import type { ClassCategory, LiveClass } from "@/lib/types";
@@ -50,19 +51,18 @@ export default function Live() {
           </span>
         }
         actions={
-          <Link href="/videos" className="inline-flex h-9 items-center gap-1.5 rounded-full bg-white/7 px-3.5 text-[13px] font-semibold">
+          <Link href="/videos" className="inline-flex h-9 items-center gap-1.5 rounded-full bg-fg/7 px-3.5 text-sm font-semibold">
             <Play className="size-4" /> Videos
           </Link>
         }
       />
 
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-[28px] border border-line">
-        <div className="absolute inset-0">
+      <section className="card grid overflow-hidden lg:grid-cols-[1.1fr_1fr]">
+        <div className="relative h-56 sm:h-72 lg:order-2 lg:h-auto">
           <ClassArt hue={CATEGORY_HUE[hero.c.category]} word={CATEGORY_LABEL[hero.c.category]} category={hero.c.category} />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/85 to-ink-950/45" />
-        <div className="relative max-w-xl p-6 sm:p-10">
+        <div className="relative p-6 sm:p-10">
           {hero.live ? (
             <Badge tone="live">En vivo ahora</Badge>
           ) : (
@@ -81,9 +81,9 @@ export default function Live() {
               {fmtDuration(Math.max(0, secs))
                 .split(":")
                 .map((part, i, arr) => (
-                  <div key={i} className="min-w-16 rounded-2xl bg-black/40 px-3 py-2 text-center backdrop-blur">
+                  <div key={i} className="min-w-16 rounded-2xl bg-ink-800 px-3 py-2 text-center">
                     <div className="tabular title-display text-4xl">{part.padStart(2, "0")}</div>
-                    <div className="text-[11px] uppercase text-muted">{arr.length === 3 ? ["horas", "min", "seg"][i] : ["min", "seg"][i]}</div>
+                    <div className="text-xs uppercase text-muted">{arr.length === 3 ? ["horas", "min", "seg"][i] : ["min", "seg"][i]}</div>
                   </div>
                 ))}
             </div>
@@ -109,6 +109,8 @@ export default function Live() {
           )}
         </div>
       </section>
+
+      <UpsellBanner title="Clases en vivo ilimitadas" text="Free incluye 1 clase por semana. Con Pro entras a todas, más las repeticiones." />
 
       {/* Schedule */}
       <section>
@@ -154,7 +156,7 @@ export default function Live() {
             const coach = COACH_BY_ID[c.coachId]!;
             const on = reminders.includes(c.id);
             return (
-              <div key={c.id} className={cn("flex items-center gap-4 p-4", past && "opacity-60")}>
+              <div key={c.id} className={cn("flex items-center gap-4 p-4", past && "opacity-75")}>
                 <div className="w-14 shrink-0">
                   <div className="tabular text-lg font-bold leading-none">{fmtTime(start)}</div>
                   <div className="mt-1 text-xs text-muted">{c.durationMin} min</div>
@@ -185,7 +187,7 @@ export default function Live() {
                 ) : (
                   <button
                     onClick={() => actions.toggleReminder(c.id)}
-                    className={cn("inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold", on ? "bg-success/15 text-success" : "bg-white/7 text-muted hover:text-fg")}
+                    className={cn("inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold", on ? "bg-success/15 text-success" : "bg-fg/7 text-muted hover:text-fg")}
                   >
                     {on ? <BellRing className="size-3.5" /> : <Bell className="size-3.5" />}
                     <span className="hidden sm:inline">{on ? "Reservada" : "Reservar"}</span>

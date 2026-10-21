@@ -29,11 +29,23 @@ export type Plan = "free" | "pro" | "elite";
 export type BillingPeriod = "monthly" | "yearly";
 export type PaymentProvider = "wompi" | "stripe" | "demo";
 
+export interface Ticket {
+  id: string;
+  at: number;
+  category: string;
+  subject: string;
+  message: string;
+  status: "abierto" | "en-revision" | "resuelto";
+  replies: { at: number; from: "soporte" | "tu"; text: string }[];
+}
+
 export interface Payment {
   id: string;
   at: number;
   plan: Plan;
   period: BillingPeriod;
+  /** Set for one-time Tienda purchases (then `plan` is "free"). */
+  productId?: string;
   amount: number;
   currency: "COP" | "USD";
   provider: PaymentProvider;
@@ -65,6 +77,8 @@ export interface AppState {
   plan: Plan;
   subscription: Subscription | null;
   payments: Payment[];
+  tickets: Ticket[];
+  purchases: string[];
   logins: { at: number; method: "password" | "google" | "signup"; device: string }[];
   customFoods: Food[];
   recentFoods: string[];
@@ -90,6 +104,8 @@ const initial = (): AppState => ({
   plan: "free",
   subscription: null,
   payments: [],
+  tickets: [],
+  purchases: [],
   logins: [],
   customFoods: [],
   recentFoods: [],
@@ -239,6 +255,10 @@ export const actions = {
   recordPayment(p: Payment, activate = true) {
     set(s => {
       const payments = [p, ...s.payments.filter(x => x.id !== p.id)].sort((a, b) => b.at - a.at);
+      if (p.productId) {
+        const owned = p.status === "approved" && !s.purchases.includes(p.productId) ? [...s.purchases, p.productId] : s.purchases;
+        return { ...s, payments, purchases: owned };
+      }
       if (p.status !== "approved" || !activate) return { ...s, payments };
       const days = p.period === "yearly" ? 365 : 30;
       const base = s.subscription?.plan === p.plan && s.subscription.renewsAt > Date.now() ? s.subscription.renewsAt : Date.now();
@@ -249,6 +269,17 @@ export const actions = {
         subscription: { plan: p.plan, period: p.period, provider: p.provider, status: "active", renewsAt: base + days * 86_400_000 },
       };
     });
+  },
+  addTicket(t: Omit<Ticket, "id" | "at" | "status" | "replies">) {
+    const ticket: Ticket = { ...t, id: `T-${Date.now().toString(36).toUpperCase().slice(-6)}`, at: Date.now(), status: "abierto", replies: [] };
+    set(s => ({ ...s, tickets: [ticket, ...s.tickets] }));
+    return ticket;
+  },
+  replyTicket(id: string, text: string) {
+    set(s => ({
+      ...s,
+      tickets: s.tickets.map(t => (t.id === id ? { ...t, status: "abierto", replies: [...t.replies, { at: Date.now(), from: "tu", text }] } : t)),
+    }));
   },
   recordLogin(entry: AppState["logins"][number]) {
     set(s => {

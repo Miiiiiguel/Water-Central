@@ -51,7 +51,7 @@ export default function CoachDetail() {
           <SectionHeader title="Próximas clases en vivo" />
           <div className="card divide-y divide-line">
             {live.map(({ x, at }) => (
-              <Link key={x.id} href={`/live/${x.id}`} className="flex items-center gap-4 p-4 hover:bg-white/[0.02]">
+              <Link key={x.id} href={`/live/${x.id}`} className="flex items-center gap-4 p-4 hover:bg-fg/[0.02]">
                 <div className="w-14">
                   <div className="tabular font-bold">{fmtTime(at)}</div>
                   <div className="text-xs uppercase text-muted">{fmtWeekday(at)}</div>

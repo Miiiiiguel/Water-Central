@@ -51,3 +51,14 @@ export async function cancelPlan(): Promise<string | null> {
   const { data, error } = await supabase.functions.invoke<{ ok?: boolean; error?: string }>("checkout", { body: { action: "cancel" } });
   return error || !data?.ok ? data?.error ?? "No pudimos cancelar. Intenta de nuevo." : null;
 }
+
+/** One-time Tienda purchase (or a tip) through the same gateways. */
+export async function startProductCheckout(productId: string, gateway: Gateway): Promise<string | null> {
+  if (!supabase) return "Pagos en modo de prueba.";
+  const { data, error } = await supabase.functions.invoke<{ url?: string; error?: string }>("checkout", {
+    body: { product: productId, gateway },
+  });
+  if (error || !data?.url) return data?.error ?? "No pudimos abrir la pasarela de pago. Intenta de nuevo en unos minutos.";
+  window.location.href = data.url;
+  return null;
+}

@@ -87,7 +87,7 @@ export default function RecipeDetail() {
           <ol className="space-y-3">
             {r.steps.map((s, i) => (
               <li key={s} className="flex gap-3 text-sm">
-                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-white/8 text-xs font-bold">{i + 1}</span>
+                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-fg/8 text-xs font-bold">{i + 1}</span>
                 <span className="pt-1 text-fg/95">{s}</span>
               </li>
             ))}

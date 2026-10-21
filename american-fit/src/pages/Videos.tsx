@@ -8,11 +8,14 @@ import { COACH_BY_ID } from "@/data/coaches";
 import { LEVEL_LABEL } from "@/data/exercises";
 import { CATEGORY_HUE, CATEGORY_LABEL, SERIES, VIDEOS } from "@/data/media";
 import { useApp } from "@/lib/store";
+import { ProBadge, UpsellBanner } from "@/components/monetize";
+import { isPremiumVideo } from "@/lib/access";
 import type { ClassCategory, VideoClass } from "@/lib/types";
 import { cn, normalize } from "@/lib/utils";
 
 export function VideoCard({ v, wide, progress }: { v: VideoClass; wide?: boolean; progress?: number }) {
   const coach = COACH_BY_ID[v.coachId]!;
+  const plan = useApp(s => s.plan);
   return (
     <Link href={`/videos/${v.id}`} className={cn("group block", wide ? "w-72 shrink-0 snap-start sm:w-80" : "")}>
       <div className="relative aspect-video overflow-hidden rounded-2xl border border-line">
@@ -20,6 +23,7 @@ export function VideoCard({ v, wide, progress }: { v: VideoClass; wide?: boolean
           <ClassArt hue={CATEGORY_HUE[v.category]} word={CATEGORY_LABEL[v.category]} category={v.category} />
         </div>
         <div className="absolute left-2 top-2 flex gap-1.5">
+          {isPremiumVideo(v) && plan === "free" && <ProBadge />}
           {v.isNew && <Badge tone="sky">Nuevo</Badge>}
           {v.isReplay && <Badge tone="brand">Repetición</Badge>}
           {!hasVideo(v.video.src) && (
@@ -30,12 +34,12 @@ export function VideoCard({ v, wide, progress }: { v: VideoClass; wide?: boolean
         </div>
         <span className="absolute bottom-2 right-2 rounded-md bg-black/65 px-1.5 py-0.5 text-xs font-semibold tabular">{v.durationMin} min</span>
         <span className="absolute inset-0 grid place-items-center opacity-0 transition-opacity group-hover:opacity-100">
-          <span className="grid size-12 place-items-center rounded-full bg-white/90 text-ink-950">
+          <span className="grid size-12 place-items-center rounded-full bg-fg/90 text-ink-950">
             <Play className="size-5 translate-x-px" fill="currentColor" />
           </span>
         </span>
         {progress !== undefined && progress > 0 && (
-          <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20">
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-fg/20">
             <div className="h-full bg-brand" style={{ width: `${Math.min(100, progress * 100)}%` }} />
           </div>
         )}
@@ -82,21 +86,22 @@ export default function Videos() {
       <PageHeader eyebrow="Clases a demanda" title={<>American Fit <span className="text-gradient-brand">TV</span></>} />
 
       {!filtering && (
-        <Link href={`/videos/${featured.id}`} className="group relative block overflow-hidden rounded-[28px] border border-line">
-          <div className="aspect-[4/3] sm:aspect-[16/6]">
+        <Link href={`/videos/${featured.id}`} className="card group grid overflow-hidden lg:grid-cols-[1fr_1.2fr]">
+          <div className="relative aspect-video lg:order-2 lg:aspect-auto lg:min-h-72">
             <ClassArt hue={CATEGORY_HUE[featured.category]} word={CATEGORY_LABEL[featured.category]} category={featured.category} />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-ink-950/95 via-ink-950/80 to-ink-950/30" />
-          <div className="absolute inset-y-0 left-0 flex max-w-lg flex-col justify-end p-6 sm:p-10">
+          <div className="flex flex-col justify-center p-6 sm:p-10">
             <Badge tone="sky">Estreno</Badge>
             <h2 className="title-display mt-2 text-4xl sm:text-6xl">{featured.title}</h2>
-            <p className="mt-1 line-clamp-2 text-sm text-fg/90">{featured.description}</p>
+            <p className="mt-2 text-base text-fg">{featured.description}</p>
             <span className="mt-4 inline-flex h-11 w-fit items-center gap-2 rounded-full bg-fg px-5 text-sm font-bold text-ink-950">
               <Play className="size-4" fill="currentColor" /> Ver ahora
             </span>
           </div>
         </Link>
       )}
+
+      <UpsellBanner title="Todas las clases con Pro" text="Series completas, repeticiones de las clases en vivo y estrenos cada semana." />
 
       <div className="space-y-3">
         <label className="flex h-12 items-center gap-2 rounded-2xl border border-line bg-ink-900 px-4">

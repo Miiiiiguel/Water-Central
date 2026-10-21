@@ -10,15 +10,15 @@ type Size = "sm" | "md" | "lg" | "icon";
 const VARIANT: Record<Variant, string> = {
   primary:
     "bg-gradient-brand text-white shadow-[0_8px_24px_-8px_rgb(255_59_78/0.65)] hover:brightness-110",
-  secondary: "bg-white/7 text-fg hover:bg-white/11 border border-line",
-  ghost: "text-muted hover:text-fg hover:bg-white/5",
-  outline: "border border-line-strong text-fg hover:bg-white/5",
-  light: "bg-fg text-ink-950 hover:bg-white",
+  secondary: "bg-fg/7 text-fg hover:bg-fg/11 border border-line",
+  ghost: "text-muted hover:text-fg hover:bg-fg/5",
+  outline: "border border-line-strong text-fg hover:bg-fg/5",
+  light: "bg-fg text-ink-950 hover:opacity-90",
   danger: "bg-brand/12 text-brand-300 hover:bg-brand/20 border border-brand/25",
 };
 
 const SIZE: Record<Size, string> = {
-  sm: "h-9 px-3.5 text-[13px] gap-1.5 rounded-full",
+  sm: "h-9 px-3.5 text-sm gap-1.5 rounded-full",
   md: "h-11 px-5 text-sm gap-2 rounded-full",
   lg: "h-14 px-7 text-[15px] gap-2.5 rounded-full",
   icon: "size-10 rounded-full",
@@ -81,7 +81,7 @@ export function Badge({
   className?: string;
 }) {
   const tones = {
-    neutral: "bg-white/12 text-fg/90",
+    neutral: "bg-fg/12 text-fg/90",
     brand: "bg-brand/15 text-brand-300",
     sky: "bg-sky/15 text-sky-300",
     success: "bg-success/12 text-success",
@@ -119,10 +119,10 @@ export function SectionHeader({
     <div className={cn("mb-3 flex items-end justify-between gap-3", className)}>
       <div className="min-w-0">
         <h2 className="text-lg font-bold tracking-tight">{title}</h2>
-        {subtitle && <p className="text-[13px] text-muted">{subtitle}</p>}
+        {subtitle && <p className="text-sm text-muted">{subtitle}</p>}
       </div>
       {href && (
-        <Link href={href} className="flex shrink-0 items-center text-[13px] font-medium text-muted hover:text-fg">
+        <Link href={href} className="flex shrink-0 items-center text-sm font-medium text-muted hover:text-fg">
           {action}
           <ChevronRight className="size-4" />
         </Link>
@@ -167,7 +167,7 @@ export function Segmented<T extends string>({
             aria-selected={active}
             onClick={() => onChange(o.value)}
             className={cn(
-              "relative z-10 flex-1 whitespace-nowrap rounded-full px-3 py-2 text-[13px] font-semibold transition-colors",
+              "relative z-10 flex-1 whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold transition-colors",
               active ? "text-ink-950" : "text-muted hover:text-fg"
             )}
           >
@@ -202,8 +202,8 @@ export function Chip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium transition active:scale-95",
-        active ? "border-fg bg-fg text-ink-950" : "border-line-strong bg-white/6 text-fg/85 hover:text-fg",
+        "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition active:scale-95",
+        active ? "border-fg bg-fg text-ink-950" : "border-line-strong bg-fg/6 text-fg/85 hover:text-fg",
         className
       )}
     >
@@ -217,7 +217,7 @@ export function ProgressRing({
   size = 64,
   stroke = 7,
   color = "var(--color-brand)",
-  track = "rgb(255 255 255 / 0.12)",
+  track = "rgb(128 136 152 / 0.25)",
   children,
   className,
 }: {
@@ -256,7 +256,7 @@ export function ProgressRing({
 
 export function Bar({ value, color = "var(--color-brand)", className }: { value: number; color?: string; className?: string }) {
   return (
-    <div className={cn("h-1.5 overflow-hidden rounded-full bg-white/12", className)}>
+    <div className={cn("h-1.5 overflow-hidden rounded-full bg-fg/12", className)}>
       <div
         className="h-full rounded-full transition-[width] duration-700 ease-snappy"
         style={{ width: `${Math.max(0, Math.min(1, value)) * 100}%`, background: color }}
@@ -285,7 +285,7 @@ export function Avatar({ name, hue, size = 40, ring = false }: { name: string; h
 export function Empty({ icon, title, text, action }: { icon: ReactNode; title: string; text?: string; action?: ReactNode }) {
   return (
     <div className="card flex flex-col items-center px-6 py-10 text-center">
-      <div className="mb-3 grid size-12 place-items-center rounded-2xl bg-white/6 text-muted">{icon}</div>
+      <div className="mb-3 grid size-12 place-items-center rounded-2xl bg-fg/6 text-muted">{icon}</div>
       <p className="font-semibold">{title}</p>
       {text && <p className="mt-1 max-w-sm text-sm text-muted">{text}</p>}
       {action && <div className="mt-4">{action}</div>}
@@ -351,11 +351,11 @@ export function Sheet({
               className
             )}
           >
-            <div className="mx-auto mt-2.5 h-1 w-10 rounded-full bg-white/15 sm:hidden" />
+            <div className="mx-auto mt-2.5 h-1 w-10 rounded-full bg-fg/15 sm:hidden" />
             {title && (
               <div className="flex items-center justify-between gap-3 px-5 pb-2 pt-3">
                 <h3 className="text-lg font-bold">{title}</h3>
-                <button onClick={onClose} className="grid size-9 place-items-center rounded-full bg-white/6 text-muted hover:text-fg" aria-label="Cerrar">
+                <button onClick={onClose} className="grid size-9 place-items-center rounded-full bg-fg/6 text-muted hover:text-fg" aria-label="Cerrar">
                   <X className="size-4" />
                 </button>
               </div>
@@ -384,9 +384,9 @@ export function Stepper({
   className?: string;
 }) {
   return (
-    <div className={cn("flex items-center gap-1 rounded-2xl bg-white/5 p-1", className)}>
+    <div className={cn("flex items-center gap-1 rounded-2xl bg-fg/5 p-1", className)}>
       <button
-        className="grid size-9 place-items-center rounded-xl text-lg text-muted hover:bg-white/8 hover:text-fg"
+        className="grid size-9 place-items-center rounded-xl text-lg text-muted hover:bg-fg/8 hover:text-fg"
         onClick={() => onChange(Math.max(min, Math.round((value - step) * 100) / 100))}
         aria-label="Restar"
       >
@@ -403,7 +403,7 @@ export function Stepper({
       />
       {suffix && <span className="-ml-2 pr-1 text-xs text-muted">{suffix}</span>}
       <button
-        className="grid size-9 place-items-center rounded-xl text-lg text-muted hover:bg-white/8 hover:text-fg"
+        className="grid size-9 place-items-center rounded-xl text-lg text-muted hover:bg-fg/8 hover:text-fg"
         onClick={() => onChange(Math.round((value + step) * 100) / 100)}
         aria-label="Sumar"
       >
@@ -430,7 +430,7 @@ export function PageHeader({
     <header className={cn("mb-5 flex items-end justify-between gap-3", className)}>
       <div className="min-w-0">
         {back && (
-          <Link href={back} className="mb-2 inline-flex items-center gap-1 text-[13px] font-medium text-muted hover:text-fg">
+          <Link href={back} className="mb-2 inline-flex items-center gap-1 text-sm font-medium text-muted hover:text-fg">
             <ChevronRight className="size-4 rotate-180" /> Volver
           </Link>
         )}
@@ -449,7 +449,7 @@ export function Toggle({ checked, onChange, label }: { checked: boolean; onChang
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={cn("relative h-7 w-12 rounded-full transition-colors", checked ? "bg-success" : "bg-white/12")}
+      className={cn("relative h-7 w-12 rounded-full transition-colors", checked ? "bg-success" : "bg-fg/12")}
     >
       <span
         className={cn(

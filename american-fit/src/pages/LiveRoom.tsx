@@ -160,7 +160,7 @@ export default function LiveRoom() {
   return (
     <div className="pt-3">
       <div className="mb-3 flex items-center gap-3">
-        <Link href="/live" className="grid size-10 shrink-0 place-items-center rounded-full bg-white/6" aria-label="Volver a Live">
+        <Link href="/live" className="grid size-10 shrink-0 place-items-center rounded-full bg-fg/6" aria-label="Volver a Live">
           <ArrowLeft className="size-5" />
         </Link>
         <div className="min-w-0 flex-1">
@@ -172,7 +172,7 @@ export default function LiveRoom() {
             {coach.name} · {c.durationMin} min{live ? ` · ${fmtDuration(elapsed)} transcurridos` : ""}
           </div>
         </div>
-        <div className="flex items-center gap-1.5 rounded-full bg-white/6 px-3 py-1.5 text-xs font-semibold">
+        <div className="flex items-center gap-1.5 rounded-full bg-fg/6 px-3 py-1.5 text-xs font-semibold">
           <Users className="size-3.5" /> {audience(c, now)}
         </div>
       </div>
@@ -182,7 +182,7 @@ export default function LiveRoom() {
           <VideoPlayer src={live ? c.streamUrl : undefined} live placeholder={lobby} />
           <div className="flex items-center gap-2">
             {["🔥", "💪", "👏", "❤️", "😅"].map(e => (
-              <button key={e} onClick={() => react(e)} className="grid size-11 place-items-center rounded-full bg-white/6 text-xl transition active:scale-90">
+              <button key={e} onClick={() => react(e)} className="grid size-11 place-items-center rounded-full bg-fg/6 text-xl transition active:scale-90">
                 {e}
               </button>
             ))}
@@ -190,6 +190,27 @@ export default function LiveRoom() {
               <Flame className="size-4 text-ember" /> ~{c.kcal} kcal
             </div>
           </div>
+          <div className="card flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+            <div className="flex-1">
+              <div className="text-[16px] font-bold">¿Te gustó la clase? Dale una propina a {coach.name.split(" ")[0]}</div>
+              <div className="text-[15px] text-fg">El 100 % va para el coach.</div>
+            </div>
+            <div className="flex gap-2">
+              {[
+                ["propina-5", "$5.000"],
+                ["propina-10", "$10.000"],
+                ["propina-20", "$20.000"],
+              ].map(([id, label]) => (
+                <Link key={id} href={`/pago/producto/${id}`} className="inline-flex h-11 items-center rounded-full bg-gradient-brand px-4 text-sm font-bold text-white">
+                  {label}
+                </Link>
+              ))}
+            </div>
+          </div>
+          <Link href="/pago/producto/clases-privadas-4" className="card flex items-center justify-between gap-3 p-4 text-[16px] font-bold hover:bg-ink-850">
+            Entrena 1:1 con {coach.name.split(" ")[0]} · clases privadas en vivo
+            <span className="shrink-0 rounded-full bg-fg px-4 py-2 text-sm text-ink-950">Ver</span>
+          </Link>
         </div>
 
         <aside className="card flex h-[520px] flex-col overflow-hidden lg:h-[calc(100dvh-140px)]">
@@ -207,12 +228,12 @@ export default function LiveRoom() {
 
           {tab === "chat" && (
             <>
-              <div className="px-4 pt-2 text-[11px] uppercase tracking-wider text-faint">Vista previa · mensajes de ejemplo</div>
+              <div className="px-4 pt-2 text-xs uppercase tracking-wider text-faint">Vista previa · mensajes de ejemplo</div>
               <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto p-4">
                 {msgs.map(m => (
                   <div key={m.id} className={cn("flex gap-2.5", m.me && "flex-row-reverse")}>
                     <Avatar name={m.name} hue={m.hue} size={28} />
-                    <div className={cn("max-w-[78%] rounded-2xl px-3 py-2", m.me ? "bg-brand/20" : m.coach ? "border border-sky/30 bg-sky/10" : "bg-white/6")}>
+                    <div className={cn("max-w-[78%] rounded-2xl px-3 py-2", m.me ? "bg-brand/20" : m.coach ? "border border-sky/30 bg-sky/10" : "bg-fg/6")}>
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-muted">
                         {m.name}
                         {m.coach && <Badge tone="sky">Coach</Badge>}
@@ -229,7 +250,7 @@ export default function LiveRoom() {
                 }}
                 className="flex gap-2 border-t border-line p-3"
               >
-                <input value={text} onChange={e => setText(e.target.value)} placeholder="Escribe al grupo…" className="h-11 flex-1 rounded-full bg-white/6 px-4 text-sm outline-none" />
+                <input value={text} onChange={e => setText(e.target.value)} placeholder="Escribe al grupo…" className="h-11 flex-1 rounded-full bg-fg/6 px-4 text-sm outline-none" />
                 <button type="submit" className="grid size-11 place-items-center rounded-full bg-gradient-brand text-white" aria-label="Enviar">
                   <Send className="size-4" />
                 </button>
@@ -239,7 +260,7 @@ export default function LiveRoom() {
 
           {tab === "ranking" && (
             <div className="flex-1 overflow-y-auto">
-              <div className="px-4 pt-3 text-[11px] uppercase tracking-wider text-faint">Vista previa · puntos de esfuerzo de ejemplo</div>
+              <div className="px-4 pt-3 text-xs uppercase tracking-wider text-faint">Vista previa · puntos de esfuerzo de ejemplo</div>
               <ol className="divide-y divide-line">
                 {board.map((r, i) => (
                   <li key={r.name} className={cn("flex items-center gap-3 px-4 py-2.5", r.me && "bg-brand/10")}>
@@ -250,7 +271,7 @@ export default function LiveRoom() {
                     {!r.me && (
                       <button
                         onClick={() => setFived(f => (f.includes(r.name) ? f : [...f, r.name]))}
-                        className={cn("grid size-8 place-items-center rounded-full", fived.includes(r.name) ? "bg-warn/20 text-warn" : "bg-white/6 text-muted hover:text-fg")}
+                        className={cn("grid size-8 place-items-center rounded-full", fived.includes(r.name) ? "bg-warn/20 text-warn" : "bg-fg/6 text-muted hover:text-fg")}
                         aria-label={`Chocar los cinco con ${r.name}`}
                       >
                         <Hand className="size-4" />
@@ -264,7 +285,7 @@ export default function LiveRoom() {
 
           {tab === "info" && (
             <div className="flex-1 space-y-4 overflow-y-auto p-4">
-              <Link href={`/coaches/${coach.id}`} className="flex items-center gap-3 rounded-2xl bg-white/4 p-3">
+              <Link href={`/coaches/${coach.id}`} className="flex items-center gap-3 rounded-2xl bg-fg/4 p-3">
                 <Avatar name={coach.name} hue={coach.hue} size={44} />
                 <div className="min-w-0">
                   <div className="font-semibold">{coach.name}</div>
@@ -282,13 +303,13 @@ export default function LiveRoom() {
                 <div className="eyebrow mb-2">Material</div>
                 <div className="flex flex-wrap gap-1.5">
                   {(c.equipment.length ? c.equipment : ["bodyweight" as const]).map(e => (
-                    <span key={e} className="rounded-full bg-white/6 px-3 py-1 text-xs">
+                    <span key={e} className="rounded-full bg-fg/6 px-3 py-1 text-xs">
                       {EQUIPMENT_LABEL[e]}
                     </span>
                   ))}
                 </div>
               </div>
-              <button onClick={() => react("❤️")} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white/5 py-3 text-sm font-semibold text-muted hover:text-fg">
+              <button onClick={() => react("❤️")} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-fg/5 py-3 text-sm font-semibold text-muted hover:text-fg">
                 <Heart className="size-4" /> Dar las gracias a {coach.name.split(" ")[0]}
               </button>
             </div>
@@ -301,7 +322,7 @@ export default function LiveRoom() {
 
 function InfoBox({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-white/4 p-3">
+    <div className="rounded-xl bg-fg/4 p-3">
       <div className="text-xs text-muted">{label}</div>
       <div className="font-semibold">{value}</div>
     </div>

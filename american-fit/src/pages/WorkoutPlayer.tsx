@@ -100,7 +100,7 @@ export default function WorkoutPlayer() {
     <div className="mx-auto max-w-2xl">
       <header className="glass sticky top-0 z-30 -mx-4 mb-4 border-b border-line px-4 py-3 sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-b-2xl">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/")} className="grid size-10 place-items-center rounded-full bg-white/6" aria-label="Minimizar">
+          <button onClick={() => navigate("/")} className="grid size-10 place-items-center rounded-full bg-fg/6" aria-label="Minimizar">
             <ChevronDown className="size-5" />
           </button>
           <div className="min-w-0 flex-1">
@@ -113,7 +113,7 @@ export default function WorkoutPlayer() {
             Terminar
           </Button>
         </div>
-        <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/8">
+        <div className="mt-3 h-1 overflow-hidden rounded-full bg-fg/8">
           <motion.div className="h-full bg-gradient-brand" animate={{ width: `${total ? (done / total) * 100 : 0}%` }} />
         </div>
       </header>
@@ -129,7 +129,7 @@ export default function WorkoutPlayer() {
           return (
             <section key={`${e.exerciseId}-${ei}`} className={cn("card overflow-hidden transition-colors", complete && "border-success/30")}>
               <div className="flex items-center gap-3 p-3 pr-2">
-                <Link href={`/tecnica/${ex.id}`} className="h-16 w-20 shrink-0 rounded-xl bg-white/[0.03]">
+                <Link href={`/tecnica/${ex.id}`} className="h-16 w-20 shrink-0 rounded-xl bg-fg/[0.03]">
                   <DemoThumb demoId={ex.demo} animate={!complete} className="size-full" />
                 </Link>
                 <div className="min-w-0 flex-1">
@@ -141,7 +141,7 @@ export default function WorkoutPlayer() {
                   </div>
                   {ex.cues[0] && <div className="mt-0.5 truncate text-xs text-warn/90">“{ex.cues[0]}”</div>}
                 </div>
-                <button onClick={() => setMenu(ei)} className="grid size-9 place-items-center rounded-full text-muted hover:bg-white/6" aria-label="Opciones del ejercicio">
+                <button onClick={() => setMenu(ei)} className="grid size-9 place-items-center rounded-full text-muted hover:bg-fg/6" aria-label="Opciones del ejercicio">
                   <MoreHorizontal className="size-5" />
                 </button>
               </div>
@@ -177,7 +177,7 @@ export default function WorkoutPlayer() {
                           value={s.weight || ""}
                           placeholder={prev?.weight ? String(prev.weight) : "0"}
                           onChange={ev => actions.updateSet(ei, si, { weight: Number(ev.target.value.replace(",", ".")) || 0 })}
-                          className="tabular h-10 rounded-lg bg-white/6 text-center font-semibold outline-none focus:bg-white/10 placeholder:text-muted"
+                          className="tabular h-10 rounded-lg bg-fg/6 text-center font-semibold outline-none focus:bg-fg/10 placeholder:text-muted"
                         />
                       )}
                       <input
@@ -186,13 +186,13 @@ export default function WorkoutPlayer() {
                         value={s.reps || ""}
                         placeholder="0"
                         onChange={ev => actions.updateSet(ei, si, { reps: Number(ev.target.value) || 0 })}
-                        className="tabular h-10 rounded-lg bg-white/6 text-center font-semibold outline-none focus:bg-white/10"
+                        className="tabular h-10 rounded-lg bg-fg/6 text-center font-semibold outline-none focus:bg-fg/10"
                       />
                       <button
                         onClick={() => toggleSet(ei, si, e)}
                         className={cn(
                           "grid h-10 place-items-center rounded-lg transition active:scale-90",
-                          s.done ? "bg-success text-ink-950" : "bg-white/8 text-muted hover:text-fg"
+                          s.done ? "bg-success text-ink-950" : "bg-fg/8 text-muted hover:text-fg"
                         )}
                         aria-label={s.done ? "Desmarcar serie" : "Completar serie"}
                       >
@@ -202,11 +202,11 @@ export default function WorkoutPlayer() {
                   );
                 })}
                 <div className="mt-2 flex gap-2">
-                  <button onClick={() => actions.addSet(ei)} className="flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-white/5 text-[13px] font-semibold text-muted hover:text-fg">
+                  <button onClick={() => actions.addSet(ei)} className="flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-fg/5 text-sm font-semibold text-muted hover:text-fg">
                     <Plus className="size-4" /> Añadir serie
                   </button>
                   {e.sets.length > 1 && (
-                    <button onClick={() => actions.removeSet(ei)} className="grid size-10 place-items-center rounded-xl bg-white/5 text-muted hover:text-fg" aria-label="Quitar serie">
+                    <button onClick={() => actions.removeSet(ei)} className="grid size-10 place-items-center rounded-xl bg-fg/5 text-muted hover:text-fg" aria-label="Quitar serie">
                       <Minus className="size-4" />
                     </button>
                   )}
@@ -237,7 +237,7 @@ export default function WorkoutPlayer() {
             className="fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-40 mx-auto max-w-xl"
           >
             <div className="glass overflow-hidden rounded-3xl border border-line-strong shadow-2xl shadow-black/60">
-              <div className="h-1 bg-white/8">
+              <div className="h-1 bg-fg/8">
                 <div className="h-full bg-sky transition-[width] duration-1000 ease-linear" style={{ width: `${(remaining / rest.total) * 100}%` }} />
               </div>
               <div className="flex items-center gap-3 p-3">
@@ -245,10 +245,10 @@ export default function WorkoutPlayer() {
                   <div className="eyebrow">{remaining === 0 ? "¡A por la siguiente!" : "Descanso"}</div>
                   <div className={cn("tabular title-display text-4xl", remaining === 0 && "text-success")}>{fmtDuration(remaining)}</div>
                 </div>
-                <button onClick={() => setRest(r => r && { ...r, until: r.until - 15000 })} className="h-11 rounded-full bg-white/8 px-3 text-sm font-semibold">
+                <button onClick={() => setRest(r => r && { ...r, until: r.until - 15000 })} className="h-11 rounded-full bg-fg/8 px-3 text-sm font-semibold">
                   −15
                 </button>
-                <button onClick={() => setRest(r => r && { ...r, until: r.until + 15000, total: r.total + 15 })} className="h-11 rounded-full bg-white/8 px-3 text-sm font-semibold">
+                <button onClick={() => setRest(r => r && { ...r, until: r.until + 15000, total: r.total + 15 })} className="h-11 rounded-full bg-fg/8 px-3 text-sm font-semibold">
                   +15
                 </button>
                 <button onClick={() => setRest(null)} className="grid size-11 place-items-center rounded-full bg-fg text-ink-950" aria-label="Saltar descanso">
@@ -302,7 +302,7 @@ export default function WorkoutPlayer() {
 
 function MenuItem({ icon, label, onClick, danger }: { icon: React.ReactNode; label: string; onClick: () => void; danger?: boolean }) {
   return (
-    <button onClick={onClick} className={cn("flex w-full items-center gap-3 rounded-2xl bg-white/4 p-4 text-left font-medium hover:bg-white/8", danger && "text-brand-300")}>
+    <button onClick={onClick} className={cn("flex w-full items-center gap-3 rounded-2xl bg-fg/4 p-4 text-left font-medium hover:bg-fg/8", danger && "text-brand-300")}>
       {icon}
       {label}
     </button>
@@ -342,7 +342,7 @@ export function ExercisePicker({
       <ul className="space-y-1 pb-2">
         {list.map(e => (
           <li key={e.id}>
-            <button onClick={() => onPick(e.id)} className="flex w-full items-center gap-3 rounded-2xl p-2 text-left hover:bg-white/5">
+            <button onClick={() => onPick(e.id)} className="flex w-full items-center gap-3 rounded-2xl p-2 text-left hover:bg-fg/5">
               <div className="h-12 w-14 shrink-0">
                 <DemoThumb demoId={e.demo} className="size-full" />
               </div>
@@ -350,7 +350,7 @@ export function ExercisePicker({
                 <div className="truncate text-sm font-semibold">{e.name}</div>
                 <div className="truncate text-xs text-muted">{e.primary.map(m => MUSCLE_LABEL[m]).join(", ")}</div>
               </div>
-              {base && e.pattern === base.pattern && <span className="rounded-full bg-sky/15 px-2 py-0.5 text-[11px] font-semibold text-sky-300">Mismo patrón</span>}
+              {base && e.pattern === base.pattern && <span className="rounded-full bg-sky/15 px-2 py-0.5 text-xs font-semibold text-sky-300">Mismo patrón</span>}
               <Plus className="size-4 text-muted" />
             </button>
           </li>

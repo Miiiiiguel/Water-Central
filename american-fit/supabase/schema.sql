@@ -52,3 +52,30 @@ create policy "read own subscription" on public.af_subscriptions
 drop policy if exists "read own payments" on public.af_payments;
 create policy "read own payments" on public.af_payments
   for select using (auth.uid() = user_id);
+
+-- Support cases created from the app's help panel.
+create table if not exists public.af_support_tickets (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  ref text not null,
+  category text not null,
+  subject text not null,
+  message text not null,
+  status text not null default 'abierto' check (status in ('abierto', 'en-revision', 'resuelto')),
+  created_at timestamptz not null default now()
+);
+
+alter table public.af_support_tickets enable row level security;
+
+drop policy if exists "own tickets read" on public.af_support_tickets;
+create policy "own tickets read" on public.af_support_tickets
+  for select using (auth.uid() = user_id);
+
+drop policy if exists "own tickets create" on public.af_support_tickets;
+create policy "own tickets create" on public.af_support_tickets
+  for insert with check (auth.uid() = user_id);
+
+-- One-time purchases from the Tienda reuse af_payments with a product id.
+alter table public.af_payments add column if not exists product text;
+alter table public.af_payments alter column plan drop not null;
+alter table public.af_payments alter column period drop not null;

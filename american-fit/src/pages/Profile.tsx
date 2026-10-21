@@ -5,6 +5,7 @@ import { Avatar, Badge, Button, PageHeader, Segmented, Sheet, Stepper } from "@/
 import { PROGRAM_BY_ID } from "@/data/programs";
 import { ACTIVITY_LABEL, GOAL_LABEL, targetsFor, tdee } from "@/lib/nutrition";
 import { useAuth } from "@/lib/auth";
+import { PRODUCT_BY_ID } from "@/data/shop";
 import { cancelPlan, formatMoney, PLAN_NAME } from "@/lib/payments";
 import { actions, getState, useApp } from "@/lib/store";
 import type { Activity, Goal, Level } from "@/lib/types";
@@ -79,7 +80,7 @@ export default function Profile() {
             void signOut();
             navigate("/");
           }}
-          className="flex w-full items-center gap-3 px-4 py-3.5 text-left text-[15px] font-semibold hover:bg-white/[0.04]"
+          className="flex w-full items-center gap-3 px-4 py-3.5 text-left text-[15px] font-semibold hover:bg-fg/[0.04]"
         >
           <LogOut className="size-5 text-muted" /> Cerrar sesión
         </button>
@@ -112,7 +113,7 @@ export default function Profile() {
           <div key={p.id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
             <span className="min-w-0">
               <span className="block font-medium">
-                {PLAN_NAME[p.plan]} {p.period === "monthly" ? "mensual" : "anual"}
+                {p.productId ? PRODUCT_BY_ID[p.productId]?.name : `${PLAN_NAME[p.plan]} ${p.period === "monthly" ? "mensual" : "anual"}`}
               </span>
               <span className="block text-fg/80">
                 {new Date(p.at).toLocaleDateString("es", { day: "numeric", month: "short", year: "numeric" })} · {p.provider === "demo" ? "prueba" : p.provider === "wompi" ? "Wompi" : "Stripe"}
@@ -152,7 +153,7 @@ export default function Profile() {
           <select
             value={profile.goal}
             onChange={e => actions.updateProfile({ goal: e.target.value as Goal })}
-            className="h-10 rounded-xl bg-white/6 px-3 text-sm outline-none"
+            className="h-10 rounded-xl bg-fg/6 px-3 text-sm outline-none"
           >
             {(Object.keys(GOAL_LABEL) as Goal[]).map(g => (
               <option key={g} value={g}>
@@ -177,7 +178,7 @@ export default function Profile() {
           <select
             value={profile.activity}
             onChange={e => actions.updateProfile({ activity: e.target.value as Activity })}
-            className="h-10 max-w-48 rounded-xl bg-white/6 px-3 text-sm outline-none"
+            className="h-10 max-w-48 rounded-xl bg-fg/6 px-3 text-sm outline-none"
           >
             {(Object.keys(ACTIVITY_LABEL) as Activity[]).map(a => (
               <option key={a} value={a}>
@@ -193,9 +194,9 @@ export default function Profile() {
             ["Proteína", `${t.protein} g`],
             ["Agua", `${(t.waterMl / 1000).toLocaleString("es")} L`],
           ].map(([l, v]) => (
-            <div key={l} className="rounded-xl bg-white/4 p-2">
+            <div key={l} className="rounded-xl bg-fg/4 p-2">
               <div className="tabular text-sm font-bold">{typeof v === "number" ? v.toLocaleString("es") : v}</div>
-              <div className="text-[11px] text-muted">{l}</div>
+              <div className="text-xs text-muted">{l}</div>
             </div>
           ))}
         </div>
@@ -236,7 +237,7 @@ export default function Profile() {
       <section className="card divide-y divide-line">
         <h2 className="p-4 font-bold">Datos</h2>
         {hasDemo && (
-          <button onClick={() => actions.clearDemo()} className="flex w-full items-center gap-3 p-4 text-left hover:bg-white/[0.02]">
+          <button onClick={() => actions.clearDemo()} className="flex w-full items-center gap-3 p-4 text-left hover:bg-fg/[0.02]">
             <Trash2 className="size-5 text-muted" />
             <span className="flex-1">
               <span className="block font-medium">Borrar entrenos de ejemplo</span>
@@ -244,14 +245,14 @@ export default function Profile() {
             </span>
           </button>
         )}
-        <button onClick={exportData} className="flex w-full items-center gap-3 p-4 text-left hover:bg-white/[0.02]">
+        <button onClick={exportData} className="flex w-full items-center gap-3 p-4 text-left hover:bg-fg/[0.02]">
           <Download className="size-5 text-muted" />
           <span className="flex-1">
             <span className="block font-medium">Exportar mis datos</span>
             <span className="block text-xs text-muted">Entrenos, comidas y peso en un archivo JSON.</span>
           </span>
         </button>
-        <button onClick={() => setConfirmReset(true)} className="flex w-full items-center gap-3 p-4 text-left text-brand-300 hover:bg-white/[0.02]">
+        <button onClick={() => setConfirmReset(true)} className="flex w-full items-center gap-3 p-4 text-left text-brand-300 hover:bg-fg/[0.02]">
           <RotateCcw className="size-5" />
           <span className="flex-1 font-medium">Empezar de cero</span>
         </button>
