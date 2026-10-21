@@ -1,0 +1,55 @@
+{
+  "name": "american-fit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "description": "American Fit — técnica de ejercicios, entrenamiento, nutrición, clases en vivo y videos.",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview --host",
+    "check": "tsc --noEmit",
+    "test": "vitest run",
+    "cap:sync": "vite build && cap sync",
+    "cap:ios": "pnpm cap:sync && cap open ios",
+    "cap:android": "pnpm cap:sync && cap open android",
+    "demos:sheet": "tsx scripts/render-demos.tsx > demos.html"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource/bebas-neue": "^5.2.7",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.23.22",
+    "hls.js": "^1.6.13",
+    "lucide-react": "^0.453.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "tailwind-merge": "^3.3.1",
+    "wouter": "^3.7.1"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.5.1",
+    "@capacitor/cli": "^8.5.1",
+    "@capacitor/core": "^8.5.1",
+    "@capacitor/ios": "^8.5.1",
+    "@tailwindcss/vite": "^4.1.14",
+    "@types/node": "^24.7.0",
+    "@types/react": "^19.2.1",
+    "@types/react-dom": "^19.2.1",
+    "@vitejs/plugin-react": "^5.0.4",
+    "tailwindcss": "^4.1.14",
+    "tsx": "^4.19.1",
+    "typescript": "5.6.3",
+    "vite": "^7.1.7",
+    "vite-plugin-pwa": "^1.3.0",
+    "vitest": "^2.1.4",
+    "workbox-window": "^7.4.0"
+  },
+  "packageManager": "pnpm@10.4.1",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+name: American Fit
+
+on:
+  push:
+    branches: ['**']
+    paths: ['american-fit/**', '.github/workflows/american-fit.yml']
+  pull_request:
+    paths: ['american-fit/**', '.github/workflows/american-fit.yml']
+
+defaults:
+  run:
+    working-directory: american-fit
+
+jobs:
+  check:
+    name: Typecheck, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: american-fit/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: american-fit/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - run: pnpm test
+      - run: pnpm build
