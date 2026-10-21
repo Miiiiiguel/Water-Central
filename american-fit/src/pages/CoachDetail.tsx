@@ -27,7 +27,7 @@ export default function CoachDetail() {
           <div>
             <Badge tone="brand">Coach American Fit</Badge>
             <h1 className="title-display mt-2 text-5xl sm:text-6xl">{c.name}</h1>
-            <p className="text-fg/80">{c.role}</p>
+            <p className="text-fg/90">{c.role}</p>
             <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted">
               <span className="flex items-center gap-1">
                 <Star className="size-4 text-warn" fill="currentColor" /> {c.rating}
@@ -36,7 +36,7 @@ export default function CoachDetail() {
             </div>
           </div>
         </div>
-        <p className="relative mt-5 max-w-2xl leading-relaxed text-fg/80">{c.bio}</p>
+        <p className="relative mt-5 max-w-2xl leading-relaxed text-fg/90">{c.bio}</p>
         <div className="relative mt-4 flex flex-wrap gap-2">
           {c.specialties.map(s => (
             <span key={s} className="rounded-full bg-black/30 px-3 py-1 text-sm backdrop-blur">
@@ -54,7 +54,7 @@ export default function CoachDetail() {
               <Link key={x.id} href={`/live/${x.id}`} className="flex items-center gap-4 p-4 hover:bg-white/[0.02]">
                 <div className="w-14">
                   <div className="tabular font-bold">{fmtTime(at)}</div>
-                  <div className="text-[11px] uppercase text-muted">{fmtWeekday(at)}</div>
+                  <div className="text-xs uppercase text-muted">{fmtWeekday(at)}</div>
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="truncate font-semibold">{x.title}</div>

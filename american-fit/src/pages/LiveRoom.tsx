@@ -207,13 +207,13 @@ export default function LiveRoom() {
 
           {tab === "chat" && (
             <>
-              <div className="px-4 pt-2 text-[10px] uppercase tracking-wider text-faint">Vista previa · mensajes de ejemplo</div>
+              <div className="px-4 pt-2 text-[11px] uppercase tracking-wider text-faint">Vista previa · mensajes de ejemplo</div>
               <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto p-4">
                 {msgs.map(m => (
                   <div key={m.id} className={cn("flex gap-2.5", m.me && "flex-row-reverse")}>
                     <Avatar name={m.name} hue={m.hue} size={28} />
                     <div className={cn("max-w-[78%] rounded-2xl px-3 py-2", m.me ? "bg-brand/20" : m.coach ? "border border-sky/30 bg-sky/10" : "bg-white/6")}>
-                      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-muted">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-muted">
                         {m.name}
                         {m.coach && <Badge tone="sky">Coach</Badge>}
                       </div>
@@ -239,7 +239,7 @@ export default function LiveRoom() {
 
           {tab === "ranking" && (
             <div className="flex-1 overflow-y-auto">
-              <div className="px-4 pt-3 text-[10px] uppercase tracking-wider text-faint">Vista previa · puntos de esfuerzo de ejemplo</div>
+              <div className="px-4 pt-3 text-[11px] uppercase tracking-wider text-faint">Vista previa · puntos de esfuerzo de ejemplo</div>
               <ol className="divide-y divide-line">
                 {board.map((r, i) => (
                   <li key={r.name} className={cn("flex items-center gap-3 px-4 py-2.5", r.me && "bg-brand/10")}>
@@ -302,7 +302,7 @@ export default function LiveRoom() {
 function InfoBox({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl bg-white/4 p-3">
-      <div className="text-[11px] text-muted">{label}</div>
+      <div className="text-xs text-muted">{label}</div>
       <div className="font-semibold">{value}</div>
     </div>
   );

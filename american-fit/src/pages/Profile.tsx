@@ -110,7 +110,7 @@ export default function Profile() {
           ].map(([l, v]) => (
             <div key={l} className="rounded-xl bg-white/4 p-2">
               <div className="tabular text-sm font-bold">{typeof v === "number" ? v.toLocaleString("es") : v}</div>
-              <div className="text-[10px] text-muted">{l}</div>
+              <div className="text-[11px] text-muted">{l}</div>
             </div>
           ))}
         </div>

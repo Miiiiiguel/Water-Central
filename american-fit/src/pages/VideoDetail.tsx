@@ -90,11 +90,11 @@ export default function VideoDetail() {
               <div key={label as string} className="card p-3">
                 <div className="mb-1 text-muted">{icon}</div>
                 <div className="truncate text-sm font-semibold">{val}</div>
-                <div className="text-[11px] text-muted">{label}</div>
+                <div className="text-xs text-muted">{label}</div>
               </div>
             ))}
           </div>
-          <p className="leading-relaxed text-fg/85">{v.description}</p>
+          <p className="leading-relaxed text-fg/95">{v.description}</p>
           {v.chapters && (
             <div className="card divide-y divide-line">
               <div className="flex items-center gap-2 p-4 font-semibold">
@@ -125,7 +125,7 @@ export default function VideoDetail() {
                         <ClassArt hue={CATEGORY_HUE[e.category]} word="" category={e.category} />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-[11px] text-muted">Episodio {e.episode}</div>
+                        <div className="text-xs text-muted">Episodio {e.episode}</div>
                         <div className="line-clamp-2 text-sm font-semibold">{e.title}</div>
                         <div className="text-xs text-muted">{e.durationMin} min</div>
                       </div>

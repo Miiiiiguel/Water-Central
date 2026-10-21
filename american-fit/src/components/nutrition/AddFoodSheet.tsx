@@ -177,7 +177,7 @@ function FoodList({ foods, onPick }: { foods: Food[]; onPick: (f: Food) => void 
             </div>
             <div className="text-right">
               <div className="tabular text-sm font-semibold">{portion(f, f.serving.grams).kcal} kcal</div>
-              <div className="tabular text-[11px] text-muted">
+              <div className="tabular text-xs text-muted">
                 P{portion(f, f.serving.grams).protein} · C{portion(f, f.serving.grams).carbs} · G{portion(f, f.serving.grams).fat}
               </div>
             </div>
@@ -297,7 +297,7 @@ function QuickAdd({
       <div className="grid grid-cols-2 gap-2">
         {(["kcal", "protein", "carbs", "fat"] as const).map(k => (
           <label key={k} className="rounded-2xl border border-line bg-ink-850 px-4 py-2">
-            <span className="text-[11px] uppercase text-muted">{{ kcal: "Calorías", protein: "Proteína (g)", carbs: "Carbos (g)", fat: "Grasa (g)" }[k]}</span>
+            <span className="text-xs uppercase text-muted">{{ kcal: "Calorías", protein: "Proteína (g)", carbs: "Carbos (g)", fat: "Grasa (g)" }[k]}</span>
             <input
               inputMode="decimal"
               value={v[k] || ""}

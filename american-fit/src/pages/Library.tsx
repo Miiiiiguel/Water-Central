@@ -36,7 +36,7 @@ function ExerciseCard({ ex, fav }: { ex: Exercise; fav: boolean }) {
           <div className="mt-0.5 truncate text-xs text-muted">
             {ex.primary.map(m => MUSCLE_LABEL[m]).join(" · ")}
           </div>
-          <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-muted">
+          <div className="mt-2.5 flex items-center gap-1.5 text-xs text-muted">
             <span className="rounded-md bg-white/6 px-1.5 py-0.5">{PATTERN_LABEL[ex.pattern]}</span>
             <span className="rounded-md bg-white/6 px-1.5 py-0.5">{LEVEL_LABEL[ex.level]}</span>
             <span className="truncate rounded-md bg-white/6 px-1.5 py-0.5">{EQUIPMENT_LABEL[ex.equipment[0]!]}</span>
@@ -120,7 +120,7 @@ export default function Library() {
               >
                 <SlidersHorizontal className="size-5" />
                 {activeFilters > 0 && (
-                  <span className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-brand text-[10px] font-bold">
+                  <span className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-brand text-[11px] font-bold">
                     {activeFilters}
                   </span>
                 )}

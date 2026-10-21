@@ -107,13 +107,13 @@ export function TrendChart({
           {ticks.map(t => (
             <g key={t}>
               <line x1={pad.l} x2={width - pad.r} y1={y(t)} y2={y(t)} stroke="var(--color-line)" />
-              <text x={pad.l - 8} y={y(t)} dy="0.32em" textAnchor="end" className="fill-faint text-[10px] tabular">
+              <text x={pad.l - 8} y={y(t)} dy="0.32em" textAnchor="end" className="fill-faint text-[11px] tabular">
                 {compact(t)}
               </text>
             </g>
           ))}
           {[0, Math.floor((data.length - 1) / 2), data.length - 1].map(i => (
-            <text key={i} x={x(i)} y={height - 6} textAnchor={i === 0 ? "start" : i === data.length - 1 ? "end" : "middle"} className="fill-faint text-[10px]">
+            <text key={i} x={x(i)} y={height - 6} textAnchor={i === 0 ? "start" : i === data.length - 1 ? "end" : "middle"} className="fill-faint text-[11px]">
               {data[i]?.label}
             </text>
           ))}
@@ -188,7 +188,7 @@ export function ColumnChart({
           {ticks.map(t => (
             <g key={t}>
               <line x1={pad.l} x2={width - pad.r} y1={y(t)} y2={y(t)} stroke="var(--color-line)" />
-              <text x={pad.l - 8} y={y(t)} dy="0.32em" textAnchor="end" className="fill-faint text-[10px] tabular">
+              <text x={pad.l - 8} y={y(t)} dy="0.32em" textAnchor="end" className="fill-faint text-[11px] tabular">
                 {compact(t)}
               </text>
             </g>
@@ -209,7 +209,7 @@ export function ColumnChart({
                     opacity={isLast || hover === i ? 1 : 0.55}
                   />
                 )}
-                <text x={cx} y={height - 6} textAnchor="middle" className="fill-faint text-[10px]">
+                <text x={cx} y={height - 6} textAnchor="middle" className="fill-faint text-[11px]">
                   {d.label}
                 </text>
               </g>

@@ -109,7 +109,7 @@ export function FormDemo({ demoId, className }: { demoId: string; className?: st
       <div className="relative flex items-center justify-between gap-2 px-4 pt-4">
         <span
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider",
+            "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wider",
             wrong ? "bg-warn/15 text-warn" : "bg-success/12 text-success"
           )}
         >

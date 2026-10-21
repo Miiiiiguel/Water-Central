@@ -80,7 +80,7 @@ export default function Home() {
           <Flame className="size-5 text-ember" />
           <div className="leading-tight">
             <div className="tabular text-lg font-bold">{streak}</div>
-            <div className="text-[10px] text-muted">sem. seguidas</div>
+            <div className="text-[11px] text-muted">sem. seguidas</div>
           </div>
         </div>
       </motion.section>
@@ -100,7 +100,7 @@ export default function Home() {
                   </p>
                   <ul className="mt-4 space-y-1.5 text-sm">
                     {next.day.exercises.slice(0, 4).map(it => (
-                      <li key={it.id} className="flex items-center gap-2 text-fg/85">
+                      <li key={it.id} className="flex items-center gap-2 text-fg/95">
                         <span className="size-1.5 rounded-full bg-brand" />
                         <span className="truncate">{getExercise(it.id)?.name}</span>
                         <span className="ml-auto shrink-0 tabular text-xs text-muted">
@@ -175,7 +175,7 @@ export default function Home() {
                 <div key={c.id} className="flex items-center gap-3 rounded-xl p-2 hover:bg-white/4">
                   <div className="w-12 shrink-0 text-center">
                     <div className="tabular text-sm font-bold">{fmtTime(at)}</div>
-                    <div className="text-[10px] uppercase text-muted">{dayKey(at) === dayKey(now) ? "hoy" : fmtWeekday(at)}</div>
+                    <div className="text-[11px] uppercase text-muted">{dayKey(at) === dayKey(now) ? "hoy" : fmtWeekday(at)}</div>
                   </div>
                   <Link href={`/live/${c.id}`} className="min-w-0 flex-1">
                     <div className="truncate text-sm font-semibold">{c.title}</div>
@@ -218,7 +218,7 @@ export default function Home() {
             center={
               <div>
                 <div className="tabular text-xl font-bold">{Math.max(0, targets.kcal - totals.kcal).toLocaleString("es")}</div>
-                <div className="text-[10px] text-muted">kcal restantes</div>
+                <div className="text-[11px] text-muted">kcal restantes</div>
               </div>
             }
             items={[
@@ -247,7 +247,7 @@ export default function Home() {
             </Link>
           </div>
           <MuscleMap levels={recovery} mode="recovery" className="mx-auto h-48 max-w-[240px]" />
-          <div className="mt-3 flex justify-center gap-4 text-[11px] text-muted">
+          <div className="mt-3 flex justify-center gap-4 text-xs text-muted">
             <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-success" /> Listo</span>
             <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-warn" /> Recuperando</span>
             <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-brand" /> Fatigado</span>
@@ -279,7 +279,7 @@ export default function Home() {
       <motion.section {...fade(6)} className="card flex items-center justify-between gap-2 p-4">
         {week.map(d => (
           <div key={d.key} className="flex flex-1 flex-col items-center gap-1.5">
-            <span className="text-[11px] uppercase text-muted">{fmtWeekday(d.date).slice(0, 2)}</span>
+            <span className="text-xs uppercase text-muted">{fmtWeekday(d.date).slice(0, 2)}</span>
             <span
               className={cn(
                 "grid size-9 place-items-center rounded-full text-sm font-semibold",
@@ -305,7 +305,7 @@ export default function Home() {
                   {v.isReplay && <Badge tone="brand">Repetición</Badge>}
                   {v.isNew && <Badge tone="sky">Nuevo</Badge>}
                 </div>
-                <span className="absolute bottom-2 right-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[11px] font-semibold tabular">
+                <span className="absolute bottom-2 right-2 rounded-md bg-black/60 px-1.5 py-0.5 text-xs font-semibold tabular">
                   {v.durationMin} min
                 </span>
               </div>

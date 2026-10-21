@@ -32,7 +32,7 @@ export default function Recipes() {
           <Link key={r.id} href={`/nutricion/recetas/${r.id}`} className="card card-hover overflow-hidden">
             <div className="grain relative grid h-36 place-items-center" style={{ background: `radial-gradient(90% 90% at 30% 20%, hsl(${r.hue} 85% 55% / 0.5), hsl(${r.hue} 40% 10%))` }}>
               <ChefHat className="size-12 text-white/80" strokeWidth={1.3} />
-              <span className="absolute bottom-2 right-2 flex items-center gap-1 rounded-md bg-black/50 px-2 py-0.5 text-[11px] font-semibold">
+              <span className="absolute bottom-2 right-2 flex items-center gap-1 rounded-md bg-black/50 px-2 py-0.5 text-xs font-semibold">
                 <Clock className="size-3" /> {r.minutes} min
               </span>
             </div>
@@ -47,13 +47,13 @@ export default function Recipes() {
                 ].map(([l, v]) => (
                   <div key={l} className="rounded-lg bg-white/5 py-1.5">
                     <div className="tabular text-sm font-bold">{v}</div>
-                    <div className="text-[10px] text-muted">{l}</div>
+                    <div className="text-[11px] text-muted">{l}</div>
                   </div>
                 ))}
               </div>
               <div className="mt-2 flex flex-wrap gap-1">
                 {r.tags.map(t => (
-                  <span key={t} className="rounded-full bg-white/6 px-2 py-0.5 text-[11px] text-muted">
+                  <span key={t} className="rounded-full bg-white/6 px-2 py-0.5 text-xs text-muted">
                     {t}
                   </span>
                 ))}

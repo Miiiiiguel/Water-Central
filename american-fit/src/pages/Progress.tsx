@@ -143,7 +143,7 @@ export default function Progress() {
           <h2 className="mb-3 font-bold">Constancia · últimas 5 semanas</h2>
           <div className="grid grid-cols-7 gap-1.5">
             {["L", "M", "X", "J", "V", "S", "D"].map(d => (
-              <span key={d} className="text-center text-[10px] text-faint">
+              <span key={d} className="text-center text-[11px] text-faint">
                 {d}
               </span>
             ))}

@@ -23,12 +23,12 @@ export function VideoCard({ v, wide, progress }: { v: VideoClass; wide?: boolean
           {v.isNew && <Badge tone="sky">Nuevo</Badge>}
           {v.isReplay && <Badge tone="brand">Repetición</Badge>}
           {!hasVideo(v.video.src) && (
-            <Badge tone="neutral" className="bg-black/50 text-fg/80 backdrop-blur">
+            <Badge tone="neutral" className="bg-black/50 text-fg/90 backdrop-blur">
               <Clapperboard className="size-3" /> Próximamente
             </Badge>
           )}
         </div>
-        <span className="absolute bottom-2 right-2 rounded-md bg-black/65 px-1.5 py-0.5 text-[11px] font-semibold tabular">{v.durationMin} min</span>
+        <span className="absolute bottom-2 right-2 rounded-md bg-black/65 px-1.5 py-0.5 text-xs font-semibold tabular">{v.durationMin} min</span>
         <span className="absolute inset-0 grid place-items-center opacity-0 transition-opacity group-hover:opacity-100">
           <span className="grid size-12 place-items-center rounded-full bg-white/90 text-ink-950">
             <Play className="size-5 translate-x-px" fill="currentColor" />
@@ -86,11 +86,11 @@ export default function Videos() {
           <div className="aspect-[4/3] sm:aspect-[16/6]">
             <ClassArt hue={CATEGORY_HUE[featured.category]} word={CATEGORY_LABEL[featured.category]} category={featured.category} />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-ink-950/95 via-ink-950/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-ink-950/95 via-ink-950/80 to-ink-950/30" />
           <div className="absolute inset-y-0 left-0 flex max-w-lg flex-col justify-end p-6 sm:p-10">
             <Badge tone="sky">Estreno</Badge>
             <h2 className="title-display mt-2 text-4xl sm:text-6xl">{featured.title}</h2>
-            <p className="mt-1 line-clamp-2 text-sm text-fg/75">{featured.description}</p>
+            <p className="mt-1 line-clamp-2 text-sm text-fg/90">{featured.description}</p>
             <span className="mt-4 inline-flex h-11 w-fit items-center gap-2 rounded-full bg-fg px-5 text-sm font-bold text-ink-950">
               <Play className="size-4" fill="currentColor" /> Ver ahora
             </span>

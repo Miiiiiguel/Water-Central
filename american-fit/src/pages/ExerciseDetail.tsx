@@ -130,7 +130,7 @@ export default function ExerciseDetail() {
               {best > 0 && (
                 <div className="text-right">
                   <div className="tabular text-xl font-bold">{best} kg</div>
-                  <div className="text-[11px] text-muted">1RM estimado</div>
+                  <div className="text-xs text-muted">1RM estimado</div>
                 </div>
               )}
             </div>
@@ -173,7 +173,7 @@ export default function ExerciseDetail() {
           <Section title="Preparación">
             <ul className="space-y-2">
               {ex.setup.map(s => (
-                <li key={s} className="flex gap-3 text-[15px] text-fg/85">
+                <li key={s} className="flex gap-3 text-[15px] text-fg/95">
                   <Check className="mt-0.5 size-4 shrink-0 text-success" />
                   {s}
                 </li>
@@ -186,7 +186,7 @@ export default function ExerciseDetail() {
               {ex.steps.map((s, i) => (
                 <li key={s} className="flex gap-3 text-[15px]">
                   <span className="grid size-7 shrink-0 place-items-center rounded-full bg-white/8 text-xs font-bold tabular">{i + 1}</span>
-                  <span className="pt-0.5 text-fg/85">{s}</span>
+                  <span className="pt-0.5 text-fg/95">{s}</span>
                 </li>
               ))}
             </ol>
@@ -243,7 +243,7 @@ function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; va
     <div className="card p-3">
       <div className="mb-1 text-muted">{icon}</div>
       <div className="truncate text-[15px] font-bold">{value}</div>
-      <div className="text-[11px] text-muted">{label}</div>
+      <div className="text-xs text-muted">{label}</div>
     </div>
   );
 }
@@ -280,7 +280,7 @@ function Variant({ id, kind }: { id: string; kind: "easier" | "harder" }) {
         <DemoThumb demoId={v.demo} className="size-full" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className={cn("flex items-center gap-1 text-[11px] font-semibold uppercase", kind === "easier" ? "text-success" : "text-ember")}>
+        <div className={cn("flex items-center gap-1 text-xs font-semibold uppercase", kind === "easier" ? "text-success" : "text-ember")}>
           {kind === "easier" ? <ArrowDownRight className="size-3.5" /> : <ArrowUpRight className="size-3.5" />}
           {kind === "easier" ? "Más fácil" : "Más difícil"}
         </div>

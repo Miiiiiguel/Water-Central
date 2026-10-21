@@ -61,7 +61,7 @@ export default function Live() {
         <div className="absolute inset-0">
           <ClassArt hue={CATEGORY_HUE[hero.c.category]} word={CATEGORY_LABEL[hero.c.category]} category={hero.c.category} />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/75 to-ink-950/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/85 to-ink-950/45" />
         <div className="relative max-w-xl p-6 sm:p-10">
           {hero.live ? (
             <Badge tone="live">En vivo ahora</Badge>
@@ -71,7 +71,7 @@ export default function Live() {
             </Badge>
           )}
           <h2 className="title-display mt-3 text-5xl sm:text-7xl">{hero.c.title}</h2>
-          <div className="mt-2 flex items-center gap-2 text-sm text-fg/80">
+          <div className="mt-2 flex items-center gap-2 text-sm text-fg/90">
             <Avatar name={heroCoach.name} hue={heroCoach.hue} size={26} />
             {heroCoach.name} · {hero.c.durationMin} min · {LEVEL_LABEL[hero.c.level]}
           </div>
@@ -83,7 +83,7 @@ export default function Live() {
                 .map((part, i, arr) => (
                   <div key={i} className="min-w-16 rounded-2xl bg-black/40 px-3 py-2 text-center backdrop-blur">
                     <div className="tabular title-display text-4xl">{part.padStart(2, "0")}</div>
-                    <div className="text-[10px] uppercase text-muted">{arr.length === 3 ? ["horas", "min", "seg"][i] : ["min", "seg"][i]}</div>
+                    <div className="text-[11px] uppercase text-muted">{arr.length === 3 ? ["horas", "min", "seg"][i] : ["min", "seg"][i]}</div>
                   </div>
                 ))}
             </div>
@@ -126,7 +126,7 @@ export default function Live() {
                   active ? "border-fg bg-fg text-ink-950" : "border-line bg-ink-900 text-muted hover:text-fg"
                 )}
               >
-                <span className="text-[11px] font-semibold uppercase">{k === dayKey(now) ? "Hoy" : fmtWeekday(d)}</span>
+                <span className="text-xs font-semibold uppercase">{k === dayKey(now) ? "Hoy" : fmtWeekday(d)}</span>
                 <span className="text-xl font-bold">{d.getDate()}</span>
                 <span className={cn("mt-0.5 size-1 rounded-full", classesOn(d).length ? (active ? "bg-brand" : "bg-brand/70") : "bg-transparent")} />
               </button>
@@ -154,10 +154,10 @@ export default function Live() {
             const coach = COACH_BY_ID[c.coachId]!;
             const on = reminders.includes(c.id);
             return (
-              <div key={c.id} className={cn("flex items-center gap-4 p-4", past && "opacity-45")}>
+              <div key={c.id} className={cn("flex items-center gap-4 p-4", past && "opacity-60")}>
                 <div className="w-14 shrink-0">
                   <div className="tabular text-lg font-bold leading-none">{fmtTime(start)}</div>
-                  <div className="mt-1 text-[11px] text-muted">{c.durationMin} min</div>
+                  <div className="mt-1 text-xs text-muted">{c.durationMin} min</div>
                 </div>
                 <div className="h-10 w-1 shrink-0 rounded-full" style={{ background: `hsl(${CATEGORY_HUE[c.category]} 80% 58%)` }} />
                 <Link href={`/live/${c.id}`} className="min-w-0 flex-1">

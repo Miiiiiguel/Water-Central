@@ -82,7 +82,7 @@ export default function Train() {
                     )}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-semibold uppercase text-muted">Día {d.key}</span>
+                      <span className="text-xs font-semibold uppercase text-muted">Día {d.key}</span>
                       {isNext ? <Badge tone="brand">Siguiente</Badge> : done > 0 && <Check className="size-4 text-success" />}
                     </div>
                     <div className="mt-1 text-sm font-semibold">{d.name}</div>

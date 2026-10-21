@@ -147,7 +147,7 @@ export default function WorkoutPlayer() {
               </div>
 
               <div className="px-3 pb-3">
-                <div className="grid grid-cols-[28px_1fr_76px_76px_44px] items-center gap-2 px-1 pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-faint">
+                <div className="grid grid-cols-[28px_1fr_76px_76px_44px] items-center gap-2 px-1 pb-1.5 text-xs font-semibold uppercase tracking-wide text-faint">
                   <span>Serie</span>
                   <span>Anterior</span>
                   <span className="text-center">{bodyweight ? "+kg" : timeBased ? "" : "kg"}</span>
@@ -350,7 +350,7 @@ export function ExercisePicker({
                 <div className="truncate text-sm font-semibold">{e.name}</div>
                 <div className="truncate text-xs text-muted">{e.primary.map(m => MUSCLE_LABEL[m]).join(", ")}</div>
               </div>
-              {base && e.pattern === base.pattern && <span className="rounded-full bg-sky/15 px-2 py-0.5 text-[10px] font-semibold text-sky-300">Mismo patrón</span>}
+              {base && e.pattern === base.pattern && <span className="rounded-full bg-sky/15 px-2 py-0.5 text-[11px] font-semibold text-sky-300">Mismo patrón</span>}
               <Plus className="size-4 text-muted" />
             </button>
           </li>

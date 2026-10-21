@@ -80,7 +80,7 @@ export function VideoPlayer({
         onTimeUpdate={e => onProgress?.(e.currentTarget.currentTime)}
       />
       {live && (
-        <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-md bg-brand px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
+        <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-md bg-brand px-2 py-1 text-xs font-bold uppercase tracking-wider text-white">
           <span className="size-1.5 animate-pulse rounded-full bg-white" /> En vivo
         </span>
       )}
@@ -109,10 +109,10 @@ export function InProduction({
       <div className="absolute inset-0">{art}</div>
       <div className="absolute inset-0 bg-gradient-to-t from-ink-950/95 via-ink-950/55 to-ink-950/10" />
       <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
-        <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-fg backdrop-blur">
+        <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-fg backdrop-blur">
           <Clapperboard className="size-3.5" /> {title}
         </div>
-        <p className="max-w-md text-sm text-fg/80">{text}</p>
+        <p className="max-w-md text-sm text-fg/90">{text}</p>
         {onNotify && (
           <button
             onClick={onNotify}

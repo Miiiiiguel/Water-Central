@@ -27,7 +27,7 @@ export default function ArticleDetail() {
         {a.body.map((b, i) => (
           <section key={i}>
             {b.h && <h2 className="mb-1.5 text-xl font-bold">{b.h}</h2>}
-            <p className="leading-relaxed text-fg/80">{b.p}</p>
+            <p className="leading-relaxed text-fg/90">{b.p}</p>
           </section>
         ))}
       </div>

@@ -187,8 +187,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                     key={href}
                     href={href}
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-1 text-[10.5px] font-semibold transition-colors",
-                      active ? "text-fg" : "text-faint"
+                      "relative flex flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors",
+                      active ? "text-fg" : "text-muted"
                     )}
                     aria-current={active ? "page" : undefined}
                   >
@@ -237,7 +237,7 @@ function SideLink({
     >
       <Icon className={cn("size-[18px]", active && "text-brand")} />
       {label}
-      {href === "/live" && <span className="ml-auto rounded-md bg-brand px-1.5 py-0.5 text-[10px] font-bold text-white">LIVE</span>}
+      {href === "/live" && <span className="ml-auto rounded-md bg-brand px-1.5 py-0.5 text-[11px] font-bold text-white">LIVE</span>}
     </Link>
   );
 }

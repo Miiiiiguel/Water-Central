@@ -46,7 +46,7 @@ export default function Nutrition() {
         </button>
         <div className="text-center">
           <div className="text-sm font-semibold">{isToday ? "Hoy" : fmtLongDate(fromDayKey(date))}</div>
-          {isToday && <div className="text-[11px] text-muted">{fmtLongDate(fromDayKey(date))}</div>}
+          {isToday && <div className="text-xs text-muted">{fmtLongDate(fromDayKey(date))}</div>}
         </div>
         <button onClick={() => shift(1)} disabled={isToday} className="grid size-10 place-items-center rounded-xl hover:bg-white/6 disabled:opacity-30" aria-label="Día siguiente">
           <ChevronRight className="size-5" />
@@ -76,7 +76,7 @@ export default function Nutrition() {
             center={
               <div>
                 <div className="tabular text-lg font-bold">{Math.round((totals.protein / targets.protein) * 100) || 0}%</div>
-                <div className="text-[10px] text-muted">proteína</div>
+                <div className="text-[11px] text-muted">proteína</div>
               </div>
             }
           />

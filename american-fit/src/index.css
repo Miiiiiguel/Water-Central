@@ -23,8 +23,8 @@
   --color-ink-500: #3a445c;
 
   --color-fg: #f4f6fb;
-  --color-muted: #8b94a8;
-  --color-faint: #5d667b;
+  --color-muted: #aab3c5;
+  --color-faint: #8790a5;
   --color-line: rgb(255 255 255 / 0.07);
   --color-line-strong: rgb(255 255 255 / 0.13);
 
@@ -129,7 +129,7 @@
   }
 
   .glass {
-    background: rgb(11 15 23 / 0.72);
+    background: rgb(11 15 23 / 0.92);
     backdrop-filter: saturate(160%) blur(18px);
     -webkit-backdrop-filter: saturate(160%) blur(18px);
   }
@@ -139,7 +139,7 @@
   }
 
   .eyebrow {
-    @apply text-[11px] font-semibold uppercase tracking-[0.16em] text-muted;
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-muted;
   }
 
   .text-gradient-brand {

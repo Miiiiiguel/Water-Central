@@ -392,7 +392,7 @@ export default function Onboarding() {
                           {(v as number).toLocaleString("es")}
                           <span className="text-xs text-muted">{u}</span>
                         </div>
-                        <div className="text-[11px] text-muted">{l}</div>
+                        <div className="text-xs text-muted">{l}</div>
                       </div>
                     ))}
                   </div>

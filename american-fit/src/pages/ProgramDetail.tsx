@@ -42,7 +42,7 @@ export default function ProgramDetail() {
             {isMine && <Badge tone="success">Tu programa</Badge>}
           </div>
           <h1 className="title-display mt-3 text-6xl sm:text-7xl">{p.name}</h1>
-          <p className="mt-1 text-lg text-fg/80">{p.tagline}</p>
+          <p className="mt-1 text-lg text-fg/90">{p.tagline}</p>
           <div className="mt-5 flex flex-wrap gap-2">
             {[
               [<CalendarDays key="c" className="size-4" />, `${p.weeks} semanas`],
