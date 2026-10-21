@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { lazy, Suspense, useEffect } from "react";
-import { Redirect, Route, Switch, useLocation } from "wouter";
+import { Redirect, Route, Router, Switch, useLocation } from "wouter";
+import { memoryLocation } from "wouter/memory-location";
 import { AppShell } from "@/components/layout/AppShell";
 import { useApp } from "@/lib/store";
 import Home from "@/pages/Home";
@@ -45,7 +46,21 @@ function ScrollToTop() {
   return null;
 }
 
+// Sandboxed hosts (VITE_TARGET=artifact) can't use real URLs, so routing
+// stays in memory there.
+const memory = import.meta.env.VITE_TARGET === "artifact" ? memoryLocation({ path: "/" }) : null;
+
 export default function App() {
+  return memory ? (
+    <Router hook={memory.hook}>
+      <Routes />
+    </Router>
+  ) : (
+    <Routes />
+  );
+}
+
+function Routes() {
   const onboarded = useApp(s => !!s.profile);
   const [loc] = useLocation();
 

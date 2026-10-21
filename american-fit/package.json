@@ -14,7 +14,8 @@
     "cap:sync": "vite build && cap sync",
     "cap:ios": "pnpm cap:sync && cap open ios",
     "cap:android": "pnpm cap:sync && cap open android",
-    "demos:sheet": "tsx scripts/render-demos.tsx > demos.html"
+    "demos:sheet": "tsx scripts/render-demos.tsx > demos.html",
+    "build:artifact": "VITE_TARGET=artifact vite build --outDir dist-artifact"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",

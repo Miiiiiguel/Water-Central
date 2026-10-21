@@ -14,6 +14,6 @@ createRoot(document.getElementById("root")!).render(
 // Offline support on the web. The native shell (Capacitor) serves files
 // from the device already and WKWebView has no service workers.
 const isNative = !!(window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.();
-if (import.meta.env.PROD && !isNative && "serviceWorker" in navigator) {
+if (import.meta.env.PROD && !isNative && import.meta.env.VITE_TARGET !== "artifact" && "serviceWorker" in navigator) {
   import("virtual:pwa-register").then(({ registerSW }) => registerSW({ immediate: true }));
 }

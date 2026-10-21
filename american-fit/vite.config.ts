@@ -4,11 +4,17 @@ import path from "node:path";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
+// `VITE_TARGET=artifact` builds a self-contained copy for hosting inside a
+// sandboxed page (claude.ai artifact): relative asset paths, in-memory
+// routing and no service worker.
+const artifact = process.env.VITE_TARGET === "artifact";
+
 export default defineConfig({
+  base: artifact ? "./" : "/",
   plugins: [
     react(),
     tailwindcss(),
-    VitePWA({
+    !artifact && VitePWA({
       registerType: "autoUpdate",
       // Registered by hand in main.tsx so the native shell (WKWebView has
       // no service workers) skips it instead of logging an error.
