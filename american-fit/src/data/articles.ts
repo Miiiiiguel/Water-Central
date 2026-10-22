@@ -44,7 +44,7 @@ export const ARTICLES: Article[] = [
     body: [
       { p: "Un déficit de 300–500 kcal al día suele traducirse en perder entre 0,5 % y 1 % del peso corporal por semana, un ritmo que permite conservar músculo y rendimiento." },
       { h: "Sigue entrenando pesado", p: "El estímulo de la fuerza es la señal que le dice a tu cuerpo que necesita conservar el músculo. No cambies a solo cardio." },
-      { h: "Mide tendencias, no días", p: "El peso fluctúa por agua, sal y carbohidratos. American Fit usa la media móvil de 7 días para ajustar tus calorías, igual que las mejores apps de nutrición adaptativa." },
+      { h: "Mide tendencias, no días", p: "El peso fluctúa por agua, sal y carbohidratos. MyGym Community usa la media móvil de 7 días para ajustar tus calorías, igual que las mejores apps de nutrición adaptativa." },
       { h: "Descansos de dieta", p: "Tras 8–12 semanas en déficit, una o dos semanas en mantenimiento ayudan a la adherencia y al rendimiento." },
     ],
   },

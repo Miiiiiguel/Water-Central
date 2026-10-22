@@ -123,7 +123,7 @@ export const PRODUCTS: Product[] = [
     category: "regalos",
     COP: 139_900,
     USD: 34.99,
-    tagline: "Regala American Fit Pro a quien quieras",
+    tagline: "Regala MyGym Pro a quien quieras",
     includes: ["Código canjeable de 3 meses de Pro", "Llega a tu correo para reenviarlo", "Sin fecha de vencimiento para canjear"],
     hue: 48,
   },

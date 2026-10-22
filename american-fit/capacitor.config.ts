@@ -4,8 +4,8 @@ import type { CapacitorConfig } from "@capacitor/cli";
 // `pnpm cap:sync` then `npx cap add ios` / `npx cap add android` the
 // first time; see README.md → "Apps nativas".
 const config: CapacitorConfig = {
-  appId: "com.americanfit.app",
-  appName: "American Fit",
+  appId: "com.mygymcommunity.app",
+  appName: "MyGym Community",
   webDir: "dist",
   // Same near-black as the app so the first paint has no white flash.
   backgroundColor: "#07090F",

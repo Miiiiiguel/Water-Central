@@ -1,10 +1,10 @@
 {
-  "name": "american-fit",
+  "name": "mygym-community",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "license": "UNLICENSED",
-  "description": "American Fit — técnica de ejercicios, entrenamiento, nutrición, clases en vivo y videos.",
+  "description": "MyGym Community — técnica de ejercicios, entrenamiento, nutrición, clases en vivo y videos.",
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",

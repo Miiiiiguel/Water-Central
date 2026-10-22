@@ -17,12 +17,12 @@ export function QuickActions({ open, onClose }: { open: boolean; onClose: () => 
     navigate(href);
   };
   const items: [string, string, React.ReactNode, string, () => void][] = [
-    ["Empezar entreno", "Tu programa de hoy", <Dumbbell key="a" className="size-6" />, "from-[#ff3b4e] to-[#ff7a45]", () => go("/entrenar")],
+    ["Empezar entreno", "Tu programa de hoy", <Dumbbell key="a" className="size-6" />, "from-[#7b3dff] to-[#ff4fd8]", () => go("/entrenar")],
     ["Entreno inteligente", "Según tu recuperación", <Wand2 key="b" className="size-6" />, "from-[#3c7bff] to-[#7b5cff]", () => go("/entrenar")],
     ["Registrar comida", "Busca o escanea", <Utensils key="c" className="size-6" />, "from-[#12b981] to-[#2be09a]", () => go("/nutricion")],
     ["+250 ml de agua", "Suma un vaso", <Droplets key="d" className="size-6" />, "from-[#2b8cff] to-[#5cc8ff]", () => { actions.addWater(dayKey(), 250); onClose(); }],
     ["Registrar peso", "Para tu tendencia", <Scale key="e" className="size-6" />, "from-[#7b5cff] to-[#b07bff]", () => setWeight(profile?.weightKg ?? 70)],
-    ["Clase en vivo", "Únete o reserva", <Radio key="f" className="size-6" />, "from-[#ff3b4e] to-[#c4122f]", () => go("/live")],
+    ["Clase en vivo", "Únete o reserva", <Radio key="f" className="size-6" />, "from-[#ff3b5c] to-[#c4122f]", () => go("/live")],
     ["Tienda", "Coaching y programas", <ShoppingBag key="g" className="size-6" />, "from-[#e0a419] to-[#ffb547]", () => go("/tienda")],
     ["Ayuda 24/7", "Te respondemos ya", <Headset key="h" className="size-6" />, "from-[#475569] to-[#64748b]", () => { onClose(); showSupport(); }],
   ];

@@ -120,7 +120,7 @@ export default function Checkout() {
           </section>
 
           <label className="flex cursor-pointer gap-3 rounded-2xl border border-line-strong bg-ink-900 p-4 text-[15px]">
-            <input id="af-terms" type="checkbox" checked={accepted} onChange={e => setAccepted(e.target.checked)} className="mt-1 size-5 accent-[#ff3b4e]" />
+            <input id="af-terms" type="checkbox" checked={accepted} onChange={e => setAccepted(e.target.checked)} className="mt-1 size-5 accent-[#8b4dff]" />
             <span>
               Acepto los términos del servicio y entiendo que {period === "monthly" ? "el plan es mensual" : "el plan es anual"}. Cuenta: <strong>{user?.email}</strong>
             </span>
@@ -129,9 +129,9 @@ export default function Checkout() {
 
         <aside className="lg:sticky lg:top-6 lg:self-start">
           <section className="card overflow-hidden">
-            <div className="border-b border-line bg-[radial-gradient(90%_100%_at_100%_0%,rgb(255_59_78/0.25),transparent_70%)] p-5">
+            <div className="border-b border-line bg-[radial-gradient(90%_100%_at_100%_0%,rgb(139_77_255/0.25),transparent_70%)] p-5">
               <div className="text-sm font-semibold uppercase tracking-wider text-muted">Resumen</div>
-              <div className="title-display mt-1 text-4xl">American Fit {PLAN_NAME[plan]}</div>
+              <div className="title-display mt-1 text-4xl">MyGym {PLAN_NAME[plan]}</div>
               <div className="text-fg/90">{period === "monthly" ? "Facturación mensual" : "Facturación anual"}</div>
             </div>
             <ul className="space-y-2 p-5">
@@ -151,7 +151,7 @@ export default function Checkout() {
                   Equivale a {formatMoney(currency === "COP" ? Math.round(amount / 12) : Math.round((amount / 12) * 100) / 100, currency)} al mes
                 </div>
               )}
-              {error && <p className="rounded-xl bg-brand/12 p-3 text-sm font-medium text-brand-300">{error}</p>}
+              {error && <p className="rounded-xl bg-danger/12 p-3 text-sm font-medium text-danger-300">{error}</p>}
               {paymentsLive ? (
                 <Button size="lg" className="mt-2 w-full" disabled={!accepted || busy} onClick={pay}>
                   {busy ? <Loader2 className="size-5 animate-spin" /> : <Lock className="size-4" />} Pagar {formatMoney(amount, currency)}

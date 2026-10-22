@@ -72,7 +72,7 @@ export function ActivityRings({ rings, size = 168, stroke = 16 }: { rings: Ring[
   );
 }
 
-const COLORS = ["#ff3b4e", "#ff7a45", "#3c7bff", "#2be09a", "#ffb547", "#7b5cff", "#ffffff"];
+const COLORS = ["#8b4dff", "#ff4fd8", "#3c7bff", "#2be09a", "#ffb547", "#7b5cff", "#ffffff"];
 
 /** A one-shot burst of confetti for wins (workout done, payment approved). */
 export function Confetti({ count = 70 }: { count?: number }) {

@@ -65,7 +65,7 @@ export function SupportWidget() {
       setMsgs([
         {
           from: "bot",
-          text: `Hola${user ? `, ${user.name.split(" ")[0]}` : ""}. Soy el asistente de American Fit y respondo al instante, a cualquier hora. ¿En qué te ayudo?`,
+          text: `Hola${user ? `, ${user.name.split(" ")[0]}` : ""}. Soy el asistente de MyGym Community y respondo al instante, a cualquier hora. ¿En qué te ayudo?`,
         },
       ]);
     }
@@ -108,7 +108,7 @@ export function SupportWidget() {
         animate={{ scale: 1, opacity: 1 }}
         onClick={() => setOpen(true)}
         className={cn(
-          "fixed right-4 z-40 grid size-14 place-items-center rounded-full bg-sky text-white shadow-[0_10px_30px_-6px_rgb(60_123_255/0.7)] ring-4 ring-ink-950 transition active:scale-95 lg:bottom-6 lg:flex lg:h-14 lg:w-auto lg:gap-2 lg:pl-4 lg:pr-5 lg:text-[15px] lg:font-bold",
+          "fixed right-4 z-40 grid size-14 place-items-center rounded-full bg-gradient-sky text-white shadow-[0_10px_30px_-6px_rgb(34_160_238/0.7)] ring-4 ring-ink-950 transition active:scale-95 lg:bottom-6 lg:flex lg:h-14 lg:w-auto lg:gap-2 lg:pl-4 lg:pr-5 lg:text-[15px] lg:font-bold",
           user ? bottom : "bottom-[max(1rem,env(safe-area-inset-bottom))]"
         )}
         aria-label="Abrir soporte"

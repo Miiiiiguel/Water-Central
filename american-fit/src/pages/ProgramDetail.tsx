@@ -90,7 +90,7 @@ export default function ProgramDetail() {
         <Paywall
           className="mb-6"
           title={`Desbloquea ${p.name}`}
-          text={`Este programa es parte de American Fit Pro. Hazte Pro para tener todos los programas, o cómpralo una sola vez y es tuyo para siempre.`}
+          text={`Este programa es parte de MyGym Pro. Hazte Pro para tener todos los programas, o cómpralo una sola vez y es tuyo para siempre.`}
           product={PROGRAM_PRODUCT[p.id]}
         />
       )}

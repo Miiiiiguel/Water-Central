@@ -36,7 +36,7 @@ export default function Profile() {
     const blob = new Blob([JSON.stringify(getState(), null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `american-fit-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `mygym-community-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   };
@@ -264,14 +264,14 @@ export default function Profile() {
       </section>
 
       <p className="flex items-center justify-center gap-2 pb-4 text-xs text-faint">
-        American Fit v0.2
+        MyGym Community v0.2
       </p>
 
       <Sheet open={confirmCancel} onClose={() => setConfirmCancel(false)} title="¿Cancelar la renovación?">
         <p className="mb-4 text-[15px] text-fg/90">
           Seguirás con tu plan hasta el {sub ? new Date(sub.renewsAt).toLocaleDateString("es", { day: "numeric", month: "long" }) : ""} y después pasarás a Free. No se harán más cobros.
         </p>
-        {cancelError && <p className="mb-3 rounded-xl bg-brand/12 p-3 text-sm text-brand-300">{cancelError}</p>}
+        {cancelError && <p className="mb-3 rounded-xl bg-danger/12 p-3 text-sm text-danger-300">{cancelError}</p>}
         <div className="grid gap-2 pb-2">
           <Button variant="danger" size="lg" onClick={cancel}>
             Sí, cancelar renovación

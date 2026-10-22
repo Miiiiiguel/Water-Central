@@ -61,7 +61,7 @@ export default function ProductCheckout() {
             <GatewayPicker gateway={gateway} onChange={setGateway} />
           </section>
           <label className="flex cursor-pointer gap-3 rounded-2xl border-2 border-line-strong bg-ink-900 p-4 text-[16px]">
-            <input id="af-terms-product" type="checkbox" checked={accepted} onChange={e => setAccepted(e.target.checked)} className="mt-1 size-5 accent-[#ff3b4e]" />
+            <input id="af-terms-product" type="checkbox" checked={accepted} onChange={e => setAccepted(e.target.checked)} className="mt-1 size-5 accent-[#8b4dff]" />
             <span>
               Acepto los términos de compra. Pago único, sin renovación. Cuenta: <strong>{user?.email}</strong>
             </span>
@@ -86,7 +86,7 @@ export default function ProductCheckout() {
                 <span className="font-semibold">Total</span>
                 <span className="tabular text-xl font-bold">{formatMoney(amount, currency)}</span>
               </div>
-              {error && <p className="rounded-xl bg-brand/12 p-3 text-[15px] font-semibold text-brand-300">{error}</p>}
+              {error && <p className="rounded-xl bg-danger/12 p-3 text-[15px] font-semibold text-danger-300">{error}</p>}
               {paymentsLive ? (
                 <Button size="lg" className="mt-2 w-full" disabled={!accepted || busy} onClick={pay}>
                   {busy ? <Loader2 className="size-5 animate-spin" /> : <Lock className="size-4" />} Pagar {formatMoney(amount, currency)}

@@ -27,25 +27,48 @@ import { Avatar } from "@/components/ui";
 import { useApp } from "@/lib/store";
 import { cn, fmtDuration } from "@/lib/utils";
 
+/**
+ * The MyGym Community mark: a dumbbell under three heads, the gym and the
+ * people in it. Drawn white so it sits on the gradient tile or on photos.
+ */
+export function LogoGlyph({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 40 40" className={className} aria-hidden>
+      <circle cx="12" cy="10.5" r="2.6" fill="#fff" opacity="0.8" />
+      <circle cx="20" cy="8.5" r="3.1" fill="#fff" />
+      <circle cx="28" cy="10.5" r="2.6" fill="#fff" opacity="0.8" />
+      <rect x="6" y="17" width="4.6" height="15" rx="2.1" fill="#fff" />
+      <rect x="11.6" y="19.5" width="3" height="10" rx="1.4" fill="#fff" opacity="0.85" />
+      <rect x="14" y="23.2" width="12" height="2.6" rx="1.3" fill="#fff" />
+      <rect x="25.4" y="19.5" width="3" height="10" rx="1.4" fill="#fff" opacity="0.85" />
+      <rect x="29.4" y="17" width="4.6" height="15" rx="2.1" fill="#fff" />
+    </svg>
+  );
+}
+
 export function Logo({ className, compact }: { className?: string; compact?: boolean }) {
   // Unique per instance: a hidden copy (desktop sidebar) would otherwise own the gradient.
-  const gid = `af-logo-${useId().replace(/:/g, "")}`;
+  const gid = `mg-logo-${useId().replace(/:/g, "")}`;
   return (
-    <span className={cn("inline-flex items-center gap-2", className)}>
-      <svg viewBox="0 0 40 40" className="size-8 shrink-0" aria-hidden>
-        <defs>
-          <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#ff3b4e" />
-            <stop offset="1" stopColor="#ff7a45" />
-          </linearGradient>
-        </defs>
-        <rect width="40" height="40" rx="11" fill={`url(#${gid})`} />
-        <path d="M20 7.5l3.4 7.6 8.3.8-6.3 5.5 1.9 8.1L20 25.3l-7.3 4.2 1.9-8.1-6.3-5.5 8.3-.8z" fill="#fff" />
-        <rect x="9" y="31.5" width="22" height="2.6" rx="1.3" fill="#fff" opacity="0.9" />
-      </svg>
+    <span className={cn("inline-flex items-center gap-2.5", className)}>
+      <span className="relative size-9 shrink-0">
+        <span className="absolute inset-0 rounded-[12px] bg-gradient-brand opacity-60 blur-md" aria-hidden />
+        <svg viewBox="0 0 40 40" className="relative size-9" aria-hidden>
+          <defs>
+            <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#7b3dff" />
+              <stop offset="0.5" stopColor="#b14dff" />
+              <stop offset="1" stopColor="#ff4fd8" />
+            </linearGradient>
+          </defs>
+          <rect width="40" height="40" rx="12" fill={`url(#${gid})`} />
+        </svg>
+        <LogoGlyph className="absolute inset-0 size-9" />
+      </span>
       {!compact && (
-        <span className="title-display text-[22px] leading-none">
-          American <span className="text-gradient-brand">Fit</span>
+        <span className="flex flex-col leading-none">
+          <span className="text-[19px] font-extrabold tracking-[-0.03em]">MyGym</span>
+          <span className="text-gradient-brand mt-0.5 text-[11px] font-bold uppercase tracking-[0.28em]">Community</span>
         </span>
       )}
     </span>
@@ -213,11 +236,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                       aria-current={active ? "page" : undefined}
                     >
                       {active && (
-                        <motion.span layoutId="tab-pill" className="absolute inset-0.5 rounded-[20px] bg-fg/10" transition={{ type: "spring", stiffness: 500, damping: 38 }} />
+                        <motion.span layoutId="tab-pill" className="absolute inset-0.5 rounded-[20px] bg-brand/15 ring-1 ring-brand/25" transition={{ type: "spring", stiffness: 500, damping: 38 }} />
                       )}
                       <span className="relative">
                         <Icon className={cn("size-[22px]", active && "text-brand")} strokeWidth={active ? 2.5 : 2} />
-                        {href === "/live" && <span className="absolute -right-1 -top-0.5 size-2 rounded-full bg-brand ring-2 ring-ink-900" />}
+                        {href === "/live" && <span className="absolute -right-1 -top-0.5 size-2 rounded-full bg-danger ring-2 ring-ink-900" />}
                       </span>
                       <span className="relative">{label}</span>
                     </Link>
@@ -226,7 +249,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
               <button
                 onClick={() => setQuick(true)}
-                className="grid size-[52px] shrink-0 place-items-center rounded-[20px] bg-gradient-brand text-white shadow-[0_10px_24px_-8px_rgb(255_59_78/0.9)] transition active:scale-90"
+                className="grid size-[52px] shrink-0 place-items-center rounded-[20px] glow bg-gradient-brand text-white transition active:scale-90"
                 aria-label="Registrar o empezar algo"
               >
                 <Plus className="size-7" strokeWidth={2.6} />
@@ -258,12 +281,12 @@ function SideLink({
       href={href}
       className={cn(
         "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-        active ? "bg-fg/8 text-fg" : "text-muted hover:bg-fg/4 hover:text-fg"
+        active ? "bg-brand/14 text-fg ring-1 ring-brand/25" : "text-muted hover:bg-fg/4 hover:text-fg"
       )}
     >
       <Icon className={cn("size-[18px]", active && "text-brand")} />
       {label}
-      {href === "/live" && <span className="ml-auto rounded-md bg-brand px-1.5 py-0.5 text-xs font-bold text-white">LIVE</span>}
+      {href === "/live" && <span className="ml-auto rounded-md bg-danger px-1.5 py-0.5 text-xs font-bold text-white">LIVE</span>}
     </Link>
   );
 }

@@ -60,7 +60,7 @@ export default function PaymentResult() {
         {state === "ok"
           ? isProduct
             ? `Compraste ${PRODUCT_BY_ID[last!.productId!]?.name ?? "tu producto"}. Te escribiremos al correo con los siguientes pasos.`
-            : `Ya tienes American Fit ${PLAN_NAME[plan]}.${sub ? ` Vigente hasta el ${new Date(sub.renewsAt).toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" })}.` : ""}`
+            : `Ya tienes MyGym ${PLAN_NAME[plan]}.${sub ? ` Vigente hasta el ${new Date(sub.renewsAt).toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" })}.` : ""}`
           : state === "no"
             ? "Tu banco no aprobó el pago. No se hizo ningún cobro; puedes intentarlo otra vez con otro método."
             : state === "pending"

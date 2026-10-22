@@ -83,7 +83,7 @@ export default function Videos() {
 
   return (
     <div className="space-y-8">
-      <PageHeader eyebrow="Clases a demanda" title={<>American Fit <span className="text-gradient-brand">TV</span></>} />
+      <PageHeader eyebrow="Clases a demanda" title={<>MyGym <span className="text-gradient-brand">TV</span></>} />
 
       {!filtering && (
         <Link href={`/videos/${featured.id}`} className="card group grid overflow-hidden lg:grid-cols-[1fr_1.2fr]">

@@ -2,7 +2,7 @@ import type { Coach } from "@/lib/types";
 
 /*
  * Placeholder coach roster. Replace names, bios and handles with the real
- * American Fit coaches before launch; ids are what everything else links
+ * MyGym Community coaches before launch; ids are what everything else links
  * to, so keep them stable.
  */
 export const COACHES: Coach[] = [
@@ -11,7 +11,7 @@ export const COACHES: Coach[] = [
     name: "Valentina Ríos",
     role: "Head coach · Fuerza e hipertrofia",
     specialties: ["Hipertrofia", "Técnica de barra", "Glúteos"],
-    bio: "Entrenadora certificada en fuerza y acondicionamiento. Diseña los programas de hipertrofia de American Fit y graba la serie de técnica de los básicos.",
+    bio: "Entrenadora certificada en fuerza y acondicionamiento. Diseña los programas de hipertrofia de MyGym Community y graba la serie de técnica de los básicos.",
     hue: 352,
     rating: 4.9,
     classes: 214,

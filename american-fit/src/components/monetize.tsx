@@ -27,7 +27,7 @@ export function Paywall({
       </div>
       <div className="space-y-3 p-5">
         <p className="text-[16px] leading-relaxed text-fg">{text}</p>
-        <Link href="/pago/pro/yearly" className="flex h-14 items-center justify-center gap-2 rounded-full bg-gradient-brand text-[16px] font-bold text-white shadow-[0_8px_24px_-8px_rgb(255_59_78/0.65)]">
+        <Link href="/pago/pro/yearly" className="flex h-14 items-center justify-center gap-2 rounded-full bg-gradient-brand text-[16px] font-bold text-white shadow-[0_8px_24px_-8px_rgb(139_77_255/0.65)]">
           <Sparkles className="size-5" /> Desbloquear todo con Pro
         </Link>
         {product && (
@@ -48,7 +48,7 @@ export function UpsellBanner({ title, text, cta = "Hazte Pro", href = "/planes",
   const plan = useApp(s => s.plan);
   if (plan !== "free") return null;
   return (
-    <Link href={href} className={cn("flex items-center gap-4 rounded-3xl bg-gradient-brand p-5 text-white shadow-[0_16px_40px_-20px_rgb(255_59_78/0.9)]", className)}>
+    <Link href={href} className={cn("flex items-center gap-4 rounded-3xl bg-gradient-brand p-5 text-white shadow-[0_16px_40px_-20px_rgb(139_77_255/0.9)]", className)}>
       <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-white/20">
         <Crown className="size-6" />
       </span>
@@ -56,7 +56,7 @@ export function UpsellBanner({ title, text, cta = "Hazte Pro", href = "/planes",
         <span className="block text-lg font-bold leading-tight">{title}</span>
         <span className="block text-[15px] text-white">{text}</span>
       </span>
-      <span className="hidden shrink-0 items-center gap-1 rounded-full bg-white px-4 py-2.5 text-sm font-bold text-[#c4122f] sm:inline-flex">
+      <span className="hidden shrink-0 items-center gap-1 rounded-full bg-white px-4 py-2.5 text-sm font-bold text-[#6a1fd6] sm:inline-flex">
         {cta} <ArrowRight className="size-4" />
       </span>
       <ArrowRight className="size-6 shrink-0 sm:hidden" />

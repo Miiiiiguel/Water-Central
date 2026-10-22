@@ -194,8 +194,8 @@ export function Figure({ demo, s, ghosts, trail, wrong, compact, tile, className
           <stop offset="1" stopColor="#ff8a2f" />
         </linearGradient>
         <radialGradient id={`${id}-floor`} cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor={wrong ? "#ff9a3c" : "#ff3b4e"} stopOpacity="0.28" />
-          <stop offset="1" stopColor="#ff3b4e" stopOpacity="0" />
+          <stop offset="0" stopColor={wrong ? "#ff9a3c" : "#8b4dff"} stopOpacity="0.28" />
+          <stop offset="1" stopColor="#8b4dff" stopOpacity="0" />
         </radialGradient>
         <linearGradient id={`${id}-trail`} gradientUnits="userSpaceOnUse" x1={0} y1={vb[1]} x2={0} y2={vb[1] + vb[3]}>
           <stop offset="0" stopColor="#8db3ff" />
@@ -337,12 +337,12 @@ export function Figure({ demo, s, ghosts, trail, wrong, compact, tile, className
           {front ? (
             <>
               <line x1={lp[0] - 95} y1={lp[1]} x2={lp[0] + 95} y2={lp[1]} stroke="#c9d0de" strokeWidth={3.5} strokeLinecap="round" />
-              <rect x={lp[0] - 92} y={lp[1] - 22} width={9} height={44} rx={3} fill="#1a2132" stroke="#ff3b4e" strokeWidth={2} />
-              <rect x={lp[0] + 83} y={lp[1] - 22} width={9} height={44} rx={3} fill="#1a2132" stroke="#ff3b4e" strokeWidth={2} />
+              <rect x={lp[0] - 92} y={lp[1] - 22} width={9} height={44} rx={3} fill="#1a2132" stroke="#8b4dff" strokeWidth={2} />
+              <rect x={lp[0] + 83} y={lp[1] - 22} width={9} height={44} rx={3} fill="#1a2132" stroke="#8b4dff" strokeWidth={2} />
             </>
           ) : (
             <>
-              <circle cx={lp[0]} cy={lp[1]} r={21} fill="#141a27" fillOpacity={0.92} stroke="#ff3b4e" strokeWidth={3} />
+              <circle cx={lp[0]} cy={lp[1]} r={21} fill="#141a27" fillOpacity={0.92} stroke="#8b4dff" strokeWidth={3} />
               <circle cx={lp[0]} cy={lp[1]} r={13} fill="none" stroke="rgb(255 255 255 / 0.12)" strokeWidth={1.5} />
               <circle cx={lp[0]} cy={lp[1]} r={3.5} fill="#c9d0de" />
             </>

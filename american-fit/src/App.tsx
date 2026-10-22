@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Redirect, Route, Router, Switch, useLocation } from "wouter";
 import { memoryLocation } from "wouter/memory-location";
-import { AppShell } from "@/components/layout/AppShell";
+import { AppShell, LogoGlyph } from "@/components/layout/AppShell";
 import { SupportWidget } from "@/components/SupportWidget";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { useApp } from "@/lib/store";
@@ -81,14 +81,12 @@ function Splash() {
             transition={{ type: "spring", stiffness: 260, damping: 18 }}
             className="flex flex-col items-center gap-4"
           >
-            <span className="grid size-24 place-items-center rounded-[28px] bg-gradient-brand shadow-[0_20px_60px_-10px_rgb(255_59_78/0.8)]">
-              <svg viewBox="0 0 40 40" className="size-14" aria-hidden>
-                <path d="M20 7.5l3.4 7.6 8.3.8-6.3 5.5 1.9 8.1L20 25.3l-7.3 4.2 1.9-8.1-6.3-5.5 8.3-.8z" fill="#fff" />
-                <rect x="9" y="31.5" width="22" height="2.6" rx="1.3" fill="#fff" opacity="0.9" />
-              </svg>
+            <span className="glow grid size-24 place-items-center rounded-[30px] bg-gradient-brand">
+              <LogoGlyph className="size-16" />
             </span>
-            <span className="title-display text-4xl">
-              American <span className="text-gradient-brand">Fit</span>
+            <span className="flex flex-col items-center leading-none">
+              <span className="text-4xl font-extrabold tracking-[-0.03em]">MyGym</span>
+              <span className="text-gradient-brand mt-1.5 text-sm font-bold uppercase tracking-[0.4em]">Community</span>
             </span>
           </motion.div>
         </motion.div>

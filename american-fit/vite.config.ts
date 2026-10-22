@@ -21,15 +21,15 @@ export default defineConfig({
       injectRegister: null,
       includeAssets: ["favicon.svg", "icons/apple-touch-icon.png"],
       manifest: {
-        name: "American Fit",
-        short_name: "American Fit",
+        name: "MyGym Community",
+        short_name: "MyGym",
         description:
           "Técnica perfecta, entrenamiento inteligente, nutrición y clases en vivo.",
         start_url: "/",
         display: "standalone",
         orientation: "portrait",
-        background_color: "#07090F",
-        theme_color: "#07090F",
+        background_color: "#08070F",
+        theme_color: "#08070F",
         lang: "es",
         icons: [
           { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },

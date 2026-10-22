@@ -27,9 +27,9 @@ export default function WorkoutSummary() {
   const fresh = Date.now() - w.startedAt - w.durationSec * 1000 < 10 * 60_000;
 
   const share = async () => {
-    const text = `Terminé "${w.name}" en American Fit: ${fmtDuration(w.durationSec)}, ${sets} series y ${Math.round(w.volume).toLocaleString("es")} kg de volumen 💪`;
+    const text = `Terminé "${w.name}" en MyGym Community: ${fmtDuration(w.durationSec)}, ${sets} series y ${Math.round(w.volume).toLocaleString("es")} kg de volumen 💪`;
     try {
-      if (navigator.share) await navigator.share({ title: "American Fit", text });
+      if (navigator.share) await navigator.share({ title: "MyGym Community", text });
       else await navigator.clipboard.writeText(text);
     } catch {
       // Share sheet dismissed.
@@ -44,13 +44,13 @@ export default function WorkoutSummary() {
         animate={{ opacity: 1, scale: 1 }}
         className="card grain relative mb-5 overflow-hidden p-6 text-center"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(70%_80%_at_50%_0%,rgb(255_59_78/0.35),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(70%_80%_at_50%_0%,rgb(139_77_255/0.35),transparent_70%)]" />
         <div className="relative">
           <motion.div
             initial={{ rotate: -20, scale: 0.4 }}
             animate={{ rotate: 0, scale: 1 }}
             transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.1 }}
-            className="mx-auto mb-3 grid size-16 place-items-center rounded-2xl bg-gradient-brand shadow-[0_10px_40px_-8px_rgb(255_59_78/0.8)]"
+            className="mx-auto mb-3 grid size-16 place-items-center rounded-2xl bg-gradient-brand shadow-[0_10px_40px_-8px_rgb(139_77_255/0.8)]"
           >
             <Trophy className="size-8 text-white" />
           </motion.div>

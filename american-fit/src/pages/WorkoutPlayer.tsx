@@ -302,7 +302,7 @@ export default function WorkoutPlayer() {
 
 function MenuItem({ icon, label, onClick, danger }: { icon: React.ReactNode; label: string; onClick: () => void; danger?: boolean }) {
   return (
-    <button onClick={onClick} className={cn("flex w-full items-center gap-3 rounded-2xl bg-fg/4 p-4 text-left font-medium hover:bg-fg/8", danger && "text-brand-300")}>
+    <button onClick={onClick} className={cn("flex w-full items-center gap-3 rounded-2xl bg-fg/4 p-4 text-left font-medium hover:bg-fg/8", danger && "text-danger-300")}>
       {icon}
       {label}
     </button>

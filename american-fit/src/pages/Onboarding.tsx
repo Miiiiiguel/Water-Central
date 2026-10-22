@@ -129,7 +129,7 @@ export default function Onboarding() {
 
   return (
     <div className="relative mx-auto flex min-h-dvh max-w-xl flex-col px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(70%_50%_at_80%_0%,rgb(255_59_78/0.18),transparent_70%),radial-gradient(60%_40%_at_0%_100%,rgb(60_123_255/0.14),transparent_70%)]" />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(70%_50%_at_80%_0%,rgb(139_77_255/0.18),transparent_70%),radial-gradient(60%_40%_at_0%_100%,rgb(60_123_255/0.14),transparent_70%)]" />
       <div className="flex h-12 items-center justify-between">
         {step > 0 ? (
           <button onClick={() => go(-1)} className="grid size-10 place-items-center rounded-full bg-fg/6" aria-label="Atrás">
@@ -162,8 +162,8 @@ export default function Onboarding() {
             {step === 0 && (
               <div className="flex flex-col">
                 <div className="relative -mx-5 mb-2 h-[min(340px,38dvh)] overflow-hidden">
-                  <div className="absolute inset-0 bg-[radial-gradient(50%_60%_at_50%_60%,rgb(255_59_78/0.25),transparent_70%)]" />
-                  <span className="title-display absolute inset-x-0 top-6 text-center text-[120px] text-white/[0.05]">AMERICAN</span>
+                  <div className="absolute inset-0 bg-[radial-gradient(50%_60%_at_50%_60%,rgb(139_77_255/0.25),transparent_70%)]" />
+                  <span className="title-display absolute inset-x-0 top-6 text-center text-[120px] text-white/[0.05]">MYGYM</span>
                   <DemoThumb demoId="squat_barbell" animate className="relative mx-auto h-full" />
                 </div>
                 <h1 className="title-display text-6xl">

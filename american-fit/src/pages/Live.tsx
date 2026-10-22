@@ -47,7 +47,7 @@ export default function Live() {
         eyebrow="Clases en directo con coaches reales"
         title={
           <span className="inline-flex items-center gap-3">
-            Live <span className="relative inline-flex size-3 rounded-full bg-brand animate-pulse-live" />
+            Live <span className="relative inline-flex size-3 rounded-full bg-danger animate-pulse-live" />
           </span>
         }
         actions={
@@ -91,7 +91,7 @@ export default function Live() {
           <div className="mt-6 flex flex-wrap gap-2">
             <Link
               href={`/live/${hero.c.id}`}
-              className="inline-flex h-12 items-center gap-2 rounded-full bg-gradient-brand px-6 font-semibold text-white shadow-[0_8px_24px_-8px_rgb(255_59_78/0.65)]"
+              className="inline-flex h-12 items-center gap-2 rounded-full bg-gradient-brand px-6 font-semibold text-white shadow-[0_8px_24px_-8px_rgb(139_77_255/0.65)]"
             >
               <Radio className="size-4" /> {hero.live ? "Unirme ahora" : "Entrar a la sala"}
             </Link>

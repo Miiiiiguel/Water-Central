@@ -46,9 +46,9 @@ export default function Community() {
   };
 
   const invite = async () => {
-    const text = "Entrena conmigo en American Fit: técnica, clases en vivo y nutrición en una sola app.";
+    const text = "Entrena conmigo en MyGym Community: técnica, clases en vivo y nutrición en una sola app.";
     try {
-      if (navigator.share) await navigator.share({ title: "American Fit", text });
+      if (navigator.share) await navigator.share({ title: "MyGym Community", text });
       else await navigator.clipboard.writeText(text);
     } catch {
       // Dismissed.

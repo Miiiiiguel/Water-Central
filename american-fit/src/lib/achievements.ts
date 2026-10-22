@@ -52,7 +52,7 @@ export const ACHIEVEMENTS: Achievement[] = [
       return [last !== undefined && s.profile && Math.abs(last - s.profile.targetWeightKg) <= 0.5 ? 1 : 0, 1];
     },
   },
-  { id: "pro", title: "Miembro Pro", text: "Únete a American Fit Pro o Elite", tier: "oro", icon: "crown", progress: s => [s.plan === "free" ? 0 : 1, 1] },
+  { id: "pro", title: "Miembro Pro", text: "Únete a MyGym Pro o Elite", tier: "oro", icon: "crown", progress: s => [s.plan === "free" ? 0 : 1, 1] },
   { id: "tienda", title: "Inversión en ti", text: "Compra algo en la Tienda", tier: "plata", icon: "bag", progress: s => [s.purchases.length ? 1 : 0, 1] },
 ];
 

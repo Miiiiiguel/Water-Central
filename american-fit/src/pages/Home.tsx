@@ -71,7 +71,7 @@ export default function Home() {
   weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
   const thisWeek = workouts.filter(w => w.startedAt >= weekStart.getTime());
   const rings: Ring[] = [
-    { label: "Moverte", value: thisWeek.reduce((a, w) => a + w.durationSec, 0) / 60, goal: profile.daysPerWeek * profile.minutes, unit: "min", from: "#ff3b4e", to: "#ff8a5c" },
+    { label: "Moverte", value: thisWeek.reduce((a, w) => a + w.durationSec, 0) / 60, goal: profile.daysPerWeek * profile.minutes, unit: "min", from: "#8b4dff", to: "#ff4fd8" },
     { label: "Entrenar", value: thisWeek.filter(w => w.exercises.length).length, goal: profile.daysPerWeek, unit: "días", from: "#2be09a", to: "#9cf7c6" },
     { label: "Nutrir", value: totals.kcal, goal: targets.kcal, unit: "kcal", from: "#3c7bff", to: "#8db3ff" },
   ];
@@ -87,8 +87,8 @@ export default function Home() {
 
   return (
     <div className="space-y-8">
-      <motion.section {...fade(0)} className="card grain relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(70%_90%_at_100%_0%,rgb(255_59_78/0.22),transparent_60%),radial-gradient(60%_80%_at_0%_100%,rgb(60_123_255/0.16),transparent_65%)]" />
+      <motion.section {...fade(0)} className="card card-glow grain relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(70%_90%_at_100%_0%,rgb(139_77_255/0.22),transparent_60%),radial-gradient(60%_80%_at_0%_100%,rgb(255_79_216/0.14),transparent_65%)]" />
         <div className="relative grid items-center gap-6 p-5 sm:grid-cols-[1fr_auto] sm:p-7">
           <div className="min-w-0">
             <p className="text-[15px] font-semibold text-fg">{fmtLongDate(now)}</p>
@@ -126,7 +126,7 @@ export default function Home() {
       <motion.section {...fade(1)} className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 sm:mx-0 sm:justify-between sm:px-0">
         {(
           [
-            ["Entrenar", <Play key="a" className="size-6" fill="currentColor" />, start, "from-[#ff3b4e] to-[#ff7a45]"],
+            ["Entrenar", <Play key="a" className="size-6" fill="currentColor" />, start, "from-[#7b3dff] to-[#ff4fd8]"],
             ["Comida", <Utensils key="b" className="size-6" />, () => navigate("/nutricion"), "from-[#0fb37a] to-[#2be09a]"],
             ["En vivo", <Radio key="c" className="size-6" />, () => navigate("/live"), "from-[#3c7bff] to-[#7b5cff]"],
             ["Logros", <Trophy key="g" className="size-6" />, () => navigate("/logros"), "from-[#e0a419] to-[#ffcf5a]"],
@@ -158,12 +158,12 @@ export default function Home() {
         </motion.div>
       )}
 
-      <UpsellBanner title="Desbloquea todo American Fit" text="Programas completos, clases en vivo ilimitadas y videos desde $33.325 COP al mes." />
+      <UpsellBanner title="Desbloquea todo MyGym Community" text="Programas completos, clases en vivo ilimitadas y videos desde $33.325 COP al mes." />
 
       <div className="grid gap-4 lg:grid-cols-[1.35fr_1fr]">
         {/* Today's workout */}
         <motion.section {...fade(1)} className="card grain relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(90%_70%_at_100%_0%,rgb(255_59_78/0.28),transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(90%_70%_at_100%_0%,rgb(139_77_255/0.28),transparent_60%)]" />
           <div className="relative grid grid-cols-[1fr_auto] gap-2 p-5">
             <div className="min-w-0">
               <Badge tone="brand">{active ? "En curso" : "Tu entreno de hoy"}</Badge>
@@ -369,7 +369,7 @@ export default function Home() {
 
       {/* Videos */}
       <motion.section {...fade(7)}>
-        <SectionHeader title={continueVideos.length ? "Continuar viendo" : "Nuevo en American Fit"} href="/videos" />
+        <SectionHeader title={continueVideos.length ? "Continuar viendo" : "Nuevo en MyGym Community"} href="/videos" />
         <HScroll>
           {rowVideos.map(v => (
             <Link key={v.id} href={`/videos/${v.id}`} className="w-64 shrink-0 snap-start sm:w-72">

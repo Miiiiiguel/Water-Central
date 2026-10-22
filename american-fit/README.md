@@ -1,4 +1,6 @@
-# American Fit
+# MyGym Community
+
+> Antes llamada *American Fit*. El código vive en `american-fit/` y las claves de almacenamiento local conservan el prefijo `americanfit:` para no perder los datos de quienes ya la usan.
 
 App de fitness: **técnica perfecta de cada ejercicio**, entrenamiento inteligente,
 nutrición, **clases en vivo** y **videos a demanda**. Web (PWA instalable) + iOS y
@@ -28,7 +30,7 @@ Tomamos lo mejor de las apps líderes y lo juntamos en una sola:
 | **Registro de entreno** (`/entrenar/sesion`) | Hevy, Strong | Series con peso/reps, “anterior” de la última vez, **temporizador de descanso** con sonido y vibración, cambiar/añadir ejercicios, récords personales (1RM estimado, Epley) y resumen al terminar. |
 | **Nutrición** (`/nutricion`) | MyFitnessPal, MacroFactor, Cronometer | Calorías y macros (Mifflin–St Jeor + objetivo), diario por comidas, agua, **80+ alimentos latinos y americanos**, búsqueda y **escáner de código de barras** en Open Food Facts, registro rápido, **coach adaptativo** que estima tu mantenimiento real con tu peso y tu ingesta, recetas fit y guías basadas en evidencia. |
 | **Live** (`/live`) | Peloton, Apple Fitness+ | Clase destacada con cuenta regresiva, agenda semanal por día y categoría, reservas/recordatorios, **sala en vivo** con reproductor HLS, chat, reacciones, ranking y “choca esos cinco”, repeticiones. |
-| **Videos** (`/videos`) | Peloton, Les Mills+, Centr | American Fit TV: series por episodios, filtros, “continuar viendo”, mi lista, capítulos, marcar clase como hecha. |
+| **Videos** (`/videos`) | Peloton, Les Mills+, Centr | MyGym TV: series por episodios, filtros, “continuar viendo”, mi lista, capítulos, marcar clase como hecha. |
 | **Progreso, Comunidad, Planes, Perfil** | — | Peso con tendencia de 7 días, volumen semanal, constancia, mejores marcas; retos y ranking; planes Free/Pro/Elite; ajustes y exportar datos. |
 
 Sin configurar nada, todo funciona en el dispositivo (cuentas locales y

@@ -9,12 +9,12 @@ type Size = "sm" | "md" | "lg" | "icon";
 
 const VARIANT: Record<Variant, string> = {
   primary:
-    "bg-gradient-brand text-white shadow-[0_8px_24px_-8px_rgb(255_59_78/0.65)] hover:brightness-110",
+    "bg-gradient-brand text-white shadow-[0_8px_24px_-8px_rgb(139_77_255/0.65)] hover:brightness-110",
   secondary: "bg-fg/7 text-fg hover:bg-fg/11 border border-line",
   ghost: "text-muted hover:text-fg hover:bg-fg/5",
   outline: "border border-line-strong text-fg hover:bg-fg/5",
   light: "bg-fg text-ink-950 hover:opacity-90",
-  danger: "bg-brand/12 text-brand-300 hover:bg-brand/20 border border-brand/25",
+  danger: "bg-danger/12 text-danger-300 hover:bg-danger/20 border border-danger/25",
 };
 
 const SIZE: Record<Size, string> = {
@@ -86,7 +86,7 @@ export function Badge({
     sky: "bg-sky/15 text-sky-300",
     success: "bg-success/12 text-success",
     warn: "bg-warn/14 text-warn",
-    live: "bg-brand text-white",
+    live: "bg-danger text-white",
   };
   return (
     <span

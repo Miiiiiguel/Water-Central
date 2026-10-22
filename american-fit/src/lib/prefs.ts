@@ -15,6 +15,7 @@ export interface Prefs {
   size: TextSize;
 }
 
+// Storage keys keep the pre-rename prefix so existing devices keep their data.
 const KEY = "americanfit:prefs";
 const SIZES: Record<TextSize, string> = { normal: "106.25%", grande: "118.75%", extra: "131.25%" };
 

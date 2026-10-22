@@ -85,10 +85,10 @@ export default function Plans() {
               key={p.id}
               className={cn(
                 "card relative flex flex-col overflow-hidden p-6",
-                p.highlight && "border-brand/50 shadow-[0_20px_60px_-25px_rgb(255_59_78/0.6)]"
+                p.highlight && "card-glow"
               )}
             >
-              {p.highlight && <div className="absolute inset-0 bg-[radial-gradient(90%_60%_at_50%_0%,rgb(255_59_78/0.18),transparent_70%)]" />}
+              {p.highlight && <div className="absolute inset-0 bg-[radial-gradient(90%_60%_at_50%_0%,rgb(139_77_255/0.18),transparent_70%)]" />}
               <div className="relative flex flex-1 flex-col">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-lg font-bold">

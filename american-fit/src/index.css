@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
 /*
- * American Fit design tokens.
+ * MyGym Community design tokens.
  *
  * Dark-first on purpose: the app is used mid-workout, under gym lights
  * and late at night, and video thumbnails read better on near-black.
- * Red is the brand ("liberty red"), blue is the secondary accent, and
- * the macro colors are fixed so protein/carbs/fat look the same on
- * every screen.
+ * Electric violet is the brand, hot pink its glow partner, blue the
+ * secondary accent; red is reserved for "live" and errors. The macro
+ * colors are fixed so protein/carbs/fat look the same on every screen.
  */
 @theme {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", sans-serif;
   --font-display: "Bebas Neue", "Inter Variable", ui-sans-serif, sans-serif;
 
-  --color-ink-950: #07090f;
-  --color-ink-900: #121722;
-  --color-ink-850: #171d2a;
-  --color-ink-800: #1c2332;
-  --color-ink-700: #262e40;
-  --color-ink-600: #343e54;
-  --color-ink-500: #4b566f;
+  --color-ink-950: #08070f;
+  --color-ink-900: #13111d;
+  --color-ink-850: #191725;
+  --color-ink-800: #1f1c2e;
+  --color-ink-700: #2a2640;
+  --color-ink-600: #383354;
+  --color-ink-500: #4f4a6f;
 
   --color-fg: #f4f6fb;
   --color-muted: #d0d6e2;
@@ -28,12 +28,16 @@
   --color-line: rgb(255 255 255 / 0.11);
   --color-line-strong: rgb(255 255 255 / 0.2);
 
-  --color-brand: #ff3b4e;
-  --color-brand-600: #e5243a;
-  --color-brand-300: #ff8a96;
+  --color-brand: #8b4dff;
+  --color-brand-600: #7433ea;
+  --color-brand-300: #c7a6ff;
+  --color-pink: #ff4fd8;
   --color-ember: #ff7a45;
-  --color-sky: #3c7bff;
-  --color-sky-300: #8db3ff;
+  --color-danger: #ff3b5c;
+  --color-danger-300: #ff9aab;
+  --color-sky: #3c8bff;
+  --color-sky-300: #8fc0ff;
+  --color-cyan: #22d3ee;
   --color-violet: #7b5cff;
   --color-success: #2be09a;
   --color-warn: #ffb547;
@@ -61,12 +65,16 @@
  */
 :root {
   --fs: 106.25%;
-  --glass: rgb(14 18 27 / 0.96);
+  --glass: rgb(16 14 26 / 0.94);
+  /* Aurora wash behind every screen; the "glow" of the brand. */
+  --aurora: radial-gradient(60% 45% at 100% 0%, rgb(139 77 255 / 0.2), transparent 70%),
+    radial-gradient(50% 40% at 0% 30%, rgb(255 79 216 / 0.09), transparent 70%),
+    radial-gradient(60% 45% at 50% 100%, rgb(34 211 238 / 0.07), transparent 70%);
+  --card-sheen: inset 0 1px 0 rgb(255 255 255 / 0.06);
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --color-ink-950: #eef0f4;
   --color-ink-900: #ffffff;
   --color-ink-850: #f6f7f9;
   --color-ink-800: #e9ecf1;
@@ -78,11 +86,17 @@
   --color-faint: #444d5e;
   --color-line: rgb(10 13 20 / 0.14);
   --color-line-strong: rgb(10 13 20 / 0.28);
-  --color-brand-300: #c4122f;
+  --color-ink-950: #f1eff8;
+  --color-brand-300: #5b1ec4;
+  --color-danger-300: #c4122f;
   --color-sky-300: #1d4fc4;
   --color-success: #0a8a57;
   --color-warn: #a35f00;
-  --glass: rgb(255 255 255 / 0.97);
+  --glass: rgb(255 255 255 / 0.94);
+  --aurora: radial-gradient(60% 45% at 100% 0%, rgb(139 77 255 / 0.14), transparent 70%),
+    radial-gradient(50% 40% at 0% 30%, rgb(255 79 216 / 0.07), transparent 70%),
+    radial-gradient(60% 45% at 50% 100%, rgb(34 211 238 / 0.08), transparent 70%);
+  --card-sheen: 0 1px 2px rgb(20 10 40 / 0.06), 0 10px 28px -18px rgb(60 20 120 / 0.35);
 }
 
 :root[data-contrast="high"] {
@@ -94,25 +108,28 @@
   --color-faint: #f0f0f0;
   --color-line: rgb(255 255 255 / 0.35);
   --color-line-strong: rgb(255 255 255 / 0.6);
-  --color-brand-300: #ffb3bb;
+  --color-brand-300: #dcc8ff;
+  --color-danger-300: #ffc2cc;
   --color-sky-300: #b9d0ff;
   --glass: rgb(0 0 0 / 0.98);
+  --aurora: none;
 }
 
 /* Always-dark islands (technique stage, onboarding): the figure art is drawn for dark. */
 .stage {
-  --color-ink-950: #07090f;
-  --color-ink-900: #121722;
-  --color-ink-850: #171d2a;
-  --color-ink-800: #1c2332;
-  --color-ink-700: #262e40;
+  --color-ink-950: #08070f;
+  --color-ink-900: #13111d;
+  --color-ink-850: #191725;
+  --color-ink-800: #1f1c2e;
+  --color-ink-700: #2a2640;
   --color-fg: #f4f6fb;
   --color-muted: #d0d6e2;
   --color-faint: #b3bbca;
   --color-line: rgb(255 255 255 / 0.14);
   --color-line-strong: rgb(255 255 255 / 0.24);
-  --color-brand-300: #ff8a96;
-  --color-sky-300: #8db3ff;
+  --color-brand-300: #c7a6ff;
+  --color-danger-300: #ff9aab;
+  --color-sky-300: #8fc0ff;
   --color-success: #2be09a;
   --color-warn: #ffb547;
   color: var(--color-fg);
@@ -127,7 +144,8 @@
   --color-faint: #111111;
   --color-line: rgb(0 0 0 / 0.45);
   --color-line-strong: rgb(0 0 0 / 0.7);
-  --color-brand-300: #a30020;
+  --color-brand-300: #4a0fa8;
+  --color-danger-300: #a30020;
   --color-sky-300: #0b3aa8;
   --glass: rgb(255 255 255 / 0.99);
 }
@@ -135,10 +153,10 @@
 @keyframes pulse-live {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgb(255 59 78 / 0.55);
+    box-shadow: 0 0 0 0 rgb(255 59 92 / 0.55);
   }
   50% {
-    box-shadow: 0 0 0 6px rgb(255 59 78 / 0);
+    box-shadow: 0 0 0 6px rgb(255 59 92 / 0);
   }
 }
 
@@ -171,12 +189,14 @@
 
   body {
     @apply bg-ink-950 text-fg font-sans antialiased;
+    background-image: var(--aurora);
+    background-attachment: fixed;
     min-height: 100dvh;
     overscroll-behavior-y: none;
   }
 
   ::selection {
-    background: rgb(255 59 78 / 0.35);
+    background: rgb(139 77 255 / 0.4);
   }
 
   button,
@@ -204,15 +224,32 @@
 @layer components {
   .card {
     @apply bg-ink-900 border border-line rounded-3xl;
+    box-shadow: var(--card-sheen);
+  }
+
+  /* Gradient hairline border that glows: for the hero surfaces of a screen. */
+  .card-glow {
+    border-color: transparent;
+    background:
+      linear-gradient(var(--color-ink-900), var(--color-ink-900)) padding-box,
+      linear-gradient(140deg, rgb(139 77 255 / 0.85), rgb(255 79 216 / 0.45) 35%, var(--color-line) 70%) border-box;
+    box-shadow: var(--card-sheen), 0 24px 60px -30px rgb(139 77 255 / 0.55);
+  }
+
+  :root[data-contrast="high"] .card-glow {
+    background: var(--color-ink-900);
+    border-color: var(--color-line-strong);
+    box-shadow: none;
+  }
+
+  .glow {
+    box-shadow: 0 10px 30px -10px rgb(139 77 255 / 0.75), 0 4px 14px -6px rgb(255 79 216 / 0.45);
   }
 
   :root[data-contrast="high"] .card {
     border-width: 2px;
   }
 
-  :root[data-theme="light"] .card {
-    box-shadow: 0 1px 2px rgb(10 13 20 / 0.06), 0 8px 24px -16px rgb(10 13 20 / 0.25);
-  }
 
   .card-hover {
     @apply transition-[transform,border-color,background-color] duration-300 ease-snappy hover:border-line-strong hover:bg-ink-850 active:scale-[0.985];
@@ -233,18 +270,27 @@
   }
 
   .text-gradient-brand {
-    background: linear-gradient(100deg, #ff3b4e 0%, #ff7a45 100%);
+    background: linear-gradient(100deg, #a06bff 0%, #ff4fd8 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
+  :root[data-theme="light"] .text-gradient-brand {
+    background-image: linear-gradient(100deg, #5b1ec4 0%, #b0127f 100%);
+  }
+
+  :root[data-contrast="high"] .text-gradient-brand {
+    background: none;
+    color: var(--color-brand-300);
+  }
+
   .bg-gradient-brand {
-    background: linear-gradient(135deg, #ff3b4e 0%, #ff6a45 100%);
+    background: linear-gradient(135deg, #7b3dff 0%, #b14dff 50%, #ff4fd8 100%);
   }
 
   .bg-gradient-sky {
-    background: linear-gradient(135deg, #3c7bff 0%, #7b5cff 100%);
+    background: linear-gradient(135deg, #3c8bff 0%, #22d3ee 100%);
   }
 
   .stripes {

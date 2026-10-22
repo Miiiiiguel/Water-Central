@@ -35,7 +35,7 @@ export default function VideoDetail() {
       <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
         <div className="space-y-4">
           <Link href="/videos" className="inline-flex text-sm font-medium text-muted hover:text-fg">
-            ← American Fit TV
+            ← MyGym TV
           </Link>
           {!canWatch({ ...getState(), plan }, v) ? (
             <Paywall title="Esta clase es parte de Pro" text="El primer episodio de cada serie es gratis. Hazte Pro para ver todas las clases, repeticiones de las clases en vivo y los programas completos." />

@@ -83,7 +83,7 @@ export default function Login() {
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
       <aside className="stage relative hidden overflow-hidden border-r border-line bg-ink-950 lg:block">
-        <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_40%_40%,rgb(255_59_78/0.28),transparent_70%),radial-gradient(50%_50%_at_90%_100%,rgb(60_123_255/0.2),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_40%_40%,rgb(139_77_255/0.28),transparent_70%),radial-gradient(50%_50%_at_90%_100%,rgb(60_123_255/0.2),transparent_70%)]" />
         <div className="relative flex h-full flex-col p-10">
           <Logo />
           <div className="flex flex-1 items-center justify-center">
@@ -167,7 +167,7 @@ export default function Login() {
             )}
 
             {error && (
-              <p role="alert" className="rounded-2xl border border-brand/40 bg-brand/12 p-3 text-sm font-medium text-brand-300">
+              <p role="alert" className="rounded-2xl border border-brand/40 bg-danger/12 p-3 text-sm font-medium text-danger-300">
                 {error}
               </p>
             )}

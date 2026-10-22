@@ -25,7 +25,7 @@ export default function CoachDetail() {
         <div className="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center">
           <Avatar name={c.name} hue={c.hue} size={104} />
           <div>
-            <Badge tone="brand">Coach American Fit</Badge>
+            <Badge tone="brand">Coach MyGym</Badge>
             <h1 className="title-display mt-2 text-5xl sm:text-6xl">{c.name}</h1>
             <p className="text-fg/90">{c.role}</p>
             <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted">

@@ -1,4 +1,4 @@
--- American Fit · Supabase schema. Run once in the SQL editor.
+-- MyGym Community · Supabase schema. Run once in the SQL editor.
 --
 -- af_user_state     each account's app data (workouts, meals, weight…), one JSON row
 -- af_subscriptions  the active plan; written only by the payments webhook
