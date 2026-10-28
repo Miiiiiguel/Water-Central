@@ -18,7 +18,8 @@ precacheAndRoute(self.__WB_MANIFEST);
 // Never let a cached index.html answer an API call — those must always
 // hit the network (auth, payments, chat all depend on a live response).
 registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html'), {
-  denylist: [/^\/api\//],
+  // /dmatrix es el sitio estático de DMatrixUSA: lo sirve el servidor, no la app.
+  denylist: [/^\/api\//, /^\/dmatrix(\/|$)/],
 }));
 
 // --- Real push notifications ------------------------------------------

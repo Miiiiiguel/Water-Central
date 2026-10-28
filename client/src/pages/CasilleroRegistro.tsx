@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useMarcaDMatrix } from '@/lib/marca';
 
 const MEDIOS = ['Instagram', 'Facebook', 'TikTok', 'WhatsApp', 'Recomendación', 'Google', 'Otro'];
 const selectCls = 'w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm';
@@ -13,6 +14,7 @@ const selectCls = 'w-full rounded-md border border-input bg-transparent px-3 py-
 // trigger handle_new_user (supabase/casillero.sql), que además le asigna
 // su código de casillero (DM1001, DM1002…). El rol sigue fijo en 'cliente'.
 export default function CasilleroRegistro() {
+  useMarcaDMatrix('Crear mi casillero | DMatrixUSA');
   const { signUp, configured } = useAuth();
   const [, navigate] = useLocation();
   const [f, setF] = useState({
@@ -81,13 +83,13 @@ export default function CasilleroRegistro() {
         </div>
         <label className="mt-4 flex items-start gap-2 text-sm">
           <input type="checkbox" className="mt-1" checked={acepto} onChange={(e) => setAcepto(e.target.checked)} />
-          <span>Acepto el <Link href="/privacidad" className="text-[#b01c2e] underline">aviso de privacidad</Link> y la política de tratamiento de la información, y autorizo el tratamiento de mis datos personales.</span>
+          <span>Acepto el <a href="https://www.dmatrixusa.com/terminosCondiciones" target="_blank" rel="noreferrer" className="text-[#b01c2e] underline">aviso de privacidad</a> y la política de tratamiento de la información, y autorizo el tratamiento de mis datos personales.</span>
         </label>
         {error && <p className="mt-3 rounded bg-red-50 p-3 text-sm text-red-700">{error}</p>}
         {ok && <p className="mt-3 rounded bg-green-50 p-3 text-sm text-green-700">¡Cuenta creada! Si te pedimos confirmar el correo, revísalo y luego inicia sesión.</p>}
         <div className="mt-5 flex items-center gap-4">
           <Button type="submit" disabled={ocupado} className="bg-[#b01c2e] hover:bg-[#8e1523]">{ocupado ? 'Creando…' : 'Crear mi casillero'}</Button>
-          <Link href="/login?next=/casillero" className="text-sm text-[#b01c2e] underline">Ya tengo cuenta</Link>
+          <Link href="/casillero/login" className="text-sm text-[#b01c2e] underline">Ya tengo cuenta</Link>
         </div>
       </form>
     </div>

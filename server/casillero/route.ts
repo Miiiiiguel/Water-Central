@@ -8,7 +8,8 @@ import { logSecurityEvent } from '../log';
 import { captureException } from '../monitoring';
 import { USD_COP_RATE } from '../catalog';
 import { checkoutUrl, fetchTransaction, integritySignature, transactionPaysFor, wompiConfigured, type WompiTransaction } from '../wompi';
-import { appUrl, emailConfigured, escapeHtml, safeSubject, sendEmail } from '../email';
+import { appUrl, emailConfigured, sendEmail } from '../email';
+import { avisoPaquete } from './correo';
 
 // El casillero de DMatrixUSA.
 //
@@ -221,15 +222,15 @@ casilleroRouter.post('/casillero/paquetes/:id/avisar', checkoutRateLimiter, requ
   if (!accion) return res.json({ enviado: false, motivo: 'estado_sin_aviso' });
   if (!emailConfigured()) return res.json({ enviado: false, motivo: 'correo_sin_configurar' });
 
-  const nombre = escapeHtml(perfil.full_name ?? 'cliente');
-  const guia = escapeHtml(p.guia);
-  const peso = p.peso_lb ? ` (${Number(p.peso_lb)} lb)` : '';
-  const enlace = `${appUrl(req.get('host') ?? undefined)}/casillero`;
-  const enviado = await sendEmail({
-    to: perfil.email,
-    subject: safeSubject(`Tu paquete ${p.guia} ${accion}`),
-    html: `<p>Hola ${nombre},</p><p>Tu paquete con guía <b>${guia}</b>${peso} ${accion}.</p><p><a href="${enlace}">Ver mi casillero</a></p><p>DMatrixUSA</p>`,
-    text: `Hola ${perfil.full_name ?? ''}, tu paquete con guía ${p.guia}${peso} ${accion}. Ver mi casillero: ${enlace}`,
-  });
+  const enviado = await sendEmail(
+    avisoPaquete({
+      to: perfil.email,
+      nombre: perfil.full_name,
+      guia: p.guia,
+      pesoLb: p.peso_lb ? Number(p.peso_lb) : null,
+      accion,
+      enlace: `${appUrl(req.get('host') ?? undefined)}/casillero`,
+    })
+  );
   res.json({ enviado });
 });

@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Etiqueta } from '@/components/CasilleroShell';
 import { fecha, rastrear } from '@/lib/casillero';
+import { useMarcaDMatrix } from '@/lib/marca';
 
 // Rastreo público por número de guía: solo estados y fechas, ningún dato del cliente.
 export default function Rastreo() {
+  useMarcaDMatrix('Rastrea tu paquete | DMatrixUSA');
   const [guia, setGuia] = useState('');
   const [eventos, setEventos] = useState<{ estado: string; created_at: string }[] | null>(null);
   const [error, setError] = useState('');
@@ -38,7 +40,7 @@ export default function Rastreo() {
             {eventos.map((e, i) => <li key={i}><Etiqueta valor={e.estado} /> <span className="text-neutral-500">{fecha(e.created_at)}</span></li>)}
           </ul>
         )}
-        <p className="mt-6 text-sm"><Link href="/login?next=/casillero" className="text-[#b01c2e] underline">Ingresar al casillero</Link></p>
+        <p className="mt-6 text-sm"><Link href="/casillero/login" className="text-[#b01c2e] underline">Ingresar al casillero</Link></p>
       </div>
     </div>
   );

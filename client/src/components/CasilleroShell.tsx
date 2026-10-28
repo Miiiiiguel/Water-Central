@@ -3,6 +3,8 @@ import { Link, useLocation } from 'wouter';
 import { LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import NotificationBell from '@/components/NotificationBell';
+import { useMarcaDMatrix } from '@/lib/marca';
 
 export interface ItemMenu {
   ruta: string;
@@ -24,9 +26,10 @@ export default function CasilleroShell({ menu, actual, titulo, soloEquipo, child
 }) {
   const { user, profile, loading, signOut } = useAuth();
   const [, navigate] = useLocation();
+  useMarcaDMatrix();
 
   useEffect(() => {
-    if (!loading && !user) navigate(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+    if (!loading && !user) navigate('/casillero/login');
   }, [loading, user, navigate]);
 
   if (loading || !user || !profile) return <div className="min-h-screen bg-neutral-50" />;
@@ -46,7 +49,8 @@ export default function CasilleroShell({ menu, actual, titulo, soloEquipo, child
         <div className="flex items-center gap-3 text-sm">
           <span className="hidden sm:inline">{profile.full_name}</span>
           {profile.casillero_codigo && <span className="rounded-full bg-[#fbe4e6] px-2 py-0.5 text-xs font-semibold text-[#8e1523]">{profile.casillero_codigo}</span>}
-          <Button variant="ghost" size="sm" onClick={() => void signOut().then(() => navigate('/login'))}><LogOut className="mr-1 h-4 w-4" />Salir</Button>
+          <NotificationBell />
+          <Button variant="ghost" size="sm" onClick={() => void signOut().then(() => navigate('/casillero/login'))}><LogOut className="mr-1 h-4 w-4" />Salir</Button>
         </div>
       </header>
       <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4 md:flex-row">

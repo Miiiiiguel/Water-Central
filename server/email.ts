@@ -67,6 +67,8 @@ export interface Mail {
   html: string;
   text: string;
   replyTo?: string;
+  /** Remitente propio (otra marca de la misma app). Sin él, EMAIL_FROM. */
+  from?: string;
 }
 
 /**
@@ -84,7 +86,7 @@ export async function sendEmail(mail: Mail): Promise<boolean> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: process.env.EMAIL_FROM,
+        from: mail.from || process.env.EMAIL_FROM,
         to: [mail.to],
         subject: safeSubject(mail.subject),
         html: mail.html,

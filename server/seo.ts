@@ -23,7 +23,7 @@ export const PUBLIC_ROUTES = ['/', '/roi', '/diagnostico', '/privacidad', '/term
  * restablecer lleva un token de un solo uso, y las de pago son el
  * regreso de la pasarela.
  */
-export const PRIVATE_ROUTES = ['/dashboard', '/restablecer', '/pago/', '/estado', '/api/'] as const;
+export const PRIVATE_ROUTES = ['/dashboard', '/restablecer', '/pago/', '/estado', '/api/', '/casillero', '/rastreo'] as const;
 
 export function robotsTxt(base: string): string {
   const lines = ['User-agent: *', ...PRIVATE_ROUTES.map((r) => `Disallow: ${r}`), 'Allow: /'];
@@ -78,6 +78,18 @@ export const PAGE_META: Record<string, { title: string; description: string }> =
   },
 };
 
+/**
+ * El casillero y el rastreo son de DMatrixUSA, no de Easycomex: comparten
+ * app y servidor, pero lo que se ve en la pestaña, en la vista previa de
+ * un enlace y en el favicon tiene que decir DMatrixUSA. Ninguna de estas
+ * rutas se indexa (piden sesión o son una consulta puntual).
+ */
+export const DMATRIX_ROUTE = /^\/(casillero|rastreo)(\/|$)/;
+export const DMATRIX_META = {
+  title: 'DMatrixUSA | Casillero en Miami',
+  description: 'Tu casillero en Miami: recibimos tus compras y las enviamos a Colombia. Rastrea tus paquetes y recarga tu wallet.',
+};
+
 const escapeAttr = (s: string) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
 /**
@@ -118,6 +130,21 @@ export function rewriteHead(html: string, base: string, route = '/'): string {
     out = /<meta name="robots"[^>]*>/i.test(out)
       ? out.replace(/<meta name="robots"[^>]*>/i, etiqueta)
       : out.replace('</head>', `  ${etiqueta}\n  </head>`);
+  }
+
+  if (DMATRIX_ROUTE.test(route)) {
+    const title = escapeAttr(DMATRIX_META.title);
+    const description = escapeAttr(DMATRIX_META.description);
+    out = out
+      .replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`)
+      .replace(/(<meta name="description" content=")[^"]*(")/, `$1${description}$2`)
+      .replace(/(<meta property="og:title" content=")[^"]*(")/, `$1${title}$2`)
+      .replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${description}$2`)
+      .replace(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${title}$2`)
+      .replace(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${description}$2`)
+      .replace(/(<meta name="theme-color" content=")[^"]*(")/, '$1#b01c2e$2')
+      .replace(/<link rel="icon"[^>]*>/, '<link rel="icon" type="image/png" href="/dmatrix/favicon.png" />')
+      .replace(/<link rel="apple-touch-icon"[^>]*>/, '<link rel="apple-touch-icon" href="/dmatrix/favicon.png" />');
   }
 
   if (meta) {

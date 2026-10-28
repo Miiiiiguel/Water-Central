@@ -67,7 +67,9 @@ function PaquetesAdmin() {
   };
 
   return (
-    <Panel>
+    <>
+      <RecibirSinPrealerta onListo={recargar} />
+      <Panel>
       <div className="mb-3 max-w-xs"><Label>Buscar guía o cliente</Label><Input value={q} onChange={(e) => setQ(e.target.value)} /></div>
       <table className="w-full text-sm">
         <thead><tr className="text-left text-neutral-500"><th className="p-2">Guía</th><th>Cliente</th><th>Contenido</th><th>Peso lb</th><th>Estado</th><th /></tr></thead>
@@ -86,6 +88,40 @@ function PaquetesAdmin() {
           {!visibles.length && <tr><td colSpan={6} className="p-3 text-neutral-500">Sin paquetes.</td></tr>}
         </tbody>
       </table>
+      </Panel>
+    </>
+  );
+}
+
+// Llega un paquete a la bodega y el cliente no lo prealertó: se registra por
+// su código de casillero y queda directamente como recibido.
+function RecibirSinPrealerta({ onListo }: { onListo: () => Promise<void> }) {
+  const [f, setF] = useState({ codigo: '', guia: '', peso: '', descripcion: '' });
+  const { getAccessToken } = useAuth();
+  const registrar = async () => {
+    if (!f.codigo.trim() || !f.guia.trim()) return toast.error('Código de cliente y guía son obligatorios');
+    const s = await db();
+    const { data: u } = await s.from('profiles').select('id').eq('casillero_codigo', f.codigo.trim().toUpperCase()).maybeSingle();
+    if (!u) return toast.error('No existe un cliente con ese código');
+    const { data, error } = await s.from('casillero_paquetes')
+      .insert({ user_id: u.id, guia: f.guia.trim(), peso_lb: f.peso === '' ? null : Number(f.peso), descripcion: f.descripcion.trim(), estado: 'recibido' })
+      .select('id').single();
+    if (error) return toast.error(error.message);
+    const r = await api<{ enviado: boolean }>(`/casillero/paquetes/${data.id}/avisar`, getAccessToken());
+    toast.success(r.ok && r.data.enviado ? 'Paquete registrado y cliente avisado por correo' : 'Paquete registrado');
+    setF({ codigo: '', guia: '', peso: '', descripcion: '' });
+    await onListo();
+  };
+  return (
+    <Panel>
+      <b>Recibir un paquete sin prealerta</b>
+      <div className="mt-2 grid gap-3 sm:grid-cols-5">
+        <div><Label>Código cliente</Label><Input placeholder="DM1001" value={f.codigo} onChange={(e) => setF({ ...f, codigo: e.target.value })} /></div>
+        <div><Label>Guía</Label><Input value={f.guia} onChange={(e) => setF({ ...f, guia: e.target.value })} /></div>
+        <div><Label>Peso (lb)</Label><Input type="number" step="0.01" min="0" value={f.peso} onChange={(e) => setF({ ...f, peso: e.target.value })} /></div>
+        <div><Label>Contenido</Label><Input value={f.descripcion} onChange={(e) => setF({ ...f, descripcion: e.target.value })} /></div>
+        <div className="flex items-end"><Button onClick={() => void registrar()}>Registrar</Button></div>
+      </div>
     </Panel>
   );
 }

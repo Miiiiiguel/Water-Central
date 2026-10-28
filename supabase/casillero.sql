@@ -132,8 +132,11 @@ create or replace function public.casillero_paquete_eventos() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
   if tg_op = 'INSERT' then
-    insert into public.casillero_eventos (paquete_id, estado, nota) values (new.id, new.estado, 'Prealerta creada');
-    perform public.notify_vendedores('casillero_prealerta', 'Nueva prealerta', 'Guía ' || new.guia, '/casillero/admin');
+    insert into public.casillero_eventos (paquete_id, estado, nota)
+      values (new.id, new.estado, case when new.estado = 'prealertado' then 'Prealerta creada' else 'Registrado en la bodega' end);
+    if new.estado = 'prealertado' then
+      perform public.notify_vendedores('casillero_prealerta', 'Nueva prealerta', 'Guía ' || new.guia, '/casillero/admin');
+    end if;
   elsif new.estado is distinct from old.estado then
     insert into public.casillero_eventos (paquete_id, estado) values (new.id, new.estado);
     insert into public.notifications (user_id, type, title, body, link)
