@@ -17,7 +17,7 @@ interface AuthContextType {
   // The account has 2FA enabled but this session hasn't passed the code yet.
   mfaRequired: boolean;
   refreshMfa: () => Promise<void>;
-  signUp: (email: string, password: string, fullName: string, company: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, fullName: string, company: string, extra?: Record<string, string | boolean>) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
@@ -187,14 +187,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const signUp: AuthContextType['signUp'] = async (email, password, fullName, company) => {
+  const signUp: AuthContextType['signUp'] = async (email, password, fullName, company, extra) => {
     if (!isSupabaseConfigured) return { error: supabaseConfigProblem() ?? 'La conexión con el sistema de cuentas no está configurada.' };
     try {
       const supabase = await getSupabase();
       const { data, error } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
         password,
-        options: { data: { full_name: fullName.trim(), company: company.trim(), referred_by_code: getStoredReferralCode() } },
+        options: { data: { full_name: fullName.trim(), company: company.trim(), referred_by_code: getStoredReferralCode(), ...(extra ?? {}) } },
       });
       if (error) return { error: error.message };
 

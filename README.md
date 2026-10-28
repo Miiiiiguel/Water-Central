@@ -71,6 +71,24 @@ Ver [`APP_STORE.md`](./APP_STORE.md). Resumen: `pnpm run cap:sync`, abrir
 `android/` en Android Studio o `ios/` en Xcode, firmar y enviar. Los
 íconos y splash ya están generados.
 
+## 6. Casillero DMatrixUSA (`/casillero`)
+
+Casillero de paquetería construido sobre esta misma app: reutiliza el
+login (Supabase + `profiles`), Wompi (recarga del wallet), las
+notificaciones y el correo (Resend).
+
+- Cliente: `/casillero/registro`, `/casillero` (prealerta, paquetes,
+  despacho, wallet, tarifas, perfil). Rastreo público en `/rastreo`.
+- Equipo (rol `vendedor`): `/casillero/admin` — recibir y pesar, estados,
+  despachos, recargas, clientes y tarifas.
+- Base de datos: correr `supabase/casillero.sql` **después** de
+  `supabase/schema.sql` (es re-ejecutable). Reemplaza `handle_new_user()`
+  por la misma función más los campos del casillero.
+- Wallet en USD. Wompi cobra en COP a `USD_COP_RATE`; la referencia
+  `ecw_…` entra por el mismo webhook `/api/wompi-events`, no hay URL nueva
+  que configurar en Wompi.
+- Tests: `pnpm vitest run server/casillero` (incluye el SQL sobre PGlite).
+
 ## 5. Estructura
 
 ```

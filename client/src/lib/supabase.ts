@@ -255,6 +255,18 @@ export interface Profile {
   referral_code: string;
   referred_by: string | null;
   created_at: string;
+  // Casillero (supabase/casillero.sql)
+  casillero_codigo?: string | null;
+  telefono?: string | null;
+  tipo_doc?: string | null;
+  num_doc?: string | null;
+  direccion?: string | null;
+  pais?: string | null;
+  departamento?: string | null;
+  ciudad?: string | null;
+  codigo_postal?: string | null;
+  como_nos_conocio?: string | null;
+  es_empresa?: boolean;
 }
 
 export type QuoteStatus = 'pending' | 'quoted' | 'won' | 'lost';

@@ -21,6 +21,7 @@ import { enviosRouter } from "./usps/route";
 import { destinosRouter } from "./destinos/route";
 import { revendedoresRouter } from "./revendedores/route";
 import { roiRouter } from "./roi/route";
+import { casilleroRouter } from "./casillero/route";
 import { securityHeaders, permissionsPolicy, corsPolicy, methodAllowlist, apiRateLimiter } from "./security";
 import compression from "compression";
 import { validateEnv } from "./env";
@@ -67,6 +68,7 @@ async function startServer() {
   app.use("/api", htsRouter);
   app.use("/api", enviosRouter);
   app.use("/api", destinosRouter);
+  app.use("/api", casilleroRouter);
   // Anything under /api that no router claimed is a 404, never the SPA shell.
   app.use("/api", (_req, res) => res.status(404).json({ error: "Not found" }));
 

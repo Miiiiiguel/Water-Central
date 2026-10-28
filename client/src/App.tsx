@@ -24,6 +24,10 @@ const Tokens = lazy(() => import("./pages/Tokens"));
 const Ruta = lazy(() => import("./pages/Ruta"));
 const Plantillas = lazy(() => import("./pages/Plantillas"));
 const Diagnostico = lazy(() => import("./pages/Diagnostico"));
+const Casillero = lazy(() => import("./pages/Casillero"));
+const CasilleroAdmin = lazy(() => import("./pages/CasilleroAdmin"));
+const CasilleroRegistro = lazy(() => import("./pages/CasilleroRegistro"));
+const Rastreo = lazy(() => import("./pages/Rastreo"));
 const Estado = lazy(() => import("./pages/Estado"));
 const AnalizarProducto = lazy(() => import("./pages/AnalizarProducto"));
 const ChatbotWidget = lazy(() => import("./components/ChatbotWidget"));
@@ -148,6 +152,26 @@ function Router() {
           <Route path={"/admin/revendedores"}>
             <Suspense fallback={<PageFallback />}>
               <AdminRevendedores />
+            </Suspense>
+          </Route>
+          <Route path={"/casillero/registro"}>
+            <Suspense fallback={<PageFallback />}>
+              <CasilleroRegistro />
+            </Suspense>
+          </Route>
+          <Route path={"/casillero/admin"}>
+            <Suspense fallback={<PageFallback />}>
+              <CasilleroAdmin />
+            </Suspense>
+          </Route>
+          <Route path={"/rastreo"}>
+            <Suspense fallback={<PageFallback />}>
+              <Rastreo />
+            </Suspense>
+          </Route>
+          <Route path={"/casillero/:seccion?"}>
+            <Suspense fallback={<PageFallback />}>
+              <Casillero />
             </Suspense>
           </Route>
           <Route path={"/404"} component={NotFound} />
