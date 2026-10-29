@@ -67,8 +67,6 @@ export interface Mail {
   html: string;
   text: string;
   replyTo?: string;
-  /** Remitente propio (otra marca de la misma app). Sin él, EMAIL_FROM. */
-  from?: string;
 }
 
 /**
@@ -86,7 +84,7 @@ export async function sendEmail(mail: Mail): Promise<boolean> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: mail.from || process.env.EMAIL_FROM,
+        from: process.env.EMAIL_FROM,
         to: [mail.to],
         subject: safeSubject(mail.subject),
         html: mail.html,
@@ -114,7 +112,7 @@ export async function sendEmail(mail: Mail): Promise<boolean> {
 
 const BRAND = '#FF5A36';
 
-function layout(title: string, bodyHtml: string): string {
+export function layout(title: string, bodyHtml: string): string {
   return `<!doctype html><html lang="es"><body style="margin:0;padding:24px;background:#f6f6f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1B1A45">
 <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:16px;padding:32px">
 <p style="margin:0 0 24px;font-size:22px;font-weight:800"><span style="color:${BRAND}">easy</span><span style="color:#1B1A45">comex</span></p>
@@ -125,7 +123,7 @@ ${bodyHtml}
 </body></html>`;
 }
 
-function button(href: string, label: string): string {
+export function button(href: string, label: string): string {
   return `<p style="margin:24px 0"><a href="${escapeHtml(href)}" style="display:inline-block;background:${BRAND};color:#fff;text-decoration:none;font-weight:700;padding:13px 24px;border-radius:999px">${escapeHtml(label)}</a></p>`;
 }
 

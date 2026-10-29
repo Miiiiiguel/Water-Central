@@ -71,9 +71,9 @@ Ver [`APP_STORE.md`](./APP_STORE.md). Resumen: `pnpm run cap:sync`, abrir
 `android/` en Android Studio o `ios/` en Xcode, firmar y enviar. Los
 íconos y splash ya están generados.
 
-## 6. Casillero DMatrixUSA (`/casillero`)
+## 6. Casillero Easycomex (`/casillero`)
 
-Casillero de paquetería construido sobre esta misma app: reutiliza el
+Casillero de paquetería (Miami → Colombia) construido sobre esta misma app: reutiliza el
 login (Supabase + `profiles`), Wompi (recarga del wallet), las
 notificaciones y el correo (Resend).
 

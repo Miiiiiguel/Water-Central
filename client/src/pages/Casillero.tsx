@@ -3,9 +3,8 @@ import { useRoute } from 'wouter';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import CasilleroShell, { Etiqueta, Panel, type ItemMenu } from '@/components/CasilleroShell';
+import CasilleroShell, { CLASE_CAMPO, Cifra, Entrada, Etiqueta, Panel, type ItemMenu } from '@/components/CasilleroShell';
 import {
   DIRECCION_MIAMI, MODALIDADES, api, cotizar, db, fecha, saldoDe, usd,
   type Despacho, type Modalidad, type MovimientoWallet, type Paquete, type Tarifa,
@@ -25,7 +24,7 @@ const TITULOS: Record<string, string> = {
   wallet: 'Wallet', tarifas: 'Tarifas mínimas', perfil: 'Mi perfil',
 };
 
-const selectCls = 'w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm';
+const selectCls = CLASE_CAMPO;
 
 function useDatos() {
   const [paquetes, setPaquetes] = useState<Paquete[]>([]);
@@ -71,12 +70,12 @@ export default function Casillero() {
 function DirCasillero() {
   const { profile } = useAuth();
   return (
-    <Panel className="bg-[#fbe4e6]">
+    <Panel className="bg-secondary">
       <b>Tu dirección de casillero en Miami</b>
       <p className="mt-1 leading-relaxed">
         {profile?.full_name} — <b>{profile?.casillero_codigo}</b><br />
         {DIRECCION_MIAMI}<br />
-        <span className="text-sm text-neutral-600">Usa tu código {profile?.casillero_codigo} en el nombre o suite para identificar tus compras.</span>
+        <span className="text-sm text-muted-foreground">Usa tu código {profile?.casillero_codigo} en el nombre o suite para identificar tus compras.</span>
       </p>
     </Panel>
   );
@@ -91,10 +90,8 @@ function Inicio({ paquetes, movs }: ReturnType<typeof useDatos>) {
   return (
     <>
       <DirCasillero />
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {tarjetas.map(([t, v]) => (
-          <div key={t} className="rounded-lg bg-white p-4 shadow-sm"><p className="text-sm text-neutral-500">{t}</p><p className="text-2xl font-semibold">{v}</p></div>
-        ))}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {tarjetas.map(([t, v], i) => <Cifra key={t} etiqueta={t} valor={v} acento={i === 0} />)}
       </div>
     </>
   );
@@ -124,12 +121,12 @@ function Prealerta({ onListo }: { onListo: () => Promise<void> }) {
       <DirCasillero />
       <Panel>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div><Label>Número de guía</Label><Input value={f.guia} onChange={set('guia')} /></div>
-          <div><Label>Proveedor / tienda</Label><Input value={f.proveedor} onChange={set('proveedor')} placeholder="Amazon, Shein, Nike…" /></div>
-          <div><Label>Contenido</Label><Input value={f.descripcion} onChange={set('descripcion')} /></div>
-          <div><Label>Valor declarado (USD)</Label><Input type="number" min="0" step="0.01" value={f.valor} onChange={set('valor')} /></div>
+          <div><Label className="mb-1.5 block">Número de guía</Label><Entrada value={f.guia} onChange={set('guia')} /></div>
+          <div><Label className="mb-1.5 block">Proveedor / tienda</Label><Entrada value={f.proveedor} onChange={set('proveedor')} placeholder="Amazon, Shein, Nike…" /></div>
+          <div><Label className="mb-1.5 block">Contenido</Label><Entrada value={f.descripcion} onChange={set('descripcion')} /></div>
+          <div><Label className="mb-1.5 block">Valor declarado (USD)</Label><Entrada type="number" min="0" step="0.01" value={f.valor} onChange={set('valor')} /></div>
         </div>
-        <Button className="mt-4 bg-[#b01c2e] hover:bg-[#8e1523]" disabled={ocupado} onClick={() => void enviar()}>Registrar prealerta</Button>
+        <Button className="mt-4 rounded-full bg-accent hover:bg-accent/90 text-white font-bold" disabled={ocupado} onClick={() => void enviar()}>Registrar prealerta</Button>
       </Panel>
     </>
   );
@@ -149,18 +146,18 @@ function Paquetes({ paquetes, recargar }: ReturnType<typeof useDatos>) {
   return (
     <Panel>
       <table className="w-full text-sm">
-        <thead><tr className="text-left text-neutral-500"><th className="p-2">Guía</th><th>Proveedor</th><th>Contenido</th><th>Peso (lb)</th><th>Estado</th><th>Fecha</th><th /></tr></thead>
+        <thead><tr className="text-left text-muted-foreground"><th className="p-2">Guía</th><th>Proveedor</th><th>Contenido</th><th>Peso (lb)</th><th>Estado</th><th>Fecha</th><th /></tr></thead>
         <tbody>
           {paquetes.map((p) => (
             <tr key={p.id} className="border-t">
               <td className="p-2">{p.guia}</td><td>{p.proveedor}</td><td>{p.descripcion}</td><td>{p.peso_lb ?? '—'}</td>
               <td><Etiqueta valor={p.estado} /></td><td>{fecha(p.created_at)}</td>
               <td>{p.estado === 'prealertado'
-                ? <button className="text-[#b01c2e] underline" onClick={() => void borrar(p.id)}>Eliminar</button>
-                : <button className="text-[#b01c2e] underline" onClick={() => void ver(p.id)}>Historial</button>}</td>
+                ? <button className="text-accent underline" onClick={() => void borrar(p.id)}>Eliminar</button>
+                : <button className="text-accent underline" onClick={() => void ver(p.id)}>Historial</button>}</td>
             </tr>
           ))}
-          {!paquetes.length && <tr><td colSpan={7} className="p-3 text-neutral-500">Aún no tienes paquetes.</td></tr>}
+          {!paquetes.length && <tr><td colSpan={7} className="p-3 text-muted-foreground">Aún no tienes paquetes.</td></tr>}
         </tbody>
       </table>
       {hist && (
@@ -196,7 +193,7 @@ function Despachar({ paquetes, tarifas, movs, recargar }: ReturnType<typeof useD
     <Panel>
       <p className="mb-3">Saldo disponible: <b>{usd(saldo)}</b></p>
       <table className="w-full text-sm">
-        <thead><tr className="text-left text-neutral-500"><th className="p-2" /><th>Guía</th><th>Contenido</th><th>Peso (lb)</th></tr></thead>
+        <thead><tr className="text-left text-muted-foreground"><th className="p-2" /><th>Guía</th><th>Contenido</th><th>Peso (lb)</th></tr></thead>
         <tbody>
           {listos.map((p) => (
             <tr key={p.id} className="border-t">
@@ -204,22 +201,22 @@ function Despachar({ paquetes, tarifas, movs, recargar }: ReturnType<typeof useD
               <td>{p.guia}</td><td>{p.descripcion}</td><td>{p.peso_lb}</td>
             </tr>
           ))}
-          {!listos.length && <tr><td colSpan={4} className="p-3 text-neutral-500">No tienes paquetes recibidos y pesados.</td></tr>}
+          {!listos.length && <tr><td colSpan={4} className="p-3 text-muted-foreground">No tienes paquetes recibidos y pesados.</td></tr>}
         </tbody>
       </table>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <div><Label>Modalidad</Label>
+        <div><Label className="mb-1.5 block">Modalidad</Label>
           <select className={selectCls} value={modalidad} onChange={(e) => setModalidad(e.target.value as Modalidad)}>
             {Object.entries(MODALIDADES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select></div>
-        <div><Label>Destino (dirección y ciudad)</Label><Input value={destino} onChange={(e) => setDestino(e.target.value)} /></div>
+        <div><Label className="mb-1.5 block">Destino (dirección y ciudad)</Label><Entrada value={destino} onChange={(e) => setDestino(e.target.value)} /></div>
       </div>
       {sel.length > 0 && (
         <p className="mt-3 text-base">
           Peso total: <b>{peso.toFixed(2)} lb</b> · {costo == null ? 'fuera de la tabla, contacta a un asesor' : <>Costo: <b>{usd(costo)}</b></>}
         </p>
       )}
-      <Button className="mt-4 bg-[#b01c2e] hover:bg-[#8e1523]" onClick={() => void solicitar()}>Solicitar despacho y pagar con wallet</Button>
+      <Button className="mt-4 rounded-full bg-accent hover:bg-accent/90 text-white font-bold" onClick={() => void solicitar()}>Solicitar despacho y pagar con wallet</Button>
     </Panel>
   );
 }
@@ -263,32 +260,32 @@ function Wallet({ movs, recargar }: ReturnType<typeof useDatos>) {
 
   return (
     <>
-      <div className="mb-4 rounded-lg bg-white p-4 shadow-sm"><p className="text-sm text-neutral-500">Saldo disponible</p><p className="text-3xl font-semibold">{usd(saldo)}</p></div>
+      <div className="mb-4 rounded-3xl border border-gray-100 bg-white p-5 app-shadow"><p className="text-sm text-muted-foreground">Saldo disponible</p><p className="text-3xl font-semibold">{usd(saldo)}</p></div>
       <Panel>
         <b>Recargar</b>
         <div className="mt-3 grid gap-4 sm:grid-cols-3">
-          <div><Label>Monto (USD)</Label><Input type="number" min="5" step="0.01" value={monto} onChange={(e) => setMonto(e.target.value)} /></div>
-          <div><Label>Método (si ya pagaste fuera)</Label>
+          <div><Label className="mb-1.5 block">Monto (USD)</Label><Entrada type="number" min="5" step="0.01" value={monto} onChange={(e) => setMonto(e.target.value)} /></div>
+          <div><Label className="mb-1.5 block">Método (si ya pagaste fuera)</Label>
             <select className={selectCls} value={metodo} onChange={(e) => setMetodo(e.target.value)}>
               {['Transferencia', 'Zelle', 'Efectivo', 'Otro'].map((x) => <option key={x}>{x}</option>)}
             </select></div>
-          <div><Label>Referencia / comprobante</Label><Input value={ref} onChange={(e) => setRef(e.target.value)} /></div>
+          <div><Label className="mb-1.5 block">Referencia / comprobante</Label><Entrada value={ref} onChange={(e) => setRef(e.target.value)} /></div>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button className="bg-[#b01c2e] hover:bg-[#8e1523]" onClick={() => void conWompi()}>Pagar ahora con Wompi</Button>
+          <Button className="rounded-full bg-accent hover:bg-accent/90 text-white font-bold" onClick={() => void conWompi()}>Pagar ahora con Wompi</Button>
           <Button variant="outline" onClick={() => void reportar()}>Reportar pago ya realizado</Button>
         </div>
-        <p className="mt-2 text-xs text-neutral-500">Wompi cobra en pesos colombianos a la tasa del día y acredita el wallet en USD automáticamente. Los pagos reportados los verifica el equipo.</p>
+        <p className="mt-2 text-xs text-muted-foreground">Wompi cobra en pesos colombianos a la tasa del día y acredita el wallet en USD automáticamente. Los pagos reportados los verifica el equipo.</p>
       </Panel>
       <Panel>
         <b>Movimientos</b>
         <table className="mt-2 w-full text-sm">
-          <thead><tr className="text-left text-neutral-500"><th className="p-2">Fecha</th><th>Tipo</th><th>Detalle</th><th>Monto</th><th>Estado</th></tr></thead>
+          <thead><tr className="text-left text-muted-foreground"><th className="p-2">Fecha</th><th>Tipo</th><th>Detalle</th><th>Monto</th><th>Estado</th></tr></thead>
           <tbody>
             {movs.map((m) => (
               <tr key={m.id} className="border-t"><td className="p-2">{fecha(m.created_at)}</td><td>{m.tipo}</td><td>{m.referencia ?? m.metodo}</td><td>{usd(m.monto)}</td><td><Etiqueta valor={m.estado} /></td></tr>
             ))}
-            {!movs.length && <tr><td colSpan={5} className="p-3 text-neutral-500">Sin movimientos.</td></tr>}
+            {!movs.length && <tr><td colSpan={5} className="p-3 text-muted-foreground">Sin movimientos.</td></tr>}
           </tbody>
         </table>
       </Panel>
@@ -300,14 +297,14 @@ export function TablaTarifas({ tarifas }: { tarifas: Tarifa[] }) {
   return (
     <Panel>
       <table className="w-full text-sm">
-        <thead><tr className="text-left text-neutral-500"><th className="p-2">Libras</th><th>Rec. oficina</th><th>Local</th><th>Regional</th><th>Nacional</th></tr></thead>
+        <thead><tr className="text-left text-muted-foreground"><th className="p-2">Libras</th><th>Rec. oficina</th><th>Local</th><th>Regional</th><th>Nacional</th></tr></thead>
         <tbody>
           {tarifas.map((t) => (
             <tr key={t.id} className="border-t"><td className="p-2">{t.libras_desde} a {t.libras_hasta}</td><td>{usd(t.rec_oficina)}</td><td>{usd(t.local)}</td><td>{usd(t.regional)}</td><td>{usd(t.nacional)}</td></tr>
           ))}
         </tbody>
       </table>
-      <p className="mt-3 text-sm text-neutral-500">Aplican con valor declarado igual o menor a USD 100.00. Si la ciudad destino aplica para reexpedición, el sistema generará un cobro adicional por ese trayecto.</p>
+      <p className="mt-3 text-sm text-muted-foreground">Aplican con valor declarado igual o menor a USD 100.00. Si la ciudad destino aplica para reexpedición, el sistema generará un cobro adicional por ese trayecto.</p>
     </Panel>
   );
 }
@@ -328,9 +325,9 @@ function Perfil() {
   return (
     <Panel>
       <div className="grid gap-4 sm:grid-cols-2">
-        {CAMPOS_PERFIL.map(([k, l]) => <div key={k}><Label>{l}</Label><Input value={v[k]} onChange={(e) => setV({ ...v, [k]: e.target.value })} /></div>)}
+        {CAMPOS_PERFIL.map(([k, l]) => <div key={k}><Label className="mb-1.5 block">{l}</Label><Entrada value={v[k]} onChange={(e) => setV({ ...v, [k]: e.target.value })} /></div>)}
       </div>
-      <Button className="mt-4 bg-[#b01c2e] hover:bg-[#8e1523]" onClick={() => void guardar()}>Guardar</Button>
+      <Button className="mt-4 rounded-full bg-accent hover:bg-accent/90 text-white font-bold" onClick={() => void guardar()}>Guardar</Button>
     </Panel>
   );
 }

@@ -1,21 +1,38 @@
-import { ReactNode, useEffect } from 'react';
+import { InputHTMLAttributes, ReactNode, forwardRef, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
 import NotificationBell from '@/components/NotificationBell';
-import { useMarcaDMatrix } from '@/lib/marca';
 
 export interface ItemMenu {
   ruta: string;
   etiqueta: string;
 }
 
+/** El campo de texto de Easycomex (mismo que en login y registro). */
+export const CLASE_CAMPO =
+  'w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-sm focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all';
+
+export const Entrada = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(({ className = '', ...p }, ref) => (
+  <input ref={ref} className={`${CLASE_CAMPO} ${className}`} {...p} />
+));
+Entrada.displayName = 'Entrada';
+
+export function Logo({ className = 'text-xl md:text-2xl' }: { className?: string }) {
+  return (
+    <span className={`font-logo tracking-tight ${className}`}>
+      <span className="text-accent">easy</span>
+      <span className="text-primary">comex</span>
+    </span>
+  );
+}
+
 /**
- * Marco del casillero: barra roja de DMatrixUSA, menú de secciones y la
- * puerta de entrada. Quien no ha iniciado sesión va al login de
- * Easycomex y vuelve aquí (?next=); quien no es del equipo no entra al
- * panel de administración (eso además lo impone RLS en la base).
+ * Marco del casillero, con la misma cara que el dashboard de Easycomex:
+ * encabezado blanco con el logo, pastilla de rol, campanita y salir; el
+ * menú de secciones va como pastillas debajo. Quien no ha iniciado sesión
+ * va al login de Easycomex y vuelve aquí (?next=); quien no es del equipo
+ * no entra al panel de administración (eso además lo impone RLS).
  */
 export default function CasilleroShell({ menu, actual, titulo, soloEquipo, children }: {
   menu: ItemMenu[];
@@ -26,47 +43,57 @@ export default function CasilleroShell({ menu, actual, titulo, soloEquipo, child
 }) {
   const { user, profile, loading, signOut } = useAuth();
   const [, navigate] = useLocation();
-  useMarcaDMatrix();
 
   useEffect(() => {
-    if (!loading && !user) navigate('/casillero/login');
+    if (!loading && !user) navigate(`/login?next=${encodeURIComponent(window.location.pathname)}`);
   }, [loading, user, navigate]);
 
-  if (loading || !user || !profile) return <div className="min-h-screen bg-neutral-50" />;
+  if (loading || !user || !profile) return <div className="min-h-screen bg-gray-50" />;
   if (soloEquipo && profile.role !== 'vendedor') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3">
-        <p>Esta sección es solo para el equipo de DMatrixUSA.</p>
-        <Link href="/casillero" className="text-[#b01c2e] underline">Ir a mi casillero</Link>
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-3 px-4 text-center">
+        <p className="text-foreground">Esta sección es solo para el equipo de Easycomex.</p>
+        <Link href="/casillero" className="font-bold text-accent hover:underline">Ir a mi casillero</Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 text-neutral-900">
-      <header className="sticky top-0 z-20 flex h-14 items-center justify-between bg-white px-4 shadow">
-        <Link href="/casillero"><img src="/dmatrix/logo.png" alt="DMatrixUSA" className="h-9" /></Link>
-        <div className="flex items-center gap-3 text-sm">
-          <span className="hidden sm:inline">{profile.full_name}</span>
-          {profile.casillero_codigo && <span className="rounded-full bg-[#fbe4e6] px-2 py-0.5 text-xs font-semibold text-[#8e1523]">{profile.casillero_codigo}</span>}
-          <NotificationBell />
-          <Button variant="ghost" size="sm" onClick={() => void signOut().then(() => navigate('/casillero/login'))}><LogOut className="mr-1 h-4 w-4" />Salir</Button>
+    <div className="min-h-screen bg-gray-50 text-foreground">
+      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-gray-100 pt-[env(safe-area-inset-top)]">
+        <div className="container flex items-center justify-between h-16 md:h-20">
+          <Link href="/casillero"><Logo /></Link>
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground text-xs font-bold uppercase tracking-wide">
+              {profile.role === 'vendedor' ? 'Equipo Easycomex' : `Casillero ${profile.casillero_codigo ?? ''}`}
+            </span>
+            <span className="hidden md:inline text-sm text-muted-foreground">{profile.full_name || user.email}</span>
+            <NotificationBell />
+            <button
+              onClick={() => void signOut().then(() => navigate('/login'))}
+              className="tap-scale-sm flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 text-sm font-bold text-foreground transition-colors bg-transparent cursor-pointer"
+            >
+              <LogOut size={16} />Salir
+            </button>
+          </div>
         </div>
       </header>
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4 md:flex-row">
-        <nav className="flex gap-1 overflow-x-auto md:w-52 md:flex-col md:shrink-0">
+      <div className="container py-6">
+        <nav className="mb-6 flex gap-2 overflow-x-auto pb-1">
           {menu.map((m) => (
             <Link
               key={m.ruta}
               href={m.ruta}
-              className={`whitespace-nowrap rounded px-3 py-2 text-sm ${actual === m.ruta ? 'bg-[#fbe4e6] font-bold text-[#8e1523]' : 'hover:bg-neutral-100'}`}
+              className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold transition-colors ${
+                actual === m.ruta ? 'bg-primary text-white' : 'bg-white border border-gray-200 text-foreground hover:bg-gray-100'
+              }`}
             >
               {m.etiqueta}
             </Link>
           ))}
         </nav>
-        <main className="min-w-0 flex-1">
-          <h1 className="mb-4 text-2xl font-semibold">{titulo}</h1>
+        <main className="min-w-0">
+          <h1 className="mb-5 text-2xl md:text-3xl font-black text-primary">{titulo}</h1>
           {children}
         </main>
       </div>
@@ -75,13 +102,23 @@ export default function CasilleroShell({ menu, actual, titulo, soloEquipo, child
 }
 
 export function Panel({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <section className={`mb-4 overflow-x-auto rounded-lg bg-white p-4 shadow-sm ${className}`}>{children}</section>;
+  return <section className={`mb-5 overflow-x-auto rounded-3xl border border-gray-100 bg-white p-6 app-shadow ${className}`}>{children}</section>;
 }
 
 export function Etiqueta({ valor }: { valor: string }) {
   const bueno = ['recibido', 'aprobado', 'entregado'].includes(valor);
   const malo = ['rechazado', 'cancelado'].includes(valor);
   const azul = valor === 'despachado';
-  const cls = bueno ? 'bg-green-100 text-green-800' : malo ? 'bg-red-100 text-red-800' : azul ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800';
-  return <span className={`inline-block rounded-full px-2 py-0.5 text-xs ${cls}`}>{valor}</span>;
+  const cls = bueno ? 'bg-green-50 text-green-700' : malo ? 'bg-red-50 text-red-700' : azul ? 'bg-blue-50 text-blue-700' : 'bg-secondary text-secondary-foreground';
+  return <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${cls}`}>{valor}</span>;
+}
+
+/** Tarjeta de cifra, como las del dashboard. */
+export function Cifra({ etiqueta, valor, acento = false }: { etiqueta: string; valor: string; acento?: boolean }) {
+  return (
+    <div className={`rounded-3xl p-6 app-shadow ${acento ? 'bg-primary text-white' : 'bg-white border border-gray-100'}`}>
+      <p className={`text-sm ${acento ? 'text-white/70' : 'text-muted-foreground'}`}>{etiqueta}</p>
+      <p className="mt-1 text-3xl font-black">{valor}</p>
+    </div>
+  );
 }

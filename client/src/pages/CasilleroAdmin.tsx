@@ -2,9 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import CasilleroShell, { Etiqueta, Panel } from '@/components/CasilleroShell';
+import CasilleroShell, { Entrada, Etiqueta, Panel } from '@/components/CasilleroShell';
 import {
   ESTADOS_PAQUETE, MODALIDADES, api, db, fecha, usd,
   type Despacho, type MovimientoWallet, type Paquete, type Tarifa,
@@ -15,7 +14,7 @@ const MENU = [{ ruta: '/casillero/admin', etiqueta: 'Panel del equipo' }, { ruta
 const SECCIONES = ['Paquetes', 'Despachos', 'Recargas', 'Clientes', 'Tarifas'] as const;
 type Seccion = (typeof SECCIONES)[number];
 
-const selectCls = 'rounded-md border border-input bg-transparent px-2 py-1 text-sm';
+const selectCls = 'rounded-xl border border-gray-200 bg-white px-2 py-1.5 text-sm';
 const quien = (p?: { full_name: string | null; casillero_codigo: string | null } | null) => `${p?.casillero_codigo ?? ''} · ${p?.full_name ?? ''}`;
 
 export default function CasilleroAdmin() {
@@ -24,7 +23,7 @@ export default function CasilleroAdmin() {
     <CasilleroShell menu={MENU} actual="/casillero/admin" titulo="Casillero · equipo" soloEquipo>
       <div className="mb-4 flex flex-wrap gap-2">
         {SECCIONES.map((s) => (
-          <Button key={s} size="sm" variant={s === sec ? 'default' : 'outline'} className={s === sec ? 'bg-[#b01c2e] hover:bg-[#8e1523]' : ''} onClick={() => setSec(s)}>{s}</Button>
+          <Button key={s} size="sm" variant={s === sec ? 'default' : 'outline'} className="rounded-full font-bold" onClick={() => setSec(s)}>{s}</Button>
         ))}
       </div>
       {sec === 'Paquetes' && <PaquetesAdmin />}
@@ -70,22 +69,22 @@ function PaquetesAdmin() {
     <>
       <RecibirSinPrealerta onListo={recargar} />
       <Panel>
-      <div className="mb-3 max-w-xs"><Label>Buscar guía o cliente</Label><Input value={q} onChange={(e) => setQ(e.target.value)} /></div>
+      <div className="mb-3 max-w-xs"><Label className="mb-1.5 block">Buscar guía o cliente</Label><Entrada value={q} onChange={(e) => setQ(e.target.value)} /></div>
       <table className="w-full text-sm">
-        <thead><tr className="text-left text-neutral-500"><th className="p-2">Guía</th><th>Cliente</th><th>Contenido</th><th>Peso lb</th><th>Estado</th><th /></tr></thead>
+        <thead><tr className="text-left text-muted-foreground"><th className="p-2">Guía</th><th>Cliente</th><th>Contenido</th><th>Peso lb</th><th>Estado</th><th /></tr></thead>
         <tbody>
           {visibles.map((p) => {
             const e = edit[p.id] ?? { peso: String(p.peso_lb ?? ''), estado: p.estado };
             return (
               <tr key={p.id} className="border-t">
                 <td className="p-2">{p.guia}</td><td>{quien(p.profiles)}</td><td>{p.descripcion}</td>
-                <td><Input className="h-8 w-20" type="number" step="0.01" min="0" value={e.peso} onChange={(ev) => setEdit({ ...edit, [p.id]: { ...e, peso: ev.target.value } })} /></td>
+                <td><Entrada className="!w-20 !py-1.5" type="number" step="0.01" min="0" value={e.peso} onChange={(ev) => setEdit({ ...edit, [p.id]: { ...e, peso: ev.target.value } })} /></td>
                 <td><select className={selectCls} value={e.estado} onChange={(ev) => setEdit({ ...edit, [p.id]: { ...e, estado: ev.target.value } })}>{ESTADOS_PAQUETE.map((s) => <option key={s}>{s}</option>)}</select></td>
                 <td><Button size="sm" onClick={() => void guardar(p)}>Guardar</Button></td>
               </tr>
             );
           })}
-          {!visibles.length && <tr><td colSpan={6} className="p-3 text-neutral-500">Sin paquetes.</td></tr>}
+          {!visibles.length && <tr><td colSpan={6} className="p-3 text-muted-foreground">Sin paquetes.</td></tr>}
         </tbody>
       </table>
       </Panel>
@@ -116,10 +115,10 @@ function RecibirSinPrealerta({ onListo }: { onListo: () => Promise<void> }) {
     <Panel>
       <b>Recibir un paquete sin prealerta</b>
       <div className="mt-2 grid gap-3 sm:grid-cols-5">
-        <div><Label>Código cliente</Label><Input placeholder="DM1001" value={f.codigo} onChange={(e) => setF({ ...f, codigo: e.target.value })} /></div>
-        <div><Label>Guía</Label><Input value={f.guia} onChange={(e) => setF({ ...f, guia: e.target.value })} /></div>
-        <div><Label>Peso (lb)</Label><Input type="number" step="0.01" min="0" value={f.peso} onChange={(e) => setF({ ...f, peso: e.target.value })} /></div>
-        <div><Label>Contenido</Label><Input value={f.descripcion} onChange={(e) => setF({ ...f, descripcion: e.target.value })} /></div>
+        <div><Label className="mb-1.5 block">Código cliente</Label><Entrada placeholder="DM1001" value={f.codigo} onChange={(e) => setF({ ...f, codigo: e.target.value })} /></div>
+        <div><Label className="mb-1.5 block">Guía</Label><Entrada value={f.guia} onChange={(e) => setF({ ...f, guia: e.target.value })} /></div>
+        <div><Label className="mb-1.5 block">Peso (lb)</Label><Entrada type="number" step="0.01" min="0" value={f.peso} onChange={(e) => setF({ ...f, peso: e.target.value })} /></div>
+        <div><Label className="mb-1.5 block">Contenido</Label><Entrada value={f.descripcion} onChange={(e) => setF({ ...f, descripcion: e.target.value })} /></div>
         <div className="flex items-end"><Button onClick={() => void registrar()}>Registrar</Button></div>
       </div>
     </Panel>
@@ -142,20 +141,20 @@ function DespachosAdmin() {
   return (
     <Panel>
       <table className="w-full text-sm">
-        <thead><tr className="text-left text-neutral-500"><th className="p-2">Fecha</th><th>Cliente</th><th>Modalidad</th><th>Destino</th><th>Peso</th><th>Costo</th><th>Guía despacho</th><th>Estado</th><th /></tr></thead>
+        <thead><tr className="text-left text-muted-foreground"><th className="p-2">Fecha</th><th>Cliente</th><th>Modalidad</th><th>Destino</th><th>Peso</th><th>Costo</th><th>Guía despacho</th><th>Estado</th><th /></tr></thead>
         <tbody>
           {filas.map((d) => {
             const e = edit[d.id] ?? { guia: d.guia_despacho ?? '', estado: d.estado };
             return (
               <tr key={d.id} className="border-t">
                 <td className="p-2">{fecha(d.created_at)}</td><td>{quien(d.profiles)}</td><td>{MODALIDADES[d.modalidad]}</td><td>{d.destino}</td><td>{d.peso_total}</td><td>{usd(d.costo)}</td>
-                <td><Input className="h-8 w-36" value={e.guia} onChange={(ev) => setEdit({ ...edit, [d.id]: { ...e, guia: ev.target.value } })} /></td>
+                <td><Entrada className="!w-36 !py-1.5" value={e.guia} onChange={(ev) => setEdit({ ...edit, [d.id]: { ...e, guia: ev.target.value } })} /></td>
                 <td><select className={selectCls} value={e.estado} onChange={(ev) => setEdit({ ...edit, [d.id]: { ...e, estado: ev.target.value } })}>{['solicitado', 'despachado', 'entregado', 'cancelado'].map((s) => <option key={s}>{s}</option>)}</select></td>
                 <td><Button size="sm" onClick={() => void guardar(d)}>Guardar</Button></td>
               </tr>
             );
           })}
-          {!filas.length && <tr><td colSpan={9} className="p-3 text-neutral-500">Sin despachos.</td></tr>}
+          {!filas.length && <tr><td colSpan={9} className="p-3 text-muted-foreground">Sin despachos.</td></tr>}
         </tbody>
       </table>
     </Panel>
@@ -188,15 +187,15 @@ function RecargasAdmin() {
       <Panel>
         <b>Ajuste manual de saldo</b>
         <div className="mt-2 grid gap-3 sm:grid-cols-4">
-          <div><Label>Código cliente</Label><Input placeholder="DM1001" value={aj.codigo} onChange={(e) => setAj({ ...aj, codigo: e.target.value })} /></div>
-          <div><Label>Monto (+/−)</Label><Input type="number" step="0.01" value={aj.monto} onChange={(e) => setAj({ ...aj, monto: e.target.value })} /></div>
-          <div><Label>Motivo</Label><Input value={aj.motivo} onChange={(e) => setAj({ ...aj, motivo: e.target.value })} /></div>
+          <div><Label className="mb-1.5 block">Código cliente</Label><Entrada placeholder="DM1001" value={aj.codigo} onChange={(e) => setAj({ ...aj, codigo: e.target.value })} /></div>
+          <div><Label className="mb-1.5 block">Monto (+/−)</Label><Entrada type="number" step="0.01" value={aj.monto} onChange={(e) => setAj({ ...aj, monto: e.target.value })} /></div>
+          <div><Label className="mb-1.5 block">Motivo</Label><Entrada value={aj.motivo} onChange={(e) => setAj({ ...aj, motivo: e.target.value })} /></div>
           <div className="flex items-end"><Button onClick={() => void ajustar()}>Aplicar</Button></div>
         </div>
       </Panel>
       <Panel>
         <table className="w-full text-sm">
-          <thead><tr className="text-left text-neutral-500"><th className="p-2">Fecha</th><th>Cliente</th><th>Tipo</th><th>Método / ref</th><th>Monto</th><th>Estado</th><th /></tr></thead>
+          <thead><tr className="text-left text-muted-foreground"><th className="p-2">Fecha</th><th>Cliente</th><th>Tipo</th><th>Método / ref</th><th>Monto</th><th>Estado</th><th /></tr></thead>
           <tbody>
             {filas.map((m) => (
               <tr key={m.id} className="border-t">
@@ -209,7 +208,7 @@ function RecargasAdmin() {
             ))}
           </tbody>
         </table>
-        <p className="mt-2 text-xs text-neutral-500">Las recargas con Wompi se acreditan solas al confirmarse el pago; aquí solo se aprueban las reportadas a mano.</p>
+        <p className="mt-2 text-xs text-muted-foreground">Las recargas con Wompi se acreditan solas al confirmarse el pago; aquí solo se aprueban las reportadas a mano.</p>
       </Panel>
     </>
   );
@@ -220,7 +219,7 @@ function ClientesAdmin() {
   return (
     <Panel>
       <table className="w-full text-sm">
-        <thead><tr className="text-left text-neutral-500"><th className="p-2">Código</th><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Documento</th><th>Ciudad</th><th>Rol</th><th>Alta</th></tr></thead>
+        <thead><tr className="text-left text-muted-foreground"><th className="p-2">Código</th><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Documento</th><th>Ciudad</th><th>Rol</th><th>Alta</th></tr></thead>
         <tbody>
           {filas.map((c) => (
             <tr key={c.id} className="border-t">
@@ -247,13 +246,13 @@ function TarifasAdmin() {
   return (
     <Panel>
       <table className="w-full text-sm">
-        <thead><tr className="text-left text-neutral-500"><th className="p-2">Libras</th><th>Rec. oficina</th><th>Local</th><th>Regional</th><th>Nacional</th><th /></tr></thead>
+        <thead><tr className="text-left text-muted-foreground"><th className="p-2">Libras</th><th>Rec. oficina</th><th>Local</th><th>Regional</th><th>Nacional</th><th /></tr></thead>
         <tbody>
           {filas.map((t) => (
             <tr key={t.id} className="border-t">
               <td className="p-2">{t.libras_desde} a {t.libras_hasta}</td>
               {columnas.map((c) => (
-                <td key={c}><Input className="h-8 w-24" type="number" step="0.01" value={edit[t.id]?.[c] ?? String(t[c])} onChange={(ev) => setEdit({ ...edit, [t.id]: { ...edit[t.id], [c]: ev.target.value } })} /></td>
+                <td key={c}><Entrada className="!w-24 !py-1.5" type="number" step="0.01" value={edit[t.id]?.[c] ?? String(t[c])} onChange={(ev) => setEdit({ ...edit, [t.id]: { ...edit[t.id], [c]: ev.target.value } })} /></td>
               ))}
               <td><Button size="sm" onClick={() => void guardar(t)}>Guardar</Button></td>
             </tr>

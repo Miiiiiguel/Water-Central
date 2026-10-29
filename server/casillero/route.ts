@@ -11,7 +11,7 @@ import { checkoutUrl, fetchTransaction, integritySignature, transactionPaysFor, 
 import { appUrl, emailConfigured, sendEmail } from '../email';
 import { avisoPaquete } from './correo';
 
-// El casillero de DMatrixUSA.
+// El casillero de Easycomex.
 //
 // Casi todo lo del casillero lo hace el navegador directo contra Supabase
 // con RLS (ver supabase/casillero.sql). Acá viven solo las dos cosas que

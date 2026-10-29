@@ -1,6 +1,6 @@
 import { getSupabase } from '@/lib/supabase';
 
-// Tipos y utilidades del casillero de DMatrixUSA. Las lecturas y los
+// Tipos y utilidades del casillero de Easycomex. Las lecturas y los
 // cambios simples van directo a Supabase (la seguridad la pone RLS, ver
 // supabase/casillero.sql); lo que toca dinero pasa por /api/casillero.
 

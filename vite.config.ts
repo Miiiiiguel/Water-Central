@@ -49,7 +49,7 @@ export default defineConfig({
       injectManifest: {
         // The 3D globe chunk is huge and lazy-loaded on purpose — don't
         // make the service worker download it upfront on every install.
-        globIgnores: ["**/Globe3D-*.js", "**/GlobalReachSection-*.js", "**/dmatrix/**"],
+        globIgnores: ["**/Globe3D-*.js", "**/GlobalReachSection-*.js"],
       },
     }),
   ],

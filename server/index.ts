@@ -90,9 +90,6 @@ async function startServer() {
     res.type("application/json").sendFile(path.join(staticPath, ".well-known", "apple-app-site-association"));
   });
 
-  // Sitio informativo de DMatrixUSA (HTML estático en client/public/dmatrix).
-  app.get(["/dmatrix", "/dmatrix/"], (_req, res) => res.sendFile(path.join(staticPath, "dmatrix", "index.html")));
-
   // robots.txt y sitemap.xml, generados con la URL real de la app.
   const seo = seoRouter(staticPath);
   app.use(seo.router);

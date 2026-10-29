@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
+import { ArrowRight, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Etiqueta } from '@/components/CasilleroShell';
+import { Entrada, Etiqueta, Logo } from '@/components/CasilleroShell';
 import { fecha, rastrear } from '@/lib/casillero';
-import { useMarcaDMatrix } from '@/lib/marca';
 
 // Rastreo público por número de guía: solo estados y fechas, ningún dato del cliente.
 export default function Rastreo() {
-  useMarcaDMatrix('Rastrea tu paquete | DMatrixUSA');
   const [guia, setGuia] = useState('');
   const [eventos, setEventos] = useState<{ estado: string; created_at: string }[] | null>(null);
   const [error, setError] = useState('');
@@ -25,22 +23,27 @@ export default function Rastreo() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 px-4 py-16">
-      <div className="mx-auto max-w-lg rounded-lg bg-white p-6 shadow">
-        <img src="/dmatrix/logo.png" alt="DMatrixUSA" className="mx-auto mb-4 h-11" />
-        <h1 className="mb-4 text-2xl font-semibold">Rastrea tu paquete</h1>
-        <div className="flex gap-2">
-          <Input placeholder="Número de guía" value={guia} onChange={(e) => setGuia(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && void buscar()} />
-          <Button className="bg-[#b01c2e] hover:bg-[#8e1523]" onClick={() => void buscar()}>Buscar</Button>
+    <div className="min-h-screen bg-white flex items-center justify-center px-4 py-16">
+      <div className="w-full max-w-md">
+        <Link href="/" className="flex justify-center mb-8"><Logo className="text-3xl" /></Link>
+        <div className="bg-white rounded-3xl border border-gray-100 app-shadow p-8">
+          <h1 className="text-2xl font-black text-primary mb-1">Rastrea tu paquete</h1>
+          <p className="text-muted-foreground text-sm mb-6">Escribe el número de guía y mira en qué estado está.</p>
+          <div className="flex gap-2">
+            <Entrada placeholder="Número de guía" value={guia} onChange={(e) => setGuia(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && void buscar()} />
+            <Button className="tap-scale rounded-full bg-accent hover:bg-accent/90 text-white font-bold h-auto px-5" onClick={() => void buscar()}><Search size={18} /></Button>
+          </div>
+          {error && <p className="mt-4 rounded-2xl bg-red-50 border border-red-100 p-3 text-xs text-red-700">{error}</p>}
+          {eventos && !eventos.length && <p className="mt-4 rounded-2xl bg-orange-50 border border-orange-100 p-3 text-xs text-orange-800">No encontramos esa guía.</p>}
+          {eventos && eventos.length > 0 && (
+            <ul className="mt-5 space-y-2 text-sm">
+              {eventos.map((e, i) => <li key={i} className="flex items-center gap-2"><Etiqueta valor={e.estado} /><span className="text-muted-foreground">{fecha(e.created_at)}</span></li>)}
+            </ul>
+          )}
+          <p className="text-center text-sm text-muted-foreground mt-6">
+            ¿Tienes casillero? <Link href="/login?next=/casillero" className="text-accent font-bold hover:underline inline-flex items-center gap-1">Ingresa <ArrowRight size={14} /></Link>
+          </p>
         </div>
-        {error && <p className="mt-4 rounded bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-        {eventos && !eventos.length && <p className="mt-4 rounded bg-amber-50 p-3 text-sm">No encontramos esa guía.</p>}
-        {eventos && eventos.length > 0 && (
-          <ul className="mt-4 space-y-2 text-sm">
-            {eventos.map((e, i) => <li key={i}><Etiqueta valor={e.estado} /> <span className="text-neutral-500">{fecha(e.created_at)}</span></li>)}
-          </ul>
-        )}
-        <p className="mt-6 text-sm"><Link href="/casillero/login" className="text-[#b01c2e] underline">Ingresar al casillero</Link></p>
       </div>
     </div>
   );

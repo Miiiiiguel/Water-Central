@@ -27,14 +27,12 @@ const Diagnostico = lazy(() => import("./pages/Diagnostico"));
 const Casillero = lazy(() => import("./pages/Casillero"));
 const CasilleroAdmin = lazy(() => import("./pages/CasilleroAdmin"));
 const CasilleroRegistro = lazy(() => import("./pages/CasilleroRegistro"));
-const CasilleroLogin = lazy(() => import("./pages/CasilleroLogin"));
 const Rastreo = lazy(() => import("./pages/Rastreo"));
 const Estado = lazy(() => import("./pages/Estado"));
 const AnalizarProducto = lazy(() => import("./pages/AnalizarProducto"));
 const ChatbotWidget = lazy(() => import("./components/ChatbotWidget"));
 import ScrollProgress from "./components/ScrollProgress";
 import { useIdleMount } from "./lib/useIdleMount";
-import { esRutaDMatrix } from "./lib/marca";
 
 function PageFallback() {
   return <div className="min-h-screen bg-white" />;
@@ -45,9 +43,7 @@ function PageFallback() {
 // and stays out of the first-load critical path.
 function DeferredChatbot() {
   const ready = useIdleMount(2500, 500);
-  const [ruta] = useLocation();
-  // Marco Polo es de Easycomex: no aparece en el casillero de DMatrixUSA.
-  if (!ready || esRutaDMatrix(ruta)) return null;
+  if (!ready) return null;
   return (
     <Suspense fallback={null}>
       <ChatbotWidget />
@@ -64,17 +60,6 @@ const pageTransition = {
   exit: { opacity: 0, x: -12 },
   transition: { duration: 0.22, ease: [0.22, 1, 0.36, 1] as const },
 };
-
-function AdornosEasycomex() {
-  const [ruta] = useLocation();
-  if (esRutaDMatrix(ruta)) return null;
-  return (
-    <>
-      <ScrollProgress />
-      <div className="grain" aria-hidden="true" />
-    </>
-  );
-}
 
 function Router() {
   const [location] = useLocation();
@@ -169,11 +154,6 @@ function Router() {
               <AdminRevendedores />
             </Suspense>
           </Route>
-          <Route path={"/casillero/login"}>
-            <Suspense fallback={<PageFallback />}>
-              <CasilleroLogin />
-            </Suspense>
-          </Route>
           <Route path={"/casillero/registro"}>
             <Suspense fallback={<PageFallback />}>
               <CasilleroRegistro />
@@ -219,7 +199,8 @@ function App() {
           <AuthProvider>
             <TooltipProvider>
               <Toaster />
-              <AdornosEasycomex />
+              <ScrollProgress />
+              <div className="grain" aria-hidden="true" />
               <Router />
               <DeferredChatbot />
             </TooltipProvider>

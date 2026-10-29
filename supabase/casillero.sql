@@ -1,4 +1,4 @@
--- Casillero DMatrixUSA — se monta sobre el schema de Easycomex.
+-- Casillero de Easycomex — se monta sobre el schema de Easycomex.
 --
 -- Reutiliza lo que ya existe en schema.sql:
 --   * public.profiles (login, rol cliente/vendedor)  -> el "vendedor" es el admin del casillero
