@@ -146,6 +146,35 @@ describe('wallet y despachos del casillero', () => {
     expect(a.rows).toEqual([{ tabla: 'casillero_paquetes', accion: 'UPDATE' }]);
   });
 
+  it('el inventario suma ingresos, descuenta ventas y calcula la rotación', async () => {
+    const prod = (await db.query<{ id: string }>(`insert into public.casillero_productos (user_id, sku, nombre) values ($1,'CAM-01','Camiseta') returning id`, [A])).rows[0].id;
+    const mov = (tipo: string, cantidad: number, ref?: string) =>
+      db.query(`insert into public.casillero_inv_mov (producto_id, user_id, tipo, cantidad, ref_externa) values ($1,$2,$3,$4,$5)`, [prod, A, tipo, cantidad, ref ?? null]);
+    await mov('ingreso', 100);
+    await mov('venta', -30, 'shopify:order:1:1');
+    await mov('devolucion', 5);
+    await mov('ajuste', -2); // merma: baja el stock pero no cuenta como venta
+    const r = (await db.query<Record<string, number>>(`select total_unidades, disponibles, vendidos, rotacion from public.casillero_inventario where id = $1`, [prod])).rows[0];
+    expect(r).toMatchObject({ total_unidades: 105, disponibles: 73, vendidos: 30 });
+    expect(Number(r.rotacion)).toBeCloseTo(28.6, 1);
+  });
+
+  it('un mismo pedido de la tienda no se descuenta dos veces', async () => {
+    const prod = (await db.query<{ id: string }>(`insert into public.casillero_productos (user_id, sku, nombre) values ($1,'X','X') returning id`, [A])).rows[0].id;
+    const venta = () => db.query(`insert into public.casillero_inv_mov (producto_id, user_id, tipo, cantidad, ref_externa) values ($1,$2,'venta',-1,'shopify:order:9:1')`, [prod, A]);
+    await venta();
+    await expect(venta()).rejects.toThrow(/duplicate|unique/i);
+  });
+
+  it('las reglas del movimiento: una venta no puede ser positiva ni un ingreso negativo', async () => {
+    const prod = (await db.query<{ id: string }>(`insert into public.casillero_productos (user_id, sku, nombre) values ($1,'Y','Y') returning id`, [A])).rows[0].id;
+    const ins = (tipo: string, c: number) => db.query(`insert into public.casillero_inv_mov (producto_id, user_id, tipo, cantidad) values ($1,$2,$3,$4)`, [prod, A, tipo, c]);
+    await expect(ins('venta', 3)).rejects.toThrow();
+    await expect(ins('ingreso', -3)).rejects.toThrow();
+    await expect(ins('ajuste', 0)).rejects.toThrow();
+    await ins('ajuste', -4);
+  });
+
   it('el código de casillero no lo cambia el dueño', async () => {
     await como(A);
     await expect(db.query(`update public.profiles set casillero_codigo='DM9999' where id=$1`, [A])).rejects.toThrow(/no se puede cambiar/);

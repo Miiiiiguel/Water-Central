@@ -13,6 +13,7 @@ import {
   ESTADOS_PAQUETE, MODALIDADES, api, db, fecha, usd,
   type Despacho, type MovimientoWallet, type Paquete, type Tarifa,
 } from '@/lib/casillero';
+import { ETIQUETA_TIPO, totales, type MovInv, type ProductoInv } from '@/lib/inventario';
 import type { Profile } from '@/lib/supabase';
 
 // Portal del administrador del casillero: control total. Todo lo que se
@@ -47,6 +48,7 @@ export default function CasilleroAdmin() {
       {id === 'resumen' && <Resumen />}
       {id === 'paquetes' && <PaquetesAdmin />}
       {id === 'despachos' && <DespachosAdmin />}
+      {id === 'inventario' && <InventarioAdmin />}
       {id === 'wallet' && <WalletAdmin />}
       {id === 'clientes' && <ClientesAdmin />}
       {id === 'tarifas' && <TarifasAdmin />}
@@ -274,6 +276,75 @@ function DespachosAdmin() {
         </tbody>
       </table>
     </Panel>
+  );
+}
+
+/* ------------------------------ Inventario ------------------------------ */
+function InventarioAdmin() {
+  const { getAccessToken } = useAuth();
+  const inv = usarTabla<ProductoInv>('casillero_inventario', '*', 'nombre', true, 5000);
+  const movs = usarTabla<MovInv>('casillero_inv_mov', '*, casillero_productos(sku, nombre)', 'created_at', false, 200);
+  const perfiles = usarTabla<Profile>('profiles', 'id, full_name, casillero_codigo', 'created_at', true, 2000);
+  const dueno = useMemo(() => Object.fromEntries(perfiles.filas.map((p) => [p.id, `${p.casillero_codigo ?? ''} · ${p.full_name ?? ''}`])), [perfiles.filas]);
+  const [q, setQ] = useState('');
+  const [f, setF] = useState({ codigo: '', sku: '', tipo: 'ingreso', cantidad: '', referencia: '' });
+  const visibles = inv.filas.filter((p) => `${p.sku} ${p.nombre} ${dueno[p.user_id] ?? ''}`.toLowerCase().includes(q.toLowerCase()));
+  const t = totales(inv.filas);
+
+  const registrar = async () => {
+    const cantidad = Number(f.cantidad);
+    if (!f.codigo.trim() || !f.sku.trim() || !Number.isInteger(cantidad) || !cantidad) return toast.error('Código, SKU y una cantidad entera son obligatorios');
+    const r = await api('/inventario/movimiento', getAccessToken(), { codigo: f.codigo, sku: f.sku, tipo: f.tipo, cantidad, referencia: f.referencia || undefined });
+    if (!r.ok) return toast.error(r.message ?? r.error);
+    toast.success('Movimiento registrado');
+    setF({ ...f, sku: '', cantidad: '', referencia: '' });
+    await Promise.all([inv.recargar(), movs.recargar()]);
+  };
+
+  return (
+    <>
+      <div className="mb-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <Cifra etiqueta="Productos" valor={String(t.productos)} />
+        <Cifra etiqueta="Total unidades" valor={String(t.totalUnidades)} />
+        <Cifra acento etiqueta="Disponibles en bodega" valor={String(t.disponibles)} />
+        <Cifra etiqueta="Vendidos" valor={String(t.vendidos)} />
+      </div>
+      <Panel>
+        <b>Registrar un movimiento</b>
+        <p className="mt-1 text-sm text-muted-foreground">Ingreso: llegó mercancía del cliente a la bodega. Ajuste: conteo o merma (puede ser negativo). Si el cliente tiene activo "mantener stock", su tienda se actualiza sola.</p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-6">
+          <div><L>Código cliente</L><Entrada placeholder="DM1001" value={f.codigo} onChange={(e) => setF({ ...f, codigo: e.target.value })} /></div>
+          <div><L>SKU</L><Entrada value={f.sku} onChange={(e) => setF({ ...f, sku: e.target.value })} /></div>
+          <div><L>Tipo</L><select className={CLASE_CAMPO} value={f.tipo} onChange={(e) => setF({ ...f, tipo: e.target.value })}>{[['ingreso', 'Ingreso'], ['ajuste', 'Ajuste'], ['venta', 'Venta'], ['devolucion', 'Devolución']].map(([v, n]) => <option key={v} value={v}>{n}</option>)}</select></div>
+          <div><L>Cantidad</L><Entrada type="number" step="1" value={f.cantidad} onChange={(e) => setF({ ...f, cantidad: e.target.value })} /></div>
+          <div><L>Referencia</L><Entrada value={f.referencia} onChange={(e) => setF({ ...f, referencia: e.target.value })} /></div>
+          <div className="flex items-end"><BotonAcento onClick={() => void registrar()}>Registrar</BotonAcento></div>
+        </div>
+      </Panel>
+      <Panel>
+        <div className="mb-4 flex flex-wrap items-end gap-3">
+          <div className="min-w-64 flex-1"><L>Buscar por SKU, producto o cliente</L><Entrada value={q} onChange={(e) => setQ(e.target.value)} /></div>
+          <Boton variant="outline" onClick={() => downloadCSV('inventario.csv', visibles.map((p) => ({ cliente: dueno[p.user_id], sku: p.sku, producto: p.nombre, total_unidades: p.total_unidades, disponibles: p.disponibles, vendidos: p.vendidos, rotacion_pct: p.rotacion })))}><Download size={14} className="mr-1" />CSV</Boton>
+        </div>
+        <table className="w-full text-sm">
+          <thead><tr className="text-left text-muted-foreground"><Th>Cliente</Th><Th>SKU</Th><Th>Producto</Th><Th>Total</Th><Th>Disponibles</Th><Th>Vendidos</Th><Th>Rotación</Th></tr></thead>
+          <tbody>
+            {visibles.map((p) => <tr key={p.id} className="border-t"><td className="p-2">{dueno[p.user_id]}</td><td className="font-semibold">{p.sku}</td><td>{p.nombre}</td><td>{p.total_unidades}</td><td className={p.disponibles <= 0 ? 'font-bold text-red-600' : 'font-bold text-green-700'}>{p.disponibles}</td><td>{p.vendidos}</td><td>{Number(p.rotacion)}%</td></tr>)}
+            {!visibles.length && <Vacio cols={7} />}
+          </tbody>
+        </table>
+      </Panel>
+      <Panel>
+        <b>Últimos movimientos</b>
+        <table className="mt-2 w-full text-sm">
+          <thead><tr className="text-left text-muted-foreground"><Th>Fecha</Th><Th>Cliente</Th><Th>SKU</Th><Th>Tipo</Th><Th>Cantidad</Th><Th>Origen</Th><Th>Referencia</Th></tr></thead>
+          <tbody>
+            {movs.filas.map((m) => <tr key={m.id} className="border-t"><td className="p-2">{fecha(m.created_at)}</td><td>{dueno[m.user_id]}</td><td>{m.casillero_productos?.sku}</td><td>{ETIQUETA_TIPO[m.tipo]}</td><td className={m.cantidad < 0 ? 'text-red-600' : 'text-green-700'}>{m.cantidad > 0 ? '+' : ''}{m.cantidad}</td><td>{m.origen}</td><td>{m.referencia}</td></tr>)}
+            {!movs.filas.length && <Vacio cols={7} />}
+          </tbody>
+        </table>
+      </Panel>
+    </>
   );
 }
 

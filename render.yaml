@@ -148,6 +148,15 @@ services:
       - key: TEAM_EMAIL
         sync: false
 
+      # --- Inventario: integraciones con Shopify y WordPress ------------
+      # Clave para cifrar las llaves de las tiendas de los clientes
+      # (AES-256-GCM). 32 bytes en base64:
+      #   node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+      # Sin ella, el inventario funciona pero no se pueden conectar tiendas.
+      # Guárdala aparte: si se pierde, los clientes deben volver a conectar.
+      - key: INTEGRATIONS_ENC_KEY
+        sync: false
+
       # --- Marco Polo -------------------------------------------------
       # Sin la de Anthropic, el chat sigue respondiendo con su guion
       # básico en vez de con IA.

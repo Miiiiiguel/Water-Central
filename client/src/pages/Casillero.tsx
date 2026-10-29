@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Inventario, Integraciones } from '@/pages/CasilleroInventario';
 import CasilleroShell, { CLASE_CAMPO, Cifra, Entrada, Etiqueta, Panel, type ItemMenu } from '@/components/CasilleroShell';
 import {
   DIRECCION_MIAMI, MODALIDADES, api, cotizar, db, fecha, saldoDe, usd,
@@ -14,6 +15,8 @@ const MENU: ItemMenu[] = [
   { ruta: '/casillero', etiqueta: 'Inicio' },
   { ruta: '/casillero/prealerta', etiqueta: 'Prealertar' },
   { ruta: '/casillero/paquetes', etiqueta: 'Mis paquetes' },
+  { ruta: '/casillero/inventario', etiqueta: 'Inventario' },
+  { ruta: '/casillero/integraciones', etiqueta: 'Integraciones' },
   { ruta: '/casillero/despacho', etiqueta: 'Despachar' },
   { ruta: '/casillero/despachos', etiqueta: 'Mis despachos' },
   { ruta: '/casillero/wallet', etiqueta: 'Wallet' },
@@ -21,7 +24,7 @@ const MENU: ItemMenu[] = [
   { ruta: '/casillero/perfil', etiqueta: 'Mi perfil' },
 ];
 const TITULOS: Record<string, string> = {
-  '': 'Mi casillero', prealerta: 'Prealertar un envío', paquetes: 'Mis paquetes', despacho: 'Solicitar despacho',
+  '': 'Mi casillero', prealerta: 'Prealertar un envío', paquetes: 'Mis paquetes', inventario: 'Inventario', integraciones: 'Integraciones y API', despacho: 'Solicitar despacho',
   despachos: 'Mis despachos', wallet: 'Wallet', tarifas: 'Tarifas mínimas', perfil: 'Mi perfil',
 };
 
@@ -63,6 +66,8 @@ export default function Casillero() {
       {seccion === '' && <Inicio {...datos} />}
       {seccion === 'prealerta' && <Prealerta onListo={datos.recargar} config={datos.config} />}
       {seccion === 'paquetes' && <Paquetes {...datos} />}
+      {seccion === 'inventario' && <Inventario />}
+      {seccion === 'integraciones' && <Integraciones />}
       {seccion === 'despacho' && <Despachar {...datos} />}
       {seccion === 'despachos' && <MisDespachos {...datos} />}
       {seccion === 'wallet' && <Wallet {...datos} />}

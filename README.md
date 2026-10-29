@@ -88,6 +88,17 @@ Son dos portales, con la misma cuenta:
   (ficha completa, bloqueo, ajustes de saldo, dar o quitar acceso de admin),
   tarifas, anuncios a todos los clientes, configuración, equipo y auditoría
   de cada cambio.
+- **Inventario** (`/casillero/inventario`) y **integraciones**
+  (`/casillero/integraciones`): productos por SKU con total, disponibles,
+  vendidos y rotación; el equipo registra los ingresos de bodega (portal
+  admin → Inventario). **Shopify**: app personalizada (token de Admin API +
+  clave secreta) → webhooks `orders/paid` y `orders/cancelled`. **WordPress**:
+  WooCommerce REST (ck_/cs_) → webhooks `order.created/updated`. Las ventas
+  descuentan por SKU (idempotente por pedido) y, si el cliente lo activa, el
+  stock de la bodega se empuja a su tienda. Para cualquier otro sistema hay una
+  API con llave: `GET /api/v1/inventario`, `POST /api/v1/inventario/ventas`.
+  Requiere `INTEGRATIONS_ENC_KEY` y `PUBLIC_APP_URL` (https). Código en
+  `server/inventario/`.
 - Base de datos: correr `supabase/casillero.sql` **después** de
   `supabase/schema.sql` (es re-ejecutable). Reemplaza `handle_new_user()`
   por la misma función más los campos del casillero.

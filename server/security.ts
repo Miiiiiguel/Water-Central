@@ -167,7 +167,7 @@ export function makeLimiter(
  */
 // El arancel (/hts/*) tiene su propio límite: se consulta mientras se
 // escribe, y con el general una búsqueda de diez letras gastaba diez.
-export const apiRateLimiter = makeLimiter('api', 100, 15 * 60 * 1000, (req) => req.path === '/health' || req.path.startsWith('/hts/'));
+export const apiRateLimiter = makeLimiter('api', 100, 15 * 60 * 1000, (req) => req.path === '/health' || req.path.startsWith('/hts/') || req.path.startsWith('/inventario/webhooks/') || req.path.startsWith('/v1/'));
 export const chatRateLimiter = makeLimiter('chat', 30);       // paid LLM API
 export const checkoutRateLimiter = makeLimiter('checkout', 20);
 export const ttsRateLimiter = makeLimiter('tts', 40);         // paid voice API

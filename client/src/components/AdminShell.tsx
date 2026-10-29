@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
-  BarChart3, ClipboardList, LogOut, Menu, Package, Settings, ShieldCheck, Truck, Users, UserCog, Wallet, X, Megaphone, ArrowLeftRight,
+  BarChart3, Boxes, ClipboardList, LogOut, Menu, Package, Settings, ShieldCheck, Truck, Users, UserCog, Wallet, X, Megaphone, ArrowLeftRight,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import NotificationBell from '@/components/NotificationBell';
@@ -11,6 +11,7 @@ export const SECCIONES_ADMIN = [
   { id: 'resumen', etiqueta: 'Resumen', icono: BarChart3 },
   { id: 'paquetes', etiqueta: 'Paquetes', icono: Package },
   { id: 'despachos', etiqueta: 'Despachos', icono: Truck },
+  { id: 'inventario', etiqueta: 'Inventario', icono: Boxes },
   { id: 'wallet', etiqueta: 'Wallet y recargas', icono: Wallet },
   { id: 'clientes', etiqueta: 'Clientes', icono: Users },
   { id: 'tarifas', etiqueta: 'Tarifas', icono: ArrowLeftRight },

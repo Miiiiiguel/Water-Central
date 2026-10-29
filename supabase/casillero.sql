@@ -519,3 +519,140 @@ create policy "profiles: staff updates" on public.profiles for update
 create or replace view public.casillero_saldos with (security_invoker = true) as
   select user_id, coalesce(sum(monto) filter (where estado = 'aprobado'), 0)::numeric(12,2) as saldo
   from public.casillero_wallet group by user_id;
+
+-- =======================================================================
+-- Inventario (fulfillment) + integraciones con Shopify y WordPress/WooCommerce
+-- =======================================================================
+-- El cliente da de alta sus productos (SKU). El equipo registra lo que
+-- entra a la bodega (ingreso) y las ventas llegan solas desde su tienda
+-- (webhooks) o por la API. El stock disponible es la suma de movimientos.
+
+create table if not exists public.casillero_productos (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  sku text not null check (length(trim(sku)) > 0),
+  nombre text not null check (length(trim(nombre)) > 0),
+  descripcion text,
+  imagen_url text,
+  created_at timestamptz not null default now(),
+  unique (user_id, sku)
+);
+create index if not exists casillero_productos_user_idx on public.casillero_productos (user_id);
+
+create table if not exists public.casillero_inv_mov (
+  id uuid primary key default gen_random_uuid(),
+  producto_id uuid not null references public.casillero_productos (id) on delete cascade,
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  tipo text not null check (tipo in ('ingreso','venta','ajuste','devolucion')),
+  cantidad integer not null check (cantidad <> 0),   -- con signo: ingreso/devolucion +, venta -, ajuste +/-
+  referencia text,
+  origen text not null default 'manual' check (origen in ('manual','bodega','shopify','woocommerce','api')),
+  ref_externa text unique,                          -- idempotencia: el mismo pedido no se descuenta dos veces
+  created_at timestamptz not null default now(),
+  check ((tipo in ('ingreso','devolucion') and cantidad > 0) or (tipo = 'venta' and cantidad < 0) or tipo = 'ajuste')
+);
+create index if not exists casillero_inv_mov_producto_idx on public.casillero_inv_mov (producto_id, created_at desc);
+create index if not exists casillero_inv_mov_user_idx on public.casillero_inv_mov (user_id, created_at desc);
+
+-- Una fila por producto con sus totales (la que pinta la pantalla de Inventario).
+--   total_unidades = todo lo que ha entrado (ingresos + devoluciones + ajustes positivos)
+--   disponibles    = lo que hay hoy
+--   vendidos       = unidades vendidas
+--   rotacion       = vendidos / total_unidades
+create or replace view public.casillero_inventario with (security_invoker = true) as
+  select p.id, p.user_id, p.sku, p.nombre, p.descripcion, p.imagen_url, p.created_at,
+    coalesce(sum(m.cantidad) filter (where m.tipo in ('ingreso','devolucion') or (m.tipo = 'ajuste' and m.cantidad > 0)), 0)::int as total_unidades,
+    coalesce(sum(m.cantidad), 0)::int as disponibles,
+    coalesce(-sum(m.cantidad) filter (where m.tipo = 'venta'), 0)::int as vendidos,
+    case when coalesce(sum(m.cantidad) filter (where m.tipo in ('ingreso','devolucion') or (m.tipo = 'ajuste' and m.cantidad > 0)), 0) > 0
+      then round(100.0 * coalesce(-sum(m.cantidad) filter (where m.tipo = 'venta'), 0)
+           / sum(m.cantidad) filter (where m.tipo in ('ingreso','devolucion') or (m.tipo = 'ajuste' and m.cantidad > 0)), 1)
+      else 0 end as rotacion
+  from public.casillero_productos p
+  left join public.casillero_inv_mov m on m.producto_id = p.id
+  group by p.id;
+
+-- Producto de tu tienda <-> producto del casillero.
+create table if not exists public.casillero_productos_externos (
+  producto_id uuid not null references public.casillero_productos (id) on delete cascade,
+  integracion_id uuid not null,
+  externo_id text not null,          -- Shopify: inventory_item_id · Woo: id del producto
+  externo_extra text,                -- Woo: id de la variación
+  primary key (producto_id, integracion_id)
+);
+
+create table if not exists public.casillero_integraciones (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  plataforma text not null check (plataforma in ('shopify','woocommerce')),
+  dominio text not null,             -- tienda.myshopify.com o https://mitienda.com
+  estado text not null default 'activa' check (estado in ('activa','error')),
+  ubicacion_id text,                 -- Shopify: location_id donde se empuja el stock
+  webhooks jsonb not null default '[]'::jsonb,
+  ultimo_sync timestamptz,
+  ultimo_error text,
+  created_at timestamptz not null default now(),
+  unique (user_id, plataforma, dominio)
+);
+alter table public.casillero_integraciones add column if not exists sync_stock boolean not null default false;  -- empujar el stock de la bodega a la tienda
+alter table public.casillero_productos_externos
+  drop constraint if exists casillero_productos_externos_integracion_fk;
+alter table public.casillero_productos_externos
+  add constraint casillero_productos_externos_integracion_fk foreign key (integracion_id) references public.casillero_integraciones (id) on delete cascade;
+
+-- Las llaves de la tienda: SOLO el servidor (service-role) las lee. Sin
+-- ninguna política, ni el dueño ni el equipo pueden verlas desde el navegador.
+create table if not exists public.casillero_integraciones_secretos (
+  integracion_id uuid primary key references public.casillero_integraciones (id) on delete cascade,
+  secretos_cifrados text not null,   -- AES-256-GCM, ver server/inventario/crypto.ts
+  webhook_secret text not null
+);
+
+-- Llaves de API para sistemas propios (un plugin de WordPress, un ERP…).
+-- Se guarda solo el hash: la llave completa se muestra una vez al crearla.
+create table if not exists public.casillero_api_keys (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  nombre text not null,
+  prefijo text not null,
+  hash text not null unique,
+  ultimo_uso timestamptz,
+  created_at timestamptz not null default now()
+);
+
+alter table public.casillero_productos enable row level security;
+alter table public.casillero_inv_mov enable row level security;
+alter table public.casillero_productos_externos enable row level security;
+alter table public.casillero_integraciones enable row level security;
+alter table public.casillero_integraciones_secretos enable row level security;
+alter table public.casillero_api_keys enable row level security;
+
+drop policy if exists "casillero_productos: select" on public.casillero_productos;
+create policy "casillero_productos: select" on public.casillero_productos for select using (user_id = auth.uid() or public.casillero_es_staff());
+drop policy if exists "casillero_productos: insert" on public.casillero_productos;
+create policy "casillero_productos: insert" on public.casillero_productos for insert with check ((user_id = auth.uid() and not public.casillero_bloqueado_yo()) or public.casillero_es_staff());
+drop policy if exists "casillero_productos: update" on public.casillero_productos;
+create policy "casillero_productos: update" on public.casillero_productos for update using (user_id = auth.uid() or public.casillero_es_staff()) with check (user_id = auth.uid() or public.casillero_es_staff());
+drop policy if exists "casillero_productos: delete" on public.casillero_productos;
+create policy "casillero_productos: delete" on public.casillero_productos for delete using (
+  (user_id = auth.uid() and not exists (select 1 from public.casillero_inv_mov m where m.producto_id = id)) or public.casillero_es_staff());
+
+-- Movimientos: el cliente los lee; los escribe el equipo o el servidor (webhooks y API).
+drop policy if exists "casillero_inv_mov: select" on public.casillero_inv_mov;
+create policy "casillero_inv_mov: select" on public.casillero_inv_mov for select using (user_id = auth.uid() or public.casillero_es_staff());
+drop policy if exists "casillero_inv_mov: staff insert" on public.casillero_inv_mov;
+create policy "casillero_inv_mov: staff insert" on public.casillero_inv_mov for insert with check (public.casillero_es_staff());
+
+drop policy if exists "casillero_productos_externos: select" on public.casillero_productos_externos;
+create policy "casillero_productos_externos: select" on public.casillero_productos_externos for select using (
+  exists (select 1 from public.casillero_productos p where p.id = producto_id and (p.user_id = auth.uid() or public.casillero_es_staff())));
+
+drop policy if exists "casillero_integraciones: select" on public.casillero_integraciones;
+create policy "casillero_integraciones: select" on public.casillero_integraciones for select using (user_id = auth.uid() or public.casillero_es_staff());
+
+drop policy if exists "casillero_api_keys: select" on public.casillero_api_keys;
+create policy "casillero_api_keys: select" on public.casillero_api_keys for select using (user_id = auth.uid() or public.casillero_es_staff());
+-- (sin políticas de escritura en integraciones, secretos ni llaves: lo hace el servidor)
+
+drop trigger if exists casillero_aud_inv_mov on public.casillero_inv_mov;
+create trigger casillero_aud_inv_mov after insert on public.casillero_inv_mov for each row execute function public.casillero_auditar();
