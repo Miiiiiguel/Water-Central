@@ -187,7 +187,7 @@ casilleroRouter.post(
       p_type: 'casillero_recarga',
       p_title: 'Recarga por verificar',
       p_body: `${user.email} reportó USD ${parsed.data.montoUsd.toFixed(2)} (${parsed.data.metodo})`,
-      p_link: '/casillero/admin',
+      p_link: '/admin/casillero/wallet',
     });
     res.json({ ok: true });
   }

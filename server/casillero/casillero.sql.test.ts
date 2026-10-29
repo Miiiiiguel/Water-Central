@@ -28,8 +28,10 @@ beforeEach(async () => {
     create schema if not exists auth;
     create or replace function auth.uid() returns uuid language sql as $$ select nullif(current_setting('app.uid', true), '')::uuid $$;
     create role anon; create role authenticated;
+    create type public.user_role as enum ('cliente', 'vendedor');
     create table public.profiles (id uuid primary key, email text, full_name text, company text,
-      role text default 'cliente', referral_code text, referred_by uuid);
+      role public.user_role not null default 'cliente', referral_code text, referred_by uuid,
+      created_at timestamptz not null default now());
     create table public.notifications (id uuid primary key default gen_random_uuid(), user_id uuid, type text, title text, body text, link text);
     create function public.notify_vendedores(p_type text, p_title text, p_body text, p_link text default '/dashboard')
       returns void language sql as $$ select 1 $$;
@@ -93,6 +95,55 @@ describe('wallet y despachos del casillero', () => {
     const r = await db.query<Record<string, unknown>>(`select * from public.casillero_rastrear('RASTREO1')`);
     expect(r.rows.map((x) => x.estado)).toEqual(['prealertado', 'recibido']);
     expect(Object.keys(r.rows[0]).sort()).toEqual(['created_at', 'estado']);
+  });
+
+  it('un peso sobre la tabla solo se cotiza si el equipo fijó el precio por libra extra', async () => {
+    await db.query(`update public.casillero_config set valor='2.5' where clave='libra_extra_nacional'`);
+    // 12 lb nacional = 24.50 (fila 8-9) + 3 libras * 2.5
+    expect(Number((await db.query<{ c: string }>(`select public.casillero_cotizar(12, 'nacional') as c`)).rows[0].c)).toBe(32);
+    await expect(db.query(`select public.casillero_cotizar(12, 'local')`)).rejects.toThrow(/fuera de la tabla/);
+  });
+
+  it('un cliente bloqueado no puede solicitar despachos', async () => {
+    await como(A);
+    await recarga(A, 50);
+    const p = await paquete(A, 'G1', 1);
+    await db.exec(`update public.profiles set casillero_bloqueado = true where id = '${A}'`);
+    await expect(db.query(`select public.casillero_solicitar_despacho($1::uuid[], 'local', 'x')`, [[p]])).rejects.toThrow(/bloqueado/);
+  });
+
+  it('solo el equipo cambia roles, anuncia y ve el tablero; no puede cambiarse a sí mismo', async () => {
+    await como(A);
+    await expect(db.query(`select public.casillero_set_rol('${B}', 'vendedor')`)).rejects.toThrow(/Solo el equipo/);
+    await expect(db.query(`select public.casillero_anunciar('x', 'y')`)).rejects.toThrow(/Solo el equipo/);
+    await expect(db.query(`select public.casillero_stats()`)).rejects.toThrow(/Solo el equipo/);
+    await db.exec(`update public.profiles set role = 'vendedor' where id = '${A}'`);
+    await db.query(`select public.casillero_set_rol('${B}', 'vendedor')`);
+    expect((await db.query<{ role: string }>(`select role from public.profiles where id = '${B}'`)).rows[0].role).toBe('vendedor');
+    await expect(db.query(`select public.casillero_set_rol('${A}', 'cliente')`)).rejects.toThrow(/propio rol/);
+  });
+
+  it('el anuncio llega a todos los clientes y el tablero suma el wallet', async () => {
+    await db.exec(`update public.profiles set role = 'vendedor' where id = '${A}'`);
+    await como(A);
+    await recarga(B, 40);
+    const n = (await db.query<{ n: number }>(`select public.casillero_anunciar('Feriado', 'No hay despachos el lunes') as n`)).rows[0].n;
+    expect(n).toBe(1); // solo B es cliente
+    const st = (await db.query<{ s: Record<string, unknown> }>(`select public.casillero_stats() as s`)).rows[0].s;
+    expect(Number(st.saldo_total_wallets)).toBe(40);
+    expect(st.clientes).toBe(1);
+    expect((st.serie_30d as unknown[]).length).toBe(30);
+  });
+
+  it('la auditoría anota lo que hace el equipo y no lo que hace un cliente', async () => {
+    await como(A);
+    const id = await paquete(A, 'G1', 1);
+    await db.exec(`update public.casillero_paquetes set peso_lb = 2 where id = '${id}'`); // cliente A (aún no es staff)
+    expect((await db.query(`select 1 from public.casillero_auditoria`)).rows).toHaveLength(0);
+    await db.exec(`update public.profiles set role = 'vendedor' where id = '${A}'`);
+    await db.exec(`update public.casillero_paquetes set peso_lb = 3 where id = '${id}'`);
+    const a = await db.query<{ tabla: string; accion: string }>(`select tabla, accion from public.casillero_auditoria where tabla = 'casillero_paquetes'`);
+    expect(a.rows).toEqual([{ tabla: 'casillero_paquetes', accion: 'UPDATE' }]);
   });
 
   it('el código de casillero no lo cambia el dueño', async () => {

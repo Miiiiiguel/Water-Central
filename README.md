@@ -77,10 +77,17 @@ Casillero de paquetería (Miami → Colombia) construido sobre esta misma app: r
 login (Supabase + `profiles`), Wompi (recarga del wallet), las
 notificaciones y el correo (Resend).
 
-- Cliente: `/casillero/registro`, `/casillero` (prealerta, paquetes,
-  despacho, wallet, tarifas, perfil). Rastreo público en `/rastreo`.
-- Equipo (rol `vendedor`): `/casillero/admin` — recibir y pesar, estados,
-  despachos, recargas, clientes y tarifas.
+Son dos portales, con la misma cuenta:
+
+- **Portal del cliente** (`/casillero`): registro en `/casillero/registro`;
+  prealerta, paquetes, despacho, mis despachos, wallet (Wompi o pago
+  reportado), tarifas y perfil. Rastreo público en `/rastreo`.
+- **Portal del administrador** (`/admin/casillero`, solo rol `vendedor`):
+  resumen con cifras y gráfica, paquetes (recepción, peso, estados en lote,
+  CSV), despachos (guía, cancelar con reembolso), wallet y recargas, clientes
+  (ficha completa, bloqueo, ajustes de saldo, dar o quitar acceso de admin),
+  tarifas, anuncios a todos los clientes, configuración, equipo y auditoría
+  de cada cambio.
 - Base de datos: correr `supabase/casillero.sql` **después** de
   `supabase/schema.sql` (es re-ejecutable). Reemplaza `handle_new_user()`
   por la misma función más los campos del casillero.

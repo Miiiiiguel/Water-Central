@@ -267,6 +267,7 @@ export interface Profile {
   codigo_postal?: string | null;
   como_nos_conocio?: string | null;
   es_empresa?: boolean;
+  casillero_bloqueado?: boolean;
 }
 
 export type QuoteStatus = 'pending' | 'quoted' | 'won' | 'lost';

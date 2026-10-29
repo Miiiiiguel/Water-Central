@@ -92,6 +92,7 @@ export default function CasilleroShell({ menu, actual, titulo, soloEquipo, child
             </Link>
           ))}
         </nav>
+        {profile.role === 'vendedor' && <Link href="/admin/casillero/resumen" className="mb-4 inline-flex items-center rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground hover:underline">← Volver al portal del administrador</Link>}
         <main className="min-w-0">
           <h1 className="mb-5 text-2xl md:text-3xl font-black text-primary">{titulo}</h1>
           {children}

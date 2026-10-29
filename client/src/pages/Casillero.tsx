@@ -15,13 +15,14 @@ const MENU: ItemMenu[] = [
   { ruta: '/casillero/prealerta', etiqueta: 'Prealertar' },
   { ruta: '/casillero/paquetes', etiqueta: 'Mis paquetes' },
   { ruta: '/casillero/despacho', etiqueta: 'Despachar' },
+  { ruta: '/casillero/despachos', etiqueta: 'Mis despachos' },
   { ruta: '/casillero/wallet', etiqueta: 'Wallet' },
   { ruta: '/casillero/tarifas', etiqueta: 'Tarifas' },
   { ruta: '/casillero/perfil', etiqueta: 'Mi perfil' },
 ];
 const TITULOS: Record<string, string> = {
   '': 'Mi casillero', prealerta: 'Prealertar un envío', paquetes: 'Mis paquetes', despacho: 'Solicitar despacho',
-  wallet: 'Wallet', tarifas: 'Tarifas mínimas', perfil: 'Mi perfil',
+  despachos: 'Mis despachos', wallet: 'Wallet', tarifas: 'Tarifas mínimas', perfil: 'Mi perfil',
 };
 
 const selectCls = CLASE_CAMPO;
@@ -31,21 +32,24 @@ function useDatos() {
   const [movs, setMovs] = useState<MovimientoWallet[]>([]);
   const [tarifas, setTarifas] = useState<Tarifa[]>([]);
   const [despachos, setDespachos] = useState<Despacho[]>([]);
+  const [config, setConfig] = useState<Record<string, string>>({});
   const recargar = useCallback(async () => {
     const s = await db();
-    const [p, m, t, d] = await Promise.all([
+    const [p, m, t, d, c] = await Promise.all([
       s.from('casillero_paquetes').select('*').order('created_at', { ascending: false }),
       s.from('casillero_wallet').select('*').order('created_at', { ascending: false }),
       s.from('casillero_tarifas').select('*').order('libras_desde'),
       s.from('casillero_despachos').select('*').order('created_at', { ascending: false }),
+      s.from('casillero_config').select('clave,valor'),
     ]);
+    setConfig(Object.fromEntries(((c.data ?? []) as { clave: string; valor: string }[]).map((x) => [x.clave, x.valor])));
     setPaquetes((p.data ?? []) as Paquete[]);
     setMovs((m.data ?? []) as MovimientoWallet[]);
     setTarifas((t.data ?? []) as Tarifa[]);
     setDespachos((d.data ?? []) as Despacho[]);
   }, []);
   useEffect(() => { void recargar(); }, [recargar]);
-  return { paquetes, movs, tarifas, despachos, recargar };
+  return { paquetes, movs, tarifas, despachos, config, recargar };
 }
 
 export default function Casillero() {
@@ -57,9 +61,10 @@ export default function Casillero() {
   return (
     <CasilleroShell menu={MENU} actual={actual} titulo={TITULOS[seccion] ?? 'Mi casillero'}>
       {seccion === '' && <Inicio {...datos} />}
-      {seccion === 'prealerta' && <Prealerta onListo={datos.recargar} />}
+      {seccion === 'prealerta' && <Prealerta onListo={datos.recargar} config={datos.config} />}
       {seccion === 'paquetes' && <Paquetes {...datos} />}
       {seccion === 'despacho' && <Despachar {...datos} />}
+      {seccion === 'despachos' && <MisDespachos {...datos} />}
       {seccion === 'wallet' && <Wallet {...datos} />}
       {seccion === 'tarifas' && <TablaTarifas tarifas={datos.tarifas} />}
       {seccion === 'perfil' && <Perfil />}
@@ -67,21 +72,22 @@ export default function Casillero() {
   );
 }
 
-function DirCasillero() {
+function DirCasillero({ config }: { config?: Record<string, string> }) {
   const { profile } = useAuth();
   return (
     <Panel className="bg-secondary">
       <b>Tu dirección de casillero en Miami</b>
       <p className="mt-1 leading-relaxed">
         {profile?.full_name} — <b>{profile?.casillero_codigo}</b><br />
-        {DIRECCION_MIAMI}<br />
+        {config?.direccion_bodega || DIRECCION_MIAMI}<br />
         <span className="text-sm text-muted-foreground">Usa tu código {profile?.casillero_codigo} en el nombre o suite para identificar tus compras.</span>
       </p>
     </Panel>
   );
 }
 
-function Inicio({ paquetes, movs }: ReturnType<typeof useDatos>) {
+function Inicio({ paquetes, movs, config }: ReturnType<typeof useDatos>) {
+  const { profile } = useAuth();
   const c = (e: string) => paquetes.filter((p) => p.estado === e).length;
   const tarjetas: [string, string][] = [
     ['Saldo wallet', usd(saldoDe(movs))], ['Prealertados', String(c('prealertado'))],
@@ -89,7 +95,9 @@ function Inicio({ paquetes, movs }: ReturnType<typeof useDatos>) {
   ];
   return (
     <>
-      <DirCasillero />
+      {profile?.casillero_bloqueado && <p className="mb-4 rounded-2xl border border-red-100 bg-red-50 p-4 text-sm text-red-700">Tu casillero está bloqueado: no puedes prealertar ni despachar. Escríbenos para resolverlo.</p>}
+      {config.aviso_clientes && <p className="mb-4 rounded-2xl border border-orange-100 bg-orange-50 p-4 text-sm text-orange-800">{config.aviso_clientes}</p>}
+      <DirCasillero config={config} />
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {tarjetas.map(([t, v], i) => <Cifra key={t} etiqueta={t} valor={v} acento={i === 0} />)}
       </div>
@@ -97,7 +105,7 @@ function Inicio({ paquetes, movs }: ReturnType<typeof useDatos>) {
   );
 }
 
-function Prealerta({ onListo }: { onListo: () => Promise<void> }) {
+function Prealerta({ onListo, config }: { onListo: () => Promise<void>; config: Record<string, string> }) {
   const { user } = useAuth();
   const [f, setF] = useState({ guia: '', proveedor: '', descripcion: '', valor: '' });
   const [ocupado, setOcupado] = useState(false);
@@ -118,7 +126,7 @@ function Prealerta({ onListo }: { onListo: () => Promise<void> }) {
 
   return (
     <>
-      <DirCasillero />
+      <DirCasillero config={config} />
       <Panel>
         <div className="grid gap-4 sm:grid-cols-2">
           <div><Label className="mb-1.5 block">Número de guía</Label><Entrada value={f.guia} onChange={set('guia')} /></div>
@@ -217,6 +225,22 @@ function Despachar({ paquetes, tarifas, movs, recargar }: ReturnType<typeof useD
         </p>
       )}
       <Button className="mt-4 rounded-full bg-accent hover:bg-accent/90 text-white font-bold" onClick={() => void solicitar()}>Solicitar despacho y pagar con wallet</Button>
+    </Panel>
+  );
+}
+
+function MisDespachos({ despachos }: ReturnType<typeof useDatos>) {
+  return (
+    <Panel>
+      <table className="w-full text-sm">
+        <thead><tr className="text-left text-muted-foreground"><th className="p-2">Fecha</th><th>Modalidad</th><th>Destino</th><th>Peso</th><th>Costo</th><th>Guía de despacho</th><th>Estado</th></tr></thead>
+        <tbody>
+          {despachos.map((d) => (
+            <tr key={d.id} className="border-t"><td className="p-2">{fecha(d.created_at)}</td><td>{MODALIDADES[d.modalidad]}</td><td>{d.destino}</td><td>{d.peso_total} lb</td><td>{usd(d.costo)}</td><td>{d.guia_despacho || '—'}</td><td><Etiqueta valor={d.estado} /></td></tr>
+          ))}
+          {!despachos.length && <tr><td colSpan={7} className="p-4 text-muted-foreground">Aún no has solicitado despachos.</td></tr>}
+        </tbody>
+      </table>
     </Panel>
   );
 }

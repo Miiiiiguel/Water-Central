@@ -159,7 +159,7 @@ function Router() {
               <CasilleroRegistro />
             </Suspense>
           </Route>
-          <Route path={"/casillero/admin"}>
+          <Route path={"/admin/casillero/:seccion?"}>
             <Suspense fallback={<PageFallback />}>
               <CasilleroAdmin />
             </Suspense>
