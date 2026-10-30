@@ -438,6 +438,9 @@ begin
   insert into public.notifications (user_id, type, title, body, link)
     select id, 'casillero_anuncio', p_titulo, p_cuerpo, p_link from public.profiles where role = 'cliente';
   get diagnostics n = row_count;
+  -- Queda el historial de lo anunciado (lo lee la pantalla Anuncios y la Auditoría).
+  insert into public.casillero_auditoria (actor, tabla, accion, detalle)
+    values (auth.uid(), 'anuncio', 'INSERT', jsonb_build_object('titulo', p_titulo, 'cuerpo', p_cuerpo, 'link', p_link, 'destinatarios', n));
   return n;
 end $$;
 revoke execute on function public.casillero_anunciar(text, text, text) from public, anon;
@@ -554,24 +557,6 @@ create table if not exists public.casillero_inv_mov (
 create index if not exists casillero_inv_mov_producto_idx on public.casillero_inv_mov (producto_id, created_at desc);
 create index if not exists casillero_inv_mov_user_idx on public.casillero_inv_mov (user_id, created_at desc);
 
--- Una fila por producto con sus totales (la que pinta la pantalla de Inventario).
---   total_unidades = todo lo que ha entrado (ingresos + devoluciones + ajustes positivos)
---   disponibles    = lo que hay hoy
---   vendidos       = unidades vendidas
---   rotacion       = vendidos / total_unidades
-create or replace view public.casillero_inventario with (security_invoker = true) as
-  select p.id, p.user_id, p.sku, p.nombre, p.descripcion, p.imagen_url, p.created_at,
-    coalesce(sum(m.cantidad) filter (where m.tipo in ('ingreso','devolucion') or (m.tipo = 'ajuste' and m.cantidad > 0)), 0)::int as total_unidades,
-    coalesce(sum(m.cantidad), 0)::int as disponibles,
-    coalesce(-sum(m.cantidad) filter (where m.tipo = 'venta'), 0)::int as vendidos,
-    case when coalesce(sum(m.cantidad) filter (where m.tipo in ('ingreso','devolucion') or (m.tipo = 'ajuste' and m.cantidad > 0)), 0) > 0
-      then round(100.0 * coalesce(-sum(m.cantidad) filter (where m.tipo = 'venta'), 0)
-           / sum(m.cantidad) filter (where m.tipo in ('ingreso','devolucion') or (m.tipo = 'ajuste' and m.cantidad > 0)), 1)
-      else 0 end as rotacion
-  from public.casillero_productos p
-  left join public.casillero_inv_mov m on m.producto_id = p.id
-  group by p.id;
-
 -- Producto de tu tienda <-> producto del casillero.
 create table if not exists public.casillero_productos_externos (
   producto_id uuid not null references public.casillero_productos (id) on delete cascade,
@@ -664,7 +649,11 @@ create trigger casillero_aud_inv_mov after insert on public.casillero_inv_mov fo
 
 alter table public.casillero_productos add column if not exists stock_minimo integer not null default 0 check (stock_minimo >= 0);
 
--- La vista suma stock_minimo (al final: create or replace solo permite agregar columnas nuevas al final).
+-- Una fila por producto con sus totales (la que pinta la pantalla de Inventario).
+--   total_unidades = todo lo que ha entrado (ingresos + devoluciones + ajustes positivos)
+--   disponibles    = lo que hay hoy
+--   vendidos       = unidades vendidas
+--   rotacion       = vendidos / total_unidades
 create or replace view public.casillero_inventario with (security_invoker = true) as
   select p.id, p.user_id, p.sku, p.nombre, p.descripcion, p.imagen_url, p.created_at,
     coalesce(sum(m.cantidad) filter (where m.tipo in ('ingreso','devolucion') or (m.tipo = 'ajuste' and m.cantidad > 0)), 0)::int as total_unidades,
@@ -883,3 +872,135 @@ begin
 end $$;
 revoke execute on function public.casillero_stats() from public, anon;
 grant execute on function public.casillero_stats() to authenticated;
+
+-- =======================================================================
+-- Operaciones del administrador que tocan varias tablas (o dinero) a la vez.
+-- Cada una corre en una sola transacción, bloquea la fila que cambia y
+-- verifica que quien llama es del equipo; todo queda en la auditoría.
+-- =======================================================================
+
+-- Mover un despacho de estado, con su guía, y llevar sus paquetes con él.
+create or replace function public.casillero_despacho_estado(p_id uuid, p_estado text, p_guia text default null) returns void
+language plpgsql security definer set search_path = public as $$
+declare d record;
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  if p_estado not in ('solicitado','despachado','entregado') then raise exception 'Estado invalido'; end if;
+  select * into d from public.casillero_despachos where id = p_id for update;
+  if d.id is null then raise exception 'Despacho no encontrado'; end if;
+  if d.estado = 'cancelado' then raise exception 'El despacho está cancelado'; end if;
+  update public.casillero_despachos
+     set estado = p_estado, guia_despacho = nullif(trim(coalesce(p_guia, guia_despacho, '')), '')
+   where id = p_id;
+  update public.casillero_paquetes
+     set estado = case p_estado when 'solicitado' then 'alistamiento' else p_estado end
+   where despacho_id = p_id;
+end $$;
+revoke execute on function public.casillero_despacho_estado(uuid, text, text) from public, anon;
+grant execute on function public.casillero_despacho_estado(uuid, text, text) to authenticated;
+
+-- Cancelar un despacho que aún no salió: devuelve el dinero al wallet y los
+-- paquetes a la bodega. Solo se puede una vez (el bloqueo lo garantiza).
+create or replace function public.casillero_cancelar_despacho(p_id uuid) returns numeric
+language plpgsql security definer set search_path = public as $$
+declare d record;
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  select * into d from public.casillero_despachos where id = p_id for update;
+  if d.id is null then raise exception 'Despacho no encontrado'; end if;
+  if d.estado <> 'solicitado' then raise exception 'Solo se cancela un despacho que aún no salió de la bodega'; end if;
+  update public.casillero_despachos set estado = 'cancelado' where id = p_id;
+  insert into public.casillero_wallet (user_id, tipo, monto, estado, referencia, despacho_id)
+    values (d.user_id, 'ajuste', d.costo, 'aprobado', 'Reembolso despacho ' || left(p_id::text, 8), p_id);
+  update public.casillero_paquetes set estado = 'recibido', despacho_id = null where despacho_id = p_id;
+  insert into public.notifications (user_id, type, title, body, link)
+    values (d.user_id, 'casillero_despacho', 'Despacho cancelado',
+            'Devolvimos USD ' || to_char(d.costo, 'FM999990.00') || ' a tu wallet y tus paquetes volvieron a la bodega.', '/casillero/wallet');
+  return d.costo;
+end $$;
+revoke execute on function public.casillero_cancelar_despacho(uuid) from public, anon;
+grant execute on function public.casillero_cancelar_despacho(uuid) to authenticated;
+
+-- Aprobar o rechazar una recarga pendiente (transferencia, Zelle, efectivo…).
+-- Solo pasa una vez: si ya se resolvió, avisa en lugar de repetirla.
+create or replace function public.casillero_resolver_recarga(p_id uuid, p_aprobar boolean, p_nota text default null) returns void
+language plpgsql security definer set search_path = public as $$
+declare w record;
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  select * into w from public.casillero_wallet where id = p_id and tipo = 'recarga' for update;
+  if w.id is null then raise exception 'Recarga no encontrada'; end if;
+  if w.estado <> 'pendiente' then raise exception 'Esta recarga ya fue resuelta (%).', w.estado; end if;
+  update public.casillero_wallet
+     set estado = case when p_aprobar then 'aprobado' else 'rechazado' end,
+         referencia = case when nullif(trim(coalesce(p_nota, '')), '') is null then referencia
+                           else trim(both ' ·' from coalesce(referencia, '') || ' · ' || trim(p_nota)) end
+   where id = p_id;
+  insert into public.notifications (user_id, type, title, body, link)
+    values (w.user_id, 'casillero_recarga',
+            case when p_aprobar then 'Recarga aprobada' else 'Recarga rechazada' end,
+            case when p_aprobar then 'Sumamos USD ' || to_char(w.monto, 'FM999990.00') || ' a tu wallet.'
+                 else 'No pudimos verificar tu recarga de USD ' || to_char(w.monto, 'FM999990.00') || '.' || coalesce(' ' || nullif(trim(p_nota), ''), '') end,
+            '/casillero/wallet');
+end $$;
+revoke execute on function public.casillero_resolver_recarga(uuid, boolean, text) from public, anon;
+grant execute on function public.casillero_resolver_recarga(uuid, boolean, text) to authenticated;
+
+-- Ajuste manual de saldo (a favor o en contra) con motivo obligatorio. El
+-- saldo del cliente nunca queda por debajo de cero.
+create or replace function public.casillero_ajustar_saldo(p_user uuid, p_monto numeric, p_motivo text) returns numeric
+language plpgsql security definer set search_path = public as $$
+declare actual numeric;
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  if p_monto is null or p_monto = 0 or abs(p_monto) > 100000 then raise exception 'Monto invalido'; end if;
+  if coalesce(trim(p_motivo), '') = '' then raise exception 'El ajuste necesita un motivo'; end if;
+  perform 1 from public.profiles where id = p_user for update;
+  if not found then raise exception 'Cliente no encontrado'; end if;
+  select coalesce(sum(monto), 0) into actual from public.casillero_wallet where user_id = p_user and estado = 'aprobado';
+  if actual + p_monto < 0 then raise exception 'El saldo no puede quedar negativo (saldo actual USD %).', to_char(actual, 'FM999990.00'); end if;
+  insert into public.casillero_wallet (user_id, tipo, monto, estado, metodo, referencia)
+    values (p_user, 'ajuste', round(p_monto, 2), 'aprobado', 'Ajuste manual', trim(p_motivo));
+  insert into public.notifications (user_id, type, title, body, link)
+    values (p_user, 'casillero_wallet', 'Ajuste en tu wallet',
+            (case when p_monto > 0 then '+' else '-' end) || 'USD ' || to_char(abs(p_monto), 'FM999990.00') || ': ' || trim(p_motivo), '/casillero/wallet');
+  return actual + round(p_monto, 2);
+end $$;
+revoke execute on function public.casillero_ajustar_saldo(uuid, numeric, text) from public, anon;
+grant execute on function public.casillero_ajustar_saldo(uuid, numeric, text) to authenticated;
+
+-- ---- Inventario de toda la bodega (portal del administrador) ------------------
+-- Serie diaria, ventas por origen, lo más vendido y dónde está el stock, de todos
+-- los clientes. Se calcula en la base: nunca se bajan miles de movimientos al navegador.
+create or replace function public.casillero_inv_global(p_dias integer default 30) returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare dias integer := greatest(1, least(coalesce(p_dias, 30), 365));
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  return jsonb_build_object(
+    'dias', dias,
+    'serie', (select coalesce(jsonb_agg(jsonb_build_object('dia', d::date, 'ventas', coalesce(m.v, 0), 'ingresos', coalesce(m.i, 0), 'devoluciones', coalesce(m.dv, 0)) order by d), '[]'::jsonb)
+      from generate_series(current_date - (dias - 1), current_date, interval '1 day') d
+      left join (select created_at::date dia, -coalesce(sum(cantidad) filter (where tipo = 'venta'), 0) v,
+                        coalesce(sum(cantidad) filter (where tipo = 'ingreso'), 0) i, coalesce(sum(cantidad) filter (where tipo = 'devolucion'), 0) dv
+                 from public.casillero_inv_mov where created_at >= current_date - (dias - 1) group by 1) m on m.dia = d::date),
+    'por_origen', (select coalesce(jsonb_agg(jsonb_build_object('origen', origen, 'unidades', u) order by u desc), '[]'::jsonb) from (
+      select origen, (-sum(cantidad))::int u from public.casillero_inv_mov
+      where tipo = 'venta' and created_at >= current_date - (dias - 1) group by origen) o),
+    'top_productos', (select coalesce(jsonb_agg(t), '[]'::jsonb) from (
+      select p.sku, p.nombre, pr.casillero_codigo codigo, (-sum(m.cantidad))::int vendidas
+      from public.casillero_inv_mov m join public.casillero_productos p on p.id = m.producto_id join public.profiles pr on pr.id = m.user_id
+      where m.tipo = 'venta' and m.created_at >= current_date - (dias - 1)
+      group by p.sku, p.nombre, pr.casillero_codigo order by 4 desc limit 8) t),
+    'stock_por_cliente', (select coalesce(jsonb_agg(t), '[]'::jsonb) from (
+      select pr.casillero_codigo codigo, pr.full_name nombre, sum(i.disponibles)::int unidades, count(*)::int productos
+      from public.casillero_inventario i join public.profiles pr on pr.id = i.user_id
+      group by pr.casillero_codigo, pr.full_name having sum(i.disponibles) > 0 order by 3 desc limit 8) t),
+    'totales', (select jsonb_build_object('productos', count(*), 'clientes', count(distinct user_id),
+                  'disponibles', coalesce(sum(disponibles), 0), 'vendidos', coalesce(sum(vendidos), 0),
+                  'agotados', count(*) filter (where disponibles <= 0),
+                  'bajos', count(*) filter (where disponibles > 0 and stock_minimo > 0 and disponibles <= stock_minimo))
+                from public.casillero_inventario));
+end $$;
+revoke execute on function public.casillero_inv_global(integer) from public, anon;
+grant execute on function public.casillero_inv_global(integer) to authenticated;

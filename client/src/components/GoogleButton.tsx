@@ -15,9 +15,10 @@ function GoogleLogo() {
   );
 }
 
-export default function GoogleButton({ onError }: { onError: (message: string) => void }) {
+export default function GoogleButton({ onError, idioma }: { onError: (message: string) => void; idioma?: 'es' | 'en' }) {
   const { signInWithGoogle } = useAuth();
-  const { language } = useLanguage();
+  const { language: global } = useLanguage();
+  const language = idioma ?? global; // el casillero siempre va en español
   const [loading, setLoading] = useState(false);
 
   // Google refuses OAuth inside embedded WebViews ("disallowed_useragent"),

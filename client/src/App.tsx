@@ -43,7 +43,11 @@ function PageFallback() {
 // and stays out of the first-load critical path.
 function DeferredChatbot() {
   const ready = useIdleMount(2500, 500);
-  if (!ready) return null;
+  const [ruta] = useLocation();
+  // Los portales del casillero (cliente y administrador) tienen su propia
+  // barra inferior en el celular y su propio menú: el globo del asistente
+  // de mercado solo les estorba.
+  if (!ready || /^\/(admin\/)?casillero(\/|$)/.test(ruta)) return null;
   return (
     <Suspense fallback={null}>
       <ChatbotWidget />

@@ -129,6 +129,9 @@ describe('wallet y despachos del casillero', () => {
     await recarga(B, 40);
     const n = (await db.query<{ n: number }>(`select public.casillero_anunciar('Feriado', 'No hay despachos el lunes') as n`)).rows[0].n;
     expect(n).toBe(1); // solo B es cliente
+    const h = (await db.query<{ tabla: string; detalle: { titulo: string; destinatarios: number } }>(`select tabla, detalle from public.casillero_auditoria where tabla = 'anuncio'`)).rows;
+    expect(h).toHaveLength(1);
+    expect(h[0].detalle).toMatchObject({ titulo: 'Feriado', destinatarios: 1 }); // el historial de anuncios
     const st = (await db.query<{ s: Record<string, unknown> }>(`select public.casillero_stats() as s`)).rows[0].s;
     expect(Number(st.saldo_total_wallets)).toBe(40);
     expect(st.clientes).toBe(1);
@@ -237,6 +240,120 @@ describe('wallet y despachos del casillero', () => {
     expect(st.top_clientes_30d[0]).toMatchObject({ gasto: 25 });
     expect(st.cola).toMatchObject({ por_recibir: 1, por_alistar: 0, recargas: 0 });
     expect(st.flujo_30d).toHaveLength(30);
+  });
+
+  describe('operaciones del administrador', () => {
+    const volverStaff = () => db.exec(`update public.profiles set role = 'vendedor' where id = '${A}'`);
+    const mov = async (user: string) => Number((await db.query<{ s: string }>(`select coalesce(sum(monto),0) as s from public.casillero_wallet where user_id=$1 and estado='aprobado'`, [user])).rows[0].s);
+
+    it('ninguna la puede llamar un cliente', async () => {
+      await como(B);
+      const id = '33333333-3333-3333-3333-333333333333';
+      await expect(db.query(`select public.casillero_despacho_estado($1,'despachado')`, [id])).rejects.toThrow(/Solo el equipo/);
+      await expect(db.query(`select public.casillero_cancelar_despacho($1)`, [id])).rejects.toThrow(/Solo el equipo/);
+      await expect(db.query(`select public.casillero_resolver_recarga($1, true)`, [id])).rejects.toThrow(/Solo el equipo/);
+      await expect(db.query(`select public.casillero_ajustar_saldo($1, 5, 'x')`, [B])).rejects.toThrow(/Solo el equipo/);
+    });
+
+    it('despachar y entregar lleva los paquetes con el despacho', async () => {
+      await como(B);
+      await recarga(B, 50);
+      const p = await paquete(B, 'G1', 2);
+      const did = (await db.query<{ d: string }>(`select public.casillero_solicitar_despacho($1::uuid[], 'local', 'Calle 1 # 2-3') as d`, [[p]])).rows[0].d;
+      await volverStaff(); await como(A);
+      await db.query(`select public.casillero_despacho_estado($1, 'despachado', 'SERV-123')`, [did]);
+      let r = (await db.query<{ e: string; g: string }>(`select p.estado e, d.guia_despacho g from public.casillero_paquetes p join public.casillero_despachos d on d.id = p.despacho_id`)).rows[0];
+      expect(r).toEqual({ e: 'despachado', g: 'SERV-123' });
+      await db.query(`select public.casillero_despacho_estado($1, 'entregado')`, [did]);
+      r = (await db.query<{ e: string; g: string }>(`select p.estado e, d.guia_despacho g from public.casillero_paquetes p join public.casillero_despachos d on d.id = p.despacho_id`)).rows[0];
+      expect(r).toEqual({ e: 'entregado', g: 'SERV-123' }); // la guía se conserva si no se manda otra
+    });
+
+    it('cancelar devuelve el dinero y los paquetes una sola vez', async () => {
+      await como(B);
+      await recarga(B, 50);
+      const p = await paquete(B, 'G1', 2);
+      const did = (await db.query<{ d: string }>(`select public.casillero_solicitar_despacho($1::uuid[], 'local', 'Calle 1 # 2-3') as d`, [[p]])).rows[0].d;
+      expect(await mov(B)).toBeCloseTo(50 - 9.36);
+      await volverStaff(); await como(A);
+      await db.query(`select public.casillero_cancelar_despacho($1)`, [did]);
+      expect(await mov(B)).toBeCloseTo(50);
+      const e = (await db.query<{ estado: string; despacho_id: string | null }>(`select estado, despacho_id from public.casillero_paquetes where id=$1`, [p])).rows[0];
+      expect(e).toEqual({ estado: 'recibido', despacho_id: null });
+      await expect(db.query(`select public.casillero_cancelar_despacho($1)`, [did])).rejects.toThrow(/aún no salió/);
+      expect(await mov(B)).toBeCloseTo(50); // no se reembolsó dos veces
+      await expect(db.query(`select public.casillero_despacho_estado($1, 'despachado')`, [did])).rejects.toThrow(/cancelado/);
+    });
+
+    it('un despacho que ya salió no se cancela', async () => {
+      await como(B);
+      await recarga(B, 50);
+      const p = await paquete(B, 'G1', 2);
+      const did = (await db.query<{ d: string }>(`select public.casillero_solicitar_despacho($1::uuid[], 'local', 'Calle 1 # 2-3') as d`, [[p]])).rows[0].d;
+      await volverStaff(); await como(A);
+      await db.query(`select public.casillero_despacho_estado($1, 'despachado')`, [did]);
+      await expect(db.query(`select public.casillero_cancelar_despacho($1)`, [did])).rejects.toThrow(/aún no salió/);
+    });
+
+    it('una recarga pendiente se aprueba (suma saldo, avisa) o se rechaza, y solo una vez', async () => {
+      const w = async (m: number) => (await db.query<{ id: string }>(`insert into public.casillero_wallet (user_id, tipo, monto, estado, metodo, referencia) values ($1,'recarga',$2,'pendiente','Zelle','ZL-1') returning id`, [B, m])).rows[0].id;
+      const a = await w(30); const b = await w(10);
+      await volverStaff(); await como(A);
+      await db.query(`select public.casillero_resolver_recarga($1, true, 'Verificado en el banco')`, [a]);
+      await db.query(`select public.casillero_resolver_recarga($1, false, 'No llegó')`, [b]);
+      expect(await mov(B)).toBe(30);
+      const ref = (await db.query<{ r: string }>(`select referencia r from public.casillero_wallet where id=$1`, [a])).rows[0].r;
+      expect(ref).toBe('ZL-1 · Verificado en el banco');
+      const avisos = (await db.query<{ title: string }>(`select title from public.notifications where user_id=$1 order by title`, [B])).rows.map((x) => x.title);
+      expect(avisos).toEqual(['Recarga aprobada', 'Recarga rechazada']);
+      await expect(db.query(`select public.casillero_resolver_recarga($1, true)`, [a])).rejects.toThrow(/ya fue resuelta/);
+      await expect(db.query(`select public.casillero_resolver_recarga($1, true)`, [b])).rejects.toThrow(/ya fue resuelta/);
+      expect(await mov(B)).toBe(30);
+    });
+
+    it('el ajuste de saldo pide motivo, avisa al cliente y no deja el saldo en negativo', async () => {
+      await recarga(B, 20);
+      await volverStaff(); await como(A);
+      await expect(db.query(`select public.casillero_ajustar_saldo($1, 5, '  ')`, [B])).rejects.toThrow(/motivo/);
+      await expect(db.query(`select public.casillero_ajustar_saldo($1, 0, 'x')`, [B])).rejects.toThrow(/Monto/);
+      expect(Number((await db.query<{ s: string }>(`select public.casillero_ajustar_saldo($1, 7.5, 'Bono de bienvenida') as s`, [B])).rows[0].s)).toBe(27.5);
+      await expect(db.query(`select public.casillero_ajustar_saldo($1, -100, 'Cobro')`, [B])).rejects.toThrow(/negativo/);
+      expect(Number((await db.query<{ s: string }>(`select public.casillero_ajustar_saldo($1, -27.5, 'Corrección') as s`, [B])).rows[0].s)).toBe(0);
+      expect(await mov(B)).toBe(0);
+      const n = (await db.query<{ n: number }>(`select count(*)::int n from public.notifications where user_id=$1 and type='casillero_wallet'`, [B])).rows[0].n;
+      expect(n).toBe(2);
+    });
+  });
+
+  it('el inventario global suma a todos los clientes y solo lo ve el equipo', async () => {
+    const prod = async (u: string, sku: string, min = 0) => (await db.query<{ id: string }>(`insert into public.casillero_productos (user_id, sku, nombre, stock_minimo) values ($1,$2,$3,$4) returning id`, [u, sku, `Prod ${sku}`, min])).rows[0].id;
+    const mov = (p: string, u: string, tipo: string, c: number, origen = 'manual') => db.query(`insert into public.casillero_inv_mov (producto_id, user_id, tipo, cantidad, origen) values ($1,$2,$3,$4,$5)`, [p, u, tipo, c, origen]);
+    const pa = await prod(A, 'A-1', 10); const pb = await prod(B, 'B-1'); const pc = await prod(B, 'B-2');
+    await mov(pa, A, 'ingreso', 20, 'bodega'); await mov(pa, A, 'venta', -12, 'shopify');
+    await mov(pb, B, 'ingreso', 50, 'bodega'); await mov(pb, B, 'venta', -5, 'woocommerce'); await mov(pb, B, 'devolucion', 1, 'manual');
+    await mov(pc, B, 'ingreso', 4, 'bodega'); await mov(pc, B, 'venta', -4, 'api');
+    await como(B);
+    await expect(db.query(`select public.casillero_inv_global(7)`)).rejects.toThrow(/Solo el equipo/);
+    await db.exec(`update public.profiles set role = 'vendedor' where id = '${A}'`);
+    await como(A);
+    const g = (await db.query<{ g: Record<string, any> }>(`select public.casillero_inv_global(7) as g`)).rows[0].g;
+    expect(g.serie).toHaveLength(7);
+    expect(g.serie.reduce((a: number, d: { ventas: number }) => a + d.ventas, 0)).toBe(21);
+    expect(g.serie.reduce((a: number, d: { ingresos: number }) => a + d.ingresos, 0)).toBe(74);
+    expect(Object.fromEntries(g.por_origen.map((o: { origen: string; unidades: number }) => [o.origen, o.unidades]))).toEqual({ shopify: 12, woocommerce: 5, api: 4 });
+    expect(g.top_productos[0]).toMatchObject({ sku: 'A-1', vendidas: 12 });
+    expect(g.stock_por_cliente.map((c: { unidades: number }) => c.unidades)).toEqual([46, 8]); // B: 50-5+1 = 46 · A: 20-12 = 8 (B-2 quedó en 0)
+    expect(g.totales).toMatchObject({ productos: 3, clientes: 2, disponibles: 54, vendidos: 21, agotados: 1, bajos: 1 });
+  });
+
+  it('el SQL se puede correr otra vez sobre una base que ya lo tiene, sin perder datos', async () => {
+    await recarga(A, 25);
+    const p = await paquete(A, 'G1', 2);
+    await db.exec(sql); // segunda vez, como cuando el dueño lo pega de nuevo en Supabase
+    await como(A);
+    expect(await saldo()).toBe(25);
+    expect((await db.query(`select 1 from public.casillero_paquetes where id = $1`, [p])).rows).toHaveLength(1);
+    expect((await db.query(`select count(*)::int n from public.casillero_tarifas`)).rows[0]).toEqual({ n: 4 });
   });
 
   it('el código de casillero no lo cambia el dueño', async () => {

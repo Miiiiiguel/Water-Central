@@ -80,25 +80,43 @@ notificaciones y el correo (Resend).
 Son dos portales, con la misma cuenta:
 
 - **Portal del cliente** (`/casillero`): registro en `/casillero/registro`;
-  prealerta, paquetes, despacho, mis despachos, wallet (Wompi o pago
-  reportado), tarifas y perfil. Rastreo público en `/rastreo`.
-- **Portal del administrador** (`/admin/casillero`, solo rol `vendedor`):
-  resumen con cifras y gráfica, paquetes (recepción, peso, estados en lote,
-  CSV), despachos (guía, cancelar con reembolso), wallet y recargas, clientes
-  (ficha completa, bloqueo, ajustes de saldo, dar o quitar acceso de admin),
-  tarifas, anuncios a todos los clientes, configuración, equipo y auditoría
-  de cada cambio.
-- **Inventario** (`/casillero/inventario`) y **integraciones**
-  (`/casillero/integraciones`): productos por SKU con total, disponibles,
-  vendidos y rotación; el equipo registra los ingresos de bodega (portal
-  admin → Inventario). **Shopify**: app personalizada (token de Admin API +
-  clave secreta) → webhooks `orders/paid` y `orders/cancelled`. **WordPress**:
+  inicio con saldo, gráficas y pasos para empezar; prealerta, paquetes con
+  seguimiento, despacho en tres pasos (cotiza las cuatro modalidades), wallet
+  (Wompi o pago reportado), inventario por SKU, integraciones (Shopify,
+  WordPress, API con llave), tarifas y perfil. Rastreo público en `/rastreo`.
+- **Portal del administrador** (`/admin/casillero`, solo rol `vendedor`), con
+  gráficas en cada sección:
+  - *Resumen*: cola de trabajo (por recibir, por alistar, recargas, tiendas con
+    error) e ingresos, paquetes, clientes y ventas.
+  - *Recepción* pensada para lector de códigos; *Paquetes* (estados en lote,
+    aviso por correo); *Despachos* (guía, estado, hoja imprimible, cancelar con
+    reembolso atómico).
+  - *Inventario* de toda la bodega: ingreso uno a uno o masivo desde un CSV,
+    historial por producto, lo más vendido y dónde está el stock.
+  - *Integraciones*: todas las tiendas de los clientes (probar, reparar,
+    importar, enviar stock, desconectar) y las ventas que esperan su producto.
+  - *Wallet y recargas* (aprobar/rechazar con motivo, ajustar saldo), *Tarifas*
+    (tabla validada + libra extra + calculadora), *Clientes* (ficha, bloqueo,
+    ajustes), *Anuncios* (campanita + aviso fijo), *Configuración* (con el estado
+    real de Wompi, correo, cifrado y URL pública), *Equipo* y *Auditoría*
+    (antes/después de cada cambio).
+  - Lo que mueve dinero o varias tablas corre como funciones SQL atómicas
+    (`casillero_cancelar_despacho`, `casillero_resolver_recarga`,
+    `casillero_ajustar_saldo`, `casillero_despacho_estado`).
+- **Inventario** y **integraciones**: productos por SKU con total, disponibles,
+  vendidos, rotación y cobertura; el equipo registra los ingresos de bodega.
+  **Shopify**: app personalizada (token de Admin API + clave secreta) →
+  webhooks `orders/paid`, `orders/cancelled` y `refunds/create`. **WordPress**:
   WooCommerce REST (ck_/cs_) → webhooks `order.created/updated`. Las ventas
-  descuentan por SKU (idempotente por pedido) y, si el cliente lo activa, el
-  stock de la bodega se empuja a su tienda. Para cualquier otro sistema hay una
-  API con llave: `GET /api/v1/inventario`, `POST /api/v1/inventario/ventas`.
+  descuentan por SKU (idempotente por pedido; si el SKU aún no existe, la venta
+  espera y se aplica sola al crearlo) y, si el cliente lo activa, el stock de la
+  bodega se empuja a su tienda. Para cualquier otro sistema hay una API con
+  llave: `GET /api/v1/inventario`, `POST /api/v1/inventario/ventas`.
   Requiere `INTEGRATIONS_ENC_KEY` y `PUBLIC_APP_URL` (https). Código en
   `server/inventario/`.
+- Configurable sin tocar código (Admin → Configuración / Tarifas / Anuncios):
+  dirección de la bodega, valor declarado máximo, **recarga mínima**
+  (`recarga_min_usd`, la lee el servidor), precio por libra extra y aviso fijo.
 - Base de datos: correr `supabase/casillero.sql` **después** de
   `supabase/schema.sql` (es re-ejecutable). Reemplaza `handle_new_user()`
   por la misma función más los campos del casillero.

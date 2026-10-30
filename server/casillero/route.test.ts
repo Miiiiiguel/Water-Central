@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { WALLET_REF_RE, usdToCopCents } from './route';
+import { MONTO_MIN_USD, WALLET_REF_RE, estadoDelSistema, montoMinimoUsd, usdToCopCents } from './route';
 import { integritySignature, transactionPaysFor } from '../wompi';
 
 describe('wallet del casillero', () => {
@@ -31,5 +31,32 @@ describe('correo del casillero', () => {
     expect(m.html).not.toContain('<b>Ana</b>');
     expect(m.html).not.toContain('G<1>');
     expect(`${m.html}${m.text}`.toLowerCase()).not.toContain('dmatrix');
+  });
+});
+
+describe('recarga mínima configurable', () => {
+  const con = (valor: unknown) => ({ from: () => ({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: valor === undefined ? null : { valor } }) }) }) }) }) as unknown as Parameters<typeof montoMinimoUsd>[0];
+  it('usa el valor que fijó el equipo', async () => {
+    expect(await montoMinimoUsd(con('20'))).toBe(20);
+    expect(await montoMinimoUsd(con('7.5'))).toBe(7.5);
+  });
+  it('si falta, no es número o es absurdo, vale el mínimo de siempre', async () => {
+    expect(await montoMinimoUsd(con(undefined))).toBe(MONTO_MIN_USD);
+    expect(await montoMinimoUsd(con(''))).toBe(MONTO_MIN_USD);
+    expect(await montoMinimoUsd(con('abc'))).toBe(MONTO_MIN_USD);
+    expect(await montoMinimoUsd(con('0'))).toBe(MONTO_MIN_USD);
+    expect(await montoMinimoUsd(con('999999'))).toBe(MONTO_MIN_USD);
+    expect(await montoMinimoUsd(null)).toBe(MONTO_MIN_USD);
+  });
+});
+
+describe('estado del sistema', () => {
+  it('dice qué está configurado sin revelar ningún valor', () => {
+    const e = estadoDelSistema('app.example.com', { WOMPI_ENV: 'production', WOMPI_EVENTS_SECRET: 'sek', PUBLIC_APP_URL: 'https://easycomex.co' } as NodeJS.ProcessEnv);
+    expect(e.wompiEntorno).toBe('production');
+    expect(e.wompiEventos).toBe(true);
+    expect(e.wompiLectura).toBe(false);
+    expect(typeof e.registro).toBe('boolean');
+    expect(JSON.stringify(e)).not.toContain('sek');
   });
 });

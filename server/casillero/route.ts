@@ -10,6 +10,7 @@ import { USD_COP_RATE } from '../catalog';
 import { checkoutUrl, fetchTransaction, integritySignature, transactionPaysFor, wompiConfigured, type WompiTransaction } from '../wompi';
 import { appUrl, emailConfigured, sendEmail } from '../email';
 import { avisoPaquete } from './correo';
+import { cifradoDisponible } from '../inventario/crypto';
 
 // El casillero de Easycomex.
 //
@@ -26,6 +27,17 @@ const newRef = () => `ecw_${randomBytes(16).toString('hex')}`;
 export const MONTO_MIN_USD = 5;
 export const MONTO_MAX_USD = 1000;
 
+/**
+ * Recarga mínima: la fija el equipo en casillero_config (recarga_min_usd).
+ * Si falta o no es un número razonable, vale la de siempre.
+ */
+export async function montoMinimoUsd(admin: ReturnType<typeof getSupabaseAdmin>): Promise<number> {
+  if (!admin) return MONTO_MIN_USD;
+  const { data } = await admin.from('casillero_config').select('valor').eq('clave', 'recarga_min_usd').maybeSingle();
+  const v = Number(data?.valor);
+  return Number.isFinite(v) && v >= 1 && v <= MONTO_MAX_USD ? v : MONTO_MIN_USD;
+}
+
 /** USD con centavos -> centavos de peso, con la tasa del catálogo. */
 export function usdToCopCents(usd: number, rate = USD_COP_RATE()): number {
   return Math.round(usd * rate * 100);
@@ -38,14 +50,37 @@ export const casilleroRouter = express.Router();
 // (tasa del día, montos permitidos, si hay pasarela). Es POST como el resto
 // de la API autenticada de este módulo.
 // ---------------------------------------------------------------------
-casilleroRouter.post('/casillero/config', checkoutRateLimiter, requireUser(), (_req, res) => {
-  res.json({ usdCop: USD_COP_RATE(), minUsd: MONTO_MIN_USD, maxUsd: MONTO_MAX_USD, wompi: wompiConfigured() });
+casilleroRouter.post('/casillero/config', checkoutRateLimiter, requireUser(), async (_req, res) => {
+  res.json({ usdCop: USD_COP_RATE(), minUsd: await montoMinimoUsd(getSupabaseAdmin()), maxUsd: MONTO_MAX_USD, wompi: wompiConfigured() });
+});
+
+// ---------------------------------------------------------------------
+// POST /api/casillero/estado — qué está conectado de verdad en el servidor
+// (solo el equipo). Responde si cada pieza está configurada, nunca su valor.
+// ---------------------------------------------------------------------
+export function estadoDelSistema(host?: string, env: NodeJS.ProcessEnv = process.env) {
+  const publica = appUrl(host);
+  return {
+    registro: Boolean(getSupabaseAdmin()),
+    wompi: wompiConfigured(),
+    wompiEventos: Boolean(env.WOMPI_EVENTS_SECRET),
+    wompiLectura: Boolean(env.WOMPI_PRIVATE_KEY),
+    wompiEntorno: env.WOMPI_ENV === 'production' ? 'production' : 'sandbox',
+    correo: emailConfigured(),
+    cifrado: cifradoDisponible(),
+    urlPublica: publica.startsWith('https://') ? publica : null,
+    usdCop: USD_COP_RATE(),
+  };
+}
+
+casilleroRouter.post('/casillero/estado', checkoutRateLimiter, requireRole('vendedor'), (req, res) => {
+  res.json(estadoDelSistema(req.get('host') ?? undefined));
 });
 
 // ---------------------------------------------------------------------
 // POST /api/casillero/wallet/recargar — { montoUsd } -> { url }
 // ---------------------------------------------------------------------
-const recargaSchema = z.object({ montoUsd: z.number().min(MONTO_MIN_USD).max(MONTO_MAX_USD) });
+const recargaSchema = z.object({ montoUsd: z.number().max(MONTO_MAX_USD) });
 
 casilleroRouter.post(
   '/casillero/wallet/recargar',
@@ -54,9 +89,10 @@ casilleroRouter.post(
   requireUser(),
   async (req, res) => {
     const parsed = recargaSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: 'monto_invalido', min: MONTO_MIN_USD, max: MONTO_MAX_USD });
-    if (!wompiConfigured()) return res.status(503).json({ error: 'sin_pasarela', message: 'Falta configurar Wompi en el servidor.' });
     const admin = getSupabaseAdmin();
+    const minimo = await montoMinimoUsd(admin);
+    if (!parsed.success || parsed.data.montoUsd < minimo) return res.status(400).json({ error: 'monto_invalido', min: minimo, max: MONTO_MAX_USD });
+    if (!wompiConfigured()) return res.status(503).json({ error: 'sin_pasarela', message: 'Falta configurar Wompi en el servidor.' });
     if (!admin) return res.status(503).json({ error: 'sin_registro' });
 
     const { user } = res.locals.auth!;
@@ -167,7 +203,7 @@ export async function settleWalletTransaction(tx: Partial<WompiTransaction>, req
 // Queda pendiente hasta que el equipo la apruebe.
 // ---------------------------------------------------------------------
 const reporteSchema = z.object({
-  montoUsd: z.number().min(MONTO_MIN_USD).max(MONTO_MAX_USD * 5),
+  montoUsd: z.number().max(MONTO_MAX_USD * 5),
   metodo: z.enum(['Transferencia', 'Zelle', 'Efectivo', 'Otro']),
   referencia: z.string().trim().max(120).default(''),
 });
@@ -179,9 +215,10 @@ casilleroRouter.post(
   requireUser(),
   async (req, res) => {
     const parsed = reporteSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: 'datos_invalidos' });
     const admin = getSupabaseAdmin();
     if (!admin) return res.status(503).json({ error: 'sin_registro' });
+    const minimo = await montoMinimoUsd(admin);
+    if (!parsed.success || parsed.data.montoUsd < minimo) return res.status(400).json({ error: parsed.success ? 'monto_invalido' : 'datos_invalidos', min: minimo, max: MONTO_MAX_USD * 5 });
     const { user } = res.locals.auth!;
     const { error } = await admin.from('casillero_wallet').insert({
       user_id: user.id,

@@ -53,6 +53,8 @@ export interface MovimientoWallet {
   profiles?: { full_name: string | null; casillero_codigo: string | null } | null;
 }
 
+export interface EventoPaquete { estado: string; created_at: string; nota: string | null }
+
 export interface Despacho {
   id: string;
   user_id: string;
@@ -66,21 +68,32 @@ export interface Despacho {
   profiles?: { full_name: string | null; casillero_codigo: string | null } | null;
 }
 
-export const usd = (n: number | string | null | undefined) =>
-  `$${Number(n ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
-export const fecha = (iso: string) => new Date(iso).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' });
-
 /** Saldo = suma de movimientos aprobados. */
 export function saldoDe(movs: Pick<MovimientoWallet, 'monto' | 'estado'>[]): number {
   return movs.filter((m) => m.estado === 'aprobado').reduce((a, m) => a + Number(m.monto), 0);
 }
 
-/** Costo de despachar `peso` libras, o null si la tabla no lo cubre. */
-export function cotizar(tarifas: Tarifa[], peso: number, modalidad: Modalidad): number | null {
+export type ConfigCasillero = Record<string, string>;
+
+/**
+ * Costo de despachar `peso` libras, o null si la tabla no lo cubre.
+ * Igual que casillero_cotizar en la base: sobre la última fila, si el equipo
+ * fijó un precio por libra extra (libra_extra_<modalidad>), se suma; si no,
+ * hay que consultar a un asesor.
+ */
+export function cotizar(tarifas: Tarifa[], peso: number, modalidad: Modalidad, config: ConfigCasillero = {}): number | null {
   const libras = Math.ceil(peso);
   const fila = tarifas.find((t) => libras >= t.libras_desde && libras <= t.libras_hasta);
-  return fila ? Number(fila[modalidad]) : null;
+  if (fila) return Number(fila[modalidad]);
+  const ultima = [...tarifas].sort((a, b) => b.libras_hasta - a.libras_hasta)[0];
+  const extra = Number(config[`libra_extra_${modalidad}`]);
+  if (!ultima || !config[`libra_extra_${modalidad}`]?.trim() || !Number.isFinite(extra) || libras <= ultima.libras_hasta) return null;
+  return Number(ultima[modalidad]) + extra * (libras - ultima.libras_hasta);
+}
+
+/** El precio en cada modalidad (null = fuera de tabla). */
+export function cotizarTodas(tarifas: Tarifa[], peso: number, config: ConfigCasillero = {}): Record<Modalidad, number | null> {
+  return { rec_oficina: cotizar(tarifas, peso, 'rec_oficina', config), local: cotizar(tarifas, peso, 'local', config), regional: cotizar(tarifas, peso, 'regional', config), nacional: cotizar(tarifas, peso, 'nacional', config) };
 }
 
 /** Llamada a nuestro API con la sesión del usuario. */
@@ -107,4 +120,54 @@ export async function rastrear(guia: string): Promise<{ estado: string; created_
   const { data, error } = await (await getSupabase()).rpc('casillero_rastrear', { p_guia: guia });
   if (error) throw error;
   return (data ?? []) as { estado: string; created_at: string }[];
+}
+
+export interface ResumenCliente {
+  saldo: number;
+  recargas_pendientes: number;
+  paquetes: Record<string, number>;
+  gasto_6m: { mes: string; gasto: number; recargas: number }[];
+  saldo_serie: { dia: string; saldo: number }[];
+  ventas_30d: { dia: string; shopify: number; woocommerce: number; api: number; manual: number }[];
+  top_productos: { sku: string; nombre: string; vendidos: number }[];
+  stock_bajo: { sku: string; nombre: string; disponibles: number; stock_minimo: number }[];
+  sin_vincular: number;
+  onboarding: { prealerta: boolean; wallet: boolean; productos: boolean; tienda: boolean; stock: boolean };
+  actividad: { tipo: 'paquete' | 'wallet' | 'stock'; titulo: string; detalle: string | null; fecha: string }[];
+}
+
+export async function resumenCliente(): Promise<ResumenCliente> {
+  const { data, error } = await (await getSupabase()).rpc('casillero_resumen_cliente');
+  if (error) throw error;
+  return data as ResumenCliente;
+}
+
+export interface FilaTarifa { libras_desde: number; libras_hasta: number; rec_oficina: number; local: number; regional: number; nacional: number }
+
+/**
+ * Revisa una tabla de tarifas antes de guardarla. `errores` impiden guardar
+ * (rangos al revés, traslapados o precios inválidos); `avisos` solo advierten
+ * (huecos entre rangos: esos pesos saldrían «fuera de tabla»).
+ */
+export function validarTarifas(filas: FilaTarifa[]): { errores: string[]; avisos: string[] } {
+  const errores: string[] = [];
+  const avisos: string[] = [];
+  if (!filas.length) errores.push('Debe haber al menos un rango de peso.');
+  filas.forEach((f, i) => {
+    const n = i + 1;
+    if (![f.libras_desde, f.libras_hasta].every((x) => Number.isInteger(x) && x >= 1)) errores.push(`Fila ${n}: las libras deben ser números enteros desde 1.`);
+    else if (f.libras_hasta < f.libras_desde) errores.push(`Fila ${n}: «hasta» no puede ser menor que «desde».`);
+    for (const m of Object.keys(MODALIDADES) as Modalidad[]) {
+      const v = f[m];
+      if (!Number.isFinite(v) || v < 0 || v > 9999) { errores.push(`Fila ${n}: el precio de ${MODALIDADES[m].toLowerCase()} no es válido.`); break; }
+    }
+  });
+  const orden = [...filas].filter((f) => Number.isInteger(f.libras_desde) && Number.isInteger(f.libras_hasta)).sort((a, b) => a.libras_desde - b.libras_desde);
+  for (let i = 1; i < orden.length; i++) {
+    const a = orden[i - 1];
+    const b = orden[i];
+    if (b.libras_desde <= a.libras_hasta) errores.push(`Los rangos ${a.libras_desde}–${a.libras_hasta} y ${b.libras_desde}–${b.libras_hasta} se traslapan.`);
+    else if (b.libras_desde > a.libras_hasta + 1) avisos.push(`Hueco entre ${a.libras_hasta} y ${b.libras_desde} lb: los paquetes con ese peso quedarían fuera de la tabla.`);
+  }
+  return { errores, avisos };
 }
