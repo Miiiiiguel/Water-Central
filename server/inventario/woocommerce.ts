@@ -94,6 +94,13 @@ export async function registrarWebhooks(f: Fetch, c: CredWoo, urlEntrega: string
   return ids;
 }
 
+export interface WebhookWoo { id: number; topic: string; delivery_url: string; status: string }
+
+export async function listarWebhooks(f: Fetch, c: CredWoo): Promise<WebhookWoo[]> {
+  const { data } = await llamar<WebhookWoo[]>(f, c, '/webhooks?per_page=100');
+  return Array.isArray(data) ? data : [];
+}
+
 export async function borrarWebhooks(f: Fetch, c: CredWoo, ids: number[]): Promise<void> {
   for (const id of ids) await llamar(f, c, `/webhooks/${id}?force=true`, { method: 'DELETE' }).catch(() => undefined);
 }

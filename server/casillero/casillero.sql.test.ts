@@ -175,6 +175,70 @@ describe('wallet y despachos del casillero', () => {
     await ins('ajuste', -4);
   });
 
+  it('una venta de un SKU que aún no existe se aplica sola cuando el cliente crea el producto', async () => {
+    const ev = (sku: string, ref: string, cant: number) => db.query(
+      `insert into public.casillero_integracion_eventos (user_id, tipo, resumen, detalle) values ($1,'sin_producto','Pedido sin producto',$2::jsonb)`,
+      [A, JSON.stringify({ sku, tipo: 'venta', cantidad: cant, origen: 'shopify', referencia: 'Pedido 5', ref_externa: ref })]);
+    await ev('NUEVO-1', 'shopify:order:5:1', -3);
+    await ev('NUEVO-1', 'shopify:order:6:1', -2);
+    expect((await db.query<{ unidades: number; pedidos: number }>(`select unidades, pedidos from public.casillero_skus_sin_producto where sku = 'NUEVO-1'`)).rows[0]).toEqual({ unidades: 5, pedidos: 2 });
+    const prod = (await db.query<{ id: string }>(`insert into public.casillero_productos (user_id, sku, nombre) values ($1,'NUEVO-1','Nuevo') returning id`, [A])).rows[0].id;
+    const inv = (await db.query<{ disponibles: number; vendidos: number }>(`select disponibles, vendidos from public.casillero_inventario where id = $1`, [prod])).rows[0];
+    expect(inv).toEqual({ disponibles: -5, vendidos: 5 });
+    expect((await db.query(`select 1 from public.casillero_skus_sin_producto`)).rows).toHaveLength(0);
+  });
+
+  it('avisa una sola vez cuando el stock cruza el mínimo hacia abajo', async () => {
+    const prod = (await db.query<{ id: string }>(`insert into public.casillero_productos (user_id, sku, nombre, stock_minimo) values ($1,'MIN','Mínimo',10) returning id`, [A])).rows[0].id;
+    const mov = (t: string, c: number) => db.query(`insert into public.casillero_inv_mov (producto_id, user_id, tipo, cantidad) values ($1,$2,$3,$4)`, [prod, A, t, c]);
+    await mov('ingreso', 50);
+    await mov('venta', -30); // 20: aún por encima
+    expect((await db.query(`select 1 from public.notifications where type = 'casillero_stock'`)).rows).toHaveLength(0);
+    await mov('venta', -12); // 8: cruzó
+    await mov('venta', -2);  // 6: ya estaba abajo, no repite
+    expect((await db.query(`select title from public.notifications where type = 'casillero_stock'`)).rows).toEqual([{ title: 'Stock bajo: MIN' }]);
+  });
+
+  it('el resumen del cliente cuadra: saldo, serie, ventas por origen, stock bajo y primeros pasos', async () => {
+    await como(A);
+    await recarga(A, 100);
+    await db.query(`insert into public.casillero_wallet (user_id, tipo, monto, estado) values ($1,'cargo',-20,'aprobado')`, [A]);
+    const prod = (await db.query<{ id: string }>(`insert into public.casillero_productos (user_id, sku, nombre, stock_minimo) values ($1,'R1','Resumen',20) returning id`, [A])).rows[0].id;
+    const mov = (t: string, c: number, o: string) => db.query(`insert into public.casillero_inv_mov (producto_id, user_id, tipo, cantidad, origen) values ($1,$2,$3,$4,$5)`, [prod, A, t, c, o]);
+    await mov('ingreso', 40, 'bodega'); await mov('venta', -15, 'shopify'); await mov('venta', -5, 'woocommerce');
+    await paquete(A, 'GR', 1, 'recibido');
+    const r = (await db.query<{ r: Record<string, any> }>(`select public.casillero_resumen_cliente() as r`)).rows[0].r;
+    expect(Number(r.saldo)).toBe(80);
+    expect(r.paquetes).toEqual({ recibido: 1 });
+    expect(r.saldo_serie).toHaveLength(30);
+    expect(Number(r.saldo_serie.at(-1).saldo)).toBe(80);
+    const hoy = r.ventas_30d.at(-1);
+    expect([hoy.shopify, hoy.woocommerce, hoy.api]).toEqual([15, 5, 0]);
+    expect(r.top_productos[0]).toMatchObject({ sku: 'R1', vendidos: 20 });
+    expect(r.stock_bajo[0]).toMatchObject({ sku: 'R1', disponibles: 20 });
+    expect(r.onboarding).toEqual({ prealerta: true, wallet: true, productos: true, tienda: false, stock: true });
+    expect(r.gasto_6m.at(-1)).toMatchObject({ gasto: 20, recargas: 100 });
+    expect(r.actividad.length).toBeGreaterThan(0);
+    const an = (await db.query<{ a: Record<string, any> }>(`select public.casillero_inv_analisis(30) as a`)).rows[0].a;
+    expect(an.por_origen).toEqual([{ origen: 'shopify', unidades: 15 }, { origen: 'woocommerce', unidades: 5 }]);
+    expect(an.productos[0]).toMatchObject({ vendidas: 20, cobertura_dias: 30 }); // 20 disp. / (20/30 por día)
+    expect(an.serie).toHaveLength(30);
+  });
+
+  it('el tablero del administrador suma las nuevas gráficas y la cola de trabajo', async () => {
+    await db.exec(`update public.profiles set role = 'vendedor' where id = '${A}'`);
+    await como(A);
+    await recarga(B, 60);
+    await db.query(`insert into public.casillero_wallet (user_id, tipo, monto, estado) values ($1,'cargo',-25,'aprobado')`, [B]);
+    await paquete(B, 'P1', null, 'prealertado');
+    const st = (await db.query<{ s: Record<string, any> }>(`select public.casillero_stats() as s`)).rows[0].s;
+    expect(Number(st.ingresos_30d)).toBe(25);
+    expect(st.ingresos_6m).toHaveLength(6);
+    expect(st.top_clientes_30d[0]).toMatchObject({ gasto: 25 });
+    expect(st.cola).toMatchObject({ por_recibir: 1, por_alistar: 0, recargas: 0 });
+    expect(st.flujo_30d).toHaveLength(30);
+  });
+
   it('el código de casillero no lo cambia el dueño', async () => {
     await como(A);
     await expect(db.query(`update public.profiles set casillero_codigo='DM9999' where id=$1`, [A])).rejects.toThrow(/no se puede cambiar/);

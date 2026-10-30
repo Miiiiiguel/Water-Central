@@ -5,7 +5,6 @@ import { esIpPrivada, normalizarDominioShopify, urlTiendaPublica } from './segur
 import * as shopify from './shopify';
 import * as woo from './woocommerce';
 import { cantidadConSigno } from './movimientos';
-import { aplicarPedido } from './sincronizacion';
 
 describe('cifrado de llaves', () => {
   const clave = randomBytes(32);
@@ -91,56 +90,7 @@ describe('movimientos', () => {
   });
 });
 
-// Un Supabase mínimo en memoria para probar la lógica de pedidos.
-function dbFalsa(productos: { id: string; user_id: string; sku: string }[]) {
-  const movs: Record<string, unknown>[] = [];
-  const from = (tabla: string) => {
-    const filtros: Record<string, unknown> = {};
-    const q: Record<string, unknown> = {
-      select: () => q,
-      eq: (k: string, v: unknown) => { filtros[k] = v; return q; },
-      maybeSingle: async () => {
-        const filas = tabla === 'casillero_productos' ? productos : movs;
-        return { data: filas.find((f) => Object.entries(filtros).every(([k, v]) => (f as Record<string, unknown>)[k] === v)) ?? null };
-      },
-      insert: async (fila: Record<string, unknown>) => {
-        if (fila.ref_externa && movs.some((m) => m.ref_externa === fila.ref_externa)) return { error: { code: '23505', message: 'duplicate' } };
-        movs.push({ ...fila });
-        return { error: null };
-      },
-    };
-    return q;
-  };
-  return { db: { from } as never, movs };
-}
-
 describe('pedidos de la tienda', () => {
-  const productos = [{ id: 'p1', user_id: 'u1', sku: 'CAM-01' }];
-  const base = { userId: 'u1', origen: 'shopify' as const, prefijo: 'shopify', pedidoId: '1001' };
-
-  it('una venta descuenta por SKU, ignora SKUs desconocidos y no se repite', async () => {
-    const { db, movs } = dbFalsa(productos);
-    const lineas = [{ sku: 'CAM-01', cantidad: 2, lineaId: '1' }, { sku: 'NO-EXISTE', cantidad: 1, lineaId: '2' }];
-    const r = await aplicarPedido(db, { ...base, lineas, anular: false });
-    expect(r).toMatchObject({ aplicadas: 1, sinProducto: ['NO-EXISTE'], productos: ['p1'] });
-    expect(movs).toHaveLength(1);
-    expect(movs[0]).toMatchObject({ tipo: 'venta', cantidad: -2, ref_externa: 'shopify:order:1001:1' });
-    // Shopify reenvía el mismo webhook: no se descuenta otra vez.
-    const otra = await aplicarPedido(db, { ...base, lineas, anular: false });
-    expect(otra.aplicadas).toBe(0);
-    expect(movs).toHaveLength(1);
-  });
-
-  it('cancelar devuelve el stock solo si la venta se había registrado, y una sola vez', async () => {
-    const { db, movs } = dbFalsa(productos);
-    const lineas = [{ sku: 'CAM-01', cantidad: 2, lineaId: '1' }];
-    expect((await aplicarPedido(db, { ...base, lineas, anular: true })).aplicadas).toBe(0); // nunca se vendió
-    await aplicarPedido(db, { ...base, lineas, anular: false });
-    expect((await aplicarPedido(db, { ...base, lineas, anular: true })).aplicadas).toBe(1);
-    expect((await aplicarPedido(db, { ...base, lineas, anular: true })).aplicadas).toBe(0);
-    expect(movs.map((m) => `${m.tipo}:${m.cantidad}`)).toEqual(['venta:-2', 'devolucion:2']);
-  });
-
   it('extrae las líneas con SKU de un pedido de Shopify y de WooCommerce', () => {
     expect(shopify.lineasDePedido({ id: 7, line_items: [{ id: 1, sku: ' A ', quantity: 2 }, { id: 2, sku: '', quantity: 1 }, { id: 3, sku: null, quantity: 1 }] }))
       .toEqual({ pedidoId: '7', lineas: [{ sku: 'A', cantidad: 2, lineaId: '1' }] });

@@ -34,6 +34,15 @@ export function usdToCopCents(usd: number, rate = USD_COP_RATE()): number {
 export const casilleroRouter = express.Router();
 
 // ---------------------------------------------------------------------
+// POST /api/casillero/config — lo que la pantalla del wallet necesita saber
+// (tasa del día, montos permitidos, si hay pasarela). Es POST como el resto
+// de la API autenticada de este módulo.
+// ---------------------------------------------------------------------
+casilleroRouter.post('/casillero/config', checkoutRateLimiter, requireUser(), (_req, res) => {
+  res.json({ usdCop: USD_COP_RATE(), minUsd: MONTO_MIN_USD, maxUsd: MONTO_MAX_USD, wompi: wompiConfigured() });
+});
+
+// ---------------------------------------------------------------------
 // POST /api/casillero/wallet/recargar — { montoUsd } -> { url }
 // ---------------------------------------------------------------------
 const recargaSchema = z.object({ montoUsd: z.number().min(MONTO_MIN_USD).max(MONTO_MAX_USD) });

@@ -20,8 +20,18 @@ export interface CredShopify {
 const base = (c: CredShopify) => `https://${c.dominio}/admin/api/${API_VERSION}`;
 const cab = (c: CredShopify) => ({ 'X-Shopify-Access-Token': c.token, 'Content-Type': 'application/json', Accept: 'application/json' });
 
+const dormir = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+// Shopify limita a ~2 llamadas por segundo: ante un 429 (o un 503 pasajero)
+// se espera lo que pide `Retry-After` y se reintenta, hasta 3 veces.
 async function llamar<T>(f: Fetch, c: CredShopify, ruta: string, init: RequestInit = {}): Promise<{ data: T; link: string | null }> {
-  const res = await f(`${base(c)}${ruta}`, { ...init, headers: { ...cab(c), ...(init.headers ?? {}) }, redirect: 'error', signal: AbortSignal.timeout(15_000) });
+  let res!: Response;
+  for (let intento = 0; intento < 4; intento++) {
+    res = await f(`${base(c)}${ruta}`, { ...init, headers: { ...cab(c), ...(init.headers ?? {}) }, redirect: 'error', signal: AbortSignal.timeout(15_000) });
+    if ((res.status !== 429 && res.status !== 503) || intento === 3) break;
+    const espera = Number(res.headers.get('retry-after'));
+    await dormir(Math.min(Number.isFinite(espera) && espera >= 0 ? espera * 1000 : 500 * 2 ** intento, 5000));
+  }
   if (!res.ok) {
     const txt = (await res.text().catch(() => '')).slice(0, 200);
     throw new Error(res.status === 401 || res.status === 403
@@ -85,7 +95,7 @@ export async function fijarStock(f: Fetch, c: CredShopify, ubicacionId: string, 
   });
 }
 
-export const TEMAS_WEBHOOK = ['orders/paid', 'orders/cancelled'] as const;
+export const TEMAS_WEBHOOK = ['orders/paid', 'orders/cancelled', 'refunds/create'] as const;
 
 export async function registrarWebhooks(f: Fetch, c: CredShopify, urlBase: string): Promise<{ id: number; topic: string }[]> {
   const creados: { id: number; topic: string }[] = [];
@@ -96,6 +106,13 @@ export async function registrarWebhooks(f: Fetch, c: CredShopify, urlBase: strin
     creados.push({ id: data.webhook.id, topic });
   }
   return creados;
+}
+
+export interface WebhookTienda { id: number; topic: string; address: string }
+
+export async function listarWebhooks(f: Fetch, c: CredShopify): Promise<WebhookTienda[]> {
+  const { data } = await llamar<{ webhooks: WebhookTienda[] }>(f, c, '/webhooks.json?limit=250');
+  return data.webhooks ?? [];
 }
 
 export async function borrarWebhooks(f: Fetch, c: CredShopify, ids: number[]): Promise<void> {
@@ -109,5 +126,16 @@ export function lineasDePedido(pedido: { id?: number; line_items?: { id: number;
     lineas: (pedido.line_items ?? [])
       .filter((l) => (l.sku ?? '').trim() && l.quantity > 0)
       .map((l) => ({ sku: l.sku!.trim(), cantidad: l.quantity, lineaId: String(l.id) })),
+  };
+}
+
+/** Un reembolso de Shopify: devuelve al stock solo lo que la tienda marcó para reponer. */
+export function lineasDeReembolso(r: { id?: number; order_id?: number; refund_line_items?: { line_item_id: number; quantity: number; restock_type?: string; line_item?: { sku?: string | null } }[] }): { pedidoId: string; reembolsoId: string; lineas: LineaPedido[] } {
+  return {
+    pedidoId: String(r.order_id ?? ''),
+    reembolsoId: String(r.id ?? ''),
+    lineas: (r.refund_line_items ?? [])
+      .filter((l) => l.restock_type && l.restock_type !== 'no_restock' && (l.line_item?.sku ?? '').trim() && l.quantity > 0)
+      .map((l) => ({ sku: l.line_item!.sku!.trim(), cantidad: l.quantity, lineaId: String(l.line_item_id) })),
   };
 }

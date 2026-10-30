@@ -656,3 +656,230 @@ create policy "casillero_api_keys: select" on public.casillero_api_keys for sele
 
 drop trigger if exists casillero_aud_inv_mov on public.casillero_inv_mov;
 create trigger casillero_aud_inv_mov after insert on public.casillero_inv_mov for each row execute function public.casillero_auditar();
+
+-- =======================================================================
+-- Pulido: alertas de stock, registro de eventos de integración, ventas de
+-- SKUs sin vincular que se aplican solas, y números para las gráficas
+-- =======================================================================
+
+alter table public.casillero_productos add column if not exists stock_minimo integer not null default 0 check (stock_minimo >= 0);
+
+-- La vista suma stock_minimo (al final: create or replace solo permite agregar columnas nuevas al final).
+create or replace view public.casillero_inventario with (security_invoker = true) as
+  select p.id, p.user_id, p.sku, p.nombre, p.descripcion, p.imagen_url, p.created_at,
+    coalesce(sum(m.cantidad) filter (where m.tipo in ('ingreso','devolucion') or (m.tipo = 'ajuste' and m.cantidad > 0)), 0)::int as total_unidades,
+    coalesce(sum(m.cantidad), 0)::int as disponibles,
+    coalesce(-sum(m.cantidad) filter (where m.tipo = 'venta'), 0)::int as vendidos,
+    case when coalesce(sum(m.cantidad) filter (where m.tipo in ('ingreso','devolucion') or (m.tipo = 'ajuste' and m.cantidad > 0)), 0) > 0
+      then round(100.0 * coalesce(-sum(m.cantidad) filter (where m.tipo = 'venta'), 0)
+           / sum(m.cantidad) filter (where m.tipo in ('ingreso','devolucion') or (m.tipo = 'ajuste' and m.cantidad > 0)), 1)
+      else 0 end as rotacion,
+    p.stock_minimo
+  from public.casillero_productos p
+  left join public.casillero_inv_mov m on m.producto_id = p.id
+  group by p.id;
+
+-- Lo que pasó con cada tienda: avisos recibidos, importaciones, errores, y
+-- las líneas de pedido cuyo SKU todavía no existe en el casillero.
+create table if not exists public.casillero_integracion_eventos (
+  id bigint generated always as identity primary key,
+  integracion_id uuid references public.casillero_integraciones (id) on delete cascade,
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  tipo text not null check (tipo in ('conexion','webhook','importar','sync','error','sin_producto')),
+  resumen text not null,
+  detalle jsonb,
+  resuelto boolean not null default false,
+  created_at timestamptz not null default now()
+);
+create index if not exists casillero_ie_integracion_idx on public.casillero_integracion_eventos (integracion_id, created_at desc);
+create index if not exists casillero_ie_pendientes_idx on public.casillero_integracion_eventos (user_id, tipo) where not resuelto;
+alter table public.casillero_integracion_eventos enable row level security;
+drop policy if exists "casillero_ie: select" on public.casillero_integracion_eventos;
+create policy "casillero_ie: select" on public.casillero_integracion_eventos for select using (user_id = auth.uid() or public.casillero_es_staff());
+
+-- Cuando el cliente crea (o importa) un producto, las ventas que llegaron antes
+-- con ese SKU se aplican solas, una sola vez (ref_externa es única).
+create or replace function public.casillero_aplicar_pendientes() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare r record;
+begin
+  for r in select id, detalle from public.casillero_integracion_eventos
+           where user_id = new.user_id and tipo = 'sin_producto' and not resuelto and detalle ->> 'sku' = new.sku loop
+    insert into public.casillero_inv_mov (producto_id, user_id, tipo, cantidad, origen, referencia, ref_externa)
+    values (new.id, new.user_id, coalesce(r.detalle ->> 'tipo', 'venta'), (r.detalle ->> 'cantidad')::int,
+            coalesce(r.detalle ->> 'origen', 'api'), r.detalle ->> 'referencia', r.detalle ->> 'ref_externa')
+    on conflict (ref_externa) do nothing;
+    update public.casillero_integracion_eventos set resuelto = true where id = r.id;
+  end loop;
+  return new;
+end $$;
+revoke execute on function public.casillero_aplicar_pendientes() from public, anon, authenticated;
+drop trigger if exists casillero_pendientes_t on public.casillero_productos;
+create trigger casillero_pendientes_t after insert on public.casillero_productos for each row execute function public.casillero_aplicar_pendientes();
+
+create or replace view public.casillero_skus_sin_producto with (security_invoker = true) as
+  select user_id, detalle ->> 'sku' as sku, count(*)::int as pedidos,
+         sum(abs((detalle ->> 'cantidad')::int))::int as unidades, max(created_at) as ultima
+  from public.casillero_integracion_eventos
+  where tipo = 'sin_producto' and not resuelto
+  group by user_id, detalle ->> 'sku';
+
+-- Stock bajo: avisa una vez, cuando cruza el mínimo hacia abajo.
+create or replace function public.casillero_stock_alerta() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare p record; disp integer;
+begin
+  select * into p from public.casillero_productos where id = new.producto_id;
+  if p.stock_minimo > 0 then
+    select coalesce(sum(cantidad), 0) into disp from public.casillero_inv_mov where producto_id = new.producto_id;
+    if disp <= p.stock_minimo and disp - new.cantidad > p.stock_minimo then
+      insert into public.notifications (user_id, type, title, body, link)
+      values (p.user_id, 'casillero_stock', 'Stock bajo: ' || p.sku,
+              p.nombre || ' tiene ' || disp || ' unidades (mínimo ' || p.stock_minimo || ').', '/casillero/inventario');
+    end if;
+  end if;
+  return new;
+end $$;
+revoke execute on function public.casillero_stock_alerta() from public, anon, authenticated;
+drop trigger if exists casillero_stock_alerta_t on public.casillero_inv_mov;
+create trigger casillero_stock_alerta_t after insert on public.casillero_inv_mov for each row execute function public.casillero_stock_alerta();
+
+-- ---- Números del portal del cliente (una sola consulta para el inicio) ----
+create or replace function public.casillero_resumen_cliente() returns jsonb
+language plpgsql stable security invoker set search_path = public as $$
+declare uid uuid := auth.uid(); base numeric; r jsonb;
+begin
+  if uid is null then raise exception 'No autenticado'; end if;
+  select coalesce(sum(monto), 0) into base from public.casillero_wallet
+    where user_id = uid and estado = 'aprobado' and created_at < current_date - 29;
+  select jsonb_build_object(
+    'saldo', (select coalesce(sum(monto), 0) from public.casillero_wallet where user_id = uid and estado = 'aprobado'),
+    'recargas_pendientes', (select coalesce(sum(monto), 0) from public.casillero_wallet where user_id = uid and tipo = 'recarga' and estado = 'pendiente'),
+    'paquetes', (select coalesce(jsonb_object_agg(estado, n), '{}'::jsonb) from (select estado, count(*) n from public.casillero_paquetes where user_id = uid group by estado) x),
+    'gasto_6m', (select coalesce(jsonb_agg(jsonb_build_object('mes', to_char(m, 'YYYY-MM'), 'gasto', coalesce(g.v, 0), 'recargas', coalesce(rc.v, 0)) order by m), '[]'::jsonb)
+      from generate_series(date_trunc('month', current_date) - interval '5 months', date_trunc('month', current_date), interval '1 month') m
+      left join (select date_trunc('month', created_at) mes, -sum(monto) v from public.casillero_wallet where user_id = uid and tipo = 'cargo' and estado = 'aprobado' group by 1) g on g.mes = m
+      left join (select date_trunc('month', created_at) mes, sum(monto) v from public.casillero_wallet where user_id = uid and tipo = 'recarga' and estado = 'aprobado' group by 1) rc on rc.mes = m),
+    'saldo_serie', (select coalesce(jsonb_agg(jsonb_build_object('dia', dia, 'saldo', saldo) order by dia), '[]'::jsonb) from (
+      select d::date dia, base + sum(coalesce(w.delta, 0)) over (order by d) saldo
+      from generate_series(current_date - 29, current_date, interval '1 day') d
+      left join (select created_at::date dia, sum(monto) delta from public.casillero_wallet where user_id = uid and estado = 'aprobado' and created_at >= current_date - 29 group by 1) w on w.dia = d::date) s),
+    'ventas_30d', (select coalesce(jsonb_agg(jsonb_build_object('dia', d::date, 'shopify', coalesce(v.shopify, 0), 'woocommerce', coalesce(v.woo, 0), 'api', coalesce(v.api, 0), 'manual', coalesce(v.manual, 0)) order by d), '[]'::jsonb)
+      from generate_series(current_date - 29, current_date, interval '1 day') d
+      left join (select created_at::date dia,
+          -coalesce(sum(cantidad) filter (where origen = 'shopify'), 0) shopify,
+          -coalesce(sum(cantidad) filter (where origen = 'woocommerce'), 0) woo,
+          -coalesce(sum(cantidad) filter (where origen = 'api'), 0) api,
+          -coalesce(sum(cantidad) filter (where origen in ('manual', 'bodega')), 0) manual
+        from public.casillero_inv_mov where user_id = uid and tipo = 'venta' and created_at >= current_date - 29 group by 1) v on v.dia = d::date),
+    'top_productos', (select coalesce(jsonb_agg(t), '[]'::jsonb) from (
+      select p.sku, p.nombre, (-sum(m.cantidad))::int vendidos
+      from public.casillero_inv_mov m join public.casillero_productos p on p.id = m.producto_id
+      where m.user_id = uid and m.tipo = 'venta' and m.created_at >= current_date - 29
+      group by p.sku, p.nombre order by 3 desc limit 5) t),
+    'stock_bajo', (select coalesce(jsonb_agg(t), '[]'::jsonb) from (
+      select sku, nombre, disponibles, stock_minimo from public.casillero_inventario
+      where user_id = uid and ((stock_minimo > 0 and disponibles <= stock_minimo) or (disponibles <= 0 and vendidos > 0))
+      order by disponibles limit 10) t),
+    'sin_vincular', (select count(*) from public.casillero_skus_sin_producto where user_id = uid),
+    'onboarding', jsonb_build_object(
+      'prealerta', exists (select 1 from public.casillero_paquetes where user_id = uid),
+      'wallet', exists (select 1 from public.casillero_wallet where user_id = uid and tipo = 'recarga' and estado = 'aprobado'),
+      'productos', exists (select 1 from public.casillero_productos where user_id = uid),
+      'tienda', exists (select 1 from public.casillero_integraciones where user_id = uid),
+      'stock', exists (select 1 from public.casillero_inv_mov where user_id = uid and tipo = 'ingreso')),
+    'actividad', (select coalesce(jsonb_agg(a order by (a ->> 'fecha') desc), '[]'::jsonb) from (
+      (select jsonb_build_object('tipo', 'paquete', 'titulo', 'Paquete ' || e.estado, 'detalle', p.guia, 'fecha', e.created_at) a
+         from public.casillero_eventos e join public.casillero_paquetes p on p.id = e.paquete_id where p.user_id = uid order by e.created_at desc limit 6)
+      union all
+      (select jsonb_build_object('tipo', 'wallet', 'titulo', case tipo when 'recarga' then 'Recarga ' || estado when 'cargo' then 'Cobro de despacho' else 'Ajuste de saldo' end, 'detalle', monto::text, 'fecha', created_at)
+         from public.casillero_wallet where user_id = uid order by created_at desc limit 6)
+      union all
+      (select jsonb_build_object('tipo', 'stock', 'titulo', case m.tipo when 'venta' then 'Venta' when 'ingreso' then 'Ingreso a bodega' when 'devolucion' then 'Devolución' else 'Ajuste' end || ' · ' || p.sku, 'detalle', m.cantidad::text, 'fecha', m.created_at)
+         from public.casillero_inv_mov m join public.casillero_productos p on p.id = m.producto_id where m.user_id = uid order by m.created_at desc limit 6)
+    ) u limit 10)
+  ) into r;
+  return r;
+end $$;
+grant execute on function public.casillero_resumen_cliente() to authenticated;
+revoke execute on function public.casillero_resumen_cliente() from public, anon;
+
+-- Análisis de inventario del cliente: serie diaria, ventas por origen y días de cobertura por producto.
+create or replace function public.casillero_inv_analisis(p_dias integer default 30) returns jsonb
+language plpgsql stable security invoker set search_path = public as $$
+declare uid uuid := auth.uid(); dias integer := greatest(1, least(coalesce(p_dias, 30), 365));
+begin
+  if uid is null then raise exception 'No autenticado'; end if;
+  return jsonb_build_object(
+    'dias', dias,
+    'serie', (select coalesce(jsonb_agg(jsonb_build_object('dia', d::date, 'ventas', coalesce(m.v, 0), 'ingresos', coalesce(m.i, 0), 'devoluciones', coalesce(m.dv, 0)) order by d), '[]'::jsonb)
+      from generate_series(current_date - (dias - 1), current_date, interval '1 day') d
+      left join (select created_at::date dia, -coalesce(sum(cantidad) filter (where tipo = 'venta'), 0) v,
+                        coalesce(sum(cantidad) filter (where tipo = 'ingreso'), 0) i, coalesce(sum(cantidad) filter (where tipo = 'devolucion'), 0) dv
+                 from public.casillero_inv_mov where user_id = uid and created_at >= current_date - (dias - 1) group by 1) m on m.dia = d::date),
+    'por_origen', (select coalesce(jsonb_agg(jsonb_build_object('origen', origen, 'unidades', u) order by u desc), '[]'::jsonb) from (
+      select origen, (-sum(cantidad))::int u from public.casillero_inv_mov
+      where user_id = uid and tipo = 'venta' and created_at >= current_date - (dias - 1) group by origen) o),
+    'productos', (select coalesce(jsonb_agg(jsonb_build_object('id', i.id, 'vendidas', coalesce(v.u, 0),
+        'cobertura_dias', case when coalesce(v.u, 0) > 0 and i.disponibles > 0 then round(i.disponibles::numeric / (v.u::numeric / dias), 0) end)), '[]'::jsonb)
+      from public.casillero_inventario i
+      left join (select producto_id, (-sum(cantidad))::int u from public.casillero_inv_mov
+                 where user_id = uid and tipo = 'venta' and created_at >= current_date - (dias - 1) group by producto_id) v on v.producto_id = i.id
+      where i.user_id = uid));
+end $$;
+grant execute on function public.casillero_inv_analisis(integer) to authenticated;
+revoke execute on function public.casillero_inv_analisis(integer) from public, anon;
+
+-- ---- Números del portal del administrador (reemplaza la versión anterior; mantiene sus claves) ----
+create or replace function public.casillero_stats() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare r jsonb;
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  select jsonb_build_object(
+    'clientes', (select count(*) from public.profiles where role = 'cliente'),
+    'clientes_nuevos_30d', (select count(*) from public.profiles where role = 'cliente' and created_at > now() - interval '30 days'),
+    'bloqueados', (select count(*) from public.profiles where casillero_bloqueado),
+    'paquetes', (select coalesce(jsonb_object_agg(estado, n), '{}'::jsonb) from (select estado, count(*) n from public.casillero_paquetes group by estado) x),
+    'despachos', (select coalesce(jsonb_object_agg(estado, n), '{}'::jsonb) from (select estado, count(*) n from public.casillero_despachos group by estado) x),
+    'recargas_pendientes', (select count(*) from public.casillero_wallet where tipo = 'recarga' and estado = 'pendiente'),
+    'recargas_pendientes_usd', (select coalesce(sum(monto), 0) from public.casillero_wallet where tipo = 'recarga' and estado = 'pendiente'),
+    'saldo_total_wallets', (select coalesce(sum(monto), 0) from public.casillero_wallet where estado = 'aprobado'),
+    'ingresos_30d', (select coalesce(-sum(monto), 0) from public.casillero_wallet where tipo = 'cargo' and estado = 'aprobado' and created_at > now() - interval '30 days'),
+    'recargado_30d', (select coalesce(sum(monto), 0) from public.casillero_wallet where tipo = 'recarga' and estado = 'aprobado' and created_at > now() - interval '30 days'),
+    'serie_30d', (select coalesce(jsonb_agg(jsonb_build_object('dia', d::date, 'ingresos', coalesce(i.v, 0), 'paquetes', coalesce(p.n, 0)) order by d), '[]'::jsonb)
+                  from generate_series(current_date - 29, current_date, interval '1 day') d
+                  left join (select created_at::date dia, -sum(monto) v from public.casillero_wallet where tipo = 'cargo' and estado = 'aprobado' group by 1) i on i.dia = d::date
+                  left join (select created_at::date dia, count(*) n from public.casillero_paquetes group by 1) p on p.dia = d::date),
+    'ingresos_6m', (select coalesce(jsonb_agg(jsonb_build_object('mes', to_char(m, 'YYYY-MM'), 'ingresos', coalesce(g.v, 0), 'recargas', coalesce(rc.v, 0)) order by m), '[]'::jsonb)
+      from generate_series(date_trunc('month', current_date) - interval '5 months', date_trunc('month', current_date), interval '1 month') m
+      left join (select date_trunc('month', created_at) mes, -sum(monto) v from public.casillero_wallet where tipo = 'cargo' and estado = 'aprobado' group by 1) g on g.mes = m
+      left join (select date_trunc('month', created_at) mes, sum(monto) v from public.casillero_wallet where tipo = 'recarga' and estado = 'aprobado' group by 1) rc on rc.mes = m),
+    'top_clientes_30d', (select coalesce(jsonb_agg(t), '[]'::jsonb) from (
+      select pr.casillero_codigo codigo, pr.full_name nombre, -sum(w.monto) gasto
+      from public.casillero_wallet w join public.profiles pr on pr.id = w.user_id
+      where w.tipo = 'cargo' and w.estado = 'aprobado' and w.created_at > now() - interval '30 days'
+      group by pr.casillero_codigo, pr.full_name order by 3 desc limit 5) t),
+    'flujo_30d', (select coalesce(jsonb_agg(jsonb_build_object('dia', d::date, 'recibidos', coalesce(f.rec, 0), 'despachados', coalesce(f.des, 0)) order by d), '[]'::jsonb)
+      from generate_series(current_date - 29, current_date, interval '1 day') d
+      left join (select created_at::date dia, count(*) filter (where estado = 'recibido') rec, count(*) filter (where estado = 'despachado') des
+                 from public.casillero_eventos group by 1) f on f.dia = d::date),
+    'ventas_por_origen_30d', (select coalesce(jsonb_agg(jsonb_build_object('origen', origen, 'unidades', u) order by u desc), '[]'::jsonb) from (
+      select origen, (-sum(cantidad))::int u from public.casillero_inv_mov where tipo = 'venta' and created_at > now() - interval '30 days' group by origen) o),
+    'integraciones', jsonb_build_object(
+      'total', (select count(*) from public.casillero_integraciones),
+      'con_error', (select count(*) from public.casillero_integraciones where estado = 'error')),
+    'inventario', jsonb_build_object(
+      'productos', (select count(*) from public.casillero_productos),
+      'unidades', (select coalesce(sum(cantidad), 0) from public.casillero_inv_mov),
+      'stock_bajo', (select count(*) from public.casillero_inventario where (stock_minimo > 0 and disponibles <= stock_minimo))),
+    'cola', jsonb_build_object(
+      'por_recibir', (select count(*) from public.casillero_paquetes where estado = 'prealertado'),
+      'por_alistar', (select count(*) from public.casillero_despachos where estado = 'solicitado'),
+      'recargas', (select count(*) from public.casillero_wallet where tipo = 'recarga' and estado = 'pendiente'),
+      'sin_vincular', (select count(*) from public.casillero_skus_sin_producto))
+  ) into r;
+  return r;
+end $$;
+revoke execute on function public.casillero_stats() from public, anon;
+grant execute on function public.casillero_stats() to authenticated;
