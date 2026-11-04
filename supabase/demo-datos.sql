@@ -1,7 +1,8 @@
 -- Datos de ejemplo para mostrar el casillero (opcional).
 --
--- Correr DESPUÉS de registrarte en /casillero/registro. Cambia el correo de
--- abajo por el de tu cuenta. Crea productos, inventario, paquetes, un despacho
+-- Correr DESPUÉS de registrarte en /casillero/registro y hacerte administrador.
+-- Sin cambiar nada, usa tu cuenta de administrador; si prefieres otra, escribe
+-- su correo abajo. Crea productos, inventario, paquetes, un despacho
 -- y movimientos de wallet para ESA cuenta. Todo lleva "Ejemplo" en la
 -- referencia, para poder borrarlo:
 --
@@ -17,8 +18,14 @@ declare
   p uuid;
   d uuid;
 begin
-  select id into u from public.profiles where lower(email) = lower(v_email);
-  if u is null then raise exception 'No hay una cuenta con el correo %', v_email; end if;
+  -- Si dejaste el correo de ejemplo, se usa la cuenta administradora (rol vendedor).
+  if v_email = 'CAMBIA@TUCORREO.COM' then
+    select id into u from public.profiles where role = 'vendedor' order by created_at limit 1;
+    if u is null then raise exception 'Primero regístrate y hazte administrador (paso 5), o escribe aquí tu correo.'; end if;
+  else
+    select id into u from public.profiles where lower(email) = lower(v_email);
+    if u is null then raise exception 'No hay una cuenta con el correo %', v_email; end if;
+  end if;
 
   -- Productos con su inventario
   for p in
