@@ -3,6 +3,8 @@
 1. **SQL Editor → New query**: pega `schema.sql` y dale Run. Luego pega `casillero.sql` y Run.
    (Los dos se pueden correr más de una vez sin problema. Si prefieres un solo pegado,
    pega `schema.sql` y `casillero.sql` uno detrás del otro en la misma consulta.)
+   Si alguien ya se había registrado antes de instalarlo, el instalador le crea su ficha
+   (sin ficha, el portal muestra «No pudimos cargar tu perfil»).
 2. **Authentication → Providers → Email**: para una demo, desactiva "Confirm email"
    así el registro entra directo sin esperar un correo.
 3. **Authentication → URL Configuration**: en "Site URL" y "Redirect URLs" agrega la

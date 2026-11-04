@@ -28,6 +28,26 @@ alter table public.profiles add column if not exists es_empresa boolean not null
 update public.profiles set casillero_codigo = 'DM' || nextval('public.casillero_codigo_seq')
   where casillero_codigo is null;
 
+-- Ficha para quien ya tenía cuenta de acceso pero ninguna ficha: se registró
+-- antes de instalar esto, así que el disparador (handle_new_user, más abajo)
+-- todavía no existía y nadie se la creó. Sin ficha, el portal no abre.
+-- Usa los datos que dejó en el formulario de registro.
+insert into public.profiles (
+  id, email, full_name, company, casillero_codigo, telefono, tipo_doc, num_doc, direccion, pais,
+  departamento, ciudad, codigo_postal, como_nos_conocio, es_empresa
+)
+select u.id, u.email,
+  coalesce(u.raw_user_meta_data ->> 'full_name', u.raw_user_meta_data ->> 'name'),
+  u.raw_user_meta_data ->> 'company',
+  'DM' || nextval('public.casillero_codigo_seq'),
+  u.raw_user_meta_data ->> 'telefono', u.raw_user_meta_data ->> 'tipo_doc', u.raw_user_meta_data ->> 'num_doc',
+  u.raw_user_meta_data ->> 'direccion', u.raw_user_meta_data ->> 'pais', u.raw_user_meta_data ->> 'departamento',
+  u.raw_user_meta_data ->> 'ciudad', u.raw_user_meta_data ->> 'codigo_postal', u.raw_user_meta_data ->> 'como_nos_conocio',
+  coalesce((u.raw_user_meta_data ->> 'es_empresa')::boolean, false)
+from auth.users u
+where u.email is not null and not exists (select 1 from public.profiles p where p.id = u.id)
+on conflict do nothing;
+
 -- handle_new_user(): la misma función de schema.sql, más los campos del
 -- casillero. Lo que llega en raw_user_meta_data lo manda el formulario
 -- de registro; el rol sigue fijo en 'cliente'.

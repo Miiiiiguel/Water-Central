@@ -27,6 +27,7 @@ beforeEach(async () => {
   await db.exec(`
     create schema if not exists auth;
     create or replace function auth.uid() returns uuid language sql as $$ select nullif(current_setting('app.uid', true), '')::uuid $$;
+    create table auth.users (id uuid primary key default gen_random_uuid(), email text, raw_user_meta_data jsonb default '{}'::jsonb);
     create role anon; create role authenticated;
     create type public.user_role as enum ('cliente', 'vendedor');
     create table public.profiles (id uuid primary key, email text, full_name text, company text,
@@ -354,6 +355,19 @@ describe('wallet y despachos del casillero', () => {
     expect(await saldo()).toBe(25);
     expect((await db.query(`select 1 from public.casillero_paquetes where id = $1`, [p])).rows).toHaveLength(1);
     expect((await db.query(`select count(*)::int n from public.casillero_tarifas`)).rows[0]).toEqual({ n: 4 });
+  });
+
+  it('quien se registró antes de instalar el SQL recibe su ficha al instalarlo', async () => {
+    const C = '33333333-3333-3333-3333-333333333333';
+    await db.query(`insert into auth.users (id, email, raw_user_meta_data) values ($1, 'c@x.com', '{"full_name":"Carla Pérez","telefono":"3001112233","ciudad":"Cali","es_empresa":true}')`, [C]);
+    await db.exec(sql); // el dueño pega el SQL después de que Carla ya se registró
+    const r = (await db.query<{ email: string; role: string; casillero_codigo: string; full_name: string; telefono: string; ciudad: string; es_empresa: boolean }>(
+      `select email, role, casillero_codigo, full_name, telefono, ciudad, es_empresa from public.profiles where id = $1`, [C])).rows[0];
+    expect(r).toMatchObject({ email: 'c@x.com', role: 'cliente', full_name: 'Carla Pérez', telefono: '3001112233', ciudad: 'Cali', es_empresa: true });
+    expect(r.casillero_codigo).toMatch(/^DM\d{4,}$/);
+    await db.exec(sql); // y no se duplica ni cambia al volver a correrlo
+    expect((await db.query(`select 1 from public.profiles where id = $1`, [C])).rows).toHaveLength(1);
+    expect((await db.query<{ casillero_codigo: string }>(`select casillero_codigo from public.profiles where id = $1`, [C])).rows[0].casillero_codigo).toBe(r.casillero_codigo);
   });
 
   it('el código de casillero no lo cambia el dueño', async () => {
