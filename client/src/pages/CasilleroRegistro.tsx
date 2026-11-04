@@ -63,7 +63,7 @@ export default function CasilleroRegistro() {
       {ok && <p className="mb-5 flex items-start gap-2 rounded-2xl border border-green-100 bg-green-50 p-3.5 text-sm text-green-700"><CheckCircle size={17} className="mt-0.5 shrink-0" />¡Cuenta creada! Si te pedimos confirmar el correo, revisa tu bandeja y luego ingresa.</p>}
       <div id="registro-errores">{(errores.general || (hayErrores && !errores.general)) && <p role="alert" className="mb-5 rounded-2xl border border-red-100 bg-red-50 p-3.5 text-sm text-red-700">{errores.general ?? 'Revisa los campos marcados.'}</p>}</div>
 
-      <GoogleButton idioma="es" onError={(m) => setErrores({ general: m })} />
+      <GoogleButton idioma="es" destino="/casillero" onError={(m) => setErrores({ general: m })} />
 
       <form onSubmit={(e) => void enviar(e)} className="space-y-4" noValidate>
         <div className="flex items-center justify-between pt-1"><h2 className="font-heading text-lg font-black text-primary">Datos personales</h2><label className="flex cursor-pointer items-center gap-2 text-sm font-semibold"><input type="checkbox" className="accent-[#FF5A36]" checked={esEmpresa} onChange={(e) => setEsEmpresa(e.target.checked)} />Soy una empresa</label></div>

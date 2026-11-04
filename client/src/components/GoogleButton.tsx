@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { isNative } from '@/lib/native';
+import { accountsKey, accountsUrl } from '@/lib/supabase';
+import { googleActivo } from '@/lib/oauthReturn';
 
 function GoogleLogo() {
   return (
@@ -15,20 +17,32 @@ function GoogleLogo() {
   );
 }
 
-export default function GoogleButton({ onError, idioma }: { onError: (message: string) => void; idioma?: 'es' | 'en' }) {
+export default function GoogleButton({ onError, idioma, destino }: { onError: (message: string) => void; idioma?: 'es' | 'en'; destino?: string }) {
   const { signInWithGoogle } = useAuth();
   const { language: global } = useLanguage();
   const language = idioma ?? global; // el casillero siempre va en español
   const [loading, setLoading] = useState(false);
+  // Si el proyecto de Supabase no tiene Google activado, el botón llevaría a un
+  // error en blanco. Se pregunta una vez y solo se esconde si dice que está apagado.
+  const [disponible, setDisponible] = useState(true);
+  useEffect(() => {
+    if (!accountsUrl || !accountsKey) return;
+    const ctl = new AbortController();
+    fetch(`${accountsUrl}/auth/v1/settings`, { headers: { apikey: accountsKey }, signal: ctl.signal })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((s) => setDisponible(googleActivo(s)))
+      .catch(() => undefined);
+    return () => ctl.abort();
+  }, []);
 
   // Google refuses OAuth inside embedded WebViews ("disallowed_useragent"),
   // so inside the iOS/Android app this would only ever show an error.
   // Native Google Sign-In is a separate integration — see APP_STORE.md.
-  if (isNative) return null;
+  if (isNative || !disponible) return null;
 
   const handleClick = async () => {
     setLoading(true);
-    const { error } = await signInWithGoogle();
+    const { error } = await signInWithGoogle(destino);
     // On success the browser navigates away to Google; we only get here on failure.
     if (error) {
       onError(error);

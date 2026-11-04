@@ -6,7 +6,7 @@ import { getStoredReferralCode, clearStoredReferralCode } from '@/lib/referral';
 import { getMfaStatus } from '@/lib/mfa';
 import { authErrorLog, authErrorMessage, classifyAuthError, errorDetail } from '@/lib/authErrors';
 import { hostOf, probeAccountsHost, probeMessage } from '@/lib/accountsProbe';
-import { captureOAuthError } from '@/lib/oauthReturn';
+import { captureOAuthError, rutaInterna } from '@/lib/oauthReturn';
 
 interface AuthContextType {
   session: Session | null;
@@ -19,7 +19,7 @@ interface AuthContextType {
   refreshMfa: () => Promise<void>;
   signUp: (email: string, password: string, fullName: string, company: string, extra?: Record<string, string | boolean>) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signInWithGoogle: () => Promise<{ error: string | null }>;
+  signInWithGoogle: (destino?: string) => Promise<{ error: string | null }>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
   updatePassword: (password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
@@ -255,7 +255,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signInWithGoogle: AuthContextType['signInWithGoogle'] = async () => {
+  const signInWithGoogle: AuthContextType['signInWithGoogle'] = async (destino) => {
     if (!isSupabaseConfigured) return { error: supabaseConfigProblem() ?? 'La conexión con el sistema de cuentas no está configurada.' };
     // Sin este try, una excepción acá dejaba el botón de Google girando
     // para siempre y sin una palabra de por qué.
@@ -263,7 +263,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { error } = await (await getSupabase()).auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}${rutaInterna(destino)}`,
           queryParams: { access_type: 'offline', prompt: 'select_account' },
         },
       });
