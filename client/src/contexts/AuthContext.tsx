@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import type { Session, User } from '@supabase/supabase-js';
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
+import type { Session, SupabaseClient, User } from '@supabase/supabase-js';
 import { accountsUrl, getSupabase, hasSessionToRestore, isSupabaseConfigured, supabaseConfigProblem, Profile } from '@/lib/supabase';
 import { trackSignUp } from '@/lib/analytics';
 import { getStoredReferralCode, clearStoredReferralCode } from '@/lib/referral';
@@ -59,9 +59,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [mfaRequired, setMfaRequired] = useState(false);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string, reintento = true): Promise<void> => {
     const { data } = await (await getSupabase()).from('profiles').select('*').eq('id', userId).single();
     setProfile((data as Profile) ?? null);
+    // Un fallo pasajero de red no debe dejar a nadie sin perfil: un segundo intento.
+    if (!data && reintento) {
+      await new Promise((r) => setTimeout(r, 1500));
+      return fetchProfile(userId, false);
+    }
   };
 
   const refreshMfa = async () => {
@@ -81,6 +86,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!code) return;
     const { data } = await (await getSupabase()).rpc('apply_referral_code', { p_code: code });
     if (data === true) clearStoredReferralCode();
+  };
+
+  // Engancharse a los cambios de sesión, UNA sola vez.
+  //
+  // Quien llega sin sesión guardada no carga la librería al abrir la página
+  // (ver más abajo), así que nadie escuchaba. Entraba con su clave, la
+  // sesión quedaba guardada en el navegador, pero la app no se enteraba:
+  // las pantallas protegidas lo veían sin sesión y lo mandaban otra vez a
+  // «Ingresar». Por eso signIn y signUp se enganchan ANTES de pedir la
+  // sesión, y el montaje usa esta misma función.
+  const desuscribir = useRef<(() => void) | null>(null);
+  const suscribir = (supabase: SupabaseClient) => {
+    if (desuscribir.current) return;
+    const { data: listener } = supabase.auth.onAuthStateChange((event, newSession) => {
+      setSession(newSession);
+      if (newSession?.user) {
+        fetchProfile(newSession.user.id);
+        refreshMfa();
+        if (event === 'SIGNED_IN') applyPendingReferral().then(() => fetchProfile(newSession.user.id));
+      } else {
+        setProfile(null);
+        setMfaRequired(false);
+      }
+    });
+    desuscribir.current = () => listener.subscription.unsubscribe();
   };
 
   // Volver de Google con un error tiene que DECIRSE.
@@ -127,7 +157,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     };
 
-    let unsubscribe: (() => void) | null = null;
     let cancelled = false;
 
     getSupabase().then((supabase) => {
@@ -152,20 +181,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         done();
       });
 
-      const { data: listener } = supabase.auth.onAuthStateChange((event, newSession) => {
-        setSession(newSession);
-        if (newSession?.user) {
-          fetchProfile(newSession.user.id);
-          refreshMfa();
-          if (event === 'SIGNED_IN') applyPendingReferral().then(() => fetchProfile(newSession.user.id));
-        } else {
-          setProfile(null);
-          setMfaRequired(false);
-        }
-      });
-
-      if (cancelled) listener.subscription.unsubscribe();
-      else unsubscribe = () => listener.subscription.unsubscribe();
+      if (cancelled) return;
+      suscribir(supabase);
     }).catch((err) => {
       console.error('[auth] No se pudo cargar supabase-js:', err);
       done();
@@ -183,7 +200,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
       window.clearTimeout(timeout);
-      unsubscribe?.();
+      desuscribir.current?.();
+      desuscribir.current = null;
     };
   }, []);
 
@@ -191,6 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!isSupabaseConfigured) return { error: supabaseConfigProblem() ?? 'La conexión con el sistema de cuentas no está configurada.' };
     try {
       const supabase = await getSupabase();
+      suscribir(supabase);
       const { data, error } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
         password,
@@ -247,7 +266,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn: AuthContextType['signIn'] = async (email, password) => {
     if (!isSupabaseConfigured) return { error: supabaseConfigProblem() ?? 'La conexión con el sistema de cuentas no está configurada.' };
     try {
-      const { error } = await (await getSupabase()).auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+      const supabase = await getSupabase();
+      suscribir(supabase);
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
       return { error: error ? error.message : null };
     } catch (err) {
       console.error(...authErrorLog('signIn', classifyAuthError(err), err));

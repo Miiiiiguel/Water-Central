@@ -1,11 +1,11 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { LogOut, Menu, ShieldCheck, UserRound, X } from 'lucide-react';
+import { DatabaseZap, LogOut, Menu, ShieldCheck, UserRound, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import NotificationBell from '@/components/NotificationBell';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Logo, Skeleton, cn } from './ui';
+import { Boton, Logo, Skeleton, cn } from './ui';
 import { iniciales } from './format';
 
 // Marco de los dos portales. Escritorio: barra lateral. Celular: barra
@@ -27,6 +27,15 @@ export default function Shell({ variante, items, actual, titulo, children, pie }
   const [ruta, navigate] = useLocation();
   const [cajon, setCajon] = useState(false);
   const admin = variante === 'admin';
+  const [sinPerfil, setSinPerfil] = useState(false);
+  // Con sesión pero sin perfil: casi siempre es que la base de datos aún no tiene
+  // las tablas del casillero. Pasados unos segundos se dice, en vez de dejar la
+  // pantalla gris para siempre.
+  useEffect(() => {
+    if (!user || profile) { setSinPerfil(false); return; }
+    const t = window.setTimeout(() => setSinPerfil(true), 7000);
+    return () => window.clearTimeout(t);
+  }, [user, profile]);
 
   useEffect(() => { setCajon(false); }, [ruta]);
   useEffect(() => {
@@ -34,6 +43,16 @@ export default function Shell({ variante, items, actual, titulo, children, pie }
   }, [loading, user, navigate]);
   useEffect(() => { if (titulo) document.title = `${titulo} · Easycomex`; }, [titulo]);
 
+  if (user && !profile && sinPerfil) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-gray-50 px-4 text-center">
+        <DatabaseZap className="text-accent" size={40} />
+        <p className="font-heading text-xl font-black text-primary">No pudimos cargar tu perfil</p>
+        <p className="max-w-md text-sm text-muted-foreground">Tu sesión está iniciada, pero la base de datos no devolvió tu perfil. Si eres quien instaló el sistema, revisa que corriste <b>schema.sql</b> y <b>casillero.sql</b> en el SQL Editor de Supabase. Si no, intenta de nuevo en un minuto.</p>
+        <div className="mt-2 flex gap-2"><Boton variante="primario" onClick={() => window.location.reload()}>Reintentar</Boton><Boton onClick={() => void signOut().then(() => navigate('/login'))}>Salir</Boton></div>
+      </div>
+    );
+  }
   if (loading || !user || !profile) return <div className="min-h-screen bg-gray-50 p-6"><Skeleton className="h-16 w-full rounded-3xl" /><Skeleton className="mt-6 h-96 w-full rounded-3xl" /></div>;
   if (admin && profile.role !== 'vendedor') {
     return (
