@@ -1,5 +1,6 @@
 import { AlertTriangle, RotateCcw } from "lucide-react";
 import { Component, ErrorInfo, ReactNode } from "react";
+import { esErrorDeCarga, recargarLimpio } from "@/lib/errorCarga";
 
 interface Props {
   children: ReactNode;
@@ -39,7 +40,9 @@ class ErrorBoundary extends Component<Props, State> {
             </span>
             <h2 className="text-xl font-black text-primary mb-2">Algo salió mal</h2>
             <p className="text-sm text-muted-foreground mb-6">
-              Ya quedó registrado para revisarlo. Recargá la página para seguir.
+              {esErrorDeCarga(this.state.error)
+                ? "Publicamos una versión nueva mientras tenías la página abierta. Recargá para ver la última."
+                : "Ya quedó registrado para revisarlo. Recargá la página para seguir."}
             </p>
             {import.meta.env.DEV && this.state.error && (
               <pre className="w-full text-left text-xs text-muted-foreground bg-muted rounded-xl p-3 overflow-auto mb-6 max-h-48">
@@ -47,7 +50,7 @@ class ErrorBoundary extends Component<Props, State> {
               </pre>
             )}
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => (esErrorDeCarga(this.state.error) ? void recargarLimpio() : window.location.reload())}
               className="tap-scale inline-flex items-center gap-2 px-6 py-3 rounded-full bg-accent hover:bg-accent/90 text-white font-bold border-0 cursor-pointer"
             >
               <RotateCcw size={16} />
