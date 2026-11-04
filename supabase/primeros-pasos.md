@@ -17,8 +17,12 @@
    solo (2 a 3 minutos). Espera a que diga **Live** antes de probar.
 5. Regístrate en `/casillero/registro` y hazte administrador:
    ```sql
-   update public.profiles set role = 'vendedor' where email = 'tu@correo.com';
+   update public.profiles set role = 'vendedor'
+   where lower(email) = lower('tu@correo.com')
+   returning email, role, casillero_codigo;
    ```
+   Debe devolver **una fila** con `role = vendedor`. Si devuelve cero filas, el correo no
+   coincide (mira cuál quedó con `select email, role from public.profiles;`).
    Cierra sesión y vuelve a entrar; ahora `/admin/casillero` abre.
 6. (Opcional) Para la demo, pega `demo-datos.sql` tal cual: usa tu cuenta de administrador.
    Para borrarlo después, las instrucciones están al inicio del archivo.
