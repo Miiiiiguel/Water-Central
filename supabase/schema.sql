@@ -49,17 +49,37 @@ create policy "profiles: read own referrals"
   on public.profiles for select
   using (referred_by = auth.uid());
 
+-- Dos funciones que miran la tabla sin pasar por sus propias reglas.
+--
+-- Una política de `profiles` que consulta `profiles` se vuelve a evaluar a sí
+-- misma sin fin: Postgres corta con «infinite recursion detected in policy
+-- for relation "profiles"» y NADIE puede leer su propio perfil (el portal
+-- entero queda en «No pudimos cargar tu perfil»). Con SECURITY DEFINER la
+-- consulta corre con los permisos del dueño y no entra en ese ciclo.
+create or replace function public.es_vendedor()
+returns boolean
+language sql stable security definer set search_path = public
+as $$
+  select exists (select 1 from public.profiles where id = auth.uid() and role = 'vendedor');
+$$;
+revoke execute on function public.es_vendedor() from public, anon;
+grant execute on function public.es_vendedor() to authenticated;
+
+create or replace function public.mi_rol()
+returns public.user_role
+language sql stable security definer set search_path = public
+as $$
+  select role from public.profiles where id = auth.uid();
+$$;
+revoke execute on function public.mi_rol() from public, anon;
+grant execute on function public.mi_rol() to authenticated;
+
 -- Vendedores (internal team) can read every profile — needed for the
 -- client-list dashboard.
 drop policy if exists "profiles: vendedor reads all" on public.profiles;
 create policy "profiles: vendedor reads all"
   on public.profiles for select
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'vendedor'
-    )
-  );
+  using (public.es_vendedor());
 
 -- Users can update their own profile, but never their own role
 -- (role changes are an admin/SQL-only action, see step 4 above).
@@ -67,7 +87,7 @@ drop policy if exists "profiles: update own, role locked" on public.profiles;
 create policy "profiles: update own, role locked"
   on public.profiles for update
   using (auth.uid() = id)
-  with check (auth.uid() = id and role = (select role from public.profiles where id = auth.uid()));
+  with check (auth.uid() = id and role = public.mi_rol());
 
 drop policy if exists "profiles: insert own" on public.profiles;
 create policy "profiles: insert own"
