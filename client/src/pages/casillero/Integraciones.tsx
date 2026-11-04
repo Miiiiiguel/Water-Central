@@ -1,11 +1,12 @@
-import { ReactNode, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'wouter';
 import { toast } from 'sonner';
-import { AlertTriangle, ArrowRight, CheckCircle2, CircleAlert, Download, KeyRound, Plug, RefreshCw, Send, ShoppingBag, Stethoscope, Store, Trash2, Unplug, Wrench, XCircle } from 'lucide-react';
+import { AlertTriangle, ArrowRight, CheckCircle2, CircleAlert, Download, ExternalLink, KeyRound, Plug, RefreshCw, Send, ShoppingBag, Stethoscope, Store, Trash2, Unplug, Wrench, XCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Aparece, Boton, BotonCopiar, Campo, Card, Entrada, EstadoVacio, Etiqueta, Modal, Seccion, Segmentos, Skeleton, useAsync, useConfirmar, cn } from '@/portal/ui';
 import DataTable, { type Columna } from '@/portal/DataTable';
 import { fechaHora, hace } from '@/portal/format';
+import { useDatos } from '@/portal/datos';
 import { api, db } from '@/lib/casillero';
 import type { Chequeo, EventoIntegracion, Integracion, LlaveApi } from '@/lib/inventario';
 
@@ -19,6 +20,18 @@ const META: Record<Plataforma, { nombre: string; color: string; icono: typeof St
   woocommerce: { nombre: 'WordPress (WooCommerce)', color: '#7F54B3', icono: Store },
 };
 const corto = (dominio: string) => dominio.replace(/^https?:\/\//, '');
+
+// Lo que el servidor manda de vuelta tras «Conectar con Shopify» es solo un código; aquí se explica.
+const MOTIVOS: Record<string, string> = {
+  config: 'Conectar con un clic todavía no está listo en el servidor. Avísale al equipo de Easycomex.',
+  hmac: 'No pudimos confirmar que la respuesta viniera de Shopify. Intenta de nuevo desde aquí.',
+  estado: 'La solicitud no es válida. Vuelve a pulsar «Conectar con Shopify».',
+  vencido: 'La autorización tardó demasiado y venció. Vuelve a pulsar «Conectar con Shopify».',
+  tienda: 'La tienda que aprobaste no coincide con la que escribiste. Intenta de nuevo con el dominio correcto.',
+  permisos: 'Faltaron permisos. Easycomex necesita leer tus productos y pedidos y manejar el inventario: acepta todos los permisos al conectar.',
+  ocupada: 'Esa tienda ya está conectada a otra cuenta de Easycomex. Si es tuya, escríbenos y la liberamos.',
+  shopify: 'Shopify no completó la conexión. Intenta de nuevo; si se repite, usa «Ya tengo un token» o escríbenos.',
+};
 
 function Logo({ p, g = false }: { p: Plataforma; g?: boolean }) {
   const { icono: I, color } = META[p];
@@ -44,8 +57,10 @@ async function cargarTodo() {
 
 export default function Integraciones() {
   const { getAccessToken } = useAuth();
+  const { servidor } = useDatos();
   const confirmar = useConfirmar();
   const d = useAsync(cargarTodo, []);
+  const [problema, setProblema] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState<string | null>(null);
   const [conectar, setConectar] = useState<Plataforma | null>(null);
   const [chequeos, setChequeos] = useState<Record<string, Chequeo[]>>({});
@@ -62,6 +77,28 @@ export default function Integraciones() {
     if (!r.ok) { toast.error(r.message ?? `Error: ${r.error}`); await d.recargar(); return null; }
     return r.data;
   };
+
+  // Al volver de Shopify la dirección trae el resultado: se muestra, se limpia la
+  // barra y, si se conectó una tienda nueva, se trae su catálogo.
+  const volvio = useRef(false);
+  useEffect(() => {
+    if (volvio.current) return;
+    volvio.current = true;
+    const q = new URLSearchParams(window.location.search);
+    const r = q.get('shopify');
+    if (!r) return;
+    window.history.replaceState(null, '', window.location.pathname);
+    if (r !== 'ok') { setProblema(MOTIVOS[q.get('motivo') ?? ''] ?? MOTIVOS.shopify); return; }
+    const id = q.get('id');
+    void (async () => {
+      await d.recargar();
+      if (q.get('reconectada') === '1' || !id) { toast.success('Shopify reconectado', { description: 'Renovamos el permiso y los avisos de tu tienda.' }); return; }
+      const imp = await llamar<{ nuevos: number; existentes: number }>(`imp-${id}`, `/inventario/integraciones/${id}/importar`);
+      if (imp) toast.success('¡Shopify conectado!', { description: `Importamos ${imp.nuevos} productos. Ahora cada venta bajará tu stock sola.` });
+      await d.recargar();
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const probar = async (i: Integracion) => {
     const r = await llamar<{ chequeos: Chequeo[] }>(`dx-${i.id}`, `/inventario/integraciones/${i.id}/diagnostico`);
@@ -110,6 +147,14 @@ export default function Integraciones() {
     <div className="space-y-6">
       <div><h1 className="font-heading text-2xl font-black text-primary md:text-3xl">Integraciones</h1><p className="mt-1 max-w-2xl text-sm text-muted-foreground">Conecta tu tienda y tu inventario de la bodega se mueve solo con cada venta. Sin hojas de cálculo.</p></div>
 
+      {problema && (
+        <div role="alert" className="flex flex-wrap items-start gap-3 rounded-2xl border border-red-100 bg-red-50 p-4 text-sm text-red-700">
+          <XCircle size={18} className="mt-0.5 shrink-0" /><span className="min-w-0 flex-1 font-semibold">{problema}</span>
+          <Boton chico variante="peligro" onClick={() => { setProblema(null); setConectar('shopify'); }}>Intentar de nuevo</Boton>
+          <button type="button" onClick={() => setProblema(null)} className="cursor-pointer border-0 bg-transparent font-bold underline">Cerrar</button>
+        </div>
+      )}
+
       {d.error && <div className="rounded-2xl border border-red-100 bg-red-50 p-4 text-sm text-red-700">{d.error} <button onClick={() => void d.recargar()} className="ml-2 cursor-pointer border-0 bg-transparent font-bold underline">Reintentar</button></div>}
 
       <Aparece>
@@ -133,7 +178,7 @@ export default function Integraciones() {
             <div className="grid gap-4 md:grid-cols-2">
               {(['shopify', 'woocommerce'] as Plataforma[]).map((p) => (
                 <button key={p} type="button" onClick={() => setConectar(p)} className="tap-scale group flex cursor-pointer items-center gap-4 rounded-3xl border-2 border-dashed border-gray-200 bg-white p-5 text-left transition-colors hover:border-accent hover:bg-secondary/40">
-                  <Logo p={p} g /><div className="min-w-0 flex-1"><p className="font-heading text-lg font-black text-primary">{META[p].nombre}</p><p className="text-sm text-muted-foreground">{p === 'shopify' ? 'Conecta con una app personalizada de tu admin.' : 'Conecta con una clave de la API REST de WooCommerce.'}</p></div><ArrowRight className="shrink-0 text-gray-300 transition-transform group-hover:translate-x-1 group-hover:text-accent" />
+                  <Logo p={p} g /><div className="min-w-0 flex-1"><p className="font-heading text-lg font-black text-primary">{META[p].nombre}</p><p className="text-sm text-muted-foreground">{p === 'shopify' ? (servidor?.shopify ? 'Con un clic: apruebas en Shopify y listo.' : 'Conecta con una app personalizada de tu admin.') : 'Conecta con una clave de la API REST de WooCommerce.'}</p></div><ArrowRight className="shrink-0 text-gray-300 transition-transform group-hover:translate-x-1 group-hover:text-accent" />
                 </button>
               ))}
             </div>
@@ -200,7 +245,7 @@ export default function Integraciones() {
 
       <LlavesApi llaves={d.datos?.llaves ?? []} cargando={d.cargando} base={base} onCambio={d.recargar} />
 
-      <Conectar plataforma={conectar} onCerrar={() => setConectar(null)} onListo={async (id) => {
+      <Conectar plataforma={conectar} oauth={servidor?.shopify === true} onCerrar={() => setConectar(null)} onListo={async (id) => {
         setConectar(null);
         await d.recargar();
         const imp = await llamar<{ nuevos: number; existentes: number }>(`imp-${id}`, `/inventario/integraciones/${id}/importar`);
@@ -212,8 +257,10 @@ export default function Integraciones() {
 }
 
 /* ------------------------------ Conectar una tienda ------------------------------ */
-function Conectar({ plataforma, onCerrar, onListo }: { plataforma: Plataforma | null; onCerrar: () => void; onListo: (id: string) => Promise<void> }) {
+function Conectar({ plataforma, oauth, onCerrar, onListo }: { plataforma: Plataforma | null; oauth: boolean; onCerrar: () => void; onListo: (id: string) => Promise<void> }) {
   const { getAccessToken } = useAuth();
+  const [avanzado, setAvanzado] = useState(false);
+  useEffect(() => { if (plataforma === null) setAvanzado(false); }, [plataforma]);
   const [f, setF] = useState<Record<string, string>>({});
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
@@ -221,6 +268,16 @@ function Conectar({ plataforma, onCerrar, onListo }: { plataforma: Plataforma | 
   const campo = (k: string, etiqueta: string, ph: string, tipo = 'text', ayuda?: string) => (
     <Campo etiqueta={etiqueta} id={`c-${k}`} error={errores[k]} ayuda={ayuda}><Entrada id={`c-${k}`} type={tipo} autoComplete="off" spellCheck={false} placeholder={ph} value={f[k] ?? ''} onChange={(e) => { setF({ ...f, [k]: e.target.value }); setErrores({ ...errores, [k]: '' }); setError(null); }} aria-invalid={!!errores[k]} /></Campo>
   );
+
+  // «Conectar con Shopify»: el servidor arma la dirección de aprobación y el navegador va a Shopify.
+  const autorizar = async () => {
+    const dominio = (f.dominio ?? '').trim();
+    if (!/^(https?:\/\/)?[a-z0-9][a-z0-9-]*\.myshopify\.com\/?$/i.test(dominio)) { setErrores({ dominio: 'Debe ser tu-tienda.myshopify.com (el dominio interno de Shopify, no el de tu marca).' }); return; }
+    setOcupado(true); setError(null);
+    const r = await api<{ url: string }>('/inventario/integraciones/shopify/autorizar', getAccessToken(), { dominio });
+    if (!r.ok) { setOcupado(false); setError(r.message ?? 'No pudimos iniciar la conexión con Shopify. Intenta de nuevo.'); return; }
+    window.location.href = r.data.url;
+  };
 
   const enviar = async () => {
     if (!plataforma) return;
@@ -254,10 +311,29 @@ function Conectar({ plataforma, onCerrar, onListo }: { plataforma: Plataforma | 
     <>Copia la <b>Consumer key</b> (<code>ck_…</code>) y la <b>Consumer secret</b> (<code>cs_…</code>); se muestran una sola vez.</>,
   ];
 
+  const unClic = plataforma === 'shopify' && oauth && !avanzado;
+
   return (
-    <Modal abierto={plataforma !== null} onCerrar={onCerrar} titulo={plataforma ? `Conectar ${META[plataforma].nombre}` : ''} descripcion="Tus llaves se guardan cifradas y solo las usa el servidor." ancho="max-w-2xl">
-      {plataforma && (
+    <Modal abierto={plataforma !== null} onCerrar={onCerrar} titulo={plataforma ? `Conectar ${META[plataforma].nombre}` : ''} descripcion={unClic ? 'Apruebas en Shopify y volvemos aquí. No tienes que copiar ninguna llave.' : 'Tus llaves se guardan cifradas y solo las usa el servidor.'} ancho="max-w-2xl">
+      {unClic && (
         <div className="space-y-5">
+          <ol className="space-y-2.5 text-sm text-muted-foreground">
+            {[<>Escribe el dominio de tu tienda en Shopify.</>, <>Te llevamos a Shopify para que <b>apruebes los permisos</b>: leer productos y pedidos, y manejar el inventario.</>, <>Volvemos aquí, <b>importamos tu catálogo</b> y cada venta empieza a bajar tu stock.</>].map((t, i) => (
+              <li key={i} className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-black text-accent">{i + 1}</span><span className="[&_b]:text-primary">{t}</span></li>
+            ))}
+          </ol>
+          {campo('dominio', 'Dominio de tu tienda en Shopify', 'mi-tienda.myshopify.com', 'text', 'Es el que termina en .myshopify.com (Shopify → Configuración → Dominios). No el de tu marca.')}
+          {error && <p role="alert" className="flex items-start gap-2 rounded-2xl border border-red-100 bg-red-50 p-3.5 text-sm text-red-700"><XCircle size={17} className="mt-0.5 shrink-0" /><span>{error}</span></p>}
+          <p className="rounded-2xl bg-gray-50 p-3.5 text-xs text-muted-foreground"><b>No cambiamos el stock de tu tienda</b> a menos que tú lo actives después. Puedes quitar la conexión cuando quieras, desde aquí o desde Shopify.</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <button type="button" onClick={() => { setAvanzado(true); setError(null); }} className="cursor-pointer border-0 bg-transparent p-0 text-xs font-bold text-accent hover:underline">Ya tengo un token de Admin API</button>
+            <div className="flex gap-2"><Boton onClick={onCerrar}>Cancelar</Boton><Boton variante="primario" cargando={ocupado} onClick={() => void autorizar()} icono={<ExternalLink size={15} />}>Conectar con Shopify</Boton></div>
+          </div>
+        </div>
+      )}
+      {plataforma && !unClic && (
+        <div className="space-y-5">
+          {plataforma === 'shopify' && oauth && <button type="button" onClick={() => { setAvanzado(false); setError(null); }} className="cursor-pointer border-0 bg-transparent p-0 text-xs font-bold text-accent hover:underline">← Volver a conectar con un clic</button>}
           <ol className="space-y-2.5">{pasos.map((p, i) => <li key={i} className="flex gap-3 text-sm text-muted-foreground"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-black text-accent">{i + 1}</span><span className="[&_code]:rounded [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:text-[12px] [&_b]:text-primary">{p}</span></li>)}</ol>
           <div className="grid gap-4 sm:grid-cols-2">
             {plataforma === 'shopify' ? (<>

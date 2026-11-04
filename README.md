@@ -114,6 +114,16 @@ Son dos portales, con la misma cuenta:
   llave: `GET /api/v1/inventario`, `POST /api/v1/inventario/ventas`.
   Requiere `INTEGRATIONS_ENC_KEY` y `PUBLIC_APP_URL` (https). Código en
   `server/inventario/`.
+  **«Conectar con Shopify» en un clic**: el cliente escribe su dominio y aprueba en
+  Shopify; el servidor verifica la firma (`hmac`) y un `state` firmado de 10 minutos,
+  cambia el código por el token y deja todo conectado
+  (`server/inventario/shopifyOAuth.ts`, rutas `/api/inventario/integraciones/shopify/autorizar`
+  y `/api/inventario/shopify/callback`). Requiere la app de Easycomex creada en Shopify
+  (dev.shopify.com) y `SHOPIFY_CLIENT_ID` / `SHOPIFY_CLIENT_SECRET`; la pantalla
+  Admin → Configuración da los valores exactos que se pegan en Shopify. Una app de
+  distribución *personalizada* sirve para una tienda (o las de una organización Plus);
+  para que cualquier tienda conecte, la app debe ser *pública* y pasar la revisión de
+  Shopify. El método con token (`shpat_…`) sigue disponible como alternativa.
 - Configurable sin tocar código (Admin → Configuración / Tarifas / Anuncios):
   dirección de la bodega, valor declarado máximo, **recarga mínima**
   (`recarga_min_usd`, la lee el servidor), precio por libra extra y aviso fijo.

@@ -11,6 +11,7 @@ import { checkoutUrl, fetchTransaction, integritySignature, transactionPaysFor, 
 import { appUrl, emailConfigured, sendEmail } from '../email';
 import { avisoPaquete } from './correo';
 import { cifradoDisponible } from '../inventario/crypto';
+import { appShopify, urlRetorno } from '../inventario/shopifyOAuth';
 
 // El casillero de Easycomex.
 //
@@ -51,7 +52,7 @@ export const casilleroRouter = express.Router();
 // de la API autenticada de este módulo.
 // ---------------------------------------------------------------------
 casilleroRouter.post('/casillero/config', checkoutRateLimiter, requireUser(), async (_req, res) => {
-  res.json({ usdCop: USD_COP_RATE(), minUsd: await montoMinimoUsd(getSupabaseAdmin()), maxUsd: MONTO_MAX_USD, wompi: wompiConfigured() });
+  res.json({ usdCop: USD_COP_RATE(), minUsd: await montoMinimoUsd(getSupabaseAdmin()), maxUsd: MONTO_MAX_USD, wompi: wompiConfigured(), shopify: appShopify() !== null && cifradoDisponible() });
 });
 
 // ---------------------------------------------------------------------
@@ -59,7 +60,7 @@ casilleroRouter.post('/casillero/config', checkoutRateLimiter, requireUser(), as
 // (solo el equipo). Responde si cada pieza está configurada, nunca su valor.
 // ---------------------------------------------------------------------
 export function estadoDelSistema(host?: string, env: NodeJS.ProcessEnv = process.env) {
-  const publica = appUrl(host);
+  const publica = env.PUBLIC_APP_URL?.trim().replace(/\/$/, '') || appUrl(host);
   return {
     registro: Boolean(getSupabaseAdmin()),
     wompi: wompiConfigured(),
@@ -68,6 +69,8 @@ export function estadoDelSistema(host?: string, env: NodeJS.ProcessEnv = process
     wompiEntorno: env.WOMPI_ENV === 'production' ? 'production' : 'sandbox',
     correo: emailConfigured(),
     cifrado: cifradoDisponible(),
+    shopifyApp: appShopify(env) !== null,
+    shopifyRetorno: publica.startsWith('https://') ? urlRetorno(publica) : null,
     urlPublica: publica.startsWith('https://') ? publica : null,
     usdCop: USD_COP_RATE(),
   };

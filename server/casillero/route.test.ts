@@ -57,6 +57,12 @@ describe('estado del sistema', () => {
     expect(e.wompiEventos).toBe(true);
     expect(e.wompiLectura).toBe(false);
     expect(typeof e.registro).toBe('boolean');
+    expect(e.shopifyApp).toBe(false);
+    const con = estadoDelSistema(undefined, { SHOPIFY_CLIENT_ID: 'a', SHOPIFY_CLIENT_SECRET: 'b', PUBLIC_APP_URL: 'http://localhost:3000' } as NodeJS.ProcessEnv);
+    expect(con.shopifyApp).toBe(true);
+    expect(con.shopifyRetorno).toBeNull(); // sin https no hay dirección de retorno válida
+    expect(JSON.stringify(con)).not.toContain('"b"');
+    expect(e.shopifyRetorno).toBe('https://easycomex.co/api/inventario/shopify/callback');
     expect(JSON.stringify(e)).not.toContain('sek');
   });
 });

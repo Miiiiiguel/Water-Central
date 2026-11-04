@@ -6,7 +6,7 @@ import { api, db, saldoDe, type ConfigCasillero, type Despacho, type MovimientoW
 // secciones (cambiar de pestaña no vuelve a pedirlos). Se refrescan al
 // volver a la pestaña del navegador y después de cada acción.
 
-export interface ConfigServidor { usdCop: number; minUsd: number; maxUsd: number; wompi: boolean }
+export interface ConfigServidor { usdCop: number; minUsd: number; maxUsd: number; wompi: boolean; shopify: boolean }
 
 interface Datos {
   paquetes: Paquete[];

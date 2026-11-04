@@ -26,7 +26,9 @@ vi.mock('../monitoring', () => ({ captureException: () => undefined, captureSecu
 
 import { crearInventarioRouter } from './route';
 import { dbFalsa } from './testing';
-import { cifrar, hashLlave } from './crypto';
+import { cifrar, descifrar, hashLlave } from './crypto';
+import { crearEstado, leerEstado } from './shopifyOAuth';
+import { createHmac } from 'node:crypto';
 import * as shopify from './shopify';
 import * as woo from './woocommerce';
 
@@ -72,6 +74,8 @@ function sembrar() {
 
 beforeAll(async () => {
   process.env.INTEGRATIONS_ENC_KEY = CLAVE;
+  process.env.SHOPIFY_CLIENT_ID = 'cid-test';
+  process.env.SHOPIFY_CLIENT_SECRET = 'secreto-de-la-app';
   const app = express();
   app.use('/api', crearInventarioRouter({ admin: () => g.db, fetchFn: tienda, resolver: publica, urlPublica: () => BASE }));
   servidor = app.listen(0);
@@ -344,5 +348,170 @@ describe('importar y sincronizar', () => {
     const r = await (await post(`/inventario/integraciones/${SHOP_ID}/sincronizar`, {}, { 'x-test-user': U })).json();
     expect(r.actualizados).toBe(1);
     expect(intentos).toBe(2);
+  });
+});
+
+// «Conectar con Shopify»: el cliente aprueba en Shopify y vuelve conectado.
+describe('conectar con Shopify (autorización)', () => {
+  const APP = 'secreto-de-la-app';
+  const NUEVA = 'nueva-tienda.myshopify.com';
+  const permisosOk = 'read_products,read_orders,read_inventory,write_inventory';
+
+  /** Lo que Shopify devuelve al navegador: la consulta con su firma. */
+  const retorno = (q: Record<string, string>, secreto = APP) => {
+    const hmac = createHmac('sha256', secreto).update(Object.keys(q).sort().map((k) => `${k}=${q[k]}`).join('&')).digest('hex');
+    return fetch(`${url}/inventario/shopify/callback?${new URLSearchParams({ ...q, hmac })}`, { redirect: 'manual' });
+  };
+  const destino = (r: Response) => r.headers.get('location');
+  const tiendaBuena = (scope = permisosOk, estado = 200) => (u: string, init: RequestInit): Response | undefined => {
+    if (u.endsWith('/admin/oauth/access_token')) return estado === 200 ? ok({ access_token: 'shpat_oauth', scope }) : new Response('{}', { status: estado });
+    if (u.endsWith('/shop.json')) return ok({ shop: { name: 'Nueva Tienda' } });
+    if (u.endsWith('/locations.json')) return ok({ locations: [{ id: 99, active: true }] });
+    if (u.includes('/webhooks.json') && (init.method ?? 'GET') === 'GET') return ok({ webhooks: [] });
+    if (u.includes('/webhooks.json') && init.method === 'POST') return ok({ webhook: { id: 70 } });
+  };
+  const pedir = async (dominio = NUEVA, usuario = U) => {
+    const r = await post('/inventario/integraciones/shopify/autorizar', { dominio }, { 'x-test-user': usuario });
+    return { r, url: r.status === 200 ? new URL((await r.json()).url) : null };
+  };
+
+  it('pedir la autorización exige sesión, una tienda válida y la app configurada', async () => {
+    expect((await post('/inventario/integraciones/shopify/autorizar', { dominio: NUEVA })).status).toBe(401);
+    expect((await pedir('evil.com')).r.status).toBe(400);
+    expect((await pedir('https://mitienda.com')).r.status).toBe(400);
+    const id = process.env.SHOPIFY_CLIENT_ID;
+    delete process.env.SHOPIFY_CLIENT_ID;
+    try {
+      const sin = await post('/inventario/integraciones/shopify/autorizar', { dominio: NUEVA }, { 'x-test-user': U });
+      expect(sin.status).toBe(503);
+      expect((await sin.json()).error).toBe('shopify_sin_app');
+    } finally { process.env.SHOPIFY_CLIENT_ID = id; }
+  });
+
+  it('la dirección que se da al cliente lleva la app, los permisos, el retorno y un state de ESE cliente', async () => {
+    const { url: u } = await pedir('https://Nueva-Tienda.myshopify.com/');
+    expect(u!.origin + u!.pathname).toBe(`https://${NUEVA}/admin/oauth/authorize`);
+    expect(u!.searchParams.get('client_id')).toBe('cid-test');
+    expect(u!.searchParams.get('redirect_uri')).toBe(`${BASE}/api/inventario/shopify/callback`);
+    expect(u!.searchParams.get('scope')).toBe(permisosOk);
+    expect(leerEstado(u!.searchParams.get('state')!, APP)).toEqual({ ok: true, userId: U, dominio: NUEVA });
+    expect(llamadas).toHaveLength(0); // pedirla no toca la tienda
+  });
+
+  it('al volver de Shopify: conecta, guarda el token cifrado, crea los avisos y deja constancia', async () => {
+    respuestas = tiendaBuena();
+    const { url: u } = await pedir();
+    const r = await retorno({ code: 'codigo_de_un_solo_uso', shop: NUEVA, state: u!.searchParams.get('state')!, timestamp: '1700000000', host: 'YWRtaW4' });
+    expect(r.status).toBe(302);
+    const fila = g.filas('casillero_integraciones').find((x) => x.dominio === NUEVA)!;
+    expect(destino(r)).toBe(`/casillero/integraciones?shopify=ok&id=${fila.id}`);
+    expect(fila).toMatchObject({ user_id: U, plataforma: 'shopify', ubicacion_id: '99' });
+    expect(fila.webhooks).toHaveLength(3);
+
+    const intercambio = llamadas.find((l) => l.url.endsWith('/admin/oauth/access_token'))!;
+    expect(intercambio.cuerpo).toEqual({ client_id: 'cid-test', client_secret: APP, code: 'codigo_de_un_solo_uso' });
+    const sec = g.filas('casillero_integraciones_secretos').find((x) => x.integracion_id === fila.id)!;
+    expect(sec.secretos_cifrados).not.toContain('shpat_oauth');
+    expect(JSON.parse(descifrar(sec.secretos_cifrados))).toEqual({ token: 'shpat_oauth', secretoApi: APP });
+    expect(sec.webhook_secret).toBe(APP); // Shopify firma los avisos con la clave de la app
+    expect(llamadas.filter((l) => l.metodo === 'POST' && l.url.includes('/webhooks.json'))[0].cuerpo.webhook.address).toBe(`${BASE}/api/inventario/webhooks/shopify/${fila.id}`);
+    expect(eventos('conexion').some((e) => e.resumen.includes('Nueva Tienda'))).toBe(true);
+  });
+
+  it('y esa tienda ya funciona: un pedido firmado con la clave de la app descuenta el stock', async () => {
+    respuestas = tiendaBuena();
+    const { url: u } = await pedir();
+    const r = await retorno({ code: 'codigo123', shop: NUEVA, state: u!.searchParams.get('state')!, timestamp: '1' });
+    const id = new URL(destino(r)!, 'http://x').searchParams.get('id')!;
+    const crudo = JSON.stringify({ id: 5001, line_items: [{ id: 1, sku: 'CAM-01', quantity: 4 }] });
+    const aviso = await post(`/inventario/webhooks/shopify/${id}`, crudo, { 'x-shopify-hmac-sha256': shopify.firmaWebhook(crudo, APP), 'x-shopify-topic': 'orders/paid', 'x-shopify-shop-domain': NUEVA });
+    expect(aviso.status).toBe(200);
+    expect(disponibles('CAM-01')).toBe(96);
+  });
+
+  it('si la firma de Shopify no cuadra, no se hace ninguna llamada ni se guarda nada', async () => {
+    respuestas = tiendaBuena();
+    const { url: u } = await pedir();
+    const q = { code: 'c0digo12', shop: NUEVA, state: u!.searchParams.get('state')!, timestamp: '1' };
+    const antes = g.filas('casillero_integraciones').length;
+    expect(destino(await retorno(q, 'clave-de-otro'))).toBe('/casillero/integraciones?shopify=error&motivo=hmac');
+    expect(destino(await fetch(`${url}/inventario/shopify/callback?${new URLSearchParams(q)}`, { redirect: 'manual' }))).toBe('/casillero/integraciones?shopify=error&motivo=hmac'); // sin hmac
+    expect(destino(await fetch(`${url}/inventario/shopify/callback?hmac=x&shop[a]=b&code=c0digo12`, { redirect: 'manual' }))).toBe('/casillero/integraciones?shopify=error&motivo=hmac');
+    expect(llamadas).toHaveLength(0);
+    expect(g.filas('casillero_integraciones')).toHaveLength(antes);
+  });
+
+  it('un state ajeno, alterado o vencido no sirve, aunque Shopify haya firmado la consulta', async () => {
+    respuestas = tiendaBuena();
+    const base = { code: 'c0digo12', shop: NUEVA, timestamp: '1' };
+    expect(destino(await retorno({ ...base, state: crearEstado(U, NUEVA, 'otra-clave') }))).toContain('motivo=estado');
+    expect(destino(await retorno({ ...base, state: 'basura.basura' }))).toContain('motivo=estado');
+    expect(destino(await retorno({ ...base, state: crearEstado(U, NUEVA, APP, Date.now() - 11 * 60_000) }))).toContain('motivo=vencido');
+    expect(llamadas).toHaveLength(0);
+  });
+
+  it('la tienda que vuelve debe ser la que se pidió', async () => {
+    respuestas = tiendaBuena();
+    const state = crearEstado(U, NUEVA, APP);
+    expect(destino(await retorno({ code: 'c0digo12', shop: 'otra-tienda.myshopify.com', state, timestamp: '1' }))).toContain('motivo=tienda');
+    expect(destino(await retorno({ code: 'c0digo12', shop: 'evil.com', state, timestamp: '1' }))).toContain('motivo=tienda');
+    expect(llamadas).toHaveLength(0);
+  });
+
+  it('si el cliente no concedió todos los permisos, no queda conectada', async () => {
+    respuestas = tiendaBuena('read_products,read_orders');
+    const r = await retorno({ code: 'c0digo12', shop: NUEVA, state: crearEstado(U, NUEVA, APP), timestamp: '1' });
+    expect(destino(r)).toContain('motivo=permisos');
+    expect(g.filas('casillero_integraciones').some((x) => x.dominio === NUEVA)).toBe(false);
+    expect(llamadas.some((l) => l.url.includes('/webhooks.json'))).toBe(false);
+  });
+
+  it('un permiso de escritura vale como el de lectura', async () => {
+    respuestas = tiendaBuena('write_products,write_orders,write_inventory');
+    const r = await retorno({ code: 'c0digo12', shop: NUEVA, state: crearEstado(U, NUEVA, APP), timestamp: '1' });
+    expect(destino(r)).toContain('shopify=ok');
+  });
+
+  it('si Shopify rechaza el código (vencido o repetido), lo dice y no guarda nada', async () => {
+    respuestas = tiendaBuena(permisosOk, 400);
+    const r = await retorno({ code: 'c0digo12', shop: NUEVA, state: crearEstado(U, NUEVA, APP), timestamp: '1' });
+    expect(destino(r)).toBe('/casillero/integraciones?shopify=error&motivo=shopify');
+    expect(g.filas('casillero_integraciones').some((x) => x.dominio === NUEVA)).toBe(false);
+  });
+
+  it('si no se pueden crear los avisos, no queda una conexión a medias', async () => {
+    respuestas = (u, init) => (u.includes('/webhooks.json') && init.method === 'POST' ? new Response('{}', { status: 403 }) : tiendaBuena()(u, init));
+    const r = await retorno({ code: 'c0digo12', shop: NUEVA, state: crearEstado(U, NUEVA, APP), timestamp: '1' });
+    expect(destino(r)).toContain('motivo=shopify');
+    expect(g.filas('casillero_integraciones').some((x) => x.dominio === NUEVA)).toBe(false);
+  });
+
+  it('una tienda que ya es de otra cuenta no se puede conectar a esta', async () => {
+    g.filas('casillero_integraciones').push({ id: 'ajena', user_id: 'otro-cliente', plataforma: 'shopify', dominio: NUEVA, webhooks: [], sync_stock: false });
+    respuestas = tiendaBuena();
+    const r = await retorno({ code: 'c0digo12', shop: NUEVA, state: crearEstado(U, NUEVA, APP), timestamp: '1' });
+    expect(destino(r)).toBe('/casillero/integraciones?shopify=error&motivo=ocupada');
+    expect(g.filas('casillero_integraciones').filter((x) => x.dominio === NUEVA)).toHaveLength(1);
+    expect(llamadas.some((l) => l.url.includes('/webhooks.json') && l.metodo === 'POST')).toBe(false);
+  });
+
+  it('volver a conectar una tienda propia renueva el token y rehace los avisos, sin duplicarla', async () => {
+    respuestas = tiendaBuena();
+    const dominio = 'mi-tienda.myshopify.com'; // ya conectada en sembrar() con otro token
+    const r = await retorno({ code: 'c0digo12', shop: dominio, state: crearEstado(U, dominio, APP), timestamp: '1' });
+    expect(destino(r)).toBe(`/casillero/integraciones?shopify=ok&id=${SHOP_ID}&reconectada=1`);
+    expect(g.filas('casillero_integraciones').filter((x) => x.dominio === dominio)).toHaveLength(1);
+    const sec = g.filas('casillero_integraciones_secretos').find((x) => x.integracion_id === SHOP_ID)!;
+    expect(JSON.parse(descifrar(sec.secretos_cifrados)).token).toBe('shpat_oauth');
+    expect(sec.webhook_secret).toBe(APP);
+    expect(g.filas('casillero_integraciones').find((x) => x.id === SHOP_ID)!.webhooks).toHaveLength(3);
+  });
+
+  it('sin la app configurada en el servidor, vuelve con un aviso claro', async () => {
+    const secreto = process.env.SHOPIFY_CLIENT_SECRET;
+    delete process.env.SHOPIFY_CLIENT_SECRET;
+    try {
+      expect(destino(await fetch(`${url}/inventario/shopify/callback?code=x&hmac=y`, { redirect: 'manual' }))).toBe('/casillero/integraciones?shopify=error&motivo=config');
+    } finally { process.env.SHOPIFY_CLIENT_SECRET = secreto; }
   });
 });

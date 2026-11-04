@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { CheckCircle2, CircleAlert, CreditCard, Database, Globe, KeyRound, Mail, MapPin, RefreshCw, ShieldCheck, Webhook } from 'lucide-react';
+import { CheckCircle2, CircleAlert, CreditCard, Database, Globe, KeyRound, Mail, MapPin, RefreshCw, ShieldCheck, ShoppingBag, Webhook } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Aparece, AreaTexto, BarraCambios, Boton, BotonCopiar, Campo, Entrada, Etiqueta, PageHeader, Seccion, Skeleton, useAsync } from '@/portal/ui';
 import { cop } from '@/portal/format';
@@ -12,7 +12,7 @@ import { api, db } from '@/lib/casillero';
 
 interface Estado {
   registro: boolean; wompi: boolean; wompiEventos: boolean; wompiLectura: boolean; wompiEntorno: 'sandbox' | 'production';
-  correo: boolean; cifrado: boolean; urlPublica: string | null; usdCop: number;
+  correo: boolean; cifrado: boolean; shopifyApp: boolean; shopifyRetorno: string | null; urlPublica: string | null; usdCop: number;
 }
 
 const CLAVES = ['direccion_bodega', 'valor_declarado_max', 'recarga_min_usd'] as const;
@@ -96,6 +96,7 @@ export default function Configuracion() {
                 <Fila ok={e.wompiLectura || !e.wompi} icono={<ShieldCheck size={18} />} titulo="Confirmación del pago al volver de Wompi" detalle="Al volver del pago, el servidor consulta la transacción en Wompi antes de acreditar." falta={<>Falta <code>WOMPI_PRIVATE_KEY</code>: el saldo se acreditaría solo por el aviso de Wompi (webhook).</>} />
                 <Fila ok={e.correo} icono={<Mail size={18} />} titulo="Correo a clientes" detalle={e.correo ? 'Avisos de paquete recibido, despachado y entregado.' : 'Los clientes verán los cambios en su casillero, pero no recibirán correo.'} falta={<>Faltan <code>RESEND_API_KEY</code> y <code>EMAIL_FROM</code>.</>} />
                 <Fila ok={e.cifrado} icono={<KeyRound size={18} />} titulo="Cifrado de llaves de tiendas" detalle={e.cifrado ? 'Las llaves de Shopify y WooCommerce se guardan cifradas (AES-256).' : 'Sin esto ningún cliente puede conectar su tienda.'} falta={<>Falta <code>INTEGRATIONS_ENC_KEY</code> (32 bytes en base64).</>} />
+                <Fila ok={e.shopifyApp} icono={<ShoppingBag size={18} />} titulo="Conectar con Shopify en un clic" detalle={e.shopifyApp ? 'Los clientes aprueban en Shopify y vuelven con su tienda conectada.' : 'Sin esto, los clientes conectan Shopify pegando un token (método anterior).'} falta={<>Faltan <code>SHOPIFY_CLIENT_ID</code> y <code>SHOPIFY_CLIENT_SECRET</code>: son las dos claves de la app de Easycomex en Shopify (ver la guía de abajo).</>} />
                 <Fila ok={!!e.urlPublica} icono={<Globe size={18} />} titulo="Dirección pública (https)" detalle={e.urlPublica ?? 'Shopify y WooCommerce solo envían ventas a una dirección https pública.'} falta={<>Falta <code>PUBLIC_APP_URL</code> con https.</>} />
               </ul>
             )}
@@ -108,6 +109,30 @@ export default function Configuracion() {
           <Seccion titulo="Aviso de pagos de Wompi" ayuda="En el panel de Wompi → Desarrolladores → Eventos, pega esta dirección. Con ella Wompi acredita las recargas aunque el cliente cierre la ventana.">
             <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-gray-50 p-3.5"><Webhook size={18} className="shrink-0 text-accent" /><code className="min-w-0 flex-1 break-all text-sm text-primary">{base}/api/wompi-events</code><BotonCopiar texto={`${base}/api/wompi-events`} /></div>
             {!e.urlPublica && <p className="mt-3 flex items-center gap-2 text-xs font-semibold text-amber-700"><Etiqueta tono="naranja">Ojo</Etiqueta><span>Esta dirección no es la pública definitiva: configura <code>PUBLIC_APP_URL</code>.</span></p>}
+          </Seccion>
+        </Aparece>
+      )}
+
+      {e && (
+        <Aparece retraso={0.12}>
+          <Seccion titulo="App de Shopify (conectar con un clic)" ayuda="Se crea una sola vez en Shopify. Con ella, cada cliente conecta su tienda aprobando en Shopify, sin copiar llaves.">
+            <ol className="space-y-3 text-sm text-muted-foreground [&_b]:text-primary [&_code]:rounded [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:text-[12px]">
+              <li><b>1.</b> Entra a <b>dev.shopify.com</b> → <b>Apps</b> → <b>Crear app</b> (nombre: Easycomex).</li>
+              <li><b>2.</b> En la configuración de la versión de la app pega estos valores y publica la versión:</li>
+            </ol>
+            <div className="mt-3 space-y-2">
+              {[
+                { t: 'URL de la app', v: base },
+                { t: 'URL de redirección permitida', v: e.shopifyRetorno ?? `${base}/api/inventario/shopify/callback` },
+                { t: 'Permisos (scopes)', v: 'read_products,read_orders,read_inventory,write_inventory' },
+              ].map((x) => (
+                <div key={x.t} className="flex flex-wrap items-center gap-3 rounded-2xl bg-gray-50 p-3.5"><div className="min-w-0 flex-1"><p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{x.t}</p><code className="break-all text-sm text-primary">{x.v}</code></div><BotonCopiar texto={x.v} /></div>
+              ))}
+            </div>
+            <ol start={3} className="mt-3 space-y-3 text-sm text-muted-foreground [&_b]:text-primary [&_code]:rounded [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:text-[12px]">
+              <li><b>3.</b> En <b>Configuración</b> de la app copia el <b>ID de cliente</b> y el <b>Secreto</b>, y pégalos en Render como <code>SHOPIFY_CLIENT_ID</code> y <code>SHOPIFY_CLIENT_SECRET</code>. Render vuelve a publicar solo.</li>
+              <li><b>4.</b> Elige la distribución: <b>Personalizada</b> sirve para tu tienda o las de una misma organización Plus, sin revisión. Para que <b>cualquier</b> tienda conecte, la app debe ser <b>Pública</b> y pasar la revisión de Shopify. La elección no se puede cambiar después.</li>
+            </ol>
           </Seccion>
         </Aparece>
       )}

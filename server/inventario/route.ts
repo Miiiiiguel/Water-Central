@@ -17,6 +17,7 @@ import {
   type Credenciales,
 } from './sincronizacion';
 import { anotarEvento } from './eventos';
+import { appShopify, cambiarCodigo, crearEstado, faltanPermisos, leerEstado, rutaDeVuelta, urlAutorizar, urlRetorno, verificarHmacConsulta, type MotivoError } from './shopifyOAuth';
 import { registrarMovimiento, type TipoMov } from './movimientos';
 
 // Inventario del casillero + integraciones con Shopify y WordPress
@@ -102,6 +103,88 @@ export function crearInventarioRouter(deps: Dependencias = dependenciasReales) {
       res.json({ id: fila.id, nombre: tienda.nombre });
     } catch (e) {
       res.status(422).json({ error: 'no_se_pudo_conectar', message: (e as Error).message });
+    }
+  });
+
+  // ---------------------------------------------------------------------
+  // «Conectar con Shopify»: el cliente aprueba en Shopify y vuelve conectado
+  // (el flujo está explicado en shopifyOAuth.ts)
+  // ---------------------------------------------------------------------
+  router.post('/inventario/integraciones/shopify/autorizar', limAcciones, json, requireUser(), (req, res) => {
+    if (!cifradoDisponible()) return sinConfigurar(res);
+    const app = appShopify();
+    if (!app) return res.status(503).json({ error: 'shopify_sin_app', message: 'Conectar con un clic aún no está disponible: falta configurar la app de Shopify en el servidor (SHOPIFY_CLIENT_ID y SHOPIFY_CLIENT_SECRET).' });
+    const base = deps.urlPublica(req);
+    if (!base) return res.status(503).json({ error: 'sin_url_publica', message: 'Falta PUBLIC_APP_URL (https) para que Shopify pueda devolverte aquí.' });
+    const p = z.object({ dominio: z.string().min(3).max(120) }).safeParse(req.body);
+    const dominio = p.success ? normalizarDominioShopify(p.data.dominio) : null;
+    if (!dominio) return res.status(400).json({ error: 'datos_invalidos', message: 'El dominio debe ser tu-tienda.myshopify.com (el interno de Shopify, no el de tu marca).' });
+    const { user } = res.locals.auth!;
+    res.json({ url: urlAutorizar({ dominio, clientId: app.clientId, redirectUri: urlRetorno(base), estado: crearEstado(user.id, dominio, app.clientSecret) }) });
+  });
+
+  /** Deja la tienda conectada (o reconecta la que ya tenía este cliente con una llave nueva). */
+  async function conectarConOAuth(admin: SupabaseClient, userId: string, cred: shopify.CredShopify, base: string) {
+    const tienda = await shopify.datosTienda(f, cred);
+    const { data: existentes } = await admin.from('casillero_integraciones').select('id, user_id').eq('plataforma', 'shopify').eq('dominio', cred.dominio);
+    const filas = (existentes ?? []) as { id: string; user_id: string }[];
+    if (filas.some((x) => x.user_id !== userId)) return { ok: false as const, motivo: 'ocupada' as const };
+    const secretos = { secretos_cifrados: cifrar(JSON.stringify({ token: cred.token, secretoApi: cred.secretoApi })), webhook_secret: cred.secretoApi };
+
+    const propia = filas.find((x) => x.user_id === userId);
+    if (propia) {
+      await admin.from('casillero_integraciones_secretos').update(secretos).eq('integracion_id', propia.id);
+      await admin.from('casillero_integraciones').update({ ubicacion_id: tienda.ubicacionId }).eq('id', propia.id);
+      const ci = await cargarIntegracion(admin, propia.id);
+      if (!ci) throw new Error('No se pudo leer la conexión que ya existía.');
+      await repararAvisos(admin, f, ci.fila, { plataforma: 'shopify', cred }, { webhookSecret: cred.secretoApi }, urlAvisos(base, 'shopify', propia.id));
+      await anotarEvento(admin, { integracionId: propia.id, userId, tipo: 'conexion', resumen: `Shopify reconectado: ${tienda.nombre}` });
+      return { ok: true as const, id: propia.id, reconectada: true };
+    }
+
+    const { data: fila, error } = await admin.from('casillero_integraciones').insert({ user_id: userId, plataforma: 'shopify', dominio: cred.dominio, ubicacion_id: tienda.ubicacionId }).select('*').single();
+    if (error || !fila) throw new Error('No pudimos guardar la tienda.');
+    await admin.from('casillero_integraciones_secretos').insert({ integracion_id: fila.id, ...secretos });
+    try {
+      const hooks = await shopify.registrarWebhooks(f, cred, urlAvisos(base, 'shopify', fila.id));
+      await admin.from('casillero_integraciones').update({ webhooks: hooks }).eq('id', fila.id);
+    } catch (e) {
+      await admin.from('casillero_integraciones').delete().eq('id', fila.id);
+      throw e;
+    }
+    await anotarEvento(admin, { integracionId: fila.id, userId, tipo: 'conexion', resumen: `Shopify conectado: ${tienda.nombre}` });
+    return { ok: true as const, id: fila.id as string, reconectada: false };
+  }
+
+  router.get('/inventario/shopify/callback', limAcciones, async (req, res) => {
+    const volver = (motivo: MotivoError) => res.redirect(302, rutaDeVuelta({ ok: false, motivo }));
+    const app = appShopify();
+    const admin = deps.admin();
+    const base = deps.urlPublica(req);
+    if (!app || !cifradoDisponible() || !admin || !base) return volver('config');
+
+    // 1) ¿Esta respuesta la firmó Shopify con la clave de nuestra app?
+    if (!verificarHmacConsulta(req.query as Record<string, unknown>, app.clientSecret)) {
+      logSecurityEvent('webhook_signature_failed', req, { source: 'shopify-oauth' });
+      return volver('hmac');
+    }
+    // 2) ¿La pidió un cliente nuestro, para esta tienda y hace poco?
+    const estado = leerEstado(String(req.query.state ?? ''), app.clientSecret);
+    if (!estado.ok) return volver(estado.motivo);
+    const dominio = normalizarDominioShopify(String(req.query.shop ?? ''));
+    if (!dominio || dominio !== estado.dominio) return volver('tienda');
+    const codigo = String(req.query.code ?? '');
+    if (!/^[A-Za-z0-9_-]{6,200}$/.test(codigo)) return volver('hmac');
+
+    try {
+      const { token, permisos } = await cambiarCodigo(f, app, dominio, codigo);
+      if (faltanPermisos(permisos).length) return volver('permisos');
+      const r = await conectarConOAuth(admin, estado.userId, { dominio, token, secretoApi: app.clientSecret }, base);
+      if (!r.ok) return volver(r.motivo);
+      res.redirect(302, rutaDeVuelta({ ok: true, id: r.id, reconectada: r.reconectada }));
+    } catch (e) {
+      captureException(e, { route: 'inventario.shopify.callback' });
+      volver('shopify');
     }
   });
 
