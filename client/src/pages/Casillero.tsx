@@ -26,13 +26,13 @@ function Portal({ seccion }: { seccion: string }) {
   const listos = paquetes.filter((p) => p.estado === 'recibido' && p.peso_lb != null).length;
   const items: ItemNav[] = [
     { id: 'inicio', etiqueta: 'Inicio', icono: Home, ruta: '/casillero', principal: true },
-    { id: 'prealerta', etiqueta: 'Prealertar', icono: BellPlus, ruta: '/casillero/prealerta', grupo: 'Envíos' },
-    { id: 'paquetes', etiqueta: 'Paquetes', icono: Package, ruta: '/casillero/paquetes', grupo: 'Envíos', principal: true },
-    { id: 'despacho', etiqueta: 'Despachar', icono: Truck, ruta: '/casillero/despacho', grupo: 'Envíos', insignia: listos, principal: false },
+    { id: 'prealerta', etiqueta: 'Prealertar', icono: BellPlus, ruta: '/casillero/prealerta', grupo: 'Casillero' },
+    { id: 'paquetes', etiqueta: 'Paquetes', icono: Package, ruta: '/casillero/paquetes', grupo: 'Casillero', principal: true },
+    { id: 'tarifas', etiqueta: 'Tarifas', icono: ArrowLeftRight, ruta: '/casillero/tarifas', grupo: 'Casillero' },
+    { id: 'despacho', etiqueta: 'Despachar', icono: Truck, ruta: '/casillero/despacho', grupo: 'Casillero', insignia: listos, principal: false },
     { id: 'inventario', etiqueta: 'Inventario', icono: Boxes, ruta: '/casillero/inventario', grupo: 'Inventario', principal: true },
     { id: 'integraciones', etiqueta: 'Integraciones', icono: Plug, ruta: '/casillero/integraciones', grupo: 'Inventario' },
     { id: 'wallet', etiqueta: 'Wallet', icono: Wallet, ruta: '/casillero/wallet', grupo: 'Cuenta', principal: true },
-    { id: 'tarifas', etiqueta: 'Tarifas', icono: ArrowLeftRight, ruta: '/casillero/tarifas', grupo: 'Cuenta' },
     { id: 'perfil', etiqueta: 'Mi perfil', icono: UserRound, ruta: '/casillero/perfil', grupo: 'Cuenta' },
   ];
   const id = (seccion in SECCIONES ? seccion : 'inicio') as Id;
