@@ -178,12 +178,18 @@ export function crearInventarioRouter(deps: Dependencias = dependenciasReales) {
 
     try {
       const { token, permisos } = await cambiarCodigo(f, app, dominio, codigo);
-      if (faltanPermisos(permisos).length) return volver('permisos');
+      const faltan = faltanPermisos(permisos);
+      if (faltan.length) {
+        console.warn(JSON.stringify({ at: new Date().toISOString(), level: 'warn', kind: 'shopify_oauth', shop: dominio, motivo: 'permisos', faltan, concedidos: permisos }));
+        return volver('permisos');
+      }
       const r = await conectarConOAuth(admin, estado.userId, { dominio, token, secretoApi: app.clientSecret }, base);
       if (!r.ok) return volver(r.motivo);
       res.redirect(302, rutaDeVuelta({ ok: true, id: r.id, reconectada: r.reconectada }));
     } catch (e) {
       captureException(e, { route: 'inventario.shopify.callback' });
+      // El navegador solo recibe un código; el motivo real queda aquí, sin llaves ni códigos.
+      console.error(JSON.stringify({ at: new Date().toISOString(), level: 'error', kind: 'shopify_oauth', shop: dominio, motivo: 'shopify', message: (e as Error).message.slice(0, 300) }));
       volver('shopify');
     }
   });
