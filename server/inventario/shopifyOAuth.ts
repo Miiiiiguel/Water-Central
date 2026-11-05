@@ -15,7 +15,8 @@ import type { Fetch } from './shopify';
 // Funciona con una app de Easycomex creada en Shopify (Dev Dashboard); sus dos
 // claves viven solo en el servidor (SHOPIFY_CLIENT_ID y SHOPIFY_CLIENT_SECRET).
 
-export const SCOPES = ['read_products', 'read_orders', 'read_inventory', 'write_inventory'] as const;
+// read_locations: desde la versión 2024-10 de la API, leer las ubicaciones de la tienda exige su propio permiso (sin él, Shopify responde 403).
+export const SCOPES = ['read_products', 'read_orders', 'read_inventory', 'write_inventory', 'read_locations'] as const;
 export const RUTA_CALLBACK = '/api/inventario/shopify/callback';
 
 export interface AppShopify { clientId: string; clientSecret: string }

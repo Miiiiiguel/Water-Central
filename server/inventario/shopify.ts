@@ -22,6 +22,18 @@ const cab = (c: CredShopify) => ({ 'X-Shopify-Access-Token': c.token, 'Content-T
 
 const dormir = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** Qué le decimos a la persona cuando Shopify rechaza una llamada (401/403), según cuál fue y por qué. */
+export function mensajeRechazo(estado: number, ruta: string, cuerpo: string): string {
+  const donde = ruta.split('?')[0];
+  if (/protected customer data/i.test(cuerpo)) {
+    return 'Shopify no deja crear los avisos de pedidos porque la app no tiene acceso a datos protegidos de clientes. En tu app de Shopify (Dev Dashboard) pide ese acceso (nivel básico), publica una versión y vuelve a conectar.';
+  }
+  if (donde.startsWith('/locations')) {
+    return 'Shopify no dejó leer las ubicaciones de tu tienda: falta el permiso read_locations. Actívalo en el acceso a la API de tu app, publica una versión y vuelve a conectar.';
+  }
+  return `Shopify rechazó la llamada a ${donde} (${estado}). Revisa que el token sea el de Admin API y que tenga los permisos de productos, pedidos, inventario y ubicaciones.${cuerpo ? ` Detalle de Shopify: ${cuerpo}` : ''}`;
+}
+
 // Shopify limita a ~2 llamadas por segundo: ante un 429 (o un 503 pasajero)
 // se espera lo que pide `Retry-After` y se reintenta, hasta 3 veces.
 async function llamar<T>(f: Fetch, c: CredShopify, ruta: string, init: RequestInit = {}): Promise<{ data: T; link: string | null }> {
@@ -34,9 +46,7 @@ async function llamar<T>(f: Fetch, c: CredShopify, ruta: string, init: RequestIn
   }
   if (!res.ok) {
     const txt = (await res.text().catch(() => '')).slice(0, 200);
-    throw new Error(res.status === 401 || res.status === 403
-      ? 'Shopify rechazó el token: revisa que sea el de Admin API y que tenga los permisos de productos, pedidos e inventario.'
-      : `Shopify respondió ${res.status}${txt ? `: ${txt}` : ''}`);
+    throw new Error(res.status === 401 || res.status === 403 ? mensajeRechazo(res.status, ruta, txt) : `Shopify respondió ${res.status}${txt ? `: ${txt}` : ''}`);
   }
   return { data: (await res.json().catch(() => ({}))) as T, link: res.headers.get('link') };
 }

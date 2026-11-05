@@ -124,7 +124,7 @@ export default function Configuracion() {
               {[
                 { t: 'URL de la app', v: base },
                 { t: 'URL de redirección permitida', v: e.shopifyRetorno ?? `${base}/api/inventario/shopify/callback` },
-                { t: 'Permisos (scopes)', v: 'read_products,read_orders,read_inventory,write_inventory' },
+                { t: 'Permisos (scopes)', v: 'read_products,read_orders,read_inventory,write_inventory,read_locations' },
               ].map((x) => (
                 <div key={x.t} className="flex flex-wrap items-center gap-3 rounded-2xl bg-gray-50 p-3.5"><div className="min-w-0 flex-1"><p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{x.t}</p><code className="break-all text-sm text-primary">{x.v}</code></div><BotonCopiar texto={x.v} /></div>
               ))}

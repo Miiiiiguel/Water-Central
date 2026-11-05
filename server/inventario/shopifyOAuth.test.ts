@@ -72,13 +72,14 @@ describe('dirección de autorización y permisos', () => {
     expect(u.searchParams.get('redirect_uri')).toBe('https://x.co/api/inventario/shopify/callback');
     expect(u.searchParams.get('state')).toBe('e.s');
   });
-  it('pide solo lo que usa: leer productos y pedidos, e inventario con escritura', () => {
-    expect([...SCOPES]).toEqual(['read_products', 'read_orders', 'read_inventory', 'write_inventory']);
+  it('pide solo lo que usa: productos, pedidos, ubicaciones e inventario con escritura', () => {
+    expect([...SCOPES]).toEqual(['read_products', 'read_orders', 'read_inventory', 'write_inventory', 'read_locations']);
   });
   it('un permiso de escritura cuenta como el de lectura; lo que falta se nombra', () => {
-    expect(faltanPermisos(['read_products', 'read_orders', 'read_inventory', 'write_inventory'])).toEqual([]);
-    expect(faltanPermisos(['write_products', 'write_orders', 'write_inventory'])).toEqual([]);
-    expect(faltanPermisos(['read_products', 'read_orders', 'read_inventory'])).toEqual(['write_inventory']);
+    expect(faltanPermisos(['read_products', 'read_orders', 'read_inventory', 'write_inventory', 'read_locations'])).toEqual([]);
+    expect(faltanPermisos(['write_products', 'write_orders', 'write_inventory', 'write_locations'])).toEqual([]);
+    expect(faltanPermisos(['read_products', 'read_orders', 'read_inventory'])).toEqual(['write_inventory', 'read_locations']);
+    expect(faltanPermisos(['read_products', 'read_orders', 'read_inventory', 'write_inventory'])).toEqual(['read_locations']); // justo lo que faltaba antes
     expect(faltanPermisos([])).toEqual([...SCOPES]);
   });
   it('la app solo existe si están las dos claves', () => {

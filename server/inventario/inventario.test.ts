@@ -125,7 +125,7 @@ describe('conectores con una tienda de mentira', () => {
   });
 
   it('Shopify: un 401 se explica en español y el stock nunca baja de 0', async () => {
-    await expect(shopify.datosTienda((async () => respuesta({}, {}, 401)) as unknown as typeof fetch, { dominio: 't.myshopify.com', token: 'x', secretoApi: 's' })).rejects.toThrow(/rechazó el token/);
+    await expect(shopify.datosTienda((async () => respuesta({}, {}, 401)) as unknown as typeof fetch, { dominio: 't.myshopify.com', token: 'x', secretoApi: 's' })).rejects.toThrow(/Shopify rechazó la llamada a \/shop\.json \(401\)/);
     let cuerpo: { available: number } | null = null;
     const f = (async (_u: string, init: RequestInit) => { cuerpo = JSON.parse(String(init.body)); return respuesta({}); }) as unknown as typeof fetch;
     await shopify.fijarStock(f, { dominio: 't.myshopify.com', token: 't', secretoApi: 's' }, '9', '11', -5);

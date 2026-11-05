@@ -303,7 +303,7 @@ function Conectar({ plataforma, oauth, onCerrar, onListo }: { plataforma: Plataf
 
   const pasos: ReactNode[] = plataforma === 'shopify' ? [
     <>En tu Shopify ve a <b>Configuración → Apps y canales de venta → Desarrollar apps</b> y crea una app (nombre: Easycomex).</>,
-    <>En <b>Configuración de la API de Admin</b> activa: <code>read_products</code>, <code>read_orders</code>, <code>read_inventory</code>, <code>write_inventory</code>.</>,
+    <>En <b>Configuración de la API de Admin</b> activa: <code>read_products</code>, <code>read_orders</code>, <code>read_inventory</code>, <code>write_inventory</code>, <code>read_locations</code>.</>,
     <><b>Instala la app</b>. Copia el <b>Token de acceso de la API de Admin</b> (se muestra una sola vez) y, en la pestaña de credenciales, la <b>Clave secreta de la API</b>.</>,
   ] : [
     <>En tu WordPress ve a <b>WooCommerce → Ajustes → Avanzado → API REST → Añadir clave</b>.</>,

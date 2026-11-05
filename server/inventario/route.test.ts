@@ -355,7 +355,7 @@ describe('importar y sincronizar', () => {
 describe('conectar con Shopify (autorización)', () => {
   const APP = 'secreto-de-la-app';
   const NUEVA = 'nueva-tienda.myshopify.com';
-  const permisosOk = 'read_products,read_orders,read_inventory,write_inventory';
+  const permisosOk = 'read_products,read_orders,read_inventory,write_inventory,read_locations';
 
   /** Lo que Shopify devuelve al navegador: la consulta con su firma. */
   const retorno = (q: Record<string, string>, secreto = APP) => {
@@ -467,7 +467,7 @@ describe('conectar con Shopify (autorización)', () => {
   });
 
   it('un permiso de escritura vale como el de lectura', async () => {
-    respuestas = tiendaBuena('write_products,write_orders,write_inventory');
+    respuestas = tiendaBuena('write_products,write_orders,write_inventory,write_locations');
     const r = await retorno({ code: 'c0digo12', shop: NUEVA, state: crearEstado(U, NUEVA, APP), timestamp: '1' });
     expect(destino(r)).toContain('shopify=ok');
   });
