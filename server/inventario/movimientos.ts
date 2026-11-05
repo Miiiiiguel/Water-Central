@@ -58,6 +58,12 @@ export async function disponiblesDe(admin: SupabaseClient, productoId: string): 
   return Number(data?.disponibles ?? 0);
 }
 
+/** Lo que hay hoy en la bodega y cuánto ha recibido en total (0 = la bodega nunca ha tenido este producto). */
+export async function stockBodega(admin: SupabaseClient, productoId: string): Promise<{ disponibles: number; recibidas: number }> {
+  const { data } = await admin.from('casillero_inventario').select('disponibles, total_unidades').eq('id', productoId).maybeSingle();
+  return { disponibles: Number(data?.disponibles ?? 0), recibidas: Number(data?.total_unidades ?? 0) };
+}
+
 /** Línea de un pedido de la tienda ya normalizada. */
 export interface LineaPedido {
   sku: string;

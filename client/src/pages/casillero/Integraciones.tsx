@@ -113,12 +113,16 @@ export default function Integraciones() {
     if (r) { toast.success('Catálogo importado', { description: `${r.nuevos} productos nuevos · ${r.existentes} ya los tenías.` }); await d.recargar(); }
   };
   const enviarStock = async (i: Integracion) => {
-    if (!(await confirmar({ titulo: 'Enviar el stock a tu tienda', texto: <>Esto deja el stock de <b>{corto(i.dominio)}</b> igual al de la bodega para todos los productos importados. Si aún no registraron tus ingresos, tu tienda mostrará 0.</>, confirmar: 'Enviar stock' }))) return;
-    const r = await llamar<{ actualizados: number; errores: string[] }>(`sync-${i.id}`, `/inventario/integraciones/${i.id}/sincronizar`);
-    if (r) { r.errores.length ? toast.warning(`${r.actualizados} actualizados, ${r.errores.length} con error`, { description: r.errores[0] }) : toast.success(`${r.actualizados} productos actualizados en tu tienda`); await d.recargar(); }
+    if (!(await confirmar({ titulo: 'Enviar el stock a tu tienda', texto: <>Esto deja el stock de <b>{corto(i.dominio)}</b> igual al de la bodega, solo para los productos que la bodega <b>ya recibió</b>. Los que aún no han llegado no se tocan: tu tienda conserva su stock.</>, confirmar: 'Enviar stock' }))) return;
+    const r = await llamar<{ actualizados: number; omitidos?: number; errores: string[] }>(`sync-${i.id}`, `/inventario/integraciones/${i.id}/sincronizar`);
+    if (r) {
+      const aparte = r.omitidos ? `${r.omitidos} sin enviar: la bodega aún no los ha recibido, tu tienda conserva su stock.` : undefined;
+      r.errores.length ? toast.warning(`${r.actualizados} actualizados, ${r.errores.length} con error`, { description: r.errores[0] }) : toast.success(`${r.actualizados} productos actualizados en tu tienda`, { description: aparte });
+      await d.recargar();
+    }
   };
   const automatico = async (i: Integracion, on: boolean) => {
-    if (on && !(await confirmar({ titulo: 'Mantener el stock de tu tienda al día', texto: 'Cada vez que cambie el stock de la bodega (ingresos, ventas, ajustes), lo reflejaremos en tu tienda. Asegúrate de que la bodega ya tenga registrado tu inventario.', confirmar: 'Activar' }))) return;
+    if (on && !(await confirmar({ titulo: 'Mantener el stock de tu tienda al día', texto: 'Cada vez que cambie el stock de un producto en la bodega (ingresos, ventas, ajustes), lo reflejaremos en tu tienda. Solo se envían los productos que la bodega ya recibió; los demás conservan el stock de tu tienda.', confirmar: 'Activar' }))) return;
     const r = await llamar(`opc-${i.id}`, `/inventario/integraciones/${i.id}/opciones`, { syncStock: on });
     if (r) { toast.success(on ? 'Activado: tu tienda seguirá al stock de la bodega' : 'Desactivado'); await d.recargar(); }
   };

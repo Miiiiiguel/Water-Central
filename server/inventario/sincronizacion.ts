@@ -3,7 +3,7 @@ import { descifrar } from './crypto';
 import * as shopify from './shopify';
 import * as woo from './woocommerce';
 import { anotarEvento } from './eventos';
-import { disponiblesDe, registrarMovimiento, type LineaPedido, type Origen } from './movimientos';
+import { registrarMovimiento, stockBodega, type LineaPedido, type Origen } from './movimientos';
 
 // Lo que une el inventario del casillero con la tienda del cliente.
 //
@@ -77,16 +77,25 @@ export async function importarCatalogo(admin: SupabaseClient, f: typeof fetch, f
   return { nuevos, existentes };
 }
 
-/** Empuja a la tienda el stock actual de los productos mapeados (todos, o solo `productoIds`). */
-export async function empujarStock(admin: SupabaseClient, f: typeof fetch, fila: Integracion, c: Credenciales, productoIds?: string[]): Promise<{ actualizados: number; errores: string[] }> {
+/**
+ * Empuja a la tienda el stock actual de los productos mapeados (todos, o solo `productoIds`).
+ *
+ * Protección: un producto que la bodega NUNCA ha recibido no se envía. Su stock en la bodega
+ * es 0 porque nadie ha registrado el ingreso, no porque se haya agotado; enviarlo dejaría el
+ * producto «agotado» en una tienda que sí lo tiene. La tienda conserva su propio stock hasta
+ * que la bodega reciba el producto.
+ */
+export async function empujarStock(admin: SupabaseClient, f: typeof fetch, fila: Integracion, c: Credenciales, productoIds?: string[]): Promise<{ actualizados: number; omitidos: number; errores: string[] }> {
   let q = admin.from('casillero_productos_externos').select('producto_id, externo_id, externo_extra').eq('integracion_id', fila.id);
   if (productoIds?.length) q = q.in('producto_id', productoIds);
   const { data: mapas } = await q;
   let actualizados = 0;
+  let omitidos = 0;
   const errores: string[] = [];
   for (const m of mapas ?? []) {
     try {
-      const disp = await disponiblesDe(admin, m.producto_id);
+      const { disponibles: disp, recibidas } = await stockBodega(admin, m.producto_id);
+      if (recibidas <= 0) { omitidos++; continue; }
       if (c.plataforma === 'shopify') await shopify.fijarStock(f, c.cred, fila.ubicacion_id ?? '', m.externo_id, disp);
       else await woo.fijarStock(f, c.cred, m.externo_id, m.externo_extra, disp);
       actualizados++;
@@ -98,10 +107,11 @@ export async function empujarStock(admin: SupabaseClient, f: typeof fetch, fila:
   await marcar(admin, fila.id, errores[0] ?? null);
   await anotarEvento(admin, {
     integracionId: fila.id, userId: fila.user_id, tipo: errores.length ? 'error' : 'sync',
-    resumen: errores.length ? `Stock enviado a ${actualizados} productos; falló: ${errores[0]}` : `Stock enviado a ${actualizados} productos`,
-    detalle: { actualizados, errores },
+    resumen: (errores.length ? `Stock enviado a ${actualizados} productos; falló: ${errores[0]}` : `Stock enviado a ${actualizados} productos`)
+      + (omitidos ? ` (${omitidos} sin enviar: la bodega aún no los ha recibido)` : ''),
+    detalle: { actualizados, omitidos, errores },
   });
-  return { actualizados, errores };
+  return { actualizados, omitidos, errores };
 }
 
 /** Tras un movimiento: refleja el nuevo stock en las tiendas del cliente que lo pidieron. Nunca lanza. */

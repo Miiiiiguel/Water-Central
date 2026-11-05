@@ -145,6 +145,49 @@ describe('webhooks de Shopify', () => {
   });
 });
 
+describe('protección del stock de la tienda', () => {
+  // El caso real: se conecta una tienda que YA vende, se importan sus productos (la bodega aún
+  // no los ha recibido) y alguien activa «mantener el stock igual al de la bodega».
+  const sinIngreso = () => {
+    g.filas('casillero_productos').push({ id: 'p-nuevo', user_id: U, sku: 'NUEVO-1', nombre: 'Recién importado' });
+    g.filas('casillero_productos_externos').push({ producto_id: 'p-nuevo', integracion_id: SHOP_ID, externo_id: '9002', externo_extra: null });
+    g.filas('casillero_integraciones')[0].sync_stock = true;
+  };
+  const sets = () => llamadas.filter((l) => l.url.endsWith('/inventory_levels/set.json')).map((l) => l.cuerpo);
+  const venta = (sku: string, cantidad: number) => {
+    const crudo = JSON.stringify({ id: 7001, line_items: [{ id: 1, sku, quantity: cantidad }] });
+    return post(`/inventario/webhooks/shopify/${SHOP_ID}`, crudo, { 'x-shopify-hmac-sha256': shopify.firmaWebhook(crudo, 'secreto-shop'), 'x-shopify-topic': 'orders/paid', 'x-shopify-shop-domain': 'mi-tienda.myshopify.com' });
+  };
+
+  it('una venta de un producto que la bodega nunca recibió NO deja la tienda en cero', async () => {
+    sinIngreso();
+    expect((await venta('NUEVO-1', 2)).status).toBe(200);
+    expect(disponibles('NUEVO-1')).toBe(-2); // la bodega lo anota...
+    expect(sets()).toEqual([]);              // ...pero la tienda conserva su stock
+  });
+
+  it('una venta de un producto que sí recibió la bodega sigue reflejándose', async () => {
+    sinIngreso();
+    await venta('CAM-01', 3);
+    expect(sets()).toEqual([{ location_id: 777, inventory_item_id: 9001, available: 97 }]);
+  });
+
+  it('«Enviar stock ahora» manda solo lo recibido y dice cuántos omitió', async () => {
+    sinIngreso();
+    const r = await post(`/inventario/integraciones/${SHOP_ID}/sincronizar`, {}, { 'x-test-user': U });
+    expect(await r.json()).toEqual({ actualizados: 1, omitidos: 1, errores: [] });
+    expect(sets()).toEqual([{ location_id: 777, inventory_item_id: 9001, available: 100 }]);
+    expect(eventos('sync')[0].resumen).toContain('1 sin enviar');
+  });
+
+  it('cuando la bodega recibe el producto, desde ese momento sí se envía', async () => {
+    sinIngreso();
+    const r = await post('/inventario/movimiento', { codigo: 'DM1001', sku: 'NUEVO-1', tipo: 'ingreso', cantidad: 30 }, { 'x-test-user': 'staff' });
+    expect(r.status).toBe(200);
+    expect(sets()).toEqual([{ location_id: 777, inventory_item_id: 9002, available: 30 }]);
+  });
+});
+
 describe('webhooks de WooCommerce', () => {
   const orden = (status: string) => ({ id: 88, status, line_items: [{ id: 5, sku: 'CAM-01', quantity: 4 }] });
   const enviar = (cuerpo: string | object, secreto = 'secreto-woo') => {

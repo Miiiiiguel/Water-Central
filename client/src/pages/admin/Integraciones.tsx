@@ -79,9 +79,13 @@ export default function Integraciones() {
     if (r) { toast.success('Catálogo importado', { description: `${r.nuevos} productos nuevos · ${r.existentes} ya existían.` }); await cambio(); }
   };
   const enviarStock = async (i: Tienda) => {
-    if (!(await confirmar({ titulo: 'Enviar el stock a la tienda', texto: <>Deja el stock de <b>{corto(i.dominio)}</b> igual al de la bodega para todos sus productos importados. Si la bodega aún no tiene registrado su inventario, la tienda mostrará 0.</>, confirmar: 'Enviar stock' }))) return;
-    const r = await llamar<{ actualizados: number; errores: string[] }>(`sync-${i.id}`, `/inventario/integraciones/${i.id}/sincronizar`);
-    if (r) { r.errores.length ? toast.warning(`${r.actualizados} actualizados, ${r.errores.length} con error`, { description: r.errores[0] }) : toast.success(`${r.actualizados} productos actualizados en la tienda`); await cambio(); }
+    if (!(await confirmar({ titulo: 'Enviar el stock a la tienda', texto: <>Deja el stock de <b>{corto(i.dominio)}</b> igual al de la bodega, solo para los productos que la bodega <b>ya recibió</b>. Los que aún no han llegado no se tocan: la tienda conserva su stock.</>, confirmar: 'Enviar stock' }))) return;
+    const r = await llamar<{ actualizados: number; omitidos?: number; errores: string[] }>(`sync-${i.id}`, `/inventario/integraciones/${i.id}/sincronizar`);
+    if (r) {
+      const aparte = r.omitidos ? `${r.omitidos} sin enviar: la bodega aún no los ha recibido, la tienda conserva su stock.` : undefined;
+      r.errores.length ? toast.warning(`${r.actualizados} actualizados, ${r.errores.length} con error`, { description: r.errores[0] }) : toast.success(`${r.actualizados} productos actualizados en la tienda`, { description: aparte });
+      await cambio();
+    }
   };
   const automatico = async (i: Tienda, on: boolean) => {
     const r = await llamar(`opc-${i.id}`, `/inventario/integraciones/${i.id}/opciones`, { syncStock: on });

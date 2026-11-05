@@ -110,7 +110,9 @@ Son dos portales, con la misma cuenta:
   WooCommerce REST (ck_/cs_) → webhooks `order.created/updated`. Las ventas
   descuentan por SKU (idempotente por pedido; si el SKU aún no existe, la venta
   espera y se aplica sola al crearlo) y, si el cliente lo activa, el stock de la
-  bodega se empuja a su tienda. Para cualquier otro sistema hay una API con
+  bodega se empuja a su tienda. **Protección**: nunca se envía el stock de un
+  producto que la bodega no ha recibido todavía (su 0 no es «agotado»), así una
+  tienda que ya vende no queda en cero por conectarla. Para cualquier otro sistema hay una API con
   llave: `GET /api/v1/inventario`, `POST /api/v1/inventario/ventas`.
   Requiere `INTEGRATIONS_ENC_KEY` y `PUBLIC_APP_URL` (https). Código en
   `server/inventario/`.
