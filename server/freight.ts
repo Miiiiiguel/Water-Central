@@ -5,28 +5,33 @@ import { getAnonClient, getUserFromRequest } from './supabaseAdmin';
 import { logSecurityEvent } from './log';
 import data from './freightData.json';
 
-// Calculadora de fletes, con la tarifa pública del servicio express
-// internacional desde y hacia Colombia (precios de lista 2026, paquetes),
-// menos el descuento de cada tipo de cliente. Dos direcciones, con las
-// mismas zonas y las mismas reglas de peso: exportar (Colombia → el país)
-// e importar (el país → Colombia), cada una con su propia tabla.
+// Calculadora de fletes del servicio express internacional desde y hacia
+// Colombia (paquetes), menos el descuento de cada tipo de cliente. Dos
+// direcciones, cada una con su propia tabla, sus zonas y su moneda:
+//   exportar (Colombia → el país): tarifa de clientes 2026, en pesos,
+//            zonas A a I
+//   importar (el país → Colombia): tarifa pública 2026, en dólares,
+//            zonas 1 a 7
 //
 // Todo el cálculo ocurre acá, en el servidor, a propósito: los descuentos
 // por tipo de cliente son información comercial. El navegador recibe la
 // lista de destinos (sin zona) y, por cada cotización, el resultado —
 // nunca la tabla.
 //
-// Cómo se cobra, tal como lo publica la tarifa:
-//   país → zona (1 a 7; EE. UU. son dos: Miami zona 2, resto zona 3),
-//          el país de destino al exportar o el de origen al importar
+// Cómo se cobra, tal como lo publica cada tarifa:
+//   país → zona, el país de destino al exportar o el de origen al
+//          importar (EE. UU. son dos: al exportar, el sur de Florida es
+//          zona I y el resto B; al importar, Miami 2 y el resto 3)
 //   peso de cada pieza = máx(real, L×A×H / 5000), redondeado hacia arriba
 //                        al medio kilo
-//   peso facturable    = suma de las piezas; hasta 30 kg va en medios
-//                        kilos, de ahí en adelante en kilos enteros
-//   precio de lista    = el de la tabla para ese peso; entre los pesos que
-//                        la tabla no trae (10,5 kg, 31 kg, 85 kg…) se suma
-//                        el cargo "por cada medio kilo / kilo adicional"
-//                        del tramo, desde el último peso publicado
+//   peso facturable    = suma de las piezas; en medios kilos hasta 20,5 kg
+//                        al exportar (30 kg al importar), de ahí en
+//                        adelante en kilos enteros
+//   precio de lista    = el de la tabla para ese peso. Más allá de la
+//                        tabla: al exportar, precio por kilo del tramo
+//                        (21–44 kg, 45–70 kg…) × el peso; al importar, se
+//                        suma el cargo "por cada medio kilo / kilo
+//                        adicional" del tramo, desde el último peso publicado
 //   neto               = lista − descuento del tipo de cliente
 //   combustible        = neto × promedio del recargo por combustible
 //                        publicado en los últimos 12 meses (ponderado
@@ -58,10 +63,26 @@ export interface Tramo {
   precio: number;
 }
 
+/** Precio por kilo para pesos en [desde, hasta]: se multiplica por el peso. */
+export interface TramoPorKilo {
+  desde: number;
+  hasta: number;
+  precio: number;
+}
+
 export interface Tarifa {
-  /** [peso kg, precio de lista USD], como la publica la tabla. */
+  /** [peso kg, precio de lista], como la publica la tabla, en la moneda de la dirección. */
   table: [number, number][];
   extra: Tramo[];
+  por_kg?: TramoPorKilo[];
+}
+
+interface Moneda {
+  currency: string;
+  currency_symbol: string;
+  decimals: number;
+  /** Hasta este peso se factura en medios kilos; después, en kilos enteros. */
+  medio_kilo_hasta: number;
 }
 
 interface Bundle {
@@ -71,8 +92,10 @@ interface Bundle {
     max_billable_weight: number;
     currency: string;
     currency_symbol: string;
+    por_direccion: Record<Direccion, Moneda>;
   };
-  client_types: { type: string; discount_percent: number }[];
+  /** discount_percent es el de exportar; discount_import_percent, el de importar. */
+  client_types: { type: string; discount_percent: number; discount_import_percent?: number }[];
   zones: ZoneRow[];
   rates: Record<string, Tarifa>;
   rates_import: Record<string, Tarifa>;
@@ -90,22 +113,37 @@ const bundle = data as unknown as Bundle;
 
 const SETTINGS = bundle.settings;
 
-/** Tipo de cliente (minúsculas) → % de descuento. */
+const TIPOS = bundle.client_types.filter((c) => c.type && c.type.trim());
+
+/** Tipo de cliente (minúsculas) → % de descuento al exportar. */
 export const DISCOUNTS: Record<string, number> = Object.fromEntries(
-  bundle.client_types.filter((c) => c.type && c.type.trim()).map((c) => [c.type.trim().toLowerCase(), Number(c.discount_percent) || 0])
+  TIPOS.map((c) => [c.type.trim().toLowerCase(), Number(c.discount_percent) || 0])
+);
+
+/** Tipo de cliente (minúsculas) → % de descuento al importar. */
+export const DISCOUNTS_IMPORT: Record<string, number> = Object.fromEntries(
+  TIPOS.map((c) => [c.type.trim().toLowerCase(), Number(c.discount_import_percent ?? c.discount_percent) || 0])
 );
 
 export const CLIENT_TYPES = bundle.client_types.map((c) => c.type.trim());
 
-export const ZONES: ZoneRow[] = bundle.zones;
-
 export type Direccion = 'exportar' | 'importar';
+
+/** zone: la de exportar; zone_import: la de importar ('' si esa dirección no tiene tarifa). */
+export const ZONES: Array<ZoneRow & { zone_import?: string }> = bundle.zones;
+
+/** Moneda, decimales y peso hasta el que se factura en medios kilos, por dirección. */
+export const MONEDA: Record<Direccion, Moneda> = SETTINGS.por_direccion;
 
 const ordenar = (rates: Record<string, Tarifa>): Record<string, Tarifa> =>
   Object.fromEntries(
     Object.entries(rates).map(([zone, t]) => [
       zone,
-      { table: [...t.table].sort((a, b) => a[0] - b[0]), extra: [...t.extra].sort((a, b) => a.desde - b.desde) },
+      {
+        table: [...t.table].sort((a, b) => a[0] - b[0]),
+        extra: [...(t.extra ?? [])].sort((a, b) => a.desde - b.desde),
+        ...(t.por_kg ? { por_kg: [...t.por_kg].sort((a, b) => a.desde - b.desde) } : {}),
+      },
     ])
   );
 
@@ -127,8 +165,8 @@ export function isValidType(type: string): boolean {
   return Object.prototype.hasOwnProperty.call(DISCOUNTS, type.trim().toLowerCase());
 }
 
-export function discountFor(type: string): number {
-  return DISCOUNTS[type.trim().toLowerCase()] ?? 0;
+export function discountFor(type: string, direccion: Direccion = 'exportar'): number {
+  return (direccion === 'importar' ? DISCOUNTS_IMPORT : DISCOUNTS)[type.trim().toLowerCase()] ?? 0;
 }
 
 /**
@@ -136,16 +174,17 @@ export function discountFor(type: string): number {
  * orden. El id es el único determinista: "US" existe dos veces
  * (196 = Estados Unidos excepto Miami → 3, 197 = Miami → 2).
  */
-export function resolveZone(destination: string): string | null {
+export function resolveZone(destination: string, direccion: Direccion = 'exportar'): string | null {
   const dest = String(destination).trim();
   if (!dest) return null;
+  const zonaDe = (r: (typeof ZONES)[number]) => (direccion === 'importar' ? r.zone_import : r.zone) || null;
   const byId = ZONES.find((r) => r.id === dest);
-  if (byId) return byId.zone || null;
+  if (byId) return zonaDe(byId);
   const needle = dest.toLowerCase();
   const byCode = ZONES.find((r) => r.country_code.toLowerCase() === needle);
-  if (byCode) return byCode.zone || null;
+  if (byCode) return zonaDe(byCode);
   const byName = ZONES.find((r) => r.country_es.toLowerCase() === needle || r.country_en.toLowerCase() === needle);
-  return byName ? byName.zone || null : null;
+  return byName ? zonaDe(byName) : null;
 }
 
 export function countryLabel(destination: string, lang: 'es' | 'en' = 'es'): string {
@@ -157,13 +196,13 @@ export function countryLabel(destination: string, lang: 'es' | 'en' = 'es'): str
 /** Hacia arriba al múltiplo de `paso`, sin que 2.0000001 se vuelva 2.5. */
 const haciaArriba = (kg: number, paso: number) => Math.ceil(kg / paso - 1e-9) * paso;
 
-/** Medio kilo hasta 30 kg, kilo entero de ahí en adelante. */
-export function redondearFacturable(kg: number): number {
+/** Medio kilo hasta el límite de la dirección (20,5 kg al exportar, 30 al importar), kilo entero de ahí en adelante. */
+export function redondearFacturable(kg: number, direccion: Direccion = 'exportar'): number {
   const w = Math.max(kg, SETTINGS.min_billable_weight);
-  return w <= 30 ? haciaArriba(w, 0.5) : haciaArriba(w, 1);
+  return w <= MONEDA[direccion].medio_kilo_hasta ? haciaArriba(w, 0.5) : haciaArriba(w, 1);
 }
 
-export function aggregateWeights(packages: Package[]) {
+export function aggregateWeights(packages: Package[], direccion: Direccion = 'exportar') {
   const divisor = Math.max(1, SETTINGS.volumetric_divisor);
   let real = 0;
   let volumetric = 0;
@@ -176,12 +215,19 @@ export function aggregateWeights(packages: Package[]) {
     volumetric += vol * qty;
     piezas += haciaArriba(Math.max(w, vol), 0.5) * qty;
   }
-  return { real, volumetric, billable: redondearFacturable(piezas) };
+  return { real, volumetric, billable: redondearFacturable(piezas, direccion) };
 }
 
 /** Precio de lista de una tarifa para un peso ya facturable. */
 export function precioEnTabla(tarifa: Tarifa, kg: number): number {
   const eps = 1e-9;
+  // Más allá de la tabla, con precio por kilo: el del tramo × el peso.
+  const ultimo = tarifa.table[tarifa.table.length - 1]?.[0] ?? 0;
+  if (tarifa.por_kg?.length && kg > ultimo + eps) {
+    const tramo = tarifa.por_kg.find((t) => kg >= t.desde - eps && kg <= t.hasta + eps);
+    if (!tramo) throw new CalculationError('No se encontró una tarifa para el peso facturable.');
+    return round(tramo.precio * kg, 2);
+  }
   const publicado = tarifa.table.filter(([w]) => w <= kg + eps);
   let [actual, precio] = publicado.length ? publicado[publicado.length - 1] : tarifa.table[0];
   while (actual < kg - eps) {
@@ -275,18 +321,24 @@ export function quote(
   const valid = (input.packages || []).filter(isValidPackage);
   if (valid.length === 0) throw new CalculationError('Agrega al menos un paquete con peso o medidas válidas.');
   const direccion: Direccion = input.direction ?? 'exportar';
-  const zone = resolveZone(input.destination);
+  const zone = resolveZone(input.destination, direccion);
   if (!zone || !tarifasDe(direccion)[zone]) {
-    throw new CalculationError(direccion === 'importar' ? 'No hay tarifas disponibles para el origen seleccionado.' : 'No hay tarifas disponibles para el destino seleccionado.');
+    throw new CalculationError(
+      direccion === 'importar'
+        ? 'Para este origen no tenemos tarifa publicada: escríbenos y te lo cotizamos aparte.'
+        : 'Para este destino no tenemos tarifa publicada: escríbenos y te lo cotizamos aparte.'
+    );
   }
 
-  const weights = aggregateWeights(valid);
-  const lista = listPrice(zone, weights.billable, direccion);
-  const discountPercent = discountFor(input.customerType);
-  const discountAmount = round(lista * (discountPercent / 100), 2);
-  const neto = round(Math.max(0, lista - discountAmount), 2);
+  const moneda = MONEDA[direccion];
+  const dec = moneda.decimals;
+  const weights = aggregateWeights(valid, direccion);
+  const lista = round(listPrice(zone, weights.billable, direccion), dec);
+  const discountPercent = discountFor(input.customerType, direccion);
+  const discountAmount = round(lista * (discountPercent / 100), dec);
+  const neto = round(Math.max(0, lista - discountAmount), dec);
   const combustible = promedioCombustible(historial, hoy);
-  const fuelAmount = combustible ? round(neto * (combustible.pct / 100), 2) : 0;
+  const fuelAmount = combustible ? round(neto * (combustible.pct / 100), dec) : 0;
 
   return {
     direction: direccion,
@@ -301,11 +353,11 @@ export function quote(
       discount_amount: discountAmount,
       fuel_percent: combustible ? combustible.pct : null,
       fuel_amount: fuelAmount,
-      final_price: round(neto + fuelAmount, 2),
+      final_price: round(neto + fuelAmount, dec),
     },
     fuel: combustible ? { desde: combustible.desde, hasta: combustible.hasta } : null,
-    currency: SETTINGS.currency,
-    currency_symbol: SETTINGS.currency_symbol,
+    currency: moneda.currency,
+    currency_symbol: moneda.currency_symbol,
   };
 }
 
@@ -343,7 +395,7 @@ const DESTINATIONS = ZONES.map((r) => ({ id: r.id, es: r.country_es, en: r.count
 
 freightRouter.get('/freight/destinations', (_req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=86400');
-  res.json({ destinations: DESTINATIONS, clientTypes: CLIENT_TYPES, currency: SETTINGS.currency });
+  res.json({ destinations: DESTINATIONS, clientTypes: CLIENT_TYPES, currency: MONEDA.exportar.currency, currencies: { exportar: MONEDA.exportar.currency, importar: MONEDA.importar.currency } });
 });
 
 freightRouter.post('/freight/quote', freightLimiter, express.json({ limit: JSON_BODY_LIMIT }), async (req, res) => {
@@ -373,7 +425,7 @@ freightRouter.post('/freight/quote', freightLimiter, express.json({ limit: JSON_
     const user = await getUserFromRequest(req);
     const email = user?.email ?? parsed.data.email ?? null;
     if (email) {
-      const fila = {
+      const fila: Record<string, string | number | null> = {
         user_id: user?.id ?? null,
         email,
         name: (user?.user_metadata?.full_name as string | undefined) ?? null,
@@ -382,13 +434,14 @@ freightRouter.post('/freight/quote', freightLimiter, express.json({ limit: JSON_
         weight_kg: result.weights.billable,
         client_type: result.customer_type,
         zone: result.zone,
-        quote_usd: result.pricing.final_price,
+        // En la moneda en que se cotizó: pesos al exportar, dólares al importar.
+        ...(result.currency === 'COP' ? { quote_cop: Math.round(result.pricing.final_price) } : { quote_usd: result.pricing.final_price }),
       };
       let { error } = await supabase.from('freight_quotes').insert(fila);
-      // Una base a la que todavía no se le corrió schema.sql no tiene
-      // quote_usd: el lead se guarda igual, sin el precio, en vez de perderse.
-      if (error && /quote_usd/.test(error.message)) {
-        const { quote_usd: _sinColumna, ...sinPrecio } = fila;
+      // Una base a la que todavía no se le corrió schema.sql no tiene la
+      // columna del precio: el lead se guarda igual, sin él, en vez de perderse.
+      if (error && /quote_usd|quote_cop/.test(error.message)) {
+        const { quote_usd: _u, quote_cop: _c, ...sinPrecio } = fila;
         ({ error } = await supabase.from('freight_quotes').insert(sinPrecio));
       }
       if (error) console.error('freight quote insert failed:', error.message);

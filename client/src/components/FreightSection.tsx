@@ -10,7 +10,7 @@ import { isNative, openExternal } from '@/lib/native';
 // Calculadora de fletes — the real one. The rate table lives on the
 // server (server/freight.ts + freightData.json); this form collects
 // destination, client type and packages, asks /api/freight/quote and
-// shows the price in USD with its breakdown: billable weight (real vs
+// shows the price (pesos to export, dollars to import) with its breakdown: billable weight (real vs
 // volumetric), zone, list price, the client type's discount, final.
 
 interface Destination {
@@ -56,7 +56,11 @@ const DEFAULT_DESTINATION = '197';
 const inputCls =
   'w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold text-primary outline-none transition-all placeholder:font-normal placeholder:text-gray-400 focus:border-accent focus:ring-2 focus:ring-accent/20';
 
-const usd = (n: number) => `US$ ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+/** En la moneda de la cotización: pesos al exportar (sin decimales), dólares al importar. */
+const dinero = (n: number, currency: string) =>
+  currency === 'COP'
+    ? `$ ${Math.round(n).toLocaleString('es-CO')} COP`
+    : `US$ ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const CLIENT_TYPE_HELP: Record<string, { es: string; en: string }> = {
   Normal: { es: 'Envías de vez en cuando', en: 'You ship now and then' },
@@ -152,7 +156,7 @@ export default function FreightSection() {
         return;
       }
       setQuote(data as Quote);
-      trackLead({ content_name: 'freight_calculator', client_type: clientType, value: (data as Quote).pricing.final_price, currency: 'USD' });
+      trackLead({ content_name: 'freight_calculator', client_type: clientType, value: (data as Quote).pricing.final_price, currency: (data as Quote).currency });
     } catch {
       setError(es ? 'Sin conexión. Intenta de nuevo.' : 'No connection. Please try again.');
     } finally {
@@ -168,8 +172,8 @@ export default function FreightSection() {
   const whatsapp = quote
     ? whatsappUrl(
         es
-          ? `Hola Easycomex. Coticé ${quote.direction === 'importar' ? `una importación desde ${quote.destination} a Colombia` : `un envío a ${quote.destination}`} (${quote.weights.billable} kg facturables, cliente ${quote.customer_type}) por ${usd(quote.pricing.final_price)} y quiero reservarlo.`
-          : `Hi Easycomex. I quoted ${quote.direction === 'importar' ? `an import from ${quote.destination} to Colombia` : `a shipment to ${quote.destination}`} (${quote.weights.billable} billable kg, ${quote.customer_type} client) at ${usd(quote.pricing.final_price)} and I want to book it.`
+          ? `Hola Easycomex. Coticé ${quote.direction === 'importar' ? `una importación desde ${quote.destination} a Colombia` : `un envío a ${quote.destination}`} (${quote.weights.billable} kg facturables, cliente ${quote.customer_type}) por ${dinero(quote.pricing.final_price, quote.currency)} y quiero reservarlo.`
+          : `Hi Easycomex. I quoted ${quote.direction === 'importar' ? `an import from ${quote.destination} to Colombia` : `a shipment to ${quote.destination}`} (${quote.weights.billable} billable kg, ${quote.customer_type} client) at ${dinero(quote.pricing.final_price, quote.currency)} and I want to book it.`
       )
     : '';
 
@@ -240,7 +244,7 @@ export default function FreightSection() {
                 </div>
 
                 <p className="mt-5 text-4xl font-black tabular-nums text-primary md:text-5xl">
-                  {usd(quote.pricing.final_price)}
+                  {dinero(quote.pricing.final_price, quote.currency)}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {es ? 'Flete internacional puerta a puerta · sin impuestos ni aranceles' : 'Door-to-door international freight · taxes and duties not included'}
@@ -257,14 +261,14 @@ export default function FreightSection() {
                   </div>
                   <div className="rounded-2xl bg-secondary/50 p-4">
                     <dt className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{es ? 'Tarifa pública' : 'Public rate'}</dt>
-                    <dd className="mt-1 text-lg font-black text-primary line-through decoration-2 decoration-muted-foreground/50">{usd(quote.pricing.list_price)}</dd>
+                    <dd className="mt-1 text-lg font-black text-primary line-through decoration-2 decoration-muted-foreground/50">{dinero(quote.pricing.list_price, quote.currency)}</dd>
                     <dd className="text-xs text-muted-foreground">{es ? 'precio de lista 2026 del servicio express' : '2026 list price for express service'}</dd>
                   </div>
                   <div className="col-span-2 flex items-center justify-between rounded-2xl border border-green-100 bg-green-50 px-4 py-3">
                     <span className="text-sm font-semibold text-green-800">
                       {es ? `Descuento ${quote.customer_type}` : `${quote.customer_type} discount`} · {quote.pricing.discount_percent}%
                     </span>
-                    <span className="font-black text-green-700">−{usd(quote.pricing.discount_amount)}</span>
+                    <span className="font-black text-green-700">−{dinero(quote.pricing.discount_amount, quote.currency)}</span>
                   </div>
                   {quote.pricing.fuel_percent !== null && (
                     <div className="col-span-2 flex items-center justify-between rounded-2xl bg-secondary/50 px-4 py-3">
@@ -274,7 +278,7 @@ export default function FreightSection() {
                           {es ? 'promedio de los últimos 12 meses' : 'average of the last 12 months'}
                         </span>
                       </span>
-                      <span className="font-black text-primary">+{usd(quote.pricing.fuel_amount)}</span>
+                      <span className="font-black text-primary">+{dinero(quote.pricing.fuel_amount, quote.currency)}</span>
                     </div>
                   )}
                 </dl>

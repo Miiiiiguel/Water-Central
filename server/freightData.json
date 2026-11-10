@@ -1,7 +1,7 @@
 {
  "meta": {
-  "source": "Tarifas públicas 2026 desde y hacia Colombia, servicio express Worldwide, paquetes: \"rates\" es exportación (desde Colombia) y \"rates_import\" es importación (hacia Colombia), con las mismas zonas (guía de servicios y tarifas 2026).",
-  "notes": "Precios de lista en USD, sin impuestos, aranceles, liberación aduanal ni cargos adicionales (combustible, temporada alta, zona remota). El descuento por tipo de cliente se aplica sobre el precio de lista."
+  "source": "Exportación (\"rates\"): tarifa de clientes 2026 desde Colombia, en pesos colombianos, zonas A a I (paquetes de 0,5 a 20,5 kg por medio kilo; desde 21 kg, precio por kilo según el tramo). Importación (\"rates_import\"): tarifa pública 2026 hacia Colombia, en dólares, zonas 1 a 7 (zone_import).",
+  "notes": "Precios de lista sin impuestos, aranceles, liberación aduanal ni cargos adicionales. El descuento por tipo de cliente se aplica sobre el precio de lista: exportación Normal 15 % y VIP 38 % (tarifas públicas y VIP de clientes); importación Normal 10 % y VIP 25 %."
  },
  "settings": {
   "volumetric_divisor": 5000,
@@ -9,16 +9,32 @@
   "min_billable_weight": 0.5,
   "max_billable_weight": 3000,
   "currency": "USD",
-  "currency_symbol": "US$"
+  "currency_symbol": "US$",
+  "por_direccion": {
+   "exportar": {
+    "currency": "COP",
+    "currency_symbol": "$",
+    "decimals": 0,
+    "medio_kilo_hasta": 20.5
+   },
+   "importar": {
+    "currency": "USD",
+    "currency_symbol": "US$",
+    "decimals": 2,
+    "medio_kilo_hasta": 30
+   }
+  }
  },
  "client_types": [
   {
    "type": "Normal",
-   "discount_percent": 10.0
+   "discount_percent": 15.0,
+   "discount_import_percent": 10.0
   },
   {
    "type": "VIP",
-   "discount_percent": 25.0
+   "discount_percent": 38.0,
+   "discount_import_percent": 25.0
   }
  ],
  "zones": [
@@ -27,3108 +43,3734 @@
    "country_es": "Albania",
    "country_en": "Albania",
    "country_code": "AL",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "3",
    "country_es": "Argelia",
    "country_en": "Algeria",
    "country_code": "DZ",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "4",
    "country_es": "Samoa Americana",
    "country_en": "American Samoa",
    "country_code": "AS",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "5",
    "country_es": "Andorra",
    "country_en": "Andorra",
    "country_code": "AD",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "6",
    "country_es": "Angola",
    "country_en": "Angola",
    "country_code": "AO",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "7",
    "country_es": "Anguila",
    "country_en": "Anguilla",
    "country_code": "AI",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "8",
    "country_es": "Antigua y Barbuda",
    "country_en": "Antigua & Barbuda",
    "country_code": "AG",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "9",
    "country_es": "Argentina",
    "country_en": "Argentina",
    "country_code": "AR",
-   "zone": "4"
+   "zone": "C",
+   "zone_import": "4"
   },
   {
    "id": "10",
    "country_es": "Armenia",
    "country_en": "Armenia",
    "country_code": "AM",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "11",
    "country_es": "Aruba",
    "country_en": "Aruba",
    "country_code": "AW",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "12",
    "country_es": "Australia",
    "country_en": "Australia",
    "country_code": "AU",
-   "zone": "7"
+   "zone": "G",
+   "zone_import": "7"
   },
   {
    "id": "13",
    "country_es": "Austria",
    "country_en": "Austria",
    "country_code": "AT",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "14",
    "country_es": "Azerbaiyán",
    "country_en": "Azerbaijan",
    "country_code": "AZ",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "15",
    "country_es": "Bahamas",
    "country_en": "Bahama",
    "country_code": "BS",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "16",
    "country_es": "Bahréin",
    "country_en": "Bahrain",
    "country_code": "BH",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "17",
    "country_es": "Bangladés",
    "country_en": "Bangladesh",
    "country_code": "BD",
-   "zone": "6"
+   "zone": "H",
+   "zone_import": "6"
   },
   {
    "id": "18",
    "country_es": "Barbados",
    "country_en": "Barbados",
    "country_code": "BB",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "19",
    "country_es": "Bielorrusia",
    "country_en": "Belarus",
    "country_code": "BY",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "20",
    "country_es": "Bélgica",
    "country_en": "Belgium",
    "country_code": "BE",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "21",
    "country_es": "Belice",
    "country_en": "Belize",
    "country_code": "BZ",
-   "zone": "4"
+   "zone": "D",
+   "zone_import": "4"
   },
   {
    "id": "22",
    "country_es": "Benín",
    "country_en": "Benin",
    "country_code": "BJ",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "23",
    "country_es": "Bermudas",
    "country_en": "Bermuda",
    "country_code": "BM",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "24",
    "country_es": "Bután",
    "country_en": "Bhutan",
    "country_code": "BT",
-   "zone": "6"
+   "zone": "H",
+   "zone_import": "6"
   },
   {
    "id": "25",
    "country_es": "Bután",
    "country_en": "Bhutan",
    "country_code": "BT",
-   "zone": "6"
+   "zone": "H",
+   "zone_import": "6"
   },
   {
    "id": "26",
    "country_es": "Bolivia",
    "country_en": "Bolivia",
    "country_code": "BO",
-   "zone": "4"
+   "zone": "C",
+   "zone_import": "4"
   },
   {
    "id": "27",
    "country_es": "Bonaire San Eustaquio y Saba",
    "country_en": "Bonaire Sint Eustatius and Saba",
    "country_code": "BQ",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "28",
    "country_es": "Bosnia y Herzegovina",
    "country_en": "Bosnia-Herzegovina",
    "country_code": "BA",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "29",
    "country_es": "Brasil",
    "country_en": "Brazil",
    "country_code": "BR",
-   "zone": "1"
+   "zone": "C",
+   "zone_import": "1"
   },
   {
    "id": "30",
    "country_es": "Islas Vírgenes Británicas",
    "country_en": "British Virgin Islands",
    "country_code": "VG",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "31",
    "country_es": "Brunéi",
    "country_en": "Brunei",
    "country_code": "BN",
-   "zone": "6"
+   "zone": "H",
+   "zone_import": "6"
   },
   {
    "id": "32",
    "country_es": "Bulgaria",
    "country_en": "Bulgaria",
    "country_code": "BG",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "33",
    "country_es": "Burkina Faso",
    "country_en": "Burkina Faso",
    "country_code": "BF",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "34",
    "country_es": "Burundi",
    "country_en": "Burundi",
    "country_code": "BI",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "35",
    "country_es": "Camboya",
    "country_en": "Cambodia",
    "country_code": "KH",
-   "zone": "6"
+   "zone": "H",
+   "zone_import": "6"
   },
   {
    "id": "36",
    "country_es": "Camerún",
    "country_en": "Cameroon",
    "country_code": "CM",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "37",
    "country_es": "Canadá",
    "country_en": "Canada",
    "country_code": "CA",
-   "zone": "3"
+   "zone": "B",
+   "zone_import": "3"
   },
   {
    "id": "38",
    "country_es": "Cabo Verde",
    "country_en": "Cape Verde",
    "country_code": "CV",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "39",
    "country_es": "Islas Caimán",
    "country_en": "Cayman Islands",
    "country_code": "KY",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "40",
    "country_es": "República Centroafricana",
    "country_en": "Central African Republic",
    "country_code": "CF",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "41",
    "country_es": "Chad",
    "country_en": "Chad",
    "country_code": "TD",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "42",
    "country_es": "Chile",
    "country_en": "Chile",
    "country_code": "CL",
-   "zone": "4"
+   "zone": "C",
+   "zone_import": "4"
   },
   {
    "id": "43",
    "country_es": "China",
    "country_en": "China",
    "country_code": "CN",
-   "zone": "6"
+   "zone": "G",
+   "zone_import": "6"
   },
   {
    "id": "44",
    "country_es": "Congo",
    "country_en": "Congo",
    "country_code": "CG",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "45",
    "country_es": "Islas Cook",
    "country_en": "Cook Islands",
    "country_code": "CK",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "46",
    "country_es": "Costa Rica",
    "country_en": "Costa Rica",
    "country_code": "CR",
-   "zone": "4"
+   "zone": "A",
+   "zone_import": "4"
   },
   {
    "id": "47",
    "country_es": "Croacia",
    "country_en": "Croatia",
    "country_code": "HR",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "48",
    "country_es": "Curazao",
    "country_en": "Curacao",
    "country_code": "CW",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "49",
    "country_es": "Chipre",
    "country_en": "Cyprus",
    "country_code": "CY",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "50",
    "country_es": "República Checa",
    "country_en": "Czech Republic",
    "country_code": "CZ",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "51",
    "country_es": "Costa de Marfil",
    "country_en": "Côte D'ivoire (Ivory Coast)",
    "country_code": "CI",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "52",
    "country_es": "República Democrática del Congo",
    "country_en": "Democratic Republic of the Congo",
    "country_code": "CD",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "53",
    "country_es": "Dinamarca",
    "country_en": "Denmark",
    "country_code": "DK",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "54",
    "country_es": "Yibuti",
    "country_en": "Djibouti",
    "country_code": "DJ",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "55",
    "country_es": "Domínica",
    "country_en": "Dominica",
    "country_code": "DM",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "56",
    "country_es": "República Dominicana",
    "country_en": "Dominican Republic",
    "country_code": "DO",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "57",
    "country_es": "Timor Oriental",
    "country_en": "East Timor",
    "country_code": "TL",
-   "zone": "6"
+   "zone": "H",
+   "zone_import": "6"
   },
   {
    "id": "58",
    "country_es": "Ecuador",
    "country_en": "Ecuador",
    "country_code": "EC",
-   "zone": "1"
+   "zone": "A",
+   "zone_import": "1"
   },
   {
    "id": "59",
    "country_es": "Egipto",
    "country_en": "Egypt",
    "country_code": "EG",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "60",
    "country_es": "El Salvador",
    "country_en": "El Salvador",
    "country_code": "SV",
-   "zone": "4"
+   "zone": "D",
+   "zone_import": "4"
   },
   {
    "id": "61",
    "country_es": "Guinea Ecuatorial",
    "country_en": "Equatorial Guinea",
    "country_code": "GQ",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "62",
    "country_es": "Eritrea",
    "country_en": "Eritrea",
    "country_code": "ER",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "63",
    "country_es": "Estonia",
    "country_en": "Estonia",
    "country_code": "EE",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "64",
    "country_es": "Etiopía",
    "country_en": "Ethiopia",
    "country_code": "ET",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "65",
    "country_es": "Islas Feroe",
    "country_en": "Faeroe Islands",
    "country_code": "FO",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "66",
    "country_es": "Fiyi",
    "country_en": "Fiji",
    "country_code": "FJ",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "67",
    "country_es": "Finlandia",
    "country_en": "Finland",
    "country_code": "FI",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "68",
    "country_es": "Francia",
    "country_en": "France",
    "country_code": "FR",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "69",
    "country_es": "Guyana Francesa",
    "country_en": "French Guiana",
    "country_code": "GF",
-   "zone": "4"
+   "zone": "C",
+   "zone_import": "4"
   },
   {
    "id": "70",
    "country_es": "Polinesia Francesa",
    "country_en": "French Polynesia",
    "country_code": "PF",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "71",
    "country_es": "Gabón",
    "country_en": "Gabon",
    "country_code": "GA",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "72",
    "country_es": "Gambia",
    "country_en": "Gambia",
    "country_code": "GM",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "73",
    "country_es": "Georgia",
    "country_en": "Georgia",
    "country_code": "GE",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "74",
    "country_es": "Alemania",
    "country_en": "Germany",
    "country_code": "DE",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "75",
    "country_es": "Ghana",
    "country_en": "Ghana",
    "country_code": "GH",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "76",
    "country_es": "Gibraltar",
    "country_en": "Gibraltar",
    "country_code": "GI",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "77",
    "country_es": "Grecia",
    "country_en": "Greece",
    "country_code": "GR",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "78",
    "country_es": "Groenlandia",
    "country_en": "Greenland",
    "country_code": "GL",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "79",
    "country_es": "Grenada",
    "country_en": "Grenada",
    "country_code": "GD",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "80",
    "country_es": "Guadalupe",
    "country_en": "Guadeloupe",
    "country_code": "GP",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "81",
    "country_es": "Guam",
    "country_en": "Guam",
    "country_code": "GU",
-   "zone": "7"
+   "zone": "G",
+   "zone_import": "7"
   },
   {
    "id": "82",
    "country_es": "Guatemala",
    "country_en": "Guatemala",
    "country_code": "GT",
-   "zone": "4"
+   "zone": "D",
+   "zone_import": "4"
   },
   {
    "id": "83",
    "country_es": "Guinea",
    "country_en": "Guinea",
    "country_code": "GN",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "84",
    "country_es": "Guinea-Bisáu",
    "country_en": "Guinea-Bissau",
    "country_code": "GW",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "85",
    "country_es": "Guyana",
    "country_en": "Guyana",
    "country_code": "GY",
-   "zone": "4"
+   "zone": "C",
+   "zone_import": "4"
   },
   {
    "id": "86",
    "country_es": "Haití",
    "country_en": "Haiti",
    "country_code": "HT",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "87",
    "country_es": "Honduras",
    "country_en": "Honduras",
    "country_code": "HN",
-   "zone": "4"
+   "zone": "D",
+   "zone_import": "4"
   },
   {
    "id": "88",
    "country_es": "Hong Kong",
    "country_en": "Hong Kong",
    "country_code": "HK",
-   "zone": "6"
+   "zone": "G",
+   "zone_import": "6"
   },
   {
    "id": "89",
    "country_es": "Hungría",
    "country_en": "Hungary",
    "country_code": "HU",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "90",
    "country_es": "Islandia",
    "country_en": "Iceland",
    "country_code": "IS",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "91",
    "country_es": "India",
    "country_en": "India",
    "country_code": "IN",
-   "zone": "6"
+   "zone": "H",
+   "zone_import": "6"
   },
   {
    "id": "92",
    "country_es": "Indonesia",
    "country_en": "Indonesia",
    "country_code": "ID",
-   "zone": "6"
+   "zone": "G",
+   "zone_import": "6"
   },
   {
    "id": "93",
    "country_es": "Irak",
    "country_en": "Iraq",
    "country_code": "IQ",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "94",
    "country_es": "Irlanda",
    "country_en": "Ireland",
    "country_code": "IE",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "95",
    "country_es": "Israel",
    "country_en": "Israel",
    "country_code": "IL",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "96",
    "country_es": "Italia",
    "country_en": "Italy",
    "country_code": "IT",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "97",
    "country_es": "Jamaica",
    "country_en": "Jamaica",
    "country_code": "JM",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "98",
    "country_es": "Japón",
    "country_en": "Japan",
    "country_code": "JP",
-   "zone": "6"
+   "zone": "G",
+   "zone_import": "6"
   },
   {
    "id": "99",
    "country_es": "Jordania",
    "country_en": "Jordan",
    "country_code": "JO",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "100",
    "country_es": "Kazajistán",
    "country_en": "Kazakhstan",
    "country_code": "KZ",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "101",
    "country_es": "Kenia",
    "country_en": "Kenya",
    "country_code": "KE",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "102",
    "country_es": "Kuwait",
    "country_en": "Kuwait",
    "country_code": "KW",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "103",
    "country_es": "Kirguistán",
    "country_en": "Kyrgyzstan",
    "country_code": "KG",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "104",
    "country_es": "Laos",
    "country_en": "Laos",
    "country_code": "LA",
-   "zone": "6"
+   "zone": "H",
+   "zone_import": "6"
   },
   {
    "id": "105",
    "country_es": "Letonia",
    "country_en": "Latvia",
    "country_code": "LV",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "106",
    "country_es": "Líbano",
    "country_en": "Lebanon",
    "country_code": "LB",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "107",
    "country_es": "Lesoto",
    "country_en": "Lesotho",
    "country_code": "LS",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "108",
    "country_es": "Liberia",
    "country_en": "Liberia",
    "country_code": "LR",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "109",
    "country_es": "Libia",
    "country_en": "Libya",
    "country_code": "LY",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "110",
    "country_es": "Liechtenstein",
    "country_en": "Liechtenstein",
    "country_code": "LI",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "111",
    "country_es": "Lituania",
    "country_en": "Lithuania",
    "country_code": "LT",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "112",
    "country_es": "Luxemburgo",
    "country_en": "Luxembourg",
    "country_code": "LU",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "113",
    "country_es": "Macao",
    "country_en": "Macao",
    "country_code": "MO",
-   "zone": "6"
+   "zone": "G",
+   "zone_import": "6"
   },
   {
    "id": "114",
    "country_es": "Macedonia del Norte",
    "country_en": "Macedonia",
    "country_code": "MK",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "115",
    "country_es": "Madagascar",
    "country_en": "Madagascar",
    "country_code": "MG",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "116",
    "country_es": "Malaui",
    "country_en": "Malawi",
    "country_code": "MW",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "117",
    "country_es": "Malasia",
    "country_en": "Malaysia",
    "country_code": "MY",
-   "zone": "6"
+   "zone": "G",
+   "zone_import": "6"
   },
   {
    "id": "118",
    "country_es": "Maldivas",
    "country_en": "Maldives",
    "country_code": "MV",
-   "zone": "6"
+   "zone": "H",
+   "zone_import": "6"
   },
   {
    "id": "119",
    "country_es": "Malí",
    "country_en": "Mali",
    "country_code": "ML",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "120",
    "country_es": "Malta",
    "country_en": "Malta",
    "country_code": "MT",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "121",
    "country_es": "Islas Marshall",
    "country_en": "Marshall Islands",
    "country_code": "MH",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "122",
    "country_es": "Martinica",
    "country_en": "Martinique",
    "country_code": "MQ",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "123",
    "country_es": "Mauritania",
    "country_en": "Mauritania",
    "country_code": "MR",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "124",
    "country_es": "Mauricio",
    "country_en": "Mauritius",
    "country_code": "MU",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "125",
    "country_es": "México",
    "country_en": "Mexico",
    "country_code": "MX",
-   "zone": "3"
+   "zone": "B",
+   "zone_import": "3"
   },
   {
    "id": "126",
    "country_es": "Micronesia",
    "country_en": "Micronesia",
    "country_code": "FM",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "127",
    "country_es": "Mónaco",
    "country_en": "Monaco",
    "country_code": "MC",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "128",
    "country_es": "Mongolia",
    "country_en": "Mongolia",
    "country_code": "MN",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "129",
    "country_es": "Montserrat",
    "country_en": "Monserrat",
    "country_code": "MS",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "130",
    "country_es": "Montenegro",
    "country_en": "Montenegro",
    "country_code": "ME",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "131",
    "country_es": "Marruecos",
    "country_en": "Morocco",
    "country_code": "MA",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "132",
    "country_es": "Mozambique",
    "country_en": "Mozambique",
    "country_code": "MZ",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "133",
    "country_es": "Myanmar",
    "country_en": "Myanmar",
    "country_code": "MM",
-   "zone": "6"
+   "zone": "H",
+   "zone_import": "6"
   },
   {
    "id": "134",
    "country_es": "Namibia",
    "country_en": "Namibia",
    "country_code": "NA",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "135",
    "country_es": "Nepal",
    "country_en": "Nepal",
    "country_code": "NP",
-   "zone": "6"
+   "zone": "H",
+   "zone_import": "6"
   },
   {
    "id": "136",
    "country_es": "Países Bajos",
    "country_en": "Netherlands",
    "country_code": "NL",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "138",
    "country_es": "Nueva Caledonia",
    "country_en": "New Caledonia",
    "country_code": "NC",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "139",
    "country_es": "Nueva Zelanda",
    "country_en": "New Zealand",
    "country_code": "NZ",
-   "zone": "7"
+   "zone": "G",
+   "zone_import": "7"
   },
   {
    "id": "140",
    "country_es": "Nicaragua",
    "country_en": "Nicaragua",
    "country_code": "NI",
-   "zone": "4"
+   "zone": "D",
+   "zone_import": "4"
   },
   {
    "id": "141",
    "country_es": "Níger",
    "country_en": "Niger",
    "country_code": "NE",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "142",
    "country_es": "Nigeria",
    "country_en": "Nigeria",
    "country_code": "NG",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "143",
    "country_es": "Islas Marianas del Norte",
    "country_en": "Northern Mariana Islands",
    "country_code": "MP",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "144",
    "country_es": "Noruega",
    "country_en": "Norway",
    "country_code": "NO",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "145",
    "country_es": "Omán",
    "country_en": "Oman",
    "country_code": "OM",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "146",
    "country_es": "Pakistán",
    "country_en": "Pakistan",
    "country_code": "PK",
-   "zone": "6"
+   "zone": "H",
+   "zone_import": "6"
   },
   {
    "id": "147",
    "country_es": "Palau",
    "country_en": "Palau",
    "country_code": "PW",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "149",
    "country_es": "Panamá",
    "country_en": "Panama",
    "country_code": "PA",
-   "zone": "1"
+   "zone": "A",
+   "zone_import": "1"
   },
   {
    "id": "150",
    "country_es": "Papúa Nueva Guinea",
    "country_en": "Papua New Guinea",
    "country_code": "PG",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "151",
    "country_es": "Paraguay",
    "country_en": "Paraguay",
    "country_code": "PY",
-   "zone": "4"
+   "zone": "C",
+   "zone_import": "4"
   },
   {
    "id": "152",
    "country_es": "Perú",
    "country_en": "Peru",
    "country_code": "PE",
-   "zone": "1"
+   "zone": "A",
+   "zone_import": "1"
   },
   {
    "id": "153",
    "country_es": "Filipinas",
    "country_en": "Philippines",
    "country_code": "PH",
-   "zone": "6"
+   "zone": "G",
+   "zone_import": "6"
   },
   {
    "id": "154",
    "country_es": "Polonia",
    "country_en": "Poland",
    "country_code": "PL",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "155",
    "country_es": "Portugal",
    "country_en": "Portugal",
    "country_code": "PT",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "156",
    "country_es": "Catar",
    "country_en": "Qatar",
    "country_code": "QA",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "157",
    "country_es": "Moldavia",
    "country_en": "Republic of Moldova",
    "country_code": "MD",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "158",
    "country_es": "Rumania",
    "country_en": "Romania",
    "country_code": "RO",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "159",
    "country_es": "Rusia",
    "country_en": "Russian Federation",
    "country_code": "RU",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "160",
    "country_es": "Ruanda",
    "country_en": "Rwanda",
    "country_code": "RW",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "161",
    "country_es": "Reunión",
    "country_en": "Réunion",
    "country_code": "RE",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "162",
    "country_es": "Santa Lucía",
    "country_en": "Saint Lucia",
    "country_code": "LC",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "163",
    "country_es": "Samoa",
    "country_en": "Samoa",
    "country_code": "WS",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "164",
    "country_es": "Arabia Saudita",
    "country_en": "Saudi Arabia",
    "country_code": "SA",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "165",
    "country_es": "Senegal",
    "country_en": "Senegal",
    "country_code": "SN",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "166",
    "country_es": "Serbia",
    "country_en": "Serbia",
    "country_code": "RS",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "167",
    "country_es": "Seychelles",
    "country_en": "Seychelles",
    "country_code": "SC",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "168",
    "country_es": "Sierra Leona",
    "country_en": "Sierra Leone",
    "country_code": "SL",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "169",
    "country_es": "Singapur",
    "country_en": "Singapore",
    "country_code": "SG",
-   "zone": "6"
+   "zone": "G",
+   "zone_import": "6"
   },
   {
    "id": "170",
    "country_es": "Eslovaquia",
    "country_en": "Slovakia",
    "country_code": "SK",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "171",
    "country_es": "Eslovenia",
    "country_en": "Slovenia",
    "country_code": "SI",
-   "zone": "5"
+   "zone": "H",
+   "zone_import": "5"
   },
   {
    "id": "172",
    "country_es": "Somalia",
    "country_en": "Somalia",
    "country_code": "SO",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "173",
    "country_es": "Sudáfrica",
    "country_en": "South Africa",
    "country_code": "ZA",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "174",
    "country_es": "Corea del Sur",
    "country_en": "South Korea",
    "country_code": "KR",
-   "zone": "6"
+   "zone": "G",
+   "zone_import": "6"
   },
   {
    "id": "175",
    "country_es": "España",
    "country_en": "Spain",
    "country_code": "ES",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "176",
    "country_es": "Sri Lanka",
    "country_en": "Sri Lanka",
    "country_code": "LK",
-   "zone": "6"
+   "zone": "H",
+   "zone_import": "6"
   },
   {
    "id": "177",
    "country_es": "Saint Kitts y Nevis",
    "country_en": "St. Kitts and Nevis",
    "country_code": "KN",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "178",
    "country_es": "San Martín (parte neerlandesa)",
    "country_en": "St. Maarten",
    "country_code": "SX",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "179",
    "country_es": "San Martín (parte francesa)",
    "country_en": "St. Martin",
    "country_code": "MF",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "180",
    "country_es": "San Vicente y las Granadinas",
    "country_en": "St. Vincent & the Grenadines",
    "country_code": "VC",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "181",
    "country_es": "Sudán",
    "country_en": "Sudan",
    "country_code": "SD",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "182",
    "country_es": "Surinam",
    "country_en": "Suriname",
    "country_code": "SR",
-   "zone": "4"
+   "zone": "C",
+   "zone_import": "4"
   },
   {
    "id": "183",
    "country_es": "Esuatini",
    "country_en": "Eswatini",
    "country_code": "SZ",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "184",
    "country_es": "Suecia",
    "country_en": "Sweden",
    "country_code": "SE",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "185",
    "country_es": "Suiza",
    "country_en": "Switzerland",
    "country_code": "CH",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "186",
    "country_es": "Siria",
    "country_en": "Syrian Arab Republic",
    "country_code": "SY",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "187",
    "country_es": "Taiwán",
    "country_en": "Taiwan",
    "country_code": "TW",
-   "zone": "6"
+   "zone": "G",
+   "zone_import": "6"
   },
   {
    "id": "188",
    "country_es": "Tailandia",
    "country_en": "Thailand",
    "country_code": "TH",
-   "zone": "6"
+   "zone": "G",
+   "zone_import": "6"
   },
   {
    "id": "189",
    "country_es": "Togo",
    "country_en": "Togo",
    "country_code": "TG",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "190",
    "country_es": "Trinidad y Tobago",
    "country_en": "Trinidad & Tobago",
    "country_code": "TT",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "191",
    "country_es": "Túnez",
    "country_en": "Tunisia",
    "country_code": "TN",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "192",
    "country_es": "Turquía",
    "country_en": "Turkey",
    "country_code": "TR",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "193",
    "country_es": "Turkmenistán",
    "country_en": "Turkmenistan",
    "country_code": "TM",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "194",
    "country_es": "Islas Turcas y Caicos",
    "country_en": "Turks & Caicos Islands",
    "country_code": "TC",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "195",
    "country_es": "Islas Vírgenes de EE. UU.",
    "country_en": "U.S. Virgin Islands",
    "country_code": "VI",
-   "zone": "4"
+   "zone": "E",
+   "zone_import": "4"
   },
   {
    "id": "196",
-   "country_es": "Estados Unidos (Excepto Miami)",
-   "country_en": "United States (Except Miami)",
+   "country_es": "Estados Unidos (excepto sur de Florida)",
+   "country_en": "United States (except South Florida)",
    "country_code": "US",
-   "zone": "3"
+   "zone": "B",
+   "zone_import": "3"
   },
   {
    "id": "197",
-   "country_es": "Estados Unidos - Miami",
-   "country_en": "United States - Miami",
+   "country_es": "Estados Unidos - Miami y sur de Florida",
+   "country_en": "United States - Miami and South Florida",
    "country_code": "US",
-   "zone": "2"
+   "zone": "I",
+   "zone_import": "2"
   },
   {
    "id": "198",
    "country_es": "Uganda",
    "country_en": "Uganda",
    "country_code": "UG",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "199",
    "country_es": "Ucrania",
    "country_en": "Ukraine",
    "country_code": "UA",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "200",
    "country_es": "Emiratos Árabes Unidos",
    "country_en": "United Arab Emirates",
    "country_code": "AE",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "201",
    "country_es": "Reino Unido",
    "country_en": "United Kingdom (Great Britain)",
    "country_code": "GB",
-   "zone": "5"
+   "zone": "F",
+   "zone_import": "5"
   },
   {
    "id": "202",
    "country_es": "Tanzania",
    "country_en": "United Republic of Tanzania",
    "country_code": "TZ",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "203",
    "country_es": "Uruguay",
    "country_en": "Uruguay",
    "country_code": "UY",
-   "zone": "4"
+   "zone": "C",
+   "zone_import": "4"
   },
   {
    "id": "204",
    "country_es": "Uzbekistán",
    "country_en": "Uzbekistan",
    "country_code": "UZ",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "205",
    "country_es": "Vanuatu",
    "country_en": "Vanuatu",
    "country_code": "VU",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "206",
    "country_es": "Venezuela",
    "country_en": "Venezuela",
    "country_code": "VE",
-   "zone": "1"
+   "zone": "A",
+   "zone_import": "1"
   },
   {
    "id": "207",
    "country_es": "Vietnam",
    "country_en": "Vietnam",
    "country_code": "VN",
-   "zone": "6"
+   "zone": "G",
+   "zone_import": "6"
   },
   {
    "id": "209",
    "country_es": "Yemen",
    "country_en": "Yemen",
    "country_code": "YE",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "210",
    "country_es": "Zambia",
    "country_en": "Zambia",
    "country_code": "ZM",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "211",
    "country_es": "Zimbabue",
    "country_en": "Zimbabwe",
    "country_code": "ZW",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "212",
    "country_es": "Botsuana",
    "country_en": "Botswana",
    "country_code": "BW",
-   "zone": "7"
+   "zone": "H",
+   "zone_import": "7"
   },
   {
    "id": "213",
    "country_es": "Ciudad del Vaticano",
    "country_en": "Vatican City",
    "country_code": "VA",
-   "zone": "5"
+   "zone": "",
+   "zone_import": "5"
   },
   {
    "id": "214",
    "country_es": "Corea del Norte",
    "country_en": "North Korea",
    "country_code": "KP",
-   "zone": "7"
+   "zone": "",
+   "zone_import": "7"
   },
   {
    "id": "215",
    "country_es": "Cuba",
    "country_en": "Cuba",
    "country_code": "CU",
-   "zone": "4"
+   "zone": "",
+   "zone_import": "4"
   },
   {
    "id": "216",
    "country_es": "Guernsey",
    "country_en": "Guernsey",
    "country_code": "GG",
-   "zone": "5"
+   "zone": "",
+   "zone_import": "5"
   },
   {
    "id": "217",
    "country_es": "Irán",
    "country_en": "Iran",
    "country_code": "IR",
-   "zone": "7"
+   "zone": "",
+   "zone_import": "7"
   },
   {
    "id": "218",
    "country_es": "Islas Malvinas",
    "country_en": "Falkland Islands",
    "country_code": "FK",
-   "zone": "4"
+   "zone": "",
+   "zone_import": "4"
   },
   {
    "id": "219",
    "country_es": "Islas Canarias",
    "country_en": "Canary Islands",
    "country_code": "IC",
-   "zone": "5"
+   "zone": "",
+   "zone_import": "5"
   },
   {
    "id": "220",
    "country_es": "Comoras",
    "country_en": "Comoros",
    "country_code": "KM",
-   "zone": "7"
+   "zone": "",
+   "zone_import": "7"
   },
   {
    "id": "221",
    "country_es": "Islas Salomón",
    "country_en": "Solomon Islands",
    "country_code": "SB",
-   "zone": "7"
+   "zone": "",
+   "zone_import": "7"
   },
   {
    "id": "222",
    "country_es": "Jersey",
    "country_en": "Jersey",
    "country_code": "JE",
-   "zone": "5"
+   "zone": "",
+   "zone_import": "5"
   },
   {
    "id": "223",
    "country_es": "Kiribati",
    "country_en": "Kiribati",
    "country_code": "KI",
-   "zone": "7"
+   "zone": "",
+   "zone_import": "7"
   },
   {
    "id": "224",
    "country_es": "Kosovo",
    "country_en": "Kosovo",
    "country_code": "XK",
-   "zone": "5"
+   "zone": "",
+   "zone_import": "5"
   },
   {
    "id": "225",
    "country_es": "Mayotte",
    "country_en": "Mayotte",
    "country_code": "YT",
-   "zone": "7"
+   "zone": "",
+   "zone_import": "7"
   },
   {
    "id": "226",
    "country_es": "Nauru",
    "country_en": "Nauru",
    "country_code": "NR",
-   "zone": "7"
+   "zone": "",
+   "zone_import": "7"
   },
   {
    "id": "227",
    "country_es": "Niue",
    "country_en": "Niue",
    "country_code": "NU",
-   "zone": "7"
+   "zone": "",
+   "zone_import": "7"
   },
   {
    "id": "228",
    "country_es": "Puerto Rico",
    "country_en": "Puerto Rico",
    "country_code": "PR",
-   "zone": "3"
+   "zone": "",
+   "zone_import": "3"
   },
   {
    "id": "229",
    "country_es": "San Bartolomé",
    "country_en": "Saint Barthélemy",
    "country_code": "BL",
-   "zone": "4"
+   "zone": "",
+   "zone_import": "4"
   },
   {
    "id": "230",
    "country_es": "San Marino",
    "country_en": "San Marino",
    "country_code": "SM",
-   "zone": "5"
+   "zone": "",
+   "zone_import": "5"
   },
   {
    "id": "231",
    "country_es": "Santa Elena",
    "country_en": "Saint Helena",
    "country_code": "SH",
-   "zone": "7"
+   "zone": "",
+   "zone_import": "7"
   },
   {
    "id": "232",
    "country_es": "Santo Tomé y Príncipe",
    "country_en": "São Tomé and Príncipe",
    "country_code": "ST",
-   "zone": "7"
+   "zone": "",
+   "zone_import": "7"
   },
   {
    "id": "233",
    "country_es": "Sudán del Sur",
    "country_en": "South Sudan",
    "country_code": "SS",
-   "zone": "7"
+   "zone": "",
+   "zone_import": "7"
   },
   {
    "id": "234",
    "country_es": "Tayikistán",
    "country_en": "Tajikistan",
    "country_code": "TJ",
-   "zone": "7"
+   "zone": "",
+   "zone_import": "7"
   },
   {
    "id": "235",
    "country_es": "Tonga",
    "country_en": "Tonga",
    "country_code": "TO",
-   "zone": "7"
+   "zone": "",
+   "zone_import": "7"
   },
   {
    "id": "236",
    "country_es": "Tuvalu",
    "country_en": "Tuvalu",
    "country_code": "TV",
-   "zone": "7"
+   "zone": "",
+   "zone_import": "7"
+  },
+  {
+   "id": "237",
+   "country_es": "Afganistán",
+   "country_en": "Afghanistan",
+   "country_code": "AF",
+   "zone": "H",
+   "zone_import": ""
+  },
+  {
+   "id": "238",
+   "country_es": "Palestina",
+   "country_en": "Palestine",
+   "country_code": "PS",
+   "zone": "H",
+   "zone_import": ""
+  },
+  {
+   "id": "239",
+   "country_es": "Wallis y Futuna",
+   "country_en": "Wallis and Futuna",
+   "country_code": "WF",
+   "zone": "H",
+   "zone_import": ""
   }
  ],
  "rates": {
-  "1": {
+  "A": {
    "table": [
     [
      0.5,
-     89.27
+     263074.34
     ],
     [
-     1,
-     102.73
+     1.0,
+     313633.28
     ],
     [
      1.5,
-     116.23
+     364087.33
     ],
     [
-     2,
-     129.73
+     2.0,
+     414646.28
     ],
     [
      2.5,
-     143.23
+     465205.22
     ],
     [
-     3,
-     157.08
+     3.0,
+     504435.61
     ],
     [
      3.5,
-     170.93
+     543665.99
     ],
     [
-     4,
-     184.78
+     4.0,
+     582896.37
     ],
     [
      4.5,
-     198.63
+     622126.76
     ],
     [
-     5,
-     212.48
+     5.0,
+     661357.14
     ],
     [
      5.5,
-     222.97
+     686321.93
     ],
     [
-     6,
-     233.46
+     6.0,
+     711286.72
     ],
     [
      6.5,
-     243.95
+     736146.62
     ],
     [
-     7,
-     254.44
+     7.0,
+     761006.51
     ],
     [
      7.5,
-     264.93
+     785971.3
     ],
     [
-     8,
-     275.42
+     8.0,
+     810936.09
     ],
     [
      8.5,
-     285.91
+     835900.88
     ],
     [
-     9,
-     296.4
+     9.0,
+     860760.78
     ],
     [
      9.5,
-     306.89
+     885620.68
     ],
     [
-     10,
-     317.38
+     10.0,
+     910585.47
     ],
     [
-     11,
-     330.9
+     10.5,
+     1014535.49
     ],
     [
-     12,
-     344.42
+     11.0,
+     1035724.1
     ],
     [
-     13,
-     357.94
+     11.5,
+     1056807.81
     ],
     [
-     14,
-     371.46
+     12.0,
+     1077996.41
     ],
     [
-     15,
-     384.98
+     12.5,
+     1099080.12
     ],
     [
-     16,
-     398.5
+     13.0,
+     1120268.72
     ],
     [
-     17,
-     412.02
+     13.5,
+     1141457.32
     ],
     [
-     18,
-     425.54
+     14.0,
+     1162541.03
     ],
     [
-     19,
-     439.06
+     14.5,
+     1183729.64
     ],
     [
-     20,
-     452.58
+     15.0,
+     1204813.35
     ],
     [
-     21,
-     467.46
+     15.5,
+     1226001.95
     ],
     [
-     22,
-     482.34
+     16.0,
+     1247190.55
     ],
     [
-     23,
-     497.22
+     16.5,
+     1268274.26
     ],
     [
-     24,
-     512.1
+     17.0,
+     1289462.86
     ],
     [
-     25,
-     526.98
+     17.5,
+     1310546.57
     ],
     [
-     26,
-     541.86
+     18.0,
+     1331735.18
     ],
     [
-     27,
-     556.74
+     18.5,
+     1352923.78
     ],
     [
-     28,
-     571.62
+     19.0,
+     1374007.49
     ],
     [
-     29,
-     586.5
+     19.5,
+     1379776.66
     ],
     [
-     30,
-     601.38
+     20.0,
+     1379776.66
     ],
     [
-     40,
-     764.18
-    ],
-    [
-     50,
-     926.98
-    ],
-    [
-     60,
-     1089.78
-    ],
-    [
-     70,
-     1252.58
+     20.5,
+     1379776.66
     ]
    ],
-   "extra": [
+   "extra": [],
+   "por_kg": [
     {
-     "desde": 10,
-     "hasta": 20,
-     "paso": 0.5,
-     "precio": 6.76
+     "desde": 21,
+     "hasta": 44,
+     "precio": 65663.69
     },
     {
-     "desde": 20,
-     "hasta": 30,
-     "paso": 0.5,
-     "precio": 7.44
-    },
-    {
-     "desde": 30,
+     "desde": 45,
      "hasta": 70,
-     "paso": 1,
-     "precio": 16.28
+     "precio": 59684.73
     },
     {
-     "desde": 70,
-     "hasta": 300,
-     "paso": 1,
-     "precio": 20.81
+     "desde": 71,
+     "hasta": 99,
+     "precio": 57167.27
+    },
+    {
+     "desde": 100,
+     "hasta": 299,
+     "precio": 56852.59
     },
     {
      "desde": 300,
-     "hasta": 3000,
-     "paso": 1,
-     "precio": 22.72
+     "hasta": 499,
+     "precio": 56852.59
+    },
+    {
+     "desde": 500,
+     "hasta": 999,
+     "precio": 56852.59
+    },
+    {
+     "desde": 1000,
+     "hasta": 99999,
+     "precio": 56852.59
     }
    ]
   },
-  "2": {
+  "B": {
    "table": [
     [
      0.5,
-     94.75
+     225500.0
     ],
     [
-     1,
-     108.42
+     1.0,
+     249800.0
     ],
     [
      1.5,
-     122.28
+     291450.0
     ],
     [
-     2,
-     136.14
+     2.0,
+     312500.0
     ],
     [
      2.5,
-     150.0
+     337234.45
     ],
     [
-     3,
-     164.46
+     3.0,
+     372059.28
     ],
     [
      3.5,
-     178.92
+     406779.22
     ],
     [
-     4,
-     193.38
+     4.0,
+     441604.06
     ],
     [
      4.5,
-     207.84
+     476533.78
     ],
     [
-     5,
-     222.3
+     5.0,
+     511253.72
     ],
     [
      5.5,
-     234.79
+     535694.04
     ],
     [
-     6,
-     247.28
+     6.0,
+     560239.25
     ],
     [
      6.5,
-     259.77
+     584679.57
     ],
     [
-     7,
-     272.26
+     7.0,
+     609015.0
     ],
     [
      7.5,
-     284.75
+     633455.32
     ],
     [
-     8,
-     297.24
+     8.0,
+     657895.64
     ],
     [
      8.5,
-     309.73
+     682440.85
     ],
     [
-     9,
-     322.22
+     9.0,
+     706881.17
     ],
     [
      9.5,
-     334.71
+     731321.49
     ],
     [
-     10,
-     347.2
+     10.0,
+     755761.81
     ],
     [
-     11,
-     365.5
+     10.5,
+     738664.08
     ],
     [
-     12,
-     383.8
+     11.0,
+     757545.01
     ],
     [
-     13,
-     402.1
+     11.5,
+     776425.94
     ],
     [
-     14,
-     420.4
+     12.0,
+     795306.88
     ],
     [
-     15,
-     438.7
+     12.5,
+     814187.81
     ],
     [
-     16,
-     457.0
+     13.0,
+     833068.74
     ],
     [
-     17,
-     475.3
+     13.5,
+     851949.68
     ],
     [
-     18,
-     493.6
+     14.0,
+     870830.61
     ],
     [
-     19,
-     511.9
+     14.5,
+     889711.54
     ],
     [
-     20,
-     530.2
+     15.0,
+     908592.48
     ],
     [
-     21,
-     545.88
+     15.5,
+     927473.41
     ],
     [
-     22,
-     561.56
+     16.0,
+     946354.34
     ],
     [
-     23,
-     577.24
+     16.5,
+     965235.28
     ],
     [
-     24,
-     592.92
+     17.0,
+     984116.21
     ],
     [
-     25,
-     608.6
+     17.5,
+     1002997.15
     ],
     [
-     26,
-     624.28
+     18.0,
+     1021878.08
     ],
     [
-     27,
-     639.96
+     18.5,
+     1039710.07
     ],
     [
-     28,
-     655.64
+     19.0,
+     1039710.07
     ],
     [
-     29,
-     671.32
+     19.5,
+     1039710.07
     ],
     [
-     30,
-     687.0
+     20.0,
+     1039710.07
     ],
     [
-     40,
-     866.4
-    ],
-    [
-     50,
-     1045.8
-    ],
-    [
-     60,
-     1225.2
-    ],
-    [
-     70,
-     1404.6
+     20.5,
+     1039710.07
     ]
    ],
-   "extra": [
+   "extra": [],
+   "por_kg": [
     {
-     "desde": 10,
-     "hasta": 20,
-     "paso": 0.5,
-     "precio": 9.15
+     "desde": 21,
+     "hasta": 44,
+     "precio": 49510.0
     },
     {
-     "desde": 20,
-     "hasta": 30,
-     "paso": 0.5,
-     "precio": 7.84
-    },
-    {
-     "desde": 30,
+     "desde": 45,
      "hasta": 70,
-     "paso": 1,
-     "precio": 17.94
+     "precio": 44265.3
     },
     {
-     "desde": 70,
-     "hasta": 300,
-     "paso": 1,
-     "precio": 20.79
+     "desde": 71,
+     "hasta": 99,
+     "precio": 41747.84
+    },
+    {
+     "desde": 100,
+     "hasta": 299,
+     "precio": 41747.84
     },
     {
      "desde": 300,
-     "hasta": 3000,
-     "paso": 1,
-     "precio": 23.36
+     "hasta": 499,
+     "precio": 41747.84
+    },
+    {
+     "desde": 500,
+     "hasta": 999,
+     "precio": 41747.84
+    },
+    {
+     "desde": 1000,
+     "hasta": 99999,
+     "precio": 41747.84
     }
    ]
   },
-  "3": {
+  "C": {
    "table": [
     [
      0.5,
-     100.49
+     263074.34
     ],
     [
-     1,
-     115.55
+     1.0,
+     313633.28
     ],
     [
      1.5,
-     130.68
+     364087.33
     ],
     [
-     2,
-     145.81
+     2.0,
+     414646.28
     ],
     [
      2.5,
-     160.94
+     465205.22
     ],
     [
-     3,
-     176.8
+     3.0,
+     504435.61
     ],
     [
      3.5,
-     192.66
+     543665.99
     ],
     [
-     4,
-     208.52
+     4.0,
+     582896.37
     ],
     [
      4.5,
-     224.38
+     622126.76
     ],
     [
-     5,
-     240.24
+     5.0,
+     661357.14
     ],
     [
      5.5,
-     252.69
+     686321.93
     ],
     [
-     6,
-     265.14
+     6.0,
+     711157.99
     ],
     [
      6.5,
-     277.59
+     741863.35
     ],
     [
-     7,
-     290.04
+     7.0,
+     772678.36
     ],
     [
      7.5,
-     302.49
+     803493.38
     ],
     [
-     8,
-     314.94
+     8.0,
+     834308.4
     ],
     [
      8.5,
-     327.39
+     865013.76
     ],
     [
-     9,
-     339.84
+     9.0,
+     895938.44
     ],
     [
      9.5,
-     352.29
+     926643.79
     ],
     [
-     10,
-     364.74
+     10.0,
+     957458.81
     ],
     [
-     11,
-     382.44
+     10.5,
+     1146625.74
     ],
     [
-     12,
-     400.14
+     11.0,
+     1176015.15
     ],
     [
-     13,
-     417.84
+     11.5,
+     1205404.57
     ],
     [
-     14,
-     435.54
+     12.0,
+     1235013.3
     ],
     [
-     15,
-     453.24
+     12.5,
+     1264402.72
     ],
     [
-     16,
-     470.94
+     13.0,
+     1294011.45
     ],
     [
-     17,
-     488.64
+     13.5,
+     1323400.87
     ],
     [
-     18,
-     506.34
+     14.0,
+     1352790.28
     ],
     [
-     19,
-     524.04
+     14.5,
+     1382399.01
     ],
     [
-     20,
-     541.74
+     15.0,
+     1411788.43
     ],
     [
-     21,
-     559.8
+     15.5,
+     1441397.16
     ],
     [
-     22,
-     577.86
+     16.0,
+     1470786.58
     ],
     [
-     23,
-     595.92
+     16.5,
+     1500175.99
     ],
     [
-     24,
-     613.98
+     17.0,
+     1529784.73
     ],
     [
-     25,
-     632.04
+     17.5,
+     1559174.14
     ],
     [
-     26,
-     650.1
+     18.0,
+     1588782.87
     ],
     [
-     27,
-     668.16
+     18.5,
+     1618172.29
     ],
     [
-     28,
-     686.22
+     19.0,
+     1647561.7
     ],
     [
-     29,
-     704.28
+     19.5,
+     1677170.44
     ],
     [
-     30,
-     722.34
+     20.0,
+     1706559.85
     ],
     [
-     40,
-     903.74
-    ],
-    [
-     50,
-     1085.14
-    ],
-    [
-     60,
-     1266.54
-    ],
-    [
-     70,
-     1447.94
+     20.5,
+     1736168.59
     ]
    ],
-   "extra": [
+   "extra": [],
+   "por_kg": [
     {
-     "desde": 10,
-     "hasta": 20,
-     "paso": 0.5,
-     "precio": 8.85
+     "desde": 21,
+     "hasta": 44,
+     "precio": 82904.46
     },
     {
-     "desde": 20,
-     "hasta": 30,
-     "paso": 0.5,
-     "precio": 9.03
-    },
-    {
-     "desde": 30,
+     "desde": 45,
      "hasta": 70,
-     "paso": 1,
-     "precio": 18.14
+     "precio": 69745.02
     },
     {
-     "desde": 70,
-     "hasta": 300,
-     "paso": 1,
-     "precio": 24.65
+     "desde": 71,
+     "hasta": 99,
+     "precio": 63274.97
+    },
+    {
+     "desde": 100,
+     "hasta": 299,
+     "precio": 62945.98
     },
     {
      "desde": 300,
-     "hasta": 3000,
-     "paso": 1,
-     "precio": 27.15
+     "hasta": 499,
+     "precio": 62945.98
+    },
+    {
+     "desde": 500,
+     "hasta": 999,
+     "precio": 62945.98
+    },
+    {
+     "desde": 1000,
+     "hasta": 99999,
+     "precio": 62945.98
     }
    ]
   },
-  "4": {
+  "D": {
    "table": [
     [
      0.5,
-     140.45
+     279800.0
     ],
     [
-     1,
-     161.1
+     1.0,
+     332500.0
     ],
     [
      1.5,
-     181.83
+     364087.33
     ],
     [
-     2,
-     202.56
+     2.0,
+     414646.28
     ],
     [
      2.5,
-     223.29
+     465205.22
     ],
     [
-     3,
-     244.72
+     3.0,
+     504435.61
     ],
     [
      3.5,
-     266.15
+     543665.99
     ],
     [
-     4,
-     287.58
+     4.0,
+     582896.37
     ],
     [
      4.5,
-     309.01
+     622126.76
     ],
     [
-     5,
-     330.44
+     5.0,
+     661357.14
     ],
     [
      5.5,
-     346.82
+     686321.93
     ],
     [
-     6,
-     363.2
+     6.0,
+     711286.72
     ],
     [
      6.5,
-     379.58
+     736146.62
     ],
     [
-     7,
-     395.96
+     7.0,
+     761006.51
     ],
     [
      7.5,
-     412.34
+     785971.3
     ],
     [
-     8,
-     428.72
+     8.0,
+     810936.09
     ],
     [
      8.5,
-     445.1
+     835900.88
     ],
     [
-     9,
-     461.48
+     9.0,
+     860760.78
     ],
     [
      9.5,
-     477.86
+     885620.68
     ],
     [
-     10,
-     494.24
+     10.0,
+     910585.47
     ],
     [
-     11,
-     520.76
+     10.5,
+     1014535.49
     ],
     [
-     12,
-     547.28
+     11.0,
+     1035724.1
     ],
     [
-     13,
-     573.8
+     11.5,
+     1056807.81
     ],
     [
-     14,
-     600.32
+     12.0,
+     1077996.41
     ],
     [
-     15,
-     626.84
+     12.5,
+     1099080.12
     ],
     [
-     16,
-     653.36
+     13.0,
+     1120268.72
     ],
     [
-     17,
-     679.88
+     13.5,
+     1141457.32
     ],
     [
-     18,
-     706.4
+     14.0,
+     1162541.03
     ],
     [
-     19,
-     732.92
+     14.5,
+     1183729.64
     ],
     [
-     20,
-     759.44
+     15.0,
+     1204813.35
     ],
     [
-     21,
-     783.06
+     15.5,
+     1226001.95
     ],
     [
-     22,
-     806.68
+     16.0,
+     1247190.55
     ],
     [
-     23,
-     830.3
+     16.5,
+     1268274.26
     ],
     [
-     24,
-     853.92
+     17.0,
+     1289462.86
     ],
     [
-     25,
-     877.54
+     17.5,
+     1310546.57
     ],
     [
-     26,
-     901.16
+     18.0,
+     1331735.18
     ],
     [
-     27,
-     924.78
+     18.5,
+     1352923.78
     ],
     [
-     28,
-     948.4
+     19.0,
+     1374007.49
     ],
     [
-     29,
-     972.02
+     19.5,
+     1379776.66
     ],
     [
-     30,
-     995.64
+     20.0,
+     1379776.66
     ],
     [
-     40,
-     1251.34
-    ],
-    [
-     50,
-     1507.04
-    ],
-    [
-     60,
-     1762.74
-    ],
-    [
-     70,
-     2018.44
+     20.5,
+     1379776.66
     ]
    ],
-   "extra": [
+   "extra": [],
+   "por_kg": [
     {
-     "desde": 10,
-     "hasta": 20,
-     "paso": 0.5,
-     "precio": 13.26
+     "desde": 21,
+     "hasta": 44,
+     "precio": 65663.69
     },
     {
-     "desde": 20,
-     "hasta": 30,
-     "paso": 0.5,
-     "precio": 11.81
-    },
-    {
-     "desde": 30,
+     "desde": 45,
      "hasta": 70,
-     "paso": 1,
-     "precio": 25.57
+     "precio": 59684.73
     },
     {
-     "desde": 70,
-     "hasta": 300,
-     "paso": 1,
-     "precio": 30.34
+     "desde": 71,
+     "hasta": 99,
+     "precio": 57167.27
+    },
+    {
+     "desde": 100,
+     "hasta": 299,
+     "precio": 56852.59
     },
     {
      "desde": 300,
-     "hasta": 3000,
-     "paso": 1,
-     "precio": 33.4
+     "hasta": 499,
+     "precio": 56852.59
+    },
+    {
+     "desde": 500,
+     "hasta": 999,
+     "precio": 56852.59
+    },
+    {
+     "desde": 1000,
+     "hasta": 99999,
+     "precio": 56852.59
     }
    ]
   },
-  "5": {
+  "E": {
    "table": [
     [
      0.5,
-     173.09
+     227202.95
     ],
     [
-     1,
-     208.43
+     1.0,
+     273694.87
     ],
     [
      1.5,
-     243.95
+     320069.97
     ],
     [
-     2,
-     279.47
+     2.0,
+     366561.88
     ],
     [
      2.5,
-     314.99
+     412936.98
     ],
     [
-     3,
-     347.91
+     3.0,
+     457676.69
     ],
     [
      3.5,
-     380.83
+     502299.58
     ],
     [
-     4,
-     413.75
+     4.0,
+     547039.29
     ],
     [
      4.5,
-     446.67
+     591662.18
     ],
     [
-     5,
-     479.59
+     5.0,
+     636401.89
     ],
     [
      5.5,
-     498.83
+     657895.64
     ],
     [
-     6,
-     518.07
+     6.0,
+     679506.2
     ],
     [
      6.5,
-     537.31
+     701116.77
     ],
     [
-     7,
-     556.55
+     7.0,
+     722610.51
     ],
     [
      7.5,
-     575.79
+     744104.26
     ],
     [
-     8,
-     595.03
+     8.0,
+     765714.83
     ],
     [
      8.5,
-     614.27
+     787325.39
     ],
     [
-     9,
-     633.51
+     9.0,
+     808819.14
     ],
     [
      9.5,
-     652.75
+     830312.89
     ],
     [
-     10,
-     671.99
+     10.0,
+     851923.45
     ],
     [
-     11,
-     701.29
+     10.5,
+     1331794.78
     ],
     [
-     12,
-     730.59
+     11.0,
+     1357377.01
     ],
     [
-     13,
-     759.89
+     11.5,
+     1382842.43
     ],
     [
-     14,
-     789.19
+     12.0,
+     1408424.66
     ],
     [
-     15,
-     818.49
+     12.5,
+     1433890.09
     ],
     [
-     16,
-     847.79
+     13.0,
+     1459472.32
     ],
     [
-     17,
-     877.09
+     13.5,
+     1484937.74
     ],
     [
-     18,
-     906.39
+     14.0,
+     1510519.98
     ],
     [
-     19,
-     935.69
+     14.5,
+     1535985.4
     ],
     [
-     20,
-     964.99
+     15.0,
+     1561567.63
     ],
     [
-     21,
-     999.77
+     15.5,
+     1587033.05
     ],
     [
-     22,
-     1034.55
+     16.0,
+     1612615.29
     ],
     [
-     23,
-     1069.33
+     16.5,
+     1638080.71
     ],
     [
-     24,
-     1104.11
+     17.0,
+     1663662.94
     ],
     [
-     25,
-     1138.89
+     17.5,
+     1689128.36
     ],
     [
-     26,
-     1173.67
+     18.0,
+     1714710.6
     ],
     [
-     27,
-     1208.45
+     18.5,
+     1740176.02
     ],
     [
-     28,
-     1243.23
+     19.0,
+     1765758.25
     ],
     [
-     29,
-     1278.01
+     19.5,
+     1771715.76
     ],
     [
-     30,
-     1312.79
+     20.0,
+     1771715.76
     ],
     [
-     40,
-     1659.09
-    ],
-    [
-     50,
-     2005.39
-    ],
-    [
-     60,
-     2351.69
-    ],
-    [
-     70,
-     2697.99
+     20.5,
+     1771715.76
     ]
    ],
-   "extra": [
+   "extra": [],
+   "por_kg": [
     {
-     "desde": 10,
-     "hasta": 20,
-     "paso": 0.5,
-     "precio": 14.65
+     "desde": 21,
+     "hasta": 44,
+     "precio": 84339.6
     },
     {
-     "desde": 20,
-     "hasta": 30,
-     "paso": 0.5,
-     "precio": 17.39
-    },
-    {
-     "desde": 30,
+     "desde": 45,
      "hasta": 70,
-     "paso": 1,
-     "precio": 34.63
+     "precio": 75461.75
     },
     {
-     "desde": 70,
-     "hasta": 300,
-     "paso": 1,
-     "precio": 42.19
+     "desde": 71,
+     "hasta": 99,
+     "precio": 70438.76
+    },
+    {
+     "desde": 100,
+     "hasta": 299,
+     "precio": 69854.69
     },
     {
      "desde": 300,
-     "hasta": 3000,
-     "paso": 1,
-     "precio": 46.4
+     "hasta": 499,
+     "precio": 69854.69
+    },
+    {
+     "desde": 500,
+     "hasta": 999,
+     "precio": 69854.69
+    },
+    {
+     "desde": 1000,
+     "hasta": 99999,
+     "precio": 69854.69
     }
    ]
   },
-  "6": {
+  "F": {
    "table": [
     [
      0.5,
-     195.41
+     322132.09
     ],
     [
-     1,
-     243.49
+     1.0,
+     401908.8
     ],
     [
      1.5,
-     291.65
+     481797.56
     ],
     [
-     2,
-     339.81
+     2.0,
+     561574.27
     ],
     [
      2.5,
-     387.97
+     641463.03
     ],
     [
-     3,
-     425.27
+     3.0,
+     714404.94
     ],
     [
      3.5,
-     462.57
+     787458.89
     ],
     [
-     4,
-     499.87
+     4.0,
+     860512.85
     ],
     [
      4.5,
-     537.17
+     933454.76
     ],
     [
-     5,
-     574.47
+     5.0,
+     1006508.71
     ],
     [
      5.5,
-     597.39
+     1031382.91
     ],
     [
-     6,
-     620.31
+     6.0,
+     1056369.16
     ],
     [
      6.5,
-     643.23
+     1081243.36
     ],
     [
-     7,
-     666.15
+     7.0,
+     1106117.56
     ],
     [
      7.5,
-     689.07
+     1131103.8
     ],
     [
-     8,
-     711.99
+     8.0,
+     1155978.0
     ],
     [
      8.5,
-     734.91
+     1180852.2
     ],
     [
-     9,
-     757.83
+     9.0,
+     1205838.45
     ],
     [
      9.5,
-     780.75
+     1230712.65
     ],
     [
-     10,
-     803.67
+     10.0,
+     1255586.85
     ],
     [
-     11,
-     848.51
+     10.5,
+     1754079.25
     ],
     [
-     12,
-     893.35
+     11.0,
+     1789933.95
     ],
     [
-     13,
-     938.19
+     11.5,
+     1825676.61
     ],
     [
-     14,
-     983.03
+     12.0,
+     1861531.31
     ],
     [
-     15,
-     1027.87
+     12.5,
+     1897386.01
     ],
     [
-     16,
-     1072.71
+     13.0,
+     1933128.67
     ],
     [
-     17,
-     1117.55
+     13.5,
+     1968983.37
     ],
     [
-     18,
-     1162.39
+     14.0,
+     2004838.07
     ],
     [
-     19,
-     1207.23
+     14.5,
+     2040580.73
     ],
     [
-     20,
-     1252.07
+     15.0,
+     2076547.48
     ],
     [
-     21,
-     1295.37
+     15.5,
+     2112402.18
     ],
     [
-     22,
-     1338.67
+     16.0,
+     2148256.88
     ],
     [
-     23,
-     1381.97
+     16.5,
+     2183999.54
     ],
     [
-     24,
-     1425.27
+     17.0,
+     2219854.24
     ],
     [
-     25,
-     1468.57
+     17.5,
+     2232851.57
     ],
     [
-     26,
-     1511.87
+     18.0,
+     2232851.57
     ],
     [
-     27,
-     1555.17
+     18.5,
+     2232851.57
     ],
     [
-     28,
-     1598.47
+     19.0,
+     2232851.57
     ],
     [
-     29,
-     1641.77
+     19.5,
+     2232851.57
     ],
     [
-     30,
-     1685.07
+     20.0,
+     2232851.57
     ],
     [
-     40,
-     2115.57
-    ],
-    [
-     50,
-     2546.07
-    ],
-    [
-     60,
-     2976.57
-    ],
-    [
-     70,
-     3407.07
+     20.5,
+     2232851.57
     ]
    ],
-   "extra": [
+   "extra": [],
+   "por_kg": [
     {
-     "desde": 10,
-     "hasta": 20,
-     "paso": 0.5,
-     "precio": 22.42
+     "desde": 21,
+     "hasta": 44,
+     "precio": 106331.6
     },
     {
-     "desde": 20,
-     "hasta": 30,
-     "paso": 0.5,
-     "precio": 21.65
-    },
-    {
-     "desde": 30,
+     "desde": 45,
      "hasta": 70,
-     "paso": 1,
-     "precio": 43.05
+     "precio": 95014.96
     },
     {
-     "desde": 70,
-     "hasta": 300,
-     "paso": 1,
-     "precio": 51.7
+     "desde": 71,
+     "hasta": 99,
+     "precio": 87395.84
+    },
+    {
+     "desde": 100,
+     "hasta": 299,
+     "precio": 87059.7
     },
     {
      "desde": 300,
-     "hasta": 3000,
-     "paso": 1,
-     "precio": 56.88
+     "hasta": 499,
+     "precio": 87059.7
+    },
+    {
+     "desde": 500,
+     "hasta": 999,
+     "precio": 87059.7
+    },
+    {
+     "desde": 1000,
+     "hasta": 99999,
+     "precio": 87059.7
     }
    ]
   },
-  "7": {
+  "G": {
    "table": [
     [
      0.5,
-     217.63
+     302000.0
     ],
     [
-     1,
-     266.17
+     1.0,
+     375000.0
     ],
     [
      1.5,
-     315.86
+     451044.52
     ],
     [
-     2,
-     365.55
+     2.0,
+     525729.1
     ],
     [
      2.5,
-     415.24
+     600518.58
     ],
     [
-     3,
-     462.05
+     3.0,
+     668804.62
     ],
     [
      3.5,
-     508.86
+     737195.56
     ],
     [
-     4,
-     555.67
+     4.0,
+     805586.5
     ],
     [
      4.5,
-     602.48
+     873872.54
     ],
     [
-     5,
-     649.29
+     5.0,
+     942263.48
     ],
     [
      5.5,
-     675.85
+     965549.96
     ],
     [
-     6,
-     702.41
+     6.0,
+     988941.34
     ],
     [
      6.5,
-     728.97
+     1012227.82
     ],
     [
-     7,
-     755.53
+     7.0,
+     1035514.31
     ],
     [
      7.5,
-     782.09
+     1058905.69
     ],
     [
-     8,
-     808.65
+     8.0,
+     1082192.17
     ],
     [
      8.5,
-     835.21
+     1105478.66
     ],
     [
-     9,
-     861.77
+     9.0,
+     1128870.04
     ],
     [
      9.5,
-     888.33
+     1152156.52
     ],
     [
-     10,
-     914.89
+     10.0,
+     1175443.0
     ],
     [
-     11,
-     961.77
+     10.5,
+     1642116.74
     ],
     [
-     12,
-     1008.65
+     11.0,
+     1675682.85
     ],
     [
-     13,
-     1055.53
+     11.5,
+     1709144.06
     ],
     [
-     14,
-     1102.41
+     12.0,
+     1742710.16
     ],
     [
-     15,
-     1149.29
+     12.5,
+     1776276.27
     ],
     [
-     16,
-     1196.17
+     13.0,
+     1809737.48
     ],
     [
-     17,
-     1243.05
+     13.5,
+     1843303.58
     ],
     [
-     18,
-     1289.93
+     14.0,
+     1876869.68
     ],
     [
-     19,
-     1336.81
+     14.5,
+     1910330.89
     ],
     [
-     20,
-     1383.69
+     15.0,
+     1944001.89
     ],
     [
-     21,
-     1431.23
+     15.5,
+     1977568.0
     ],
     [
-     22,
-     1478.77
+     16.0,
+     2011134.1
     ],
     [
-     23,
-     1526.31
+     16.5,
+     2044595.31
     ],
     [
-     24,
-     1573.85
+     17.0,
+     2078161.41
     ],
     [
-     25,
-     1621.39
+     17.5,
+     2090329.13
     ],
     [
-     26,
-     1668.93
+     18.0,
+     2090329.13
     ],
     [
-     27,
-     1716.47
+     18.5,
+     2090329.13
     ],
     [
-     28,
-     1764.01
+     19.0,
+     2090329.13
     ],
     [
-     29,
-     1811.55
+     19.5,
+     2090329.13
     ],
     [
-     30,
-     1859.09
+     20.0,
+     2090329.13
     ],
     [
-     40,
-     2347.09
-    ],
-    [
-     50,
-     2835.09
-    ],
-    [
-     60,
-     3323.09
-    ],
-    [
-     70,
-     3811.09
+     20.5,
+     2090329.13
     ]
    ],
-   "extra": [
+   "extra": [],
+   "por_kg": [
     {
-     "desde": 10,
-     "hasta": 20,
-     "paso": 0.5,
-     "precio": 23.44
+     "desde": 21,
+     "hasta": 44,
+     "precio": 99544.48
     },
     {
-     "desde": 20,
-     "hasta": 30,
-     "paso": 0.5,
-     "precio": 23.77
-    },
-    {
-     "desde": 30,
+     "desde": 45,
      "hasta": 70,
-     "paso": 1,
-     "precio": 48.8
+     "precio": 88950.18
     },
     {
-     "desde": 70,
-     "hasta": 300,
-     "paso": 1,
-     "precio": 58.06
+     "desde": 71,
+     "hasta": 99,
+     "precio": 81817.38
+    },
+    {
+     "desde": 100,
+     "hasta": 299,
+     "precio": 81502.7
     },
     {
      "desde": 300,
-     "hasta": 3000,
-     "paso": 1,
-     "precio": 63.91
+     "hasta": 499,
+     "precio": 81502.7
+    },
+    {
+     "desde": 500,
+     "hasta": 999,
+     "precio": 81502.7
+    },
+    {
+     "desde": 1000,
+     "hasta": 99999,
+     "precio": 81502.7
+    }
+   ]
+  },
+  "H": {
+   "table": [
+    [
+     0.5,
+     337800.0
+    ],
+    [
+     1.0,
+     438128.25
+    ],
+    [
+     1.5,
+     542176.02
+    ],
+    [
+     2.0,
+     646428.81
+    ],
+    [
+     2.5,
+     750579.09
+    ],
+    [
+     3.0,
+     848373.74
+    ],
+    [
+     3.5,
+     946065.89
+    ],
+    [
+     4.0,
+     1043963.05
+    ],
+    [
+     4.5,
+     1141757.7
+    ],
+    [
+     5.0,
+     1239552.36
+    ],
+    [
+     5.5,
+     1284656.81
+    ],
+    [
+     6.0,
+     1329761.26
+    ],
+    [
+     6.5,
+     1374865.71
+    ],
+    [
+     7.0,
+     1419970.16
+    ],
+    [
+     7.5,
+     1465074.62
+    ],
+    [
+     8.0,
+     1510179.07
+    ],
+    [
+     8.5,
+     1555283.52
+    ],
+    [
+     9.0,
+     1600387.97
+    ],
+    [
+     9.5,
+     1645492.43
+    ],
+    [
+     10.0,
+     1690596.88
+    ],
+    [
+     10.5,
+     1902177.76
+    ],
+    [
+     11.0,
+     1944924.48
+    ],
+    [
+     11.5,
+     1987568.69
+    ],
+    [
+     12.0,
+     2030212.9
+    ],
+    [
+     12.5,
+     2072754.6
+    ],
+    [
+     13.0,
+     2115398.81
+    ],
+    [
+     13.5,
+     2158043.02
+    ],
+    [
+     14.0,
+     2200584.72
+    ],
+    [
+     14.5,
+     2243228.93
+    ],
+    [
+     15.0,
+     2285873.14
+    ],
+    [
+     15.5,
+     2328414.84
+    ],
+    [
+     16.0,
+     2371161.56
+    ],
+    [
+     16.5,
+     2413805.77
+    ],
+    [
+     17.0,
+     2456449.98
+    ],
+    [
+     17.5,
+     2457987.63
+    ],
+    [
+     18.0,
+     2457987.63
+    ],
+    [
+     18.5,
+     2457987.63
+    ],
+    [
+     19.0,
+     2457987.63
+    ],
+    [
+     19.5,
+     2457987.63
+    ],
+    [
+     20.0,
+     2457987.63
+    ],
+    [
+     20.5,
+     2457987.63
+    ]
+   ],
+   "extra": [],
+   "por_kg": [
+    {
+     "desde": 21,
+     "hasta": 44,
+     "precio": 117066.56
+    },
+    {
+     "desde": 45,
+     "hasta": 70,
+     "precio": 106713.03
+    },
+    {
+     "desde": 71,
+     "hasta": 99,
+     "precio": 102612.63
+    },
+    {
+     "desde": 100,
+     "hasta": 299,
+     "precio": 102612.63
+    },
+    {
+     "desde": 300,
+     "hasta": 499,
+     "precio": 102407.61
+    },
+    {
+     "desde": 500,
+     "hasta": 999,
+     "precio": 102407.61
+    },
+    {
+     "desde": 1000,
+     "hasta": 99999,
+     "precio": 102407.61
+    }
+   ]
+  },
+  "I": {
+   "table": [
+    [
+     0.5,
+     198700.0
+    ],
+    [
+     1.0,
+     248500.0
+    ],
+    [
+     1.5,
+     254120.2
+    ],
+    [
+     2.0,
+     268700.0
+    ],
+    [
+     2.5,
+     286990.19
+    ],
+    [
+     3.0,
+     316970.82
+    ],
+    [
+     3.5,
+     354296.43
+    ],
+    [
+     4.0,
+     384901.66
+    ],
+    [
+     4.5,
+     415623.7
+    ],
+    [
+     5.0,
+     446228.93
+    ],
+    [
+     5.5,
+     467722.68
+    ],
+    [
+     6.0,
+     489333.24
+    ],
+    [
+     6.5,
+     511060.62
+    ],
+    [
+     7.0,
+     532554.37
+    ],
+    [
+     7.5,
+     554164.93
+    ],
+    [
+     8.0,
+     575658.68
+    ],
+    [
+     8.5,
+     597269.25
+    ],
+    [
+     9.0,
+     618996.62
+    ],
+    [
+     9.5,
+     640490.37
+    ],
+    [
+     10.0,
+     662100.94
+    ],
+    [
+     10.5,
+     614324.07
+    ],
+    [
+     11.0,
+     629626.69
+    ],
+    [
+     11.5,
+     644929.3
+    ],
+    [
+     12.0,
+     660231.92
+    ],
+    [
+     12.5,
+     675651.34
+    ],
+    [
+     13.0,
+     690953.96
+    ],
+    [
+     13.5,
+     706256.57
+    ],
+    [
+     14.0,
+     721559.19
+    ],
+    [
+     14.5,
+     736861.81
+    ],
+    [
+     15.0,
+     752164.42
+    ],
+    [
+     15.5,
+     767467.04
+    ],
+    [
+     16.0,
+     782769.65
+    ],
+    [
+     16.5,
+     798072.27
+    ],
+    [
+     17.0,
+     813374.88
+    ],
+    [
+     17.5,
+     828794.31
+    ],
+    [
+     18.0,
+     844096.93
+    ],
+    [
+     18.5,
+     859399.54
+    ],
+    [
+     19.0,
+     874702.16
+    ],
+    [
+     19.5,
+     880893.29
+    ],
+    [
+     20.0,
+     880893.29
+    ],
+    [
+     20.5,
+     880893.29
+    ]
+   ],
+   "extra": [],
+   "por_kg": [
+    {
+     "desde": 21,
+     "hasta": 44,
+     "precio": 41936.17
+    },
+    {
+     "desde": 45,
+     "hasta": 70,
+     "precio": 36679.55
+    },
+    {
+     "desde": 71,
+     "hasta": 99,
+     "precio": 34810.53
+    },
+    {
+     "desde": 100,
+     "hasta": 299,
+     "precio": 34576.9
+    },
+    {
+     "desde": 300,
+     "hasta": 499,
+     "precio": 34576.9
+    },
+    {
+     "desde": 500,
+     "hasta": 999,
+     "precio": 34576.9
+    },
+    {
+     "desde": 1000,
+     "hasta": 99999,
+     "precio": 34576.9
     }
    ]
   }
