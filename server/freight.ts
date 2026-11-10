@@ -4,6 +4,7 @@ import { makeLimiter, JSON_BODY_LIMIT } from './security';
 import { getAnonClient, getUserFromRequest } from './supabaseAdmin';
 import { logSecurityEvent } from './log';
 import data from './freightData.json';
+import { trmVigente, type Trm } from './trm';
 
 // Calculadora de fletes del servicio express internacional desde y hacia
 // Colombia (paquetes), menos el descuento de cada tipo de cliente. Dos
@@ -310,6 +311,41 @@ export interface Quote {
   fuel: { desde: string; hasta: string } | null;
   currency: string;
   currency_symbol: string;
+  /**
+   * Si se pidió en la otra moneda: la TRM con que se convirtió y el precio
+   * en la moneda en que está la tarifa (pesos al exportar, dólares al importar).
+   */
+  cambio?: { trm: number; fecha: string | null; oficial: boolean; original: { currency: string; final_price: number } };
+}
+
+export type MonedaCotizacion = 'COP' | 'USD';
+
+/**
+ * La misma cotización en la otra moneda, con la TRM. Se convierten la
+ * lista, el descuento y el combustible, y el total sale de sumarlos, para
+ * que el desglose en pantalla cuadre. Pesos sin decimales; dólares con dos.
+ */
+export function enMoneda(q: Quote, moneda: MonedaCotizacion, trm: Trm): Quote {
+  if (moneda === q.currency) return q;
+  const aDolares = moneda === 'USD';
+  const dec = aDolares ? 2 : 0;
+  const conv = (n: number) => round(aDolares ? n / trm.valor : n * trm.valor, dec);
+  const lista = conv(q.pricing.list_price);
+  const descuento = conv(q.pricing.discount_amount);
+  const combustible = conv(q.pricing.fuel_amount);
+  return {
+    ...q,
+    pricing: {
+      ...q.pricing,
+      list_price: lista,
+      discount_amount: descuento,
+      fuel_amount: combustible,
+      final_price: round(lista - descuento + combustible, dec),
+    },
+    currency: moneda,
+    currency_symbol: aDolares ? 'US$' : '$',
+    cambio: { trm: trm.valor, fecha: trm.fecha, oficial: trm.oficial, original: { currency: q.currency, final_price: q.pricing.final_price } },
+  };
 }
 
 export function quote(
@@ -380,6 +416,8 @@ const quoteSchema = z.object({
   destination: z.string().trim().min(1).max(10),
   // Al importar, `destination` es el país de origen (el envío llega a Colombia).
   direction: z.enum(['exportar', 'importar']).default('exportar'),
+  // La moneda en que se quiere ver; sin ella, la de la tarifa.
+  moneda: z.enum(['COP', 'USD']).optional(),
   packages: z.array(packageSchema).min(1).max(20),
   email: z.string().trim().toLowerCase().email().max(160).optional(),
   lang: z.enum(['es', 'en']).default('es'),
@@ -448,5 +486,9 @@ freightRouter.post('/freight/quote', freightLimiter, express.json({ limit: JSON_
     }
   }
 
+  // El lead quedó en la moneda de la tarifa; la respuesta, en la pedida.
+  if (parsed.data.moneda && parsed.data.moneda !== result.currency) {
+    return res.json(enMoneda(result, parsed.data.moneda, await trmVigente()));
+  }
   return res.json(result);
 });

@@ -46,7 +46,11 @@ interface Quote {
     final_price: number;
   };
   currency: string;
+  /** Si se pidió en la otra moneda: la TRM usada y el precio en la moneda de la tarifa. */
+  cambio?: { trm: number; fecha: string | null; oficial: boolean; original: { currency: string; final_price: number } };
 }
+
+type Moneda = 'COP' | 'USD';
 
 const EMPTY_PKG: Pkg = { weight: '', length: '', width: '', height: '', quantity: '1' };
 // Miami has its own zone in the table; it is the destination most
@@ -82,6 +86,9 @@ export default function FreightSection() {
   const [direccion, setDireccion] = useState<Direccion>('exportar');
   const importa = direccion === 'importar';
   const [clientType, setClientType] = useState('Normal');
+  // En qué moneda ver el precio. La tarifa de exportar está en pesos y la
+  // de importar en dólares; la otra moneda se convierte con la TRM del día.
+  const [moneda, setMoneda] = useState<Moneda>('COP');
   const [packages, setPackages] = useState<Pkg[]>([{ ...EMPTY_PKG }]);
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState(''); // honeypot — see ContactFormExpanded
@@ -118,8 +125,18 @@ export default function FreightSection() {
     return Number.isFinite(n) && n > 0 ? n : 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    void cotizar(moneda);
+  };
+
+  /** En la otra moneda, sin volver a llenar el formulario. */
+  const cambiarMoneda = (m: Moneda) => {
+    setMoneda(m);
+    if (quote) void cotizar(m);
+  };
+
+  const cotizar = async (enMoneda: Moneda) => {
     if (website) return;
     setSubmitting(true);
     setError(null);
@@ -136,6 +153,7 @@ export default function FreightSection() {
       })),
       email: user?.email ?? (email.trim() || undefined),
       lang: language,
+      moneda: enMoneda,
     };
     if (!body.packages.some((p) => p.weight > 0 || (p.length > 0 && p.width > 0 && p.height > 0))) {
       setError(es ? 'Escribe el peso o las medidas de al menos un paquete.' : 'Enter the weight or dimensions of at least one package.');
@@ -155,8 +173,12 @@ export default function FreightSection() {
         setSubmitting(false);
         return;
       }
-      setQuote(data as Quote);
-      trackLead({ content_name: 'freight_calculator', client_type: clientType, value: (data as Quote).pricing.final_price, currency: (data as Quote).currency });
+      const nueva = data as Quote;
+      const yaHabia = quote !== null;
+      setQuote(nueva);
+      // Cambiar de moneda no es otra cotización: no se cuenta dos veces.
+      if (yaHabia) return;
+      trackLead({ content_name: 'freight_calculator', client_type: clientType, value: nueva.cambio?.original.final_price ?? nueva.pricing.final_price, currency: nueva.cambio?.original.currency ?? nueva.currency });
     } catch {
       setError(es ? 'Sin conexión. Intenta de nuevo.' : 'No connection. Please try again.');
     } finally {
@@ -176,6 +198,30 @@ export default function FreightSection() {
           : `Hi Easycomex. I quoted ${quote.direction === 'importar' ? `an import from ${quote.destination} to Colombia` : `a shipment to ${quote.destination}`} (${quote.weights.billable} billable kg, ${quote.customer_type} client) at ${dinero(quote.pricing.final_price, quote.currency)} and I want to book it.`
       )
     : '';
+
+  const selectorMoneda = (
+    <div role="group" aria-label={es ? 'Moneda' : 'Currency'} className="inline-flex gap-1 rounded-full border border-gray-200 bg-secondary/60 p-1">
+      {(
+        [
+          ['COP', es ? 'Pesos (COP)' : 'Pesos (COP)'],
+          ['USD', es ? 'Dólares (USD)' : 'Dollars (USD)'],
+        ] as Array<[Moneda, string]>
+      ).map(([m, texto]) => (
+        <button
+          key={m}
+          type="button"
+          aria-pressed={moneda === m}
+          disabled={submitting}
+          onClick={() => cambiarMoneda(m)}
+          className={`tap-scale-sm rounded-full px-3.5 py-1.5 text-xs font-bold transition-colors disabled:opacity-60 ${
+            moneda === m ? 'bg-white text-primary app-shadow' : 'text-muted-foreground hover:text-primary'
+          }`}
+        >
+          {texto}
+        </button>
+      ))}
+    </div>
+  );
 
   const volWins = quote ? quote.weights.volumetric > quote.weights.real : false;
 
@@ -210,7 +256,8 @@ export default function FreightSection() {
                   ? `Tarifa express puerta a puerta para exportar desde Colombia o importar a Colombia, con ${destinations ? destinations.length : 'más de 200'} países`
                   : `Express door-to-door rates to export from or import into Colombia, with ${destinations ? destinations.length : 'over 200'} countries`,
                 es ? 'Peso real vs. volumétrico, como lo cobra la aerolínea' : 'Real vs. volumetric weight, the way the airline charges it',
-                es ? 'Hasta 25 % menos que la tarifa pública, según qué tanto envías con nosotros' : 'Up to 25% off the public rate, depending on how much you ship with us',
+                es ? 'Hasta 38 % menos que la tarifa pública, según qué tanto envías con nosotros' : 'Up to 38% off the public rate, depending on how much you ship with us',
+                es ? 'En pesos o en dólares, con la TRM del día' : 'In pesos or dollars, at the day’s official rate',
               ].map((item) => (
                 <div key={item} className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-orange-500 flex-shrink-0" />
@@ -243,9 +290,23 @@ export default function FreightSection() {
                   <span className="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-primary">{quote.customer_type}</span>
                 </div>
 
-                <p className="mt-5 text-4xl font-black tabular-nums text-primary md:text-5xl">
+                <div className="mt-5">{selectorMoneda}</div>
+                <p className={`mt-3 text-4xl font-black tabular-nums text-primary md:text-5xl ${submitting ? 'opacity-50' : ''}`}>
                   {dinero(quote.pricing.final_price, quote.currency)}
                 </p>
+                {quote.cambio && (
+                  <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                    {quote.cambio.oficial
+                      ? es
+                        ? `Convertido con la TRM ${quote.cambio.fecha ? `del ${quote.cambio.fecha.split('-').reverse().join('/')}` : 'del día'}: $ ${quote.cambio.trm.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} por dólar. `
+                        : `Converted at the official COP rate${quote.cambio.fecha ? ` of ${quote.cambio.fecha}` : ''}: COP ${quote.cambio.trm.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per dollar. `
+                      : es
+                        ? `Convertido con una tasa de referencia de $ ${quote.cambio.trm.toLocaleString('es-CO')} por dólar (la TRM no respondió). `
+                        : `Converted at a reference rate of COP ${quote.cambio.trm.toLocaleString('en-US')} per dollar (the official rate did not respond). `}
+                    {es ? 'Se factura en ' : 'Billed in '}
+                    {quote.cambio.original.currency === 'COP' ? (es ? 'pesos' : 'pesos') : es ? 'dólares' : 'dollars'}: {dinero(quote.cambio.original.final_price, quote.cambio.original.currency)}.
+                  </p>
+                )}
                 <p className="mt-1 text-sm text-muted-foreground">
                   {es ? 'Flete internacional puerta a puerta · sin impuestos ni aranceles' : 'Door-to-door international freight · taxes and duties not included'}
                 </p>
@@ -335,6 +396,8 @@ export default function FreightSection() {
                       aria-pressed={direccion === d}
                       onClick={() => {
                         setDireccion(d);
+                        // Cada tarifa en su moneda; la otra se puede elegir abajo.
+                        setMoneda(d === 'importar' ? 'USD' : 'COP');
                         setError(null);
                       }}
                       className={`tap-scale-sm rounded-xl px-3 py-2.5 text-sm font-bold transition-colors ${
@@ -382,6 +445,11 @@ export default function FreightSection() {
                       ))}
                     </select>
                   </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-sm font-semibold text-foreground">{es ? 'Ver el precio en' : 'Show the price in'}</span>
+                  {selectorMoneda}
                 </div>
 
                 <div>
