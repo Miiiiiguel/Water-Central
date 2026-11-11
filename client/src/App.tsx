@@ -27,6 +27,10 @@ const Tokens = lazy(() => import("./pages/Tokens"));
 const Ruta = lazy(() => import("./pages/Ruta"));
 const Plantillas = lazy(() => import("./pages/Plantillas"));
 const Diagnostico = lazy(() => import("./pages/Diagnostico"));
+const Casillero = lazy(() => import("./pages/Casillero"));
+const CasilleroAdmin = lazy(() => import("./pages/CasilleroAdmin"));
+const CasilleroRegistro = lazy(() => import("./pages/CasilleroRegistro"));
+const Rastreo = lazy(() => import("./pages/Rastreo"));
 const Estado = lazy(() => import("./pages/Estado"));
 const AnalizarProducto = lazy(() => import("./pages/AnalizarProducto"));
 const ChatbotWidget = lazy(() => import("./components/ChatbotWidget"));
@@ -42,7 +46,11 @@ function PageFallback() {
 // and stays out of the first-load critical path.
 function DeferredChatbot() {
   const ready = useIdleMount(2500, 500);
-  if (!ready) return null;
+  const [ruta] = useLocation();
+  // Los portales del casillero (cliente y administrador) tienen su propia
+  // barra inferior en el celular y su propio menú: el globo del asistente
+  // de mercado solo les estorba.
+  if (!ready || /^\/(admin\/)?casillero(\/|$)/.test(ruta)) return null;
   return (
     <Suspense fallback={null}>
       <ChatbotWidget />
@@ -166,6 +174,26 @@ function Router() {
           <Route path={"/admin/revendedores"}>
             <Suspense fallback={<PageFallback />}>
               <AdminRevendedores />
+            </Suspense>
+          </Route>
+          <Route path={"/casillero/registro"}>
+            <Suspense fallback={<PageFallback />}>
+              <CasilleroRegistro />
+            </Suspense>
+          </Route>
+          <Route path={"/admin/casillero/:seccion?"}>
+            <Suspense fallback={<PageFallback />}>
+              <CasilleroAdmin />
+            </Suspense>
+          </Route>
+          <Route path={"/rastreo"}>
+            <Suspense fallback={<PageFallback />}>
+              <Rastreo />
+            </Suspense>
+          </Route>
+          <Route path={"/casillero/:seccion?"}>
+            <Suspense fallback={<PageFallback />}>
+              <Casillero />
             </Suspense>
           </Route>
           <Route path={"/404"} component={NotFound} />

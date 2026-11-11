@@ -505,6 +505,35 @@ function AccesoFabricante() {
   );
 }
 
+/**
+ * El casillero vive en la misma cuenta: el cliente ve su inventario,
+ * paquetes, despachos y saldo; el equipo administra todos los casilleros.
+ */
+function AccesoCasillero({ equipo, es }: { equipo: boolean; es: boolean }) {
+  return (
+    <Link
+      href={equipo ? '/admin/casillero' : '/casillero'}
+      className="tap-scale mb-6 flex items-center justify-between gap-4 rounded-3xl border border-gray-100 bg-white p-5 app-shadow hover:border-accent/40"
+    >
+      <div>
+        <p className="font-bold text-primary">
+          {equipo ? (es ? 'Administrar el casillero' : 'Manage the locker') : es ? 'Mi casillero e inventario' : 'My locker and inventory'}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {equipo
+            ? es
+              ? 'Clientes e invitaciones, recepción en bodega, despachos, wallets e inventarios.'
+              : 'Clients and invitations, warehouse intake, dispatches, wallets and inventories.'
+            : es
+              ? 'Tu inventario en bodega, tus paquetes, tus despachos, tu saldo y tu tienda conectada.'
+              : 'Your warehouse inventory, packages, dispatches, balance and connected store.'}
+        </p>
+      </div>
+      <span className="text-accent font-bold">→</span>
+    </Link>
+  );
+}
+
 function AccesoRevendedores() {
   const { language } = useLanguage();
   const { getAccessToken } = useAuth();
@@ -1238,6 +1267,7 @@ export default function Dashboard() {
             ? (language === 'es' ? 'Vista general de tus clientes.' : 'Overview of your clients.')
             : (language === 'es' ? 'Así va tu expansión.' : "Here's how your expansion is going.")}
         </p>
+        <AccesoCasillero equipo={profile?.role === 'vendedor'} es={language === 'es'} />
         {profile?.role === 'vendedor' ? <VendedorDashboard /> : <ClienteDashboard />}
         <div className="mt-6">
           <MfaSetup />

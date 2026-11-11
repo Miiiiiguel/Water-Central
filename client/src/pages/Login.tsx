@@ -15,6 +15,11 @@ export default function Login() {
   const { language } = useLanguage();
   const { signIn, resetPassword, configured } = useAuth();
   const [, navigate] = useLocation();
+  // ?next=/casillero devuelve a quien venía de otra sección (solo rutas internas).
+  const siguiente = (() => {
+    const n = typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('next');
+    return n && /^\/(?!\/)[A-Za-z0-9/_-]*$/.test(n) ? n : '/dashboard';
+  })();
   const [mode, setMode] = useState<Mode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -47,7 +52,7 @@ export default function Login() {
         setMode('mfa');
         return;
       }
-      navigate('/dashboard');
+      navigate(siguiente);
     } catch (err) {
       console.error('[login] falló sin avisar:', err);
       setError(language === 'es' ? 'No pudimos entrar. Intenta de nuevo.' : 'We could not sign in. Try again.');
@@ -75,7 +80,7 @@ export default function Login() {
   if (mode === 'mfa') {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center px-4 py-16">
-        <MfaChallenge onSuccess={() => navigate('/dashboard')} />
+        <MfaChallenge onSuccess={() => navigate(siguiente)} />
       </div>
     );
   }

@@ -169,8 +169,10 @@ export function makeLimiter(
 // (/roi/*), el arancel de EE. UU. (/hts/*) y el de los demás destinos
 // (/destinos/*). Cada una tiene su propio límite, más amplio; con el
 // general, quien jugaba unos minutos con sus números gastaba los 100 y la
-// calculadora dejaba de responder ("el buscador no respondió").
-const CON_LIMITE_PROPIO = ['/hts/', '/roi/', '/destinos/'];
+// calculadora dejaba de responder ("el buscador no respondió"). Los avisos
+// de las tiendas (/inventario/webhooks/*) y la API de integraciones (/v1/*)
+// también traen el suyo.
+const CON_LIMITE_PROPIO = ['/hts/', '/roi/', '/destinos/', '/inventario/webhooks/', '/v1/'];
 export const apiRateLimiter = makeLimiter(
   'api',
   100,

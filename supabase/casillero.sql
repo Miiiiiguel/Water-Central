@@ -1,0 +1,1026 @@
+-- Casillero de Easycomex — se monta sobre el schema de Easycomex.
+--
+-- Reutiliza lo que ya existe en schema.sql:
+--   * public.profiles (login, rol cliente/vendedor)  -> el "vendedor" es el admin del casillero
+--   * public.notifications y notify_vendedores()     -> campanita + push
+--   * Wompi (server/wompi.ts)                        -> recarga del wallet
+--
+-- Correr DESPUÉS de schema.sql, una sola vez (es re-ejecutable).
+
+-- ---------------------------------------------------------------------
+-- Datos extra del cliente del casillero, en la misma ficha de profiles
+-- ---------------------------------------------------------------------
+create sequence if not exists public.casillero_codigo_seq start 1001;
+
+alter table public.profiles add column if not exists casillero_codigo text unique;
+alter table public.profiles add column if not exists telefono text;
+alter table public.profiles add column if not exists tipo_doc text;
+alter table public.profiles add column if not exists num_doc text;
+alter table public.profiles add column if not exists direccion text;
+alter table public.profiles add column if not exists pais text;
+alter table public.profiles add column if not exists departamento text;
+alter table public.profiles add column if not exists ciudad text;
+alter table public.profiles add column if not exists codigo_postal text;
+alter table public.profiles add column if not exists como_nos_conocio text;
+alter table public.profiles add column if not exists es_empresa boolean not null default false;
+
+-- Código de casillero para quien ya tenía cuenta de Easycomex.
+update public.profiles set casillero_codigo = 'DM' || nextval('public.casillero_codigo_seq')
+  where casillero_codigo is null;
+
+-- Ficha para quien ya tenía cuenta de acceso pero ninguna ficha: se registró
+-- antes de instalar esto, así que el disparador (handle_new_user, más abajo)
+-- todavía no existía y nadie se la creó. Sin ficha, el portal no abre.
+-- Usa los datos que dejó en el formulario de registro.
+insert into public.profiles (
+  id, email, full_name, company, casillero_codigo, telefono, tipo_doc, num_doc, direccion, pais,
+  departamento, ciudad, codigo_postal, como_nos_conocio, es_empresa
+)
+select u.id, u.email,
+  coalesce(u.raw_user_meta_data ->> 'full_name', u.raw_user_meta_data ->> 'name'),
+  u.raw_user_meta_data ->> 'company',
+  'DM' || nextval('public.casillero_codigo_seq'),
+  u.raw_user_meta_data ->> 'telefono', u.raw_user_meta_data ->> 'tipo_doc', u.raw_user_meta_data ->> 'num_doc',
+  u.raw_user_meta_data ->> 'direccion', u.raw_user_meta_data ->> 'pais', u.raw_user_meta_data ->> 'departamento',
+  u.raw_user_meta_data ->> 'ciudad', u.raw_user_meta_data ->> 'codigo_postal', u.raw_user_meta_data ->> 'como_nos_conocio',
+  coalesce((u.raw_user_meta_data ->> 'es_empresa')::boolean, false)
+from auth.users u
+where u.email is not null and not exists (select 1 from public.profiles p where p.id = u.id)
+on conflict do nothing;
+
+-- handle_new_user(): la misma función de schema.sql, más los campos del
+-- casillero. Lo que llega en raw_user_meta_data lo manda el formulario
+-- de registro; el rol sigue fijo en 'cliente'.
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  referrer_id uuid;
+  meta jsonb := coalesce(new.raw_user_meta_data, '{}'::jsonb);
+begin
+  if meta ->> 'referred_by_code' is not null then
+    select id into referrer_id from public.profiles where referral_code = meta ->> 'referred_by_code';
+  end if;
+
+  insert into public.profiles (
+    id, email, full_name, company, role, referred_by,
+    casillero_codigo, telefono, tipo_doc, num_doc, direccion, pais, departamento, ciudad,
+    codigo_postal, como_nos_conocio, es_empresa
+  )
+  values (
+    new.id, new.email,
+    coalesce(meta ->> 'full_name', meta ->> 'name'),
+    meta ->> 'company', 'cliente', referrer_id,
+    'DM' || nextval('public.casillero_codigo_seq'),
+    meta ->> 'telefono', meta ->> 'tipo_doc', meta ->> 'num_doc', meta ->> 'direccion',
+    meta ->> 'pais', meta ->> 'departamento', meta ->> 'ciudad', meta ->> 'codigo_postal',
+    meta ->> 'como_nos_conocio', coalesce((meta ->> 'es_empresa')::boolean, false)
+  )
+  on conflict (id) do nothing;
+
+  if referrer_id is not null then
+    insert into public.notifications (user_id, type, title, body, link)
+    values (referrer_id, 'referral_signup', 'Nuevo referido',
+      coalesce(meta ->> 'full_name', new.email) || ' se registró con tu link.', '/dashboard');
+  end if;
+  return new;
+end;
+$$;
+
+-- Quien es del equipo (vendedor) administra el casillero.
+create or replace function public.casillero_es_staff()
+returns boolean
+language sql stable security definer set search_path = public
+as $$
+  select exists (select 1 from public.profiles where id = auth.uid() and role = 'vendedor');
+$$;
+revoke execute on function public.casillero_es_staff() from public, anon;
+grant execute on function public.casillero_es_staff() to authenticated;
+
+-- ---------------------------------------------------------------------
+-- Paquetes y su historial
+-- ---------------------------------------------------------------------
+create table if not exists public.casillero_despachos (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  modalidad text not null check (modalidad in ('rec_oficina','local','regional','nacional')),
+  destino text,
+  peso_total numeric(8,2) not null,
+  costo numeric(12,2) not null,
+  estado text not null default 'solicitado' check (estado in ('solicitado','despachado','entregado','cancelado')),
+  guia_despacho text,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.casillero_paquetes (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  guia text not null,
+  proveedor text,
+  descripcion text,
+  valor_declarado numeric(12,2) default 0,
+  peso_lb numeric(8,2),
+  estado text not null default 'prealertado'
+    check (estado in ('prealertado','recibido','alistamiento','despachado','entregado')),
+  despacho_id uuid references public.casillero_despachos (id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists casillero_paquetes_user_idx on public.casillero_paquetes (user_id);
+create index if not exists casillero_paquetes_guia_idx on public.casillero_paquetes (guia);
+
+create table if not exists public.casillero_eventos (
+  id bigint generated always as identity primary key,
+  paquete_id uuid not null references public.casillero_paquetes (id) on delete cascade,
+  estado text not null,
+  nota text,
+  created_at timestamptz not null default now()
+);
+
+create or replace function public.casillero_paquete_touch() returns trigger
+language plpgsql set search_path = public as $$
+begin new.updated_at := now(); return new; end $$;
+drop trigger if exists casillero_paquete_touch_t on public.casillero_paquetes;
+create trigger casillero_paquete_touch_t before update on public.casillero_paquetes
+  for each row execute function public.casillero_paquete_touch();
+
+-- Cada cambio de estado deja un evento, y el dueño recibe una notificación
+-- en la campanita (que además dispara el push, ver server/push.ts).
+create or replace function public.casillero_paquete_eventos() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if tg_op = 'INSERT' then
+    insert into public.casillero_eventos (paquete_id, estado, nota)
+      values (new.id, new.estado, case when new.estado = 'prealertado' then 'Prealerta creada' else 'Registrado en la bodega' end);
+    if new.estado = 'prealertado' then
+      perform public.notify_vendedores('casillero_prealerta', 'Nueva prealerta', 'Guía ' || new.guia, '/admin/casillero/paquetes');
+    end if;
+  elsif new.estado is distinct from old.estado then
+    insert into public.casillero_eventos (paquete_id, estado) values (new.id, new.estado);
+    insert into public.notifications (user_id, type, title, body, link)
+    values (new.user_id, 'casillero_estado', 'Tu paquete cambió de estado',
+            'Guía ' || new.guia || ': ' || new.estado, '/casillero');
+  end if;
+  return new;
+end $$;
+revoke execute on function public.casillero_paquete_eventos() from public, anon, authenticated;
+drop trigger if exists casillero_paquete_ev_i on public.casillero_paquetes;
+create trigger casillero_paquete_ev_i after insert on public.casillero_paquetes
+  for each row execute function public.casillero_paquete_eventos();
+drop trigger if exists casillero_paquete_ev_u on public.casillero_paquetes;
+create trigger casillero_paquete_ev_u after update on public.casillero_paquetes
+  for each row execute function public.casillero_paquete_eventos();
+
+-- ---------------------------------------------------------------------
+-- Tarifas (la tabla "Tarifas mínimas 2026"; el admin las edita)
+-- ---------------------------------------------------------------------
+create table if not exists public.casillero_tarifas (
+  id serial primary key,
+  libras_desde int not null,
+  libras_hasta int not null,
+  rec_oficina numeric(8,2) not null,
+  local numeric(8,2) not null,
+  regional numeric(8,2) not null,
+  nacional numeric(8,2) not null
+);
+insert into public.casillero_tarifas (libras_desde, libras_hasta, rec_oficina, local, regional, nacional)
+select * from (values (1,3,6.00,9.36,10.06,12.67),(4,5,10.00,13.36,14.06,16.67),
+                      (6,7,14.00,18.10,19.10,21.99),(8,9,17.92,23.02,23.95,24.50)) v
+where not exists (select 1 from public.casillero_tarifas);
+
+-- ---------------------------------------------------------------------
+-- Wallet (en USD). Saldo = suma de movimientos aprobados.
+--   recarga  -> + (Wompi la aprueba sola; la transferencia la aprueba el equipo)
+--   cargo    -> - (lo crea casillero_solicitar_despacho)
+--   ajuste   -> +/- (solo el equipo)
+-- ---------------------------------------------------------------------
+create table if not exists public.casillero_wallet (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  tipo text not null check (tipo in ('recarga','cargo','ajuste')),
+  monto numeric(12,2) not null,
+  estado text not null default 'pendiente' check (estado in ('pendiente','aprobado','rechazado')),
+  metodo text,
+  referencia text,
+  wompi_ref text unique,           -- ecw_<hex>, la referencia del Web Checkout
+  wompi_tx text,
+  cop_cents bigint,                -- lo que se cobró en pesos
+  despacho_id uuid references public.casillero_despachos (id) on delete set null,
+  created_at timestamptz not null default now()
+);
+create index if not exists casillero_wallet_user_idx on public.casillero_wallet (user_id);
+
+create or replace function public.casillero_mi_saldo() returns numeric
+language sql stable security definer set search_path = public as $$
+  select coalesce(sum(monto), 0) from public.casillero_wallet where user_id = auth.uid() and estado = 'aprobado';
+$$;
+revoke execute on function public.casillero_mi_saldo() from public, anon;
+grant execute on function public.casillero_mi_saldo() to authenticated;
+
+create or replace function public.casillero_cotizar(p_peso numeric, p_modalidad text) returns numeric
+language plpgsql stable set search_path = public as $$
+declare v numeric;
+begin
+  if p_modalidad not in ('rec_oficina','local','regional','nacional') then raise exception 'Modalidad invalida'; end if;
+  select case p_modalidad when 'rec_oficina' then rec_oficina when 'local' then local
+                          when 'regional' then regional else nacional end
+    into v from public.casillero_tarifas where ceil(p_peso) between libras_desde and libras_hasta;
+  if v is null then raise exception 'Peso fuera de la tabla de tarifas, contacta a un asesor'; end if;
+  return v;
+end $$;
+
+create or replace function public.casillero_solicitar_despacho(p_paquetes uuid[], p_modalidad text, p_destino text)
+returns uuid
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); peso numeric; costo numeric; did uuid; n int;
+begin
+  if uid is null then raise exception 'No autenticado'; end if;
+  -- Bloquea la fila del perfil: dos solicitudes simultáneas no pueden
+  -- gastar el mismo saldo.
+  perform 1 from public.profiles where id = uid for update;
+  select count(*), coalesce(sum(peso_lb), 0) into n, peso from public.casillero_paquetes
+    where id = any (p_paquetes) and user_id = uid and estado = 'recibido' and peso_lb is not null;
+  if n = 0 or n <> array_length(p_paquetes, 1) then raise exception 'Paquetes invalidos o sin recibir/pesar'; end if;
+  costo := public.casillero_cotizar(peso, p_modalidad);
+  if public.casillero_mi_saldo() < costo then raise exception 'Saldo insuficiente en wallet'; end if;
+  insert into public.casillero_despachos (user_id, modalidad, destino, peso_total, costo)
+    values (uid, p_modalidad, p_destino, peso, costo) returning id into did;
+  insert into public.casillero_wallet (user_id, tipo, monto, estado, referencia, despacho_id)
+    values (uid, 'cargo', -costo, 'aprobado', 'Despacho ' || left(did::text, 8), did);
+  update public.casillero_paquetes set estado = 'alistamiento', despacho_id = did where id = any (p_paquetes);
+  perform public.notify_vendedores('casillero_despacho', 'Nuevo despacho solicitado',
+    'Despacho ' || left(did::text, 8) || ' (' || peso || ' lb)', '/admin/casillero/despachos');
+  return did;
+end $$;
+revoke execute on function public.casillero_solicitar_despacho(uuid[], text, text) from public, anon;
+grant execute on function public.casillero_solicitar_despacho(uuid[], text, text) to authenticated;
+
+-- Rastreo público: solo estado y fecha, ningún dato personal.
+create or replace function public.casillero_rastrear(p_guia text)
+returns table (estado text, created_at timestamptz)
+language sql stable security definer set search_path = public as $$
+  select e.estado, e.created_at
+  from public.casillero_eventos e join public.casillero_paquetes p on p.id = e.paquete_id
+  where p.guia = p_guia order by e.created_at;
+$$;
+grant execute on function public.casillero_rastrear(text) to anon, authenticated;
+
+-- ---------------------------------------------------------------------
+-- RLS
+-- ---------------------------------------------------------------------
+alter table public.casillero_paquetes enable row level security;
+alter table public.casillero_eventos enable row level security;
+alter table public.casillero_tarifas enable row level security;
+alter table public.casillero_despachos enable row level security;
+alter table public.casillero_wallet enable row level security;
+
+drop policy if exists "casillero_paquetes: select" on public.casillero_paquetes;
+create policy "casillero_paquetes: select" on public.casillero_paquetes for select
+  using (user_id = auth.uid() or public.casillero_es_staff());
+drop policy if exists "casillero_paquetes: insert" on public.casillero_paquetes;
+create policy "casillero_paquetes: insert" on public.casillero_paquetes for insert
+  with check ((user_id = auth.uid() and estado = 'prealertado') or public.casillero_es_staff());
+drop policy if exists "casillero_paquetes: update" on public.casillero_paquetes;
+create policy "casillero_paquetes: update" on public.casillero_paquetes for update
+  using (public.casillero_es_staff()) with check (public.casillero_es_staff());
+drop policy if exists "casillero_paquetes: delete" on public.casillero_paquetes;
+create policy "casillero_paquetes: delete" on public.casillero_paquetes for delete
+  using ((user_id = auth.uid() and estado = 'prealertado') or public.casillero_es_staff());
+
+drop policy if exists "casillero_eventos: select" on public.casillero_eventos;
+create policy "casillero_eventos: select" on public.casillero_eventos for select
+  using (exists (select 1 from public.casillero_paquetes p
+                 where p.id = paquete_id and (p.user_id = auth.uid() or public.casillero_es_staff())));
+
+drop policy if exists "casillero_tarifas: select" on public.casillero_tarifas;
+create policy "casillero_tarifas: select" on public.casillero_tarifas for select using (true);
+drop policy if exists "casillero_tarifas: staff" on public.casillero_tarifas;
+create policy "casillero_tarifas: staff" on public.casillero_tarifas for all
+  using (public.casillero_es_staff()) with check (public.casillero_es_staff());
+
+drop policy if exists "casillero_despachos: select" on public.casillero_despachos;
+create policy "casillero_despachos: select" on public.casillero_despachos for select
+  using (user_id = auth.uid() or public.casillero_es_staff());
+drop policy if exists "casillero_despachos: update" on public.casillero_despachos;
+create policy "casillero_despachos: update" on public.casillero_despachos for update
+  using (public.casillero_es_staff()) with check (public.casillero_es_staff());
+
+-- Wallet: el cliente solo LEE. Las recargas con Wompi las crea el servidor
+-- (service-role) y la reporta-transferencia entra por /api/casillero/wallet/reportar.
+drop policy if exists "casillero_wallet: select" on public.casillero_wallet;
+create policy "casillero_wallet: select" on public.casillero_wallet for select
+  using (user_id = auth.uid() or public.casillero_es_staff());
+drop policy if exists "casillero_wallet: staff insert" on public.casillero_wallet;
+create policy "casillero_wallet: staff insert" on public.casillero_wallet for insert
+  with check (public.casillero_es_staff());
+drop policy if exists "casillero_wallet: staff update" on public.casillero_wallet;
+create policy "casillero_wallet: staff update" on public.casillero_wallet for update
+  using (public.casillero_es_staff()) with check (public.casillero_es_staff());
+
+-- Los datos personales del casillero (telefono, documento, dirección…) los
+-- edita el dueño con la política "update own, role locked" de profiles.
+
+-- El código de casillero no lo cambia el dueño (la política de profiles
+-- le deja editar su propia fila).
+create or replace function public.casillero_codigo_bloqueado() returns trigger
+language plpgsql set search_path = public as $$
+begin
+  if new.casillero_codigo is distinct from old.casillero_codigo and auth.uid() is not null then
+    raise exception 'El código de casillero no se puede cambiar';
+  end if;
+  return new;
+end $$;
+drop trigger if exists casillero_codigo_lock on public.profiles;
+create trigger casillero_codigo_lock before update on public.profiles
+  for each row execute function public.casillero_codigo_bloqueado();
+
+-- =======================================================================
+-- Portal del administrador: control total
+-- =======================================================================
+
+-- ---- Bloqueo de clientes ---------------------------------------------
+alter table public.profiles add column if not exists casillero_bloqueado boolean not null default false;
+
+create or replace function public.casillero_bloqueado_yo() returns boolean
+language sql stable security definer set search_path = public as $$
+  select coalesce((select casillero_bloqueado from public.profiles where id = auth.uid()), false);
+$$;
+revoke execute on function public.casillero_bloqueado_yo() from public, anon;
+grant execute on function public.casillero_bloqueado_yo() to authenticated;
+
+-- Un cliente bloqueado no puede crear prealertas (el equipo sí registra por él).
+drop policy if exists "casillero_paquetes: insert" on public.casillero_paquetes;
+create policy "casillero_paquetes: insert" on public.casillero_paquetes for insert
+  with check ((user_id = auth.uid() and estado = 'prealertado' and not public.casillero_bloqueado_yo())
+              or public.casillero_es_staff());
+
+-- Solo el equipo cambia estos dos campos del perfil, y siempre por función.
+create or replace function public.casillero_set_rol(p_user uuid, p_rol text) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  if p_rol not in ('cliente','vendedor') then raise exception 'Rol invalido'; end if;
+  if p_user = auth.uid() then raise exception 'No puedes cambiar tu propio rol'; end if;
+  update public.profiles set role = p_rol::public.user_role where id = p_user;
+end $$;
+revoke execute on function public.casillero_set_rol(uuid, text) from public, anon;
+grant execute on function public.casillero_set_rol(uuid, text) to authenticated;
+
+create or replace function public.casillero_set_bloqueo(p_user uuid, p_bloqueado boolean) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  if p_user = auth.uid() then raise exception 'No puedes bloquearte a ti mismo'; end if;
+  update public.profiles set casillero_bloqueado = p_bloqueado where id = p_user;
+end $$;
+revoke execute on function public.casillero_set_bloqueo(uuid, boolean) from public, anon;
+grant execute on function public.casillero_set_bloqueo(uuid, boolean) to authenticated;
+
+-- ---- Configuración (la edita el equipo) --------------------------------
+create table if not exists public.casillero_config (
+  clave text primary key,
+  valor text not null,
+  descripcion text
+);
+insert into public.casillero_config (clave, valor, descripcion) values
+  ('libra_extra_rec_oficina', '', 'USD por cada libra adicional sobre la última fila de la tabla (vacío = cotiza un asesor)'),
+  ('libra_extra_local', '', 'Idem, modalidad local'),
+  ('libra_extra_regional', '', 'Idem, modalidad regional'),
+  ('libra_extra_nacional', '', 'Idem, modalidad nacional'),
+  ('direccion_bodega', '7569 NW 70th St, Miami, FL 33166, EE.UU.', 'Dirección que ven los clientes'),
+  ('valor_declarado_max', '100', 'USD máximo declarado para aplicar las tarifas mínimas'),
+  ('recarga_min_usd', '5', 'Recarga mínima del wallet'),
+  ('aviso_clientes', '', 'Mensaje visible en el inicio del casillero (vacío = ninguno)')
+on conflict (clave) do nothing;
+
+alter table public.casillero_config enable row level security;
+drop policy if exists "casillero_config: select" on public.casillero_config;
+create policy "casillero_config: select" on public.casillero_config for select using (true);
+drop policy if exists "casillero_config: staff" on public.casillero_config;
+create policy "casillero_config: staff" on public.casillero_config for all
+  using (public.casillero_es_staff()) with check (public.casillero_es_staff());
+
+-- Cotización: si el peso pasa de la última fila y hay precio por libra extra, se suma.
+create or replace function public.casillero_cotizar(p_peso numeric, p_modalidad text) returns numeric
+language plpgsql stable set search_path = public as $$
+declare v numeric; extra numeric; ult record; libras int := ceil(p_peso);
+begin
+  if p_modalidad not in ('rec_oficina','local','regional','nacional') then raise exception 'Modalidad invalida'; end if;
+  select case p_modalidad when 'rec_oficina' then rec_oficina when 'local' then local
+                          when 'regional' then regional else nacional end
+    into v from public.casillero_tarifas where libras between libras_desde and libras_hasta;
+  if v is not null then return v; end if;
+
+  select * into ult from public.casillero_tarifas order by libras_hasta desc limit 1;
+  select nullif(valor, '')::numeric into extra from public.casillero_config where clave = 'libra_extra_' || p_modalidad;
+  if ult is null or extra is null or libras <= ult.libras_hasta then
+    raise exception 'Peso fuera de la tabla de tarifas, contacta a un asesor';
+  end if;
+  return (case p_modalidad when 'rec_oficina' then ult.rec_oficina when 'local' then ult.local
+                           when 'regional' then ult.regional else ult.nacional end)
+         + extra * (libras - ult.libras_hasta);
+end $$;
+
+-- Despacho: igual que antes, y un cliente bloqueado no puede solicitarlo.
+create or replace function public.casillero_solicitar_despacho(p_paquetes uuid[], p_modalidad text, p_destino text)
+returns uuid
+language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); peso numeric; costo numeric; did uuid; n int;
+begin
+  if uid is null then raise exception 'No autenticado'; end if;
+  perform 1 from public.profiles where id = uid for update;
+  if public.casillero_bloqueado_yo() then raise exception 'Tu casillero está bloqueado, contacta al equipo'; end if;
+  select count(*), coalesce(sum(peso_lb), 0) into n, peso from public.casillero_paquetes
+    where id = any (p_paquetes) and user_id = uid and estado = 'recibido' and peso_lb is not null;
+  if n = 0 or n <> array_length(p_paquetes, 1) then raise exception 'Paquetes invalidos o sin recibir/pesar'; end if;
+  costo := public.casillero_cotizar(peso, p_modalidad);
+  if public.casillero_mi_saldo() < costo then raise exception 'Saldo insuficiente en wallet'; end if;
+  insert into public.casillero_despachos (user_id, modalidad, destino, peso_total, costo)
+    values (uid, p_modalidad, p_destino, peso, costo) returning id into did;
+  insert into public.casillero_wallet (user_id, tipo, monto, estado, referencia, despacho_id)
+    values (uid, 'cargo', -costo, 'aprobado', 'Despacho ' || left(did::text, 8), did);
+  update public.casillero_paquetes set estado = 'alistamiento', despacho_id = did where id = any (p_paquetes);
+  perform public.notify_vendedores('casillero_despacho', 'Nuevo despacho solicitado',
+    'Despacho ' || left(did::text, 8) || ' (' || peso || ' lb)', '/admin/casillero/despachos');
+  return did;
+end $$;
+
+-- ---- Anuncios a todos los clientes -------------------------------------
+create or replace function public.casillero_anunciar(p_titulo text, p_cuerpo text, p_link text default '/casillero')
+returns integer
+language plpgsql security definer set search_path = public as $$
+declare n integer;
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  if coalesce(trim(p_titulo), '') = '' then raise exception 'El anuncio necesita un título'; end if;
+  insert into public.notifications (user_id, type, title, body, link)
+    select id, 'casillero_anuncio', p_titulo, p_cuerpo, p_link from public.profiles where role = 'cliente';
+  get diagnostics n = row_count;
+  -- Queda el historial de lo anunciado (lo lee la pantalla Anuncios y la Auditoría).
+  insert into public.casillero_auditoria (actor, tabla, accion, detalle)
+    values (auth.uid(), 'anuncio', 'INSERT', jsonb_build_object('titulo', p_titulo, 'cuerpo', p_cuerpo, 'link', p_link, 'destinatarios', n));
+  return n;
+end $$;
+revoke execute on function public.casillero_anunciar(text, text, text) from public, anon;
+grant execute on function public.casillero_anunciar(text, text, text) to authenticated;
+
+-- ---- Auditoría: quién (del equipo) cambió qué ---------------------------
+create table if not exists public.casillero_auditoria (
+  id bigint generated always as identity primary key,
+  actor uuid,
+  tabla text not null,
+  accion text not null,
+  fila text,
+  detalle jsonb,
+  created_at timestamptz not null default now()
+);
+alter table public.casillero_auditoria enable row level security;
+drop policy if exists "casillero_auditoria: staff" on public.casillero_auditoria;
+create policy "casillero_auditoria: staff" on public.casillero_auditoria for select using (public.casillero_es_staff());
+
+create or replace function public.casillero_auditar() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare fila jsonb := case when tg_op = 'DELETE' then to_jsonb(old) else to_jsonb(new) end;
+begin
+  -- Solo acciones hechas a mano por alguien del equipo (no las del sistema ni las del cliente).
+  if auth.uid() is not null and public.casillero_es_staff() then
+    insert into public.casillero_auditoria (actor, tabla, accion, fila, detalle)
+    values (auth.uid(), tg_table_name, tg_op, fila ->> coalesce(tg_argv[0], 'id'),
+            case when tg_op = 'UPDATE' then jsonb_build_object('antes', to_jsonb(old), 'despues', to_jsonb(new)) else fila end);
+  end if;
+  return coalesce(new, old);
+end $$;
+revoke execute on function public.casillero_auditar() from public, anon, authenticated;
+
+drop trigger if exists casillero_aud_paquetes on public.casillero_paquetes;
+create trigger casillero_aud_paquetes after update or delete on public.casillero_paquetes for each row execute function public.casillero_auditar();
+drop trigger if exists casillero_aud_despachos on public.casillero_despachos;
+create trigger casillero_aud_despachos after update on public.casillero_despachos for each row execute function public.casillero_auditar();
+drop trigger if exists casillero_aud_wallet on public.casillero_wallet;
+create trigger casillero_aud_wallet after insert or update on public.casillero_wallet for each row execute function public.casillero_auditar();
+drop trigger if exists casillero_aud_tarifas on public.casillero_tarifas;
+create trigger casillero_aud_tarifas after insert or update or delete on public.casillero_tarifas for each row execute function public.casillero_auditar();
+drop trigger if exists casillero_aud_config on public.casillero_config;
+create trigger casillero_aud_config after update on public.casillero_config for each row execute function public.casillero_auditar('clave');
+drop trigger if exists casillero_aud_perfiles on public.profiles;
+create trigger casillero_aud_perfiles after update on public.profiles for each row execute function public.casillero_auditar();
+
+-- ---- Números del tablero ---------------------------------------------------
+create or replace function public.casillero_stats() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare r jsonb;
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  select jsonb_build_object(
+    'clientes', (select count(*) from public.profiles where role = 'cliente'),
+    'clientes_nuevos_30d', (select count(*) from public.profiles where role = 'cliente' and created_at > now() - interval '30 days'),
+    'bloqueados', (select count(*) from public.profiles where casillero_bloqueado),
+    'paquetes', (select coalesce(jsonb_object_agg(estado, n), '{}'::jsonb) from (select estado, count(*) n from public.casillero_paquetes group by estado) x),
+    'despachos', (select coalesce(jsonb_object_agg(estado, n), '{}'::jsonb) from (select estado, count(*) n from public.casillero_despachos group by estado) x),
+    'recargas_pendientes', (select count(*) from public.casillero_wallet where tipo = 'recarga' and estado = 'pendiente'),
+    'recargas_pendientes_usd', (select coalesce(sum(monto), 0) from public.casillero_wallet where tipo = 'recarga' and estado = 'pendiente'),
+    'saldo_total_wallets', (select coalesce(sum(monto), 0) from public.casillero_wallet where estado = 'aprobado'),
+    'ingresos_30d', (select coalesce(-sum(monto), 0) from public.casillero_wallet where tipo = 'cargo' and estado = 'aprobado' and created_at > now() - interval '30 days'),
+    'recargado_30d', (select coalesce(sum(monto), 0) from public.casillero_wallet where tipo = 'recarga' and estado = 'aprobado' and created_at > now() - interval '30 days'),
+    'serie_30d', (select coalesce(jsonb_agg(jsonb_build_object('dia', d::date, 'ingresos', coalesce(i.v, 0), 'paquetes', coalesce(p.n, 0)) order by d), '[]'::jsonb)
+                  from generate_series(current_date - 29, current_date, interval '1 day') d
+                  left join (select created_at::date dia, -sum(monto) v from public.casillero_wallet where tipo = 'cargo' and estado = 'aprobado' group by 1) i on i.dia = d::date
+                  left join (select created_at::date dia, count(*) n from public.casillero_paquetes group by 1) p on p.dia = d::date)
+  ) into r;
+  return r;
+end $$;
+revoke execute on function public.casillero_stats() from public, anon;
+grant execute on function public.casillero_stats() to authenticated;
+
+-- ---- Clientes: el equipo edita sus datos; saldos por cliente --------------
+drop policy if exists "profiles: staff updates" on public.profiles;
+create policy "profiles: staff updates" on public.profiles for update
+  using (public.casillero_es_staff()) with check (public.casillero_es_staff());
+
+create or replace view public.casillero_saldos with (security_invoker = true) as
+  select user_id, coalesce(sum(monto) filter (where estado = 'aprobado'), 0)::numeric(12,2) as saldo
+  from public.casillero_wallet group by user_id;
+
+-- =======================================================================
+-- Inventario (fulfillment) + integraciones con Shopify y WordPress/WooCommerce
+-- =======================================================================
+-- El cliente da de alta sus productos (SKU). El equipo registra lo que
+-- entra a la bodega (ingreso) y las ventas llegan solas desde su tienda
+-- (webhooks) o por la API. El stock disponible es la suma de movimientos.
+
+create table if not exists public.casillero_productos (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  sku text not null check (length(trim(sku)) > 0),
+  nombre text not null check (length(trim(nombre)) > 0),
+  descripcion text,
+  imagen_url text,
+  created_at timestamptz not null default now(),
+  unique (user_id, sku)
+);
+create index if not exists casillero_productos_user_idx on public.casillero_productos (user_id);
+
+create table if not exists public.casillero_inv_mov (
+  id uuid primary key default gen_random_uuid(),
+  producto_id uuid not null references public.casillero_productos (id) on delete cascade,
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  tipo text not null check (tipo in ('ingreso','venta','ajuste','devolucion')),
+  cantidad integer not null check (cantidad <> 0),   -- con signo: ingreso/devolucion +, venta -, ajuste +/-
+  referencia text,
+  origen text not null default 'manual' check (origen in ('manual','bodega','shopify','woocommerce','api')),
+  ref_externa text unique,                          -- idempotencia: el mismo pedido no se descuenta dos veces
+  created_at timestamptz not null default now(),
+  check ((tipo in ('ingreso','devolucion') and cantidad > 0) or (tipo = 'venta' and cantidad < 0) or tipo = 'ajuste')
+);
+create index if not exists casillero_inv_mov_producto_idx on public.casillero_inv_mov (producto_id, created_at desc);
+create index if not exists casillero_inv_mov_user_idx on public.casillero_inv_mov (user_id, created_at desc);
+
+-- Producto de tu tienda <-> producto del casillero.
+create table if not exists public.casillero_productos_externos (
+  producto_id uuid not null references public.casillero_productos (id) on delete cascade,
+  integracion_id uuid not null,
+  externo_id text not null,          -- Shopify: inventory_item_id · Woo: id del producto
+  externo_extra text,                -- Woo: id de la variación
+  primary key (producto_id, integracion_id)
+);
+
+create table if not exists public.casillero_integraciones (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  plataforma text not null check (plataforma in ('shopify','woocommerce')),
+  dominio text not null,             -- tienda.myshopify.com o https://mitienda.com
+  estado text not null default 'activa' check (estado in ('activa','error')),
+  ubicacion_id text,                 -- Shopify: location_id donde se empuja el stock
+  webhooks jsonb not null default '[]'::jsonb,
+  ultimo_sync timestamptz,
+  ultimo_error text,
+  created_at timestamptz not null default now(),
+  unique (user_id, plataforma, dominio)
+);
+alter table public.casillero_integraciones add column if not exists sync_stock boolean not null default false;  -- empujar el stock de la bodega a la tienda
+alter table public.casillero_productos_externos
+  drop constraint if exists casillero_productos_externos_integracion_fk;
+alter table public.casillero_productos_externos
+  add constraint casillero_productos_externos_integracion_fk foreign key (integracion_id) references public.casillero_integraciones (id) on delete cascade;
+
+-- Las llaves de la tienda: SOLO el servidor (service-role) las lee. Sin
+-- ninguna política, ni el dueño ni el equipo pueden verlas desde el navegador.
+create table if not exists public.casillero_integraciones_secretos (
+  integracion_id uuid primary key references public.casillero_integraciones (id) on delete cascade,
+  secretos_cifrados text not null,   -- AES-256-GCM, ver server/inventario/crypto.ts
+  webhook_secret text not null
+);
+
+-- Llaves de API para sistemas propios (un plugin de WordPress, un ERP…).
+-- Se guarda solo el hash: la llave completa se muestra una vez al crearla.
+create table if not exists public.casillero_api_keys (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  nombre text not null,
+  prefijo text not null,
+  hash text not null unique,
+  ultimo_uso timestamptz,
+  created_at timestamptz not null default now()
+);
+
+alter table public.casillero_productos enable row level security;
+alter table public.casillero_inv_mov enable row level security;
+alter table public.casillero_productos_externos enable row level security;
+alter table public.casillero_integraciones enable row level security;
+alter table public.casillero_integraciones_secretos enable row level security;
+alter table public.casillero_api_keys enable row level security;
+
+drop policy if exists "casillero_productos: select" on public.casillero_productos;
+create policy "casillero_productos: select" on public.casillero_productos for select using (user_id = auth.uid() or public.casillero_es_staff());
+drop policy if exists "casillero_productos: insert" on public.casillero_productos;
+create policy "casillero_productos: insert" on public.casillero_productos for insert with check ((user_id = auth.uid() and not public.casillero_bloqueado_yo()) or public.casillero_es_staff());
+drop policy if exists "casillero_productos: update" on public.casillero_productos;
+create policy "casillero_productos: update" on public.casillero_productos for update using (user_id = auth.uid() or public.casillero_es_staff()) with check (user_id = auth.uid() or public.casillero_es_staff());
+drop policy if exists "casillero_productos: delete" on public.casillero_productos;
+create policy "casillero_productos: delete" on public.casillero_productos for delete using (
+  (user_id = auth.uid() and not exists (select 1 from public.casillero_inv_mov m where m.producto_id = id)) or public.casillero_es_staff());
+
+-- Movimientos: el cliente los lee; los escribe el equipo o el servidor (webhooks y API).
+drop policy if exists "casillero_inv_mov: select" on public.casillero_inv_mov;
+create policy "casillero_inv_mov: select" on public.casillero_inv_mov for select using (user_id = auth.uid() or public.casillero_es_staff());
+drop policy if exists "casillero_inv_mov: staff insert" on public.casillero_inv_mov;
+create policy "casillero_inv_mov: staff insert" on public.casillero_inv_mov for insert with check (public.casillero_es_staff());
+
+drop policy if exists "casillero_productos_externos: select" on public.casillero_productos_externos;
+create policy "casillero_productos_externos: select" on public.casillero_productos_externos for select using (
+  exists (select 1 from public.casillero_productos p where p.id = producto_id and (p.user_id = auth.uid() or public.casillero_es_staff())));
+
+drop policy if exists "casillero_integraciones: select" on public.casillero_integraciones;
+create policy "casillero_integraciones: select" on public.casillero_integraciones for select using (user_id = auth.uid() or public.casillero_es_staff());
+
+drop policy if exists "casillero_api_keys: select" on public.casillero_api_keys;
+create policy "casillero_api_keys: select" on public.casillero_api_keys for select using (user_id = auth.uid() or public.casillero_es_staff());
+-- (sin políticas de escritura en integraciones, secretos ni llaves: lo hace el servidor)
+
+drop trigger if exists casillero_aud_inv_mov on public.casillero_inv_mov;
+create trigger casillero_aud_inv_mov after insert on public.casillero_inv_mov for each row execute function public.casillero_auditar();
+
+-- =======================================================================
+-- Pulido: alertas de stock, registro de eventos de integración, ventas de
+-- SKUs sin vincular que se aplican solas, y números para las gráficas
+-- =======================================================================
+
+alter table public.casillero_productos add column if not exists stock_minimo integer not null default 0 check (stock_minimo >= 0);
+
+-- Una fila por producto con sus totales (la que pinta la pantalla de Inventario).
+--   total_unidades = todo lo que ha entrado (ingresos + devoluciones + ajustes positivos)
+--   disponibles    = lo que hay hoy
+--   vendidos       = unidades vendidas
+--   rotacion       = vendidos / total_unidades
+create or replace view public.casillero_inventario with (security_invoker = true) as
+  select p.id, p.user_id, p.sku, p.nombre, p.descripcion, p.imagen_url, p.created_at,
+    coalesce(sum(m.cantidad) filter (where m.tipo in ('ingreso','devolucion') or (m.tipo = 'ajuste' and m.cantidad > 0)), 0)::int as total_unidades,
+    coalesce(sum(m.cantidad), 0)::int as disponibles,
+    coalesce(-sum(m.cantidad) filter (where m.tipo = 'venta'), 0)::int as vendidos,
+    case when coalesce(sum(m.cantidad) filter (where m.tipo in ('ingreso','devolucion') or (m.tipo = 'ajuste' and m.cantidad > 0)), 0) > 0
+      then round(100.0 * coalesce(-sum(m.cantidad) filter (where m.tipo = 'venta'), 0)
+           / sum(m.cantidad) filter (where m.tipo in ('ingreso','devolucion') or (m.tipo = 'ajuste' and m.cantidad > 0)), 1)
+      else 0 end as rotacion,
+    p.stock_minimo
+  from public.casillero_productos p
+  left join public.casillero_inv_mov m on m.producto_id = p.id
+  group by p.id;
+
+-- Lo que pasó con cada tienda: avisos recibidos, importaciones, errores, y
+-- las líneas de pedido cuyo SKU todavía no existe en el casillero.
+create table if not exists public.casillero_integracion_eventos (
+  id bigint generated always as identity primary key,
+  integracion_id uuid references public.casillero_integraciones (id) on delete cascade,
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  tipo text not null check (tipo in ('conexion','webhook','importar','sync','error','sin_producto')),
+  resumen text not null,
+  detalle jsonb,
+  resuelto boolean not null default false,
+  created_at timestamptz not null default now()
+);
+create index if not exists casillero_ie_integracion_idx on public.casillero_integracion_eventos (integracion_id, created_at desc);
+create index if not exists casillero_ie_pendientes_idx on public.casillero_integracion_eventos (user_id, tipo) where not resuelto;
+alter table public.casillero_integracion_eventos enable row level security;
+drop policy if exists "casillero_ie: select" on public.casillero_integracion_eventos;
+create policy "casillero_ie: select" on public.casillero_integracion_eventos for select using (user_id = auth.uid() or public.casillero_es_staff());
+
+-- Cuando el cliente crea (o importa) un producto, las ventas que llegaron antes
+-- con ese SKU se aplican solas, una sola vez (ref_externa es única).
+create or replace function public.casillero_aplicar_pendientes() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare r record;
+begin
+  for r in select id, detalle from public.casillero_integracion_eventos
+           where user_id = new.user_id and tipo = 'sin_producto' and not resuelto and detalle ->> 'sku' = new.sku loop
+    insert into public.casillero_inv_mov (producto_id, user_id, tipo, cantidad, origen, referencia, ref_externa)
+    values (new.id, new.user_id, coalesce(r.detalle ->> 'tipo', 'venta'), (r.detalle ->> 'cantidad')::int,
+            coalesce(r.detalle ->> 'origen', 'api'), r.detalle ->> 'referencia', r.detalle ->> 'ref_externa')
+    on conflict (ref_externa) do nothing;
+    update public.casillero_integracion_eventos set resuelto = true where id = r.id;
+  end loop;
+  return new;
+end $$;
+revoke execute on function public.casillero_aplicar_pendientes() from public, anon, authenticated;
+drop trigger if exists casillero_pendientes_t on public.casillero_productos;
+create trigger casillero_pendientes_t after insert on public.casillero_productos for each row execute function public.casillero_aplicar_pendientes();
+
+create or replace view public.casillero_skus_sin_producto with (security_invoker = true) as
+  select user_id, detalle ->> 'sku' as sku, count(*)::int as pedidos,
+         sum(abs((detalle ->> 'cantidad')::int))::int as unidades, max(created_at) as ultima
+  from public.casillero_integracion_eventos
+  where tipo = 'sin_producto' and not resuelto
+  group by user_id, detalle ->> 'sku';
+
+-- Stock bajo: avisa una vez, cuando cruza el mínimo hacia abajo.
+create or replace function public.casillero_stock_alerta() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare p record; disp integer;
+begin
+  select * into p from public.casillero_productos where id = new.producto_id;
+  if p.stock_minimo > 0 then
+    select coalesce(sum(cantidad), 0) into disp from public.casillero_inv_mov where producto_id = new.producto_id;
+    if disp <= p.stock_minimo and disp - new.cantidad > p.stock_minimo then
+      insert into public.notifications (user_id, type, title, body, link)
+      values (p.user_id, 'casillero_stock', 'Stock bajo: ' || p.sku,
+              p.nombre || ' tiene ' || disp || ' unidades (mínimo ' || p.stock_minimo || ').', '/casillero/inventario');
+    end if;
+  end if;
+  return new;
+end $$;
+revoke execute on function public.casillero_stock_alerta() from public, anon, authenticated;
+drop trigger if exists casillero_stock_alerta_t on public.casillero_inv_mov;
+create trigger casillero_stock_alerta_t after insert on public.casillero_inv_mov for each row execute function public.casillero_stock_alerta();
+
+-- ---- Números del portal del cliente (una sola consulta para el inicio) ----
+create or replace function public.casillero_resumen_cliente() returns jsonb
+language plpgsql stable security invoker set search_path = public as $$
+declare uid uuid := auth.uid(); base numeric; r jsonb;
+begin
+  if uid is null then raise exception 'No autenticado'; end if;
+  select coalesce(sum(monto), 0) into base from public.casillero_wallet
+    where user_id = uid and estado = 'aprobado' and created_at < current_date - 29;
+  select jsonb_build_object(
+    'saldo', (select coalesce(sum(monto), 0) from public.casillero_wallet where user_id = uid and estado = 'aprobado'),
+    'recargas_pendientes', (select coalesce(sum(monto), 0) from public.casillero_wallet where user_id = uid and tipo = 'recarga' and estado = 'pendiente'),
+    'paquetes', (select coalesce(jsonb_object_agg(estado, n), '{}'::jsonb) from (select estado, count(*) n from public.casillero_paquetes where user_id = uid group by estado) x),
+    'gasto_6m', (select coalesce(jsonb_agg(jsonb_build_object('mes', to_char(m, 'YYYY-MM'), 'gasto', coalesce(g.v, 0), 'recargas', coalesce(rc.v, 0)) order by m), '[]'::jsonb)
+      from generate_series(date_trunc('month', current_date) - interval '5 months', date_trunc('month', current_date), interval '1 month') m
+      left join (select date_trunc('month', created_at) mes, -sum(monto) v from public.casillero_wallet where user_id = uid and tipo = 'cargo' and estado = 'aprobado' group by 1) g on g.mes = m
+      left join (select date_trunc('month', created_at) mes, sum(monto) v from public.casillero_wallet where user_id = uid and tipo = 'recarga' and estado = 'aprobado' group by 1) rc on rc.mes = m),
+    'saldo_serie', (select coalesce(jsonb_agg(jsonb_build_object('dia', dia, 'saldo', saldo) order by dia), '[]'::jsonb) from (
+      select d::date dia, base + sum(coalesce(w.delta, 0)) over (order by d) saldo
+      from generate_series(current_date - 29, current_date, interval '1 day') d
+      left join (select created_at::date dia, sum(monto) delta from public.casillero_wallet where user_id = uid and estado = 'aprobado' and created_at >= current_date - 29 group by 1) w on w.dia = d::date) s),
+    'ventas_30d', (select coalesce(jsonb_agg(jsonb_build_object('dia', d::date, 'shopify', coalesce(v.shopify, 0), 'woocommerce', coalesce(v.woo, 0), 'api', coalesce(v.api, 0), 'manual', coalesce(v.manual, 0)) order by d), '[]'::jsonb)
+      from generate_series(current_date - 29, current_date, interval '1 day') d
+      left join (select created_at::date dia,
+          -coalesce(sum(cantidad) filter (where origen = 'shopify'), 0) shopify,
+          -coalesce(sum(cantidad) filter (where origen = 'woocommerce'), 0) woo,
+          -coalesce(sum(cantidad) filter (where origen = 'api'), 0) api,
+          -coalesce(sum(cantidad) filter (where origen in ('manual', 'bodega')), 0) manual
+        from public.casillero_inv_mov where user_id = uid and tipo = 'venta' and created_at >= current_date - 29 group by 1) v on v.dia = d::date),
+    'top_productos', (select coalesce(jsonb_agg(t), '[]'::jsonb) from (
+      select p.sku, p.nombre, (-sum(m.cantidad))::int vendidos
+      from public.casillero_inv_mov m join public.casillero_productos p on p.id = m.producto_id
+      where m.user_id = uid and m.tipo = 'venta' and m.created_at >= current_date - 29
+      group by p.sku, p.nombre order by 3 desc limit 5) t),
+    'stock_bajo', (select coalesce(jsonb_agg(t), '[]'::jsonb) from (
+      select sku, nombre, disponibles, stock_minimo from public.casillero_inventario
+      where user_id = uid and ((stock_minimo > 0 and disponibles <= stock_minimo) or (disponibles <= 0 and vendidos > 0))
+      order by disponibles limit 10) t),
+    'sin_vincular', (select count(*) from public.casillero_skus_sin_producto where user_id = uid),
+    'onboarding', jsonb_build_object(
+      'prealerta', exists (select 1 from public.casillero_paquetes where user_id = uid),
+      'wallet', exists (select 1 from public.casillero_wallet where user_id = uid and tipo = 'recarga' and estado = 'aprobado'),
+      'productos', exists (select 1 from public.casillero_productos where user_id = uid),
+      'tienda', exists (select 1 from public.casillero_integraciones where user_id = uid),
+      'stock', exists (select 1 from public.casillero_inv_mov where user_id = uid and tipo = 'ingreso')),
+    'actividad', (select coalesce(jsonb_agg(a order by (a ->> 'fecha') desc), '[]'::jsonb) from (
+      (select jsonb_build_object('tipo', 'paquete', 'titulo', 'Paquete ' || e.estado, 'detalle', p.guia, 'fecha', e.created_at) a
+         from public.casillero_eventos e join public.casillero_paquetes p on p.id = e.paquete_id where p.user_id = uid order by e.created_at desc limit 6)
+      union all
+      (select jsonb_build_object('tipo', 'wallet', 'titulo', case tipo when 'recarga' then 'Recarga ' || estado when 'cargo' then 'Cobro de despacho' else 'Ajuste de saldo' end, 'detalle', monto::text, 'fecha', created_at)
+         from public.casillero_wallet where user_id = uid order by created_at desc limit 6)
+      union all
+      (select jsonb_build_object('tipo', 'stock', 'titulo', case m.tipo when 'venta' then 'Venta' when 'ingreso' then 'Ingreso a bodega' when 'devolucion' then 'Devolución' else 'Ajuste' end || ' · ' || p.sku, 'detalle', m.cantidad::text, 'fecha', m.created_at)
+         from public.casillero_inv_mov m join public.casillero_productos p on p.id = m.producto_id where m.user_id = uid order by m.created_at desc limit 6)
+    ) u limit 10)
+  ) into r;
+  return r;
+end $$;
+grant execute on function public.casillero_resumen_cliente() to authenticated;
+revoke execute on function public.casillero_resumen_cliente() from public, anon;
+
+-- Análisis de inventario del cliente: serie diaria, ventas por origen y días de cobertura por producto.
+create or replace function public.casillero_inv_analisis(p_dias integer default 30) returns jsonb
+language plpgsql stable security invoker set search_path = public as $$
+declare uid uuid := auth.uid(); dias integer := greatest(1, least(coalesce(p_dias, 30), 365));
+begin
+  if uid is null then raise exception 'No autenticado'; end if;
+  return jsonb_build_object(
+    'dias', dias,
+    'serie', (select coalesce(jsonb_agg(jsonb_build_object('dia', d::date, 'ventas', coalesce(m.v, 0), 'ingresos', coalesce(m.i, 0), 'devoluciones', coalesce(m.dv, 0)) order by d), '[]'::jsonb)
+      from generate_series(current_date - (dias - 1), current_date, interval '1 day') d
+      left join (select created_at::date dia, -coalesce(sum(cantidad) filter (where tipo = 'venta'), 0) v,
+                        coalesce(sum(cantidad) filter (where tipo = 'ingreso'), 0) i, coalesce(sum(cantidad) filter (where tipo = 'devolucion'), 0) dv
+                 from public.casillero_inv_mov where user_id = uid and created_at >= current_date - (dias - 1) group by 1) m on m.dia = d::date),
+    'por_origen', (select coalesce(jsonb_agg(jsonb_build_object('origen', origen, 'unidades', u) order by u desc), '[]'::jsonb) from (
+      select origen, (-sum(cantidad))::int u from public.casillero_inv_mov
+      where user_id = uid and tipo = 'venta' and created_at >= current_date - (dias - 1) group by origen) o),
+    'productos', (select coalesce(jsonb_agg(jsonb_build_object('id', i.id, 'vendidas', coalesce(v.u, 0),
+        'cobertura_dias', case when coalesce(v.u, 0) > 0 and i.disponibles > 0 then round(i.disponibles::numeric / (v.u::numeric / dias), 0) end)), '[]'::jsonb)
+      from public.casillero_inventario i
+      left join (select producto_id, (-sum(cantidad))::int u from public.casillero_inv_mov
+                 where user_id = uid and tipo = 'venta' and created_at >= current_date - (dias - 1) group by producto_id) v on v.producto_id = i.id
+      where i.user_id = uid));
+end $$;
+grant execute on function public.casillero_inv_analisis(integer) to authenticated;
+revoke execute on function public.casillero_inv_analisis(integer) from public, anon;
+
+-- ---- Números del portal del administrador (reemplaza la versión anterior; mantiene sus claves) ----
+create or replace function public.casillero_stats() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare r jsonb;
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  select jsonb_build_object(
+    'clientes', (select count(*) from public.profiles where role = 'cliente'),
+    'clientes_nuevos_30d', (select count(*) from public.profiles where role = 'cliente' and created_at > now() - interval '30 days'),
+    'bloqueados', (select count(*) from public.profiles where casillero_bloqueado),
+    'paquetes', (select coalesce(jsonb_object_agg(estado, n), '{}'::jsonb) from (select estado, count(*) n from public.casillero_paquetes group by estado) x),
+    'despachos', (select coalesce(jsonb_object_agg(estado, n), '{}'::jsonb) from (select estado, count(*) n from public.casillero_despachos group by estado) x),
+    'recargas_pendientes', (select count(*) from public.casillero_wallet where tipo = 'recarga' and estado = 'pendiente'),
+    'recargas_pendientes_usd', (select coalesce(sum(monto), 0) from public.casillero_wallet where tipo = 'recarga' and estado = 'pendiente'),
+    'saldo_total_wallets', (select coalesce(sum(monto), 0) from public.casillero_wallet where estado = 'aprobado'),
+    'ingresos_30d', (select coalesce(-sum(monto), 0) from public.casillero_wallet where tipo = 'cargo' and estado = 'aprobado' and created_at > now() - interval '30 days'),
+    'recargado_30d', (select coalesce(sum(monto), 0) from public.casillero_wallet where tipo = 'recarga' and estado = 'aprobado' and created_at > now() - interval '30 days'),
+    'serie_30d', (select coalesce(jsonb_agg(jsonb_build_object('dia', d::date, 'ingresos', coalesce(i.v, 0), 'paquetes', coalesce(p.n, 0)) order by d), '[]'::jsonb)
+                  from generate_series(current_date - 29, current_date, interval '1 day') d
+                  left join (select created_at::date dia, -sum(monto) v from public.casillero_wallet where tipo = 'cargo' and estado = 'aprobado' group by 1) i on i.dia = d::date
+                  left join (select created_at::date dia, count(*) n from public.casillero_paquetes group by 1) p on p.dia = d::date),
+    'ingresos_6m', (select coalesce(jsonb_agg(jsonb_build_object('mes', to_char(m, 'YYYY-MM'), 'ingresos', coalesce(g.v, 0), 'recargas', coalesce(rc.v, 0)) order by m), '[]'::jsonb)
+      from generate_series(date_trunc('month', current_date) - interval '5 months', date_trunc('month', current_date), interval '1 month') m
+      left join (select date_trunc('month', created_at) mes, -sum(monto) v from public.casillero_wallet where tipo = 'cargo' and estado = 'aprobado' group by 1) g on g.mes = m
+      left join (select date_trunc('month', created_at) mes, sum(monto) v from public.casillero_wallet where tipo = 'recarga' and estado = 'aprobado' group by 1) rc on rc.mes = m),
+    'top_clientes_30d', (select coalesce(jsonb_agg(t), '[]'::jsonb) from (
+      select pr.casillero_codigo codigo, pr.full_name nombre, -sum(w.monto) gasto
+      from public.casillero_wallet w join public.profiles pr on pr.id = w.user_id
+      where w.tipo = 'cargo' and w.estado = 'aprobado' and w.created_at > now() - interval '30 days'
+      group by pr.casillero_codigo, pr.full_name order by 3 desc limit 5) t),
+    'flujo_30d', (select coalesce(jsonb_agg(jsonb_build_object('dia', d::date, 'recibidos', coalesce(f.rec, 0), 'despachados', coalesce(f.des, 0)) order by d), '[]'::jsonb)
+      from generate_series(current_date - 29, current_date, interval '1 day') d
+      left join (select created_at::date dia, count(*) filter (where estado = 'recibido') rec, count(*) filter (where estado = 'despachado') des
+                 from public.casillero_eventos group by 1) f on f.dia = d::date),
+    'ventas_por_origen_30d', (select coalesce(jsonb_agg(jsonb_build_object('origen', origen, 'unidades', u) order by u desc), '[]'::jsonb) from (
+      select origen, (-sum(cantidad))::int u from public.casillero_inv_mov where tipo = 'venta' and created_at > now() - interval '30 days' group by origen) o),
+    'integraciones', jsonb_build_object(
+      'total', (select count(*) from public.casillero_integraciones),
+      'con_error', (select count(*) from public.casillero_integraciones where estado = 'error')),
+    'inventario', jsonb_build_object(
+      'productos', (select count(*) from public.casillero_productos),
+      'unidades', (select coalesce(sum(cantidad), 0) from public.casillero_inv_mov),
+      'stock_bajo', (select count(*) from public.casillero_inventario where (stock_minimo > 0 and disponibles <= stock_minimo))),
+    'cola', jsonb_build_object(
+      'por_recibir', (select count(*) from public.casillero_paquetes where estado = 'prealertado'),
+      'por_alistar', (select count(*) from public.casillero_despachos where estado = 'solicitado'),
+      'recargas', (select count(*) from public.casillero_wallet where tipo = 'recarga' and estado = 'pendiente'),
+      'sin_vincular', (select count(*) from public.casillero_skus_sin_producto))
+  ) into r;
+  return r;
+end $$;
+revoke execute on function public.casillero_stats() from public, anon;
+grant execute on function public.casillero_stats() to authenticated;
+
+-- =======================================================================
+-- Operaciones del administrador que tocan varias tablas (o dinero) a la vez.
+-- Cada una corre en una sola transacción, bloquea la fila que cambia y
+-- verifica que quien llama es del equipo; todo queda en la auditoría.
+-- =======================================================================
+
+-- Mover un despacho de estado, con su guía, y llevar sus paquetes con él.
+create or replace function public.casillero_despacho_estado(p_id uuid, p_estado text, p_guia text default null) returns void
+language plpgsql security definer set search_path = public as $$
+declare d record;
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  if p_estado not in ('solicitado','despachado','entregado') then raise exception 'Estado invalido'; end if;
+  select * into d from public.casillero_despachos where id = p_id for update;
+  if d.id is null then raise exception 'Despacho no encontrado'; end if;
+  if d.estado = 'cancelado' then raise exception 'El despacho está cancelado'; end if;
+  update public.casillero_despachos
+     set estado = p_estado, guia_despacho = nullif(trim(coalesce(p_guia, guia_despacho, '')), '')
+   where id = p_id;
+  update public.casillero_paquetes
+     set estado = case p_estado when 'solicitado' then 'alistamiento' else p_estado end
+   where despacho_id = p_id;
+end $$;
+revoke execute on function public.casillero_despacho_estado(uuid, text, text) from public, anon;
+grant execute on function public.casillero_despacho_estado(uuid, text, text) to authenticated;
+
+-- Cancelar un despacho que aún no salió: devuelve el dinero al wallet y los
+-- paquetes a la bodega. Solo se puede una vez (el bloqueo lo garantiza).
+create or replace function public.casillero_cancelar_despacho(p_id uuid) returns numeric
+language plpgsql security definer set search_path = public as $$
+declare d record;
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  select * into d from public.casillero_despachos where id = p_id for update;
+  if d.id is null then raise exception 'Despacho no encontrado'; end if;
+  if d.estado <> 'solicitado' then raise exception 'Solo se cancela un despacho que aún no salió de la bodega'; end if;
+  update public.casillero_despachos set estado = 'cancelado' where id = p_id;
+  insert into public.casillero_wallet (user_id, tipo, monto, estado, referencia, despacho_id)
+    values (d.user_id, 'ajuste', d.costo, 'aprobado', 'Reembolso despacho ' || left(p_id::text, 8), p_id);
+  update public.casillero_paquetes set estado = 'recibido', despacho_id = null where despacho_id = p_id;
+  insert into public.notifications (user_id, type, title, body, link)
+    values (d.user_id, 'casillero_despacho', 'Despacho cancelado',
+            'Devolvimos USD ' || to_char(d.costo, 'FM999990.00') || ' a tu wallet y tus paquetes volvieron a la bodega.', '/casillero/wallet');
+  return d.costo;
+end $$;
+revoke execute on function public.casillero_cancelar_despacho(uuid) from public, anon;
+grant execute on function public.casillero_cancelar_despacho(uuid) to authenticated;
+
+-- Aprobar o rechazar una recarga pendiente (transferencia, Zelle, efectivo…).
+-- Solo pasa una vez: si ya se resolvió, avisa en lugar de repetirla.
+create or replace function public.casillero_resolver_recarga(p_id uuid, p_aprobar boolean, p_nota text default null) returns void
+language plpgsql security definer set search_path = public as $$
+declare w record;
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  select * into w from public.casillero_wallet where id = p_id and tipo = 'recarga' for update;
+  if w.id is null then raise exception 'Recarga no encontrada'; end if;
+  if w.estado <> 'pendiente' then raise exception 'Esta recarga ya fue resuelta (%).', w.estado; end if;
+  update public.casillero_wallet
+     set estado = case when p_aprobar then 'aprobado' else 'rechazado' end,
+         referencia = case when nullif(trim(coalesce(p_nota, '')), '') is null then referencia
+                           else trim(both ' ·' from coalesce(referencia, '') || ' · ' || trim(p_nota)) end
+   where id = p_id;
+  insert into public.notifications (user_id, type, title, body, link)
+    values (w.user_id, 'casillero_recarga',
+            case when p_aprobar then 'Recarga aprobada' else 'Recarga rechazada' end,
+            case when p_aprobar then 'Sumamos USD ' || to_char(w.monto, 'FM999990.00') || ' a tu wallet.'
+                 else 'No pudimos verificar tu recarga de USD ' || to_char(w.monto, 'FM999990.00') || '.' || coalesce(' ' || nullif(trim(p_nota), ''), '') end,
+            '/casillero/wallet');
+end $$;
+revoke execute on function public.casillero_resolver_recarga(uuid, boolean, text) from public, anon;
+grant execute on function public.casillero_resolver_recarga(uuid, boolean, text) to authenticated;
+
+-- Ajuste manual de saldo (a favor o en contra) con motivo obligatorio. El
+-- saldo del cliente nunca queda por debajo de cero.
+create or replace function public.casillero_ajustar_saldo(p_user uuid, p_monto numeric, p_motivo text) returns numeric
+language plpgsql security definer set search_path = public as $$
+declare actual numeric;
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  if p_monto is null or p_monto = 0 or abs(p_monto) > 100000 then raise exception 'Monto invalido'; end if;
+  if coalesce(trim(p_motivo), '') = '' then raise exception 'El ajuste necesita un motivo'; end if;
+  perform 1 from public.profiles where id = p_user for update;
+  if not found then raise exception 'Cliente no encontrado'; end if;
+  select coalesce(sum(monto), 0) into actual from public.casillero_wallet where user_id = p_user and estado = 'aprobado';
+  if actual + p_monto < 0 then raise exception 'El saldo no puede quedar negativo (saldo actual USD %).', to_char(actual, 'FM999990.00'); end if;
+  insert into public.casillero_wallet (user_id, tipo, monto, estado, metodo, referencia)
+    values (p_user, 'ajuste', round(p_monto, 2), 'aprobado', 'Ajuste manual', trim(p_motivo));
+  insert into public.notifications (user_id, type, title, body, link)
+    values (p_user, 'casillero_wallet', 'Ajuste en tu wallet',
+            (case when p_monto > 0 then '+' else '-' end) || 'USD ' || to_char(abs(p_monto), 'FM999990.00') || ': ' || trim(p_motivo), '/casillero/wallet');
+  return actual + round(p_monto, 2);
+end $$;
+revoke execute on function public.casillero_ajustar_saldo(uuid, numeric, text) from public, anon;
+grant execute on function public.casillero_ajustar_saldo(uuid, numeric, text) to authenticated;
+
+-- ---- Inventario de toda la bodega (portal del administrador) ------------------
+-- Serie diaria, ventas por origen, lo más vendido y dónde está el stock, de todos
+-- los clientes. Se calcula en la base: nunca se bajan miles de movimientos al navegador.
+create or replace function public.casillero_inv_global(p_dias integer default 30) returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare dias integer := greatest(1, least(coalesce(p_dias, 30), 365));
+begin
+  if not public.casillero_es_staff() then raise exception 'Solo el equipo'; end if;
+  return jsonb_build_object(
+    'dias', dias,
+    'serie', (select coalesce(jsonb_agg(jsonb_build_object('dia', d::date, 'ventas', coalesce(m.v, 0), 'ingresos', coalesce(m.i, 0), 'devoluciones', coalesce(m.dv, 0)) order by d), '[]'::jsonb)
+      from generate_series(current_date - (dias - 1), current_date, interval '1 day') d
+      left join (select created_at::date dia, -coalesce(sum(cantidad) filter (where tipo = 'venta'), 0) v,
+                        coalesce(sum(cantidad) filter (where tipo = 'ingreso'), 0) i, coalesce(sum(cantidad) filter (where tipo = 'devolucion'), 0) dv
+                 from public.casillero_inv_mov where created_at >= current_date - (dias - 1) group by 1) m on m.dia = d::date),
+    'por_origen', (select coalesce(jsonb_agg(jsonb_build_object('origen', origen, 'unidades', u) order by u desc), '[]'::jsonb) from (
+      select origen, (-sum(cantidad))::int u from public.casillero_inv_mov
+      where tipo = 'venta' and created_at >= current_date - (dias - 1) group by origen) o),
+    'top_productos', (select coalesce(jsonb_agg(t), '[]'::jsonb) from (
+      select p.sku, p.nombre, pr.casillero_codigo codigo, (-sum(m.cantidad))::int vendidas
+      from public.casillero_inv_mov m join public.casillero_productos p on p.id = m.producto_id join public.profiles pr on pr.id = m.user_id
+      where m.tipo = 'venta' and m.created_at >= current_date - (dias - 1)
+      group by p.sku, p.nombre, pr.casillero_codigo order by 4 desc limit 8) t),
+    'stock_por_cliente', (select coalesce(jsonb_agg(t), '[]'::jsonb) from (
+      select pr.casillero_codigo codigo, pr.full_name nombre, sum(i.disponibles)::int unidades, count(*)::int productos
+      from public.casillero_inventario i join public.profiles pr on pr.id = i.user_id
+      group by pr.casillero_codigo, pr.full_name having sum(i.disponibles) > 0 order by 3 desc limit 8) t),
+    'totales', (select jsonb_build_object('productos', count(*), 'clientes', count(distinct user_id),
+                  'disponibles', coalesce(sum(disponibles), 0), 'vendidos', coalesce(sum(vendidos), 0),
+                  'agotados', count(*) filter (where disponibles <= 0),
+                  'bajos', count(*) filter (where disponibles > 0 and stock_minimo > 0 and disponibles <= stock_minimo))
+                from public.casillero_inventario));
+end $$;
+revoke execute on function public.casillero_inv_global(integer) from public, anon;
+grant execute on function public.casillero_inv_global(integer) to authenticated;

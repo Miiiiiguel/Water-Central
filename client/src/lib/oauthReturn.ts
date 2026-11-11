@@ -96,3 +96,19 @@ export function takeOAuthError(): string | null {
     return null;
   }
 }
+
+/** A dónde vuelve el usuario tras iniciar sesión con Google: solo rutas de esta misma app. */
+export function rutaInterna(destino: string | undefined, porDefecto = '/dashboard'): string {
+  if (!destino || !destino.startsWith('/') || destino.startsWith('//') || destino.includes('\\') || /[\r\n]/.test(destino)) return porDefecto;
+  return destino;
+}
+
+/**
+ * Supabase publica en /auth/v1/settings qué proveedores están activados. Solo
+ * cuando dice con claridad que Google está apagado se esconde el botón; ante
+ * cualquier duda se deja, porque esconderlo por error sería peor.
+ */
+export function googleActivo(settings: unknown): boolean {
+  const ext = (settings as { external?: { google?: unknown } } | null | undefined)?.external;
+  return ext?.google !== false;
+}

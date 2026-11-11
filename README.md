@@ -71,6 +71,72 @@ Ver [`APP_STORE.md`](./APP_STORE.md). Resumen: `pnpm run cap:sync`, abrir
 `android/` en Android Studio o `ios/` en Xcode, firmar y enviar. Los
 íconos y splash ya están generados.
 
+## 6. Casillero Easycomex (`/casillero`)
+
+Casillero de paquetería (Miami → Colombia) construido sobre esta misma app: reutiliza el
+login (Supabase + `profiles`), Wompi (recarga del wallet), las
+notificaciones y el correo (Resend).
+
+Son dos portales, con la misma cuenta:
+
+- **Portal del cliente** (`/casillero`): registro en `/casillero/registro`;
+  inicio con saldo, gráficas y pasos para empezar; prealerta, paquetes con
+  seguimiento, despacho en tres pasos (cotiza las cuatro modalidades), wallet
+  (Wompi o pago reportado), inventario por SKU, integraciones (Shopify,
+  WordPress, API con llave), tarifas y perfil. Rastreo público en `/rastreo`.
+- **Portal del administrador** (`/admin/casillero`, solo rol `vendedor`), con
+  gráficas en cada sección:
+  - *Resumen*: cola de trabajo (por recibir, por alistar, recargas, tiendas con
+    error) e ingresos, paquetes, clientes y ventas.
+  - *Recepción* pensada para lector de códigos; *Paquetes* (estados en lote,
+    aviso por correo); *Despachos* (guía, estado, hoja imprimible, cancelar con
+    reembolso atómico).
+  - *Inventario* de toda la bodega: ingreso uno a uno o masivo desde un CSV,
+    historial por producto, lo más vendido y dónde está el stock.
+  - *Integraciones*: todas las tiendas de los clientes (probar, reparar,
+    importar, enviar stock, desconectar) y las ventas que esperan su producto.
+  - *Wallet y recargas* (aprobar/rechazar con motivo, ajustar saldo), *Tarifas*
+    (tabla validada + libra extra + calculadora), *Clientes* (ficha, bloqueo,
+    ajustes), *Anuncios* (campanita + aviso fijo), *Configuración* (con el estado
+    real de Wompi, correo, cifrado y URL pública), *Equipo* y *Auditoría*
+    (antes/después de cada cambio).
+  - Lo que mueve dinero o varias tablas corre como funciones SQL atómicas
+    (`casillero_cancelar_despacho`, `casillero_resolver_recarga`,
+    `casillero_ajustar_saldo`, `casillero_despacho_estado`).
+- **Inventario** y **integraciones**: productos por SKU con total, disponibles,
+  vendidos, rotación y cobertura; el equipo registra los ingresos de bodega.
+  **Shopify**: app personalizada (token de Admin API + clave secreta) →
+  webhooks `orders/paid`, `orders/cancelled` y `refunds/create`. **WordPress**:
+  WooCommerce REST (ck_/cs_) → webhooks `order.created/updated`. Las ventas
+  descuentan por SKU (idempotente por pedido; si el SKU aún no existe, la venta
+  espera y se aplica sola al crearlo) y, si el cliente lo activa, el stock de la
+  bodega se empuja a su tienda. **Protección**: nunca se envía el stock de un
+  producto que la bodega no ha recibido todavía (su 0 no es «agotado»), así una
+  tienda que ya vende no queda en cero por conectarla. Para cualquier otro sistema hay una API con
+  llave: `GET /api/v1/inventario`, `POST /api/v1/inventario/ventas`.
+  Requiere `INTEGRATIONS_ENC_KEY` y `PUBLIC_APP_URL` (https). Código en
+  `server/inventario/`.
+  **«Conectar con Shopify» en un clic**: el cliente escribe su dominio y aprueba en
+  Shopify; el servidor verifica la firma (`hmac`) y un `state` firmado de 10 minutos,
+  cambia el código por el token y deja todo conectado
+  (`server/inventario/shopifyOAuth.ts`, rutas `/api/inventario/integraciones/shopify/autorizar`
+  y `/api/inventario/shopify/callback`). Requiere la app de Easycomex creada en Shopify
+  (dev.shopify.com) y `SHOPIFY_CLIENT_ID` / `SHOPIFY_CLIENT_SECRET`; la pantalla
+  Admin → Configuración da los valores exactos que se pegan en Shopify. Una app de
+  distribución *personalizada* sirve para una tienda (o las de una organización Plus);
+  para que cualquier tienda conecte, la app debe ser *pública* y pasar la revisión de
+  Shopify. El método con token (`shpat_…`) sigue disponible como alternativa.
+- Configurable sin tocar código (Admin → Configuración / Tarifas / Anuncios):
+  dirección de la bodega, valor declarado máximo, **recarga mínima**
+  (`recarga_min_usd`, la lee el servidor), precio por libra extra y aviso fijo.
+- Base de datos: correr `supabase/casillero.sql` **después** de
+  `supabase/schema.sql` (es re-ejecutable). Reemplaza `handle_new_user()`
+  por la misma función más los campos del casillero.
+- Wallet en USD. Wompi cobra en COP a `USD_COP_RATE`; la referencia
+  `ecw_…` entra por el mismo webhook `/api/wompi-events`, no hay URL nueva
+  que configurar en Wompi.
+- Tests: `pnpm vitest run server/casillero` (incluye el SQL sobre PGlite).
+
 ## 5. Estructura
 
 ```

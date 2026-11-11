@@ -15,6 +15,7 @@ import { settleDiagnosticTransaction } from './diagnostic';
 import { REF_RE, newRef, orderId } from './ordenes';
 import { PLAN_PAUTA, PLAN_PAUTA_LABEL } from './fabricantes/portal';
 import { aplicarPagoDePauta } from './fabricantes/pagos';
+import { settleWalletTransaction, WALLET_REF_RE } from './casillero/route';
 
 // Una sola puerta de cobro para todo lo que se vende.
 //
@@ -223,6 +224,7 @@ async function wompiEvents(req: express.Request, res: express.Response) {
     try {
       if (REF_RE.test(ref)) await settle(tx as WompiTransaction, req);
       else if (/^ecx_[a-f0-9]{32}$/.test(ref)) await settleDiagnosticTransaction(tx, req);
+      else if (WALLET_REF_RE.test(ref)) await settleWalletTransaction(tx as WompiTransaction, req);
     } catch (err) {
       captureException(err, { route: 'wompi-events' });
     }
