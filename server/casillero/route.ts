@@ -9,7 +9,8 @@ import { captureException } from '../monitoring';
 import { USD_COP_RATE } from '../catalog';
 import { checkoutUrl, fetchTransaction, integritySignature, transactionPaysFor, wompiConfigured, type WompiTransaction } from '../wompi';
 import { appUrl, emailConfigured, sendEmail } from '../email';
-import { avisoPaquete } from './correo';
+import { avisoPaquete, invitacionCasillero } from './correo';
+import { invitacionSchema, invitacionesPendientes, invitarCliente } from './invitar';
 import { cifradoDisponible } from '../inventario/crypto';
 import { appShopify, urlRetorno } from '../inventario/shopifyOAuth';
 
@@ -282,4 +283,47 @@ casilleroRouter.post('/casillero/paquetes/:id/avisar', checkoutRateLimiter, requ
     })
   );
   res.json({ enviado });
+});
+
+// ---------------------------------------------------------------------
+// POST /api/casillero/invitar — { email, nombre?, empresa? } (solo el equipo)
+// Crea la cuenta del cliente y le manda el enlace para crear su contraseña.
+// El enlace vuelve también en la respuesta, para mandarlo por WhatsApp si
+// el correo no sale.
+// ---------------------------------------------------------------------
+casilleroRouter.post(
+  '/casillero/invitar',
+  checkoutRateLimiter,
+  express.json({ limit: JSON_BODY_LIMIT }),
+  requireRole('vendedor'),
+  async (req, res) => {
+    const parsed = invitacionSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'correo_invalido', message: 'Escribe un correo válido.' });
+    const admin = getSupabaseAdmin();
+    if (!admin) return res.status(503).json({ error: 'sin_registro', message: 'Falta la llave de servicio de Supabase en el servidor.' });
+
+    const base = appUrl(req.get('host') ?? undefined);
+    const r = await invitarCliente(admin, parsed.data, base);
+    if ('error' in r) return res.status(502).json(r);
+
+    let correoEnviado = false;
+    if (r.enlace) {
+      correoEnviado = await sendEmail(invitacionCasillero({ to: parsed.data.email, nombre: parsed.data.nombre || null, codigo: r.codigo, enlace: r.enlace }));
+      await admin.from('casillero_auditoria').insert({
+        actor: res.locals.auth!.user.id,
+        tabla: 'profiles',
+        accion: r.estado === 'invitado' ? 'invitar' : 'reenviar_invitacion',
+        fila: r.userId,
+        detalle: { email: parsed.data.email, correo_enviado: correoEnviado },
+      });
+    }
+    res.json({ ...r, correoEnviado, correoConfigurado: emailConfigured() });
+  }
+);
+
+// POST /api/casillero/invitaciones — ids de los invitados que aún no entran.
+casilleroRouter.post('/casillero/invitaciones', checkoutRateLimiter, requireRole('vendedor'), async (_req, res) => {
+  const admin = getSupabaseAdmin();
+  if (!admin) return res.json({ pendientes: [] });
+  res.json({ pendientes: await invitacionesPendientes(admin) });
 });
