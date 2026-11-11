@@ -38,6 +38,34 @@ describe('inventario', () => {
   });
 });
 
+describe('importar la exportación de productos de Shopify', () => {
+  // Como la exporta Shopify: una fila por variante y otra por cada foto extra.
+  const csv = [
+    'Handle,Title,Body (HTML),Vendor,Option1 Name,Option1 Value,Option2 Value,Option3 Value,Variant SKU,Variant Inventory Qty,Variant Price,Image Src,Image Position,Variant Image,Status',
+    'shampoo-de-cafe,SHAMPOO DE CAFÉ,"<p>Anticaída,<br>con <b>café</b></p>",Ameli,Title,UNICA,,,AM-SH-001,181,59.9,https://cdn.shopify.com/s/files/1/a.jpg,1,,active',
+    'shampoo-de-cafe,,,,,,,,,,,https://cdn.shopify.com/s/files/1/b.jpg,2,,',
+    'shampoo-de-cafe,,,,,,,,,,,https://cdn.shopify.com/s/files/1/c.jpg,3,,',
+    'camiseta,Camiseta,,Ameli,Talla,S,,,CAM-S,10,20,https://cdn.shopify.com/s/files/1/cam.jpg,1,,active',
+    'camiseta,,,,,M,,,CAM-M,5,20,,,https://cdn.shopify.com/s/files/1/cam-m.jpg,',
+    'gorra,Gorra,,Ameli,Title,Default Title,,,,3,15,https://cdn.shopify.com/s/files/1/g.jpg,1,,active',
+  ].join('\n');
+
+  it('takes each variant as a product with its Shopify SKU, and skips the photo-only rows', () => {
+    const filas = revisarImportacion(csvAObjetos(csv), new Set(['cam-s']));
+    expect(filas.map((f) => [f.fila, f.sku, f.nombre, f.estado])).toEqual([
+      [2, 'AM-SH-001', 'SHAMPOO DE CAFÉ', 'nuevo'],
+      [5, 'CAM-S', 'Camiseta — S', 'existente'],
+      [6, 'CAM-M', 'Camiseta — M', 'nuevo'],
+      [7, '', 'Gorra', 'error'],
+    ]);
+    // Descripción sin HTML; la foto principal del producto, o la de la variante si tiene.
+    expect(filas[0]).toMatchObject({ descripcion: 'Anticaída, con café', imagen_url: 'https://cdn.shopify.com/s/files/1/a.jpg', stock_minimo: 0 });
+    expect(filas[2].imagen_url).toBe('https://cdn.shopify.com/s/files/1/cam-m.jpg');
+    // Sin SKU en Shopify: se dice cómo arreglarlo allá (los pedidos llegan con ese SKU).
+    expect(filas[3].error).toMatch(/no tiene SKU en Shopify/);
+  });
+});
+
 describe('ingreso masivo desde CSV', () => {
   const leer = (csv: string) => revisarMovimientos(csvAObjetos(csv));
   it('lee la plantilla: ingreso por defecto, venta en negativo, alias y tildes', () => {

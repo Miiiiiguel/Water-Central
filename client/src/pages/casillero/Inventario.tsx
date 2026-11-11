@@ -278,7 +278,7 @@ function ImportarCSV({ abierto, onCerrar, existentes, userId, onListo }: { abier
   };
 
   return (
-    <Modal abierto={abierto} onCerrar={onCerrar} titulo="Importar productos desde CSV" descripcion="Columnas: sku, nombre, descripcion, imagen, stock_minimo. La primera fila son los encabezados." ancho="max-w-3xl">
+    <Modal abierto={abierto} onCerrar={onCerrar} titulo="Importar productos desde CSV" descripcion="Columnas: sku, nombre, descripcion, imagen, stock_minimo. La primera fila son los encabezados. También sirve el archivo que exporta Shopify (Productos → Exportar)." ancho="max-w-3xl">
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
           <label className="tap-scale-sm inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white hover:bg-primary/90"><FileSpreadsheet size={16} />Elegir archivo<input type="file" accept=".csv,text/csv,text/plain" className="sr-only" onChange={(e) => void leerArchivo(e.target.files?.[0])} /></label>
