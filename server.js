@@ -1,4 +1,5 @@
 import express from 'express';
+import compression from 'compression';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -41,9 +42,14 @@ setInterval(() => loadProducts().catch(() => {}), 60_000).unref();
 const app = express();
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
+app.use(compression({ threshold: 1024 }));
 app.use(express.json({ limit: '60kb' }));
 app.use((req, res, next) => {
-  res.set({ 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'SAMEORIGIN', 'Referrer-Policy': 'strict-origin-when-cross-origin' });
+  res.set({
+    'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'SAMEORIGIN', 'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'camera=(), geolocation=(), payment=(), microphone=(self)',
+    'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; manifest-src 'self'; worker-src 'self'",
+  });
   if (PROD) res.set('Strict-Transport-Security', 'max-age=31536000');
   next();
 });
@@ -395,8 +401,33 @@ app.post('/api/admin/affiliates/:code/payout', adminOnly, wrap(async (req, res) 
   res.json({ ok: true, orders: n, amount });
 }));
 
+// ================= Recursos estáticos minificados y versionados =================
+const ASSETS = {};
+async function buildAssets() {
+  let esbuild = null;
+  try { esbuild = await import('esbuild'); } catch { console.warn('esbuild no disponible: se sirven archivos sin minificar'); }
+  for (const [file, loader, type] of [['app.js', 'js', 'application/javascript'], ['admin.js', 'js', 'application/javascript'], ['afiliados.js', 'js', 'application/javascript'], ['style.css', 'css', 'text/css'], ['admin.css', 'css', 'text/css']]) {
+    const src = fs.readFileSync(path.join(__dirname, 'public', file), 'utf8');
+    let code = src;
+    if (esbuild) { try { code = (await esbuild.transform(src, { loader, minify: true, target: loader === 'js' ? 'es2020' : ['chrome90', 'safari14', 'firefox90'] })).code; } catch (e) { console.warn(`No se pudo minificar ${file}:`, e.message); } }
+    ASSETS[file] = { body: Buffer.from(code), type, v: crypto.createHash('sha1').update(code).digest('hex').slice(0, 10) };
+  }
+}
+await buildAssets();
+const versioned = html => html.replace(/(href|src)="\/(app\.js|admin\.js|afiliados\.js|style\.css|admin\.css)"/g, (_m, attr, f) => `${attr}="/${f}?v=${ASSETS[f]?.v || '0'}"`);
+for (const f of Object.keys(ASSETS)) {
+  app.get(`/${f}`, (req, res) => {
+    const a = ASSETS[f];
+    res.set({ 'Content-Type': `${a.type}; charset=utf-8`, ETag: `"${a.v}"`, 'Cache-Control': req.query.v === a.v ? 'public, max-age=31536000, immutable' : 'no-cache' });
+    if (req.get('if-none-match') === `"${a.v}"`) return res.status(304).end();
+    res.send(a.body);
+  });
+}
+const htmlFile = name => versioned(fs.readFileSync(path.join(__dirname, 'public', name), 'utf8'));
+const ADMIN_HTML = htmlFile('admin.html'), AFF_HTML = htmlFile('afiliados.html');
+
 // ================= Páginas =================
-const TEMPLATE = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+const TEMPLATE = htmlFile('index.html');
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const cop = n => '$' + Math.round(n).toLocaleString('es-CO');
 function page(res, { title, description, image, url, product, status = 200, noindex }) {
@@ -411,21 +442,41 @@ function page(res, { title, description, image, url, product, status = 200, noin
   ].filter(Boolean).join('\n');
   res.status(status).set('Cache-Control', 'no-cache').type('html').send(TEMPLATE.replace('__TITLE__', esc(title)).replace('<!--META-->', meta));
 }
+const CAT_SEO = {
+  'Belleza y Cuidado Personal': ['belleza', 'Luce y siéntete increíble, sin salir de casa.'], 'Salud y Bienestar': ['salud', 'Cuida tu cuerpo y tu descanso todos los días.'],
+  'Hogar y Cocina': ['cocina', 'Cocina más rápido, más fácil y con estilo.'], 'Hogar y Limpieza': ['limpieza', 'Menos tiempo limpiando, más tiempo para ti.'],
+  'Organización del Hogar': ['organizacion', 'Cada cosa en su lugar. Más espacio, menos estrés.'], 'Mascotas': ['mascotas', 'Porque ellos también merecen lo mejor.'],
+  'Tecnología': ['tecnologia', 'Gadgets prácticos para tu día a día.'], 'Herramientas': ['herramientas', 'Hazlo tú mismo, y hazlo bien.'],
+  'Deportes y Fitness': ['deportes', 'Entrena en casa o donde quieras.'], 'Juguetes': ['juguetes', 'Diversión garantizada para grandes y chicos.'],
+  'Viaje y Outdoor': ['viaje', 'Listo para salir, a donde sea.'], 'Jardín': ['jardin', 'Tu jardín, más verde y fácil de cuidar.'], 'Moda y Accesorios': ['moda', 'Comodidad con estilo.'],
+  'Automotriz': ['automotriz', 'Para tu carro o tu moto.'], 'Bebés': ['bebes', 'Lo práctico para los más pequeños.'],
+};
+const catBySlug = slug => Object.entries(CAT_SEO).find(([, v]) => v[0] === slug)?.[0];
 const HOME_DESC = () => `Compra fácil, paga seguro y recíbelo en casa. ${catalog.length}+ productos para tu hogar, belleza, salud y mascotas. Envío a toda Colombia.`;
 app.get('/p/:id', (req, res) => {
   const p = byId.get(req.params.id);
   if (!p || !p.active) return page(res, { title: `Producto no encontrado · ${STORE_NAME}`, description: HOME_DESC(), url: `${BASE_URL}/`, status: 404 });
   page(res, { title: `${p.name} · ${cop(p.price)} · ${STORE_NAME}`, description: `${p.name} por ${cop(p.price)}. ${p.description}`, image: `${BASE_URL}/og/${p.id}.jpg`, url: `${BASE_URL}/p/${p.id}`, product: p });
 });
+app.get('/c/:slug', (req, res, next) => {
+  const name = catBySlug(req.params.slug); if (!name) return next();
+  const list = catalog.filter(p => p.category === name);
+  page(res, { title: `${name} · ${STORE_NAME}`, description: `${CAT_SEO[name][1]} ${list.length} productos de ${name.toLowerCase()} con envío a toda Colombia.`, image: list[0] ? `${BASE_URL}/og/${list[0].id}.jpg` : '', url: `${BASE_URL}/c/${req.params.slug}` });
+});
 app.get(['/', '/c/:slug', '/buscar', '/favoritos', '/categorias', '/checkout', '/pedidos', '/pedido/:id'], (req, res) =>
   page(res, { title: `${STORE_NAME} · Compra fácil, paga seguro, recíbelo en casa`, description: HOME_DESC(), image: catalog[0] ? `${BASE_URL}/og/${catalog[0].id}.jpg` : '', url: `${BASE_URL}${req.path}`, noindex: /^\/(checkout|pedido)/.test(req.path) }));
 app.get('/robots.txt', (_req, res) => res.type('text').send(`User-agent: *\nDisallow: /admin\nDisallow: /checkout\nDisallow: /pedido/\nDisallow: /pedidos\nSitemap: ${BASE_URL}/sitemap.xml\n`));
-app.get('/sitemap.xml', (_req, res) => res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n<url><loc>${BASE_URL}/</loc></url>\n${catalog.map(p => `<url><loc>${BASE_URL}/p/${p.id}</loc></url>`).join('\n')}\n</urlset>`));
+app.get('/sitemap.xml', (_req, res) => res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n<url><loc>${BASE_URL}/</loc></url>\n${[...new Set(catalog.map(p => p.category))].filter(c => CAT_SEO[c]).map(c => `<url><loc>${BASE_URL}/c/${CAT_SEO[c][0]}</loc></url>`).join('\n')}\n${catalog.map(p => `<url><loc>${BASE_URL}/p/${p.id}</loc></url>`).join('\n')}\n</urlset>`));
 app.get('/index.html', (_req, res) => res.redirect(301, '/'));
 app.get('/sw.js', (_req, res) => res.set('Cache-Control', 'no-cache').type('application/javascript').sendFile(path.join(__dirname, 'public', 'sw.js')));
 app.get('/gracias.html', (req, res) => res.redirect(302, isUuid(req.query.order) ? `/pedido/${req.query.order}` : '/pedidos'));
-app.get(['/admin', '/admin.html'], (_req, res) => res.set({ 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' }).sendFile(path.join(__dirname, 'public', 'admin.html')));
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h', extensions: ['html'], index: false }));
+app.get(['/admin', '/admin.html'], (_req, res) => res.set({ 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' }).type('html').send(ADMIN_HTML));
+app.get(['/afiliados', '/afiliados.html'], (_req, res) => res.set('Cache-Control', 'no-cache').type('html').send(AFF_HTML));
+app.get('/favicon.ico', (_req, res) => res.redirect(301, '/icons/icon-192.png'));
+const LONG = { maxAge: '30d', index: false };
+app.use('/fonts', express.static(path.join(__dirname, 'public', 'fonts'), { maxAge: '365d', immutable: true, index: false }));
+for (const dir of ['fotos', 'og', 'icons']) app.use(`/${dir}`, express.static(path.join(__dirname, 'public', dir), LONG));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h', index: false }));
 app.get('/healthz', (_req, res) => res.json({ ok: true, products: catalog.length, backend }));
 app.use((req, res) => page(res, { title: `Página no encontrada · ${STORE_NAME}`, description: HOME_DESC(), url: `${BASE_URL}/`, status: 404 }));
 

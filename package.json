@@ -8,9 +8,12 @@
   },
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
+    "compression": "^1.8.2",
+    "esbuild": "^0.24.2",
     "express": "^4.19.2"
   }
 }

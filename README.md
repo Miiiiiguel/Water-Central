@@ -22,6 +22,12 @@ Supabase, en un esquema aislado `shop` que **no** está expuesto por la API. El 
 ## Local
     npm install
     npm start            # http://localhost:3000 · admin: /admin (contraseña "admin" en local)
+    npm test             # pruebas de punta a punta de la API (no tocan la base de datos real)
+
+## Calidad
+- Lighthouse (móvil): 99–100 en rendimiento, accesibilidad, buenas prácticas y SEO en las páginas públicas.
+- axe-core: 0 fallas WCAG 2.1 AA en 68 vistas (tienda, checkout, pedido, referidos y administración; claro/oscuro; celular/escritorio).
+- Fuentes propias precargadas, compresión, JS/CSS minificados al arrancar con versión en la URL y caché de un año, Content-Security-Policy estricta.
 
 ## Despliegue (Render)
 `render.yaml` define el servicio. Variables: ver `.env.example`. Para activar Mercado Pago agrega `MP_ACCESS_TOKEN` (y `MP_WEBHOOK_SECRET`) y configura el webhook `https://TU-DOMINIO/api/mp/webhook`.

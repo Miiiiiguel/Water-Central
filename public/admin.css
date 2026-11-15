@@ -14,14 +14,14 @@ body.adm{background:var(--bg)}
   .side nav{display:grid;gap:4px}
   .side nav a,.side-foot a,.side-foot button{display:flex;align-items:center;gap:12px;min-height:46px;padding:0 14px;border-radius:12px;color:#C9C8E2;font-weight:600;border:0;background:none;width:100%;text-align:left}
   .side nav a:hover,.side-foot a:hover,.side-foot button:hover{background:rgba(255,255,255,.08);color:#fff}
-  .side nav a[aria-current=page]{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;box-shadow:var(--glow)}
+  .side nav a[aria-current=page]{background:linear-gradient(135deg,var(--brand-600),var(--brand-deep));color:#fff;box-shadow:var(--glow)}
   .side-foot{margin-top:auto;display:grid;gap:4px}
 }
-.nb{margin-left:auto;min-width:22px;height:22px;padding:0 7px;border-radius:999px;background:#fff;color:var(--brand-600);font:800 .75rem/22px var(--font-b);text-align:center}
+.nb{margin-left:auto;min-width:22px;height:22px;padding:0 7px;border-radius:999px;background:#fff;color:var(--brand-deep);font:800 .75rem/22px var(--font-b);text-align:center}
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(4,1fr);height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--surface);border-top:1px solid var(--line)}
 .tabs a{position:relative;display:grid;place-items:center;align-content:center;gap:2px;color:var(--muted);font-size:.72rem;font-weight:700}
 .tabs a[aria-current=page]{color:var(--text)}.tabs a[aria-current=page] .ico{color:var(--brand)}
-.tabs .nb{position:absolute;top:6px;right:calc(50% - 30px);background:var(--brand);color:#fff}
+.tabs .nb{position:absolute;top:6px;right:calc(50% - 30px);background:var(--brand-deep);color:#fff}
 @media(min-width:1024px){.tabs{display:none}}
 .main{min-width:0;padding:22px 16px 96px}
 @media(min-width:768px){.main{padding:28px 28px 96px}}
@@ -39,7 +39,7 @@ body.adm{background:var(--bg)}
 .kc .lbl .ico{width:18px;height:18px;color:var(--brand)}
 .kc b{font:800 clamp(1.4rem,3vw,1.9rem)/1.1 var(--font-h);font-variant-numeric:tabular-nums}
 .kc small{color:var(--muted)}
-.kc.hot{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border-color:transparent;box-shadow:var(--glow)}
+.kc.hot{background:linear-gradient(135deg,var(--brand-600),var(--brand-deep));color:#fff;border-color:transparent;box-shadow:var(--glow)}
 .kc.hot .lbl,.kc.hot small{color:rgba(255,255,255,.9)}.kc.hot .lbl .ico{color:#fff}
 .kc.navy{background:linear-gradient(135deg,var(--deep),var(--navy));color:#fff;border-color:transparent}
 .kc.navy .lbl,.kc.navy small{color:#C9C8E2}
@@ -65,7 +65,7 @@ a.kc:hover{transform:translateY(-3px);box-shadow:var(--sh-2)}
 .st{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.76rem;font-weight:800;white-space:nowrap}
 .st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .st.awaiting_payment{background:#FFF4E0;color:#A15C00}
-.st.preparing{background:#FFF1EA;color:#C8431B}
+.st.preparing{background:#FFF1EA;color:#B23812}
 .st.packed{background:#EEF1FD;color:#3346B5}
 .st.shipped{background:#E6F4FF;color:#0B62A4}
 .st.delivered{background:#E7F6EF;color:#0F7A55}
@@ -80,7 +80,7 @@ a.kc:hover{transform:translateY(-3px);box-shadow:var(--sh-2)}
 .seg button{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-weight:700;font-size:.9rem;color:var(--text)}
 .seg button[aria-pressed=true]{background:var(--navy);border-color:var(--navy);color:#fff}
 @media (prefers-color-scheme:dark){.seg button[aria-pressed=true]{background:#F3F2FA;border-color:#F3F2FA;color:var(--deep)}}
-.seg .n{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--brand);color:#fff;font-size:.72rem;line-height:20px;text-align:center}
+.seg .n{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--brand-deep);color:#fff;font-size:.72rem;line-height:20px;text-align:center}
 .srch{position:relative;margin-bottom:14px}
 .srch input{width:100%;min-height:48px;padding:0 16px 0 44px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface)}
 .srch .ico{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted)}

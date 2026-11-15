@@ -1,7 +1,7 @@
 [
  {
   "id": "UCS-0001",
-  "name": "Almohada Orto Pedica Lumbar",
+  "name": "Almohada Ortopédica Lumbar",
   "category": "Salud y Bienestar",
   "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
   "price": 43900,
@@ -19,7 +19,7 @@
  },
  {
   "id": "UCS-0003",
-  "name": "Aspersor de Agua 360",
+  "name": "Aspersor de Agua 360°",
   "category": "Jardín",
   "description": "Facilita el riego con una solución práctica para el jardín y las plantas.",
   "price": 71900,
@@ -37,7 +37,7 @@
  },
  {
   "id": "UCS-0005",
-  "name": "Banda Elastica Ejercicios",
+  "name": "Banda Elástica para Ejercicios",
   "category": "Deportes y Fitness",
   "description": "Accesorio para complementar tus rutinas de ejercicio y actividad física en casa o en el gimnasio.",
   "price": 33900,
@@ -55,7 +55,7 @@
  },
  {
   "id": "UCS-0007",
-  "name": "Bolsa Secador a Mascotas",
+  "name": "Bolsa Secadora para Mascotas",
   "category": "Mascotas",
   "description": "Accesorio para el cuidado y la comodidad de tu mascota. Práctico, fácil de usar y pensado para el día a día en casa o de paseo.",
   "price": 46900,
@@ -64,7 +64,7 @@
  },
  {
   "id": "UCS-0008",
-  "name": "Caja de Almacenamiento Cosmeticos",
+  "name": "Caja de Almacenamiento para Cosméticos",
   "category": "Belleza y Cuidado Personal",
   "description": "Organiza tus productos de maquillaje y cuidado personal y mantenlos ordenados y a la mano.",
   "price": 238900,
@@ -73,7 +73,7 @@
  },
  {
   "id": "UCS-0009",
-  "name": "Caja de Almacenamiento Cosmeticos",
+  "name": "Caja de Almacenamiento para Cosméticos",
   "category": "Belleza y Cuidado Personal",
   "description": "Organiza tus productos de maquillaje y cuidado personal y mantenlos ordenados y a la mano.",
   "price": 101900,
@@ -91,7 +91,7 @@
  },
  {
   "id": "UCS-0011",
-  "name": "Cargador Inalambrico",
+  "name": "Cargador Inalámbrico",
   "category": "Tecnología",
   "description": "Accesorio funcional para complementar el uso diario de tus dispositivos y espacios. Práctico y fácil de usar.",
   "price": 71900,
@@ -100,7 +100,7 @@
  },
  {
   "id": "UCS-0012",
-  "name": "Cepillo de Dientes con Termo Electrico",
+  "name": "Cepillo de Dientes Eléctrico con Termo",
   "category": "Belleza y Cuidado Personal",
   "description": "Cepillo de dientes eléctrico con estuche térmico para complementar tu rutina de higiene diaria.",
   "price": 103900,
@@ -190,7 +190,7 @@
  },
  {
   "id": "UCS-0022",
-  "name": "Colageno",
+  "name": "Colágeno",
   "category": "Salud y Bienestar",
   "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
   "price": 28900,
@@ -199,7 +199,7 @@
  },
  {
   "id": "UCS-0023",
-  "name": "Collar con Laser para Mascotas",
+  "name": "Collar con Láser para Mascotas",
   "category": "Mascotas",
   "description": "Accesorio para el cuidado y la comodidad de tu mascota. Práctico, fácil de usar y pensado para el día a día en casa o de paseo.",
   "price": 30900,
@@ -208,7 +208,7 @@
  },
  {
   "id": "UCS-0024",
-  "name": "Compresa Dedos",
+  "name": "Compresa para Dedos",
   "category": "Salud y Bienestar",
   "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
   "price": 42900,
@@ -253,7 +253,7 @@
  },
  {
   "id": "UCS-0029",
-  "name": "Corrector Pie Plano Caja Negra",
+  "name": "Corrector de Pie Plano (Caja Negra)",
   "category": "Salud y Bienestar",
   "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
   "price": 24900,
@@ -316,7 +316,7 @@
  },
  {
   "id": "UCS-0036",
-  "name": "Dispensador de Albondigas",
+  "name": "Dispensador de Albóndigas",
   "category": "Hogar y Cocina",
   "description": "Facilita la preparación de alimentos y las tareas de cocina con una solución práctica y fácil de usar.",
   "price": 8900,
@@ -334,7 +334,7 @@
  },
  {
   "id": "UCS-0038",
-  "name": "Dispensador de Jabon",
+  "name": "Dispensador de Jabón",
   "category": "Hogar y Cocina",
   "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
   "price": 41900,
@@ -343,7 +343,7 @@
  },
  {
   "id": "UCS-0039",
-  "name": "Dispensador de Jabon Electrico",
+  "name": "Dispensador de Jabón Eléctrico",
   "category": "Hogar y Cocina",
   "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
   "price": 32900,
@@ -352,7 +352,7 @@
  },
  {
   "id": "UCS-0040",
-  "name": "Ducha Portable",
+  "name": "Ducha Portátil",
   "category": "Hogar y Limpieza",
   "description": "Ducha portátil práctica para el baño, el jardín o los paseos.",
   "price": 74900,
@@ -370,7 +370,7 @@
  },
  {
   "id": "UCS-0042",
-  "name": "Encrespador de Pestañas Electrico",
+  "name": "Encrespador de Pestañas Eléctrico",
   "category": "Belleza y Cuidado Personal",
   "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
   "price": 26900,
@@ -388,7 +388,7 @@
  },
  {
   "id": "UCS-0044",
-  "name": "Exprimidor Plastico Pajaro",
+  "name": "Exprimidor Plástico Pájaro",
   "category": "Hogar y Cocina",
   "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
   "price": 64900,
@@ -424,7 +424,7 @@
  },
  {
   "id": "UCS-0048",
-  "name": "Guantes de Proteccion UV Largos",
+  "name": "Guantes de Protección UV Largos",
   "category": "Salud y Bienestar",
   "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
   "price": 10900,
@@ -550,7 +550,7 @@
  },
  {
   "id": "UCS-0062",
-  "name": "Juguete de Alimentacion Mascota",
+  "name": "Juguete de Alimentación Mascota",
   "category": "Mascotas",
   "description": "Una opción para regalar y disfrutar momentos de entretenimiento y juego.",
   "price": 19900,
@@ -559,7 +559,7 @@
  },
  {
   "id": "UCS-0063",
-  "name": "Juguete Didactico Montaña Rusa",
+  "name": "Juguete Didáctico Montaña Rusa",
   "category": "Juguetes",
   "description": "Una opción para regalar y disfrutar momentos de entretenimiento y juego.",
   "price": 63900,
@@ -586,7 +586,7 @@
  },
  {
   "id": "UCS-0066",
-  "name": "Lampara con Iman",
+  "name": "Lámpara con Imán",
   "category": "Tecnología",
   "description": "Accesorio funcional para complementar el uso diario de tus dispositivos y espacios. Práctico y fácil de usar.",
   "price": 60900,
@@ -595,7 +595,7 @@
  },
  {
   "id": "UCS-0067",
-  "name": "Lampara de Escritorio",
+  "name": "Lámpara de Escritorio",
   "category": "Tecnología",
   "description": "Accesorio funcional para complementar el uso diario de tus dispositivos y espacios. Práctico y fácil de usar.",
   "price": 79900,
@@ -604,7 +604,7 @@
  },
  {
   "id": "UCS-0068",
-  "name": "Lampara de Uñas Gato",
+  "name": "Lámpara de Uñas Gato",
   "category": "Belleza y Cuidado Personal",
   "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
   "price": 91900,
@@ -613,7 +613,7 @@
  },
  {
   "id": "UCS-0069",
-  "name": "Lampara de Uñas Pequeña",
+  "name": "Lámpara de Uñas Pequeña",
   "category": "Belleza y Cuidado Personal",
   "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
   "price": 16900,
@@ -622,7 +622,7 @@
  },
  {
   "id": "UCS-0070",
-  "name": "Lampara de Uñas Pequeña",
+  "name": "Lámpara de Uñas Pequeña",
   "category": "Belleza y Cuidado Personal",
   "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
   "price": 25900,
@@ -631,7 +631,7 @@
  },
  {
   "id": "UCS-0071",
-  "name": "Lampara de Uñas Pequeña",
+  "name": "Lámpara de Uñas Pequeña",
   "category": "Belleza y Cuidado Personal",
   "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
   "price": 13900,
@@ -640,7 +640,7 @@
  },
  {
   "id": "UCS-0072",
-  "name": "Lampara de Uñas Rose",
+  "name": "Lámpara de Uñas Rose",
   "category": "Belleza y Cuidado Personal",
   "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
   "price": 14900,
@@ -649,7 +649,7 @@
  },
  {
   "id": "UCS-0073",
-  "name": "Lampara de Uñas UV/LED",
+  "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
   "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
   "price": 91900,
@@ -658,7 +658,7 @@
  },
  {
   "id": "UCS-0074",
-  "name": "Lampara de Uñas UV/LED",
+  "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
   "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
   "price": 435900,
@@ -667,7 +667,7 @@
  },
  {
   "id": "UCS-0075",
-  "name": "Lampara de Uñas UV/LED",
+  "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
   "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
   "price": 91900,
@@ -676,7 +676,7 @@
  },
  {
   "id": "UCS-0076",
-  "name": "Lampara de Uñas UV/LED",
+  "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
   "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
   "price": 92900,
@@ -685,7 +685,7 @@
  },
  {
   "id": "UCS-0077",
-  "name": "Lampara de Uñas UV/LED",
+  "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
   "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
   "price": 86900,
@@ -694,7 +694,7 @@
  },
  {
   "id": "UCS-0078",
-  "name": "Lampara de Uñas UV/LED",
+  "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
   "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
   "price": 91900,
@@ -703,7 +703,7 @@
  },
  {
   "id": "UCS-0079",
-  "name": "Lampara de Uñas UV/LED",
+  "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
   "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
   "price": 114900,
@@ -712,7 +712,7 @@
  },
  {
   "id": "UCS-0080",
-  "name": "Lampara de Uñas UV/LED",
+  "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
   "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
   "price": 91900,
@@ -721,7 +721,7 @@
  },
  {
   "id": "UCS-0081",
-  "name": "Lampara de Uñas y Pulidor 2 en 1",
+  "name": "Lámpara de Uñas y Pulidor 2 en 1",
   "category": "Belleza y Cuidado Personal",
   "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
   "price": 56900,
@@ -730,7 +730,7 @@
  },
  {
   "id": "UCS-0082",
-  "name": "Lampara Proyector Galaxias",
+  "name": "Lámpara Proyector Galaxias",
   "category": "Tecnología",
   "description": "Accesorio funcional para complementar el uso diario de tus dispositivos y espacios. Práctico y fácil de usar.",
   "price": 111900,
@@ -739,7 +739,7 @@
  },
  {
   "id": "UCS-0083",
-  "name": "Lapiz de Belleza",
+  "name": "Lápiz de Belleza",
   "category": "Belleza y Cuidado Personal",
   "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
   "price": 155900,
@@ -847,7 +847,7 @@
  },
  {
   "id": "UCS-0095",
-  "name": "Manta Termica",
+  "name": "Manta Térmica",
   "category": "Salud y Bienestar",
   "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
   "price": 72900,
@@ -856,7 +856,7 @@
  },
  {
   "id": "UCS-0096",
-  "name": "Maquina de Sellado Pequeña",
+  "name": "Máquina de Sellado Pequeña",
   "category": "Hogar y Cocina",
   "description": "Sella bolsas de empaque para conservar alimentos y productos.",
   "price": 12900,
@@ -865,7 +865,7 @@
  },
  {
   "id": "UCS-0097",
-  "name": "Maquina Peluquera Recargable",
+  "name": "Máquina Peluquera Recargable",
   "category": "Belleza y Cuidado Personal",
   "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
   "price": 67900,
@@ -874,7 +874,7 @@
  },
  {
   "id": "UCS-0098",
-  "name": "Masajeador Cocorporal Ventosa",
+  "name": "Masajeador Corporal de Ventosa",
   "category": "Salud y Bienestar",
   "description": "Masajeador pensado para aliviar la sensación de tensión y acompañar tu rutina de descanso y bienestar.",
   "price": 72900,
@@ -919,7 +919,7 @@
  },
  {
   "id": "UCS-0103",
-  "name": "Masajeador Infrarrojo Delfin",
+  "name": "Masajeador Infrarrojo Delfín",
   "category": "Salud y Bienestar",
   "description": "Masajeador pensado para aliviar la sensación de tensión y acompañar tu rutina de descanso y bienestar.",
   "price": 78900,
@@ -928,7 +928,7 @@
  },
  {
   "id": "UCS-0104",
-  "name": "Mascara de Frutas Blanca",
+  "name": "Máscara de Frutas Blanca",
   "category": "Belleza y Cuidado Personal",
   "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
   "price": 311900,
@@ -1000,7 +1000,7 @@
  },
  {
   "id": "UCS-0112",
-  "name": "Organizador de Cosmeticos",
+  "name": "Organizador de Cosméticos",
   "category": "Belleza y Cuidado Personal",
   "description": "Organiza tus productos de maquillaje y cuidado personal y mantenlos ordenados y a la mano.",
   "price": 101900,
@@ -1009,7 +1009,7 @@
  },
  {
   "id": "UCS-0113",
-  "name": "Organizador de Cosmeticos",
+  "name": "Organizador de Cosméticos",
   "category": "Belleza y Cuidado Personal",
   "description": "Organiza tus productos de maquillaje y cuidado personal y mantenlos ordenados y a la mano.",
   "price": 101900,
@@ -1018,7 +1018,7 @@
  },
  {
   "id": "UCS-0114",
-  "name": "Organizador de Cosmeticos 360",
+  "name": "Organizador de Cosméticos 360°",
   "category": "Belleza y Cuidado Personal",
   "description": "Organiza tus productos de maquillaje y cuidado personal y mantenlos ordenados y a la mano.",
   "price": 101900,
@@ -1081,7 +1081,7 @@
  },
  {
   "id": "UCS-0121",
-  "name": "Parrilla Cilindrica de Malla Grande",
+  "name": "Parrilla Cilíndrica de Malla Grande",
   "category": "Hogar y Limpieza",
   "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
   "price": 75900,
@@ -1090,7 +1090,7 @@
  },
  {
   "id": "UCS-0122",
-  "name": "Parrilla Cilindrica de Malla Pequeña",
+  "name": "Parrilla Cilíndrica de Malla Pequeña",
   "category": "Hogar y Limpieza",
   "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
   "price": 58900,
@@ -1108,7 +1108,7 @@
  },
  {
   "id": "UCS-0124",
-  "name": "Patas Antivibracion para Lavadora",
+  "name": "Patas Antivibración para Lavadora",
   "category": "Hogar y Limpieza",
   "description": "Reduce las vibraciones y el ruido de tu lavadora y protege el piso.",
   "price": 61900,
@@ -1180,7 +1180,7 @@
  },
  {
   "id": "UCS-0132",
-  "name": "Pistola Etiqueteadora de Ropa",
+  "name": "Pistola Etiquetadora de Ropa",
   "category": "Herramientas",
   "description": "Etiquetadora práctica para marcar prendas e inventario.",
   "price": 80900,
@@ -1216,7 +1216,7 @@
  },
  {
   "id": "UCS-0136",
-  "name": "Pulidor Uñas Mascotas",
+  "name": "Pulidor de Uñas para Mascotas",
   "category": "Mascotas",
   "description": "Accesorio para el cuidado y la comodidad de tu mascota. Práctico, fácil de usar y pensado para el día a día en casa o de paseo.",
   "price": 46900,
@@ -1279,7 +1279,7 @@
  },
  {
   "id": "UCS-0144",
-  "name": "Set Uñas Acrilicas",
+  "name": "Set de Uñas Acrílicas",
   "category": "Belleza y Cuidado Personal",
   "description": "Ideal para el cuidado de tus uñas y manos desde casa. Fácil de usar, para lograr un acabado cuidado sin ir al salón.",
   "price": 77900,
@@ -1306,7 +1306,7 @@
  },
  {
   "id": "UCS-0147",
-  "name": "Tablero Mediano",
+  "name": "Tablero Infantil Mediano",
   "category": "Juguetes",
   "description": "Tablero didáctico para que los más pequeños dibujen, aprendan y se diviertan.",
   "price": 290900,
@@ -1333,7 +1333,7 @@
  },
  {
   "id": "UCS-0150",
-  "name": "Tensiometro",
+  "name": "Tensiómetro",
   "category": "Salud y Bienestar",
   "description": "Equipo para controlar la presión arterial desde casa de forma rápida y sencilla. No sustituye una valoración médica.",
   "price": 84900,
@@ -1342,7 +1342,7 @@
  },
  {
   "id": "UCS-0151",
-  "name": "Tensiometro",
+  "name": "Tensiómetro",
   "category": "Salud y Bienestar",
   "description": "Equipo para controlar la presión arterial desde casa de forma rápida y sencilla. No sustituye una valoración médica.",
   "price": 84900,
@@ -1351,7 +1351,7 @@
  },
  {
   "id": "UCS-0152",
-  "name": "Tensiometro Digital",
+  "name": "Tensiómetro Digital",
   "category": "Salud y Bienestar",
   "description": "Equipo para controlar la presión arterial desde casa de forma rápida y sencilla. No sustituye una valoración médica.",
   "price": 110900,
@@ -1360,7 +1360,7 @@
  },
  {
   "id": "UCS-0153",
-  "name": "Tobillera de Compresion",
+  "name": "Tobillera de Compresión",
   "category": "Salud y Bienestar",
   "description": "Soporte de uso deportivo y cotidiano que brinda comodidad y ajuste durante la actividad física.",
   "price": 17900,
@@ -1405,7 +1405,7 @@
  },
  {
   "id": "UCS-0159",
-  "name": "Bolsas de Empaque Al Vacio con Bomba",
+  "name": "Bolsas de Empaque al Vacío con Bomba",
   "category": "Organización del Hogar",
   "description": "Ayuda a mantener tus cosas ordenadas y a la mano, aprovechando mejor el espacio.",
   "price": 49900,
@@ -1414,7 +1414,7 @@
  },
  {
   "id": "UCS-0160",
-  "name": "Caja Organizadora de Tela X3",
+  "name": "Caja Organizadora de Tela x3",
   "category": "Organización del Hogar",
   "description": "Ayuda a mantener tus cosas ordenadas y a la mano, aprovechando mejor el espacio.",
   "price": 66900,
@@ -1432,7 +1432,7 @@
  },
  {
   "id": "UCS-0166",
-  "name": "Dispositivo Diamond Dermoabrasion",
+  "name": "Dispositivo Diamond Dermoabrasión",
   "category": "Belleza y Cuidado Personal",
   "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
   "price": 219900,
@@ -1441,7 +1441,7 @@
  },
  {
   "id": "UCS-0167",
-  "name": "Encrespador de Pestañas Electrico",
+  "name": "Encrespador de Pestañas Eléctrico",
   "category": "Belleza y Cuidado Personal",
   "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
   "price": 26900,
@@ -1450,7 +1450,7 @@
  },
  {
   "id": "UCS-0169",
-  "name": "Kit de Limpieza Dental Electrico",
+  "name": "Kit de Limpieza Dental Eléctrico",
   "category": "Belleza y Cuidado Personal",
   "description": "Kit eléctrico para complementar tu rutina de higiene y cuidado dental.",
   "price": 77900,

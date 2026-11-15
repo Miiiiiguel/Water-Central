@@ -108,8 +108,11 @@ async function viewOrders(m, q) {
   const f = q.get('f') || 'ship';
   ORDERS = await api('/api/admin/orders');
   setBadges(ORDERS.filter(FILTERS[0][2]).length);
-  m.append(pageHead('Pedidos', 'Todas las ventas en línea de la tienda. Empaca, despacha y entrega desde aquí.'));
-  const seg = h('div', { class: 'seg', role: 'tablist' }, FILTERS.map(([k, label, fn]) => { const n = ORDERS.filter(fn).length; return h('button', { type: 'button', 'aria-pressed': String(k === f), on: { click: () => { location.hash = `#/pedidos?f=${k}`; } } }, label, n && k !== 'all' && k !== 'done' && k !== 'cancel' ? h('span', { class: 'n' }, String(n)) : null); }));
+  const current = () => ORDERS.filter((FILTERS.find(x => x[0] === f) || FILTERS[0])[2]);
+  m.append(pageHead('Pedidos', 'Todas las ventas en línea de la tienda. Empaca, despacha y entrega desde aquí.',
+    f === 'ship' ? h('button', { class: 'btn primary sm', type: 'button', on: { click: () => printSlips(current()) } }, icon('i-print', 'sm'), 'Imprimir todas') : null,
+    h('button', { class: 'btn sm', type: 'button', on: { click: () => exportCSV(current(), `pedidos-${f}`) } }, icon('i-download', 'sm'), 'Exportar a Excel')));
+  const seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Filtrar pedidos' }, FILTERS.map(([k, label, fn]) => { const n = ORDERS.filter(fn).length; return h('button', { type: 'button', 'aria-pressed': String(k === f), on: { click: () => { location.hash = `#/pedidos?f=${k}`; } } }, label, n && k !== 'all' && k !== 'done' && k !== 'cancel' ? h('span', { class: 'n' }, String(n)) : null); }));
   const input = h('input', { type: 'search', placeholder: 'Buscar por número, nombre, celular o ciudad', 'aria-label': 'Buscar pedidos', value: q.get('q') || '' });
   const list = h('div', { class: 'olist' });
   const draw = () => {
@@ -125,25 +128,37 @@ async function viewOrders(m, q) {
   input.addEventListener('input', draw);
   m.append(seg, h('div', { class: 'srch' }, icon('i-search'), input), list); draw();
 }
-function printSlip(o) {
-  const w = window.open('', '_blank', 'width=820,height=900'); if (!w) { toast('Permite ventanas emergentes para imprimir', false); return; }
+const escH = v => String(v ?? '').replace(/[&<>"]/g, x => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[x]);
+function slipHTML(o) {
   const c = o.customer || {}, cod = o.payment_method === 'contraentrega' && o.status !== 'paid';
-  const esc = s => String(s ?? '').replace(/[&<>"]/g, x => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[x]);
-  w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Orden de despacho #${esc(o.code)}</title><style>
+  return `<section class="slip"><div class="top"><div><h1>USACARGOS SHOP</h1><div>Orden de despacho</div></div><div style="text-align:right"><div class="big">#${escH(o.code)}</div><div>${escH(dt(o.created_at))}</div></div></div>
+  ${cod ? `<div class="cod">COBRAR AL ENTREGAR: ${escH(fmt(o.total))}</div>` : '<div class="box"><b>PAGADO</b> — no cobrar al cliente.</div>'}
+  <div class="box"><div style="color:#555">Destinatario</div><div class="big">${escH(c.name)}</div><div>Cel: ${escH(c.phone)}${c.doc ? ` · CC ${escH(c.doc)}` : ''}</div>
+  <div style="margin-top:8px" class="big">${escH(c.address)}</div><div class="big">${escH(c.city)}, ${escH(c.dept)}</div>${c.notes ? `<div style="margin-top:6px">Indicaciones: ${escH(c.notes)}</div>` : ''}</div>
+  <table><thead><tr><th>Ref.</th><th>Producto</th><th class="r">Cant.</th><th class="r">Valor</th></tr></thead><tbody>
+  ${o.items.map(i => `<tr><td>${escH(i.id)}</td><td>${escH(i.name)}</td><td class="r"><b>${i.qty}</b></td><td class="r">${escH(fmt(i.price * i.qty))}</td></tr>`).join('')}
+  <tr><td></td><td>Envío</td><td></td><td class="r">${o.shipping ? escH(fmt(o.shipping)) : 'Gratis'}</td></tr><tr><td></td><td><b>Total</b></td><td></td><td class="r"><b>${escH(fmt(o.total))}</b></td></tr></tbody></table>
+  ${o.carrier ? `<p>Transportadora: <b>${escH(o.carrier)}</b>${o.tracking ? ` · Guía: <b>${escH(o.tracking)}</b>` : ''}</p>` : ''}
+  <p style="margin-top:24px">Empacado por: ____________________ &nbsp; Fecha: ____________</p></section>`;
+}
+function printSlips(list) {
+  if (!list.length) { toast('No hay pedidos para imprimir', false); return; }
+  const w = window.open('', '_blank', 'width=820,height=900'); if (!w) { toast('Permite ventanas emergentes para imprimir', false); return; }
+  w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>${list.length === 1 ? `Orden de despacho #${escH(list[0].code)}` : `${list.length} órdenes de despacho`}</title><style>
   body{font:14px/1.45 Arial,sans-serif;color:#111;margin:28px}h1{font-size:22px;margin:0}.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #111;padding-bottom:12px;margin-bottom:16px}
   .box{border:2px solid #111;border-radius:8px;padding:14px;margin:12px 0}.big{font-size:20px;font-weight:700}table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border-bottom:1px solid #999;padding:8px;text-align:left}td.r,th.r{text-align:right}
-  .cod{background:#111;color:#fff;padding:14px;border-radius:8px;font-size:20px;font-weight:700;text-align:center;margin:12px 0}@media print{button{display:none}}</style></head><body>
-  <div class="top"><div><h1>USACARGOS SHOP</h1><div>Orden de despacho</div></div><div style="text-align:right"><div class="big">#${esc(o.code)}</div><div>${esc(dt(o.created_at))}</div></div></div>
-  ${cod ? `<div class="cod">COBRAR AL ENTREGAR: ${esc(fmt(o.total))}</div>` : '<div class="box"><b>PAGADO</b> — no cobrar al cliente.</div>'}
-  <div class="box"><div style="color:#555">Destinatario</div><div class="big">${esc(c.name)}</div><div>Cel: ${esc(c.phone)}${c.doc ? ` · CC ${esc(c.doc)}` : ''}</div>
-  <div style="margin-top:8px" class="big">${esc(c.address)}</div><div class="big">${esc(c.city)}, ${esc(c.dept)}</div>${c.notes ? `<div style="margin-top:6px">Indicaciones: ${esc(c.notes)}</div>` : ''}</div>
-  <table><thead><tr><th>Ref.</th><th>Producto</th><th class="r">Cant.</th><th class="r">Valor</th></tr></thead><tbody>
-  ${o.items.map(i => `<tr><td>${esc(i.id)}</td><td>${esc(i.name)}</td><td class="r"><b>${i.qty}</b></td><td class="r">${esc(fmt(i.price * i.qty))}</td></tr>`).join('')}
-  <tr><td></td><td>Envío</td><td></td><td class="r">${o.shipping ? esc(fmt(o.shipping)) : 'Gratis'}</td></tr><tr><td></td><td><b>Total</b></td><td></td><td class="r"><b>${esc(fmt(o.total))}</b></td></tr></tbody></table>
-  ${o.carrier ? `<p>Transportadora: <b>${esc(o.carrier)}</b>${o.tracking ? ` · Guía: <b>${esc(o.tracking)}</b>` : ''}</p>` : ''}
-  <p style="margin-top:24px">Empacado por: ____________________ &nbsp; Fecha: ____________</p>
-  <button onclick="print()" style="padding:10px 18px;font-size:16px">Imprimir</button><script>setTimeout(()=>print(),300)<\/script></body></html>`);
-  w.document.close();
+  .cod{background:#111;color:#fff;padding:14px;border-radius:8px;font-size:20px;font-weight:700;text-align:center;margin:12px 0}.slip+.slip{break-before:page;margin-top:40px}</style></head><body>${list.map(slipHTML).join('')}</body></html>`);
+  w.document.close(); w.focus(); setTimeout(() => w.print(), 350);
+}
+const printSlip = o => printSlips([o]);
+function exportCSV(rows, name) {
+  const cols = ['Pedido', 'Fecha', 'Estado', 'Pago', 'Cliente', 'Celular', 'Correo', 'Cédula', 'Dirección', 'Ciudad', 'Departamento', 'Indicaciones', 'Productos', 'Unidades', 'Subtotal', 'Envío', 'Total', 'Transportadora', 'Guía', 'Vendedor'];
+  const q = v => { const t = String(v ?? ''); return /[;"\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+  const lines = rows.map(o => { const c = o.customer || {}; return [o.code, dt(o.created_at), STAGE[o.stage] || o.stage, o.payment_method === 'contraentrega' ? 'Contra entrega' : 'Mercado Pago', c.name, c.phone, c.email, c.doc, c.address, c.city, c.dept, c.notes, o.items.map(i => `${i.qty}x ${i.name} (${i.id})`).join(' | '), o.items.reduce((s, i) => s + i.qty, 0), o.subtotal, o.shipping, o.total, o.carrier, o.tracking, o.ref_code].map(q).join(';'); });
+  const blob = new Blob(['﻿' + [cols.join(';'), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = h('a', { href: URL.createObjectURL(blob), download: `${name}-${new Date().toISOString().slice(0, 10)}.csv` });
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast(`${rows.length} pedido(s) exportados`);
 }
 async function viewOrder(m, id) {
   const { order: o, events, affiliate } = await api(`/api/admin/orders/${id}`);
@@ -162,7 +177,7 @@ async function viewOrder(m, id) {
     return h('form', { class: 'mbox', on: { submit: async e => {
       e.preventDefault(); err.hidden = true;
       const r = await run('ship', { carrier: sel.value, tracking: guia.value }, `Pedido #${o.code} despachado`);
-      if (r) { close(); if (notify.checked && c.phone) window.open(waLink(c.phone, shipMsg(sel.value, guia.value)), '_blank'); route(); }
+      if (r) { close(); if (notify.checked && c.phone) window.open(waLink(c.phone, shipMsg(sel.value, guia.value)), '_blank'); route({ silent: true }); }
     } } }, h('h2', {}, `Despachar #${o.code}`),
       h('label', {}, 'Transportadora', sel), h('label', {}, 'Número de guía', guia),
       h('label', { style: 'display:flex;align-items:center;gap:10px;font-weight:600' }, notify, 'Avisar al cliente por WhatsApp con la guía'), err,
@@ -170,19 +185,19 @@ async function viewOrder(m, id) {
   });
   const cancelModal = () => modal(close => {
     const reason = h('textarea', { placeholder: 'Ej: el cliente desistió, sin stock…', rows: 3 });
-    return h('form', { class: 'mbox', on: { submit: async e => { e.preventDefault(); if (await run('cancel', { note: reason.value }, `Pedido #${o.code} cancelado`)) { close(); route(); } } } },
+    return h('form', { class: 'mbox', on: { submit: async e => { e.preventDefault(); if (await run('cancel', { note: reason.value }, `Pedido #${o.code} cancelado`)) { close(); route({ silent: true }); } } } },
       h('h2', {}, `Cancelar #${o.code}`), h('p', { class: 'muted', style: 'margin:0' }, o.status === 'paid' && !cod ? 'El pedido está pagado por Mercado Pago: recuerda hacer el reembolso desde tu cuenta de Mercado Pago. El inventario se devuelve si no se ha despachado.' : 'El inventario se devuelve automáticamente si el pedido no se ha despachado.'),
       h('label', {}, 'Motivo', reason),
       h('div', { class: 'acts' }, h('button', { class: 'btn', type: 'button', on: { click: close } }, 'Volver'), h('button', { class: 'btn navy', type: 'submit' }, 'Cancelar pedido')));
   });
   const primary = [];
-  if (o.stage === 'preparing') primary.push(h('button', { class: 'btn primary', type: 'button', on: { click: async () => { if (await run('pack', {}, 'Pedido empacado')) route(); } } }, icon('i-package', 'sm'), 'Marcar empacado'), h('button', { class: 'btn navy', type: 'button', on: { click: shipModal } }, icon('i-truck', 'sm'), 'Despachar'));
+  if (o.stage === 'preparing') primary.push(h('button', { class: 'btn primary', type: 'button', on: { click: async () => { if (await run('pack', {}, 'Pedido empacado')) route({ silent: true }); } } }, icon('i-package', 'sm'), 'Marcar empacado'), h('button', { class: 'btn navy', type: 'button', on: { click: shipModal } }, icon('i-truck', 'sm'), 'Despachar'));
   if (o.stage === 'packed') primary.push(h('button', { class: 'btn primary', type: 'button', on: { click: shipModal } }, icon('i-truck', 'sm'), 'Despachar'));
-  if (o.stage === 'shipped') primary.push(h('button', { class: 'btn primary', type: 'button', on: { click: async () => { if (await confirmBox('¿Marcar como entregado?', cod ? `Confirma que el cliente recibió y pagó ${fmt(o.total)} en efectivo.` : 'Confirma que el cliente recibió el pedido.', 'Sí, entregado') && await run('deliver', {}, 'Pedido entregado')) route(); } } }, icon('i-check', 'sm'), cod ? 'Entregado y cobrado' : 'Marcar entregado'));
+  if (o.stage === 'shipped') primary.push(h('button', { class: 'btn primary', type: 'button', on: { click: async () => { if (await confirmBox('¿Marcar como entregado?', cod ? `Confirma que el cliente recibió y pagó ${fmt(o.total)} en efectivo.` : 'Confirma que el cliente recibió el pedido.', 'Sí, entregado') && await run('deliver', {}, 'Pedido entregado')) route({ silent: true }); } } }, icon('i-check', 'sm'), cod ? 'Entregado y cobrado' : 'Marcar entregado'));
   const secondary = [
     h('button', { class: 'btn', type: 'button', on: { click: () => printSlip(o) } }, icon('i-print', 'sm'), 'Imprimir orden'),
     c.phone ? h('a', { class: 'btn wa', target: '_blank', rel: 'noopener', href: waLink(c.phone, o.stage === 'shipped' ? shipMsg(o.carrier, o.tracking) : `Hola ${c.name?.split(' ')[0] || ''}, te escribimos de USACARGOS SHOP por tu pedido #${o.code}.`) }, icon('i-msg', 'sm'), 'WhatsApp') : null,
-    o.status === 'pending' && o.stage !== 'cancelled' ? h('button', { class: 'btn', type: 'button', on: { click: async () => { if (await confirmBox('¿Confirmar pago?', `Marca el pedido #${o.code} como pagado (${fmt(o.total)}).`, 'Confirmar pago') && await run('mark_paid', {}, 'Pago confirmado')) route(); } } }, icon('i-wallet', 'sm'), 'Marcar pagado') : null,
+    o.status === 'pending' && o.stage !== 'cancelled' ? h('button', { class: 'btn', type: 'button', on: { click: async () => { if (await confirmBox('¿Confirmar pago?', `Marca el pedido #${o.code} como pagado (${fmt(o.total)}).`, 'Confirmar pago') && await run('mark_paid', {}, 'Pago confirmado')) route({ silent: true }); } } }, icon('i-wallet', 'sm'), 'Marcar pagado') : null,
     !['delivered', 'cancelled'].includes(o.stage) ? h('button', { class: 'btn ghost', type: 'button', on: { click: cancelModal } }, icon('i-x', 'sm'), 'Cancelar') : null,
   ];
   const note = h('textarea', { class: 'note', placeholder: 'Nota interna (solo la ves tú)' }, o.admin_note || '');
@@ -196,7 +211,7 @@ async function viewOrder(m, id) {
         cod && o.status !== 'paid' && o.stage !== 'cancelled' ? h('div', { class: 'cod-box' }, `Contra entrega: el mensajero debe cobrar ${fmt(o.total)} en efectivo.`) : null,
         h('div', { class: 'card2' }, h('h2', {}, 'Productos'),
           o.items.map(i => h('div', { class: 'row-i' }, h('img', { src: `/fotos/${i.id}.webp`, alt: '' }), h('div', {}, h('div', { class: 't' }, i.name), h('div', { class: 's' }, `${i.id} · ${fmt(i.price)} × ${i.qty}`)), h('b', {}, fmt(i.price * i.qty)))),
-          h('div', { class: 'kv' }, h('dt', {}, 'Subtotal'), h('dd', {}, fmt(o.subtotal)), h('dt', {}, 'Envío'), h('dd', {}, o.shipping ? fmt(o.shipping) : 'Gratis'), h('dt', {}, 'Total'), h('dd', { style: 'font-size:1.2rem' }, fmt(o.total)))),
+          h('dl', { class: 'kv' }, h('dt', {}, 'Subtotal'), h('dd', {}, fmt(o.subtotal)), h('dt', {}, 'Envío'), h('dd', {}, o.shipping ? fmt(o.shipping) : 'Gratis'), h('dt', {}, 'Total'), h('dd', { style: 'font-size:1.2rem' }, fmt(o.total)))),
         h('div', { class: 'card2' }, h('h2', {}, 'Historial'), h('ul', { class: 'events' }, events.map(e => h('li', {}, h('div', {}, h('b', {}, EV[e.type] || e.type), h('span', {}, `${dt(e.created_at)}${e.detail ? ` · ${e.detail}` : ''}`))))))),
       h('div', {},
         h('div', { class: 'card2' }, h('h2', {}, 'Cliente'),
@@ -264,7 +279,7 @@ async function viewSeller(m, code) {
     pageHead(s.name, `${s.email} · ${s.phone} · desde ${dshort(s.created_at)}`,
       s.pending ? h('button', { class: 'btn primary', type: 'button', on: { click: async () => {
         if (!await confirmBox('¿Registrar pago de comisiones?', `Confirma que ya le pagaste ${fmt(s.pending)} a ${s.name}. Las comisiones quedarán como pagadas.`, 'Sí, ya pagué')) return;
-        try { const r = await api(`/api/admin/affiliates/${encodeURIComponent(code)}/payout`, { method: 'POST', body: {} }); toast(`Registrado: ${fmt(r.amount)} pagados`); route(); } catch (e) { toast(e.message, false); }
+        try { const r = await api(`/api/admin/affiliates/${encodeURIComponent(code)}/payout`, { method: 'POST', body: {} }); toast(`Registrado: ${fmt(r.amount)} pagados`); route({ silent: true }); } catch (e) { toast(e.message, false); }
       } } }, icon('i-wallet', 'sm'), `Pagar ${fmt(s.pending)}`) : null,
       h('a', { class: 'btn wa', target: '_blank', rel: 'noopener', href: waLink(s.phone, `Hola ${s.name.split(' ')[0]}, te escribimos de USACARGOS SHOP.`) }, icon('i-msg', 'sm'), 'WhatsApp'),
       h('button', { class: 'btn', type: 'button', on: { click: () => navigator.clipboard.writeText(s.panel).then(() => toast('Enlace del panel copiado: envíaselo si lo perdió')) } }, icon('i-copy', 'sm'), 'Copiar enlace de su panel')),
@@ -272,22 +287,25 @@ async function viewSeller(m, code) {
 }
 
 // ---------- Router ----------
-function setBadges(n) { for (const id of ['nbShip', 'nbShip2']) { const b = document.getElementById(id); b.textContent = n; b.hidden = !n; } }
-async function route() {
-  const m = $('#main'), [path, qs] = (location.hash.slice(1) || '/inicio').split('?'), q = new URLSearchParams(qs || '');
+let baseTitle = 'USACARGOS ADMIN', pendingShip = 0;
+const paintTitle = () => { document.title = (pendingShip ? `(${pendingShip}) ` : '') + baseTitle; };
+function setBadges(n) { pendingShip = n; for (const id of ['nbShip', 'nbShip2']) { const b = document.getElementById(id); b.textContent = n; b.hidden = !n; } paintTitle(); }
+async function route(opts = {}) {
+  const m = $('#main'), [path, qs] = (location.hash.slice(1) || '/inicio').split('?'), q = new URLSearchParams(qs || ''), y = scrollY;
   const parts = path.split('/').filter(Boolean), sec = parts[0] || 'inicio';
   for (const a of $$('[data-r]')) a.dataset.r === sec ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current');
-  m.replaceChildren(h('div', { class: 'sk', style: 'height:140px;border-radius:18px' }));
+  if (!opts.silent) m.replaceChildren(h('div', { class: 'sk', style: 'height:140px;border-radius:18px' }));
   try {
-    const frag = h('div', { class: 'view-enter' });
+    const frag = h('div', { class: opts.silent ? '' : 'view-enter' });
     if (sec === 'pedidos' && parts[1]) await viewOrder(frag, parts[1]);
     else if (sec === 'pedidos') await viewOrders(frag, q);
     else if (sec === 'productos') await viewProducts(frag, q);
     else if (sec === 'vendedores' && parts[1]) await viewSeller(frag, parts[1]);
     else if (sec === 'vendedores') await viewSellers(frag);
     else await viewHome(frag);
-    m.replaceChildren(frag); scrollTo(0, 0); m.focus({ preventScroll: true });
-    document.title = `${$('h1', frag)?.textContent || 'Administración'} · USACARGOS ADMIN`;
+    m.replaceChildren(frag);
+    if (opts.silent) scrollTo(0, y); else { scrollTo(0, 0); m.focus({ preventScroll: true }); }
+    baseTitle = `${$('h1', frag)?.textContent || 'Administración'} · USACARGOS ADMIN`; paintTitle();
   } catch (e) { if (e.message !== 'Sesión vencida') m.replaceChildren(h('div', { class: 'card2' }, h('h2', {}, 'No pudimos cargar esta sección'), h('p', { class: 'muted' }, e.message), h('button', { class: 'btn primary', on: { click: route } }, 'Reintentar'))); }
 }
 function showLogin() { $('#app').hidden = true; $('#login').hidden = false; setTimeout(() => $('#pw').focus(), 30); }
@@ -303,5 +321,8 @@ async function start() {
   $('#login').hidden = true; $('#app').hidden = false; route();
 }
 addEventListener('hashchange', () => { if (!$('#app').hidden) route(); });
-setInterval(() => { if (!document.hidden && !$('#app').hidden && /^#\/(inicio)?$/.test(location.hash || '#/')) route(); }, 120_000);
+setInterval(() => {
+  if (document.hidden || $('#app').hidden || !$('#modal').hidden || document.activeElement?.matches?.('input,textarea,select')) return;
+  if (/^#\/(inicio)?$|^#\/pedidos(\?.*)?$/.test(location.hash || '#/')) route({ silent: true });
+}, 60_000);
 start();

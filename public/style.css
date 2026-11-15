@@ -1,9 +1,14 @@
+/* Fuentes propias (variables) con respaldo de medidas ajustadas para evitar saltos al cargar */
+@font-face{font-family:"Inter";src:url(/fonts/inter.woff2) format("woff2");font-weight:400 800;font-style:normal;font-display:swap}
+@font-face{font-family:"Baloo 2";src:url(/fonts/baloo2.woff2) format("woff2");font-weight:600 800;font-style:normal;font-display:swap}
+@font-face{font-family:"Inter Fallback";src:local("Arial"),local("Helvetica"),local("Liberation Sans");size-adjust:107%;ascent-override:90%;descent-override:22.4%;line-gap-override:0%}
+@font-face{font-family:"Baloo Fallback";src:local("Arial Black"),local("Arial"),local("Liberation Sans");size-adjust:96%;ascent-override:108%;descent-override:50%;line-gap-override:0%}
 /* =========================================================
    USACARGOS SHOP — sistema visual
    Coral #FF5A36 · Navy #1B1A45 / #130B2E · Índigo #4A63D6 · Durazno #FFF1EA
    ========================================================= */
 :root{
-  --brand:#FF5A36; --brand-2:#FF8552; --brand-600:#E8431F; --brand-50:#FFF1EA; --on-brand:#FFFFFF;
+  --brand:#FF5A36; --brand-2:#FF8552; --brand-600:#E8431F; --brand-ink:#C2401A; --brand-deep:#B83A14; --brand-50:#FFF1EA; --on-brand:#FFFFFF;
   --navy:#1B1A45; --navy-2:#2B2978; --deep:#130B2E; --indigo:#4A63D6; --indigo-50:#EEF1FD;
   --bg:#FAFAFC; --surface:#FFFFFF; --surface-2:#F5F5F9; --text:#1B1A45; --muted:#5E5D78; --line:#ECECF3;
   --ok:#0F7A55; --ok-50:#E7F6EF; --err:#C42B1C; --warn:#B4400F; --warn-50:#FFF1EA;
@@ -13,14 +18,14 @@
   --sh-3:0 30px 60px -20px rgba(19,11,46,.45);
   --glow:0 10px 30px -8px rgba(255,90,54,.65);
   --ease:cubic-bezier(.2,.8,.2,1); --spring:cubic-bezier(.34,1.56,.64,1); --t:220ms;
-  --font-h:"Baloo 2",system-ui,sans-serif; --font-b:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-h:"Baloo 2","Baloo Fallback",system-ui,sans-serif; --font-b:"Inter","Inter Fallback",system-ui,-apple-system,"Segoe UI",sans-serif;
   --header-h:68px; --bnav-h:64px;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){
   :root{
     --bg:#0E0C22; --surface:#17153A; --surface-2:#1E1C47; --text:#F3F2FA; --muted:#AEADC8; --line:#2C2A5A;
-    --brand-50:#2A1622; --indigo-50:#1C2050; --ok:#4CC79A; --ok-50:#10261E; --warn:#FF9E7A; --warn-50:#2A1622; --err:#FF7B6E;
+    --brand-50:#2A1622; --brand-ink:#FF9E7A; --indigo-50:#1C2050; --ok:#4CC79A; --ok-50:#10261E; --warn:#FF9E7A; --warn-50:#2A1622; --err:#FF7B6E;
     --sh-1:0 1px 2px rgba(0,0,0,.4); --sh-2:0 12px 30px -10px rgba(0,0,0,.6); --sh-3:0 30px 60px -20px rgba(0,0,0,.8);
     color-scheme:dark;
   }
@@ -617,3 +622,25 @@ kbd{font:700 .75rem var(--font-b);padding:2px 6px;border-radius:6px;border:1px s
 .pm-ic{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--surface-2);color:var(--brand);flex:none}
 .pm b{display:block}
 .pm .muted{display:block}
+
+/* ===== Contraste AA y ajustes de accesibilidad ===== */
+.kicker,.buybox .cat-link{color:var(--brand-ink)}
+.floater .price{color:var(--brand-ink)}
+.tag.hot{background:var(--brand-deep);box-shadow:none}
+.promo{color:var(--deep);text-shadow:none}
+.promo a{color:var(--deep)}
+.promo .ico{color:var(--deep)}
+.promo.demo{color:#fff}.promo.demo a,.promo.demo .ico{color:#fff}
+.badge{color:var(--deep)}
+.btn.primary{font-size:1.17rem}
+.btn.primary.sm{font-size:.9rem;background:var(--brand-deep);text-shadow:none}
+.cat .ci{background:linear-gradient(135deg,var(--brand-600),var(--brand-deep))}
+.ftr .ftr-h{color:#fff;font-size:1.1rem;margin-bottom:10px}
+main{min-height:100vh}
+.rail-ph{min-height:380px}
+.co-title{font-size:clamp(1.6rem,4vw,2.2rem);margin:4px 0 6px}
+@media (prefers-color-scheme:dark){.co-sum summary .tog,.line .ico{color:#9EAEFF}}
+
+/* Pantallas pequeñas y contraste fijo en tarjetas blancas */
+@media(max-width:599px){.promo-long{display:none}.promo{font-size:.85rem}.promo .wrap{min-height:34px}}
+.floater .price{color:#C2401A}

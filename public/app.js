@@ -287,10 +287,10 @@ function tags(p) {
   if (p.price >= S.cfg.freeShippingFrom) t.push(h('span', { class: 'tag ok' }, icon('i-truck', 'sm'), 'Envío gratis'));
   return t;
 }
-function card(p) {
+function card(p, eager) {
   const add = h('div', { class: 'add', 'data-add': p.id }); fillAdd(add, p);
   const c = h('article', { class: 'card' },
-    h('div', { class: 'media' }, h('img', { src: p.image, alt: '', loading: 'lazy', decoding: 'async', width: 320, height: 320 })),
+    h('div', { class: 'media' }, h('img', { src: p.image, alt: '', loading: eager ? 'eager' : 'lazy', fetchpriority: eager === 'high' ? 'high' : null, decoding: 'async', width: 320, height: 320 })),
     h('div', { class: 'meta' }, tags(p)),
     favBtn(p),
     h('div', { class: 'body' },
@@ -300,14 +300,22 @@ function card(p) {
   tilt(c, 6);
   return c;
 }
-function rail(title, list, href, sub) {
+let railIO;
+function rail(title, list, href, sub, lazy) {
   if (!list.length) return null;
-  const r = h('div', { class: 'rail', role: 'list' }, list.map(p => { const c = card(p); c.setAttribute('role', 'listitem'); return c; }));
+  const r = h('div', { class: 'rail' });
+  const fill = () => { if (!r.childElementCount) { r.append(...list.map(p => card(p))); r.classList.remove('rail-ph'); } };
   const go = d => r.scrollBy({ left: d * r.clientWidth * 0.9, behavior: REDUCED ? 'auto' : 'smooth' });
-  return h('section', { class: 'section rv' },
-    h('div', { class: 'sec-head' }, h('div', {}, h('h2', {}, title), sub ? h('p', {}, sub) : null), href ? h('a', { href, 'data-nav': '' }, 'Ver todo', icon('i-chev-r', 'sm')) : null),
-    h('div', { class: 'rail-wrap' }, h('button', { class: 'rail-btn l', 'aria-label': 'Anteriores', on: { click: () => go(-1) } }, icon('i-chev-l')), r,
-      h('button', { class: 'rail-btn r', 'aria-label': 'Siguientes', on: { click: () => go(1) } }, icon('i-chev-r'))));
+  const sec = h('section', { class: 'section rv', 'aria-label': title },
+    h('div', { class: 'sec-head' }, h('div', {}, h('h2', {}, title), sub ? h('p', {}, sub) : null), href ? h('a', { href, 'data-nav': '', 'aria-label': `Ver todo: ${title}` }, 'Ver todo', icon('i-chev-r', 'sm')) : null),
+    h('div', { class: 'rail-wrap' }, h('button', { class: 'rail-btn l', 'aria-label': `Anteriores en ${title}`, on: { click: () => go(-1) } }, icon('i-chev-l')), r,
+      h('button', { class: 'rail-btn r', 'aria-label': `Siguientes en ${title}`, on: { click: () => go(1) } }, icon('i-chev-r'))));
+  if (lazy && 'IntersectionObserver' in window) {
+    r.classList.add('rail-ph'); sec._fill = fill;
+    railIO ??= new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { railIO.unobserve(e.target); e.target._fill?.(); } }), { rootMargin: '900px 0px' });
+    requestAnimationFrame(() => railIO.observe(sec));
+  } else fill();
+  return sec;
 }
 function crumbs(...items) {
   const nav = h('nav', { class: 'crumbs', 'aria-label': 'Ruta' });
@@ -548,7 +556,7 @@ function faqItems(short) {
     ['¿Cuánto cuesta el envío?', `El envío cuesta ${ship} a cualquier parte de Colombia y es GRATIS en compras desde ${free}. Lo ves en el carrito antes de pagar.`],
     ['¿Es seguro comprar aquí?', PAY().mp ? 'Sí. Los pagos en línea los procesa Mercado Pago: nunca vemos ni guardamos los datos de tu tarjeta o cuenta bancaria.' + (PAY().cod ? ' Y si prefieres, pagas al recibir.' : '') : 'Sí. No pagas nada por adelantado: pagas en efectivo cuando el pedido llega a tus manos.'],
     ['¿Cómo sigo mi envío?', 'Cuando despachamos tu pedido verás la transportadora y el número de guía en “Mis pedidos”, en la página de tu pedido.'],
-    ['¿Cómo sé que recibieron mi pedido?', 'Al terminar el pago verás la confirmación con el número de tu pedido. También queda guardado en “Mis pedidos” en este dispositivo, y te contactamos a tu celular para coordinar la entrega.'],
+    ['¿Cómo sé que recibieron mi pedido?', 'Al confirmar tu compra verás el número de tu pedido. También queda guardado en “Mis pedidos” en este dispositivo, y te contactamos a tu celular para coordinar la entrega.'],
     ['¿Cuánto tarda en llegar?', 'Depende de tu ciudad. Cuando te contactemos para confirmar la entrega te damos el tiempo estimado para tu dirección.'],
     ['¿Cómo gano dinero recomendando?', `Crea tu link gratis en “Gana dinero”, compártelo y recibe el ${pct}% del valor de los productos de cada compra pagada que llegue por tu link.`],
   ];
@@ -588,18 +596,18 @@ function home(v) {
   w.append(coverflow(featured.length >= 6 ? featured : S.products.slice(0, 10)));
   const seen = new Set(S.recent), recentCats = [...new Set(S.recent.map(id => S.byId.get(id)?.category).filter(Boolean))].slice(0, 3);
   if (recentCats.length) w.append(rail('Inspirado en lo que viste', S.products.filter(p => recentCats.includes(p.category) && !seen.has(p.id)).sort(byStock).slice(0, 14), null, 'Elegidos según los productos que miraste.'));
-  w.append(rail('Precios que enamoran', S.products.filter(p => p.price < 30000).sort(byStock).slice(0, 16), '/buscar?q=&precio=0', 'Todo por menos de $30.000'));
+  w.append(rail('Precios que enamoran', S.products.filter(p => p.price < 30000).sort(byStock).slice(0, 16), '/buscar?q=&precio=0', 'Todo por menos de $30.000', true));
   w.append(howTo());
-  for (const c of S.cats.slice(0, 3)) w.append(rail(c.name, S.products.filter(p => p.category === c.name).sort(byStock).slice(0, 14), `/c/${c.slug}`, CAT_META[c.name]?.[2]));
+  for (const c of S.cats.slice(0, 3)) w.append(rail(c.name, S.products.filter(p => p.category === c.name).sort(byStock).slice(0, 14), `/c/${c.slug}`, CAT_META[c.name]?.[2], true));
   const pct = S.cfg.commissionPct ?? 10;
   w.append(band({
     kicker: 'Programa de referidos', title: 'Tu WhatsApp ya es un negocio.', big: `${pct}%`,
     text: `Comparte tu link y gana el ${pct}% de cada venta pagada. Sin inversión, sin inventario y con tu panel para ver tus ganancias en tiempo real.`,
     ctas: [h('a', { class: 'btn primary xl', href: '/afiliados.html' }, icon('i-wallet', 'sm'), 'Quiero ganar dinero'), h('a', { class: 'btn glass xl', href: '/afiliados.html' }, 'Cómo funciona')],
   }));
-  for (const c of S.cats.slice(3, 6)) w.append(rail(c.name, S.products.filter(p => p.category === c.name).sort(byStock).slice(0, 14), `/c/${c.slug}`, CAT_META[c.name]?.[2]));
+  for (const c of S.cats.slice(3, 6)) w.append(rail(c.name, S.products.filter(p => p.category === c.name).sort(byStock).slice(0, 14), `/c/${c.slug}`, CAT_META[c.name]?.[2], true));
   const recent = S.recent.map(id => S.byId.get(id)).filter(Boolean);
-  if (recent.length) w.append(rail('Vistos recientemente', recent.slice(0, 12), null, 'Retoma donde lo dejaste.'));
+  if (recent.length) w.append(rail('Vistos recientemente', recent.slice(0, 12), null, 'Retoma donde lo dejaste.', true));
   requestAnimationFrame(showInstall);
   w.append(trustRow());
   w.append(faq());
@@ -630,7 +638,7 @@ function listing(v, { title, sub, ic, list, crumb, chipsTop, emptyMsg }) {
   const w = h('div', { class: 'wrap' }, crumb,
     h('div', { class: 'list-hero' }, h('h1', {}, title), h('p', {}, `${r.length} producto${r.length === 1 ? '' : 's'}${sub ? ` · ${sub}` : ''}`), ic ? h('span', { class: 'ci', 'aria-hidden': 'true' }, icon(ic)) : null),
     chipsTop || null, toolbar);
-  if (r.length) w.append(h('div', { class: 'grid' }, r.map(card)));
+  if (r.length) w.append(h('div', { class: 'grid' }, r.map((p, i) => card(p, i === 0 ? 'high' : i < 4))));
   else w.append(emptyMsg && !list.length ? emptyMsg : emptyState('i-search', 'Sin resultados con estos filtros', 'Prueba quitando algún filtro.', h('a', { class: 'btn primary', href: location.pathname + (sp.get('q') != null ? `?q=${encodeURIComponent(sp.get('q'))}` : ''), 'data-nav': '' }, 'Quitar filtros')));
   v.append(w);
 }
@@ -662,7 +670,7 @@ function productPage(v, id) {
   const shareUrl = `${location.origin}/p/${p.id}${S.myRef ? `?ref=${S.myRef}` : ''}`;
   const img = h('img', { src: p.image, alt: p.name, width: 640, height: 640, fetchpriority: 'high' });
   img.style.viewTransitionName = 'pimg';
-  const gal = h('button', { class: 'gallery', type: 'button', 'aria-label': 'Ver imagen ampliada' }, img, h('span', { class: 'g-badges' }, tags(p)), h('span', { class: 'zoom-hint' }, icon('i-expand', 'sm'), 'Ampliar'));
+  const gal = h('button', { class: 'gallery', type: 'button', 'aria-label': `Ampliar imagen de ${p.name}` }, img, h('span', { class: 'g-badges', 'aria-hidden': 'true' }, tags(p)), h('span', { class: 'zoom-hint', 'aria-hidden': 'true' }, icon('i-expand', 'sm'), 'Ampliar'));
   if (FINE && !REDUCED) {
     gal.addEventListener('mousemove', e => {
       const r = gal.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
@@ -740,7 +748,7 @@ function favsPage(v) {
   setTitle('Favoritos');
   const list = [...S.favs].map(id => S.byId.get(id)).filter(Boolean);
   const w = h('div', { class: 'wrap' }, crumbs(['Inicio', '/'], ['Favoritos']), h('div', { class: 'list-hero' }, h('h1', {}, 'Tus favoritos'), h('p', {}, `${list.length} guardado${list.length === 1 ? '' : 's'} · Agrégalos al carrito antes de que se agoten`), h('span', { class: 'ci', 'aria-hidden': 'true' }, icon('i-heart'))));
-  w.append(list.length ? h('div', { class: 'grid' }, list.map(card)) : emptyState('i-heart', 'Aún no tienes favoritos', 'Toca el corazón en cualquier producto para guardarlo aquí.', h('a', { class: 'btn primary', href: '/', 'data-nav': '' }, 'Descubrir productos')));
+  w.append(list.length ? h('div', { class: 'grid' }, list.map(p => card(p))) : emptyState('i-heart', 'Aún no tienes favoritos', 'Toca el corazón en cualquier producto para guardarlo aquí.', h('a', { class: 'btn primary', href: '/', 'data-nav': '' }, 'Descubrir productos')));
   v.append(w);
 }
 
@@ -784,7 +792,7 @@ function saveOrder(o) {
 }
 function checkout(v) {
   setTitle('Finalizar compra');
-  const w = h('div', { class: 'wrap' }, crumbs(['Inicio', '/'], ['Finalizar compra'])); v.append(w);
+  const w = h('div', { class: 'wrap' }, crumbs(['Inicio', '/'], ['Finalizar compra']), h('h1', { class: 'co-title' }, 'Finalizar compra')); v.append(w);
   if (!S.cart.length) { coStep = 1; w.append(emptyState('i-cart', 'Tu carrito está vacío', 'Agrega productos para continuar.', h('a', { class: 'btn primary', href: '/', 'data-nav': '' }, 'Descubrir productos'))); return; }
   const data = store.get('customer', {});
   const express = coStep === 2 && coExpress;
@@ -839,7 +847,7 @@ function checkout(v) {
         h('datalist', { id: 'cities' }, (CITIES[data.dept] || '').split(',').filter(Boolean).map(c => h('option', { value: c }))),
         field('address', 'Dirección', { autocomplete: 'street-address', placeholder: 'Calle 10 # 20-30, barrio' }),
         field('notes', 'Indicaciones para la entrega', { tag: 'textarea', placeholder: 'Apartamento, torre, punto de referencia…' }, true)),
-      h('button', { class: 'btn primary block xl', type: 'submit' }, 'Continuar al pago', icon('i-chev-r', 'sm')));
+      h('button', { class: 'btn primary block xl', type: 'submit' }, 'Continuar', icon('i-chev-r', 'sm')));
     form.addEventListener('submit', e => {
       e.preventDefault();
       let first = null;
@@ -878,7 +886,7 @@ function checkout(v) {
     });
     const d = store.get('customer', {});
     main = h('div', {}, steps,
-      express ? h('div', { class: 'express', role: 'status' }, icon('i-zap', 'sm'), 'Compra exprés: usamos los datos de tu última compra. Revisa y paga.') : null,
+      express ? h('div', { class: 'express', role: 'status' }, icon('i-zap', 'sm'), 'Compra exprés: usamos los datos de tu última compra. Revisa y confirma.') : null,
       h('div', { class: 'box' },
         h('div', { class: 'sum' }, h('h2', { style: 'font-size:1.4rem' }, 'Enviar a'), h('button', { class: 'btn ghost sm', type: 'button', on: { click: () => { coStep = 1; coExpress = false; render(); } } }, 'Editar')),
         h('div', {}, h('b', {}, d.name), h('div', { class: 'muted' }, `${d.address}, ${d.city}, ${d.dept}`), h('div', { class: 'muted' }, `${d.phone} · ${d.email}`), d.notes ? h('div', { class: 'muted small' }, d.notes) : null)),
@@ -1072,7 +1080,8 @@ async function init() {
   $('#ftrCats').replaceChildren(...S.cats.slice(0, 6).map(c => h('a', { href: `/c/${c.slug}`, 'data-nav': '' }, c.name)));
   if (cfg.whatsapp) { $('#waFab').hidden = false; const f = $('#ftrWa'); f.hidden = false; f.href = `https://wa.me/${cfg.whatsapp}`; }
   const promo = $('#promoText');
-  promo.replaceChildren('Envío ', h('b', {}, 'GRATIS'), ` en compras desde ${fmt(S.cfg.freeShippingFrom)} a toda Colombia · `, h('a', { href: '/buscar?q=', 'data-nav': '' }, 'Comprar ahora'));
+  promo.replaceChildren('Envío ', h('b', {}, 'GRATIS'), h('span', { class: 'promo-long' }, ' en compras'), ` desde ${fmt(S.cfg.freeShippingFrom)}`, h('span', { class: 'promo-long' }, ' a toda Colombia · ', h('a', { href: '/buscar?q=', 'data-nav': '' }, 'Comprar ahora')));
+  if (innerWidth < 420) $('#q').placeholder = '¿Qué buscas?';
   let showRef = false; try { showRef = sessionStorage.getItem('showRef') === '1'; sessionStorage.removeItem('showRef'); } catch {}
   if (showRef && activeRef()) promo.replaceChildren(h('b', {}, '¡Bienvenido!'), ' Llegaste por la recomendación de un amigo. Envío GRATIS desde ', fmt(S.cfg.freeShippingFrom), '.');
   if (cfg.demo) { $('#promo').classList.add('demo'); promo.replaceChildren(h('b', {}, 'Modo demostración:'), ' los pagos no se procesan.'); }

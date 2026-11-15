@@ -6,9 +6,8 @@
 <meta name="theme-color" content="#1B1A45">
 <title>__TITLE__</title>
 <!--META-->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="preload" href="/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/baloo2.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/style.css">
 <link rel="modulepreload" href="/app.js">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -21,18 +20,18 @@
 <body>
 <a class="skip" href="#view">Saltar al contenido</a>
 
-<div id="promo" class="promo"><div class="wrap"><svg class="ico sm"><use href="#i-truck"/></svg><span id="promoText">Envío <b>GRATIS</b> en compras desde $150.000 a toda Colombia</span></div></div>
+<aside id="promo" class="promo" aria-label="Promoción"><div class="wrap"><svg class="ico sm"><use href="#i-truck"/></svg><span id="promoText">Envío <b>GRATIS</b> en compras desde $150.000 a toda Colombia</span></div></aside>
 
 <header class="hdr">
   <div class="wrap row">
-    <a class="brand" href="/" data-nav aria-label="USACARGOS SHOP, inicio">
+    <a class="brand" href="/" data-nav>
       <span class="mark"><svg class="ico" style="color:#fff"><use href="#i-package"/></svg></span>
       <span class="word"><span><b>USA</b>CARGOS</span><span class="shop">SHOP</span></span>
     </a>
     <div class="search" id="search">
       <form role="search" autocomplete="off">
         <label class="sr" for="q">Buscar productos</label>
-        <input id="q" type="search" enterkeyhint="search" placeholder="Busca lo que necesitas…" aria-autocomplete="list" aria-controls="suggest" aria-expanded="false" aria-keyshortcuts="/">
+        <input id="q" type="search" role="combobox" enterkeyhint="search" placeholder="Busca lo que necesitas…" aria-autocomplete="list" aria-controls="suggest" aria-expanded="false" aria-keyshortcuts="/">
         <button type="button" id="voiceBtn" class="voice" aria-label="Buscar por voz" hidden><svg class="ico"><use href="#i-mic"/></svg></button>
         <button type="submit" aria-label="Buscar"><svg class="ico"><use href="#i-search"/></svg></button>
       </form>
@@ -40,8 +39,8 @@
     </div>
     <div class="hdr-actions">
       <a class="hdr-link" href="/afiliados.html"><svg class="ico sm"><use href="#i-wallet"/></svg>Gana dinero</a>
-      <a class="icon-btn hide-m" href="/favoritos" data-nav aria-label="Favoritos"><svg class="ico"><use href="#i-heart"/></svg><span class="badge" data-fav-count hidden></span></a>
-      <button class="icon-btn" data-open-cart aria-label="Abrir carrito"><svg class="ico"><use href="#i-cart"/></svg><span class="badge" data-cart-count hidden></span></button>
+      <a class="icon-btn hide-m" href="/favoritos" data-nav><svg class="ico" aria-hidden="true"><use href="#i-heart"/></svg><span class="sr">Favoritos</span><span class="badge" data-fav-count hidden></span></a>
+      <button class="icon-btn" data-open-cart><svg class="ico" aria-hidden="true"><use href="#i-cart"/></svg><span class="sr">Carrito</span><span class="badge" data-cart-count hidden></span></button>
     </div>
   </div>
 </header>
@@ -56,9 +55,9 @@
         <a class="brand" href="/" data-nav><span class="mark"><svg class="ico" style="color:#fff"><use href="#i-package"/></svg></span><span class="word"><span><b>USA</b>CARGOS</span><span class="shop">SHOP</span></span></a>
         <p class="small">Todo lo práctico para tu hogar, tu cuidado y tus mascotas. Pagas seguro y te lo llevamos a toda Colombia.</p>
       </div>
-      <div><h3>Comprar</h3><div id="ftrCats"></div></div>
+      <div><h2 class="ftr-h">Comprar</h2><div id="ftrCats"></div></div>
       <div>
-        <h3>Ayuda</h3>
+        <h2 class="ftr-h">Ayuda</h2>
         <a href="/pedidos" data-nav>Mis pedidos</a>
         <a href="/favoritos" data-nav>Mis favoritos</a>
         <a href="/#faq" data-nav>Preguntas frecuentes</a>
@@ -77,18 +76,20 @@
   <button data-open-cart data-tab="cart"><svg class="ico"><use href="#i-cart"/></svg>Carrito<span class="badge" data-cart-count hidden></span></button>
 </nav>
 
+<aside aria-label="Accesos rápidos">
 <a id="waFab" class="wa-fab" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp" hidden>
   <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3C8.8 3 3 8.7 3 15.8c0 2.5.7 4.9 2 7L3 29l6.4-2c2 1.1 4.3 1.7 6.6 1.7 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.3c-2.1 0-4.1-.6-5.9-1.6l-.4-.3-3.8 1.2 1.2-3.7-.3-.4a10.5 10.5 0 0 1-1.7-5.7C5.1 10 10 5.2 16 5.2S26.9 10 26.9 15.8 22 26.3 16 26.3zm6-7.8c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1a8.7 8.7 0 0 1-4.3-3.7c-.3-.6.3-.5 1-1.7.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4s-1.2 1.1-1.2 2.8 1.2 3.3 1.4 3.5 2.4 3.6 5.8 5c2.2.9 3 1 4 .8.7-.1 1.9-.8 2.2-1.5s.3-1.4.2-1.5-.3-.2-.6-.4z"/></svg>
 </a>
 
 <div id="scrim" class="scrim"></div>
-<aside id="drawer" class="drawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+<div id="drawer" class="drawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
   <div class="d-head"><h2 id="cartTitle">Tu carrito</h2><button class="icon-btn" data-close-cart aria-label="Cerrar carrito"><svg class="ico"><use href="#i-x"/></svg></button></div>
   <div class="d-body" id="cartBody"></div>
   <div class="d-foot" id="cartFoot"></div>
-</aside>
+</div>
 
 <button id="toTop" class="to-top" type="button" aria-label="Volver arriba" hidden><svg class="ico"><use href="#i-arrow-up"/></svg></button>
+</aside>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">

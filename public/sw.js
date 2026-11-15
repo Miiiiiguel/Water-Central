@@ -1,5 +1,5 @@
 // Service worker de USACARGOS SHOP: carga rápida y funcionamiento básico sin conexión.
-const VERSION = 'ucs-v4';
+const VERSION = 'ucs-v5';
 const SHELL = ['/', '/style.css', '/app.js', '/manifest.webmanifest', '/icons/icon-192.png'];
 
 self.addEventListener('install', e => {
@@ -42,7 +42,6 @@ self.addEventListener('fetch', e => {
     e.respondWith(networkFirst(req));
     return;
   }
-  if (sameOrigin && (url.pathname.startsWith('/fotos/') || url.pathname.startsWith('/icons/'))) { e.respondWith(staleWhileRevalidate(req)); return; }
+  if (sameOrigin && /^\/(fotos|icons|fonts|og)\//.test(url.pathname)) { e.respondWith(staleWhileRevalidate(req)); return; }
   if (sameOrigin && /\.(css|js|webmanifest)$/.test(url.pathname)) { e.respondWith(networkFirst(req)); return; }
-  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') { e.respondWith(staleWhileRevalidate(req)); }
 });
