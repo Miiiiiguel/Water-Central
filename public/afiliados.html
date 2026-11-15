@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1B1A45">
+<title>Gana dinero recomendando · USACARGOS SHOP</title>
+<meta name="description" content="Comparte tu link de USACARGOS SHOP y gana comisión por cada venta pagada. Sin inversión y sin inventario.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/style.css">
+<link rel="manifest" href="/manifest.webmanifest">
+<style>
+  .mini-hdr .wrap{justify-content:space-between}
+  .aff-hero{position:relative;overflow:hidden;isolation:isolate;color:#fff;background:radial-gradient(120% 90% at 85% 0%,#2B2978,transparent 60%),var(--deep);padding:44px 0 64px}
+  .aff-hero::after{content:"";position:absolute;z-index:-1;right:-120px;top:-120px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(255,90,54,.55),transparent 65%)}
+  .aff-hero h1{font-size:clamp(2.4rem,7vw,4.2rem);line-height:.98;max-width:14ch;margin:10px 0 14px}
+  .aff-hero p{max-width:52ch;color:#D9D8EE;font-size:1.12rem;margin:0}
+  .aff-grid{display:grid;gap:18px;margin-top:-32px;position:relative}
+  @media(min-width:900px){.aff-grid{grid-template-columns:1.05fr .95fr;align-items:start}}
+  .aff-grid>div{display:grid;gap:18px;min-width:0}
+  .calc output{font:800 clamp(2rem,6vw,2.8rem)/1 var(--font-h);color:var(--brand)}
+  .calc input[type=range]{width:100%;accent-color:var(--brand);height:32px}
+  .how{display:grid;gap:14px;list-style:none;margin:0;padding:0}
+  .how li{display:flex;gap:12px;align-items:flex-start}
+  .how .n{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;font:800 1rem var(--font-h)}
+  .share-row{display:flex;flex-wrap:wrap;gap:8px}
+  .prod{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+  .prod img{width:56px;height:56px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:12px}
+  .prod .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .prod .acts .btn{min-height:44px;padding:0 12px;font-size:.85rem}
+  .field-err{color:var(--err);font-size:.85rem;font-weight:600}
+  .warn{padding:12px 14px;border-radius:12px;background:var(--brand-50);color:var(--warn);font-weight:600;font-size:.92rem}
+
+  /* ===== Panel del vendedor ===== */
+  .dash{display:grid;gap:18px;padding:22px 0 64px}
+  .admin-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--r);background:#EEF1FD;color:#3346B5;font-weight:700}
+  @media (prefers-color-scheme:dark){.admin-bar{background:#1C2050;color:#AEBBFF}}
+  .d-hero{position:relative;overflow:hidden;isolation:isolate;display:grid;gap:20px;padding:clamp(22px,4vw,36px);border-radius:var(--r-lg);color:#fff;background:radial-gradient(120% 100% at 100% 0%,#2B2978,transparent 60%),var(--deep)}
+  .d-hero::after{content:"";position:absolute;z-index:-1;right:-80px;bottom:-120px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(255,90,54,.5),transparent 65%)}
+  @media(min-width:900px){.d-hero{grid-template-columns:1.3fr 1fr;align-items:center}}
+  .d-hero h1{font-size:clamp(2rem,5vw,3rem);line-height:1}
+  .lvl-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;font-weight:800;font-size:.9rem;margin-bottom:10px}
+  .lvl-badge.Bronce{background:linear-gradient(135deg,#C67A3C,#E7A66B);color:#3A1C05}
+  .lvl-badge.Plata{background:linear-gradient(135deg,#AEB6C6,#E4E8EF);color:#2A3242}
+  .lvl-badge.Oro{background:linear-gradient(135deg,#E6B422,#FFE07A);color:#3D2B00}
+  .lvl-badge.Diamante{background:linear-gradient(135deg,#6FC3FF,#C9ECFF);color:#05314F}
+  .lvl-bar{height:12px;border-radius:999px;background:rgba(255,255,255,.14);overflow:hidden;margin:10px 0 6px;max-width:440px}
+  .lvl-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--brand),var(--brand-2));width:0;transition:width 1s var(--ease)}
+  .d-hero .sub{color:#D0CFEA;margin:0}
+  .money{display:grid;gap:6px;padding:20px;border-radius:var(--r);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(6px)}
+  .money .lbl{color:#D0CFEA;font-weight:600}
+  .money b{font:800 clamp(2.4rem,6vw,3.4rem)/1 var(--font-h);color:#fff}
+  .money .copy input{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);color:#fff}
+  .kg{display:grid;gap:12px;grid-template-columns:repeat(2,1fr)}
+  @media(min-width:760px){.kg{grid-template-columns:repeat(3,1fr)}}
+  @media(min-width:1100px){.kg{grid-template-columns:repeat(6,1fr)}}
+  .k{display:grid;gap:4px;padding:16px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+  .k span{color:var(--muted);font-weight:600;font-size:.85rem}
+  .k b{font:800 1.6rem/1.1 var(--font-h);font-variant-numeric:tabular-nums}
+  .k small{color:var(--muted)}
+  .k.hl{border-color:var(--brand);background:var(--brand-50)}
+  .d-cols{display:grid;gap:18px}
+  @media(min-width:1000px){.d-cols{grid-template-columns:1.4fr 1fr;align-items:start}}
+  .d-cols>div{display:grid;gap:18px;min-width:0}
+  .chart{width:100%;height:200px}
+  .chart text{fill:var(--muted);font:600 11px var(--font-b)}
+  .sales{display:grid;gap:8px}
+  .sale{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:12px 14px;border-radius:14px;background:var(--surface-2)}
+  .sale .c{font:800 1rem var(--font-h)}
+  .sale .d{color:var(--muted);font-size:.85rem}
+  .sale .m{text-align:right;font-weight:800}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;grid-column:1/-1}
+  .chip2{display:inline-flex;align-items:center;padding:2px 10px;border-radius:999px;font-size:.74rem;font-weight:800;background:var(--surface);border:1px solid var(--line)}
+  .chip2.ok{background:var(--ok-50);color:var(--ok);border-color:transparent}
+  .chip2.hot{background:var(--brand-50);color:var(--brand-600);border-color:transparent}
+  .chip2.mut{color:var(--muted)}
+  .tips{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+  .tips li{display:flex;gap:10px}
+  .tips li::before{content:"";flex:none;width:8px;height:8px;margin-top:9px;border-radius:50%;background:var(--brand)}
+</style>
+</head>
+<body>
+<header class="mini-hdr"><div class="wrap"><a class="brand" href="/"><span class="mark"><svg class="ico" viewBox="0 0 24 24" style="color:#fff"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="m7.5 4.27 9 5.15"/></svg></span><span class="word"><span><b>USA</b>CARGOS</span><span class="shop">SHOP</span></span></a><a class="btn glass sm" href="/" id="toStore">Ir a la tienda</a></div></header>
+
+<!-- ======== Registro ======== -->
+<div id="signupView">
+  <section class="aff-hero">
+    <div class="wrap">
+      <span class="kicker" style="color:#FFB08F">Programa de referidos</span>
+      <h1>Tu WhatsApp ya es un <span class="grad-text">negocio.</span></h1>
+      <p>Crea tu link gratis, compártelo con tus contactos y gana el <b class="pct">10</b>% de cada compra pagada que llegue por ti. Sin inversión, sin inventario y sin hacer envíos: nosotros despachamos desde nuestra bodega.</p>
+    </div>
+  </section>
+  <main class="wrap" style="padding-bottom:64px">
+    <div class="aff-grid">
+      <div>
+        <section id="signup" class="panel">
+          <h2 style="font-size:1.8rem">Crea tu link en 30 segundos</h2>
+          <form id="f" class="form" novalidate>
+            <label>Nombre<input name="name" required autocomplete="name" placeholder="Tu nombre y apellido"><span class="field-err" hidden>Escribe tu nombre y apellido.</span></label>
+            <label>Correo<input name="email" type="email" required autocomplete="email" inputmode="email" placeholder="nombre@gmail.com"><span class="field-err" hidden>Escribe un correo válido.</span></label>
+            <label>Celular (WhatsApp)<input name="phone" type="tel" required autocomplete="tel" inputmode="tel" placeholder="300 123 4567"><span class="field-err" hidden>Escribe tu celular de 10 dígitos.</span></label>
+            <p id="err" class="alert" role="alert" hidden></p>
+            <button id="submit" class="btn primary block xl" type="submit">Crear mi link gratis</button>
+            <p class="muted small" style="margin:0">Usamos tus datos solo para identificarte y pagarte tus comisiones.</p>
+          </form>
+        </section>
+        <section id="done" class="panel" hidden>
+          <span class="kicker">¡Listo!</span>
+          <h2 style="font-size:1.8rem">Este es tu link para compartir</h2>
+          <div class="copy"><input id="link" readonly aria-label="Tu link"><button class="btn" data-copy="link">Copiar</button></div>
+          <div class="share-row" id="shareDone"></div>
+          <div class="warn">Guarda tu <b>panel privado</b>: ahí ves tus ventas y comisiones. No lo compartas con nadie.</div>
+          <div class="copy"><input id="panel" readonly aria-label="Tu panel privado"><button class="btn" data-copy="panel">Copiar</button></div>
+          <a id="goPanel" class="btn primary xl">Ir a mi panel</a>
+        </section>
+      </div>
+      <div>
+        <section class="panel calc">
+          <h2 style="font-size:1.5rem">¿Cuánto podrías ganar?</h2>
+          <label for="sales" class="muted">Ventas al mes por tu link: <b id="salesN">10</b></label>
+          <input id="sales" type="range" min="1" max="100" value="10">
+          <label for="ticket" class="muted">Valor de productos por compra: <b id="ticketN">$60.000</b></label>
+          <input id="ticket" type="range" min="10000" max="300000" step="5000" value="60000">
+          <div><span class="muted">Ganarías</span><br><output id="earn">$60.000</output> <span class="muted">al mes</span></div>
+          <p class="muted small" style="margin:0">Ejemplo ilustrativo, no es una promesa de ingresos: la comisión se calcula sobre el valor de los productos (sin envío) de cada compra pagada.</p>
+        </section>
+        <section class="panel">
+          <h2 style="font-size:1.5rem">Cómo funciona</h2>
+          <ol class="how">
+            <li><span class="n">1</span><div><b>Crea tu link</b><div class="muted">Gratis, con tu nombre, correo y celular.</div></div></li>
+            <li><span class="n">2</span><div><b>Compártelo</b><div class="muted">Por WhatsApp, estados, Instagram o TikTok. Tu link recuerda a tu cliente durante 30 días.</div></div></li>
+            <li><span class="n">3</span><div><b>Gana</b><div class="muted">Nosotros despachamos. Tú recibes el <b class="pct">10</b>% de cada compra pagada y lo ves en tu panel.</div></div></li>
+          </ol>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ======== Panel ======== -->
+<main id="dashView" class="wrap dash" hidden>
+  <div id="adminBar" class="admin-bar" hidden></div>
+  <section class="d-hero">
+    <div>
+      <span id="lvlBadge" class="lvl-badge"></span>
+      <h1 id="hello"></h1>
+      <div class="lvl-bar" role="progressbar" aria-label="Progreso al siguiente nivel"><i id="lvlBar"></i></div>
+      <p class="sub" id="lvlText"></p>
+    </div>
+    <div class="money">
+      <span class="lbl">Por cobrar</span>
+      <b id="mPending">$0</b>
+      <span class="lbl" id="mPendingSub"></span>
+      <div class="copy" style="margin-top:8px"><input id="mylink" readonly aria-label="Tu link"><button class="btn glass" data-copy="mylink">Copiar</button></div>
+      <div class="share-row" id="shareDash"></div>
+    </div>
+  </section>
+  <div class="kg" id="kpis"></div>
+  <div class="d-cols">
+    <div>
+      <section class="panel"><h2 style="font-size:1.4rem">Tus ganancias</h2><div id="chart"></div></section>
+      <section class="panel"><h2 style="font-size:1.4rem">Tus ventas</h2><div class="sales" id="salesList"></div></section>
+    </div>
+    <div>
+      <section class="panel" id="topBox" hidden><h2 style="font-size:1.4rem">Lo que más vendes</h2><div id="topList"></div></section>
+      <section class="panel"><h2 style="font-size:1.4rem">Productos para compartir</h2><p class="muted" style="margin:0">Cada link ya incluye tu código.</p><div id="prods"></div></section>
+      <section class="panel">
+        <h2 style="font-size:1.4rem">Consejos para vender más</h2>
+        <ul class="tips">
+          <li>Publica 2 o 3 productos al día en tus estados de WhatsApp con su precio.</li>
+          <li>Comparte el link del producto, no solo la foto: así la venta queda a tu nombre.</li>
+          <li>Responde rápido las preguntas: el cliente compra cuando tiene la duda resuelta.</li>
+          <li>Recuerda que pueden pagar contra entrega y el envío es gratis desde $150.000.</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</main>
+
+<div class="toasts" id="toasts" aria-live="polite" style="bottom:24px"></div>
+<script>
+const $ = s => document.querySelector(s);
+const fmt = n => '$' + Math.round(n || 0).toLocaleString('es-CO');
+const p = new URLSearchParams(location.search);
+let PCT = 10;
+const el = (t, a = {}, ...k) => { const e = document.createElement(t); for (const [x, v] of Object.entries(a)) x === 'on' ? Object.entries(v).forEach(([ev, fn]) => e.addEventListener(ev, fn)) : e.setAttribute(x, v); e.append(...k.filter(z => z != null)); return e; };
+const toast = m => { const t = el('div', { class: 'toast', role: 'status' }, m); $('#toasts').append(t); setTimeout(() => t.remove(), 3000); };
+async function copy(text, btn) {
+  try { await navigator.clipboard.writeText(text); } catch { prompt('Copia el link:', text); return; }
+  if (btn) { const o = btn.textContent; btn.textContent = '¡Copiado!'; setTimeout(() => btn.textContent = o, 1500); } else toast('Link copiado');
+}
+document.addEventListener('click', e => { const id = e.target.dataset?.copy; if (id) copy(document.getElementById(id).value, e.target); });
+function shareButtons(box, link, glass) {
+  const msg = `Mira esta tienda: tiene de todo para la casa, belleza y mascotas, con envío a toda Colombia ${link}`;
+  box.replaceChildren(...[
+    el('a', { class: 'btn wa', target: '_blank', rel: 'noopener', href: `https://wa.me/?text=${encodeURIComponent(msg)}` }, 'Compartir por WhatsApp'),
+    navigator.share ? el('button', { class: `btn ${glass ? 'glass' : ''}`, type: 'button', on: { click: () => navigator.share({ title: 'USACARGOS SHOP', text: msg, url: link }).catch(() => {}) } }, 'Más opciones') : null].filter(Boolean));
+}
+async function products(code) {
+  const list = await fetch('/api/products').then(r => r.json()).catch(() => []);
+  const top = list.filter(x => x.stock > 0).sort((a, b) => b.stock - a.stock).slice(0, 12);
+  $('#prods').replaceChildren(...top.map(x => {
+    const url = `${location.origin}/p/${x.id}?ref=${code}`;
+    const msg = `${x.name} a ${fmt(x.price)}, con envío a toda Colombia: ${url}`;
+    return el('div', { class: 'prod' }, el('img', { src: x.image, alt: '', loading: 'lazy' }),
+      el('div', {}, el('b', {}, x.name), el('div', { class: 'muted small' }, `${fmt(x.price)} · ganas ${fmt(x.price * PCT / 100)}`)),
+      el('div', { class: 'acts' },
+        el('button', { class: 'btn', type: 'button', 'aria-label': `Copiar link de ${x.name}`, on: { click: () => copy(url) } }, 'Copiar'),
+        el('a', { class: 'btn wa', target: '_blank', rel: 'noopener', 'aria-label': `Compartir ${x.name} por WhatsApp`, href: `https://wa.me/?text=${encodeURIComponent(msg)}` }, 'WhatsApp')));
+  }));
+}
+function calc() { const n = +$('#sales').value, t = +$('#ticket').value; $('#salesN').textContent = n; $('#ticketN').textContent = fmt(t); $('#earn').textContent = fmt(n * t * PCT / 100); }
+$('#sales').addEventListener('input', calc); $('#ticket').addEventListener('input', calc);
+const cfg = fetch('/api/config').then(r => r.json()).then(c => { PCT = c.commissionPct; for (const e of document.querySelectorAll('.pct')) e.textContent = PCT; calc(); return c; });
+
+// ---------- Registro ----------
+const rules = { name: v => v.trim().length >= 3, email: v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()), phone: v => /^\+?\d{7,15}$/.test(v.replace(/[\s-]/g, '')) };
+const check = i => { const ok = rules[i.name](i.value); i.nextElementSibling.hidden = ok; i.setAttribute('aria-invalid', String(!ok)); i.style.borderColor = ok ? '' : 'var(--err)'; return ok; };
+for (const i of $('#f').querySelectorAll('input')) { i.addEventListener('blur', () => { if (i.value) check(i); }); i.addEventListener('input', () => { if (i.getAttribute('aria-invalid') === 'true') check(i); }); }
+$('#f').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, err = $('#err'), btn = $('#submit'); err.hidden = true;
+  const bad = [...f.querySelectorAll('input')].filter(i => !check(i));
+  if (bad.length) { bad[0].focus(); return; }
+  btn.disabled = true; btn.textContent = 'Creando tu link…';
+  try {
+    const r = await fetch('/api/affiliates', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(f))) });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'No pudimos crear tu link. Intenta de nuevo.');
+    try { localStorage.setItem('myRef', JSON.stringify(j.code)); localStorage.setItem('myPanel', JSON.stringify(j.panel)); } catch {}
+    $('#signup').hidden = true; $('#done').hidden = false;
+    $('#link').value = j.link; $('#panel').value = j.panel; $('#goPanel').href = j.panel;
+    shareButtons($('#shareDone'), j.link);
+    $('#done').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (x) { err.textContent = x.message; err.hidden = false; }
+  finally { btn.disabled = false; btn.textContent = 'Crear mi link gratis'; }
+});
+
+// ---------- Panel ----------
+const STAGE = { awaiting_payment: ['Pendiente de pago', 'mut'], preparing: ['En preparación', 'hot'], packed: ['Empacado', 'hot'], shipped: ['Enviado', 'hot'], delivered: ['Entregado', 'ok'], cancelled: ['Cancelado', 'mut'] };
+const COM = { to_confirm: ['Comisión por confirmar', 'mut'], pending: ['Comisión por cobrar', 'hot'], paid: ['Comisión pagada', 'ok'], cancelled: ['Sin comisión', 'mut'], none: ['Sin comisión', 'mut'] };
+const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+function chart(months) {
+  const W = 600, H = 200, max = Math.max(1, ...months.map(m => m.commission)), bw = W / months.length;
+  const NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('class', 'chart'); svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Comisiones de los últimos 6 meses: ' + months.map(m => `${MONTHS[+m.key.slice(5) - 1]} ${fmt(m.commission)}`).join(', '));
+  svg.innerHTML = '<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF5A36"/><stop offset="1" stop-color="#FF8552"/></linearGradient></defs>';
+  months.forEach((m, i) => {
+    const bh = m.commission ? Math.max(6, m.commission / max * (H - 60)) : 3, x = i * bw + bw * .2, w = bw * .6;
+    const r = document.createElementNS(NS, 'rect'); Object.entries({ x, y: H - 26 - bh, width: w, height: bh, rx: 8, fill: m.commission ? 'url(#g)' : 'var(--line)' }).forEach(([k, v]) => r.setAttribute(k, v)); svg.append(r);
+    const t = document.createElementNS(NS, 'text'); t.setAttribute('x', x + w / 2); t.setAttribute('y', H - 8); t.setAttribute('text-anchor', 'middle'); t.textContent = MONTHS[+m.key.slice(5) - 1]; svg.append(t);
+    if (m.commission) { const v = document.createElementNS(NS, 'text'); v.setAttribute('x', x + w / 2); v.setAttribute('y', H - 32 - bh); v.setAttribute('text-anchor', 'middle'); v.setAttribute('style', 'fill:var(--text);font-weight:800'); v.textContent = fmt(m.commission); svg.append(v); }
+  });
+  return svg;
+}
+function renderDash(d, adminView) {
+  document.title = `Panel de ${d.name} · USACARGOS SHOP`;
+  $('#signupView').hidden = true; $('#dashView').hidden = false;
+  if (adminView) { const b = $('#adminBar'); b.hidden = false; b.textContent = `Vista de administrador: así ve ${d.name} su panel.`; $('#toStore').hidden = true; }
+  const first = d.name.split(' ')[0];
+  $('#lvlBadge').className = `lvl-badge ${d.level.name}`; $('#lvlBadge').textContent = `Nivel ${d.level.name}`;
+  $('#hello').textContent = `Hola, ${first}`;
+  requestAnimationFrame(() => requestAnimationFrame(() => { $('#lvlBar').style.width = d.level.progress + '%'; }));
+  $('#lvlText').textContent = d.level.next ? `Te faltan ${d.level.nextAt - d.sales} venta(s) para llegar a ${d.level.next}.` : '¡Llegaste al nivel más alto! Eres de los mejores vendedores.';
+  $('#mPending').textContent = fmt(d.pending);
+  $('#mPendingSub').textContent = d.toConfirm ? `+ ${fmt(d.toConfirm)} por confirmar en ${d.openCount} pedido(s) en curso` : 'Comparte tu link y empieza a sumar';
+  $('#mylink').value = d.link; shareButtons($('#shareDash'), d.link, true);
+  const k = (lbl, val, sub, hl) => el('div', { class: `k${hl ? ' hl' : ''}` }, el('span', {}, lbl), el('b', {}, val), sub ? el('small', {}, sub) : null);
+  $('#kpis').replaceChildren(
+    k('Ganado en total', fmt(d.pending + d.paidOut), 'Pagado + por cobrar', true), k('Ya te pagamos', fmt(d.paidOut)), k('Por confirmar', fmt(d.toConfirm), `${d.openCount} pedido(s) en curso`),
+    k('Ventas', String(d.sales), fmt(d.revenue) + ' vendidos'), k('Visitas a tu link', String(d.clicks)), k('Conversión', `${d.conversion}%`, 'ventas / visitas'));
+  $('#chart').replaceChildren(chart(d.months));
+  $('#salesList').replaceChildren(...(d.orders.length ? d.orders.map(o => el('div', { class: 'sale' },
+    el('div', {}, el('div', { class: 'c' }, `#${o.code}`), el('div', { class: 'd' }, `${new Date(o.date).toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' })} · venta ${fmt(o.total)}`)),
+    el('div', { class: 'm' }, fmt(o.commission)),
+    el('div', { class: 'chips' }, el('span', { class: `chip2 ${(STAGE[o.stage] || ['', 'mut'])[1]}` }, (STAGE[o.stage] || [o.stage])[0]), el('span', { class: `chip2 ${(COM[o.commission_status] || ['', 'mut'])[1]}` }, (COM[o.commission_status] || [o.commission_status])[0])))) :
+    [el('p', { class: 'muted', style: 'margin:0' }, 'Aún no tienes ventas. Comparte tu link con 10 contactos hoy: cada compra aparecerá aquí con su estado.')]));
+  if (d.topProducts.length) { $('#topBox').hidden = false; $('#topList').replaceChildren(...d.topProducts.map(t => el('div', { class: 'prod' }, t.image ? el('img', { src: t.image, alt: '' }) : el('span'), el('b', {}, t.name), el('span', { class: 'muted' }, `${t.qty} und.`)))); }
+  products(d.code);
+}
+async function dashboard() {
+  await cfg;
+  const adminView = p.get('admin') === '1';
+  const url = adminView ? `/api/admin/affiliates/${encodeURIComponent(p.get('code'))}/stats` : `/api/affiliates/${encodeURIComponent(p.get('code'))}/stats?token=${encodeURIComponent(p.get('token'))}`;
+  const r = await fetch(url);
+  if (!r.ok) { toast(adminView ? 'Inicia sesión como administrador.' : 'No encontramos tu panel. Revisa el enlace.'); return; }
+  const d = await r.json();
+  if (!adminView) { try { localStorage.setItem('myRef', JSON.stringify(d.code)); localStorage.setItem('myPanel', JSON.stringify(location.href)); } catch {} }
+  renderDash(d, adminView);
+}
+if (p.get('code') && (p.get('token') || p.get('admin') === '1')) dashboard();
+else {
+  try {
+    const saved = JSON.parse(localStorage.getItem('myPanel') || 'null');
+    if (saved && saved.startsWith(location.origin)) $('#signup').prepend(el('a', { class: 'btn navy block', href: saved }, 'Ya tengo un link: ir a mi panel'));
+  } catch {}
+}
+</script>
+</body>
+</html>

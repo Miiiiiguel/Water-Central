@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: usacargos-shop
+    runtime: node
+    region: virginia
+    plan: free
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: STORE_NAME
+        value: USACARGOS SHOP
+      - key: COD_ENABLED
+        value: "true"
+      - key: COMMISSION_PCT
+        value: "10"
+      - key: SHIPPING_COP
+        value: "12000"
+      - key: FREE_SHIPPING_FROM
+        value: "150000"
+      - key: BASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SHOP_API_SECRET
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: WHATSAPP
+        sync: false
+      - key: MP_ACCESS_TOKEN
+        sync: false
+      - key: MP_WEBHOOK_SECRET
+        sync: false

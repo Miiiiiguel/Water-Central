@@ -1,0 +1,20 @@
+{
+  "name": "USACARGOS SHOP",
+  "short_name": "USACARGOS",
+  "description": "Compra fácil, paga seguro y recíbelo en casa. Envíos a toda Colombia.",
+  "lang": "es-CO",
+  "start_url": "/?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#130B2E",
+  "theme_color": "#1B1A45",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Mis pedidos", "url": "/pedidos" },
+    { "name": "Favoritos", "url": "/favoritos" }
+  ]
+}
