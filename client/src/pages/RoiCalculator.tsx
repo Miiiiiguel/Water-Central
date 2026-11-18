@@ -644,7 +644,7 @@ export default function RoiCalculator({ embebido = false }: { embebido?: boolean
             {es ? 'Calculadora interactiva' : 'Interactive calculator'}
           </span>
           <h1 className="max-w-[24ch] text-3xl font-black leading-[1.08] text-primary sm:text-4xl md:text-5xl">
-            {es ? 'Calculadora de retorno de inversión / Logística internacional' : 'Return on investment / International logistics calculator'}
+            {es ? 'Calculadora logística internacional / Retorno de inversión' : 'International logistics / Return on investment calculator'}
           </h1>
           <p className="mt-4 max-w-2xl text-base text-muted-foreground md:text-lg">
             {es
@@ -716,34 +716,16 @@ export default function RoiCalculator({ embebido = false }: { embebido?: boolean
               </div>
             </Paso>
 
-            <Paso n={2} listo={Boolean(partida && aplicada)} title={es ? 'Dónde vendes y su arancel' : 'Where you sell and its duty'} help={es ? 'Elige el país y busca tu producto: el arancel sale de la tarifa oficial de ese país.' : 'Pick the country and find your product: the duty comes from that country’s official tariff.'}>
-              <label className="mb-4 block">
+            <Paso n={2} listo={Boolean(partida && aplicada)} title={es ? 'Dónde vendes y su arancel' : 'Where you sell and its duty'} help={es ? 'Vendes en Estados Unidos. Busca tu producto: el arancel sale de la tarifa oficial de EE. UU.' : 'You sell in the United States. Find your product: the duty comes from the official US tariff.'}>
+              {/* Por ahora la calculadora es sólo para vender en EE. UU. El resto
+                  de destinos sigue en el código (lib/destinos): para volver a
+                  abrirlos basta con devolver aquí el selector. */}
+              <div className="mb-4">
                 <span className="mb-1.5 block text-sm font-semibold text-muted-foreground">{es ? 'País de destino' : 'Destination country'}</span>
-                <select
-                  value={destinoIso}
-                  onChange={(e) => cambiarDestino(e.target.value)}
-                  className="w-full rounded-xl border-[1.5px] border-gray-200 bg-secondary/60 px-3 py-2.5 font-bold text-primary outline-none focus:border-accent focus:bg-white sm:w-64"
-                >
-                  <optgroup label={es ? 'Mercados principales' : 'Main markets'}>
-                    {DESTINOS_PRINCIPALES.map((iso) => destinoDe(iso)).filter((d): d is NonNullable<typeof d> => d !== null).map((d) => (
-                      <option key={d.iso} value={d.iso}>{es ? d.nombre : d.nombreEn}</option>
-                    ))}
-                  </optgroup>
-                  <optgroup label={es ? 'Unión Europea' : 'European Union'}>
-                    {DESTINOS.filter((d) => d.fuente === 'xi' && !DESTINOS_PRINCIPALES.includes(d.iso)).map((d) => (
-                      <option key={d.iso} value={d.iso}>{es ? d.nombre : d.nombreEn}</option>
-                    ))}
-                  </optgroup>
-                  <optgroup label={es ? 'Todos los demás países' : 'All other countries'}>
-                    {DESTINOS.filter((d) => d.fuente === 'manual' && !DESTINOS_PRINCIPALES.includes(d.iso))
-                      .map((d) => ({ iso: d.iso, nombre: es ? d.nombre : d.nombreEn }))
-                      .sort((a, b) => a.nombre.localeCompare(b.nombre, es ? 'es' : 'en'))
-                      .map((d) => (
-                        <option key={d.iso} value={d.iso}>{d.nombre}</option>
-                      ))}
-                  </optgroup>
-                </select>
-              </label>
+                <span className="inline-flex items-center gap-2 rounded-xl border-[1.5px] border-gray-200 bg-secondary/60 px-3 py-2.5 font-bold text-primary">
+                  🇺🇸 {es ? 'Estados Unidos' : 'United States'}
+                </span>
+              </div>
 
               <PartidaArancel
                 soloSubpartida={!esUS}
@@ -927,6 +909,13 @@ export default function RoiCalculator({ embebido = false }: { embebido?: boolean
                       step={1}
                       ayuda={es ? 'La comisión o el descuento por venta para quien recomienda o distribuye tu producto (creadores, afiliados, distribuidores).' : 'The per-sale commission or discount for whoever recommends or distributes your product (creators, affiliates, distributors).'}
                     />
+                    <button
+                      type="button"
+                      onClick={() => openExternal(es ? 'https://sell.amazon.com/es/pricing' : 'https://sell.amazon.com/pricing')}
+                      className="mt-1.5 inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-left text-xs font-bold text-accent hover:underline"
+                    >
+                      {es ? 'Referencia: lo que se puede llegar a comisionar al vender en Amazon ↗' : 'Reference: what selling on Amazon can cost in commissions ↗'}
+                    </button>
                   </div>
                   <div>
                     <Deslizador
