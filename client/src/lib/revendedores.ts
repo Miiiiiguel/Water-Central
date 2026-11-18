@@ -133,7 +133,7 @@ export const PORTAFOLIO: ItemPortafolio[] = [
       es: '17 preguntas en 3 minutos, gratis. El plan de acción con qué hacer en cada brecha es pago.',
       en: '17 questions in 3 minutes, free. The action plan for every gap is paid.',
     },
-    ruta: '/diagnostico',
+    ruta: '/ruta',
     respaldo: 'USD 9.99',
   },
   {

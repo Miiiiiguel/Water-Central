@@ -56,6 +56,7 @@ export const PASOS: Paso[] = [
     tareas: [
       { id: 'base-redes', diag: 11, es: 'Tu marca tiene redes activas y con buena interacción en tu país', en: 'Your brand has active, engaged social media at home' },
       { id: 'base-ventas', diag: 13, es: 'Ya vendes por redes de forma automatizada en tu país', en: 'You already sell through social media, automated, at home' },
+      { id: 'base-ads', diag: 12, es: 'Ya inviertes en publicidad en tu país', en: 'You already invest in advertising at home', herramienta: ROI },
       {
         id: 'competencia', diag: 6,
         es: 'Estudiaste a tu competencia en Instagram, TikTok y Amazon',

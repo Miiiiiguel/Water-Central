@@ -26,7 +26,6 @@ const RoiCalculator = lazy(() => import("./pages/RoiCalculator"));
 const Tokens = lazy(() => import("./pages/Tokens"));
 const Ruta = lazy(() => import("./pages/Ruta"));
 const Plantillas = lazy(() => import("./pages/Plantillas"));
-const Diagnostico = lazy(() => import("./pages/Diagnostico"));
 const Casillero = lazy(() => import("./pages/Casillero"));
 const CasilleroAdmin = lazy(() => import("./pages/CasilleroAdmin"));
 const CasilleroRegistro = lazy(() => import("./pages/CasilleroRegistro"));
@@ -136,9 +135,12 @@ function Router() {
               <Tokens />
             </Suspense>
           </Route>
+          {/* El diagnóstico vive dentro de la ruta exportadora. Esta
+              dirección sigue abriendo la misma página: la usan los correos
+              ya enviados, los enlaces viejos y la vuelta del pago. */}
           <Route path={"/diagnostico"}>
             <Suspense fallback={<PageFallback />}>
-              <Diagnostico />
+              <Ruta />
             </Suspense>
           </Route>
           <Route path={"/analizar"}>

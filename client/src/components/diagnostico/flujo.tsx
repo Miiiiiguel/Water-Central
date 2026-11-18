@@ -17,13 +17,15 @@ import {
   wompiRedirectUrl, type Country, type DiagnosticConfig, type DiagnosticResult, type Lead,
 } from '@/lib/diagnosticApi';
 
-// Diagnóstico de madurez — three screens: who you are, seventeen
-// questions one at a time, then the result. The free part (score, level,
-// a comment per answer) is computed right here; the paid part (what to
-// do about each gap) only ever arrives from the server after Wompi
-// confirms the payment. The content is the team's, in Spanish, verbatim.
+// El diagnóstico de madurez, como piezas para la ruta exportadora
+// (pages/Ruta.tsx): quién eres, las preguntas una por una, y el
+// resultado. La parte gratis (puntaje, nivel, un comentario por
+// respuesta) se calcula acá; la parte paga (qué hacer con cada brecha)
+// sólo llega del servidor después de que Wompi confirma el pago. El
+// contenido es el del equipo, en español, palabra por palabra.
 
-type Step = 'intro' | 'quiz' | 'result';
+export type Step = 'intro' | 'quiz' | 'result';
+export type EstadoPago = 'idle' | 'opening' | 'confirming' | 'pending';
 type Stored = ReturnType<typeof loadStored>;
 
 const EMPTY_LEAD: Lead = { empresa: '', nombre: '', celular: '', correo: '', pais: 'CO' };
@@ -31,7 +33,7 @@ const EMPTY_LEAD: Lead = { empresa: '', nombre: '', celular: '', correo: '', pai
 const inputClass =
   'w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-primary outline-none transition-all placeholder:text-gray-400 focus:border-accent focus:ring-2 focus:ring-accent/20';
 
-const fade = {
+export const fade = {
   initial: { opacity: 0, y: 14 },
   animate: { opacity: 1, y: 0 },
   exit: { opacity: 0, y: -10 },
@@ -47,7 +49,7 @@ const fade = {
  * They're rendered as React anchors — never as raw HTML — so nothing
  * that isn't a plain https link can come out of them.
  */
-function RichText({ html }: { html: string }) {
+export function RichText({ html }: { html: string }) {
   const parts = useMemo(() => {
     const out: ReactNode[] = [];
     const re = /<a\s+href="(https:\/\/[^"]+)"[^>]*>([^<]*)<\/a>/g;
@@ -81,7 +83,7 @@ function RichText({ html }: { html: string }) {
   return <>{parts}</>;
 }
 
-function ScoreRing({ value, colorClass }: { value: number; colorClass: string }) {
+export function ScoreRing({ value, colorClass, chico = false }: { value: number; colorClass: string; chico?: boolean }) {
   const [shown, setShown] = useState(0);
   useEffect(() => {
     let frame = 0;
@@ -99,7 +101,7 @@ function ScoreRing({ value, colorClass }: { value: number; colorClass: string })
   const R = 84;
   const C = 2 * Math.PI * R;
   return (
-    <div className="relative mx-auto h-52 w-52">
+    <div className={`relative mx-auto ${chico ? 'h-40 w-40' : 'h-52 w-52'}`}>
       <svg viewBox="0 0 200 200" className="h-full w-full -rotate-90">
         <circle cx="100" cy="100" r={R} fill="none" stroke="currentColor" strokeWidth="14" className="text-gray-100" />
         <circle
@@ -115,14 +117,14 @@ function ScoreRing({ value, colorClass }: { value: number; colorClass: string })
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-5xl font-black tabular-nums text-primary">{shown}%</span>
+        <span className={`${chico ? 'text-4xl' : 'text-5xl'} font-black tabular-nums text-primary`}>{shown}%</span>
         <span className="mt-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">nivel de madurez</span>
       </div>
     </div>
   );
 }
 
-function Tag({ children, tone }: { children: ReactNode; tone: 'ok' | 'gap' | 'act' | 'neutral' }) {
+export function Tag({ children, tone }: { children: ReactNode; tone: 'ok' | 'gap' | 'act' | 'neutral' }) {
   const cls = {
     ok: 'bg-green-50 text-green-700',
     gap: 'bg-red-50 text-red-600',
@@ -136,7 +138,7 @@ function Tag({ children, tone }: { children: ReactNode; tone: 'ok' | 'gap' | 'ac
 // Screen 1 — who you are
 // ---------------------------------------------------------------------
 
-function IntroScreen({ lead, onChange, onStart, es }: { lead: Lead; onChange: (l: Lead) => void; onStart: () => void; es: boolean }) {
+export function IntroScreen({ lead, onChange, onStart, es }: { lead: Lead; onChange: (l: Lead) => void; onStart: () => void; es: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [website, setWebsite] = useState(''); // honeypot
 
@@ -157,22 +159,22 @@ function IntroScreen({ lead, onChange, onStart, es }: { lead: Lead; onChange: (l
 
   return (
     <motion.div key="intro" {...fade}>
-      <section className="pb-4 pt-8 md:pt-12">
+      <section className="pb-4 pt-2">
         <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-orange-500/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-accent">
           <Sparkles size={13} />
           {es ? 'Diagnóstico gratuito · 3 minutos' : 'Free diagnosis · 3 minutes'}
         </span>
-        <h1 className="max-w-[18ch] text-3xl font-black leading-[1.08] text-primary sm:text-4xl md:text-5xl">
+        <h2 className="max-w-[20ch] text-2xl font-black leading-[1.1] text-primary sm:text-3xl md:text-4xl">
           {es ? (
             <>¿Qué tan preparada está tu marca para vender en <span className="text-accent">Estados Unidos</span>?</>
           ) : (
             <>How ready is your brand to sell in the <span className="text-accent">United States</span>?</>
           )}
-        </h1>
+        </h2>
         <p className="mt-4 max-w-2xl text-base text-muted-foreground md:text-lg">
           {es
-            ? '17 preguntas sobre tu marca, tu logística y tu marketing. Al final: tu nivel de madurez y un comentario por cada punto, sin costo y sin llamada de ventas.'
-            : '17 questions about your brand, logistics and marketing. At the end: your maturity level and a comment on every point, free and with no sales call.'}
+            ? '17 preguntas sobre tu marca, tu logística y tu marketing. Al terminar: tu nivel de madurez, un comentario por cada punto y tu ruta de 7 pasos marcada con lo que ya tienes. Sin costo y sin llamada de ventas.'
+            : '17 questions about your brand, logistics and marketing. At the end: your maturity level, a comment on every point and your 7-step roadmap ticked with what you already have. Free and with no sales call.'}
         </p>
         <div className="mt-6 grid max-w-md grid-cols-3 divide-x divide-gray-100 rounded-2xl border border-gray-100 bg-white app-shadow">
           {[
@@ -347,7 +349,7 @@ function RecoverBox({ es }: { es: boolean }) {
 // Screen 2 — one question at a time
 // ---------------------------------------------------------------------
 
-function QuizScreen({
+export function QuizScreen({
   answers, onAnswer, onFinish, onBackToIntro, es,
 }: {
   answers: (Answer | string)[];
@@ -385,6 +387,10 @@ function QuizScreen({
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (q.type === 'input') return;
+      // En la ruta hay otros campos (buscar con Marco Polo): escribir ahí no responde.
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === 's' || e.key === 'S' || e.key === 'y' || e.key === 'Y') pick('si');
       if (e.key === 'n' || e.key === 'N') pick('no');
     };
@@ -396,7 +402,7 @@ function QuizScreen({
   const current = answers[i];
 
   return (
-    <motion.div key="quiz" {...fade} className="mx-auto max-w-2xl pt-6 md:pt-10">
+    <motion.div key="quiz" {...fade} className="mx-auto max-w-2xl pt-2">
       <div className="mb-2 flex items-end justify-between gap-4">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-wider text-accent">
@@ -492,344 +498,55 @@ function QuizScreen({
   );
 }
 
-// ---------------------------------------------------------------------
-// Screen 3 — the result
-// ---------------------------------------------------------------------
-
-function ResultScreen({
-  answers, lead, result, config, paying, payError, onPay, onRestart, es,
-}: {
-  answers: Answer[];
-  lead: Lead;
-  result: DiagnosticResult | null;
-  config: DiagnosticConfig | null;
-  paying: 'idle' | 'opening' | 'confirming' | 'pending';
-  payError: string | null;
-  onPay: () => void;
-  onRestart: () => void;
-  es: boolean;
-}) {
-  const score = result?.score ?? scorePct(answers);
-  const tier = tierFor(score);
-  const gaps = gapsIn(answers);
-  const paid = Boolean(result?.paid);
-  const price = result?.price ?? (config ? (lead.pais === 'CO' ? config.price.CO : config.price.INTL) : null);
-  const canPay = Boolean(config?.enabled && result?.ref);
-
-  const perSection = SECTIONS.map((s) => {
-    const scored = s.q.filter((x) => x.type !== 'input');
-    const yes = FLAT.filter((f) => f.section.n === s.n && f.type !== 'input' && answers[f.index] === 'si').length;
-    return { ...s, yes, total: scored.length };
-  });
-
-  const wa = (text: string) => {
-    const emp = lead.empresa ? ` (${lead.empresa})` : '';
-    return whatsappUrl(`Hola Easycomex${emp}. Hice el diagnóstico de madurez (${score}%, ${tier.name}) y ${text}`);
-  };
-
-  return (
-    <motion.div key="result" {...fade} className="pt-6 md:pt-10">
-      {/* Score */}
-      <section className="grid items-center gap-8 rounded-3xl border border-gray-100 bg-white p-6 app-shadow md:grid-cols-[auto_1fr] md:p-10">
-        <ScoreRing value={score} colorClass={tier.ringClass} />
-        <div>
-          <span className={`inline-block rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wider ${tier.badgeClass}`}>{tier.badge}</span>
-          <h1 className="mt-3 text-3xl font-black text-primary md:text-4xl">{tier.name}</h1>
-          <p className="mt-2 max-w-xl text-muted-foreground">{tier.body}</p>
-          <div className="mt-5 grid gap-2 sm:grid-cols-5">
-            {perSection.map((s) => (
-              <div key={s.n} className="rounded-2xl border border-gray-100 bg-secondary/40 p-3">
-                <p className="truncate text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{s.title}</p>
-                <p className="mt-1 text-sm font-black text-primary">
-                  {s.yes}/{s.total}
-                </p>
-                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-200">
-                  <div className={`h-full rounded-full ${s.yes === s.total ? 'bg-green-500' : s.yes === 0 ? 'bg-red-400' : 'bg-accent'}`} style={{ width: `${(s.yes / s.total) * 100}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Free comments */}
-      <section className="mt-10">
-        <p className="text-xs font-bold uppercase tracking-wider text-accent">{es ? 'Sin costo' : 'Free'}</p>
-        <h2 className="mt-2 text-2xl font-black text-primary md:text-3xl">{es ? 'Comentarios punto por punto' : 'Point-by-point comments'}</h2>
-        <p className="mt-2 max-w-2xl text-muted-foreground">
-          {es
-            ? `${SCORED_QUESTIONS - gaps.length} puntos cubiertos, ${gaps.length} ${gaps.length === 1 ? 'brecha' : 'brechas'}. Esto es lo que significa cada respuesta.`
-            : `${SCORED_QUESTIONS - gaps.length} points covered, ${gaps.length} ${gaps.length === 1 ? 'gap' : 'gaps'}. Here is what each answer means.`}
-        </p>
-        <div className="mt-6 grid gap-3">
-          {FLAT.filter((q) => q.type !== 'input').map((q) => {
-            const yes = answers[q.index] === 'si';
-            return (
-              <div key={q.index} className={`rounded-2xl border p-4 md:p-5 ${yes ? 'border-green-100 bg-white' : 'border-red-100 bg-red-50/30'}`}>
-                <div className="flex items-start gap-3">
-                  <Tag tone={yes ? 'ok' : 'gap'}>{yes ? 'Cumple' : 'Brecha'}</Tag>
-                  <p className="font-bold text-primary">{q.t}</p>
-                </div>
-                <p className="mt-2 pl-0 text-sm text-muted-foreground md:pl-[4.5rem]">{yes ? q.comSi : q.comNo}</p>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Actions — paid */}
-      <section className="mt-10">
-        <p className="text-xs font-bold uppercase tracking-wider text-accent">{es ? 'Plan de acción' : 'Action plan'}</p>
-        <h2 className="mt-2 text-2xl font-black text-primary md:text-3xl">{es ? 'Qué hacer con cada brecha' : 'What to do about each gap'}</h2>
-
-        {gaps.length === 0 ? (
-          <div className="mt-6 rounded-3xl border border-green-100 bg-green-50 p-6">
-            <Tag tone="ok">{es ? 'Sin brechas' : 'No gaps'}</Tag>
-            <p className="mt-3 font-bold text-primary">
-              {es
-                ? 'No detectamos brechas: tienes todos los puntos cubiertos. Tu siguiente paso es ejecutar con estrategia.'
-                : 'We found no gaps: every point is covered. Your next step is to execute with strategy.'}
-            </p>
-          </div>
-        ) : paid && result?.actions ? (
-          <div className="mt-6 grid gap-3">
-            <div className="flex items-center gap-2 rounded-2xl border border-green-100 bg-green-50 px-4 py-3 text-sm font-bold text-green-700">
-              <Check size={16} />
-              {es ? 'Acciones desbloqueadas. Este es tu plan de acción personalizado.' : 'Actions unlocked. This is your personalised action plan.'}
-            </div>
-            {result.actions.map((a, n) => (
-              <div key={a.index} className="rounded-2xl border border-orange-100 bg-white p-5 app-shadow">
-                <div className="flex items-start gap-3">
-                  <span className="grid h-8 w-8 flex-none place-items-center rounded-xl bg-accent text-sm font-black text-white">{n + 1}</span>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{a.section}</p>
-                    <p className="font-bold text-primary">{a.question}</p>
-                  </div>
-                </div>
-                <div className="mt-3 rounded-xl bg-orange-50/60 p-4 text-sm leading-relaxed text-primary md:ml-11">
-                  <span className="mb-1 block text-[10px] font-black uppercase tracking-wider text-accent">{es ? 'Acción recomendada' : 'Recommended action'}</span>
-                  <RichText html={a.action} />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="relative mt-6 overflow-hidden rounded-3xl border border-gray-100 bg-white">
-            {/* A believable preview underneath — placeholder lines, not the real text. */}
-            <div aria-hidden="true" className="select-none space-y-3 p-6 blur-[6px]">
-              {gaps.slice(0, 3).map((g) => (
-                <div key={g.index} className="rounded-2xl border border-orange-100 p-4">
-                  <div className="h-3 w-2/3 rounded bg-gray-200" />
-                  <div className="mt-3 h-2.5 w-full rounded bg-gray-100" />
-                  <div className="mt-1.5 h-2.5 w-11/12 rounded bg-gray-100" />
-                  <div className="mt-1.5 h-2.5 w-4/5 rounded bg-gray-100" />
-                </div>
-              ))}
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-white/70 via-white/90 to-white p-6">
-              <div className="w-full max-w-md text-center">
-                <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-primary text-white">
-                  <Lock size={22} />
-                </div>
-                <h3 className="mt-4 text-xl font-black text-primary md:text-2xl">{es ? 'Desbloquea tus acciones recomendadas' : 'Unlock your recommended actions'}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {es
-                    ? 'Ya viste tus comentarios gratis. Detrás de este paso está tu plan: qué hacer, en qué orden y con qué herramientas para cada brecha.'
-                    : 'You have seen your comments for free. Behind this step is your plan: what to do, in what order and with which tools, for each gap.'}
-                </p>
-                <p className="mt-3 inline-block rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-accent">
-                  {gaps.length} {es ? (gaps.length === 1 ? 'acción específica para tu caso' : 'acciones específicas para tu caso') : gaps.length === 1 ? 'specific action for your case' : 'specific actions for your case'}
-                </p>
-                {price && (
-                  <p className="mt-4 text-3xl font-black text-primary">
-                    {price.display} <span className="text-sm font-semibold text-muted-foreground">/ {es ? 'pago único' : 'one-time'}</span>
-                  </p>
-                )}
-                <button
-                  type="button"
-                  disabled={!canPay || paying !== 'idle'}
-                  onClick={onPay}
-                  className="tap-scale mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-6 py-4 font-bold text-white shadow-lg shadow-orange-500/25 hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {paying === 'opening' ? (
-                    <><Loader2 size={18} className="animate-spin" /> {es ? 'Abriendo pago…' : 'Opening payment…'}</>
-                  ) : paying === 'confirming' ? (
-                    <><Loader2 size={18} className="animate-spin" /> {es ? 'Confirmando tu pago…' : 'Confirming your payment…'}</>
-                  ) : (
-                    <>{es ? 'Ver mis acciones' : 'See my actions'}{price ? ` · ${price.display}` : ''}</>
-                  )}
-                </button>
-                {price && <p className="mt-2 text-xs text-muted-foreground">{price.note}</p>}
-                {paying === 'pending' && (
-                  <p className="mt-3 rounded-xl bg-amber-50 p-3 text-xs font-semibold text-amber-700">
-                    {es
-                      ? `Tu pago está en proceso. Apenas se confirme, las acciones aparecen aquí y te las enviamos a ${lead.correo}.`
-                      : `Your payment is processing. As soon as it confirms, the actions appear here and we email them to ${lead.correo}.`}
-                  </p>
-                )}
-                {payError && <p className="mt-3 text-xs font-semibold text-red-600">{payError}</p>}
-                {!canPay && config && !config.enabled && (
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    {es ? 'Los pagos aún no están activos en este entorno. ' : 'Payments are not active in this environment yet. '}
-                    <a href={wa('quiero recibir mis acciones recomendadas.')} target="_blank" rel="noopener noreferrer" className="font-bold text-accent underline">
-                      {es ? 'Pídelas por WhatsApp' : 'Ask for them on WhatsApp'}
-                    </a>
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* Offers */}
-      <section className="mt-12">
-        <p className="text-xs font-bold uppercase tracking-wider text-accent">{es ? 'Siguiente paso' : 'Next step'}</p>
-        <h2 className="mt-2 text-2xl font-black text-primary md:text-3xl">{es ? '¿Quieres que lo hagamos contigo?' : 'Want us to do it with you?'}</h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {OFFERS.map((o) => (
-            <div
-              key={o.t}
-              className={`relative flex flex-col rounded-3xl border p-5 ${
-                o.feat ? 'border-accent bg-primary text-white app-shadow' : o.free ? 'border-green-200 bg-green-50/50' : 'border-gray-100 bg-white'
-              }`}
-            >
-              {(o.feat || o.free) && (
-                <span className={`absolute -top-2.5 left-4 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${o.feat ? 'bg-accent text-white' : 'bg-green-600 text-white'}`}>
-                  {o.feat ? (es ? 'Más solicitado' : 'Most requested') : es ? 'Sin costo' : 'Free'}
-                </span>
-              )}
-              <h4 className={`text-base font-black ${o.feat ? 'text-white' : 'text-primary'}`}>{o.t}</h4>
-              <p className={`mt-1.5 flex-1 text-sm ${o.feat ? 'text-white/75' : 'text-muted-foreground'}`}>{o.d}</p>
-              <div className="mt-4 flex items-end justify-between">
-                <span className={`text-xl font-black ${o.feat ? 'text-white' : 'text-primary'}`}>
-                  {o.free ? (es ? 'Gratis' : 'Free') : <><span className="text-xs font-bold text-muted-foreground">USD </span>{o.p.toLocaleString('es-CO')}</>}
-                </span>
-                <span className={`text-[11px] font-bold ${o.feat ? 'text-white/60' : 'text-muted-foreground'}`}>{o.eta}</span>
-              </div>
-              <a
-                href={wa(o.free ? 'quiero agendar la llamada de 30 minutos.' : `me interesa: ${o.t} (USD ${o.p}).`)}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => {
-                  if (!isNative) return;
-                  e.preventDefault();
-                  void openExternal((e.currentTarget as HTMLAnchorElement).href);
-                }}
-                className={`tap-scale mt-4 inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold ${
-                  o.feat ? 'bg-accent text-white hover:bg-orange-600' : 'bg-primary text-white hover:bg-primary/90'
-                }`}
-              >
-                <MessageCircle size={16} />
-                {o.free ? (es ? 'Agendar llamada' : 'Book the call') : es ? 'Quiero este servicio' : 'I want this'}
-              </a>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <Link
-        href="/ruta"
-        className="tap-scale-sm mt-10 flex items-center justify-between gap-4 rounded-2xl bg-gradient-to-br from-[#130B2E] via-primary to-[#1F2E73] p-5 text-white"
-      >
-        <span>
-          <span className="block font-bold">{es ? 'Sigue tu ruta exportadora' : 'Follow your export roadmap'}</span>
-          <span className="block text-sm text-indigo-200">
-            {es ? '7 pasos para vender en EE. UU. Lo que respondiste "Sí" ya viene marcado.' : '7 steps to sell in the US. What you answered "Yes" is already ticked.'}
-          </span>
-        </span>
-        <span aria-hidden className="text-2xl text-orange-400">→</span>
-      </Link>
-
-      <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-6 text-sm text-muted-foreground">
-        <span>
-          {result?.ref ? (es ? 'Referencia: ' : 'Reference: ') : ''}
-          <code className="text-xs">{result?.ref ?? ''}</code>
-        </span>
-        <button type="button" onClick={onRestart} className="tap-scale-sm inline-flex items-center gap-1.5 font-semibold text-primary hover:text-accent">
-          <RotateCcw size={14} />
-          {es ? 'Hacer el diagnóstico de nuevo' : 'Take the diagnosis again'}
-        </button>
-      </div>
-    </motion.div>
-  );
-}
 
 // ---------------------------------------------------------------------
-// The page
+// El estado del diagnóstico: respuestas, resultado y pago
 // ---------------------------------------------------------------------
 
-export default function Diagnostico() {
-  const { language } = useLanguage();
+/**
+ * Todo lo que el diagnóstico guarda y hace, para usarlo dentro de otra
+ * página. `ruta` es la dirección a la que vuelve la persona después de
+ * pagar (Wompi agrega ?id=<transacción>) y la que queda en la barra.
+ */
+export function useDiagnostico({ ruta = '/ruta', alCompletar }: { ruta?: string; alCompletar?: (answers: Answer[]) => void } = {}) {
   const { getAccessToken } = useAuth();
+  const { language } = useLanguage();
   const es = language === 'es';
 
   const stored = useMemo<Stored>(() => loadStored(), []);
   const urlParams = useMemo(() => new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''), []);
   const urlRef = urlParams.get('ref');
-  const urlTx = urlParams.get('id'); // Wompi appends ?id=<transaction> on the way back
+  const urlTx = urlParams.get('id'); // Wompi agrega ?id=<transacción> a la vuelta
 
   const [lead, setLead] = useState<Lead>(stored?.lead ?? EMPTY_LEAD);
   const [answers, setAnswers] = useState<(Answer | string)[]>(stored?.answers ?? FLAT.map(() => null));
-  // A finished questionnaire comes back as the result even without a
-  // server reference: the free part never needed the server.
+  const soloSiNo = (arr: (Answer | string)[]) =>
+    FLAT.map((q) => (q.type === 'input' ? null : arr[q.index] === 'si' || arr[q.index] === 'no' ? (arr[q.index] as Answer) : null));
+  // Un cuestionario terminado vuelve como resultado aunque no tenga
+  // referencia del servidor: la parte gratis nunca lo necesitó.
   const [step, setStep] = useState<Step>(() =>
-    urlRef || stored?.ref || (stored && isComplete(FLAT.map((q) => (q.type === 'input' ? null : stored.answers[q.index] === 'si' || stored.answers[q.index] === 'no' ? (stored.answers[q.index] as Answer) : null))))
-      ? 'result'
-      : 'intro'
+    urlRef || stored?.ref || (stored && isComplete(soloSiNo(stored.answers))) ? 'result' : 'intro'
   );
   const [result, setResult] = useState<DiagnosticResult | null>(null);
   const [config, setConfig] = useState<DiagnosticConfig | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [paying, setPaying] = useState<'idle' | 'opening' | 'confirming' | 'pending'>('idle');
+  const [paying, setPaying] = useState<EstadoPago>('idle');
   const [payError, setPayError] = useState<string | null>(null);
   const pollRef = useRef<number | null>(null);
 
-  const scored: Answer[] = useMemo(() => FLAT.map((q) => (q.type === 'input' ? null : answers[q.index] === 'si' || answers[q.index] === 'no' ? (answers[q.index] as Answer) : null)), [answers]);
+  const scored: Answer[] = useMemo(() => soloSiNo(answers), [answers]);
 
   useEffect(() => {
-    document.title = es ? 'Diagnóstico de madurez · Easycomex' : 'Maturity diagnosis · Easycomex';
-    getConfig().then(setConfig).catch(() => setConfig({ enabled: false, publicKey: null, env: 'sandbox', price: { CO: { amountInCents: 3990000, currency: 'COP', display: '$39.900 COP', note: '' }, INTL: { amountInCents: 3990000, currency: 'COP', display: 'USD 9.99', note: '' } } }));
-  }, [es]);
+    getConfig()
+      .then(setConfig)
+      .catch(() => setConfig({ enabled: false, publicKey: null, env: 'sandbox', price: { CO: { amountInCents: 3990000, currency: 'COP', display: '$39.900 COP', note: '' }, INTL: { amountInCents: 3990000, currency: 'COP', display: 'USD 9.99', note: '' } } }));
+  }, []);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [step]);
-
-  // Keep the in-progress diagnosis around for a reload or a checkout trip.
+  // Lo que va respondiendo queda guardado para una recarga o el viaje al pago.
   useEffect(() => {
     if (step === 'intro' && !stored) return;
     saveStored({ ref: result?.ref ?? stored?.ref ?? null, lead, answers, at: Date.now() });
   }, [lead, answers, result?.ref, step, stored]);
-
-  // Coming back with a reference (from storage or the checkout redirect):
-  // rebuild the result from the server, and confirm the transaction if
-  // Wompi sent us one.
-  useEffect(() => {
-    const ref = urlRef || stored?.ref;
-    if (!ref || step !== 'result' || result) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const r = urlTx ? await confirmDiagnostic(ref, urlTx) : await getDiagnostic(ref);
-        if (cancelled) return;
-        setResult(r);
-        setAnswers((prev) => (scored.some((a) => a !== null) ? prev : r.answers));
-        setLead((prev) => ({ ...prev, pais: r.pais, empresa: prev.empresa || r.empresa || '' }));
-        if (urlTx && !r.paid) startPolling(ref);
-        if (urlTx) window.history.replaceState({}, '', `/diagnostico?ref=${ref}`);
-      } catch {
-        if (cancelled) return;
-        // Stale or unknown reference: start fresh rather than show a blank page.
-        saveStored(null);
-        setStep('intro');
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const startPolling = useCallback((ref: string) => {
     let attempts = 0;
@@ -844,7 +561,7 @@ export default function Diagnostico() {
           return;
         }
       } catch {
-        /* keep trying */
+        /* se sigue intentando */
       }
       if (attempts >= 10) {
         setPaying('pending');
@@ -855,19 +572,54 @@ export default function Diagnostico() {
     void tick();
   }, []);
 
+  // Volver con una referencia (guardada o desde el pago): se rearma el
+  // resultado desde el servidor y, si Wompi mandó una transacción, se confirma.
+  useEffect(() => {
+    const ref = urlRef || stored?.ref;
+    if (!ref || step !== 'result' || result) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = urlTx ? await confirmDiagnostic(ref, urlTx) : await getDiagnostic(ref);
+        if (cancelled) return;
+        setResult(r);
+        setAnswers((prev) => (scored.some((a) => a !== null) ? prev : r.answers));
+        setLead((prev) => ({ ...prev, pais: r.pais, empresa: prev.empresa || r.empresa || '' }));
+        if (!scored.some((a) => a !== null)) alCompletar?.(r.answers);
+        if (urlTx && !r.paid) startPolling(ref);
+        if (urlTx || urlRef) window.history.replaceState({}, '', `${ruta}?ref=${ref}`);
+      } catch {
+        if (cancelled) return;
+        // Referencia vieja o desconocida: mejor empezar de nuevo que una página en blanco.
+        if (!isComplete(scored)) {
+          saveStored(null);
+          setStep('intro');
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => () => { if (pollRef.current) clearTimeout(pollRef.current); }, []);
+
+  const setAnswer = (i: number, v: Answer | string) => setAnswers((prev) => prev.map((a, n) => (n === i ? v : a)));
 
   const finish = async () => {
     if (!isComplete(scored)) return;
     setSubmitting(true);
     setStep('result');
+    alCompletar?.(scored);
     trackLead({ source: 'diagnostico' });
     try {
       const created = await createDiagnostic(lead, answers, getAccessToken());
       const full = await getDiagnostic(created.ref);
       setResult(full);
+      window.history.replaceState({}, '', `${ruta}?ref=${created.ref}`);
     } catch {
-      // The free result still shows; only paying needs the server.
+      // El resultado gratis se ve igual; sólo pagar necesita el servidor.
       setResult(null);
     } finally {
       setSubmitting(false);
@@ -881,10 +633,10 @@ export default function Diagnostico() {
     trackInitiateCheckout({ plan: 'diagnostico_madurez', gateway: 'wompi' });
     try {
       const init = await wompiInit(result.ref);
-      const redirectUrl = `${window.location.origin}/diagnostico?ref=${result.ref}`;
+      const redirectUrl = `${window.location.origin}${ruta}?ref=${result.ref}`;
       if (isNative) {
-        // The hosted page in the system browser; the app picks the
-        // result up on return via ?ref=&id=.
+        // La página de pago en el navegador del sistema; la app recoge el
+        // resultado a la vuelta con ?ref=&id=.
         await openExternal(wompiRedirectUrl(init, redirectUrl));
         setPaying('idle');
         return;
@@ -907,7 +659,7 @@ export default function Diagnostico() {
       checkout.open((res) => {
         const tx = res.transaction;
         if (tx && tx.status === 'APPROVED') {
-          // Never unlock here: ask the server, which asks Wompi.
+          // Nunca se desbloquea acá: se le pregunta al servidor, que le pregunta a Wompi.
           setPaying('confirming');
           confirmDiagnostic(result.ref, tx.id)
             .then((r) => {
@@ -939,57 +691,252 @@ export default function Diagnostico() {
     setAnswers(FLAT.map(() => null));
     setPaying('idle');
     setPayError(null);
-    window.history.replaceState({}, '', '/diagnostico');
+    window.history.replaceState({}, '', ruta);
     setStep('intro');
   };
 
+  const score = result?.score ?? scorePct(scored);
+  const tier = tierFor(score);
+  const gaps = gapsIn(scored);
+  /** La acción recomendada de cada pregunta, cuando ya se pagó. */
+  const acciones = useMemo(() => new Map((result?.paid ? result.actions ?? [] : []).map((a) => [a.index, a.action])), [result]);
+  const price = result?.price ?? (config ? (lead.pais === 'CO' ? config.price.CO : config.price.INTL) : null);
+
+  return {
+    step, setStep, lead, setLead, answers, setAnswer, scored, result, config, submitting, paying, payError,
+    finish, pay, restart, score, tier, gaps, acciones, price,
+    paid: Boolean(result?.paid),
+    canPay: Boolean(config?.enabled && result?.ref),
+  };
+}
+
+export type Diagnostico = ReturnType<typeof useDiagnostico>;
+
+/** El mensaje de WhatsApp, con el puntaje para que el asesor no pregunte. */
+export function whatsappDiagnostico(d: Diagnostico, texto: string) {
+  const emp = d.lead.empresa ? ` (${d.lead.empresa})` : '';
+  return whatsappUrl(`Hola Easycomex${emp}. Hice el diagnóstico de mi ruta exportadora (${d.score}%, ${d.tier.name}) y ${texto}`);
+}
+
+// ---------------------------------------------------------------------
+// El resultado, en corto, arriba de la ruta
+// ---------------------------------------------------------------------
+
+export function ResumenResultado({ d, es, onVerRuta }: { d: Diagnostico; es: boolean; onVerRuta: () => void }) {
+  const perSection = SECTIONS.map((s) => {
+    const total = s.q.filter((x) => x.type !== 'input').length;
+    const yes = FLAT.filter((f) => f.section.n === s.n && f.type !== 'input' && d.scored[f.index] === 'si').length;
+    return { ...s, yes, total };
+  });
+  const cubiertos = SCORED_QUESTIONS - d.gaps.length;
   return (
-    <div className="min-h-screen bg-white pb-24 md:pb-12">
-      <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
-        <div className="container flex h-16 items-center justify-between gap-3 md:h-20">
-          <Link href="/" className="tap-scale-sm flex items-center gap-2 py-2 font-logo text-xl tracking-tight md:text-2xl">
-            <ArrowLeft size={18} className="text-muted-foreground" />
-            <span><span className="text-accent">easy</span><span className="text-primary">comex</span></span>
-          </Link>
-          <span className="hidden rounded-full border border-gray-200 bg-secondary/60 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-primary sm:block">
-            {es ? 'Diagnóstico de madurez' : 'Maturity diagnosis'}
+    <motion.section key="resultado" {...fade} className="grid items-center gap-6 rounded-3xl border border-gray-100 bg-white p-6 app-shadow md:grid-cols-[auto_1fr] md:gap-8 md:p-8">
+      <ScoreRing value={d.score} colorClass={d.tier.ringClass} chico />
+      <div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={`inline-block rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wider ${d.tier.badgeClass}`}>{d.tier.badge}</span>
+          <span className="text-xs font-bold text-muted-foreground">
+            {cubiertos} {es ? 'cubiertos' : 'covered'} · {d.gaps.length} {es ? (d.gaps.length === 1 ? 'brecha' : 'brechas') : d.gaps.length === 1 ? 'gap' : 'gaps'}
           </span>
         </div>
-      </header>
-
-      <div className="container">
-        <AnimatePresence mode="wait" initial={false}>
-          {step === 'intro' && <IntroScreen lead={lead} onChange={setLead} onStart={() => setStep('quiz')} es={es} />}
-          {step === 'quiz' && (
-            <QuizScreen
-              answers={answers}
-              onAnswer={(i, v) => setAnswers((prev) => prev.map((a, n) => (n === i ? v : a)))}
-              onFinish={finish}
-              onBackToIntro={() => setStep('intro')}
-              es={es}
-            />
-          )}
-          {step === 'result' && (
-            <ResultScreen
-              answers={scored}
-              lead={lead}
-              result={result}
-              config={config}
-              paying={paying}
-              payError={payError}
-              onPay={pay}
-              onRestart={restart}
-              es={es}
-            />
-          )}
-        </AnimatePresence>
-        {submitting && (
-          <p className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-            <Loader2 size={12} className="animate-spin" />
-            {es ? 'Guardando tu diagnóstico…' : 'Saving your diagnosis…'}
+        <h2 className="mt-2 text-2xl font-black text-primary md:text-3xl">{d.tier.name}</h2>
+        <p className="mt-1.5 max-w-xl text-sm text-muted-foreground md:text-base">{d.tier.body}</p>
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
+          {perSection.map((s) => (
+            <div key={s.n} className="rounded-2xl border border-gray-100 bg-secondary/40 p-2.5">
+              <p className="truncate text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{s.title}</p>
+              <p className="mt-0.5 text-sm font-black text-primary">{s.yes}/{s.total}</p>
+              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-gray-200">
+                <div className={`h-full rounded-full ${s.yes === s.total ? 'bg-green-500' : s.yes === 0 ? 'bg-red-400' : 'bg-accent'}`} style={{ width: `${(s.yes / s.total) * 100}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <button type="button" onClick={onVerRuta} className="tap-scale inline-flex cursor-pointer items-center gap-2 rounded-full border-0 bg-primary px-5 py-2.5 text-sm font-bold text-white">
+            {es ? 'Ver mi ruta paso a paso' : 'See my step-by-step roadmap'} <ArrowRight size={14} />
+          </button>
+          <button type="button" onClick={d.restart} className="tap-scale-sm inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-primary hover:border-accent">
+            <RotateCcw size={14} /> {es ? 'Repetir diagnóstico' : 'Retake the diagnosis'}
+          </button>
+        </div>
+        {d.submitting && (
+          <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+            <Loader2 size={12} className="animate-spin" /> {es ? 'Guardando tu diagnóstico…' : 'Saving your diagnosis…'}
           </p>
         )}
       </div>
+    </motion.section>
+  );
+}
+
+// ---------------------------------------------------------------------
+// El plan de acción: lo que se paga
+// ---------------------------------------------------------------------
+
+export function PlanDeAccion({ d, es, onVerRuta }: { d: Diagnostico; es: boolean; onVerRuta: () => void }) {
+  if (d.gaps.length === 0) {
+    return (
+      <div className="rounded-3xl border border-green-100 bg-green-50 p-6">
+        <Tag tone="ok">{es ? 'Sin brechas' : 'No gaps'}</Tag>
+        <p className="mt-3 font-bold text-primary">
+          {es
+            ? 'No detectamos brechas en tu diagnóstico. Sigue los pasos que te quedan en la ruta y empieza a escalar.'
+            : 'Your diagnosis found no gaps. Follow the remaining steps of the roadmap and start scaling.'}
+        </p>
+      </div>
+    );
+  }
+  if (d.paid) {
+    return (
+      <div className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-green-100 bg-green-50 p-6 sm:flex-row sm:items-center">
+        <div className="flex items-start gap-3">
+          <span className="grid h-10 w-10 flex-none place-items-center rounded-2xl bg-green-600 text-white"><Check size={20} /></span>
+          <div>
+            <p className="font-black text-primary">{es ? 'Tu plan de acción está desbloqueado' : 'Your action plan is unlocked'}</p>
+            <p className="text-sm text-muted-foreground">
+              {es
+                ? `Las ${d.gaps.length} acciones recomendadas están dentro de cada paso de tu ruta, junto a la tarea que resuelven. También te las enviamos a ${d.lead.correo || 'tu correo'}.`
+                : `Your ${d.gaps.length} recommended actions are inside each step of your roadmap, next to the task they solve. We also emailed them to ${d.lead.correo || 'you'}.`}
+            </p>
+          </div>
+        </div>
+        <button type="button" onClick={onVerRuta} className="tap-scale inline-flex flex-none cursor-pointer items-center gap-2 rounded-full border-0 bg-primary px-5 py-2.5 text-sm font-bold text-white">
+          {es ? 'Ir a mi ruta' : 'Go to my roadmap'} <ArrowRight size={14} />
+        </button>
+      </div>
+    );
+  }
+  return (
+    <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-[#130B2E] via-primary to-[#1F2E73] p-6 text-white md:p-8">
+      <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
+        <div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-orange-300">
+            <Lock size={12} /> {es ? 'Plan de acción' : 'Action plan'}
+          </span>
+          <h3 className="mt-3 text-2xl font-black md:text-3xl">
+            {es ? `Qué hacer con tus ${d.gaps.length} ${d.gaps.length === 1 ? 'brecha' : 'brechas'}` : `What to do about your ${d.gaps.length} ${d.gaps.length === 1 ? 'gap' : 'gaps'}`}
+          </h3>
+          <p className="mt-2 max-w-xl text-sm text-indigo-100">
+            {es
+              ? 'Ya viste gratis tu nivel y por qué importa cada punto. El plan pone, dentro de cada paso de tu ruta, la acción concreta para cerrar cada brecha: qué hacer, en qué orden y con qué herramienta.'
+              : 'You have seen your level and why each point matters for free. The plan puts, inside each step of your roadmap, the concrete action to close each gap: what to do, in what order and with which tool.'}
+          </p>
+          <ul className="mt-4 grid gap-1.5 text-sm text-indigo-100 sm:grid-cols-2">
+            {[
+              es ? `${d.gaps.length} acciones para tu caso` : `${d.gaps.length} actions for your case`,
+              es ? 'Dentro de tu ruta, paso a paso' : 'Inside your roadmap, step by step',
+              es ? 'Te llega también por correo' : 'Also sent to your email',
+              es ? 'Pago único, sin suscripción' : 'One-time payment, no subscription',
+            ].map((x) => (
+              <li key={x} className="flex items-center gap-2"><Check size={14} className="text-orange-300" /> {x}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="w-full rounded-2xl bg-white p-5 text-center text-primary md:w-72">
+          {d.price && (
+            <p className="text-3xl font-black">
+              {d.price.display}
+              <span className="block text-xs font-semibold text-muted-foreground">{es ? 'pago único' : 'one-time'}</span>
+            </p>
+          )}
+          <button
+            type="button"
+            disabled={!d.canPay || d.paying !== 'idle'}
+            onClick={() => void d.pay()}
+            className="tap-scale mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-0 bg-accent px-5 py-3.5 font-bold text-white shadow-lg shadow-orange-500/25 hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {d.paying === 'opening' ? (
+              <><Loader2 size={18} className="animate-spin" /> {es ? 'Abriendo pago…' : 'Opening payment…'}</>
+            ) : d.paying === 'confirming' ? (
+              <><Loader2 size={18} className="animate-spin" /> {es ? 'Confirmando tu pago…' : 'Confirming your payment…'}</>
+            ) : (
+              <>{es ? 'Desbloquear mi plan' : 'Unlock my plan'}</>
+            )}
+          </button>
+          {d.price?.note && <p className="mt-2 text-xs text-muted-foreground">{d.price.note}</p>}
+          {d.paying === 'pending' && (
+            <p className="mt-3 rounded-xl bg-amber-50 p-3 text-xs font-semibold text-amber-700">
+              {es
+                ? `Tu pago está en proceso. Apenas se confirme, las acciones aparecen en tu ruta y te las enviamos a ${d.lead.correo}.`
+                : `Your payment is processing. As soon as it confirms, the actions appear in your roadmap and we email them to ${d.lead.correo}.`}
+            </p>
+          )}
+          {d.payError && <p className="mt-3 text-xs font-semibold text-red-600">{d.payError}</p>}
+          {!d.canPay && d.config && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              {!d.config.enabled
+                ? es ? 'Los pagos aún no están activos. ' : 'Payments are not active yet. '
+                : !d.result?.ref
+                  ? es ? 'No pudimos guardar tu diagnóstico para cobrarlo. ' : 'We could not save your diagnosis to charge it. '
+                  : ''}
+              <a
+                href={whatsappDiagnostico(d, 'quiero recibir mi plan de acción.')}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  if (!isNative) return;
+                  e.preventDefault();
+                  void openExternal((e.currentTarget as HTMLAnchorElement).href);
+                }}
+                className="font-bold text-accent underline"
+              >
+                {es ? 'Pídelo por WhatsApp' : 'Ask for it on WhatsApp'}
+              </a>
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------
+// Si prefiere que lo hagamos con él
+// ---------------------------------------------------------------------
+
+export function Servicios({ d, es }: { d: Diagnostico | null; es: boolean }) {
+  const wa = (texto: string) => (d ? whatsappDiagnostico(d, texto) : whatsappUrl(`Hola Easycomex, ${texto}`));
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {OFFERS.map((o) => (
+        <div
+          key={o.t}
+          className={`relative flex flex-col rounded-3xl border p-5 ${
+            o.feat ? 'border-accent bg-primary text-white app-shadow' : o.free ? 'border-green-200 bg-green-50/50' : 'border-gray-100 bg-white'
+          }`}
+        >
+          {(o.feat || o.free) && (
+            <span className={`absolute -top-2.5 left-4 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${o.feat ? 'bg-accent text-white' : 'bg-green-600 text-white'}`}>
+              {o.feat ? (es ? 'Más solicitado' : 'Most requested') : es ? 'Sin costo' : 'Free'}
+            </span>
+          )}
+          <h4 className={`text-base font-black ${o.feat ? 'text-white' : 'text-primary'}`}>{o.t}</h4>
+          <p className={`mt-1.5 flex-1 text-sm ${o.feat ? 'text-white/75' : 'text-muted-foreground'}`}>{o.d}</p>
+          <div className="mt-4 flex items-end justify-between">
+            <span className={`text-xl font-black ${o.feat ? 'text-white' : 'text-primary'}`}>
+              {o.free ? (es ? 'Gratis' : 'Free') : <><span className="text-xs font-bold text-muted-foreground">USD </span>{o.p.toLocaleString('es-CO')}</>}
+            </span>
+            <span className={`text-[11px] font-bold ${o.feat ? 'text-white/60' : 'text-muted-foreground'}`}>{o.eta}</span>
+          </div>
+          <a
+            href={wa(o.free ? 'quiero agendar la llamada de 30 minutos.' : `me interesa: ${o.t} (USD ${o.p}).`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              if (!isNative) return;
+              e.preventDefault();
+              void openExternal((e.currentTarget as HTMLAnchorElement).href);
+            }}
+            className={`tap-scale mt-4 inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold ${
+              o.feat ? 'bg-accent text-white hover:bg-orange-600' : 'bg-primary text-white hover:bg-primary/90'
+            }`}
+          >
+            <MessageCircle size={16} />
+            {o.free ? (es ? 'Agendar llamada' : 'Book the call') : es ? 'Quiero este servicio' : 'I want this'}
+          </a>
+        </div>
+      ))}
     </div>
   );
 }

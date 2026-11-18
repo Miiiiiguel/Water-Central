@@ -170,7 +170,7 @@ export function loadWompiWidget(): Promise<WidgetCheckoutCtor> {
 /**
  * Wompi's hosted checkout page — what the native app uses, since the
  * widget's modal doesn't belong inside a WebView. Same signature, same
- * amount; the buyer comes back to /diagnostico?ref=…&id=<transaction>.
+ * amount; the buyer comes back to /ruta?ref=…&id=<transaction>.
  */
 export function wompiRedirectUrl(init: WompiInit, redirectUrl: string): string {
   const q = new URLSearchParams({

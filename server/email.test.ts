@@ -76,7 +76,7 @@ describe('diagnosticReceipt', () => {
   });
 
   it('lleva el enlace de recuperación con la referencia', () => {
-    const link = `https://easycomex.com/diagnostico?ref=${RECEIPT.ref}`;
+    const link = `https://easycomex.com/ruta?ref=${RECEIPT.ref}`;
     expect(mail.text).toContain(link);
     expect(mail.html).toContain(link);
   });
@@ -85,7 +85,7 @@ describe('diagnosticReceipt', () => {
     // Hay clientes de correo que no permiten hacer clic. Si el enlace
     // sólo viviera en el botón, el comprador se quedaría sin su plan.
     const sinEtiquetas = mail.html.replace(/<[^>]+>/g, ' ');
-    expect(sinEtiquetas).toContain('/diagnostico?ref=');
+    expect(sinEtiquetas).toContain('/ruta?ref=');
   });
 
   it('trae el puntaje y el nivel en el asunto', () => {

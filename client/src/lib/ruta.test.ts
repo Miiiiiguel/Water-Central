@@ -28,6 +28,14 @@ describe('la ruta exportadora', () => {
     expect(de('competencia')).toMatch(/competidores/i);
   });
 
+  it('cada pregunta de sí/no del diagnóstico tiene exactamente una tarea en la ruta', () => {
+    // Así cada comentario y cada acción recomendada del diagnóstico tiene
+    // dónde aparecer dentro de la ruta.
+    for (const q of FLAT.filter((x) => x.type !== 'input')) {
+      expect(TODAS.filter((t) => t.diag === q.index).length, q.t).toBe(1);
+    }
+  });
+
   it('un "Sí" en el diagnóstico marca la tarea; un "No" o sin responder no', () => {
     const answers: Answer[] = FLAT.map(() => null);
     answers[0] = 'si';

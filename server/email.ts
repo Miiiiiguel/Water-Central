@@ -144,7 +144,7 @@ export interface DiagnosticMailData {
  * botón: hay clientes de correo que no lo dejan hacer clic.
  */
 export function diagnosticReceipt(data: DiagnosticMailData, baseUrl: string): Mail {
-  const link = `${baseUrl}/diagnostico?ref=${encodeURIComponent(data.ref)}`;
+  const link = `${baseUrl}/ruta?ref=${encodeURIComponent(data.ref)}`;
   const saludo = data.nombre ? `Hola ${data.nombre},` : 'Hola,';
   const subject = `Tu plan de acción de Easycomex (${data.score}%, ${data.tier})`;
 

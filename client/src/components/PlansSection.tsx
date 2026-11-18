@@ -19,7 +19,7 @@ interface Plan {
   highlighted?: boolean;
   checkoutPlan?: string;
   // A second option inside a card whose main action is free: a route
-  // of its own (the maturity diagnosis lives at /diagnostico).
+  // of its own (the maturity diagnosis lives inside the export roadmap, /ruta).
   secondaryLink?: { href: string; label: { es: string; en: string } };
 }
 
@@ -29,12 +29,12 @@ const plans: Plan[] = [
     title: { es: 'Diagnóstico: ¿tu marca aguanta salir?', en: 'Diagnosis: is your brand ready to go out?' },
     price: { es: 'Gratis · Plan de acción USD 9.99', en: 'Free · Action plan USD 9.99' },
     features: {
-      es: ['17 preguntas, 3 minutos: tu nivel de madurez y un comentario por cada punto, gratis y sin llamada de ventas', 'Plan de acción por cada brecha: qué hacer, en qué orden y con qué herramientas (USD 9.99 · $39.900 COP)'],
-      en: ['17 questions, 3 minutes: your maturity level and a comment on every point, free and with no sales call', 'An action plan for every gap: what to do, in what order and with which tools (USD 9.99 · $39.900 COP)'],
+      es: ['17 preguntas, 3 minutos: tu nivel de madurez y tu ruta de 7 pasos para vender en Estados Unidos, gratis y sin llamada de ventas', 'Plan de acción por cada brecha, dentro de tu ruta: qué hacer, en qué orden y con qué herramientas (USD 9.99 · $39.900 COP)'],
+      en: ['17 questions, 3 minutes: your maturity level and your 7-step roadmap to sell in the United States, free and with no sales call', 'An action plan for every gap, inside your roadmap: what to do, in what order and with which tools (USD 9.99 · $39.900 COP)'],
     },
     secondaryLink: {
-      href: '/diagnostico',
-      label: { es: 'Hacer el diagnóstico de madurez →', en: 'Take the maturity diagnosis →' },
+      href: '/ruta',
+      label: { es: 'Hacer el diagnóstico y ver mi ruta →', en: 'Take the diagnosis and see my roadmap →' },
     },
   },
   {

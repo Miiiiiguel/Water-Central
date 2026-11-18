@@ -16,7 +16,7 @@ import { appUrl } from './email';
 // las vueltas de Stripe y Wompi. Una sola verdad sobre dónde vive la app.
 
 /** Rutas que vale la pena indexar. El resto son privadas o de paso. */
-export const PUBLIC_ROUTES = ['/', '/roi', '/diagnostico', '/privacidad', '/terminos'] as const;
+export const PUBLIC_ROUTES = ['/', '/roi', '/ruta', '/diagnostico', '/privacidad', '/terminos'] as const;
 
 /**
  * Privadas o sin sentido en un buscador: el dashboard pide sesión,
@@ -63,10 +63,15 @@ export const PAGE_META: Record<string, { title: string; description: string }> =
     description:
       'Calculá gratis cuánto deja tu producto vendiendo afuera: utilidad, margen, cuándo recuperás la inversión y el flujo de caja mes a mes de dos años.',
   },
+  '/ruta': {
+    title: 'Ruta exportadora a Estados Unidos, con diagnóstico gratis | Easycomex',
+    description:
+      'Diagnóstico de 3 minutos y tu ruta de 7 pasos para vender en Estados Unidos: lo que ya tienes, lo que falta, por qué importa y la herramienta que lo resuelve. Gratis.',
+  },
   '/diagnostico': {
     title: 'Diagnóstico de madurez exportadora, gratis | Easycomex',
     description:
-      '17 preguntas, 3 minutos. Tu nivel de madurez para vender en el exterior, de 0 a 100, con un comentario por cada punto. Gratis y sin llamada de ventas.',
+      '17 preguntas, 3 minutos. Tu nivel de madurez para vender en Estados Unidos, de 0 a 100, con un comentario por cada punto y tu ruta de 7 pasos. Gratis y sin llamada de ventas.',
   },
   '/privacidad': {
     title: 'Política de privacidad | Easycomex',
