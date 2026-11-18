@@ -30,9 +30,9 @@ export const translations = {
     // Hero
     'hero.badge': 'Cero promesas. Números.',
     'hero.title1': 'Vende tu marca',
-    'hero.title2': 'en todo el mundo',
+    'hero.title2': 'en Estados Unidos',
     'hero.title3': 'sin adivinar nada',
-    'hero.subtitle': 'Estados Unidos, Europa, México, Canadá: donde esté tu comprador. Te decimos cuánto cuesta entrar, cuánto vuelve y en cuánto tiempo. Y si tu producto no da, también te lo decimos.',
+    'hero.subtitle': 'Amazon, TikTok Shop y tu tienda en Estados Unidos: te decimos cuánto cuesta entrar, cuánto vuelve y en cuánto tiempo. Y si tu producto no da, también te lo decimos.',
     'hero.cta1': 'Quiero mi plan',
     'hero.cta2': 'Ver cómo funciona',
     'hero.stat1': '75+',
@@ -94,9 +94,9 @@ export const translations = {
     // Hero
     'hero.badge': 'No promises. Numbers.',
     'hero.title1': 'Sell your brand',
-    'hero.title2': 'worldwide',
+    'hero.title2': 'in the United States',
     'hero.title3': 'without guessing',
-    'hero.subtitle': 'The US, Europe, Mexico, Canada — wherever your buyer is. We tell you what it costs to enter, what comes back and how long it takes. And if your product will not work, we tell you that too.',
+    'hero.subtitle': 'Amazon, TikTok Shop and your own store in the United States: we tell you what it costs to enter, what comes back and how long it takes. And if your product will not work, we tell you that too.',
     'hero.cta1': 'Get my plan',
     'hero.cta2': 'See how it works',
     'hero.stat1': '75+',

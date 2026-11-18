@@ -54,7 +54,7 @@ export function sitemapXml(base: string, lastmod = new Date().toISOString().slic
  */
 export const PAGE_META: Record<string, { title: string; description: string }> = {
   '/': {
-    title: 'Easycomex | Vende tu marca en todo el mundo',
+    title: 'Easycomex | Vende tu marca en Estados Unidos',
     description:
       'Sacamos marcas latinoamericanas de su mercado local y las ponemos a vender en Amazon, TikTok Shop y Shopify. Logística puerta a puerta a 220 destinos y Prep Center en Estados Unidos.',
   },

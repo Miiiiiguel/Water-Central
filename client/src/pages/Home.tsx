@@ -11,8 +11,8 @@ import MobileTabBar from '@/components/MobileTabBar';
 import Deferred from '@/components/Deferred';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-// La portada abre con la calculadora ROI; todo lo demás va debajo, como
-// servicios adicionales.
+// La portada abre con la presentación y la calculadora ROI; todo lo
+// demás va debajo, como servicios adicionales.
 const RoiCalculator = lazy(() => import('./RoiCalculator'));
 const MarketIntelSection = lazy(() => import('@/components/MarketIntelSection'));
 const GlobalReachSection = lazy(() => import('@/components/GlobalReachSection'));
@@ -37,7 +37,7 @@ function ServiciosAdicionales() {
       </h2>
       <p className="mx-auto mt-3 max-w-2xl text-base text-indigo-200 md:text-lg">
         {es
-          ? 'Fletes internacionales, inteligencia de mercado, ruta exportadora y el equipo que te acompaña a vender en EE. UU.'
+          ? 'Fletes internacionales, inteligencia de mercado, ruta exportadora y el equipo que te acompaña a vender en Estados Unidos.'
           : 'International freight, market intelligence, an export roadmap and the team that helps you sell in the US.'}
       </p>
     </section>
@@ -79,18 +79,16 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-primary pb-20 md:pb-0">
-      <Header fondoClaro />
+      <Header />
       <div id="inicio">
-        <div id="roi" className="scroll-mt-20">
-          <Suspense fallback={<div className="min-h-screen bg-white" />}>
-            <RoiCalculator embebido />
-          </Suspense>
-        </div>
-      </div>
-      <ServiciosAdicionales />
-      <div id="presentacion">
         <HeroSectionVideo />
       </div>
+      <div id="roi" className="scroll-mt-20">
+        <Suspense fallback={<div className="min-h-screen bg-white" />}>
+          <RoiCalculator embebido />
+        </Suspense>
+      </div>
+      <ServiciosAdicionales />
       <MarqueeLogos />
       <StatsWidget />
       <div id="servicios">
