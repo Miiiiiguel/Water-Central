@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { scrollToAnchor } from '@/lib/scrollToAnchor';
 import { Link } from 'wouter';
 import { ArrowLeft, Check, Info, MessageCircle, Phone, Sparkles, TrendingUp, Wallet } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -331,7 +332,11 @@ function SectionHead({ kicker, title, body }: { kicker: string; title: string; b
   );
 }
 
-export default function RoiCalculator() {
+/**
+ * `embebido`: va como primera sección de la portada, debajo del
+ * encabezado de la portada; sin su propia barra de arriba.
+ */
+export default function RoiCalculator({ embebido = false }: { embebido?: boolean } = {}) {
   const { language } = useLanguage();
   const { user, getAccessToken } = useAuth();
   const es = language === 'es';
@@ -615,8 +620,9 @@ export default function RoiCalculator() {
   const invPct = (part: number) => (inversion && inversion.total > 0 ? (part / inversion.total) * 100 : 0);
 
   return (
-    <div className="min-h-screen bg-white pb-24 md:pb-0">
+    <div className={embebido ? 'bg-white pb-6' : 'min-h-screen bg-white pb-24 md:pb-0'}>
       {/* Top bar */}
+      {!embebido && (
       <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
         <div className="container flex h-16 items-center justify-between gap-3 md:h-20">
           <Link href="/" className="tap-scale-sm flex items-center gap-2 py-2 font-logo text-xl tracking-tight md:text-2xl">
@@ -628,6 +634,7 @@ export default function RoiCalculator() {
           </span>
         </div>
       </header>
+      )}
 
       <div className="container">
         {/* Hero */}
@@ -1231,13 +1238,24 @@ export default function RoiCalculator() {
             {es ? 'Revisemos juntos tu producto, tu margen y el escenario que mejor se ajusta a tu operación.' : 'Let’s review your product, your margin and the scenario that fits your operation.'}
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3.5">
-            <Link
-              href="/#contacto"
-              className="tap-scale btn-shine inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-bold text-white transition-colors hover:bg-accent/90"
-            >
-              <TrendingUp size={16} />
-              {es ? 'Cotizar mi plan de exportación' : 'Quote my export plan'}
-            </Link>
+            {embebido ? (
+              <button
+                type="button"
+                onClick={() => scrollToAnchor('#contacto')}
+                className="tap-scale btn-shine inline-flex cursor-pointer items-center gap-2 rounded-full border-0 bg-accent px-7 py-3.5 text-sm font-bold text-white transition-colors hover:bg-accent/90"
+              >
+                <TrendingUp size={16} />
+                {es ? 'Cotizar mi plan de exportación' : 'Quote my export plan'}
+              </button>
+            ) : (
+              <Link
+                href="/#contacto"
+                className="tap-scale btn-shine inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-bold text-white transition-colors hover:bg-accent/90"
+              >
+                <TrendingUp size={16} />
+                {es ? 'Cotizar mi plan de exportación' : 'Quote my export plan'}
+              </Link>
+            )}
             <button
               onClick={() => openExternal(whatsappUrl())}
               className="tap-scale inline-flex cursor-pointer items-center gap-2 rounded-full border-0 bg-green-500 px-7 py-3.5 text-sm font-bold text-white transition-colors hover:bg-green-600"

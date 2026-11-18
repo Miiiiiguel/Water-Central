@@ -1,4 +1,4 @@
-import { lazy, useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { scrollToAnchor } from '@/lib/scrollToAnchor';
 import Header from '@/components/Header';
 import HeroSectionVideo from '@/components/HeroSectionVideo';
@@ -9,7 +9,11 @@ import BenefitsSection from '@/components/BenefitsSection';
 import FloatingButtons from '@/components/FloatingButtons';
 import MobileTabBar from '@/components/MobileTabBar';
 import Deferred from '@/components/Deferred';
+import { useLanguage } from '@/contexts/LanguageContext';
 
+// La portada abre con la calculadora ROI; todo lo demás va debajo, como
+// servicios adicionales.
+const RoiCalculator = lazy(() => import('./RoiCalculator'));
 const MarketIntelSection = lazy(() => import('@/components/MarketIntelSection'));
 const GlobalReachSection = lazy(() => import('@/components/GlobalReachSection'));
 // recharts is ~400KB — only the charts section needs it, so it loads
@@ -18,6 +22,27 @@ const ImpactSection = lazy(() => import('@/components/ImpactSection'));
 // Plans, freight, team, FAQ, contact, footer: one chunk that loads right
 // after first paint so the initial JS parse stays short on phones.
 const HomeLowerSections = lazy(() => import('@/components/HomeLowerSections'));
+
+/** El corte entre la calculadora y el resto de la portada. */
+function ServiciosAdicionales() {
+  const { language } = useLanguage();
+  const es = language === 'es';
+  return (
+    <section id="servicios-adicionales" className="scroll-mt-20 bg-primary px-4 pb-4 pt-16 text-center md:pt-20">
+      <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-orange-300">
+        {es ? 'Además de la calculadora' : 'Beyond the calculator'}
+      </span>
+      <h2 className="mx-auto mt-4 max-w-3xl text-3xl font-black text-white md:text-5xl">
+        {es ? 'Servicios adicionales' : 'Additional services'}
+      </h2>
+      <p className="mx-auto mt-3 max-w-2xl text-base text-indigo-200 md:text-lg">
+        {es
+          ? 'Fletes internacionales, inteligencia de mercado, ruta exportadora y el equipo que te acompaña a vender en EE. UU.'
+          : 'International freight, market intelligence, an export roadmap and the team that helps you sell in the US.'}
+      </p>
+    </section>
+  );
+}
 
 export default function Home() {
   // Llegar con "/#contacto" desde otro sitio (el plugin de WordPress
@@ -54,8 +79,16 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-primary pb-20 md:pb-0">
-      <Header />
+      <Header fondoClaro />
       <div id="inicio">
+        <div id="roi" className="scroll-mt-20">
+          <Suspense fallback={<div className="min-h-screen bg-white" />}>
+            <RoiCalculator embebido />
+          </Suspense>
+        </div>
+      </div>
+      <ServiciosAdicionales />
+      <div id="presentacion">
         <HeroSectionVideo />
       </div>
       <MarqueeLogos />

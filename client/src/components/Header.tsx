@@ -8,8 +8,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import LanguageSwitcher from './LanguageSwitcher';
 
 // Transparent over the dark hero, solid white once you scroll — the
-// header belongs to whatever it's sitting on.
-export default function Header() {
+// header belongs to whatever it's sitting on. `fondoClaro`: the page
+// starts on a white section (the ROI calculator), so it is always solid.
+export default function Header({ fondoClaro = false }: { fondoClaro?: boolean } = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { t, language } = useLanguage();
@@ -29,12 +30,13 @@ export default function Header() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const dark = !scrolled && !isOpen;
+  const dark = !fondoClaro && !scrolled && !isOpen;
 
   // Order matters: market intelligence is the headline tool, so it leads.
   const toolPills = [
     { label: t('header.inteligencia'), href: '#inteligencia', icon: Globe2 },
-    { label: t('header.roi'), href: '/roi', icon: Calculator },
+    // La calculadora es lo primero de la portada: se baja a ella.
+    { label: t('header.roi'), href: '#roi', icon: Calculator },
     { label: t('header.calculadora'), href: '#calculadora', icon: Ship },
     // La ruta exportadora empieza con el diagnóstico: un solo botón para
     // las dos cosas en vez de dos que parecían lo mismo.

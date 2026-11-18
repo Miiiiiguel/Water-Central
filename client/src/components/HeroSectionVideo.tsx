@@ -47,7 +47,7 @@ const HERRAMIENTAS: Herramienta[] = [
     icon: Calculator,
     titulo: { es: 'Calculadora ROI', en: 'ROI calculator' },
     texto: { es: 'Tu retorno mes a mes, con tus números', en: 'Your month-by-month return, with your numbers' },
-    href: '/roi',
+    href: '#roi',
   },
   {
     icon: Ship,
@@ -80,7 +80,7 @@ export default function HeroSectionVideo() {
   const ir = (href: string) => (href.startsWith('#') ? scrollToAnchor(href) : navigate(href));
 
   return (
-    <section className="relative w-full overflow-hidden bg-primary text-white -mt-16 md:-mt-20 pt-32 pb-28 md:pt-40 md:pb-36">
+    <section className="relative w-full overflow-hidden bg-primary text-white pt-16 pb-28 md:pt-20 md:pb-36">
       <div className="absolute inset-0 hero-sky" aria-hidden="true" />
       <div className="aurora aurora-dark" aria-hidden="true" />
       <div className="dot-grid dot-grid-light" aria-hidden="true" />
