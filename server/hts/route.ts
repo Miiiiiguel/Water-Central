@@ -1,7 +1,8 @@
 import express from 'express';
 import { z } from 'zod';
 import { makeLimiter } from '../security';
-import { arbol, buscarPartidas, capitulos, detalle } from './consulta';
+import { traducir, traduccionDisponible } from './traduccion';
+import { arbol, buscarPartidas, capitulos, detalle, esDescripcionDelArancel } from './consulta';
 
 // El arancel de EE. UU., consultable desde la calculadora ROI.
 //
@@ -54,6 +55,19 @@ htsRouter.get('/hts/partida/:codigo', limite, (req, res) => {
   if (!d) return res.status(404).json({ error: 'no_existe', message: 'Ese código no está en el arancel de EE. UU. cargado.' });
   cache(res);
   res.json(d);
+});
+
+// Las descripciones en español (ver ./traduccion). El navegador manda los
+// textos que está mostrando; sólo se traducen los que son del arancel.
+const limiteTraduccion = makeLimiter('hts_traducir', 300);
+const pedidoTraduccion = z.object({ textos: z.array(z.string().max(1000)).max(150) });
+
+htsRouter.post('/hts/traducir', limiteTraduccion, express.json({ limit: '64kb' }), async (req, res) => {
+  const p = pedidoTraduccion.safeParse(req.body);
+  if (!p.success) return res.status(400).json({ error: 'pedido_invalido' });
+  if (!traduccionDisponible()) return res.json({ traducciones: {} });
+  const delArancel = p.data.textos.filter((t) => esDescripcionDelArancel(t));
+  res.json({ traducciones: await traducir(delArancel) });
 });
 
 // La primera búsqueda arma el índice de palabras (~1 s). Se hace al

@@ -56,6 +56,33 @@ describe('lo que decide el servidor', () => {
   });
 });
 
+describe('las unidades al mes que proyecta el cliente', () => {
+  it('mueven las ventas: el mes 12 conservador es lo que escribió, y el optimista escala igual', () => {
+    const r = proyeccion({ ...BASE, unitsMonth: 600 }, { detalle: false, pronostico: false });
+    expect(r.resumen.cons1.unidades[11]).toBe(600);
+    expect(r.resumen.cons1.unidades[0]).toBe(50);
+    const base = proyeccion({ ...BASE, unitsMonth: 1200 }, { detalle: false, pronostico: false });
+    expect(r.resumen.opt1.unidades.reduce((a, b) => a + b, 0)).toBeCloseTo(base.resumen.opt1.unidades.reduce((a, b) => a + b, 0) / 2, -1);
+  });
+
+  it('el primer envío son los tres primeros meses conservadores, y la inversión lo usa', () => {
+    const r = proyeccion({ ...BASE, unitsMonth: 600 }, { detalle: false, pronostico: false });
+    expect(r.inversion.unidades).toBe(50 + 100 + 150);
+    expect(r.inversion.productCost).toBeCloseTo(300 * BASE.cost, 6);
+  });
+
+  it('el año 2 trae su total de unidades', () => {
+    const r = proyeccion({ ...BASE, unitsMonth: 1200 }, { detalle: false, pronostico: false });
+    expect(r.resumen.cons2.unidadesTotal).toBe(800 + 900 + 1000 + 1100 + 1200 + 1300 + 1400 + 1500 + 1600 + 1700 + 1800 + 1900);
+  });
+
+  it('una página vieja que manda el primer envío y no las unidades sigue funcionando', () => {
+    const r = proyeccion({ ...BASE, unitsMonth: undefined, lot: 500 }, { detalle: false, pronostico: false });
+    expect(r.inversion.unidades).toBe(500);
+    expect(r.resumen.cons1.unidades[11]).toBe(1200);
+  });
+});
+
 describe('lo que viaja al navegador', () => {
   it('without a purchase: results only, no breakdown, no forecast, no model assumptions', () => {
     const r = proyeccion(BASE, { detalle: false, pronostico: false });
@@ -111,5 +138,6 @@ describe('lo que viaja al navegador', () => {
     expect(entradaSchema.safeParse({ ...BASE, price: -1 }).success).toBe(false);
     expect(entradaSchema.safeParse({ ...BASE, destino: 'XX' }).success).toBe(false);
     expect(entradaSchema.safeParse({ ...BASE, lot: 0 }).success).toBe(false);
+    expect(entradaSchema.safeParse({ ...BASE, unitsMonth: 0 }).success).toBe(false);
   });
 });

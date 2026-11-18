@@ -34,6 +34,19 @@ function textoLimpio(s: string): string {
   return limpiar(s).replace(/:$/, '');
 }
 
+let descripciones: { idx: Indice; textos: Set<string> } | null = null;
+
+/**
+ * ¿Este texto es la descripción (limpia) de alguna fila del arancel? Lo
+ * usa la traducción: sólo se traduce lo que la calculadora muestra.
+ */
+export function esDescripcionDelArancel(texto: string, idx: Indice = cargar()): boolean {
+  if (!descripciones || descripciones.idx !== idx) {
+    descripciones = { idx, textos: new Set(idx.registros.map((r) => textoLimpio(r.fila.description)).filter(Boolean)) };
+  }
+  return descripciones.textos.has(texto);
+}
+
 function descripcionCorta(r: HtsRegistro, partes = 3): string {
   return r.rutaDescripcion.slice(-partes).map(textoLimpio).filter(Boolean).join(' › ');
 }

@@ -112,3 +112,59 @@ export async function ramas(opciones: { capitulo?: string; linea?: number }): Pr
 export function detallePartida(codigo: string): Promise<DetallePartida | null> {
   return pedir<DetallePartida>(`/api/hts/partida/${encodeURIComponent(codigo)}`);
 }
+
+// ---------------------------------------------------------------------
+// Las descripciones en español. El arancel viene en inglés; el servidor
+// las traduce (y las guarda). Mientras llegan, se ve el inglés.
+// ---------------------------------------------------------------------
+
+const espanol = new Map<string, string>();
+const pedidas = new Set<string>();
+const SEPARADOR = ' › ';
+
+/** Las partes de una descripción armada ("A › B › C"). */
+export function partesDe(texto: string): string[] {
+  return texto.split(SEPARADOR).map((p) => p.trim()).filter(Boolean);
+}
+
+/** La descripción en español, si ya llegó; si no, la original. */
+export function enEspanol(texto: string): string {
+  return partesDe(texto).map((p) => espanol.get(p) ?? p).join(SEPARADOR) || texto;
+}
+
+/**
+ * Pide al servidor las que falten. Devuelve true si llegó alguna nueva.
+ * Cada texto se pide una sola vez por visita: si no vuelve traducido, se
+ * queda en inglés.
+ */
+export async function traducirDescripciones(textos: string[], signal?: AbortSignal): Promise<boolean> {
+  const faltan = Array.from(new Set(textos.flatMap(partesDe))).filter((t) => !espanol.has(t) && !pedidas.has(t));
+  if (!faltan.length) return false;
+  faltan.forEach((t) => pedidas.add(t));
+  let nuevas = false;
+  for (let i = 0; i < faltan.length; i += 150) {
+    try {
+      const res = await fetch('/api/hts/traducir', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ textos: faltan.slice(i, i + 150) }),
+        signal,
+      });
+      if (!res.ok) continue;
+      const { traducciones } = (await res.json()) as { traducciones: Record<string, string> };
+      for (const [en, es] of Object.entries(traducciones ?? {})) {
+        espanol.set(en, es);
+        nuevas = true;
+      }
+    } catch {
+      // Sin respuesta: se queda en inglés.
+    }
+  }
+  return nuevas;
+}
+
+/** Sólo para las pruebas. */
+export function olvidarEspanol(): void {
+  espanol.clear();
+  pedidas.clear();
+}

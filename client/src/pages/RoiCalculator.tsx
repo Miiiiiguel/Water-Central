@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { ArrowLeft, Check, Info, MessageCircle, Phone, Sparkles, TrendingUp, Wallet } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -12,7 +12,6 @@ import {
 import { MONTH_LABELS, MONTH_LABELS_EN, fmtInt, fmtMoney, fmtMoney2, pctOf, setRoiLocale, xOf } from '@/lib/roiFormat';
 import RoiTable, { type RoiRow } from '@/components/roi/RoiTable';
 import PartidaArancel from '@/components/roi/PartidaArancel';
-import EnvioEEUU from '@/components/roi/EnvioEEUU';
 import LineaDestino from '@/components/roi/LineaDestino';
 import { DESTINOS, DESTINOS_PRINCIPALES, destino as destinoDe, mismoMercado, type ArancelDestino } from '@/lib/destinos';
 import type { DetallePartida } from '@/lib/hts';
@@ -362,14 +361,13 @@ export default function RoiCalculator() {
     });
   };
   /** Las props de una casilla del modelo, con su sugerencia. */
-  const campo = (key: 'price' | 'cost' | 'weightG' | 'lot' | 'adsBudget' | 'contentBudget' | 'channelBudget') => ({
-    id: `in_${{ price: 'price', cost: 'cost', weightG: 'weight', lot: 'lot', adsBudget: 'ads', contentBudget: 'content', channelBudget: 'channel' }[key]}`,
+  const campo = (key: 'price' | 'cost' | 'weightG' | 'unitsMonth' | 'adsBudget' | 'contentBudget' | 'channelBudget') => ({
+    id: `in_${{ price: 'price', cost: 'cost', weightG: 'weight', unitsMonth: 'units_month', adsBudget: 'ads', contentBudget: 'content', channelBudget: 'channel' }[key]}`,
     value: inputs[key],
     onChange: (v: number | null) => fijar(key, v),
     sugerido: sugerido(key),
     es,
   });
-  const setEnvio = useCallback((usd: number | null) => setInputs((prev) => ({ ...prev, domesticShipUsd: usd })), []);
 
   // El destino, la partida y el país de origen. En EE. UU. el arancel sale
   // del HTS cargado; en otro destino, de la línea de su arancel oficial
@@ -638,8 +636,8 @@ export default function RoiCalculator() {
             <Sparkles size={13} />
             {es ? 'Calculadora interactiva' : 'Interactive calculator'}
           </span>
-          <h1 className="max-w-[18ch] text-3xl font-black leading-[1.08] text-primary sm:text-4xl md:text-5xl">
-            {es ? 'Escribe los números de tu producto y mira tu retorno real.' : 'Type your product’s numbers and see your real return.'}
+          <h1 className="max-w-[24ch] text-3xl font-black leading-[1.08] text-primary sm:text-4xl md:text-5xl">
+            {es ? 'Calculadora de retorno de inversión / Logística internacional' : 'Return on investment / International logistics calculator'}
           </h1>
           <p className="mt-4 max-w-2xl text-base text-muted-foreground md:text-lg">
             {es
@@ -655,7 +653,7 @@ export default function RoiCalculator() {
               <div>
                 <h2 className="text-xl font-bold text-primary">{es ? 'Tus números' : 'Your numbers'}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {es ? 'Llena los 4 pasos. El resultado se actualiza solo mientras escribes.' : 'Fill in the 4 steps. The result updates as you type.'}
+                  {es ? 'Llena los 3 pasos. El resultado se actualiza solo mientras escribes.' : 'Fill in the 3 steps. The result updates as you type.'}
                 </p>
                 <p className="mt-2 inline-flex items-center gap-2 rounded-lg border border-dashed border-gray-200 px-2.5 py-1 text-xs text-muted-foreground">
                   <span className="font-bold text-gray-400">$ 54.9</span>
@@ -668,12 +666,20 @@ export default function RoiCalculator() {
               </span>
             </div>
 
-            <Paso n={1} listo={!sugerido('price') && !sugerido('cost')} title={es ? 'Tu producto' : 'Your product'} help={es ? 'Lo que cobras, lo que te cuesta hacerlo, cuánto mandas en el primer envío y cuántos pedidos vuelven.' : 'What you charge, what it costs you to make, how much you ship first and how many orders come back.'}>
+            <Paso n={1} listo={!sugerido('price') && !sugerido('cost')} title={es ? 'Tu producto' : 'Your product'} help={es ? 'Lo que vendes, lo que cuesta hacerlo, cuántas unidades proyectas vender mínimo al mes dentro de un año y cuál es tu porcentaje de devoluciones.' : 'What you sell, what it costs to make, how many units you expect to sell at least per month within a year, and your return rate.'}>
               <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
                 <NumberField {...campo('price')} label={es ? `Precio de venta en ${esUS ? 'EE. UU.' : dest.nombre}` : esUS ? 'US selling price' : `Selling price in ${dest.nombreEn}`} prefix="$" step={0.1} />
-                <NumberField {...campo('cost')} label={es ? 'Costo de producirlo' : 'Production cost'} prefix="$" step={0.1} />
-                <NumberField {...campo('weightG')} label={es ? 'Peso con empaque' : 'Packed weight'} suffix="g" step={10} min={1} />
-                <NumberField {...campo('lot')} label={es ? 'Unidades del primer envío' : 'Units in the first shipment'} step={50} min={1} />
+                <NumberField {...campo('cost')} label={es ? 'Costo de producirlo en tu país' : 'Production cost in your country'} prefix="$" step={0.1} />
+                <NumberField {...campo('weightG')} label={es ? 'Peso por unidad con empaque' : 'Packed weight per unit'} suffix="g" step={10} min={1} />
+                <NumberField
+                  {...campo('unitsMonth')}
+                  label={es ? 'Unidades al mes en un año' : 'Units a month in a year'}
+                  step={50}
+                  min={1}
+                  ayuda={es
+                    ? `Cuántas unidades te proyectas vender en ${esUS ? 'EE. UU.' : dest.nombre} en promedio al mes, dentro de un año de ventas.`
+                    : `How many units a month, on average, you expect to sell in ${esUS ? 'the US' : dest.nombreEn} within a year.`}
+                />
                 <div className="grid grid-cols-1 items-center gap-x-5 gap-y-1 rounded-2xl border border-gray-100 bg-secondary/30 p-3.5 sm:grid-cols-2 sm:col-span-2">
                   <div>
                     <NumberField
@@ -890,23 +896,12 @@ export default function RoiCalculator() {
               </div>
             </Paso>
 
-            {esUS && (
-              <Paso n={3} listo={inputs.domesticShipUsd !== null} title={es ? 'Envío de cada pedido' : 'Shipping each order'} help={es ? 'Opcional: cotiza el envío real desde tu bodega en EE. UU.' : 'Optional: quote the real shipping from your US warehouse.'}>
-                <EnvioEEUU
-                  es={es}
-                  pesoG={inputs.weightG}
-                  aplica={proy?.envioAplica ?? false}
-                  valor={inputs.domesticShipUsd}
-                  onValor={setEnvio}
-                />
-              </Paso>
-            )}
 
-            <Paso n={esUS ? 4 : 3} listo={!sugerido('adsBudget') || !sugerido('contentBudget') || !sugerido('channelBudget') || !sugerido('ugcPct')} title={es ? 'Tu mercadeo del mes' : 'Your monthly marketing'} help={es ? 'Lo que vas a invertir cada mes para vender y la comisión de quien te ayuda a vender.' : 'What you will invest every month to sell, and the commission of whoever helps you sell.'}>
+            <Paso n={3} listo={!sugerido('adsBudget') || !sugerido('contentBudget') || !sugerido('channelBudget') || !sugerido('ugcPct')} title={es ? 'Tu mercadeo del mes' : 'Your monthly marketing'} help={es ? 'Lo que vas a invertir cada mes para vender y la comisión de quien te ayuda a vender.' : 'What you will invest every month to sell, and the commission of whoever helps you sell.'}>
               <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-3">
                 <NumberField {...campo('adsBudget')} label={es ? 'Publicidad (ADS)' : 'Advertising (ads)'} prefix="$" step={50} />
-                <NumberField {...campo('contentBudget')} label={es ? 'Contenido' : 'Content'} prefix="$" step={50} />
-                <NumberField {...campo('channelBudget')} label={es ? 'Manejo del canal' : 'Channel management'} prefix="$" step={50} />
+                <NumberField {...campo('contentBudget')} label={es ? 'Creación de contenido' : 'Content creation'} prefix="$" step={50} />
+                <NumberField {...campo('channelBudget')} label={es ? 'Manejo del canal' : 'Channel management'} prefix="$" step={50} ayuda={es ? 'Sueldo de una persona interna de la compañía o de una agencia externa de mercadeo.' : 'Salary of an in-house person or an outside marketing agency.'} />
               </div>
               <p className="mt-3 flex items-center justify-between rounded-xl bg-secondary/50 px-3.5 py-2 text-sm">
                 <span className="text-muted-foreground">{es ? 'Total de mercadeo al mes' : 'Total marketing per month'}</span>
@@ -916,19 +911,19 @@ export default function RoiCalculator() {
                   <div>
                     <NumberField
                       id="in_ugc"
-                      label={es ? 'Comisión de la red comercial' : 'Sales-network commission'}
+                      label={es ? 'Comisión o descuento red comercial' : 'Sales-network commission or discount'}
                       value={inputs.ugcPct * 100}
                       onChange={(v) => fijar('ugcPct', v === null ? null : v / 100)}
                       sugerido={sugerido('ugcPct')}
                       es={es}
                       suffix="%"
                       step={1}
-                      ayuda={es ? 'Lo que se lleva por venta quien recomienda tu producto (creadores, afiliados).' : 'What whoever recommends your product (creators, affiliates) takes per sale.'}
+                      ayuda={es ? 'La comisión o el descuento por venta para quien recomienda o distribuye tu producto (creadores, afiliados, distribuidores).' : 'The per-sale commission or discount for whoever recommends or distributes your product (creators, affiliates, distributors).'}
                     />
                   </div>
                   <div>
                     <Deslizador
-                      label={es ? 'Comisión de la red comercial' : 'Sales-network commission'}
+                      label={es ? 'Comisión o descuento red comercial' : 'Sales-network commission or discount'}
                       value={inputs.ugcPct * 100}
                       max={40}
                       step={1}
@@ -1009,7 +1004,7 @@ export default function RoiCalculator() {
               </div>
               <p className="font-heading text-4xl font-black tabular-nums text-primary md:text-5xl">{fmtMoney(inversion.total)}</p>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                {fmtInt(inputs.lot)} {es ? 'unidades + logística de salida + 3 meses de marketing y operación.' : 'units + outbound logistics + 3 months of marketing and operations.'}
+                {fmtInt(inversion.unidades)} {es ? 'unidades del primer envío (tus 3 primeros meses de ventas) + logística de salida + 3 meses de marketing y operación.' : 'units in the first shipment (your first 3 months of sales) + outbound logistics + 3 months of marketing and operations.'}
               </p>
 
               <div className="mt-5 flex h-3 w-full gap-0.5 overflow-hidden rounded-full bg-secondary">
@@ -1019,7 +1014,7 @@ export default function RoiCalculator() {
               </div>
               <ul className="mb-4 mt-4 flex flex-col gap-2">
                 {[
-                  { color: 'bg-accent', label: es ? 'Inventario inicial' : 'Initial inventory', sub: `${fmtInt(inputs.lot)} × ${fmtMoney2(inputs.cost)}`, value: inversion.productCost },
+                  { color: 'bg-accent', label: es ? 'Inventario inicial' : 'Initial inventory', sub: `${fmtInt(inversion.unidades)} × ${fmtMoney2(inputs.cost)}`, value: inversion.productCost },
                   { color: 'bg-[#4A63D6]', label: es ? 'Logística de salida' : 'Outbound logistics', sub: es ? 'flete y aduana del primer envío' : 'freight and customs, first shipment', value: inversion.logistics },
                   { color: 'bg-primary', label: es ? 'Marketing y operación' : 'Marketing and operations', sub: es ? '3 meses del canal digital' : '3 months of the digital channel', value: inversion.marketing3 },
                 ].map((row) => (
@@ -1073,6 +1068,10 @@ export default function RoiCalculator() {
                     <p className="mb-1.5 mt-4 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                       {es ? `Año ${year}` : `Year ${year}`}
                     </p>
+                    <div className="flex items-baseline justify-between border-b border-dashed border-gray-100 py-1.5">
+                      <span className="text-sm text-muted-foreground">{es ? 'Unidades vendidas' : 'Units sold'}</span>
+                      <span className="text-sm font-bold tabular-nums text-foreground">{fmtInt('unidades' in data ? data.unidades.reduce((a, b) => a + b, 0) : data.unidadesTotal)}</span>
+                    </div>
                     <div className="flex items-baseline justify-between border-b border-dashed border-gray-100 py-1.5">
                       <span className="text-sm text-muted-foreground">{es ? 'Ingresos' : 'Revenue'}</span>
                       <span className="text-sm font-bold tabular-nums text-foreground">{fmtMoney(data.revenue)}</span>

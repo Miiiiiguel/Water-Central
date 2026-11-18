@@ -11,7 +11,8 @@ export interface RoiEntrada {
   price: number;
   cost: number;
   weightG: number;
-  lot: number;
+  /** Unidades al mes que proyecta vender dentro de un año (mueve las ventas y el primer envío). */
+  unitsMonth: number;
   returnsPct: number;
   ugcPct: number;
   meetsAgreement: boolean;
@@ -26,7 +27,7 @@ export const ENTRADA_INICIAL: RoiEntrada = {
   price: 54.9,
   cost: 12,
   weightG: 350,
-  lot: 500,
+  unitsMonth: 1200,
   returnsPct: 0.02,
   ugcPct: 0.15,
   meetsAgreement: false,
@@ -54,6 +55,8 @@ export interface AnioDosResumen {
   revenue: number;
   egresos: number;
   utilidad: number;
+  /** Unidades vendidas en el año. */
+  unidadesTotal: number;
 }
 
 export interface FilaDesglose {
@@ -86,7 +89,8 @@ export interface Pronostico {
 
 export interface Proyeccion {
   resumen: { cons1: AnioUnoResumen; opt1: AnioUnoResumen; cons2: AnioDosResumen; opt2: AnioDosResumen };
-  inversion: { productCost: number; logistics: number; marketing3: number; total: number };
+  /** `unidades`: el primer envío (los tres primeros meses de ventas del escenario conservador). */
+  inversion: { productCost: number; logistics: number; marketing3: number; total: number; unidades: number };
   derecho: { usd: number; calculable: boolean; falta?: string } | null;
   envioAplica: boolean;
   desbloqueado: { detalle: boolean; pronostico: boolean };

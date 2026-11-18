@@ -10,6 +10,7 @@ import {
   DEFAULT_INPUTS,
   dutyPerUnit,
   FREE_SHIP_THRESHOLD,
+  firstShipment,
   project,
   totalFreightFor,
   type CostBreakdown,
@@ -58,7 +59,11 @@ export const entradaSchema = z.object({
   price: num(1_000_000),
   cost: num(1_000_000),
   weightG: z.number().finite().min(1).max(1_000_000),
-  lot: z.number().finite().min(1).max(10_000_000),
+  // Las unidades al mes que el cliente proyecta vender dentro de un año.
+  // De ahí salen las ventas y el primer envío. Una página vieja manda
+  // `lot` (el primer envío) y no esto: entonces se usan las rampas base.
+  unitsMonth: z.number().finite().min(1).max(10_000_000).optional(),
+  lot: z.number().finite().min(1).max(10_000_000).optional(),
   returnsPct: num(1),
   ugcPct: num(1),
   meetsAgreement: z.boolean(),
@@ -87,7 +92,8 @@ export function aInputs(e: EntradaRoi): RoiInputs {
     price: e.price,
     cost: e.cost,
     weightG: e.weightG,
-    lot: e.lot,
+    lot: e.unitsMonth ? firstShipment(e.unitsMonth) : e.lot ?? DEFAULT_INPUTS.lot,
+    unitsMonth: e.unitsMonth ?? null,
     returnsPct: e.returnsPct,
     ugcPct: e.ugcPct,
     meetsAgreement: e.meetsAgreement,
@@ -130,7 +136,8 @@ const anio1Libre = (y: YearOne) => ({
   roiUnit: y.roiUnit,
 });
 
-const anio2Libre = (y: YearTwo) => ({ revenue: y.revenue, egresos: y.egresos, utilidad: y.utilidad });
+const sumar = (arr: number[]) => arr.reduce((a, b) => a + b, 0);
+const anio2Libre = (y: YearTwo) => ({ revenue: y.revenue, egresos: y.egresos, utilidad: y.utilidad, unidadesTotal: sumar(y.units) });
 
 /**
  * El desglose pagado, con la sobretasa recíproca sumada a los aranceles:
@@ -182,7 +189,8 @@ export function proyeccion(e: EntradaRoi, desbloqueado: { detalle: boolean; pron
   const verDesglose = desbloqueado.detalle || desbloqueado.pronostico;
   return {
     resumen: { cons1: anio1Libre(p.cons1), opt1: anio1Libre(p.opt1), cons2: anio2Libre(p.cons2), opt2: anio2Libre(p.opt2) },
-    inversion: p.investment,
+    // `unidades`: el primer envío, que el cliente ya no escribe.
+    inversion: { ...p.investment, unidades: inp.lot },
     derecho: derecho ? { usd: derechoUsd, calculable: derecho.calculable, falta: derecho.falta } : null,
     envioAplica: inp.price >= FREE_SHIP_THRESHOLD,
     desbloqueado: { detalle: verDesglose, pronostico: desbloqueado.pronostico },

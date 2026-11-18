@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronRight, FolderOpen, Search, X } from 'lucide-react';
-import { buscarPartidasConCausa, detallePartida, listarCapitulos, mensajeFalloHts, ramas, type DetallePartida, type FalloHts, type ItemPartida, type Nodo } from '@/lib/hts';
+import { buscarPartidasConCausa, detallePartida, enEspanol, listarCapitulos, mensajeFalloHts, ramas, traducirDescripciones, type DetallePartida, type FalloHts, type ItemPartida, type Nodo } from '@/lib/hts';
 import { ORIGENES_FRECUENTES, PAISES_DE_ORIGEN, paisDeOrigen } from '@/lib/tasaArancel';
 
 // Elegir la partida arancelaria del producto, entre todas las del
@@ -27,6 +27,25 @@ interface Props {
   fuenteDestino?: 'linea' | 'escrita' | 'ninguna';
 }
 
+/**
+ * Las descripciones del arancel en español: pide las que se están
+ * mostrando y vuelve a pintar cuando llegan. Mientras tanto, inglés.
+ */
+function useEspanol(es: boolean, textos: string[]): (t: string) => string {
+  const [, setVersion] = useState(0);
+  const clave = textos.join('\n');
+  useEffect(() => {
+    if (!es || !textos.length) return;
+    const control = new AbortController();
+    void traducirDescripciones(textos, control.signal).then((nuevas) => {
+      if (nuevas && !control.signal.aborted) setVersion((v) => v + 1);
+    });
+    return () => control.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [es, clave]);
+  return es ? enEspanol : (t) => t;
+}
+
 const fmt = (n: number) => (n === 0 ? '$0' : `$${n.toFixed(n < 1 ? 3 : 2)}`);
 
 export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, cumple, derecho, soloSubpartida = false, fuenteDestino = 'linea' }: Props) {
@@ -37,6 +56,7 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
   const [fallo, setFallo] = useState<FalloHts | null>(null);
   const [intento, setIntento] = useState(0);
   const [eligiendo, setEligiendo] = useState<string | null>(null);
+  const tr = useEspanol(es, [...(detalle ? detalle.descripcion.slice(-3) : []), ...(resultados ?? []).map((r) => r.descripcion)]);
 
   // Búsqueda mientras se escribe, con una pausa para no pedir por cada letra.
   useEffect(() => {
@@ -110,7 +130,7 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="font-mono text-lg font-black text-primary">{detalle.codigo}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{detalle.descripcion.slice(-3).join(' › ')}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{detalle.descripcion.slice(-3).map(tr).join(' › ')}</p>
               {detalle.capitulo.nombre && (
                 <p className="mt-1 text-xs text-muted-foreground">
                   {es ? 'Capítulo' : 'Chapter'} {detalle.capitulo.codigo} · {detalle.capitulo.nombre}
@@ -275,7 +295,7 @@ export default function PartidaArancel({ es, detalle, onDetalle, pais, onPais, c
                             {/* La tarifa de la lista es la de EE. UU.: con otro destino confunde. */}
                             <span className="text-sm font-bold text-primary">{eligiendo === r.codigo ? '…' : soloSubpartida ? '' : r.tarifa ?? ''}</span>
                           </span>
-                          <span className="mt-0.5 block text-sm text-muted-foreground">{r.descripcion}</span>
+                          <span className="mt-0.5 block text-sm text-muted-foreground">{tr(r.descripcion)}</span>
                         </button>
                       </li>
                     ))}
@@ -318,6 +338,7 @@ function Explorador({
   const [pila, setPila] = useState<Array<{ titulo: string; nodos: Nodo[] }>>([]);
   const [cargando, setCargando] = useState(false);
   const pedido = useRef(0);
+  const tr = useEspanol(es, pila.length ? pila[pila.length - 1].nodos.map((n) => n.descripcion) : []);
 
   useEffect(() => {
     listarCapitulos().then((c) => setCapitulos(c ?? []));
@@ -370,7 +391,7 @@ function Explorador({
               <button
                 type="button"
                 disabled={eligiendo !== null}
-                onClick={() => (esFinal(n) ? onElegir(n.codigo!) : abrir(n.codigo ?? n.descripcion.slice(0, 40), { linea: n.linea }))}
+                onClick={() => (esFinal(n) ? onElegir(n.codigo!) : abrir(n.codigo ?? tr(n.descripcion).slice(0, 40), { linea: n.linea }))}
                 className="block w-full cursor-pointer border-0 bg-transparent px-3 py-2.5 text-left hover:bg-secondary/60 disabled:opacity-60"
               >
                 <span className="flex items-baseline justify-between gap-3">
@@ -380,7 +401,7 @@ function Explorador({
                     {n.tieneHijos ? <ChevronRight size={14} className="text-muted-foreground" /> : null}
                   </span>
                 </span>
-                <span className="mt-0.5 block text-sm text-muted-foreground">{n.descripcion}</span>
+                <span className="mt-0.5 block text-sm text-muted-foreground">{tr(n.descripcion)}</span>
               </button>
               {n.codigo && n.tieneHijos && n.codigo.replace(/\D/g, '').length >= 8 && (
                 <button type="button" onClick={() => onElegir(n.codigo!)} className="mb-2 ml-3 cursor-pointer border-0 bg-transparent p-0 text-xs font-bold text-accent">

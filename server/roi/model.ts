@@ -33,6 +33,27 @@ export const OPT_UNITS_Y1 = [100, 300, 500, 800, 1100, 1300, 1500, 2000, 2300, 2
 export const CONS_UNITS_Y2 = [800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900];
 export const OPT_UNITS_Y2 = [2000, 2300, 2500, 2700, 3000, 3200, 3500, 3700, 3800, 4100, 4500, 4000];
 
+/**
+ * The sales ramps, sized to the client's goal: `unitsMonth` is how many
+ * units a month they expect to be selling once the first year is done
+ * (the conservative month 12). Every ramp keeps its shape and scales by
+ * the same factor; null keeps the reference ramps (1,200 a month).
+ */
+export function salesRamps(unitsMonth: number | null) {
+  const factor = unitsMonth && unitsMonth > 0 ? unitsMonth / CONS_UNITS_Y1[11] : 1;
+  const scale = (arr: number[]) => arr.map((u) => Math.max(1, Math.round(u * factor)));
+  return { cons1: scale(CONS_UNITS_Y1), opt1: scale(OPT_UNITS_Y1), cons2: scale(CONS_UNITS_Y2), opt2: scale(OPT_UNITS_Y2) };
+}
+
+/**
+ * The first shipment that goes with that goal: the first three months of
+ * conservative sales (the start-up capital also covers three months of
+ * marketing).
+ */
+export function firstShipment(unitsMonth: number): number {
+  return salesRamps(unitsMonth).cons1.slice(0, 3).reduce((a, b) => a + b, 0);
+}
+
 /** Monthly contingency budget. */
 export const IMPREV_Y1 = [500, 500, 500, 500, 500, 500, 600, 600, 600, 600, 600, 600];
 export const IMPREV_Y2 = [600, 600, 700, 700, 700, 700, 700, 700, 700, 700, 700, 700];
@@ -72,6 +93,11 @@ export interface RoiInputs {
   weightG: number;
   /** Initial inventory, units. */
   lot: number;
+  /**
+   * Units a month the client expects to sell once the first year is done.
+   * Sizes the sales ramps (see salesRamps); null keeps the reference ones.
+   */
+  unitsMonth: number | null;
   /** Returns, as a fraction of price (0.02 = 2%). */
   returnsPct: number;
   /** Marketplace commission, as a fraction of price. */
@@ -111,6 +137,7 @@ export const DEFAULT_INPUTS: RoiInputs = {
   cost: 12,
   weightG: 350,
   lot: 500,
+  unitsMonth: null,
   returnsPct: 0.02,
   platformPct: 0.07,
   ugcPct: 0.15,
@@ -395,13 +422,14 @@ export interface RoiProjection {
 
 export function project(inp: RoiInputs): RoiProjection {
   const totalFreight = totalFreightFor(inp);
-  const cons1 = computeYear1(CONS_UNITS_Y1, inp, WAREHOUSING.conservador, totalFreight);
-  const opt1 = computeYear1(OPT_UNITS_Y1, inp, WAREHOUSING.optimista, totalFreight);
+  const ramps = salesRamps(inp.unitsMonth);
+  const cons1 = computeYear1(ramps.cons1, inp, WAREHOUSING.conservador, totalFreight);
+  const opt1 = computeYear1(ramps.opt1, inp, WAREHOUSING.optimista, totalFreight);
   return {
     cons1,
     opt1,
-    cons2: computeYear2(CONS_UNITS_Y2, inp, cons1.month7Cost),
-    opt2: computeYear2(OPT_UNITS_Y2, inp, opt1.month7Cost),
+    cons2: computeYear2(ramps.cons2, inp, cons1.month7Cost),
+    opt2: computeYear2(ramps.opt2, inp, opt1.month7Cost),
     investment: computeInvestment(inp, totalFreight),
     totalFreight,
   };
