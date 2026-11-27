@@ -68,10 +68,28 @@ create table if not exists shop.order_events (
 );
 create index if not exists order_events_order_idx on shop.order_events (order_id, created_at);
 
+-- PQRS: peticiones, quejas, reclamos, sugerencias, garantías y retractos (formulario /contacto)
+create table if not exists shop.messages (
+  id uuid primary key default gen_random_uuid(),
+  code text,
+  kind text not null default 'peticion' check (kind in ('peticion','queja','reclamo','sugerencia','garantia','retracto','otro')),
+  name text not null,
+  email text not null,
+  phone text,
+  order_code text,
+  message text not null,
+  status text not null default 'nuevo' check (status in ('nuevo','en_proceso','resuelto')),
+  admin_note text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists messages_created_idx on shop.messages (created_at desc);
+
 alter table shop.products enable row level security;
 alter table shop.affiliates enable row level security;
 alter table shop.orders enable row level security;
 alter table shop.order_events enable row level security;
+alter table shop.messages enable row level security;
 alter table shop_private.config enable row level security;
 
 create or replace function public.shop_api(p_secret text, p_action text, p_args jsonb default '{}'::jsonb)
@@ -162,6 +180,24 @@ begin
     return '{}'::jsonb;
   when 'events' then
     return coalesce((select jsonb_agg(to_jsonb(e) order by e.created_at) from shop.order_events e where e.order_id = (p_args->>'order_id')::uuid), '[]'::jsonb);
+  -- ---------- PQRS ----------
+  when 'message_create' then
+    insert into shop.messages (kind, name, email, phone, order_code, message)
+    values (coalesce(nullif(p_args->>'kind', ''), 'peticion'), p_args->>'name', p_args->>'email', nullif(p_args->>'phone', ''),
+            nullif(p_args->>'order_code', ''), p_args->>'message')
+    returning id into v_id;
+    update shop.messages set code = 'PQR-' || upper(substr(replace(v_id::text, '-', ''), 1, 6)) where id = v_id returning to_jsonb(messages.*) into v;
+    return v;
+  when 'messages' then
+    return coalesce((select jsonb_agg(to_jsonb(m) order by m.created_at desc)
+      from (select * from shop.messages order by created_at desc limit coalesce((p_args->>'limit')::int, 500)) m), '[]'::jsonb);
+  when 'message_update' then
+    update shop.messages set
+      status = coalesce(nullif(p_args->>'status', ''), status),
+      admin_note = case when p_args ? 'admin_note' then p_args->>'admin_note' else admin_note end,
+      updated_at = now()
+    where id = (p_args->>'id')::uuid returning to_jsonb(messages.*) into v;
+    return coalesce(v, 'null'::jsonb);
   else
     raise exception 'unknown action %', p_action;
   end case;

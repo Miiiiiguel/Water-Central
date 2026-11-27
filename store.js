@@ -35,6 +35,9 @@ const remote = {
   listOrders: ({ ref, limit } = {}) => rpc('orders', { ...(ref ? { ref } : {}), ...(limit ? { limit } : {}) }),
   addEvent: (order_id, type, detail = '') => rpc('event_add', { order_id, type, detail }),
   listEvents: order_id => rpc('events', { order_id }),
+  createMessage: m => rpc('message_create', m),
+  listMessages: ({ limit } = {}) => rpc('messages', limit ? { limit } : {}),
+  updateMessage: (id, patch) => rpc('message_update', { id, ...patch }),
 };
 
 // ---------- Local (JSON) ----------
@@ -43,7 +46,7 @@ const SEED = path.join(__dirname, 'data', 'products.json');
 function read() {
   let db;
   try { db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8')); } catch { db = {}; }
-  db.affiliates ??= []; db.orders ??= []; db.events ??= [];
+  db.affiliates ??= []; db.orders ??= []; db.events ??= []; db.messages ??= [];
   if (!db.products) {
     const seed = JSON.parse(fs.readFileSync(SEED, 'utf8'));
     db.products = seed.map((p, i) => ({ active: true, sort: i, cost: null, ...p, updated_at: new Date().toISOString() }));
@@ -86,6 +89,17 @@ const local = {
   },
   async addEvent(order_id, type, detail = '') { const db = read(); db.events.push({ id: db.events.length + 1, order_id, type, detail, created_at: now() }); write(db); return {}; },
   async listEvents(order_id) { return read().events.filter(e => e.order_id === order_id); },
+  async createMessage(m) {
+    const db = read(), id = crypto.randomUUID();
+    const row = { id, code: 'PQR-' + id.replace(/-/g, '').slice(0, 6).toUpperCase(), status: 'nuevo', admin_note: null, created_at: now(), updated_at: now(), ...m };
+    db.messages.push(row); write(db); return row;
+  },
+  async listMessages({ limit = 500 } = {}) { return read().messages.slice().sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, limit); },
+  async updateMessage(id, patch) {
+    const db = read(), m = db.messages.find(x => x.id === id); if (!m) return null;
+    for (const k of ['status', 'admin_note']) if (patch[k] !== undefined) m[k] = patch[k];
+    m.updated_at = now(); write(db); return m;
+  },
 };
 
 export const db = backend === 'supabase' ? remote : local;

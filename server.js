@@ -27,6 +27,13 @@ const CARRIERS = {
   Servientrega: 'https://www.servientrega.com', Coordinadora: 'https://www.coordinadora.com', 'Interrapidísimo': 'https://www.interrapidisimo.com',
   'Envía': 'https://envia.co', TCC: 'https://www.tcc.com.co', Deprisa: 'https://www.deprisa.com', '4-72': 'https://www.4-72.com.co', 'Entrega propia': '',
 };
+// Datos del responsable (Ley 1480 art. 50 y Ley 1581): se muestran en las páginas legales y de contacto cuando están configurados
+const LEGAL = {
+  name: (env.LEGAL_NAME || '').trim(), id: (env.LEGAL_ID || '').trim(), address: (env.LEGAL_ADDRESS || '').trim(),
+  city: (env.LEGAL_CITY || '').trim(), email: (env.CONTACT_EMAIL || '').trim(), phone: (env.CONTACT_PHONE || '').trim(),
+};
+const MSG_KINDS = { peticion: 'Petición', queja: 'Queja', reclamo: 'Reclamo', sugerencia: 'Sugerencia', garantia: 'Garantía', retracto: 'Retracto', otro: 'Otro' };
+const plainDesc = d => String(d || '').replace(/\s*\n\s*•\s*/g, ' · ').replace(/\s*\n\s*/g, ' ').trim();
 
 // ---------- Catálogo en memoria (se refresca desde la base de datos) ----------
 let allProducts = [], catalog = [], byId = new Map();
@@ -157,7 +164,16 @@ function affiliateStats(a, orders) {
 // ================= API pública =================
 app.get('/api/config', (_req, res) => res.json({
   storeName: STORE_NAME, whatsapp: WHATSAPP, shipping: SHIPPING, freeShippingFrom: FREE_SHIPPING_FROM, commissionPct: COMMISSION_PCT, demo: DEMO,
-  payments: { mercadopago: !!MP_TOKEN || DEMO, contraentrega: COD },
+  payments: { mercadopago: !!MP_TOKEN || DEMO, contraentrega: COD }, legal: LEGAL,
+}));
+app.post('/api/contact', rateLimit('contact', 5, 3600_000), wrap(async (req, res) => {
+  const b = req.body || {};
+  const m = { kind: MSG_KINDS[b.kind] ? b.kind : 'peticion', name: str(b.name, 80), email: str(b.email, 120).toLowerCase(), phone: str(b.phone, 20), order_code: str(b.order_code, 20).toUpperCase(), message: String(b.message ?? '').replace(/[\u0000-\u0008\u000b-\u001f<>]/g, '').trim().slice(0, 2000) };
+  if (b.website) return res.json({ code: 'PQR-OK' }); // trampa para robots
+  if (m.name.length < 3 || !isEmail(m.email) || (m.phone && !isPhone(m.phone)) || m.message.length < 10)
+    return res.status(400).json({ error: 'Escribe tu nombre, un correo válido y un mensaje de al menos 10 caracteres.' });
+  const row = await db.createMessage(m);
+  res.json({ code: row.code });
 }));
 app.get('/api/products', (_req, res) => {
   res.set('Cache-Control', 'public, max-age=60');
@@ -307,7 +323,7 @@ app.get('/api/admin/me', (req, res) => res.json({ admin: isAdmin(req), storeName
 
 const dayKey = iso => new Date(new Date(iso).getTime() - 5 * 3600_000).toISOString().slice(0, 10); // hora de Colombia
 app.get('/api/admin/dashboard', adminOnly, wrap(async (_req, res) => {
-  const orders = await db.listOrders(), affiliates = await db.listAffiliates();
+  const [orders, affiliates, messages] = await Promise.all([db.listOrders(), db.listAffiliates(), db.listMessages().catch(() => [])]);
   const paid = orders.filter(o => o.status === 'paid');
   const today = dayKey(nowIso());
   const since = days => { const t = Date.now() - days * 864e5; return paid.filter(o => new Date(o.paid_at || o.created_at).getTime() >= t); };
@@ -327,13 +343,23 @@ app.get('/api/admin/dashboard', adminOnly, wrap(async (_req, res) => {
     codPending: orders.filter(o => o.payment_method === 'contraentrega' && o.status === 'pending' && o.fulfillment !== 'cancelled').length,
     awaitingPayment: orders.filter(o => o.payment_method === 'mercadopago' && o.status === 'pending').length,
     commissionsOwed: orders.filter(o => o.commission_status === 'pending').reduce((s, o) => s + o.commission, 0),
-    affiliates: affiliates.length,
+    affiliates: affiliates.length, messagesNew: messages.filter(m => m.status === 'nuevo').length,
     series, topProducts: Object.values(top).sort((a, b) => b.qty - a.qty).slice(0, 5).map(t => ({ ...t, image: byId.get(t.id)?.image || null })),
     lowStock: allProducts.filter(p => p.active && p.stock <= 5).sort((a, b) => a.stock - b.stock).slice(0, 8).map(({ id, name, stock, image }) => ({ id, name, stock, image })),
     recent: orders.slice(0, 8).map(o => ({ id: o.id, code: o.code, date: o.created_at, name: o.customer?.name, city: o.customer?.city, total: o.total, stage: stage(o), payment_method: o.payment_method })),
   });
 }));
 const adminOrder = o => ({ ...o, stage: stage(o) });
+app.get('/api/admin/messages', adminOnly, wrap(async (_req, res) => res.json(await db.listMessages())));
+app.post('/api/admin/messages/:id', adminOnly, wrap(async (req, res) => {
+  if (!isUuid(req.params.id)) return res.status(404).json({ error: 'Mensaje no encontrado' });
+  const b = req.body || {}, patch = {};
+  if (b.status !== undefined) { if (!['nuevo', 'en_proceso', 'resuelto'].includes(b.status)) return res.status(400).json({ error: 'Estado no válido' }); patch.status = b.status; }
+  if (b.admin_note !== undefined) patch.admin_note = str(b.admin_note, 1000);
+  const m = await db.updateMessage(req.params.id, patch);
+  if (!m) return res.status(404).json({ error: 'Mensaje no encontrado' });
+  res.json(m);
+}));
 app.get('/api/admin/orders', adminOnly, wrap(async (_req, res) => res.json((await db.listOrders()).map(adminOrder))));
 app.get('/api/admin/orders/:id', adminOnly, wrap(async (req, res) => {
   const o = isUuid(req.params.id) ? await db.getOrder(req.params.id) : null;
@@ -381,6 +407,8 @@ app.post('/api/admin/products/:id', adminOnly, wrap(async (req, res) => {
   if (b.price !== undefined) { const v = Math.round(Number(b.price)); if (!(v >= 0)) return res.status(400).json({ error: 'Precio no válido' }); patch.price = v; }
   if (b.stock !== undefined) { const v = Math.round(Number(b.stock)); if (!(v >= 0)) return res.status(400).json({ error: 'Stock no válido' }); patch.stock = v; }
   if (b.active !== undefined) patch.active = !!b.active;
+  if (b.name !== undefined) { const v = str(b.name, 80).trim(); if (v.length < 3) return res.status(400).json({ error: 'Nombre muy corto' }); patch.name = v; }
+  if (b.description !== undefined) patch.description = String(b.description ?? '').slice(0, 2000);
   const p = await db.productUpdate(str(req.params.id, 20), patch);
   if (!p) return res.status(404).json({ error: 'Producto no encontrado' });
   await loadProducts(); res.json(p);
@@ -438,7 +466,7 @@ function page(res, { title, description, image, url, product, status = 200, noin
     `<meta property="og:title" content="${esc(title)}">`, `<meta property="og:description" content="${esc(description)}">`, `<meta property="og:url" content="${esc(url)}">`,
     image ? `<meta property="og:image" content="${esc(image)}">\n<meta property="og:image:width" content="600">\n<meta property="og:image:height" content="600">` : '',
     '<meta name="twitter:card" content="summary_large_image">',
-    product ? `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'Product', name: product.name, sku: product.id, image, description: product.description, category: product.category, offers: { '@type': 'Offer', priceCurrency: 'COP', price: product.price, availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock', url } }).replace(/</g, '\\u003c')}</script>` : '',
+    product ? `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'Product', name: product.name, sku: product.id, image, description: plainDesc(product.description), category: product.category, offers: { '@type': 'Offer', priceCurrency: 'COP', price: product.price, availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock', url } }).replace(/</g, '\\u003c')}</script>` : '',
   ].filter(Boolean).join('\n');
   res.status(status).set('Cache-Control', 'no-cache').type('html').send(TEMPLATE.replace('__TITLE__', esc(title)).replace('<!--META-->', meta));
 }
@@ -456,17 +484,26 @@ const HOME_DESC = () => `Compra fácil, paga seguro y recíbelo en casa. ${catal
 app.get('/p/:id', (req, res) => {
   const p = byId.get(req.params.id);
   if (!p || !p.active) return page(res, { title: `Producto no encontrado · ${STORE_NAME}`, description: HOME_DESC(), url: `${BASE_URL}/`, status: 404 });
-  page(res, { title: `${p.name} · ${cop(p.price)} · ${STORE_NAME}`, description: `${p.name} por ${cop(p.price)}. ${p.description}`, image: `${BASE_URL}/og/${p.id}.jpg`, url: `${BASE_URL}/p/${p.id}`, product: p });
+  page(res, { title: `${p.name} · ${cop(p.price)} · ${STORE_NAME}`, description: `${p.name} por ${cop(p.price)}. ${plainDesc(p.description)}`, image: `${BASE_URL}/og/${p.id}.jpg?v=6`, url: `${BASE_URL}/p/${p.id}`, product: p });
 });
 app.get('/c/:slug', (req, res, next) => {
   const name = catBySlug(req.params.slug); if (!name) return next();
   const list = catalog.filter(p => p.category === name);
-  page(res, { title: `${name} · ${STORE_NAME}`, description: `${CAT_SEO[name][1]} ${list.length} productos de ${name.toLowerCase()} con envío a toda Colombia.`, image: list[0] ? `${BASE_URL}/og/${list[0].id}.jpg` : '', url: `${BASE_URL}/c/${req.params.slug}` });
+  page(res, { title: `${name} · ${STORE_NAME}`, description: `${CAT_SEO[name][1]} ${list.length} productos de ${name.toLowerCase()} con envío a toda Colombia.`, image: list[0] ? `${BASE_URL}/og/${list[0].id}.jpg?v=6` : '', url: `${BASE_URL}/c/${req.params.slug}` });
 });
+const INFO_PAGES = {
+  '/nosotros': ['Quiénes somos', 'Tienda colombiana en línea con bodega propia: productos para tu hogar, belleza, salud y mascotas con envío a todo el país.'],
+  '/contacto': ['Contacto y PQRS', 'Escríbenos tus peticiones, quejas, reclamos, sugerencias, solicitudes de garantía o retracto. Te respondemos por correo.'],
+  '/envios': ['Envíos y entregas', 'Cómo, cuándo y cuánto cuesta el envío de tu pedido a cualquier ciudad de Colombia.'],
+  '/cambios-y-garantias': ['Cambios, devoluciones y garantías', 'Derecho de retracto, garantía legal y cómo solicitar un cambio o devolución según el Estatuto del Consumidor.'],
+  '/terminos': ['Términos y condiciones', 'Condiciones de uso de la tienda, compras, pagos, envíos y programa de referidos.'],
+  '/privacidad': ['Política de privacidad y tratamiento de datos', 'Cómo tratamos tus datos personales conforme a la Ley 1581 de 2012.'],
+};
+app.get(Object.keys(INFO_PAGES), (req, res) => { const [t, d] = INFO_PAGES[req.path]; page(res, { title: `${t} · ${STORE_NAME}`, description: d, url: `${BASE_URL}${req.path}` }); });
 app.get(['/', '/c/:slug', '/buscar', '/favoritos', '/categorias', '/checkout', '/pedidos', '/pedido/:id'], (req, res) =>
-  page(res, { title: `${STORE_NAME} · Compra fácil, paga seguro, recíbelo en casa`, description: HOME_DESC(), image: catalog[0] ? `${BASE_URL}/og/${catalog[0].id}.jpg` : '', url: `${BASE_URL}${req.path}`, noindex: /^\/(checkout|pedido)/.test(req.path) }));
+  page(res, { title: `${STORE_NAME} · Compra fácil, paga seguro, recíbelo en casa`, description: HOME_DESC(), image: catalog[0] ? `${BASE_URL}/og/${catalog[0].id}.jpg?v=6` : '', url: `${BASE_URL}${req.path}`, noindex: /^\/(checkout|pedido)/.test(req.path) }));
 app.get('/robots.txt', (_req, res) => res.type('text').send(`User-agent: *\nDisallow: /admin\nDisallow: /checkout\nDisallow: /pedido/\nDisallow: /pedidos\nSitemap: ${BASE_URL}/sitemap.xml\n`));
-app.get('/sitemap.xml', (_req, res) => res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n<url><loc>${BASE_URL}/</loc></url>\n${[...new Set(catalog.map(p => p.category))].filter(c => CAT_SEO[c]).map(c => `<url><loc>${BASE_URL}/c/${CAT_SEO[c][0]}</loc></url>`).join('\n')}\n${catalog.map(p => `<url><loc>${BASE_URL}/p/${p.id}</loc></url>`).join('\n')}\n</urlset>`));
+app.get('/sitemap.xml', (_req, res) => res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n<url><loc>${BASE_URL}/</loc></url>\n${Object.keys(INFO_PAGES).map(u => `<url><loc>${BASE_URL}${u}</loc></url>`).join('\n')}\n${[...new Set(catalog.map(p => p.category))].filter(c => CAT_SEO[c]).map(c => `<url><loc>${BASE_URL}/c/${CAT_SEO[c][0]}</loc></url>`).join('\n')}\n${catalog.map(p => `<url><loc>${BASE_URL}/p/${p.id}</loc></url>`).join('\n')}\n</urlset>`));
 app.get('/index.html', (_req, res) => res.redirect(301, '/'));
 app.get('/sw.js', (_req, res) => res.set('Cache-Control', 'no-cache').type('application/javascript').sendFile(path.join(__dirname, 'public', 'sw.js')));
 app.get('/gracias.html', (req, res) => res.redirect(302, isUuid(req.query.order) ? `/pedido/${req.query.order}` : '/pedidos'));

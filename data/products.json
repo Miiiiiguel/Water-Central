@@ -3,7 +3,7 @@
   "id": "UCS-0001",
   "name": "Almohada Ortopédica Lumbar",
   "category": "Salud y Bienestar",
-  "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
+  "description": "Almohada lumbar de forma ergonómica que acompaña la curva natural de tu espalda cuando estás sentado.\n• Apoyo para la zona lumbar\n• Silla, carro u oficina\n• Uso diario\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 43900,
   "stock": 94,
   "image": "/fotos/UCS-0001.webp"
@@ -12,7 +12,7 @@
   "id": "UCS-0002",
   "name": "Antirronquidos",
   "category": "Salud y Bienestar",
-  "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
+  "description": "Accesorio antirronquidos práctico y discreto para usar durante la noche.\n• Discreto y liviano\n• Fácil de usar\n• Ideal para viajar\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 6900,
   "stock": 2130,
   "image": "/fotos/UCS-0002.webp"
@@ -21,7 +21,7 @@
   "id": "UCS-0003",
   "name": "Aspersor de Agua 360°",
   "category": "Jardín",
-  "description": "Facilita el riego con una solución práctica para el jardín y las plantas.",
+  "description": "Aspersor giratorio de 360° para regar tu jardín, prado o antejardín de forma pareja.\n• Riego en 360°\n• Jardín y prado\n• Fácil de instalar\nFacilita el cuidado de tu jardín, tu patio y tus plantas.",
   "price": 71900,
   "stock": 2232,
   "image": "/fotos/UCS-0003.webp"
@@ -30,7 +30,7 @@
   "id": "UCS-0004",
   "name": "Aspiradora Multifuncional",
   "category": "Hogar y Limpieza",
-  "description": "Facilita la limpieza y el cuidado de tu hogar con un equipo práctico y fácil de manejar.",
+  "description": "Aspiradora multifuncional para mantener limpios tu casa, tu carro y los rincones difíciles.\n• Varios usos en casa\n• Práctica para el carro\n• Diseño manejable\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 95900,
   "stock": 14,
   "image": "/fotos/UCS-0004.webp"
@@ -39,7 +39,7 @@
   "id": "UCS-0005",
   "name": "Banda Elástica para Ejercicios",
   "category": "Deportes y Fitness",
-  "description": "Accesorio para complementar tus rutinas de ejercicio y actividad física en casa o en el gimnasio.",
+  "description": "Banda elástica para entrenar fuerza, tonificar y estirar en casa o en el gimnasio.\n• Entrena donde quieras\n• Ocupa poco espacio\n• Para todo nivel\nPara acompañar tus entrenamientos en casa o en el gimnasio.",
   "price": 33900,
   "stock": 249,
   "image": "/fotos/UCS-0005.webp"
@@ -48,7 +48,7 @@
   "id": "UCS-0006",
   "name": "Bolsa para Lonchera",
   "category": "Viaje y Outdoor",
-  "description": "Práctico para viajes, paseos y el día a día. Cómodo de llevar y fácil de usar.",
+  "description": "Lonchera tipo bolso con interior aislante para llevar tus alimentos al trabajo, la universidad o el colegio.\n• Interior aislante\n• Asas para llevar\n• Uso diario\nPráctico para viajes, paseos y actividades al aire libre.",
   "price": 24900,
   "stock": 160,
   "image": "/fotos/UCS-0006.webp"
@@ -57,7 +57,7 @@
   "id": "UCS-0007",
   "name": "Bolsa Secadora para Mascotas",
   "category": "Mascotas",
-  "description": "Accesorio para el cuidado y la comodidad de tu mascota. Práctico, fácil de usar y pensado para el día a día en casa o de paseo.",
+  "description": "Bolsa secadora para mascotas que hace más cómodo el secado después del baño.\n• Secado más cómodo\n• Perros y gatos\n• Uso en casa\nPensado para el cuidado, la comodidad y la diversión de tu mascota.",
   "price": 46900,
   "stock": 53,
   "image": "/fotos/UCS-0007.webp"
@@ -66,7 +66,7 @@
   "id": "UCS-0008",
   "name": "Caja de Almacenamiento para Cosméticos",
   "category": "Belleza y Cuidado Personal",
-  "description": "Organiza tus productos de maquillaje y cuidado personal y mantenlos ordenados y a la mano.",
+  "description": "Organizador de cosméticos con cajones y tapa para tener tu maquillaje ordenado y protegido del polvo.\n• Cajones y tapa\n• Todo a la vista\n• Tocador ordenado\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 238900,
   "stock": 172,
   "image": "/fotos/UCS-0008.webp"
@@ -75,7 +75,7 @@
   "id": "UCS-0009",
   "name": "Caja de Almacenamiento para Cosméticos",
   "category": "Belleza y Cuidado Personal",
-  "description": "Organiza tus productos de maquillaje y cuidado personal y mantenlos ordenados y a la mano.",
+  "description": "Caja organizadora para cosméticos que mantiene tus productos de belleza en orden y a la mano.\n• Todo en un solo lugar\n• Tocador ordenado\n• Baño o habitación\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 101900,
   "stock": 306,
   "image": "/fotos/UCS-0009.webp"
@@ -84,7 +84,7 @@
   "id": "UCS-0010",
   "name": "Calefactor Mini",
   "category": "Tecnología",
-  "description": "Accesorio funcional para complementar el uso diario de tus dispositivos y espacios. Práctico y fácil de usar.",
+  "description": "Calefactor compacto que da calor a espacios pequeños como tu habitación o tu oficina.\n• Tamaño compacto\n• Cuarto u oficina\n• Fácil de mover\nTecnología práctica para tu casa, tu oficina o tu día a día.",
   "price": 164900,
   "stock": 1279,
   "image": "/fotos/UCS-0010.webp"
@@ -93,7 +93,7 @@
   "id": "UCS-0011",
   "name": "Cargador Inalámbrico",
   "category": "Tecnología",
-  "description": "Accesorio funcional para complementar el uso diario de tus dispositivos y espacios. Práctico y fácil de usar.",
+  "description": "Cargador inalámbrico para cargar tu celular compatible sin cables enredados.\n• Sin cables enredados\n• Celulares compatibles\n• Ideal en tu escritorio\nTecnología práctica para tu casa, tu oficina o tu día a día.",
   "price": 71900,
   "stock": 347,
   "image": "/fotos/UCS-0011.webp"
@@ -102,7 +102,7 @@
   "id": "UCS-0012",
   "name": "Cepillo de Dientes Eléctrico con Termo",
   "category": "Belleza y Cuidado Personal",
-  "description": "Cepillo de dientes eléctrico con estuche térmico para complementar tu rutina de higiene diaria.",
+  "description": "Cepillo de dientes eléctrico con estuche térmico, práctico para tu higiene bucal en casa o de viaje.\n• Limpieza eléctrica\n• Con estuche\n• Ideal para viajar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 103900,
   "stock": 35,
   "image": "/fotos/UCS-0012.webp"
@@ -111,7 +111,7 @@
   "id": "UCS-0013",
   "name": "Cepillo de Limpieza de Ventanas",
   "category": "Hogar y Limpieza",
-  "description": "Facilita las labores de limpieza y cuidado del hogar con una solución práctica para el uso diario.",
+  "description": "Cepillo para limpiar ventanas, rieles y ranuras donde se acumula el polvo.\n• Llega a las ranuras\n• Ventanas y rieles\n• Liviano y práctico\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 8900,
   "stock": 995,
   "image": "/fotos/UCS-0013.webp"
@@ -120,7 +120,7 @@
   "id": "UCS-0014",
   "name": "Cepillo de Limpieza Multifuncional",
   "category": "Hogar y Limpieza",
-  "description": "Facilita las labores de limpieza y cuidado del hogar con una solución práctica para el uso diario.",
+  "description": "Cepillo multifuncional para limpiar cocina, baño y superficies del hogar.\n• Varios usos en casa\n• Cocina y baño\n• Agarre cómodo\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 62900,
   "stock": 55,
   "image": "/fotos/UCS-0014.webp"
@@ -129,7 +129,7 @@
   "id": "UCS-0015",
   "name": "Cepillo de Limpieza Multifuncional",
   "category": "Hogar y Limpieza",
-  "description": "Facilita las labores de limpieza y cuidado del hogar con una solución práctica para el uso diario.",
+  "description": "Cepillo multifuncional para limpiar cocina, baño y superficies del hogar.\n• Varios usos en casa\n• Cocina y baño\n• Agarre cómodo\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 39900,
   "stock": 105,
   "image": "/fotos/UCS-0015.webp"
@@ -138,7 +138,7 @@
   "id": "UCS-0016",
   "name": "Cepillo para Mascotas",
   "category": "Mascotas",
-  "description": "Accesorio para el cuidado y la comodidad de tu mascota. Práctico, fácil de usar y pensado para el día a día en casa o de paseo.",
+  "description": "Cepillo para mascotas que ayuda a retirar el pelo suelto y mantener su pelaje bonito.\n• Retira pelo suelto\n• Perros y gatos\n• Agarre cómodo\nPensado para el cuidado, la comodidad y la diversión de tu mascota.",
   "price": 24900,
   "stock": 143,
   "image": "/fotos/UCS-0016.webp"
@@ -147,7 +147,7 @@
   "id": "UCS-0017",
   "name": "Cepillo para Mascotas",
   "category": "Mascotas",
-  "description": "Accesorio para el cuidado y la comodidad de tu mascota. Práctico, fácil de usar y pensado para el día a día en casa o de paseo.",
+  "description": "Cepillo para mascotas que ayuda a retirar el pelo suelto y mantener su pelaje bonito.\n• Retira pelo suelto\n• Perros y gatos\n• Agarre cómodo\nPensado para el cuidado, la comodidad y la diversión de tu mascota.",
   "price": 37900,
   "stock": 107,
   "image": "/fotos/UCS-0017.webp"
@@ -156,7 +156,7 @@
   "id": "UCS-0018",
   "name": "Cepillo para Mascotas",
   "category": "Mascotas",
-  "description": "Accesorio para el cuidado y la comodidad de tu mascota. Práctico, fácil de usar y pensado para el día a día en casa o de paseo.",
+  "description": "Cepillo para mascotas que ayuda a retirar el pelo suelto y mantener su pelaje bonito.\n• Retira pelo suelto\n• Perros y gatos\n• Agarre cómodo\nPensado para el cuidado, la comodidad y la diversión de tu mascota.",
   "price": 24900,
   "stock": 102,
   "image": "/fotos/UCS-0018.webp"
@@ -165,7 +165,7 @@
   "id": "UCS-0019",
   "name": "Cepillo para Mascotas con Luz UV",
   "category": "Mascotas",
-  "description": "Accesorio para el cuidado y la comodidad de tu mascota. Práctico, fácil de usar y pensado para el día a día en casa o de paseo.",
+  "description": "Cepillo para mascotas con luz UV, práctico para el cepillado diario de tu perro o gato.\n• Con luz UV\n• Retira pelo suelto\n• Perros y gatos\nPensado para el cuidado, la comodidad y la diversión de tu mascota.",
   "price": 24900,
   "stock": 409,
   "image": "/fotos/UCS-0019.webp"
@@ -174,7 +174,7 @@
   "id": "UCS-0020",
   "name": "Codera de Ajuste",
   "category": "Salud y Bienestar",
-  "description": "Soporte de uso deportivo y cotidiano que brinda comodidad y ajuste durante la actividad física.",
+  "description": "Codera ajustable que da soporte al codo durante el deporte o las actividades diarias.\n• Ajuste a tu medida\n• Soporte para el codo\n• Deporte y día a día\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 36900,
   "stock": 689,
   "image": "/fotos/UCS-0020.webp"
@@ -183,7 +183,7 @@
   "id": "UCS-0021",
   "name": "Codera Larga",
   "category": "Salud y Bienestar",
-  "description": "Soporte de uso deportivo y cotidiano que brinda comodidad y ajuste durante la actividad física.",
+  "description": "Codera de diseño largo que cubre y da soporte al codo y al antebrazo.\n• Diseño largo\n• Soporte para el brazo\n• Uso deportivo\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 34900,
   "stock": 780,
   "image": "/fotos/UCS-0021.webp"
@@ -192,7 +192,7 @@
   "id": "UCS-0022",
   "name": "Colágeno",
   "category": "Salud y Bienestar",
-  "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
+  "description": "Colágeno para complementar tu rutina de bienestar y cuidado personal. Revisa las indicaciones del empaque.\n• Rutina de bienestar\n• Uso diario\n• Lee el empaque\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 28900,
   "stock": 319,
   "image": "/fotos/UCS-0022.webp"
@@ -201,7 +201,7 @@
   "id": "UCS-0023",
   "name": "Collar con Láser para Mascotas",
   "category": "Mascotas",
-  "description": "Accesorio para el cuidado y la comodidad de tu mascota. Práctico, fácil de usar y pensado para el día a día en casa o de paseo.",
+  "description": "Collar con puntero láser para que tu gato juegue, se ejercite y se mantenga entretenido.\n• Juego y ejercicio\n• Ideal para gatos\n• Diversión en casa\nPensado para el cuidado, la comodidad y la diversión de tu mascota.",
   "price": 30900,
   "stock": 152,
   "image": "/fotos/UCS-0023.webp"
@@ -210,7 +210,7 @@
   "id": "UCS-0024",
   "name": "Compresa para Dedos",
   "category": "Salud y Bienestar",
-  "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
+  "description": "Compresa en forma de funda para dedos que puedes usar en frío o en calor, según lo necesites.\n• Frío o calor\n• Funda para dedos\n• Fácil de usar\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 42900,
   "stock": 213,
   "image": "/fotos/UCS-0024.webp"
@@ -219,7 +219,7 @@
   "id": "UCS-0025",
   "name": "Conservador de Hierbas",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Recipiente para conservar hierbas frescas como cilantro y perejil dentro de la nevera.\n• Hierbas frescas\n• Ideal para la nevera\n• Cocina ordenada\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 35900,
   "stock": 344,
   "image": "/fotos/UCS-0025.webp"
@@ -228,7 +228,7 @@
   "id": "UCS-0026",
   "name": "Corrector de Postura",
   "category": "Salud y Bienestar",
-  "description": "Ayuda a mantener una postura más recta durante el día. Ajustable, cómodo y discreto bajo la ropa.",
+  "description": "Corrector de postura que te ayuda a mantener la espalda recta durante el día.\n• Ajustable\n• Discreto bajo la ropa\n• Uso diario\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 33900,
   "stock": 3102,
   "image": "/fotos/UCS-0026.webp"
@@ -237,7 +237,7 @@
   "id": "UCS-0027",
   "name": "Corrector de Postura",
   "category": "Salud y Bienestar",
-  "description": "Ayuda a mantener una postura más recta durante el día. Ajustable, cómodo y discreto bajo la ropa.",
+  "description": "Corrector de postura que te ayuda a mantener la espalda recta durante el día.\n• Ajustable\n• Discreto bajo la ropa\n• Uso diario\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 33900,
   "stock": 548,
   "image": "/fotos/UCS-0027.webp"
@@ -246,7 +246,7 @@
   "id": "UCS-0028",
   "name": "Corrector de Postura Inteligente",
   "category": "Salud y Bienestar",
-  "description": "Ayuda a mantener una postura más recta durante el día. Ajustable, cómodo y discreto bajo la ropa.",
+  "description": "Corrector de postura inteligente, pensado para ayudarte a mantener la espalda recta durante el día.\n• Ajustable\n• Discreto bajo la ropa\n• Uso diario\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 33900,
   "stock": 3454,
   "image": "/fotos/UCS-0028.webp"
@@ -255,7 +255,7 @@
   "id": "UCS-0029",
   "name": "Corrector de Pie Plano (Caja Negra)",
   "category": "Salud y Bienestar",
-  "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
+  "description": "Corrector para pie plano que da soporte al arco del pie al caminar o estar de pie.\n• Soporte para el arco\n• Uso diario\n• Cómodo de llevar\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 24900,
   "stock": 248,
   "image": "/fotos/UCS-0029.webp"
@@ -264,7 +264,7 @@
   "id": "UCS-0030",
   "name": "Cortador de Vegetales",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Cortador para picar frutas y verduras de forma rápida y pareja.\n• Corta rápido\n• Cortes parejos\n• Ahorra tiempo\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 25900,
   "stock": 133,
   "image": "/fotos/UCS-0030.webp"
@@ -273,7 +273,7 @@
   "id": "UCS-0031",
   "name": "Cortador Mandolina",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Mandolina para cortar verduras en rodajas y tiras de forma rápida.\n• Rodajas y tiras\n• Ahorra tiempo\n• Cocina práctica\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 43900,
   "stock": 377,
   "image": "/fotos/UCS-0031.webp"
@@ -282,7 +282,7 @@
   "id": "UCS-0032",
   "name": "Cosmetiqueras",
   "category": "Belleza y Cuidado Personal",
-  "description": "Organiza tus productos de maquillaje y cuidado personal y mantenlos ordenados y a la mano.",
+  "description": "Cosmetiquera práctica para llevar tu maquillaje y tus artículos personales ordenados.\n• Maquillaje en orden\n• Ideal para viajar\n• Diseño práctico\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 29900,
   "stock": 548,
   "image": "/fotos/UCS-0032.webp"
@@ -291,7 +291,7 @@
   "id": "UCS-0033",
   "name": "Depilador 4 en 1",
   "category": "Belleza y Cuidado Personal",
-  "description": "Alternativa práctica para el cuidado y la depilación desde la comodidad de tu casa.",
+  "description": "Depilador 4 en 1 para tu rutina de cuidado personal desde la comodidad de tu casa.\n• 4 funciones en 1\n• Uso en casa\n• Fácil de usar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 64900,
   "stock": 452,
   "image": "/fotos/UCS-0033.webp"
@@ -300,7 +300,7 @@
   "id": "UCS-0034",
   "name": "Difusor de Incienso con Peine",
   "category": "Hogar y Cocina",
-  "description": "Facilita la preparación de alimentos y las tareas de cocina con una solución práctica y fácil de usar.",
+  "description": "Difusor eléctrico de aromaterapia para perfumar tus espacios con incienso o resinas aromáticas.\n• Aromatiza tus espacios\n• Eléctrico\n• Ambiente relajante\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 95900,
   "stock": 59,
   "image": "/fotos/UCS-0034.webp"
@@ -309,7 +309,7 @@
   "id": "UCS-0035",
   "name": "Dispensador de Agua para Mascotas",
   "category": "Mascotas",
-  "description": "Accesorio para el cuidado y la comodidad de tu mascota. Práctico, fácil de usar y pensado para el día a día en casa o de paseo.",
+  "description": "Dispensador para que tu mascota tenga agua disponible durante el día.\n• Agua disponible\n• Perros y gatos\n• Fácil de llenar\nPensado para el cuidado, la comodidad y la diversión de tu mascota.",
   "price": 69900,
   "stock": 54,
   "image": "/fotos/UCS-0035.webp"
@@ -318,7 +318,7 @@
   "id": "UCS-0036",
   "name": "Dispensador de Albóndigas",
   "category": "Hogar y Cocina",
-  "description": "Facilita la preparación de alimentos y las tareas de cocina con una solución práctica y fácil de usar.",
+  "description": "Molde para formar albóndigas del mismo tamaño de forma rápida y limpia.\n• Albóndigas iguales\n• Rápido y limpio\n• Fácil de usar\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 8900,
   "stock": 326,
   "image": "/fotos/UCS-0036.webp"
@@ -327,7 +327,7 @@
   "id": "UCS-0037",
   "name": "Dispensador de Comida para Mascotas",
   "category": "Mascotas",
-  "description": "Accesorio para el cuidado y la comodidad de tu mascota. Práctico, fácil de usar y pensado para el día a día en casa o de paseo.",
+  "description": "Dispensador de comida que ayuda a mantener servido el plato de tu mascota.\n• Comida disponible\n• Perros y gatos\n• Fácil de llenar\nPensado para el cuidado, la comodidad y la diversión de tu mascota.",
   "price": 54900,
   "stock": 414,
   "image": "/fotos/UCS-0037.webp"
@@ -336,7 +336,7 @@
   "id": "UCS-0038",
   "name": "Dispensador de Jabón",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Dispensador de jabón práctico para el baño o la cocina.\n• Baño o cocina\n• Fácil de rellenar\n• Lavamanos ordenado\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 41900,
   "stock": 35,
   "image": "/fotos/UCS-0038.webp"
@@ -345,7 +345,7 @@
   "id": "UCS-0039",
   "name": "Dispensador de Jabón Eléctrico",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Dispensador de jabón eléctrico, práctico e higiénico para el baño o la cocina.\n• Eléctrico\n• Más higiénico\n• Baño o cocina\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 32900,
   "stock": 291,
   "image": "/fotos/UCS-0039.webp"
@@ -354,7 +354,7 @@
   "id": "UCS-0040",
   "name": "Ducha Portátil",
   "category": "Hogar y Limpieza",
-  "description": "Ducha portátil práctica para el baño, el jardín o los paseos.",
+  "description": "Ducha portátil para bañarte o lavar en paseos, campamentos o donde no haya ducha fija.\n• Llévala contigo\n• Ideal para camping\n• Fácil de usar\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 74900,
   "stock": 342,
   "image": "/fotos/UCS-0040.webp"
@@ -363,7 +363,7 @@
   "id": "UCS-0041",
   "name": "Embutidor de Carne",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Embutidor manual para preparar chorizos y embutidos caseros.\n• Embutidos caseros\n• Uso manual\n• Cocina creativa\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 66900,
   "stock": 72,
   "image": "/fotos/UCS-0041.webp"
@@ -372,7 +372,7 @@
   "id": "UCS-0042",
   "name": "Encrespador de Pestañas Eléctrico",
   "category": "Belleza y Cuidado Personal",
-  "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
+  "description": "Encrespador de pestañas eléctrico que ayuda a dar curvatura a tus pestañas.\n• Pestañas con curva\n• Tamaño de bolsillo\n• Fácil de usar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 26900,
   "stock": 252,
   "image": "/fotos/UCS-0042.webp"
@@ -381,7 +381,7 @@
   "id": "UCS-0043",
   "name": "Exprimidor de Naranjas Recargable",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Exprimidor recargable para preparar jugos de naranja y otros cítricos sin esfuerzo.\n• Recargable\n• Jugos frescos\n• Sin esfuerzo\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 70900,
   "stock": 363,
   "image": "/fotos/UCS-0043.webp"
@@ -390,7 +390,7 @@
   "id": "UCS-0044",
   "name": "Exprimidor Plástico Pájaro",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Exprimidor manual en forma de pájaro para sacar el jugo de limones y otros cítricos.\n• Uso manual\n• Diseño divertido\n• Limones y cítricos\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 64900,
   "stock": 176,
   "image": "/fotos/UCS-0044.webp"
@@ -399,7 +399,7 @@
   "id": "UCS-0045",
   "name": "Extractor de Polvo y Pulidor",
   "category": "Belleza y Cuidado Personal",
-  "description": "Ideal para el cuidado de tus uñas y manos desde casa. Fácil de usar, para lograr un acabado cuidado sin ir al salón.",
+  "description": "Kit de extractor de polvo y pulidor eléctrico para uñas, pensado para manicure en casa o en el salón.\n• Extrae el polvo\n• Pulidor eléctrico\n• Casa o salón\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 207900,
   "stock": 360,
   "image": "/fotos/UCS-0045.webp"
@@ -408,7 +408,7 @@
   "id": "UCS-0046",
   "name": "Filtro de Agua",
   "category": "Hogar y Limpieza",
-  "description": "Facilita las labores de limpieza y cuidado del hogar con una solución práctica para el uso diario.",
+  "description": "Filtro de agua para tu cocina, práctico de instalar y de usar a diario.\n• Para tu cocina\n• Fácil de instalar\n• Uso diario\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 114900,
   "stock": 43,
   "image": "/fotos/UCS-0046.webp"
@@ -417,7 +417,7 @@
   "id": "UCS-0047",
   "name": "Filtro para Lavadora Limpiapelos",
   "category": "Hogar y Limpieza",
-  "description": "Facilita las labores de limpieza y cuidado del hogar con una solución práctica para el uso diario.",
+  "description": "Filtro para lavadora que atrapa pelos y pelusas durante el lavado.\n• Atrapa pelos\n• Para lavadora\n• Ropa más limpia\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 30900,
   "stock": 787,
   "image": "/fotos/UCS-0047.webp"
@@ -426,7 +426,7 @@
   "id": "UCS-0048",
   "name": "Guantes de Protección UV Largos",
   "category": "Salud y Bienestar",
-  "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
+  "description": "Guantes largos con protección UV para cuidar tus brazos del sol al manejar moto, caminar o hacer deporte.\n• Protección UV\n• Moto y deporte\n• Livianos\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 10900,
   "stock": 1157,
   "image": "/fotos/UCS-0048.webp"
@@ -435,7 +435,7 @@
   "id": "UCS-0049",
   "name": "Guantes para Gimnasio",
   "category": "Deportes y Fitness",
-  "description": "Accesorio para complementar tus rutinas de ejercicio y actividad física en casa o en el gimnasio.",
+  "description": "Guantes para gimnasio que protegen tus manos y mejoran el agarre al entrenar.\n• Mejor agarre\n• Protege tus manos\n• Para pesas\nPara acompañar tus entrenamientos en casa o en el gimnasio.",
   "price": 70900,
   "stock": 130,
   "image": "/fotos/UCS-0049.webp"
@@ -444,7 +444,7 @@
   "id": "UCS-0050",
   "name": "Guantes para Gimnasio",
   "category": "Deportes y Fitness",
-  "description": "Accesorio para complementar tus rutinas de ejercicio y actividad física en casa o en el gimnasio.",
+  "description": "Guantes para gimnasio que protegen tus manos y mejoran el agarre al entrenar.\n• Mejor agarre\n• Protege tus manos\n• Para pesas\nPara acompañar tus entrenamientos en casa o en el gimnasio.",
   "price": 46900,
   "stock": 1856,
   "image": "/fotos/UCS-0050.webp"
@@ -453,7 +453,7 @@
   "id": "UCS-0051",
   "name": "Joyero",
   "category": "Organización del Hogar",
-  "description": "Guarda y organiza tus joyas, aretes y accesorios en un solo lugar, siempre visibles y protegidos.",
+  "description": "Joyero para guardar y organizar tus aretes, anillos, collares y relojes en un solo lugar.\n• Joyas ordenadas\n• Protege tus accesorios\n• Ideal para regalar\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 170900,
   "stock": 185,
   "image": "/fotos/UCS-0051.webp"
@@ -462,7 +462,7 @@
   "id": "UCS-0052",
   "name": "Joyero",
   "category": "Organización del Hogar",
-  "description": "Guarda y organiza tus joyas, aretes y accesorios en un solo lugar, siempre visibles y protegidos.",
+  "description": "Joyero para guardar y organizar tus aretes, anillos, collares y relojes en un solo lugar.\n• Joyas ordenadas\n• Protege tus accesorios\n• Ideal para regalar\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 245900,
   "stock": 156,
   "image": "/fotos/UCS-0052.webp"
@@ -471,7 +471,7 @@
   "id": "UCS-0053",
   "name": "Joyero",
   "category": "Organización del Hogar",
-  "description": "Guarda y organiza tus joyas, aretes y accesorios en un solo lugar, siempre visibles y protegidos.",
+  "description": "Joyero para guardar y organizar tus aretes, anillos, collares y relojes en un solo lugar.\n• Joyas ordenadas\n• Protege tus accesorios\n• Ideal para regalar\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 309900,
   "stock": 113,
   "image": "/fotos/UCS-0053.webp"
@@ -480,7 +480,7 @@
   "id": "UCS-0054",
   "name": "Joyero",
   "category": "Organización del Hogar",
-  "description": "Guarda y organiza tus joyas, aretes y accesorios en un solo lugar, siempre visibles y protegidos.",
+  "description": "Joyero para guardar y organizar tus aretes, anillos, collares y relojes en un solo lugar.\n• Joyas ordenadas\n• Protege tus accesorios\n• Ideal para regalar\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 71900,
   "stock": 960,
   "image": "/fotos/UCS-0054.webp"
@@ -489,7 +489,7 @@
   "id": "UCS-0055",
   "name": "Joyero",
   "category": "Organización del Hogar",
-  "description": "Guarda y organiza tus joyas, aretes y accesorios en un solo lugar, siempre visibles y protegidos.",
+  "description": "Joyero para guardar y organizar tus aretes, anillos, collares y relojes en un solo lugar.\n• Joyas ordenadas\n• Protege tus accesorios\n• Ideal para regalar\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 79900,
   "stock": 46,
   "image": "/fotos/UCS-0055.webp"
@@ -498,7 +498,7 @@
   "id": "UCS-0056",
   "name": "Joyero",
   "category": "Organización del Hogar",
-  "description": "Guarda y organiza tus joyas, aretes y accesorios en un solo lugar, siempre visibles y protegidos.",
+  "description": "Joyero para guardar y organizar tus aretes, anillos, collares y relojes en un solo lugar.\n• Joyas ordenadas\n• Protege tus accesorios\n• Ideal para regalar\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 238900,
   "stock": 91,
   "image": "/fotos/UCS-0056.webp"
@@ -507,7 +507,7 @@
   "id": "UCS-0057",
   "name": "Joyero",
   "category": "Organización del Hogar",
-  "description": "Guarda y organiza tus joyas, aretes y accesorios en un solo lugar, siempre visibles y protegidos.",
+  "description": "Joyero para guardar y organizar tus aretes, anillos, collares y relojes en un solo lugar.\n• Joyas ordenadas\n• Protege tus accesorios\n• Ideal para regalar\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 168900,
   "stock": 65,
   "image": "/fotos/UCS-0057.webp"
@@ -516,7 +516,7 @@
   "id": "UCS-0058",
   "name": "Joyero",
   "category": "Organización del Hogar",
-  "description": "Guarda y organiza tus joyas, aretes y accesorios en un solo lugar, siempre visibles y protegidos.",
+  "description": "Joyero para guardar y organizar tus aretes, anillos, collares y relojes en un solo lugar.\n• Joyas ordenadas\n• Protege tus accesorios\n• Ideal para regalar\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 148900,
   "stock": 90,
   "image": "/fotos/UCS-0058.webp"
@@ -525,7 +525,7 @@
   "id": "UCS-0059",
   "name": "Joyero",
   "category": "Organización del Hogar",
-  "description": "Guarda y organiza tus joyas, aretes y accesorios en un solo lugar, siempre visibles y protegidos.",
+  "description": "Joyero para guardar y organizar tus aretes, anillos, collares y relojes en un solo lugar.\n• Joyas ordenadas\n• Protege tus accesorios\n• Ideal para regalar\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 148900,
   "stock": 59,
   "image": "/fotos/UCS-0059.webp"
@@ -534,7 +534,7 @@
   "id": "UCS-0060",
   "name": "Joyero Mini",
   "category": "Organización del Hogar",
-  "description": "Guarda y organiza tus joyas, aretes y accesorios en un solo lugar, siempre visibles y protegidos.",
+  "description": "Joyero mini para guardar tus joyas en casa o llevarlas contigo de viaje.\n• Tamaño compacto\n• Ideal para viajar\n• Joyas ordenadas\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 59900,
   "stock": 888,
   "image": "/fotos/UCS-0060.webp"
@@ -543,7 +543,7 @@
   "id": "UCS-0061",
   "name": "Juego de Brochas",
   "category": "Belleza y Cuidado Personal",
-  "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
+  "description": "Juego de brochas de maquillaje para base, polvos, sombras y difuminado.\n• Varias brochas\n• Maquillaje completo\n• Ideal para regalar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 31900,
   "stock": 78,
   "image": "/fotos/UCS-0061.webp"
@@ -552,7 +552,7 @@
   "id": "UCS-0062",
   "name": "Juguete de Alimentación Mascota",
   "category": "Mascotas",
-  "description": "Una opción para regalar y disfrutar momentos de entretenimiento y juego.",
+  "description": "Mordedor de silicona para perros que puedes rellenar con comida o premios.\n• Silicona\n• Rellénalo con premios\n• Lo mantiene ocupado\nPensado para el cuidado, la comodidad y la diversión de tu mascota.",
   "price": 19900,
   "stock": 262,
   "image": "/fotos/UCS-0062.webp"
@@ -561,7 +561,7 @@
   "id": "UCS-0063",
   "name": "Juguete Didáctico Montaña Rusa",
   "category": "Juguetes",
-  "description": "Una opción para regalar y disfrutar momentos de entretenimiento y juego.",
+  "description": "Juguete didáctico tipo montaña rusa que estimula la coordinación y el juego de los niños.\n• Didáctico\n• Estimula el juego\n• Ideal para regalar\nDiversión y entretenimiento para regalar y compartir.",
   "price": 63900,
   "stock": 29,
   "image": "/fotos/UCS-0063.webp"
@@ -570,7 +570,7 @@
   "id": "UCS-0064",
   "name": "Juguete para Perro",
   "category": "Mascotas",
-  "description": "Una opción para regalar y disfrutar momentos de entretenimiento y juego.",
+  "description": "Juguete para que tu perro muerda, juegue y se mantenga activo.\n• Juego y mordida\n• Lo mantiene activo\n• Para perros\nPensado para el cuidado, la comodidad y la diversión de tu mascota.",
   "price": 36900,
   "stock": 191,
   "image": "/fotos/UCS-0064.webp"
@@ -579,7 +579,7 @@
   "id": "UCS-0065",
   "name": "Kit Viajero",
   "category": "Viaje y Outdoor",
-  "description": "Práctico para viajes, paseos y el día a día. Cómodo de llevar y fácil de usar.",
+  "description": "Kit de frascos y envases para llevar tus productos de cuidado personal cuando viajas.\n• Frascos para viaje\n• Todo organizado\n• Ideal para la maleta\nPráctico para viajes, paseos y actividades al aire libre.",
   "price": 46900,
   "stock": 737,
   "image": "/fotos/UCS-0065.webp"
@@ -588,7 +588,7 @@
   "id": "UCS-0066",
   "name": "Lámpara con Imán",
   "category": "Tecnología",
-  "description": "Accesorio funcional para complementar el uso diario de tus dispositivos y espacios. Práctico y fácil de usar.",
+  "description": "Lámpara decorativa de luz cálida para crear un ambiente acogedor en cualquier espacio.\n• Luz cálida\n• Decorativa\n• Mesa de noche o sala\nTecnología práctica para tu casa, tu oficina o tu día a día.",
   "price": 60900,
   "stock": 77,
   "image": "/fotos/UCS-0066.webp"
@@ -597,7 +597,7 @@
   "id": "UCS-0067",
   "name": "Lámpara de Escritorio",
   "category": "Tecnología",
-  "description": "Accesorio funcional para complementar el uso diario de tus dispositivos y espacios. Práctico y fácil de usar.",
+  "description": "Lámpara de escritorio para estudiar, leer o trabajar con buena iluminación.\n• Estudio y oficina\n• Buena iluminación\n• Diseño práctico\nTecnología práctica para tu casa, tu oficina o tu día a día.",
   "price": 79900,
   "stock": 993,
   "image": "/fotos/UCS-0067.webp"
@@ -606,7 +606,7 @@
   "id": "UCS-0068",
   "name": "Lámpara de Uñas Gato",
   "category": "Belleza y Cuidado Personal",
-  "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
+  "description": "Lámpara con diseño de gato para secar esmalte semipermanente y geles en casa.\n• Diseño de gato\n• Seca el esmalte\n• Manicure en casa\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 91900,
   "stock": 146,
   "image": "/fotos/UCS-0068.webp"
@@ -615,7 +615,7 @@
   "id": "UCS-0069",
   "name": "Lámpara de Uñas Pequeña",
   "category": "Belleza y Cuidado Personal",
-  "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
+  "description": "Lámpara de uñas pequeña para secar esmalte semipermanente y geles en casa.\n• Tamaño compacto\n• Manicure en casa\n• Fácil de usar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 16900,
   "stock": 223,
   "image": "/fotos/UCS-0069.webp"
@@ -624,7 +624,7 @@
   "id": "UCS-0070",
   "name": "Lámpara de Uñas Pequeña",
   "category": "Belleza y Cuidado Personal",
-  "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
+  "description": "Lámpara de uñas pequeña para secar esmalte semipermanente y geles en casa.\n• Tamaño compacto\n• Manicure en casa\n• Fácil de usar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 25900,
   "stock": 1356,
   "image": "/fotos/UCS-0070.webp"
@@ -633,7 +633,7 @@
   "id": "UCS-0071",
   "name": "Lámpara de Uñas Pequeña",
   "category": "Belleza y Cuidado Personal",
-  "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
+  "description": "Lámpara de uñas pequeña para secar esmalte semipermanente y geles en casa.\n• Tamaño compacto\n• Manicure en casa\n• Fácil de usar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 13900,
   "stock": 83,
   "image": "/fotos/UCS-0071.webp"
@@ -642,7 +642,7 @@
   "id": "UCS-0072",
   "name": "Lámpara de Uñas Rose",
   "category": "Belleza y Cuidado Personal",
-  "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
+  "description": "Lámpara de uñas en tono rosa para secar esmalte semipermanente y geles en casa.\n• Tono rosa\n• Manicure en casa\n• Fácil de usar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 14900,
   "stock": 253,
   "image": "/fotos/UCS-0072.webp"
@@ -651,7 +651,7 @@
   "id": "UCS-0073",
   "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
-  "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
+  "description": "Lámpara de uñas UV/LED para secar esmalte semipermanente y geles en casa o en el salón.\n• Luz UV/LED\n• Casa o salón\n• Esmalte y gel\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 91900,
   "stock": 147,
   "image": "/fotos/UCS-0073.webp"
@@ -660,7 +660,7 @@
   "id": "UCS-0074",
   "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
-  "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
+  "description": "Lámpara de uñas UV/LED para secar esmalte semipermanente y geles en casa o en el salón.\n• Luz UV/LED\n• Casa o salón\n• Esmalte y gel\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 435900,
   "stock": 103,
   "image": "/fotos/UCS-0074.webp"
@@ -669,7 +669,7 @@
   "id": "UCS-0075",
   "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
-  "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
+  "description": "Lámpara de uñas UV/LED para secar esmalte semipermanente y geles en casa o en el salón.\n• Luz UV/LED\n• Casa o salón\n• Esmalte y gel\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 91900,
   "stock": 216,
   "image": "/fotos/UCS-0075.webp"
@@ -678,7 +678,7 @@
   "id": "UCS-0076",
   "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
-  "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
+  "description": "Lámpara de uñas UV/LED para secar esmalte semipermanente y geles en casa o en el salón.\n• Luz UV/LED\n• Casa o salón\n• Esmalte y gel\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 92900,
   "stock": 211,
   "image": "/fotos/UCS-0076.webp"
@@ -687,7 +687,7 @@
   "id": "UCS-0077",
   "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
-  "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
+  "description": "Lámpara de uñas UV/LED para secar esmalte semipermanente y geles en casa o en el salón.\n• Luz UV/LED\n• Casa o salón\n• Esmalte y gel\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 86900,
   "stock": 215,
   "image": "/fotos/UCS-0077.webp"
@@ -696,7 +696,7 @@
   "id": "UCS-0078",
   "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
-  "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
+  "description": "Lámpara de uñas UV/LED para secar esmalte semipermanente y geles en casa o en el salón.\n• Luz UV/LED\n• Casa o salón\n• Esmalte y gel\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 91900,
   "stock": 124,
   "image": "/fotos/UCS-0078.webp"
@@ -705,7 +705,7 @@
   "id": "UCS-0079",
   "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
-  "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
+  "description": "Lámpara de uñas UV/LED para secar esmalte semipermanente y geles en casa o en el salón.\n• Luz UV/LED\n• Casa o salón\n• Esmalte y gel\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 114900,
   "stock": 804,
   "image": "/fotos/UCS-0079.webp"
@@ -714,7 +714,7 @@
   "id": "UCS-0080",
   "name": "Lámpara de Uñas UV/LED",
   "category": "Belleza y Cuidado Personal",
-  "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
+  "description": "Lámpara de uñas UV/LED para secar esmalte semipermanente y geles en casa o en el salón.\n• Luz UV/LED\n• Casa o salón\n• Esmalte y gel\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 91900,
   "stock": 337,
   "image": "/fotos/UCS-0080.webp"
@@ -723,7 +723,7 @@
   "id": "UCS-0081",
   "name": "Lámpara de Uñas y Pulidor 2 en 1",
   "category": "Belleza y Cuidado Personal",
-  "description": "Lámpara para secado y curado de esmalte semipermanente y geles. Práctica para manicure en casa o profesional.",
+  "description": "Equipo 2 en 1 con lámpara de uñas y pulidor para hacer tu manicure completa en casa.\n• 2 en 1\n• Lámpara y pulidor\n• Manicure en casa\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 56900,
   "stock": 251,
   "image": "/fotos/UCS-0081.webp"
@@ -732,7 +732,7 @@
   "id": "UCS-0082",
   "name": "Lámpara Proyector Galaxias",
   "category": "Tecnología",
-  "description": "Accesorio funcional para complementar el uso diario de tus dispositivos y espacios. Práctico y fácil de usar.",
+  "description": "Lámpara proyector que llena tu habitación de luces tipo galaxia.\n• Ambiente de galaxia\n• Ideal para el cuarto\n• Gran regalo\nTecnología práctica para tu casa, tu oficina o tu día a día.",
   "price": 111900,
   "stock": 198,
   "image": "/fotos/UCS-0082.webp"
@@ -741,7 +741,7 @@
   "id": "UCS-0083",
   "name": "Lápiz de Belleza",
   "category": "Belleza y Cuidado Personal",
-  "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
+  "description": "Lápiz de belleza de diseño compacto para tus retoques de cuidado personal.\n• Diseño compacto\n• Fácil de llevar\n• Uso personal\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 155900,
   "stock": 18,
   "image": "/fotos/UCS-0083.webp"
@@ -750,7 +750,7 @@
   "id": "UCS-0084",
   "name": "Lavadora de Pies Plegable",
   "category": "Hogar y Limpieza",
-  "description": "Facilita las labores de limpieza y cuidado del hogar con una solución práctica para el uso diario.",
+  "description": "Lavapiés plegable para relajar y limpiar tus pies en casa; se guarda ocupando poco espacio.\n• Plegable\n• Ocupa poco espacio\n• Relajación en casa\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 87900,
   "stock": 175,
   "image": "/fotos/UCS-0084.webp"
@@ -759,7 +759,7 @@
   "id": "UCS-0085",
   "name": "Lavaloza Multifuncional",
   "category": "Hogar y Limpieza",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Accesorio lavaloza multifuncional para facilitar el lavado de platos y ollas.\n• Platos y ollas\n• Práctico\n• Cocina ordenada\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 46900,
   "stock": 232,
   "image": "/fotos/UCS-0085.webp"
@@ -768,7 +768,7 @@
   "id": "UCS-0086",
   "name": "Limpiador a Vapor Multifuncional",
   "category": "Hogar y Limpieza",
-  "description": "Facilita la limpieza y el cuidado de tu hogar con un equipo práctico y fácil de manejar.",
+  "description": "Limpiador a vapor multifuncional para limpiar a fondo cocina, baño y otras superficies.\n• Limpieza con vapor\n• Cocina y baño\n• Multifuncional\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 224900,
   "stock": 30,
   "image": "/fotos/UCS-0086.webp"
@@ -777,7 +777,7 @@
   "id": "UCS-0087",
   "name": "Limpiador de Patas Pequeño",
   "category": "Mascotas",
-  "description": "Accesorio para el cuidado y la comodidad de tu mascota. Práctico, fácil de usar y pensado para el día a día en casa o de paseo.",
+  "description": "Vaso limpiador para lavar las patas de tu mascota después del paseo.\n• Patas limpias\n• Después del paseo\n• Talla pequeña\nPensado para el cuidado, la comodidad y la diversión de tu mascota.",
   "price": 28900,
   "stock": 168,
   "image": "/fotos/UCS-0087.webp"
@@ -786,7 +786,7 @@
   "id": "UCS-0088",
   "name": "Limpiador Pulpo",
   "category": "Hogar y Limpieza",
-  "description": "Facilita las labores de limpieza y cuidado del hogar con una solución práctica para el uso diario.",
+  "description": "Cepillo facial de silicona en forma de pulpo para limpiar y exfoliar suavemente tu rostro.\n• Silicona suave\n• Limpieza facial\n• Diseño divertido\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 5900,
   "stock": 848,
   "image": "/fotos/UCS-0088.webp"
@@ -795,7 +795,7 @@
   "id": "UCS-0089",
   "name": "Malla Juguete",
   "category": "Juguetes",
-  "description": "Una opción para regalar y disfrutar momentos de entretenimiento y juego.",
+  "description": "Pelota antiestrés con malla que puedes apretar para relajarte y entretenerte.\n• Antiestrés\n• Divertida al apretar\n• Niños y adultos\nDiversión y entretenimiento para regalar y compartir.",
   "price": 17900,
   "stock": 887,
   "image": "/fotos/UCS-0089.webp"
@@ -804,7 +804,7 @@
   "id": "UCS-0090",
   "name": "Malla Juguete",
   "category": "Juguetes",
-  "description": "Una opción para regalar y disfrutar momentos de entretenimiento y juego.",
+  "description": "Pelota antiestrés con malla que puedes apretar para relajarte y entretenerte.\n• Antiestrés\n• Divertida al apretar\n• Niños y adultos\nDiversión y entretenimiento para regalar y compartir.",
   "price": 9900,
   "stock": 1028,
   "image": "/fotos/UCS-0090.webp"
@@ -813,7 +813,7 @@
   "id": "UCS-0091",
   "name": "Malla Juguete",
   "category": "Juguetes",
-  "description": "Una opción para regalar y disfrutar momentos de entretenimiento y juego.",
+  "description": "Pelota antiestrés con malla que puedes apretar para relajarte y entretenerte.\n• Antiestrés\n• Divertida al apretar\n• Niños y adultos\nDiversión y entretenimiento para regalar y compartir.",
   "price": 16900,
   "stock": 500,
   "image": "/fotos/UCS-0091.webp"
@@ -822,7 +822,7 @@
   "id": "UCS-0092",
   "name": "Malla para Lavar Zapatos",
   "category": "Hogar y Limpieza",
-  "description": "Facilita las labores de limpieza y cuidado del hogar con una solución práctica para el uso diario.",
+  "description": "Bolsa de malla para lavar tus zapatos en la lavadora protegiéndolos de los golpes.\n• Para lavadora\n• Protege tus zapatos\n• Reutilizable\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 19900,
   "stock": 469,
   "image": "/fotos/UCS-0092.webp"
@@ -831,7 +831,7 @@
   "id": "UCS-0093",
   "name": "Malla para Plancha",
   "category": "Hogar y Limpieza",
-  "description": "Facilita la limpieza y el cuidado de tu hogar con un equipo práctico y fácil de manejar.",
+  "description": "Malla protectora para planchar que ayuda a cuidar tus prendas delicadas del calor directo.\n• Protege tus prendas\n• Prendas delicadas\n• Fácil de usar\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 5900,
   "stock": 393,
   "image": "/fotos/UCS-0093.webp"
@@ -840,7 +840,7 @@
   "id": "UCS-0094",
   "name": "Manguera Flexible",
   "category": "Jardín",
-  "description": "Manguera flexible y práctica para riego y limpieza.",
+  "description": "Manguera flexible para regar el jardín y lavar el carro o el patio.\n• Flexible\n• Jardín y carro\n• Fácil de guardar\nFacilita el cuidado de tu jardín, tu patio y tus plantas.",
   "price": 25900,
   "stock": 453,
   "image": "/fotos/UCS-0094.webp"
@@ -849,7 +849,7 @@
   "id": "UCS-0095",
   "name": "Manta Térmica",
   "category": "Salud y Bienestar",
-  "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
+  "description": "Manta térmica para mantenerte abrigado en casa, de viaje o al aire libre.\n• Abriga\n• Casa o viaje\n• Fácil de guardar\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 72900,
   "stock": 67,
   "image": "/fotos/UCS-0095.webp"
@@ -858,7 +858,7 @@
   "id": "UCS-0096",
   "name": "Máquina de Sellado Pequeña",
   "category": "Hogar y Cocina",
-  "description": "Sella bolsas de empaque para conservar alimentos y productos.",
+  "description": "Selladora pequeña para cerrar bolsas de snacks y alimentos y conservarlos mejor.\n• Sella bolsas\n• Tamaño de bolsillo\n• Alimentos frescos\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 12900,
   "stock": 92,
   "image": "/fotos/UCS-0096.webp"
@@ -867,7 +867,7 @@
   "id": "UCS-0097",
   "name": "Máquina Peluquera Recargable",
   "category": "Belleza y Cuidado Personal",
-  "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
+  "description": "Máquina peluquera recargable para cortar y perfilar el cabello en casa.\n• Recargable\n• Corte en casa\n• Fácil de usar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 67900,
   "stock": 147,
   "image": "/fotos/UCS-0097.webp"
@@ -876,7 +876,7 @@
   "id": "UCS-0098",
   "name": "Masajeador Corporal de Ventosa",
   "category": "Salud y Bienestar",
-  "description": "Masajeador pensado para aliviar la sensación de tensión y acompañar tu rutina de descanso y bienestar.",
+  "description": "Masajeador corporal de ventosa para relajar tus músculos después de un día pesado.\n• Masaje de ventosa\n• Relaja tus músculos\n• Uso en casa\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 72900,
   "stock": 179,
   "image": "/fotos/UCS-0098.webp"
@@ -885,7 +885,7 @@
   "id": "UCS-0099",
   "name": "Masajeador Corporal Magic",
   "category": "Salud y Bienestar",
-  "description": "Masajeador pensado para aliviar la sensación de tensión y acompañar tu rutina de descanso y bienestar.",
+  "description": "Masajeador corporal para relajar cuello, espalda y piernas desde la comodidad de tu casa.\n• Cuello y espalda\n• Uso en casa\n• Ideal para regalar\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 73900,
   "stock": 577,
   "image": "/fotos/UCS-0099.webp"
@@ -894,7 +894,7 @@
   "id": "UCS-0100",
   "name": "Masajeador de Cuello",
   "category": "Salud y Bienestar",
-  "description": "Masajeador pensado para aliviar la sensación de tensión y acompañar tu rutina de descanso y bienestar.",
+  "description": "Masajeador de cuello para relajarte después del trabajo o el estudio.\n• Relaja el cuello\n• Casa u oficina\n• Ideal para regalar\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 133900,
   "stock": 23,
   "image": "/fotos/UCS-0100.webp"
@@ -903,7 +903,7 @@
   "id": "UCS-0101",
   "name": "Masajeador de Papada Sencillo",
   "category": "Belleza y Cuidado Personal",
-  "description": "Masajeador pensado para aliviar la sensación de tensión y acompañar tu rutina de descanso y bienestar.",
+  "description": "Masajeador facial para cuello y papada que complementa tu rutina de cuidado.\n• Cuello y papada\n• Rutina de belleza\n• Fácil de usar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 37900,
   "stock": 574,
   "image": "/fotos/UCS-0101.webp"
@@ -912,7 +912,7 @@
   "id": "UCS-0102",
   "name": "Masajeador Facial 4 en 1",
   "category": "Belleza y Cuidado Personal",
-  "description": "Masajeador pensado para aliviar la sensación de tensión y acompañar tu rutina de descanso y bienestar.",
+  "description": "Masajeador facial 4 en 1 para consentir tu piel en tu rutina de belleza.\n• 4 funciones en 1\n• Rutina facial\n• Uso en casa\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 79900,
   "stock": 103,
   "image": "/fotos/UCS-0102.webp"
@@ -921,16 +921,16 @@
   "id": "UCS-0103",
   "name": "Masajeador Infrarrojo Delfín",
   "category": "Salud y Bienestar",
-  "description": "Masajeador pensado para aliviar la sensación de tensión y acompañar tu rutina de descanso y bienestar.",
+  "description": "Masajeador en forma de delfín con luz infrarroja para relajar tus músculos.\n• Luz infrarroja\n• Diseño de delfín\n• Relajación en casa\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 78900,
   "stock": 670,
   "image": "/fotos/UCS-0103.webp"
  },
  {
   "id": "UCS-0104",
-  "name": "Máscara de Frutas Blanca",
+  "name": "Máquina para Mascarillas de Frutas",
   "category": "Belleza y Cuidado Personal",
-  "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
+  "description": "Máquina para preparar mascarillas faciales caseras con frutas y otros ingredientes naturales.\n• Mascarillas caseras\n• Con frutas naturales\n• Rutina facial\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 311900,
   "stock": 228,
   "image": "/fotos/UCS-0104.webp"
@@ -939,16 +939,16 @@
   "id": "UCS-0105",
   "name": "Mezclador de Harina",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Botella mezcladora con bola batidora para preparar y servir mezcla de pancakes sin regueros.\n• Mezcla y sirve\n• Sin regueros\n• Pancakes y más\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 31900,
   "stock": 39,
   "image": "/fotos/UCS-0105.webp"
  },
  {
   "id": "UCS-0106",
-  "name": "Mini Consola Tetris",
+  "name": "Mini Consola de Juego de Bloques",
   "category": "Juguetes",
-  "description": "Una opción para regalar y disfrutar momentos de entretenimiento y juego.",
+  "description": "Mini consola portátil con el clásico juego de bloques para divertirte donde estés.\n• Portátil\n• Juego clásico\n• Ideal para regalar\nDiversión y entretenimiento para regalar y compartir.",
   "price": 45900,
   "stock": 12,
   "image": "/fotos/UCS-0106.webp"
@@ -957,7 +957,7 @@
   "id": "UCS-0107",
   "name": "Mini Ventilador",
   "category": "Tecnología",
-  "description": "Accesorio funcional para complementar el uso diario de tus dispositivos y espacios. Práctico y fácil de usar.",
+  "description": "Mini ventilador portátil para refrescarte en casa, en la oficina o de viaje.\n• Portátil\n• Casa u oficina\n• Fácil de llevar\nTecnología práctica para tu casa, tu oficina o tu día a día.",
   "price": 45900,
   "stock": 237,
   "image": "/fotos/UCS-0107.webp"
@@ -966,7 +966,7 @@
   "id": "UCS-0108",
   "name": "Mini Waflera",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Mini waflera para preparar waffles caseros de forma rápida.\n• Waffles caseros\n• Tamaño compacto\n• Desayunos rápidos\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 72900,
   "stock": 255,
   "image": "/fotos/UCS-0108.webp"
@@ -975,7 +975,7 @@
   "id": "UCS-0109",
   "name": "Nebulizador",
   "category": "Salud y Bienestar",
-  "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
+  "description": "Nebulizador para terapias respiratorias en casa, según indicación médica.\n• Uso en casa\n• Fácil de usar\n• Según indicación médica\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 81900,
   "stock": 305,
   "image": "/fotos/UCS-0109.webp"
@@ -984,7 +984,7 @@
   "id": "UCS-0110",
   "name": "Organizador de Bolsos",
   "category": "Organización del Hogar",
-  "description": "Ayuda a mantener tus cosas ordenadas y a la mano, aprovechando mejor el espacio.",
+  "description": "Organizador para guardar tus bolsos y carteras en orden y sin que se deformen.\n• Bolsos en orden\n• Ahorra espacio\n• Clóset organizado\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 23900,
   "stock": 263,
   "image": "/fotos/UCS-0110.webp"
@@ -993,7 +993,7 @@
   "id": "UCS-0111",
   "name": "Organizador de Brasier",
   "category": "Organización del Hogar",
-  "description": "Ayuda a mantener tus cosas ordenadas y a la mano, aprovechando mejor el espacio.",
+  "description": "Organizador para guardar tus brasieres en orden y sin que se deformen.\n• Brasieres en orden\n• Ahorra espacio\n• Clóset organizado\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 18900,
   "stock": 833,
   "image": "/fotos/UCS-0111.webp"
@@ -1002,7 +1002,7 @@
   "id": "UCS-0112",
   "name": "Organizador de Cosméticos",
   "category": "Belleza y Cuidado Personal",
-  "description": "Organiza tus productos de maquillaje y cuidado personal y mantenlos ordenados y a la mano.",
+  "description": "Organizador de cosméticos para tener tu maquillaje y tus cremas en orden.\n• Todo a la vista\n• Tocador ordenado\n• Baño o habitación\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 101900,
   "stock": 41,
   "image": "/fotos/UCS-0112.webp"
@@ -1011,7 +1011,7 @@
   "id": "UCS-0113",
   "name": "Organizador de Cosméticos",
   "category": "Belleza y Cuidado Personal",
-  "description": "Organiza tus productos de maquillaje y cuidado personal y mantenlos ordenados y a la mano.",
+  "description": "Organizador de cosméticos para tener tu maquillaje y tus cremas en orden.\n• Todo a la vista\n• Tocador ordenado\n• Baño o habitación\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 101900,
   "stock": 27,
   "image": "/fotos/UCS-0113.webp"
@@ -1020,7 +1020,7 @@
   "id": "UCS-0114",
   "name": "Organizador de Cosméticos 360°",
   "category": "Belleza y Cuidado Personal",
-  "description": "Organiza tus productos de maquillaje y cuidado personal y mantenlos ordenados y a la mano.",
+  "description": "Organizador giratorio de 360° para tener tus cosméticos siempre a la mano.\n• Gira 360°\n• Todo a la mano\n• Tocador ordenado\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 101900,
   "stock": 194,
   "image": "/fotos/UCS-0114.webp"
@@ -1029,7 +1029,7 @@
   "id": "UCS-0115",
   "name": "Organizador de Herramientas",
   "category": "Herramientas",
-  "description": "Mantén tus herramientas ordenadas y a la mano.",
+  "description": "Organizador para guardar tus herramientas en orden y encontrarlas rápido.\n• Herramientas en orden\n• Taller ordenado\n• Encuéntralas rápido\nUna herramienta práctica para tus tareas en casa, en el taller o en el jardín.",
   "price": 193900,
   "stock": 25,
   "image": "/fotos/UCS-0115.webp"
@@ -1038,7 +1038,7 @@
   "id": "UCS-0116",
   "name": "Organizador de Ropa Interior",
   "category": "Organización del Hogar",
-  "description": "Ayuda a mantener tus cosas ordenadas y a la mano, aprovechando mejor el espacio.",
+  "description": "Organizador con divisiones para guardar ropa interior y medias en el cajón.\n• Con divisiones\n• Cajones en orden\n• Ahorra espacio\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 39900,
   "stock": 1690,
   "image": "/fotos/UCS-0116.webp"
@@ -1047,7 +1047,7 @@
   "id": "UCS-0117",
   "name": "Organizador de Zapatos",
   "category": "Organización del Hogar",
-  "description": "Mantén tus zapatos ordenados y ahorra espacio en tu closet o entrada con este organizador práctico.",
+  "description": "Organizador para guardar tus zapatos en orden y ahorrar espacio.\n• Zapatos en orden\n• Ahorra espacio\n• Clóset organizado\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 24900,
   "stock": 105,
   "image": "/fotos/UCS-0117.webp"
@@ -1056,7 +1056,7 @@
   "id": "UCS-0118",
   "name": "Organizador de Zapatos 4 Niveles",
   "category": "Organización del Hogar",
-  "description": "Mantén tus zapatos ordenados y ahorra espacio en tu closet o entrada con este organizador práctico.",
+  "description": "Organizador de zapatos de 4 niveles para tener tu calzado en orden.\n• 4 niveles\n• Ahorra espacio\n• Calzado en orden\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 99900,
   "stock": 411,
   "image": "/fotos/UCS-0118.webp"
@@ -1065,7 +1065,7 @@
   "id": "UCS-0119",
   "name": "Organizador de Zapatos 5 Niveles",
   "category": "Organización del Hogar",
-  "description": "Mantén tus zapatos ordenados y ahorra espacio en tu closet o entrada con este organizador práctico.",
+  "description": "Organizador de zapatos de 5 niveles para tener tu calzado en orden.\n• 5 niveles\n• Ahorra espacio\n• Calzado en orden\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 108900,
   "stock": 100,
   "image": "/fotos/UCS-0119.webp"
@@ -1074,7 +1074,7 @@
   "id": "UCS-0120",
   "name": "Parche Mymi",
   "category": "Salud y Bienestar",
-  "description": "Parche para el cuidado corporal, de uso externo. Revisa las indicaciones del empaque.",
+  "description": "Parche abdominal Mymi para el cuidado corporal, de uso externo. Revisa las indicaciones del empaque.\n• Fácil de aplicar\n• Uso discreto\n• Uso externo\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 16900,
   "stock": 2681,
   "image": "/fotos/UCS-0120.webp"
@@ -1083,7 +1083,7 @@
   "id": "UCS-0121",
   "name": "Parrilla Cilíndrica de Malla Grande",
   "category": "Hogar y Limpieza",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Parrilla cilíndrica de malla para asar vegetales, carnes y mazorcas en la parrilla.\n• Para asados\n• Vegetales y carnes\n• Tamaño grande\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 75900,
   "stock": 224,
   "image": "/fotos/UCS-0121.webp"
@@ -1092,7 +1092,7 @@
   "id": "UCS-0122",
   "name": "Parrilla Cilíndrica de Malla Pequeña",
   "category": "Hogar y Limpieza",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Parrilla cilíndrica de malla para asar vegetales, carnes y mazorcas en la parrilla.\n• Para asados\n• Vegetales y carnes\n• Tamaño pequeño\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 58900,
   "stock": 250,
   "image": "/fotos/UCS-0122.webp"
@@ -1101,7 +1101,7 @@
   "id": "UCS-0123",
   "name": "Parrilla de Silicona",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Parrilla de silicona práctica para cocinar y asar en tu cocina.\n• Silicona\n• Cocina práctica\n• Fácil de limpiar\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 39900,
   "stock": 335,
   "image": "/fotos/UCS-0123.webp"
@@ -1110,7 +1110,7 @@
   "id": "UCS-0124",
   "name": "Patas Antivibración para Lavadora",
   "category": "Hogar y Limpieza",
-  "description": "Reduce las vibraciones y el ruido de tu lavadora y protege el piso.",
+  "description": "Set de bases antivibración para lavadora que ayudan a reducir el ruido y el movimiento.\n• Menos vibración\n• Menos ruido\n• Fácil de instalar\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 61900,
   "stock": 245,
   "image": "/fotos/UCS-0124.webp"
@@ -1119,7 +1119,7 @@
   "id": "UCS-0125",
   "name": "Pelador de Frutas con Pedal",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Pelador de frutas de manivela para pelar manzanas y otras frutas de forma rápida en tu cocina.\n• Pela rápido\n• De manivela\n• Cocina práctica\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 73900,
   "stock": 97,
   "image": "/fotos/UCS-0125.webp"
@@ -1128,7 +1128,7 @@
   "id": "UCS-0126",
   "name": "Peluche con Sonido",
   "category": "Juguetes",
-  "description": "Una opción para regalar y disfrutar momentos de entretenimiento y juego.",
+  "description": "Peluche con sonido, suave y divertido para acompañar el juego de los niños.\n• Suave\n• Con sonido\n• Ideal para regalar\nDiversión y entretenimiento para regalar y compartir.",
   "price": 72900,
   "stock": 150,
   "image": "/fotos/UCS-0126.webp"
@@ -1137,7 +1137,7 @@
   "id": "UCS-0127",
   "name": "Peluche con Sonido",
   "category": "Juguetes",
-  "description": "Una opción para regalar y disfrutar momentos de entretenimiento y juego.",
+  "description": "Peluche con sonido, suave y divertido para acompañar el juego de los niños.\n• Suave\n• Con sonido\n• Ideal para regalar\nDiversión y entretenimiento para regalar y compartir.",
   "price": 72900,
   "stock": 148,
   "image": "/fotos/UCS-0127.webp"
@@ -1146,7 +1146,7 @@
   "id": "UCS-0128",
   "name": "Piedra Depilatoria",
   "category": "Belleza y Cuidado Personal",
-  "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
+  "description": "Piedra depilatoria para retirar el vello de forma práctica y sin cuchillas.\n• Sin cuchillas\n• Fácil de usar\n• Uso en casa\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 59900,
   "stock": 952,
   "image": "/fotos/UCS-0128.webp"
@@ -1155,7 +1155,7 @@
   "id": "UCS-0129",
   "name": "Piedra Gua Sha",
   "category": "Belleza y Cuidado Personal",
-  "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
+  "description": "Set de rodillo facial y piedra Gua Sha para masajes faciales dentro de tu rutina de cuidado.\n• Masaje facial\n• Rutina de belleza\n• Ideal para regalar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 58900,
   "stock": 74,
   "image": "/fotos/UCS-0129.webp"
@@ -1164,7 +1164,7 @@
   "id": "UCS-0130",
   "name": "Piedra Jade",
   "category": "Belleza y Cuidado Personal",
-  "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
+  "description": "Piedra de jade para masajes faciales relajantes dentro de tu rutina de belleza.\n• Masaje facial\n• Rutina de belleza\n• Ideal para regalar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 19900,
   "stock": 1100,
   "image": "/fotos/UCS-0130.webp"
@@ -1173,7 +1173,7 @@
   "id": "UCS-0131",
   "name": "Pijama",
   "category": "Moda y Accesorios",
-  "description": "Prenda cómoda y suave para el descanso.",
+  "description": "Pijama de diseño divertido, cómoda y suave para descansar en casa.\n• Diseño divertido\n• Cómoda y suave\n• Ideal para regalar\nCómodo y práctico para tu día a día.",
   "price": 84900,
   "stock": 322,
   "image": "/fotos/UCS-0131.webp"
@@ -1182,7 +1182,7 @@
   "id": "UCS-0132",
   "name": "Pistola Etiquetadora de Ropa",
   "category": "Herramientas",
-  "description": "Etiquetadora práctica para marcar prendas e inventario.",
+  "description": "Pistola etiquetadora para marcar prendas e inventario de forma rápida en tu tienda.\n• Etiqueta rápido\n• Ideal para tiendas\n• Fácil de usar\nUna herramienta práctica para tus tareas en casa, en el taller o en el jardín.",
   "price": 80900,
   "stock": 239,
   "image": "/fotos/UCS-0132.webp"
@@ -1191,7 +1191,7 @@
   "id": "UCS-0133",
   "name": "Plancha Vertical",
   "category": "Hogar y Limpieza",
-  "description": "Facilita la limpieza y el cuidado de tu hogar con un equipo práctico y fácil de manejar.",
+  "description": "Plancha vertical a vapor para quitar las arrugas de tus prendas colgadas.\n• Vapor vertical\n• Prendas colgadas\n• Rápida y práctica\nHace más fáciles las tareas de limpieza y cuidado de tu hogar.",
   "price": 153900,
   "stock": 171,
   "image": "/fotos/UCS-0133.webp"
@@ -1200,7 +1200,7 @@
   "id": "UCS-0134",
   "name": "Pulidor de Uñas",
   "category": "Belleza y Cuidado Personal",
-  "description": "Ideal para el cuidado de tus uñas y manos desde casa. Fácil de usar, para lograr un acabado cuidado sin ir al salón.",
+  "description": "Pulidor eléctrico de uñas para limar y dar acabado a tu manicure en casa.\n• Eléctrico\n• Manicure en casa\n• Fácil de usar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 77900,
   "stock": 46,
   "image": "/fotos/UCS-0134.webp"
@@ -1209,7 +1209,7 @@
   "id": "UCS-0135",
   "name": "Pulidor de Uñas",
   "category": "Belleza y Cuidado Personal",
-  "description": "Ideal para el cuidado de tus uñas y manos desde casa. Fácil de usar, para lograr un acabado cuidado sin ir al salón.",
+  "description": "Pulidor eléctrico de uñas para limar y dar acabado a tu manicure en casa.\n• Eléctrico\n• Manicure en casa\n• Fácil de usar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 77900,
   "stock": 175,
   "image": "/fotos/UCS-0135.webp"
@@ -1218,7 +1218,7 @@
   "id": "UCS-0136",
   "name": "Pulidor de Uñas para Mascotas",
   "category": "Mascotas",
-  "description": "Accesorio para el cuidado y la comodidad de tu mascota. Práctico, fácil de usar y pensado para el día a día en casa o de paseo.",
+  "description": "Pulidor eléctrico para limar las uñas de tu perro o gato de forma práctica en casa.\n• Perros y gatos\n• Eléctrico\n• Uso en casa\nPensado para el cuidado, la comodidad y la diversión de tu mascota.",
   "price": 46900,
   "stock": 115,
   "image": "/fotos/UCS-0136.webp"
@@ -1227,7 +1227,7 @@
   "id": "UCS-0137",
   "name": "Racionador de Condimentos",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Frasco dosificador para servir la cantidad justa de cereales, granos o condimentos.\n• Porciones justas\n• Cocina ordenada\n• Fácil de usar\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 19900,
   "stock": 316,
   "image": "/fotos/UCS-0137.webp"
@@ -1239,13 +1239,14 @@
   "description": "Reloj inteligente para acompañar tu día: notificaciones y funciones de seguimiento de actividad en tu muñeca.",
   "price": 432900,
   "stock": 27,
-  "image": "/fotos/UCS-0138.webp"
+  "image": "/fotos/UCS-0138.webp",
+  "active": false
  },
  {
   "id": "UCS-0139",
   "name": "Reloj Inteligente HK8 Hero",
   "category": "Tecnología",
-  "description": "Reloj inteligente para acompañar tu día: notificaciones y funciones de seguimiento de actividad en tu muñeca.",
+  "description": "Reloj inteligente HK8 Hero para llevar notificaciones y seguimiento de actividad en tu muñeca.\n• Tecnología en tu muñeca\n• Diseño moderno\n• Ideal para regalar\nTecnología práctica para tu casa, tu oficina o tu día a día.",
   "price": 432900,
   "stock": 18,
   "image": "/fotos/UCS-0139.webp"
@@ -1254,7 +1255,7 @@
   "id": "UCS-0140",
   "name": "Removedor de Callos",
   "category": "Belleza y Cuidado Personal",
-  "description": "Ideal para el cuidado de tus uñas y manos desde casa. Fácil de usar, para lograr un acabado cuidado sin ir al salón.",
+  "description": "Removedor de callos para consentir y suavizar la piel de tus pies en casa.\n• Pies más suaves\n• Uso en casa\n• Fácil de usar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 118900,
   "stock": 505,
   "image": "/fotos/UCS-0140.webp"
@@ -1263,7 +1264,7 @@
   "id": "UCS-0142",
   "name": "Rueda Abdominal",
   "category": "Deportes y Fitness",
-  "description": "Accesorio para complementar tus rutinas de ejercicio y actividad física en casa o en el gimnasio.",
+  "description": "Rueda abdominal para trabajar abdomen, brazos y espalda en casa.\n• Abdomen en casa\n• Ocupa poco espacio\n• Para todo nivel\nPara acompañar tus entrenamientos en casa o en el gimnasio.",
   "price": 59900,
   "stock": 521,
   "image": "/fotos/UCS-0142.webp"
@@ -1272,7 +1273,7 @@
   "id": "UCS-0143",
   "name": "Sandwichera",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Sandwichera para preparar sándwiches calientes en minutos.\n• Sándwiches calientes\n• Desayunos rápidos\n• Fácil de usar\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 89900,
   "stock": 56,
   "image": "/fotos/UCS-0143.webp"
@@ -1281,7 +1282,7 @@
   "id": "UCS-0144",
   "name": "Set de Uñas Acrílicas",
   "category": "Belleza y Cuidado Personal",
-  "description": "Ideal para el cuidado de tus uñas y manos desde casa. Fácil de usar, para lograr un acabado cuidado sin ir al salón.",
+  "description": "Set para uñas acrílicas para decorar y darle estilo a tus uñas en casa.\n• Uñas en casa\n• Decora tus uñas\n• Ideal para regalar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 77900,
   "stock": 343,
   "image": "/fotos/UCS-0144.webp"
@@ -1290,7 +1291,7 @@
   "id": "UCS-0145",
   "name": "Silla Plegable Pequeña",
   "category": "Hogar y Cocina",
-  "description": "Banco plegable y ligero, fácil de guardar y de llevar a cualquier lugar.",
+  "description": "Silla plegable pequeña para paseos, pesca, camping o espacios reducidos.\n• Plegable\n• Fácil de llevar\n• Paseos y camping\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 54900,
   "stock": 110,
   "image": "/fotos/UCS-0145.webp"
@@ -1299,7 +1300,7 @@
   "id": "UCS-0146",
   "name": "Soporte para Cuello",
   "category": "Salud y Bienestar",
-  "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
+  "description": "Soporte para cuello que te da apoyo y comodidad al descansar o viajar.\n• Apoyo para el cuello\n• Cómodo\n• Ideal para viajar\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 42900,
   "stock": 15,
   "image": "/fotos/UCS-0146.webp"
@@ -1308,7 +1309,7 @@
   "id": "UCS-0147",
   "name": "Tablero Infantil Mediano",
   "category": "Juguetes",
-  "description": "Tablero didáctico para que los más pequeños dibujen, aprendan y se diviertan.",
+  "description": "Tablero didáctico infantil para que los niños dibujen, escriban y aprendan jugando.\n• Dibujar y escribir\n• Aprende jugando\n• Tamaño mediano\nDiversión y entretenimiento para regalar y compartir.",
   "price": 290900,
   "stock": 152,
   "image": "/fotos/UCS-0147.webp"
@@ -1317,7 +1318,7 @@
   "id": "UCS-0148",
   "name": "Tajador",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Tajador manual para cortar carne en tajadas delgadas y parejas.\n• Tajadas parejas\n• Para carnes\n• Cocina práctica\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 137900,
   "stock": 83,
   "image": "/fotos/UCS-0148.webp"
@@ -1326,7 +1327,7 @@
   "id": "UCS-0149",
   "name": "Tamizadora Manual",
   "category": "Hogar y Cocina",
-  "description": "Agiliza la preparación de alimentos y facilita las tareas de cocina con un diseño práctico y fácil de limpiar.",
+  "description": "Tamizadora manual para cernir harina, azúcar pulverizada y cacao al hornear.\n• Cierne harina\n• Repostería\n• Fácil de usar\nHace tu cocina más práctica y te ahorra tiempo al preparar tus comidas.",
   "price": 31900,
   "stock": 60,
   "image": "/fotos/UCS-0149.webp"
@@ -1335,7 +1336,7 @@
   "id": "UCS-0150",
   "name": "Tensiómetro",
   "category": "Salud y Bienestar",
-  "description": "Equipo para controlar la presión arterial desde casa de forma rápida y sencilla. No sustituye una valoración médica.",
+  "description": "Tensiómetro para tomar tu presión arterial en casa de forma sencilla. No reemplaza la valoración médica.\n• Uso en casa\n• Fácil de usar\n• Control diario\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 84900,
   "stock": 1273,
   "image": "/fotos/UCS-0150.webp"
@@ -1344,7 +1345,7 @@
   "id": "UCS-0151",
   "name": "Tensiómetro",
   "category": "Salud y Bienestar",
-  "description": "Equipo para controlar la presión arterial desde casa de forma rápida y sencilla. No sustituye una valoración médica.",
+  "description": "Tensiómetro para tomar tu presión arterial en casa de forma sencilla. No reemplaza la valoración médica.\n• Uso en casa\n• Fácil de usar\n• Control diario\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 84900,
   "stock": 424,
   "image": "/fotos/UCS-0151.webp"
@@ -1353,7 +1354,7 @@
   "id": "UCS-0152",
   "name": "Tensiómetro Digital",
   "category": "Salud y Bienestar",
-  "description": "Equipo para controlar la presión arterial desde casa de forma rápida y sencilla. No sustituye una valoración médica.",
+  "description": "Tensiómetro digital para tomar tu presión arterial en casa de forma sencilla. No reemplaza la valoración médica.\n• Pantalla digital\n• Uso en casa\n• Control diario\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 110900,
   "stock": 84,
   "image": "/fotos/UCS-0152.webp"
@@ -1362,7 +1363,7 @@
   "id": "UCS-0153",
   "name": "Tobillera de Compresión",
   "category": "Salud y Bienestar",
-  "description": "Soporte de uso deportivo y cotidiano que brinda comodidad y ajuste durante la actividad física.",
+  "description": "Tobillera de compresión que da soporte al tobillo durante el deporte o el día a día.\n• Soporte al tobillo\n• Deporte y día a día\n• Cómoda\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 17900,
   "stock": 284,
   "image": "/fotos/UCS-0153.webp"
@@ -1371,7 +1372,7 @@
   "id": "UCS-0154",
   "name": "Vaporizador Facial",
   "category": "Belleza y Cuidado Personal",
-  "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
+  "description": "Vaporizador facial para tu rutina de limpieza y cuidado de la piel en casa.\n• Vapor facial\n• Rutina de limpieza\n• Uso en casa\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 63900,
   "stock": 360,
   "image": "/fotos/UCS-0154.webp"
@@ -1380,7 +1381,7 @@
   "id": "UCS-0155",
   "name": "Vaporizador Nano",
   "category": "Belleza y Cuidado Personal",
-  "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
+  "description": "Vaporizador nano portátil para refrescar tu rostro en cualquier momento.\n• Portátil\n• Refresca tu rostro\n• Cabe en tu bolso\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 36900,
   "stock": 261,
   "image": "/fotos/UCS-0155.webp"
@@ -1389,7 +1390,7 @@
   "id": "UCS-0156",
   "name": "Ventilador 2 Difusores",
   "category": "Tecnología",
-  "description": "Accesorio funcional para complementar el uso diario de tus dispositivos y espacios. Práctico y fácil de usar.",
+  "description": "Ventilador con dos salidas de aire para refrescar tu espacio en casa u oficina.\n• Doble salida de aire\n• Casa u oficina\n• Diseño práctico\nTecnología práctica para tu casa, tu oficina o tu día a día.",
   "price": 65900,
   "stock": 49,
   "image": "/fotos/UCS-0156.webp"
@@ -1398,7 +1399,7 @@
   "id": "UCS-0158",
   "name": "Ventilador Mini",
   "category": "Tecnología",
-  "description": "Accesorio funcional para complementar el uso diario de tus dispositivos y espacios. Práctico y fácil de usar.",
+  "description": "Mini ventilador para refrescarte en casa, en la oficina o de viaje.\n• Tamaño compacto\n• Fácil de llevar\n• Uso diario\nTecnología práctica para tu casa, tu oficina o tu día a día.",
   "price": 45900,
   "stock": 1461,
   "image": "/fotos/UCS-0158.webp"
@@ -1407,7 +1408,7 @@
   "id": "UCS-0159",
   "name": "Bolsas de Empaque al Vacío con Bomba",
   "category": "Organización del Hogar",
-  "description": "Ayuda a mantener tus cosas ordenadas y a la mano, aprovechando mejor el espacio.",
+  "description": "Bolsas de empaque al vacío con bomba para guardar ropa y cobijas ocupando menos espacio.\n• Ahorra espacio\n• Incluye bomba\n• Ropa y cobijas\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 49900,
   "stock": 233,
   "image": "/fotos/UCS-0159.webp"
@@ -1416,7 +1417,7 @@
   "id": "UCS-0160",
   "name": "Caja Organizadora de Tela x3",
   "category": "Organización del Hogar",
-  "description": "Ayuda a mantener tus cosas ordenadas y a la mano, aprovechando mejor el espacio.",
+  "description": "Set de 3 cajas organizadoras de tela para cajones y clósets.\n• Set x3\n• Cajones ordenados\n• Ahorra espacio\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 66900,
   "stock": 92,
   "image": "/fotos/UCS-0160.webp"
@@ -1425,7 +1426,7 @@
   "id": "UCS-0161",
   "name": "Calentador de Agua 3000W",
   "category": "Herramientas",
-  "description": "Herramienta práctica para tareas del hogar, taller o jardín. Fácil de usar y de guardar.",
+  "description": "Calentador de agua eléctrico de 3000W para tener agua caliente en casa. Se recomienda instalación por un técnico.\n• 3000W\n• Agua caliente\n• Uso en casa\nUna herramienta práctica para tus tareas en casa, en el taller o en el jardín.",
   "price": 349900,
   "stock": 6,
   "image": "/fotos/UCS-0161.webp"
@@ -1434,7 +1435,7 @@
   "id": "UCS-0166",
   "name": "Dispositivo Diamond Dermoabrasión",
   "category": "Belleza y Cuidado Personal",
-  "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
+  "description": "Dispositivo de dermoabrasión con punta de diamante para exfoliar la piel en tu rutina facial.\n• Punta de diamante\n• Exfoliación facial\n• Uso en casa\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 219900,
   "stock": 60,
   "image": "/fotos/UCS-0166.webp"
@@ -1443,7 +1444,7 @@
   "id": "UCS-0167",
   "name": "Encrespador de Pestañas Eléctrico",
   "category": "Belleza y Cuidado Personal",
-  "description": "Complemento para tu rutina de belleza y cuidado personal. Práctico y fácil de usar en casa o de viaje.",
+  "description": "Encrespador de pestañas eléctrico que ayuda a dar curvatura a tus pestañas.\n• Pestañas con curva\n• Tamaño de bolsillo\n• Fácil de usar\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 26900,
   "stock": 118,
   "image": "/fotos/UCS-0167.webp"
@@ -1452,7 +1453,7 @@
   "id": "UCS-0169",
   "name": "Kit de Limpieza Dental Eléctrico",
   "category": "Belleza y Cuidado Personal",
-  "description": "Kit eléctrico para complementar tu rutina de higiene y cuidado dental.",
+  "description": "Kit eléctrico para complementar tu limpieza dental en casa.\n• Eléctrico\n• Higiene bucal\n• Uso en casa\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 77900,
   "stock": 200,
   "image": "/fotos/UCS-0169.webp"
@@ -1461,7 +1462,7 @@
   "id": "UCS-0170",
   "name": "Malla Juguete",
   "category": "Juguetes",
-  "description": "Una opción para regalar y disfrutar momentos de entretenimiento y juego.",
+  "description": "Pelota antiestrés con malla que puedes apretar para relajarte y entretenerte.\n• Antiestrés\n• Divertida al apretar\n• Niños y adultos\nDiversión y entretenimiento para regalar y compartir.",
   "price": 11900,
   "stock": 486,
   "image": "/fotos/UCS-0170.webp"
@@ -1470,7 +1471,7 @@
   "id": "UCS-0171",
   "name": "Malla para Mascotas Mediana",
   "category": "Mascotas",
-  "description": "Soporte de uso deportivo y cotidiano que brinda comodidad y ajuste durante la actividad física.",
+  "description": "Malla para mascotas en tamaño mediano, práctica para el cuidado diario de tu mascota.\n• Tamaño mediano\n• Para mascotas\n• Uso diario\nPensado para el cuidado, la comodidad y la diversión de tu mascota.",
   "price": 29900,
   "stock": 287,
   "image": "/fotos/UCS-0171.webp"
@@ -1479,7 +1480,7 @@
   "id": "UCS-0172",
   "name": "Masajeador Pistola",
   "category": "Salud y Bienestar",
-  "description": "Masajeador pensado para aliviar la sensación de tensión y acompañar tu rutina de descanso y bienestar.",
+  "description": "Pistola masajeadora para relajar tus músculos después del ejercicio o la jornada.\n• Masaje muscular\n• Después de entrenar\n• Uso en casa\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 89900,
   "stock": 206,
   "image": "/fotos/UCS-0172.webp"
@@ -1488,7 +1489,7 @@
   "id": "UCS-0173",
   "name": "Pincel para Uñas",
   "category": "Belleza y Cuidado Personal",
-  "description": "Ideal para el cuidado de tus uñas y manos desde casa. Fácil de usar, para lograr un acabado cuidado sin ir al salón.",
+  "description": "Pincel para uñas para decorar y aplicar gel o acrílico con precisión.\n• Diseño de uñas\n• Precisión\n• Casa o salón\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 87900,
   "stock": 1931,
   "image": "/fotos/UCS-0173.webp"
@@ -1497,7 +1498,7 @@
   "id": "UCS-0174",
   "name": "Pistola de Flujo Ajustable",
   "category": "Herramientas",
-  "description": "Herramienta práctica para tareas del hogar, taller o jardín. Fácil de usar y de guardar.",
+  "description": "Pistola eléctrica para pintar con flujo ajustable, ideal para muebles, paredes y cercas.\n• Flujo ajustable\n• Muebles y paredes\n• Pinta más rápido\nUna herramienta práctica para tus tareas en casa, en el taller o en el jardín.",
   "price": 192900,
   "stock": 100,
   "image": "/fotos/UCS-0174.webp"
@@ -1506,7 +1507,7 @@
   "id": "UCS-0175",
   "name": "Plantillas de Silicona",
   "category": "Salud y Bienestar",
-  "description": "Complemento de uso personal para acompañar tu bienestar y comodidad en el día a día. Diseño práctico y fácil de usar.",
+  "description": "Plantillas de silicona para más comodidad al caminar o al estar de pie.\n• Comodidad al caminar\n• Silicona\n• Uso diario\nPensado para acompañar tu bienestar y tu comodidad en el día a día.",
   "price": 33900,
   "stock": 364,
   "image": "/fotos/UCS-0175.webp"
@@ -1515,7 +1516,7 @@
   "id": "UCS-0176",
   "name": "Pulidor de Uñas",
   "category": "Belleza y Cuidado Personal",
-  "description": "Ideal para el cuidado de tus uñas y manos desde casa. Fácil de usar, para lograr un acabado cuidado sin ir al salón.",
+  "description": "Pulidor de uñas eléctrico de uso profesional para manicure en el salón o en casa.\n• Eléctrico\n• Salón o casa\n• Acabado profesional\nUn básico para tu rutina de belleza y cuidado personal, ideal también para regalar.",
   "price": 311900,
   "stock": 123,
   "image": "/fotos/UCS-0176.webp"
@@ -1524,7 +1525,7 @@
   "id": "UCS-0177",
   "name": "Soporte Pared para Bicicleta",
   "category": "Organización del Hogar",
-  "description": "Ayuda a mantener tus cosas ordenadas y a la mano, aprovechando mejor el espacio.",
+  "description": "Soporte de pared para colgar tu bicicleta y ganar espacio en casa.\n• Ahorra espacio\n• Montaje en pared\n• Bici en orden\nTe ayuda a aprovechar mejor el espacio y a mantener tu casa en orden.",
   "price": 89900,
   "stock": 140,
   "image": "/fotos/UCS-0177.webp"

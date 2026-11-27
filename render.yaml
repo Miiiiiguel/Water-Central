@@ -38,3 +38,15 @@ services:
         sync: false
       - key: MP_WEBHOOK_SECRET
         sync: false
+      - key: LEGAL_NAME
+        sync: false
+      - key: LEGAL_ID
+        sync: false
+      - key: LEGAL_ADDRESS
+        sync: false
+      - key: LEGAL_CITY
+        sync: false
+      - key: CONTACT_EMAIL
+        sync: false
+      - key: CONTACT_PHONE
+        sync: false

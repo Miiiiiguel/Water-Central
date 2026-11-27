@@ -115,6 +115,36 @@ test('validaciones del checkout', async () => {
   assert.equal((await j('/api/checkout', { method: 'POST', body: { items: [{ id: 'UCS-0001', qty: 1 }], customer, payment_method: 'mercadopago' } })).status, 400, 'sin token, Mercado Pago no está disponible');
 });
 
+test('contacto (PQRS) y bandeja de mensajes', async () => {
+  assert.equal((await j('/api/contact', { method: 'POST', body: { name: 'A', email: 'malo', message: 'corto' } })).status, 400);
+  const r = await j('/api/contact', { method: 'POST', body: { kind: 'garantia', name: 'Cliente Prueba', email: 'cliente@prueba.co', phone: '3001234567', order_code: 'abc123', message: 'El producto llegó con una falla, necesito la garantía.' } });
+  assert.equal(r.status, 200); assert.match(r.body.code, /^PQR-[0-9A-F]{6}$/);
+  assert.equal((await j('/api/admin/messages')).status, 401, 'la bandeja es privada');
+  const login = await fetch(`${B}/api/admin/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: 'clave-de-prueba' }) });
+  cookie = login.headers.get('set-cookie').split(';')[0];
+  const list = (await j('/api/admin/messages')).body;
+  const m = list.find(x => x.code === r.body.code);
+  assert.equal(m.kind, 'garantia'); assert.equal(m.status, 'nuevo'); assert.equal(m.order_code, 'ABC123');
+  assert.equal((await j('/api/admin/dashboard')).body.messagesNew, 1);
+  const u = await j(`/api/admin/messages/${m.id}`, { method: 'POST', body: { status: 'resuelto', admin_note: 'Se cambió el producto' } });
+  assert.equal(u.body.status, 'resuelto'); assert.equal(u.body.admin_note, 'Se cambió el producto');
+  assert.equal((await j(`/api/admin/messages/${m.id}`, { method: 'POST', body: { status: 'raro' } })).status, 400);
+  const p = await j('/api/admin/products/UCS-0001', { method: 'POST', body: { name: 'Almohada Lumbar Pro', description: 'Texto\n• Uno' } });
+  assert.equal(p.body.name, 'Almohada Lumbar Pro');
+  assert.equal((await j('/api/products')).body.find(x => x.id === 'UCS-0001').name, 'Almohada Lumbar Pro', 'el cambio de nombre se ve en la tienda');
+  cookie = '';
+});
+
+test('páginas legales e informativas', async () => {
+  for (const [u, t] of [['/terminos', 'Términos y condiciones'], ['/privacidad', 'Política de privacidad'], ['/cambios-y-garantias', 'Cambios, devoluciones y garantías'], ['/envios', 'Envíos y entregas'], ['/contacto', 'Contacto y PQRS'], ['/nosotros', 'Quiénes somos']]) {
+    const r = await fetch(B + u); assert.equal(r.status, 200, u);
+    assert.match(await r.text(), new RegExp(`<title>${t}`), u);
+  }
+  const sm = await (await fetch(`${B}/sitemap.xml`)).text();
+  assert.match(sm, /\/cambios-y-garantias/);
+  assert.ok((await j('/api/products')).body.every(p => p.id !== 'UCS-0138'), 'el producto sin foto no se publica');
+});
+
 test('páginas y SEO', async () => {
   const p = await (await fetch(`${B}/p/UCS-0028`)).text();
   assert.match(p, /og:image" content="[^"]+\/og\/UCS-0028\.jpg/);

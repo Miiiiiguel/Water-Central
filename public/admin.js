@@ -71,7 +71,8 @@ function barChart(series) {
 async function viewHome(m) {
   m.append(pageHead('Hola, bienvenido', 'Así va tu tienda hoy.', h('button', { class: 'btn sm', type: 'button', on: { click: () => route() } }, icon('i-refresh', 'sm'), 'Actualizar')));
   const d = await api('/api/admin/dashboard');
-  setBadges(d.toShip);
+  setBadges(d.toShip); setMsgBadge(d.messagesNew || 0);
+  if (d.messagesNew) m.append(h('a', { class: 'card2 alert-msg', href: '#/mensajes' }, icon('i-msg'), h('span', {}, h('b', {}, `Tienes ${d.messagesNew} mensaje${d.messagesNew === 1 ? '' : 's'} nuevo${d.messagesNew === 1 ? '' : 's'} de clientes`), h('small', { class: 'muted' }, 'Peticiones, quejas, reclamos o garantías por responder.')), icon('i-chev-r', 'sm')));
   m.append(
     h('div', { class: 'kgrid' },
       h('div', { class: 'kc hot' }, h('span', { class: 'lbl' }, icon('i-trend'), 'Ventas de hoy'), h('b', {}, fmt(d.salesToday)), h('small', {}, 'Pagos confirmados')),
@@ -86,12 +87,12 @@ async function viewHome(m) {
     h('div', { class: 'cols2' },
       h('div', { class: 'card2' }, h('h2', {}, 'Ventas de los últimos 30 días'), barChart(d.series)),
       h('div', { class: 'card2' }, h('h2', {}, 'Más vendidos (30 días)'),
-        d.topProducts.length ? d.topProducts.map(p => h('div', { class: 'row-i' }, p.image ? h('img', { src: p.image, alt: '' }) : h('span'), h('div', {}, h('div', { class: 't' }, p.name), h('div', { class: 's' }, `${p.qty} unidades`)), h('b', {}, fmt(p.revenue)))) : h('p', { class: 'empty-s' }, 'Aún no hay ventas pagadas.'))),
+        d.topProducts.length ? d.topProducts.map(p => h('div', { class: 'row-i' }, p.image ? h('img', { src: p.image.replace('/fotos/', '/fotos/s/'), alt: '' }) : h('span'), h('div', {}, h('div', { class: 't' }, p.name), h('div', { class: 's' }, `${p.qty} unidades`)), h('b', {}, fmt(p.revenue)))) : h('p', { class: 'empty-s' }, 'Aún no hay ventas pagadas.'))),
     h('div', { class: 'cols2' },
       h('div', { class: 'card2' }, h('h2', {}, 'Pedidos recientes', h('a', { href: '#/pedidos?f=all' }, 'Ver todos')),
         d.recent.length ? d.recent.map(o => h('a', { class: 'row-i', href: `#/pedidos/${o.id}`, style: 'grid-template-columns:1fr auto auto' }, h('div', {}, h('div', { class: 't' }, `#${o.code} · ${o.name || ''}`), h('div', { class: 's' }, `${dt(o.date)} · ${o.city || ''}`)), stChip(o.stage), h('b', {}, fmt(o.total)))) : h('p', { class: 'empty-s' }, 'Aún no hay pedidos. Cuando un cliente compre aparecerá aquí.')),
       h('div', { class: 'card2' }, h('h2', {}, 'Inventario bajo', h('a', { href: '#/productos?f=low' }, 'Ver')),
-        d.lowStock.length ? d.lowStock.map(p => h('div', { class: 'row-i' }, p.image ? h('img', { src: p.image, alt: '' }) : h('span'), h('div', { class: 't' }, p.name), h('b', { style: `color:${p.stock ? 'var(--warn)' : 'var(--err)'}` }, p.stock ? `${p.stock} und.` : 'Agotado'))) : h('p', { class: 'empty-s' }, 'Todo el inventario está bien.'))));
+        d.lowStock.length ? d.lowStock.map(p => h('div', { class: 'row-i' }, p.image ? h('img', { src: p.image.replace('/fotos/', '/fotos/s/'), alt: '' }) : h('span'), h('div', { class: 't' }, p.name), h('b', { style: `color:${p.stock ? 'var(--warn)' : 'var(--err)'}` }, p.stock ? `${p.stock} und.` : 'Agotado'))) : h('p', { class: 'empty-s' }, 'Todo el inventario está bien.'))));
 }
 
 // ---------- Pedidos ----------
@@ -246,8 +247,19 @@ async function viewProducts(m, q) {
       stock.addEventListener('change', () => save(p, { stock: stock.value }, stock));
       act.addEventListener('change', () => save(p, { active: act.checked }));
       const margin = p.cost ? Math.round((p.price - p.cost) / p.price * 100) : null;
-      return h('div', { class: 'prow' }, h('img', { src: p.image, alt: '', loading: 'lazy' }),
-        h('div', { class: 'nm' }, h('b', {}, p.name), h('span', {}, `${p.id} · ${p.category}`), margin != null ? h('div', { class: 'margin' }, `Costo ${fmt(p.cost)} · margen ${margin}%`) : null),
+      const edit = () => modal(close => {
+        const nm = h('input', { value: p.name, maxlength: 80, required: true }), ds = h('textarea', { rows: 8, maxlength: 2000 });
+        ds.value = p.description || '';
+        return h('form', { class: 'mbox', role: 'dialog', 'aria-modal': 'true', 'aria-label': `Editar ${p.name}`, on: { submit: async e => {
+          e.preventDefault(); if (nm.value.trim().length < 3) return toast('El nombre es muy corto', false);
+          await save(p, { name: nm.value.trim(), description: ds.value }); close(); draw();
+        } } }, h('h2', {}, 'Editar textos'), h('p', { class: 'muted small', style: 'margin:0' }, `${p.id} · Usa una línea que empiece con “•” para cada característica.`),
+          h('label', { class: 'fl' }, 'Nombre', nm), h('label', { class: 'fl' }, 'Descripción', ds),
+          h('div', { class: 'acts' }, h('button', { class: 'btn', type: 'button', on: { click: close } }, 'Cancelar'), h('button', { class: 'btn primary', type: 'submit' }, 'Guardar')));
+      });
+      return h('div', { class: 'prow' }, h('img', { src: p.image.replace('/fotos/', '/fotos/s/'), alt: '', loading: 'lazy' }),
+        h('div', { class: 'nm' }, h('b', {}, p.name), h('span', {}, `${p.id} · ${p.category}`), margin != null ? h('div', { class: 'margin' }, `Costo ${fmt(p.cost)} · margen ${margin}%`) : null,
+          h('button', { class: 'lnk', type: 'button', on: { click: edit } }, 'Editar nombre y descripción')),
         h('div', { class: 'ed' }, h('label', {}, 'Precio', price), h('label', {}, 'Inventario', stock), h('label', {}, 'Visible', h('span', { class: 'sw' }, act, h('span')))));
     }));
     if (!rows.length) box.append(h('p', { class: 'empty-s' }, 'No hay productos en esta vista.'));
@@ -286,6 +298,34 @@ async function viewSeller(m, code) {
     h('iframe', { class: 'frame', src: `/afiliados.html?code=${encodeURIComponent(code)}&admin=1`, title: `Panel de ${s.name}` }));
 }
 
+// ---------- Mensajes (PQRS) ----------
+const KIND = { peticion: 'Petición', queja: 'Queja', reclamo: 'Reclamo', sugerencia: 'Sugerencia', garantia: 'Garantía', retracto: 'Retracto', otro: 'Otro' };
+const MSG_ST = { nuevo: ['Nuevo', 'preparing'], en_proceso: ['En proceso', 'packed'], resuelto: ['Resuelto', 'delivered'] };
+function setMsgBadge(n) { for (const id of ['nbMsg', 'nbMsg2']) { const b = document.getElementById(id); if (b) { b.textContent = n; b.hidden = !n; } } }
+async function viewMessages(m, q) {
+  const list = await api('/api/admin/messages'), f = q.get('f') || 'nuevo';
+  setMsgBadge(list.filter(x => x.status === 'nuevo').length);
+  const F = [['nuevo', 'Nuevos'], ['en_proceso', 'En proceso'], ['resuelto', 'Resueltos'], ['all', 'Todos']];
+  m.append(pageHead('Mensajes', 'Peticiones, quejas, reclamos, garantías y retractos que llegan desde la página de contacto.', h('a', { class: 'btn sm', href: '/contacto', target: '_blank', rel: 'noopener' }, icon('i-ext', 'sm'), 'Ver formulario')),
+    h('div', { class: 'seg', role: 'group', 'aria-label': 'Filtrar mensajes' }, F.map(([k, l]) => { const n = k === 'all' ? list.length : list.filter(x => x.status === k).length; return h('button', { type: 'button', 'aria-pressed': String(k === f), on: { click: () => { location.hash = `#/mensajes?f=${k}`; } } }, l, n && k !== 'all' && k !== 'resuelto' ? h('span', { class: 'n' }, String(n)) : null); })));
+  const rows = list.filter(x => f === 'all' || x.status === f);
+  if (!rows.length) { m.append(h('div', { class: 'card2' }, h('p', { class: 'empty-s' }, f === 'nuevo' ? 'No tienes mensajes nuevos. ¡Todo al día!' : 'No hay mensajes en esta lista.'))); return; }
+  m.append(h('div', { class: 'msgs' }, rows.map(x => {
+    const save = async (patch, ok) => { try { await api(`/api/admin/messages/${x.id}`, { method: 'POST', body: patch }); toast(ok); } catch (e) { toast(e.message, false); } };
+    const sel = h('select', { 'aria-label': `Estado de ${x.code}`, on: { change: async () => { await save({ status: sel.value }, 'Estado actualizado'); route({ silent: true }); } } }, Object.entries(MSG_ST).map(([k, [l]]) => h('option', { value: k, selected: k === x.status }, l)));
+    const note = h('textarea', { rows: 2, placeholder: 'Nota interna (qué respondiste, acuerdos, etc.)', 'aria-label': `Nota interna de ${x.code}`, on: { change: () => save({ admin_note: note.value }, 'Nota guardada') } });
+    note.value = x.admin_note || '';
+    const subj = `Respuesta a tu solicitud ${x.code} · USACARGOS SHOP`;
+    return h('article', { class: 'card2 msg' },
+      h('div', { class: 'msg-h' }, h('b', {}, x.code), h('span', { class: `st ${MSG_ST[x.status]?.[1] || ''}` }, MSG_ST[x.status]?.[0] || x.status), h('span', { class: 'kind' }, KIND[x.kind] || x.kind), h('span', { class: 'muted small' }, dt(x.created_at))),
+      h('div', { class: 'msg-who' }, h('b', {}, x.name), h('a', { href: `mailto:${x.email}?subject=${encodeURIComponent(subj)}` }, x.email), x.phone ? h('a', { href: waLink(x.phone, `Hola ${x.name.split(' ')[0]}, te escribimos de USACARGOS SHOP sobre tu solicitud ${x.code}.`), target: '_blank', rel: 'noopener' }, `WhatsApp ${x.phone}`) : null,
+        x.order_code ? h('a', { href: `#/pedidos?f=all&q=${encodeURIComponent(x.order_code)}` }, `Pedido #${x.order_code}`) : null),
+      h('p', { class: 'msg-t' }, x.message),
+      h('div', { class: 'msg-a' }, h('label', {}, 'Estado ', sel), note,
+        h('a', { class: 'btn sm primary', href: `mailto:${x.email}?subject=${encodeURIComponent(subj)}` }, icon('i-msg', 'sm'), 'Responder por correo')));
+  })));
+}
+
 // ---------- Router ----------
 let baseTitle = 'USACARGOS ADMIN', pendingShip = 0;
 const paintTitle = () => { document.title = (pendingShip ? `(${pendingShip}) ` : '') + baseTitle; };
@@ -302,6 +342,7 @@ async function route(opts = {}) {
     else if (sec === 'productos') await viewProducts(frag, q);
     else if (sec === 'vendedores' && parts[1]) await viewSeller(frag, parts[1]);
     else if (sec === 'vendedores') await viewSellers(frag);
+    else if (sec === 'mensajes') await viewMessages(frag, q);
     else await viewHome(frag);
     m.replaceChildren(frag);
     if (opts.silent) scrollTo(0, y); else { scrollTo(0, 0); m.focus({ preventScroll: true }); }

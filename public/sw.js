@@ -1,5 +1,5 @@
 // Service worker de USACARGOS SHOP: carga rápida y funcionamiento básico sin conexión.
-const VERSION = 'ucs-v5';
+const VERSION = 'ucs-v6';
 const SHELL = ['/', '/style.css', '/app.js', '/manifest.webmanifest', '/icons/icon-192.png'];
 
 self.addEventListener('install', e => {

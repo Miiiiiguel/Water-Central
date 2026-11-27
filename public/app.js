@@ -26,6 +26,13 @@ function h(tag, attrs = {}, ...kids) {
   for (const k of kids.flat()) if (k != null && k !== false) e.append(k instanceof Node ? k : String(k));
   return e;
 }
+// Fotos: /fotos/ID.webp (900 px) y /fotos/s/ID.webp (400 px)
+const IMG_V = '6'; // sube este número cuando cambien las fotos para que los navegadores no muestren las anteriores
+const big = src => (src && src.startsWith('/fotos/')) ? `${src}?v=${IMG_V}` : src;
+const small = src => (src && src.startsWith('/fotos/') && !src.startsWith('/fotos/s/')) ? `${src.replace('/fotos/', '/fotos/s/')}?v=${IMG_V}` : src;
+function pic(p, { sizes = '(max-width:640px) 46vw, 260px', eager = false, alt = '' } = {}) {
+  return h('img', { src: small(p.image), srcset: `${small(p.image)} 400w, ${big(p.image)} 900w`, sizes, alt, loading: eager ? 'eager' : 'lazy', fetchpriority: eager === 'high' ? 'high' : null, decoding: 'async', width: 400, height: 400 });
+}
 
 const CAT_META = {
   'Belleza y Cuidado Personal': ['belleza', 'c-belleza', 'Luce y siéntete increíble, sin salir de casa.'],
@@ -290,7 +297,7 @@ function tags(p) {
 function card(p, eager) {
   const add = h('div', { class: 'add', 'data-add': p.id }); fillAdd(add, p);
   const c = h('article', { class: 'card' },
-    h('div', { class: 'media' }, h('img', { src: p.image, alt: '', loading: eager ? 'eager' : 'lazy', fetchpriority: eager === 'high' ? 'high' : null, decoding: 'async', width: 320, height: 320 })),
+    h('div', { class: 'media' }, pic(p, { eager })),
     h('div', { class: 'meta' }, tags(p)),
     favBtn(p),
     h('div', { class: 'body' },
@@ -360,7 +367,7 @@ function renderCart() {
   const sub = subtotal(), ship = shippingFor(sub);
   const rows = S.cart.map(i => {
     const p = S.byId.get(i.id);
-    return h('div', { class: 'ci-row' }, h('img', { src: p.image, alt: '' }),
+    return h('div', { class: 'ci-row' }, h('img', { src: small(p.image), alt: '', width: 72, height: 72 }),
       h('div', {}, h('a', { class: 'n', href: `/p/${p.id}`, 'data-nav': '' }, p.name),
         h('div', { class: 'ctl' }, stepper(p, i.qty, 'outline'), h('b', { class: 'price' }, fmt(p.price * i.qty)))));
   });
@@ -369,7 +376,7 @@ function renderCart() {
     const inCart = new Set(S.cart.map(i => i.id)), cats = new Set(S.cart.map(i => S.byId.get(i.id).category)), gap = S.cfg.freeShippingFrom - sub;
     const sug = S.products.filter(p => !inCart.has(p.id) && maxOf(p) && cats.has(p.category)).sort((a, b) => Math.abs(a.price - gap) - Math.abs(b.price - gap)).slice(0, 8);
     if (sug.length) kids.push(h('div', {}, h('h3', { style: 'font-size:1.2rem;margin-bottom:10px' }, 'Completa tu pedido y ahorra el envío'),
-      h('div', { class: 'mini-rail' }, sug.map(p => h('div', { class: 'mini' }, h('img', { src: p.image, alt: '', loading: 'lazy' }),
+      h('div', { class: 'mini-rail' }, sug.map(p => h('div', { class: 'mini' }, h('img', { src: small(p.image), alt: '', loading: 'lazy', width: 120, height: 120 }),
         h('a', { class: 'n', href: `/p/${p.id}`, 'data-nav': '' }, p.name), h('b', { class: 'price' }, fmt(p.price)),
         h('button', { class: 'btn sm navy', type: 'button', on: { click: e => setQty(p.id, 1, { silent: true, src: e.currentTarget.closest('.mini').querySelector('img') }) } }, icon('i-plus', 'sm'), 'Agregar'))))));
   }
@@ -423,7 +430,7 @@ function initSearch() {
       const res = search(q).slice(0, 6);
       const cats = S.cats.filter(c => norm(c.name).includes(norm(q)));
       if (cats.length) kids.push(h('h4', {}, 'Categorías'), ...cats.slice(0, 3).map(c => h('div', { class: 'sg', role: 'option', 'data-href': `/c/${c.slug}` }, icon(c.icon, 'sm'), h('span', { class: 't' }, c.name))));
-      if (res.length) kids.push(h('h4', {}, 'Productos'), ...res.map(p => h('div', { class: 'sg', role: 'option', 'data-href': `/p/${p.id}` }, h('img', { src: p.image, alt: '' }), h('span', { class: 't' }, mark(p.name, q)), h('span', { class: 'price' }, fmt(p.price)))),
+      if (res.length) kids.push(h('h4', {}, 'Productos'), ...res.map(p => h('div', { class: 'sg', role: 'option', 'data-href': `/p/${p.id}` }, h('img', { src: small(p.image), alt: '', width: 46, height: 46 }), h('span', { class: 't' }, mark(p.name, q)), h('span', { class: 'price' }, fmt(p.price)))),
         h('div', { class: 'sg', role: 'option', 'data-q': q }, icon('i-search', 'sm'), h('span', { class: 't' }, `Ver todos los resultados para “${q}”`)));
       if (!res.length && !cats.length) {
         const dym = didYouMean(q);
@@ -467,8 +474,13 @@ function initSearch() {
 }
 
 // ---------- Componentes de portada ----------
+// Productos con las fotos más vistosas para la portada (si no existen, se usan los de más stock por categoría)
+const HERO_PICKS = ['UCS-0108', 'UCS-0103', 'UCS-0079', 'UCS-0107', 'UCS-0127', 'UCS-0031', 'UCS-0099', 'UCS-0049', 'UCS-0077', 'UCS-0082'];
+const CAT_PICKS = { 'Belleza y Cuidado Personal': 'UCS-0077', 'Salud y Bienestar': 'UCS-0103', 'Hogar y Cocina': 'UCS-0108', 'Organización del Hogar': 'UCS-0112', 'Hogar y Limpieza': 'UCS-0094', 'Mascotas': 'UCS-0007', 'Tecnología': 'UCS-0107', 'Juguetes': 'UCS-0127', 'Deportes y Fitness': 'UCS-0049', 'Herramientas': 'UCS-0132', 'Jardín': 'UCS-0003', 'Viaje y Outdoor': 'UCS-0006', 'Moda y Accesorios': 'UCS-0131' };
+const catPick = c => S.byId.get(CAT_PICKS[c.name]) || S.products.filter(p => p.category === c.name).sort(byStock)[0];
 function heroSection() {
-  const featured = S.cats.map(c => S.products.filter(p => p.category === c.name).sort(byStock)[0]).filter(Boolean);
+  const picks = HERO_PICKS.map(id => S.byId.get(id)).filter(Boolean);
+  const featured = picks.length >= 8 ? picks : S.cats.map(c => S.products.filter(p => p.category === c.name).sort(byStock)[0]).filter(Boolean);
   const faces = featured.slice(0, 6);
   const floaters = [featured[6] || featured[0], featured[1], featured[7] || featured[2], featured[3]].filter(Boolean);
   const free = S.cfg.freeShippingFrom;
@@ -487,9 +499,9 @@ function heroSection() {
           h('div', { class: 'stat' }, h('b', { 'data-count': S.cats.length }, '0'), h('span', {}, 'categorías')),
           h('div', { class: 'stat' }, h('b', {}, fmt(free).replace('.000', 'k')), h('span', {}, 'y tu envío es gratis')))),
       h('div', { class: 'stage', 'aria-hidden': 'true' },
-        h('div', { class: 'cube-wrap' }, h('div', { class: 'cube' }, faces.map((p, i) => h('div', { class: `face f${i + 1}` }, h('img', { src: p.image, alt: '' }))))),
+        h('div', { class: 'cube-wrap' }, h('div', { class: 'cube' }, faces.map((p, i) => h('div', { class: `face f${i + 1}` }, h('img', { src: small(p.image), alt: '', width: 400, height: 400 }))))),
         h('div', { class: 'cube-shadow' }),
-        floaters.map((p, i) => h('a', { class: `floater ${'abcd'[i]}`, href: `/p/${p.id}`, 'data-nav': '', tabindex: '-1' }, h('img', { src: p.image, alt: '' }), h('span', {}, h('span', { class: 't' }, p.name), h('span', { class: 'price' }, fmt(p.price))))))));
+        floaters.map((p, i) => h('a', { class: `floater ${'abcd'[i]}`, href: `/p/${p.id}`, 'data-nav': '', tabindex: '-1' }, h('img', { src: small(p.image), alt: '', width: 96, height: 96 }), h('span', {}, h('span', { class: 't' }, p.name), h('span', { class: 'price' }, fmt(p.price))))))));
   heroMouse(hx);
   return hx;
 }
@@ -500,7 +512,14 @@ function marquee() {
   return h('div', { class: 'mq', 'aria-label': 'Beneficios' }, h('div', { class: 'mq-track' }, seq(), h('span', { 'aria-hidden': 'true', style: 'display:contents' }, seq())));
 }
 function catTiles() {
-  return h('div', { class: 'cats' }, S.cats.map((c, i) => h('a', { class: 'cat rv', style: `--rd:${Math.min(i, 10) * 40}ms`, href: `/c/${c.slug}`, 'data-nav': '' }, h('span', { class: 'ci' }, icon(c.icon)), h('span', {}, c.name, h('br'), h('small', {}, `${c.count} productos`)))));
+  return h('div', { class: 'cats' }, S.cats.map((c, i) => {
+    const p = catPick(c);
+    return h('a', { class: 'cat rv', style: `--rd:${Math.min(i, 10) * 40}ms`, href: `/c/${c.slug}`, 'data-nav': '' },
+      h('span', { class: 'cat-img' }, p ? h('img', { src: small(p.image), alt: '', loading: 'lazy', decoding: 'async', width: 400, height: 400 }) : null),
+      h('span', { class: 'cat-txt' }, h('span', { class: 'ci' }, icon(c.icon, 'sm')), h('span', {}, h('b', {}, c.name), h('small', {}, `${c.count} producto${c.count === 1 ? '' : 's'}`))));
+  }), h('a', { class: 'cat cat-all rv', href: '/buscar?q=', 'data-nav': '' },
+    h('span', { class: 'cat-img' }, h('span', { class: 'cat-all-ic' }, icon('i-grid'))),
+    h('span', { class: 'cat-txt' }, h('span', {}, h('b', {}, 'Ver todo'), h('small', {}, `${S.products.length} productos`)))));
 }
 function coverflow(list) {
   const items = list.map(p => h('div', { class: 'cf-item' }, card(p)));
@@ -533,6 +552,18 @@ function coverflow(list) {
     h('div', { class: 'sec-head' }, h('div', {}, h('span', { class: 'kicker' }, 'Selección de la semana'), h('h2', {}, 'Lo más destacado'), h('p', {}, 'Desliza, elige y agrégalo en un toque.'))),
     stage,
     h('div', { class: 'cf-ctl' }, h('button', { class: 'icon-btn', 'aria-label': 'Anterior', on: { click: () => go(i - 1) } }, icon('i-chev-l')), dots, h('button', { class: 'icon-btn', 'aria-label': 'Siguiente', on: { click: () => go(i + 1) } }, icon('i-chev-r'))))));
+}
+function quads() {
+  const cats = S.cats.slice().sort((a, b) => b.count - a.count).slice(0, 4);
+  const pick4 = c => { const first = catPick(c); return [first, ...S.products.filter(p => p.category === c.name && p !== first).sort(byStock)].filter(Boolean).slice(0, 4); };
+  return h('section', { class: 'section rv', 'aria-label': 'Lo mejor de cada categoría' },
+    h('div', { class: 'sec-head' }, h('div', {}, h('span', { class: 'kicker' }, 'Elegidos para ti'), h('h2', {}, 'Lo mejor de cada categoría'))),
+    h('div', { class: 'quads' }, cats.map(c => h('div', { class: 'quad' },
+      h('h3', {}, c.name), h('p', { class: 'muted small' }, CAT_META[c.name]?.[2] || ''),
+      h('div', { class: 'q4' }, pick4(c).map(p => h('a', { href: `/p/${p.id}`, 'data-nav': '', class: 'q' },
+        h('span', { class: 'qi' }, h('img', { src: small(p.image), alt: '', loading: 'lazy', decoding: 'async', width: 400, height: 400 })),
+        h('span', { class: 'qt' }, p.name), h('b', { class: 'qp' }, fmt(p.price))))),
+      h('a', { class: 'q-more', href: `/c/${c.slug}`, 'data-nav': '' }, `Ver todo en ${c.name}`, icon('i-chev-r', 'sm'))))));
 }
 function howTo() {
   const steps = [
@@ -594,6 +625,7 @@ function home(v) {
   const featured = S.cats.flatMap(c => S.products.filter(p => p.category === c.name).sort(byStock).slice(0, 1));
   w.prepend(h('div', { id: 'installSlot' }));
   w.append(coverflow(featured.length >= 6 ? featured : S.products.slice(0, 10)));
+  w.append(quads());
   const seen = new Set(S.recent), recentCats = [...new Set(S.recent.map(id => S.byId.get(id)?.category).filter(Boolean))].slice(0, 3);
   if (recentCats.length) w.append(rail('Inspirado en lo que viste', S.products.filter(p => recentCats.includes(p.category) && !seen.has(p.id)).sort(byStock).slice(0, 14), null, 'Elegidos según los productos que miraste.'));
   w.append(rail('Precios que enamoran', S.products.filter(p => p.price < 30000).sort(byStock).slice(0, 16), '/buscar?q=&precio=0', 'Todo por menos de $30.000', true));
@@ -624,6 +656,7 @@ function listing(v, { title, sub, ic, list, crumb, chipsTop, emptyMsg }) {
   const sp = new URLSearchParams(location.search);
   const range = sp.get('precio'), envio = sp.get('envio') === '1', orden = sp.get('orden') || 'rel';
   let r = list.slice();
+  const heroPics = list.length >= 3 ? list.slice().sort(byStock).slice(0, 3) : [];
   if (range != null && PRICE_RANGES[range]) { const [a, b] = PRICE_RANGES[range]; r = r.filter(p => p.price >= a && p.price < b); }
   if (envio) r = r.filter(p => p.price >= S.cfg.freeShippingFrom);
   if (orden === 'asc') r.sort((a, b) => a.price - b.price);
@@ -636,7 +669,8 @@ function listing(v, { title, sub, ic, list, crumb, chipsTop, emptyMsg }) {
     PRICE_RANGES.map(([, , label], i) => h('button', { class: 'chip', 'aria-pressed': String(range === String(i)), on: { click: () => setParam('precio', range === String(i) ? null : i) } }, label)),
     h('button', { class: 'chip', 'aria-pressed': String(envio), on: { click: () => setParam('envio', envio ? null : 1) } }, icon('i-truck', 'sm'), 'Envío gratis'));
   const w = h('div', { class: 'wrap' }, crumb,
-    h('div', { class: 'list-hero' }, h('h1', {}, title), h('p', {}, `${r.length} producto${r.length === 1 ? '' : 's'}${sub ? ` · ${sub}` : ''}`), ic ? h('span', { class: 'ci', 'aria-hidden': 'true' }, icon(ic)) : null),
+    h('div', { class: `list-hero${heroPics.length ? ' has-pics' : ''}` }, h('h1', {}, title), h('p', {}, `${r.length} producto${r.length === 1 ? '' : 's'}${sub ? ` · ${sub}` : ''}`),
+      heroPics.length ? h('div', { class: 'lh-pics', 'aria-hidden': 'true' }, heroPics.map(p => h('img', { src: small(p.image), alt: '', width: 400, height: 400, decoding: 'async' }))) : ic ? h('span', { class: 'ci', 'aria-hidden': 'true' }, icon(ic)) : null),
     chipsTop || null, toolbar);
   if (r.length) w.append(h('div', { class: 'grid' }, r.map((p, i) => card(p, i === 0 ? 'high' : i < 4))));
   else w.append(emptyMsg && !list.length ? emptyMsg : emptyState('i-search', 'Sin resultados con estos filtros', 'Prueba quitando algún filtro.', h('a', { class: 'btn primary', href: location.pathname + (sp.get('q') != null ? `?q=${encodeURIComponent(sp.get('q'))}` : ''), 'data-nav': '' }, 'Quitar filtros')));
@@ -668,7 +702,7 @@ function productPage(v, id) {
   S.recent = [p.id, ...S.recent.filter(x => x !== p.id)].slice(0, 12); store.set('recent', S.recent);
   const c = catOf(p), wa = S.cfg.whatsapp, max = maxOf(p), free = S.cfg.freeShippingFrom;
   const shareUrl = `${location.origin}/p/${p.id}${S.myRef ? `?ref=${S.myRef}` : ''}`;
-  const img = h('img', { src: p.image, alt: p.name, width: 640, height: 640, fetchpriority: 'high' });
+  const img = h('img', { src: big(p.image), alt: p.name, width: 640, height: 640, fetchpriority: 'high' });
   img.style.viewTransitionName = 'pimg';
   const gal = h('button', { class: 'gallery', type: 'button', 'aria-label': `Ampliar imagen de ${p.name}` }, img, h('span', { class: 'g-badges', 'aria-hidden': 'true' }, tags(p)), h('span', { class: 'zoom-hint', 'aria-hidden': 'true' }, icon('i-expand', 'sm'), 'Ampliar'));
   if (FINE && !REDUCED) {
@@ -714,7 +748,7 @@ function productPage(v, id) {
       shipProgress(subtotal() + (qtyOf(p.id) ? 0 : p.price)),
       h('div', { class: 'line' }, icon('i-truck'), h('div', {}, h('b', {}, 'Envío a toda Colombia'), h('span', { class: 'muted small' }, `${fmt(S.cfg.shipping)} o GRATIS desde ${fmt(free)}. Te contactamos para confirmar la entrega.`))),
       h('div', { class: 'line' }, icon('i-package'), h('div', {}, h('b', {}, max ? `${p.stock.toLocaleString('es-CO')} unidades disponibles` : 'Sin disponibilidad'), h('span', { class: 'muted small' }, 'Disponibilidad sujeta a confirmación.')))),
-    h('section', {}, h('h2', { style: 'font-size:1.5rem;margin-bottom:8px' }, 'Por qué te va a encantar'), h('p', { class: 'desc' }, p.description)),
+    h('section', { class: 'about' }, h('h2', {}, 'Por qué te va a encantar'), descBlock(p.description)),
     h('div', { class: 'share' },
       h('button', { class: 'btn sm', type: 'button', on: { click: share } }, icon('i-share', 'sm'), 'Compartir'),
       h('a', { class: 'btn sm', target: '_blank', rel: 'noopener', href: `https://wa.me/?text=${encodeURIComponent(`Mira esto: ${p.name} a ${fmt(p.price)} ${shareUrl}`)}` }, icon('i-msg', 'sm'), 'Enviar por WhatsApp'),
@@ -736,13 +770,150 @@ function productPage(v, id) {
   cleanup.push(() => { removeEventListener('scroll', onScroll); document.body.classList.remove('has-buybar'); });
   if (wa) $('#waFab').href = `https://wa.me/${wa}?text=${encodeURIComponent(`Hola, quiero información de: ${p.name} (${p.id})`)}`;
 }
+// Descripción: párrafos y viñetas ("• ...") separados por saltos de línea
+function descBlock(text = '') {
+  const out = [], lines = String(text).split('\n').map(s => s.trim()).filter(Boolean);
+  let ul = null;
+  for (const ln of lines) {
+    if (ln.startsWith('•')) { ul ??= h('ul', { class: 'feat' }); ul.append(h('li', {}, icon('i-check', 'sm'), ln.replace(/^•\s*/, ''))); continue; }
+    if (ul) { out.push(ul); ul = null; }
+    if (/^características:?$/i.test(ln)) continue;
+    out.push(h('p', { class: 'desc' }, ln));
+  }
+  if (ul) out.push(ul);
+  return out;
+}
 function lightbox(p) {
   const prev = document.activeElement;
   const close = () => { lb.remove(); document.removeEventListener('keydown', key); document.body.style.overflow = ''; prev?.focus?.(); };
   const key = e => { if (e.key === 'Escape') close(); };
   const btn = h('button', { class: 'icon-btn', 'aria-label': 'Cerrar', on: { click: close } }, icon('i-x'));
-  const lb = h('div', { class: 'lightbox', role: 'dialog', 'aria-modal': 'true', 'aria-label': p.name, on: { click: e => { if (e.target === lb) close(); } } }, h('img', { src: p.image, alt: p.name }), btn);
+  const lb = h('div', { class: 'lightbox', role: 'dialog', 'aria-modal': 'true', 'aria-label': p.name, on: { click: e => { if (e.target === lb) close(); } } }, h('img', { src: big(p.image), alt: p.name }), btn);
   document.body.append(lb); document.body.style.overflow = 'hidden'; document.addEventListener('keydown', key); btn.focus();
+}
+// ---------- Páginas informativas y legales ----------
+const INFO = [
+  ['nosotros', 'Quiénes somos', 'i-package'], ['envios', 'Envíos y entregas', 'i-truck'], ['cambios-y-garantias', 'Cambios y garantías', 'i-shield'],
+  ['contacto', 'Contacto y PQRS', 'i-headset'], ['terminos', 'Términos y condiciones', 'i-receipt'], ['privacidad', 'Privacidad y datos', 'i-lock'],
+];
+const UPDATED = 'noviembre de 2026';
+function legalBox() {
+  const L = S.cfg.legal || {}, rows = [['Responsable', L.name || STORE], ['NIT / documento', L.id], ['Dirección', [L.address, L.city].filter(Boolean).join(', ')], ['Correo', L.email], ['Teléfono', L.phone], ['WhatsApp', S.cfg.whatsapp ? `+${S.cfg.whatsapp}` : '']].filter(r => r[1]);
+  return h('div', { class: 'legal-box' }, h('dl', {}, rows.flatMap(([k, val]) => h('div', {}, h('dt', {}, k), h('dd', {}, val)))),
+    h('p', { class: 'muted small', style: 'margin:8px 0 0' }, 'También puedes escribirnos en cualquier momento desde el ', h('a', { href: '/contacto', 'data-nav': '' }, 'formulario de contacto y PQRS'), '.'));
+}
+const P = (...k) => h('p', {}, ...k);
+const L_ = (href, t) => h('a', { href, 'data-nav': '' }, t);
+const UL = items => h('ul', { class: 'ticks' }, items.map(i => h('li', {}, icon('i-check', 'sm'), h('span', {}, i))));
+const SEC = (t, ...k) => h('section', { class: 'doc-sec' }, h('h2', {}, t), ...k);
+function infoContent(key) {
+  const ship = fmt(S.cfg.shipping), free = fmt(S.cfg.freeShippingFrom), pct = S.cfg.commissionPct ?? 10, pay = PAY();
+  switch (key) {
+    case 'nosotros': return [
+      P(`${STORE} es una tienda colombiana en línea. Seleccionamos productos prácticos para el hogar, la cocina, la belleza, la salud, las mascotas y el día a día; los tenemos en nuestra propia bodega y los despachamos directamente a cualquier ciudad del país.`),
+      h('div', { class: 'values' }, [
+        ['i-package', 'Bodega propia', 'Lo que ves en la tienda está en nuestro inventario. La disponibilidad se actualiza con cada venta.'],
+        ['i-truck', 'Envíos a toda Colombia', `Despachamos con transportadoras reconocidas y te damos el número de guía. Envío gratis desde ${free}.`],
+        ['i-shield', 'Compra protegida', `${pay.cod ? 'Puedes pagar al recibir. ' : ''}Tienes derecho de retracto y garantía legal en todos los productos.`],
+      ].map(([i, t, d]) => h('div', { class: 'value' }, h('span', { class: 'ci' }, icon(i)), h('b', {}, t), h('span', { class: 'muted' }, d)))),
+      SEC('Gana dinero con nosotros', P(`Con nuestro programa de referidos recibes el ${pct}% del valor de los productos de cada compra pagada que llegue por tu link. Es gratis y tienes un panel para ver tus ventas y ganancias.`), h('a', { class: 'btn primary', href: '/afiliados.html' }, icon('i-wallet', 'sm'), 'Quiero mi link')),
+      SEC('Datos de contacto', legalBox()),
+    ];
+    case 'envios': return [
+      SEC('Cobertura y costo', UL([`Enviamos a todo Colombia, a las ciudades y municipios donde operan nuestras transportadoras.`, `El envío cuesta ${ship} por pedido y es GRATIS en compras desde ${free}.`, 'Ves el costo exacto en el carrito antes de confirmar. No hay cobros sorpresa.'])),
+      SEC('Confirmación y despacho', P('Después de hacer tu pedido te contactamos al celular que registraste para confirmar la dirección. Luego lo empacamos y lo despachamos desde nuestra bodega.'),
+        P('El tiempo de entrega depende de tu ciudad y de la transportadora. Te lo informamos al confirmar tu pedido.')),
+      SEC('Seguimiento', P('Cuando despachamos verás la transportadora y el número de guía en ', L_('/pedidos', 'Mis pedidos'), '. Desde ahí puedes ir directo a la página de rastreo de la transportadora.')),
+      pay.cod ? SEC('Pago contra entrega', P('Si elegiste pago contra entrega, le pagas al mensajero el total del pedido (productos + envío) en efectivo al recibirlo. Te recomendamos tener el valor exacto.')) : null,
+      SEC('Al recibir tu pedido', UL(['Revisa que el empaque esté en buen estado antes de firmar la guía.', 'Si llega golpeado o abierto, déjalo anotado en la guía y escríbenos con tu número de pedido.', 'Si no hay quien reciba, la transportadora puede intentar de nuevo o dejar aviso. Escríbenos para coordinar.'])),
+      P(h('a', { class: 'btn', href: '/contacto', 'data-nav': '' }, icon('i-headset', 'sm'), 'Tengo una pregunta sobre mi envío')),
+    ];
+    case 'cambios-y-garantias': return [
+      P('Protegemos tus derechos como consumidor según el Estatuto del Consumidor (Ley 1480 de 2011).'),
+      SEC('Derecho de retracto', P('Como compraste a distancia, puedes retractarte de tu compra dentro de los 5 días hábiles siguientes a la entrega del producto.'),
+        UL(['El producto debe estar sin usar, en el mismo estado en que lo recibiste y con su empaque.', 'Los costos de transporte de la devolución corren por tu cuenta, como lo establece la ley.', 'Te devolvemos el dinero pagado, sin descuentos, en un plazo máximo de 30 días calendario desde que ejerces el derecho.', 'No aplica para los casos que excluye la ley, como bienes de uso personal o que por su naturaleza no se puedan devolver.'])),
+      SEC('Garantía legal', P('Todos nuestros productos tienen la garantía legal de calidad, idoneidad y seguridad. Si un producto presenta una falla, te ofrecemos la reparación, el cambio por otro igual o la devolución del dinero, según corresponda y en los términos de la ley.'),
+        UL(['Te respondemos en máximo 15 días hábiles desde que recibimos tu solicitud.', 'La garantía no cubre daños por mal uso, golpes, humedad, instalación indebida o desgaste normal.', 'Conserva el empaque y el número de tu pedido: nos ayudan a resolver más rápido.'])),
+      SEC('Reversión del pago', P('Si pagaste con un medio de pago electrónico y fuiste víctima de fraude, la operación no fue solicitada, no recibiste el producto o el producto no corresponde a lo pedido o es defectuoso, puedes pedir la reversión del pago (art. 51 de la Ley 1480). Debes informarnos y avisar al emisor del medio de pago dentro de los 5 días hábiles siguientes a que tengas conocimiento del hecho, y devolver el producto si lo recibiste.')),
+      SEC('Cómo solicitarlo', P('Escríbenos desde el ', L_('/contacto', 'formulario de PQRS'), ' eligiendo “Garantía” o “Retracto” e indica tu número de pedido. Te responderemos al correo que nos dejes con los pasos a seguir.')),
+    ];
+    case 'terminos': return [
+      P(`Estos términos regulan el uso de la tienda en línea ${STORE} y las compras que hagas en ella. Al hacer un pedido los aceptas. Última actualización: ${UPDATED}.`),
+      SEC('1. Productos', P('Mostramos fotos, descripciones y unidades disponibles de cada producto. Las imágenes son ilustrativas: el color, el empaque o algunos detalles pueden variar ligeramente. La disponibilidad se confirma al procesar tu pedido.')),
+      SEC('2. Precios', P(`Los precios están en pesos colombianos (COP) y son el valor final del producto. El envío (${ship}, o gratis desde ${free}) se muestra por separado antes de confirmar. Si encontramos un error evidente en un precio, te lo informaremos antes de despachar para que decidas si continúas.`)),
+      SEC('3. Pedidos', P('Tu pedido queda registrado con un número que ves al finalizar la compra y en “Mis pedidos”. Te contactamos para confirmarlo. Si no hay disponibilidad o no logramos confirmar la entrega, podemos cancelarlo y, si ya pagaste, te devolvemos el total.')),
+      SEC('4. Pagos', UL([pay.cod ? 'Contra entrega: pagas en efectivo al recibir el pedido.' : null, pay.mp ? 'En línea con Mercado Pago (tarjetas, PSE y otros medios). Los datos de pago los procesa Mercado Pago; nosotros no los vemos ni los guardamos.' : null].filter(Boolean))),
+      SEC('5. Envíos, retracto y garantías', P('Consulta las condiciones en ', L_('/envios', 'Envíos y entregas'), ' y en ', L_('/cambios-y-garantias', 'Cambios y garantías'), '.')),
+      SEC('6. Programa de referidos', UL([`Ganas el ${pct}% del valor de los productos (sin envío) de cada pedido pagado que llegue por tu link. En pago contra entrega, la comisión se genera cuando el pedido se entrega y se cobra.`, 'La comisión se anula si el pedido se cancela, se devuelve o se reembolsa.', 'No genera comisión una compra hecha con el mismo correo del vendedor.', 'Los pagos de comisiones se hacen por transferencia, según lo acordado con cada vendedor.', 'Podemos suspender un código de referido si detectamos fraude o uso indebido.'])),
+      SEC('7. Uso de la tienda', P('Te comprometes a dar información verdadera y a no usar la tienda con fines ilícitos. Las marcas y nombres de productos de terceros pertenecen a sus respectivos dueños.')),
+      SEC('8. Datos personales', P('Tratamos tus datos según nuestra ', L_('/privacidad', 'Política de privacidad'), '.')),
+      SEC('9. Ley aplicable y reclamos', P('Estos términos se rigen por las leyes de Colombia. Puedes presentarnos peticiones, quejas y reclamos desde el ', L_('/contacto', 'formulario de PQRS'), '. Si no quedas satisfecho, puedes acudir a la Superintendencia de Industria y Comercio (www.sic.gov.co).')),
+      SEC('Responsable', legalBox()),
+    ];
+    case 'privacidad': return [
+      P(`En ${STORE} cuidamos tus datos personales conforme a la Ley 1581 de 2012 y sus decretos reglamentarios. Última actualización: ${UPDATED}.`),
+      SEC('Responsable del tratamiento', legalBox()),
+      SEC('Qué datos recogemos', UL(['Al comprar: nombre, correo, celular, documento (opcional), dirección, ciudad, departamento y notas de entrega.', 'Si te registras como vendedor: nombre, correo y celular.', 'Si nos escribes: nombre, correo, celular (opcional), número de pedido y tu mensaje.', 'No recogemos datos de tarjetas ni cuentas bancarias: los pagos en línea los procesa Mercado Pago.'])),
+      SEC('Para qué los usamos', UL(['Procesar, confirmar, despachar y entregar tus pedidos.', 'Comunicarnos contigo sobre tu pedido, garantías, retractos y solicitudes.', 'Calcular y pagar comisiones del programa de referidos.', 'Cumplir obligaciones legales y contables.'])),
+      SEC('Con quién los compartimos', P('Solo con quienes nos ayudan a prestar el servicio: la transportadora que lleva tu pedido (nombre, dirección y celular), el proveedor de pagos cuando pagas en línea y el servicio de alojamiento y base de datos de la tienda. No vendemos ni alquilamos tus datos.')),
+      SEC('Tus derechos', UL(['Conocer, actualizar y rectificar tus datos.', 'Pedir prueba de la autorización que nos diste.', 'Saber qué uso le hemos dado a tus datos.', 'Revocar la autorización o pedir que eliminemos tus datos, cuando no exista un deber legal de conservarlos.', 'Presentar quejas ante la Superintendencia de Industria y Comercio.'])),
+      SEC('Cómo ejercerlos', P('Escríbenos desde el ', L_('/contacto', 'formulario de contacto'), ' indicando tu solicitud. Respondemos las consultas en máximo 10 días hábiles y los reclamos en máximo 15 días hábiles; si necesitamos más tiempo te avisaremos, dentro de los plazos de la ley.')),
+      SEC('Datos en tu dispositivo', P('Tu carrito, favoritos, pedidos recientes y código de referido se guardan en el almacenamiento de tu propio navegador para que no los pierdas. No usamos cookies de publicidad ni herramientas de rastreo de terceros.')),
+      SEC('Seguridad', P('Protegemos la información con conexiones cifradas y acceso restringido. Solo el personal autorizado de la tienda puede ver los datos de los pedidos.')),
+    ];
+    default: return [];
+  }
+}
+function infoPage(v, key) {
+  const it = INFO.find(i => i[0] === key); if (!it) return notFound(v);
+  setTitle(it[1]);
+  const nav = h('nav', { class: 'doc-nav', 'aria-label': 'Información' }, INFO.map(([k, t, i]) => h('a', { href: `/${k}`, 'data-nav': '', 'aria-current': k === key ? 'page' : null }, icon(i, 'sm'), t)));
+  const body = key === 'contacto' ? contactForm() : infoContent(key);
+  v.append(h('div', { class: 'wrap' }, crumbs(['Inicio', '/'], [it[1]]),
+    h('div', { class: 'list-hero' }, h('h1', {}, it[1]), h('p', {}, key === 'contacto' ? 'Peticiones, quejas, reclamos, sugerencias, garantías y retractos.' : `${STORE} · Información para comprar tranquilo`), h('span', { class: 'ci', 'aria-hidden': 'true' }, icon(it[2]))),
+    h('div', { class: 'doc' }, nav, h('article', { class: 'doc-body' }, body))));
+}
+function contactForm() {
+  const K = [['peticion', 'Petición o pregunta'], ['queja', 'Queja'], ['reclamo', 'Reclamo'], ['garantia', 'Garantía'], ['retracto', 'Retracto (devolver una compra)'], ['sugerencia', 'Sugerencia'], ['otro', 'Otro']];
+  const kind = new URLSearchParams(location.search).get('tipo');
+  const fld = (label, el, hint) => h('label', { class: 'field' }, h('span', {}, label), el, hint ? h('small', { class: 'muted' }, hint) : null);
+  const recent = (store.get('orders', []) || [])[0];
+  const f = h('form', { class: 'pqrs', novalidate: true },
+    h('div', { class: 'grid2' },
+      fld('Tipo de solicitud', h('select', { name: 'kind' }, K.map(([k, t]) => h('option', { value: k, selected: k === kind }, t)))),
+      fld('Número de pedido (opcional)', h('input', { name: 'order_code', maxlength: 20, autocomplete: 'off', placeholder: 'Ej. 3F9A12BC', value: recent?.code || '' })),
+      fld('Nombre completo', h('input', { name: 'name', required: true, minlength: 3, maxlength: 80, autocomplete: 'name' })),
+      fld('Correo electrónico', h('input', { name: 'email', type: 'email', required: true, maxlength: 120, autocomplete: 'email' }), 'Te respondemos a este correo.'),
+      fld('Celular (opcional)', h('input', { name: 'phone', type: 'tel', inputmode: 'tel', maxlength: 20, autocomplete: 'tel' }))),
+    fld('Tu mensaje', h('textarea', { name: 'message', required: true, minlength: 10, maxlength: 2000, rows: 6, placeholder: 'Cuéntanos qué pasó o qué necesitas.' })),
+    h('input', { type: 'text', name: 'website', tabindex: '-1', autocomplete: 'off', class: 'hp', 'aria-hidden': 'true' }),
+    h('p', { class: 'muted small' }, 'Al enviar autorizas el tratamiento de tus datos para responder tu solicitud, según nuestra ', L_('/privacidad', 'Política de privacidad'), '.'),
+    h('div', { class: 'form-err', role: 'alert' }),
+    h('button', { class: 'btn primary xl', type: 'submit' }, icon('i-msg', 'sm'), 'Enviar mensaje'));
+  f.addEventListener('submit', async e => {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(f)), err = $('.form-err', f), btn = $('button[type=submit]', f);
+    err.textContent = '';
+    if ((d.name || '').trim().length < 3) return (err.textContent = 'Escribe tu nombre completo.', f.elements.namedItem('name').focus());
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((d.email || '').trim())) return (err.textContent = 'Escribe un correo válido.', f.elements.namedItem('email').focus());
+    if ((d.message || '').trim().length < 10) return (err.textContent = 'Cuéntanos un poco más (mínimo 10 caracteres).', f.elements.namedItem('message').focus());
+    btn.disabled = true;
+    try {
+      const r = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(d) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || 'No pudimos enviar tu mensaje. Intenta de nuevo.');
+      f.replaceWith(h('div', { class: 'sent', role: 'status' }, h('span', { class: 'ci' }, icon('i-check', 'lg')), h('h2', {}, '¡Recibimos tu mensaje!'),
+        h('p', {}, 'Tu número de radicado es ', h('b', {}, j.code), '. Te responderemos al correo ', h('b', {}, d.email.trim()), '.'),
+        h('a', { class: 'btn', href: '/', 'data-nav': '' }, 'Seguir comprando')));
+    } catch (x) { err.textContent = x.message; btn.disabled = false; }
+  });
+  return [
+    h('div', { class: 'quick' }, [['/pedidos', 'i-receipt', '¿Dónde está mi pedido?', 'Mira el estado y la guía en Mis pedidos.'], ['/envios', 'i-truck', 'Envíos', 'Costos, tiempos y entregas.'], ['/cambios-y-garantias', 'i-shield', 'Garantías y retracto', 'Tus derechos como consumidor.']]
+      .map(([href, i, t, d]) => h('a', { href, 'data-nav': '', class: 'q-card' }, icon(i), h('span', {}, h('b', {}, t), h('small', { class: 'muted' }, d))))),
+    S.cfg.whatsapp ? h('a', { class: 'btn ghost', target: '_blank', rel: 'noopener', href: `https://wa.me/${S.cfg.whatsapp}` }, icon('i-msg', 'sm'), 'Escríbenos por WhatsApp') : null,
+    SEC('Escríbenos', f),
+    SEC('Datos de contacto', legalBox()),
+  ];
 }
 function favsPage(v) {
   setTitle('Favoritos');
@@ -826,7 +997,7 @@ function checkout(v) {
   const validate = (f, name, val) => { const r = RULES[name]; const ok = !r || r[0](val); f.classList.toggle('bad', !ok); f.querySelector('input,select')?.setAttribute('aria-invalid', String(!ok)); return ok; };
   const summary = h('aside', {}, h('details', { class: 'box co-sum', open: matchMedia('(min-width:960px)').matches },
     h('summary', {}, h('span', {}, h('h2', { style: 'font-size:1.4rem' }, 'Resumen del pedido'), h('span', { class: 'muted small' }, `${S.cart.reduce((a, i) => a + i.qty, 0)} producto(s)`)), h('span', { style: 'display:grid;justify-items:end' }, h('span', { class: 'price' }, fmt(total)), h('span', { class: 'tog small' }, 'Ver detalle', icon('i-chev-r', 'sm')))),
-    S.cart.map(i => { const p = S.byId.get(i.id); return h('div', { class: 'ci-row', style: 'grid-template-columns:56px 1fr auto' }, h('img', { src: p.image, alt: '', style: 'width:56px;height:56px' }), h('div', { class: 'small' }, h('b', {}, p.name), h('div', { class: 'muted' }, `Cantidad: ${i.qty}`)), h('b', { class: 'price' }, fmt(p.price * i.qty))); }),
+    S.cart.map(i => { const p = S.byId.get(i.id); return h('div', { class: 'ci-row', style: 'grid-template-columns:56px 1fr auto' }, h('img', { src: small(p.image), alt: '', style: 'width:56px;height:56px' }), h('div', { class: 'small' }, h('b', {}, p.name), h('div', { class: 'muted' }, `Cantidad: ${i.qty}`)), h('b', { class: 'price' }, fmt(p.price * i.qty))); }),
     h('hr', { style: 'border:0;border-top:1px solid var(--line);margin:0' }),
     h('div', { class: 'sum' }, h('span', {}, 'Subtotal'), h('b', { class: 'price' }, fmt(sub))),
     h('div', { class: 'sum' }, h('span', {}, 'Envío'), h('b', {}, ship ? fmt(ship) : 'GRATIS')),
@@ -892,9 +1063,10 @@ function checkout(v) {
         h('div', {}, h('b', {}, d.name), h('div', { class: 'muted' }, `${d.address}, ${d.city}, ${d.dept}`), h('div', { class: 'muted' }, `${d.phone} · ${d.email}`), d.notes ? h('div', { class: 'muted small' }, d.notes) : null)),
       h('div', { class: 'box', style: 'margin-top:14px' },
         h('h2', { style: 'font-size:1.4rem' }, 'Tus productos'),
-        h('div', { class: 'review' }, S.cart.map(i => { const p = S.byId.get(i.id); return h('div', { class: 'ci-row' }, h('img', { src: p.image, alt: '' }), h('div', {}, h('b', {}, p.name), h('div', { style: 'margin-top:6px' }, stepper(p, i.qty, 'outline'))), h('b', { class: 'price' }, fmt(p.price * i.qty))); })),
+        h('div', { class: 'review' }, S.cart.map(i => { const p = S.byId.get(i.id); return h('div', { class: 'ci-row' }, h('img', { src: small(p.image), alt: '', width: 72, height: 72 }), h('div', {}, h('b', {}, p.name), h('div', { style: 'margin-top:6px' }, stepper(p, i.qty, 'outline'))), h('b', { class: 'price' }, fmt(p.price * i.qty))); })),
       ),
       h('div', { class: 'box', style: 'margin-top:14px' }, h('h2', { style: 'font-size:1.4rem' }, '¿Cómo quieres pagar?'), methods, err, pay,
+        h('p', { class: 'muted small consent' }, 'Al confirmar aceptas los ', L_('/terminos', 'Términos y condiciones'), ' y autorizas el tratamiento de tus datos según la ', L_('/privacidad', 'Política de privacidad'), '. Tienes ', L_('/cambios-y-garantias', 'derecho de retracto'), ' de 5 días hábiles.'),
         h('p', { class: 'muted small center', style: 'margin:0' }, method === 'contraentrega' && !mp ? 'No pagas nada ahora. Te contactamos para coordinar la entrega.' : 'Si eliges pagar en línea te llevaremos a Mercado Pago para completar el pago de forma segura.')));
   }
   w.append(h('div', { class: 'co' }, summary, main));
@@ -949,7 +1121,7 @@ function orderView(id, o, reload) {
     step(cls(order.indexOf('shipped')) || (o.shipped_at ? 'done' : ''), 'i-truck', 'Enviado', o.shipped_at ? `${date(o.shipped_at)} · ${o.carrier || ''}${o.tracking ? ` · Guía ${o.tracking}` : ''}` : 'Te avisamos cuando salga de bodega.', o.shipped_at ? trackLink : null),
     step(st === 'delivered' ? 'done' : '', 'i-home', 'Entregado', date(o.delivered_at)));
   const items = h('div', { class: 'box' }, h('h2', { style: 'font-size:1.3rem' }, 'Tu pedido'),
-    o.items.map(i => h('div', { class: 'ci-row', style: 'grid-template-columns:56px 1fr auto' }, i.image ? h('img', { src: i.image, alt: '', style: 'width:56px;height:56px' }) : h('span'), h('div', { class: 'small' }, h('b', {}, i.name), h('div', { class: 'muted' }, `Cantidad: ${i.qty}`)), h('b', { class: 'price' }, fmt(i.price * i.qty)))),
+    o.items.map(i => h('div', { class: 'ci-row', style: 'grid-template-columns:56px 1fr auto' }, i.image ? h('img', { src: small(i.image), alt: '', style: 'width:56px;height:56px' }) : h('span'), h('div', { class: 'small' }, h('b', {}, i.name), h('div', { class: 'muted' }, `Cantidad: ${i.qty}`)), h('b', { class: 'price' }, fmt(i.price * i.qty)))),
     h('hr', { style: 'border:0;border-top:1px solid var(--line);margin:0' }),
     h('div', { class: 'sum' }, h('span', {}, 'Subtotal'), h('b', { class: 'price' }, fmt(o.subtotal))),
     h('div', { class: 'sum' }, h('span', {}, 'Envío'), h('b', {}, o.shipping ? fmt(o.shipping) : 'GRATIS')),
@@ -983,7 +1155,10 @@ function ordersPage(v) {
 }
 function notFound(v) {
   setTitle('Página no encontrada');
-  v.append(h('div', { class: 'wrap section' }, emptyState('i-search', 'No encontramos esta página', 'Puede que el producto ya no esté disponible.', h('a', { class: 'btn primary', href: '/', 'data-nav': '' }, 'Ir al inicio'))));
+  const box = emptyState('i-search', 'No encontramos esta página', 'Puede que el producto ya no esté disponible. Mira lo que más se está llevando la gente:', h('a', { class: 'btn primary', href: '/', 'data-nav': '' }, 'Ir al inicio'), h('a', { class: 'btn', href: '/buscar?q=', 'data-nav': '' }, 'Ver todo el catálogo'));
+  const t = $('h2', box); t.replaceWith(h('h1', {}, t.textContent));
+  v.append(h('div', { class: 'wrap' }, h('div', { class: 'section' }, box),
+    rail('Lo más pedido', S.products.slice().sort(byStock).slice(0, 14), '/buscar?q=', 'Productos con más unidades disponibles.')));
 }
 
 // ---------- Router ----------
@@ -997,6 +1172,7 @@ const ROUTES = [
   [/^\/checkout$/, v => checkout(v), null],
   [/^\/pedidos$/, v => ordersPage(v), null],
   [/^\/pedido\/([0-9a-f-]{36})$/, (v, m) => orderPage(v, m[1]), null],
+  [/^\/(nosotros|contacto|envios|cambios-y-garantias|terminos|privacidad)$/, (v, m) => infoPage(v, m[1]), null],
 ];
 let cleanup = [];
 const scrolls = store.get('_s', {});
