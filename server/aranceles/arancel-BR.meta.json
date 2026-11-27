@@ -1,0 +1,11 @@
+{
+ "pais": "Brasil",
+ "fuente": "Camex/MDIC — TEC con las tarifas que Brasil aplica distinto (Anexos I y II de la Resolución Gecex 272/2021, actualizados al 25-11-2026)",
+ "url": "https://www.gov.br/mdic/pt-br/assuntos/camex/se-camex/strat/tarifas/vigentes",
+ "idioma": "pt",
+ "nota": "Alíquota aplicada por Brasil. Hay reducciones temporales con cupo (LETEC, desabastecimiento) que no se incluyen.",
+ "filas": 14158,
+ "lineas": 10516,
+ "con_tasa": 10516,
+ "descargado": "2026-11-27"
+}

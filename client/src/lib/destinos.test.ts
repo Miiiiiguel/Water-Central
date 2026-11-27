@@ -9,13 +9,14 @@ describe('DESTINOS', () => {
     for (const d of DESTINOS) expect(PAISES.some((p) => p.iso === d.iso), d.iso).toBe(true);
   });
 
-  it('reads the US, the UK and the 27 EU members live; the rest take a typed rate', () => {
+  it('reads the US, the UK and the 27 EU members live; Mexico and Latin America from the downloaded tariff; the rest take a typed rate', () => {
     expect(destino('US')?.fuente).toBe('hts');
     expect(destino('GB')?.fuente).toBe('uk');
     expect(UNION_EUROPEA).toHaveLength(27);
     for (const iso of UNION_EUROPEA) expect(destino(iso)?.fuente, iso).toBe('xi');
+    for (const iso of ['MX', 'CO', 'CL', 'PE', 'BR', 'AR', 'UY', 'PY']) expect(destino(iso)?.fuente, iso).toBe('local');
     expect(destino('JP')?.fuente).toBe('manual');
-    expect(destino('MX')?.fuente).toBe('manual');
+    expect(destino('CA')?.fuente).toBe('manual');
   });
 
   it('values goods FOB where that country does, CIF elsewhere', () => {

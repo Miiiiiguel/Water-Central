@@ -2,17 +2,20 @@
 // de cada uno. Lo usan los dos lados: el navegador para el selector, el
 // servidor para saber a qué arancel preguntar.
 //
-// Están todos los países. Tres fuentes traen el arancel oficial: el HTS
-// cargado (EE. UU.) y el Trade Tariff británico, en vivo, para el Reino
-// Unido y los 27 de la UE (que comparten el arancel común). En los demás
-// ('manual') el cliente escribe la tarifa de su subpartida: la página le
-// dice cuál es y dónde buscarla. Conectar la fuente oficial de un país es
-// cambiar su fuente acá y agregar el lector en server/destinos.
+// Están todos los países. Estas fuentes traen el arancel oficial: el HTS
+// cargado (EE. UU.); el Trade Tariff británico, en vivo, para el Reino
+// Unido y los 27 de la UE (que comparten el arancel común); y los
+// aranceles descargados de cada aduana ('local', server/aranceles) para
+// México y Latinoamérica. En los demás ('manual') el cliente escribe la
+// tarifa de su subpartida: la página le dice cuál es y dónde buscarla.
 
 import type { Tasa } from './tasaArancel';
 import { PAISES, UNION_EUROPEA } from './paises';
 
-export type FuenteArancel = 'hts' | 'uk' | 'xi' | 'manual';
+export type FuenteArancel = 'hts' | 'uk' | 'xi' | 'local' | 'manual';
+
+/** Los países con su arancel oficial descargado (server/aranceles). */
+export const CON_ARANCEL_LOCAL = new Set(['MX', 'CO', 'CL', 'PE', 'BR', 'AR', 'UY', 'PY']);
 
 export interface Destino {
   iso: string;
@@ -41,7 +44,7 @@ export const DESTINOS: Destino[] = [
   // Los de la UE primero, por nombre.
   ...PAISES.filter((p) => UE.has(p.iso)).map((p): Destino => ({ iso: p.iso, nombre: `${p.es} (UE)`, nombreEn: `${p.en} (EU)`, fuente: 'xi', base: 'cif' })),
   ...PAISES.filter((p) => !UE.has(p.iso) && !SIN_DESTINO.has(p.iso) && p.iso !== 'GB').map(
-    (p): Destino => ({ iso: p.iso, nombre: p.es, nombreEn: p.en, fuente: 'manual', base: BASE_FOB.has(p.iso) ? 'fob' : 'cif' })
+    (p): Destino => ({ iso: p.iso, nombre: p.es, nombreEn: p.en, fuente: CON_ARANCEL_LOCAL.has(p.iso) ? 'local' : 'manual', base: BASE_FOB.has(p.iso) ? 'fob' : 'cif' })
   ),
 ];
 
@@ -53,6 +56,17 @@ const POR_ISO = new Map(DESTINOS.map((d) => [d.iso, d]));
  */
 export const DESTINOS_PRINCIPALES = [
   'US', 'CA', 'MX', 'GB', 'ES', 'DE', 'FR', 'IT', 'NL', 'JP', 'KR', 'AU', 'CN', 'AE', 'SA', 'CH', 'CL', 'CO', 'PE', 'BR', 'PA', 'CR',
+];
+
+/**
+ * Los destinos de la calculadora ROI: los mercados con arancel oficial
+ * cargado. Canadá entra con la tarifa escrita a mano mientras se carga el
+ * suyo (la CBSA no deja descargarlo desde servidores en la nube).
+ */
+export const DESTINOS_ROI: Array<{ grupo: string; grupoEn: string; isos: string[] }> = [
+  { grupo: 'Norteamérica', grupoEn: 'North America', isos: ['US', 'MX', 'CA'] },
+  { grupo: 'Latinoamérica', grupoEn: 'Latin America', isos: ['CO', 'CL', 'PE', 'BR', 'AR', 'UY', 'PY'] },
+  { grupo: 'Unión Europea', grupoEn: 'European Union', isos: [...UNION_EUROPEA].sort() },
 ];
 
 export function destino(iso: string): Destino | null {
@@ -74,6 +88,7 @@ export const NOMBRE_DE_FUENTE: Record<FuenteArancel, string> = {
   hts: 'Harmonized Tariff Schedule de EE. UU. (USITC)',
   uk: 'UK Global Tariff (Trade Tariff, gobierno del Reino Unido)',
   xi: 'Arancel común de la UE (TARIC), publicado por el Trade Tariff del gobierno del Reino Unido para Irlanda del Norte',
+  local: 'Arancel oficial del país, descargado de su aduana',
   manual: 'Tarifa que escribe el cliente para su subpartida',
 };
 
@@ -89,6 +104,8 @@ export interface ArancelDestino {
   preferencial: { tasa: Tasa; acuerdo: string } | null;
   avisos: string[];
   fuente: string;
+  /** false: salió del arancel oficial descargado, no de una consulta en vivo. */
+  vivo?: boolean;
 }
 
 async function pedir<T>(ruta: string): Promise<{ ok: true; datos: T } | { ok: false; mensaje: string }> {

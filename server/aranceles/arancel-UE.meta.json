@@ -1,0 +1,11 @@
+{
+ "pais": "Unión Europea (27 países)",
+ "fuente": "Arancel común de la UE (TARIC, derecho de terceros países), tomado de la API pública del UK Trade Tariff para Irlanda del Norte (XI), que aplica el arancel de la UE",
+ "url": "https://www.trade-tariff.service.gov.uk/xi/",
+ "idioma": "en",
+ "nota": "Derecho de terceros países (NMF). Con acuerdo comercial (p. ej. Colombia, Perú, Ecuador, México, Chile, Centroamérica) muchos productos entran con 0 %.",
+ "filas": 26602,
+ "lineas": 17247,
+ "con_tasa": 16592,
+ "descargado": "2026-11-27"
+}

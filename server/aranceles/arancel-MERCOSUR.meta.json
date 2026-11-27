@@ -1,0 +1,11 @@
+{
+ "pais": "Mercosur (Argentina, Paraguay, Uruguay)",
+ "fuente": "Tarifa Externa Común del Mercosur (NCM/TEC, SH-2022) — Anexo I de la Resolución Gecex 272/2021, Camex/MDIC",
+ "url": "https://www.gov.br/mdic/pt-br/assuntos/camex/se-camex/strat/tarifas/vigentes",
+ "idioma": "pt",
+ "nota": "Tasa común del Mercosur. Cada país tiene su lista de excepciones, que puede cambiar la tasa de algunos productos.",
+ "filas": 14158,
+ "lineas": 10516,
+ "con_tasa": 10516,
+ "descargado": "2026-11-27"
+}

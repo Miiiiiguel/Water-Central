@@ -14,7 +14,7 @@ import { MONTH_LABELS, MONTH_LABELS_EN, fmtInt, fmtMoney, fmtMoney2, pctOf, setR
 import RoiTable, { type RoiRow } from '@/components/roi/RoiTable';
 import PartidaArancel from '@/components/roi/PartidaArancel';
 import LineaDestino from '@/components/roi/LineaDestino';
-import { DESTINOS, DESTINOS_PRINCIPALES, destino as destinoDe, mismoMercado, type ArancelDestino } from '@/lib/destinos';
+import { DESTINOS, DESTINOS_ROI, destino as destinoDe, mismoMercado, type ArancelDestino } from '@/lib/destinos';
 import type { DetallePartida } from '@/lib/hts';
 import { paisDeOrigen, parseTasa } from '@/lib/tasaArancel';
 import ReglasOrigen from '@/components/roi/ReglasOrigen';
@@ -383,10 +383,11 @@ export default function RoiCalculator({ embebido = false }: { embebido?: boolean
   const [destinoIso, setDestinoIso] = useState('US');
   const dest = destinoDe(destinoIso) ?? DESTINOS[0];
   const esUS = dest.fuente === 'hts';
-  // Reino Unido y UE: arancel oficial en vivo. Los demás países: la
-  // tarifa de la subpartida la escribe el cliente; también en el Reino
-  // Unido y la UE si la fuente en vivo no responde, para no quedar trabado.
-  const enVivo = dest.fuente === 'uk' || dest.fuente === 'xi';
+  // Reino Unido y UE: arancel oficial en vivo. México y Latinoamérica: el
+  // arancel oficial descargado de cada aduana. Los demás países: la tarifa
+  // de la subpartida la escribe el cliente; también si la fuente no
+  // responde, para no quedar trabado.
+  const enVivo = dest.fuente === 'uk' || dest.fuente === 'xi' || dest.fuente === 'local';
   const [falloVivo, setFalloVivo] = useState(false);
   const manual = dest.fuente === 'manual' || (enVivo && falloVivo);
   const [tarifaManual, setTarifaManual] = useState<number | null>(null);
@@ -716,16 +717,29 @@ export default function RoiCalculator({ embebido = false }: { embebido?: boolean
               </div>
             </Paso>
 
-            <Paso n={2} listo={Boolean(partida && aplicada)} title={es ? 'Dónde vendes y su arancel' : 'Where you sell and its duty'} help={es ? 'Vendes en Estados Unidos. Busca tu producto: el arancel sale de la tarifa oficial de EE. UU.' : 'You sell in the United States. Find your product: the duty comes from the official US tariff.'}>
-              {/* Por ahora la calculadora es sólo para vender en EE. UU. El resto
-                  de destinos sigue en el código (lib/destinos): para volver a
-                  abrirlos basta con devolver aquí el selector. */}
-              <div className="mb-4">
+            <Paso n={2} listo={Boolean(partida && aplicada)} title={es ? 'Dónde vendes y su arancel' : 'Where you sell and its duty'} help={es ? 'Elige el país y busca tu producto: el arancel sale de la tarifa oficial de ese país.' : 'Pick the country and find your product: the duty comes from that country’s official tariff.'}>
+              {/* Los mercados con arancel oficial cargado: EE. UU., México,
+                  Canadá, Latinoamérica y la Unión Europea. */}
+              <label className="mb-4 block">
                 <span className="mb-1.5 block text-sm font-semibold text-muted-foreground">{es ? 'País de destino' : 'Destination country'}</span>
-                <span className="inline-flex items-center gap-2 rounded-xl border-[1.5px] border-gray-200 bg-secondary/60 px-3 py-2.5 font-bold text-primary">
-                  🇺🇸 {es ? 'Estados Unidos' : 'United States'}
-                </span>
-              </div>
+                <select
+                  value={destinoIso}
+                  onChange={(e) => cambiarDestino(e.target.value)}
+                  className="w-full rounded-xl border-[1.5px] border-gray-200 bg-secondary/60 px-3 py-2.5 font-bold text-primary outline-none focus:border-accent focus:bg-white sm:w-72"
+                >
+                  {DESTINOS_ROI.map((g) => (
+                    <optgroup key={g.grupo} label={es ? g.grupo : g.grupoEn}>
+                      {g.isos
+                        .map((iso) => destinoDe(iso))
+                        .filter((d): d is NonNullable<typeof d> => d !== null)
+                        .sort((a, b) => (g.grupoEn === 'European Union' ? (es ? a.nombre : a.nombreEn).localeCompare(es ? b.nombre : b.nombreEn, es ? 'es' : 'en') : 0))
+                        .map((d) => (
+                          <option key={d.iso} value={d.iso}>{es ? d.nombre : d.nombreEn}</option>
+                        ))}
+                    </optgroup>
+                  ))}
+                </select>
+              </label>
 
               <PartidaArancel
                 soloSubpartida={!esUS}

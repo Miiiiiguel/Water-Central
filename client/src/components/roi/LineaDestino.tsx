@@ -24,7 +24,8 @@ interface Props {
 }
 
 const fmt = (n: number) => (n === 0 ? '$0' : `$${n.toFixed(n < 1 ? 3 : 2)}`);
-const codigo10 = (c: string) => `${c.slice(0, 4)}.${c.slice(4, 6)}.${c.slice(6, 8)}.${c.slice(8, 10)}`;
+/** 6109.10.00.10 en EE. UU. y la UE; 6109.10.00 (8 dígitos) en México, Chile o Brasil. */
+const codigo10 = (c: string) => [c.slice(0, 4), c.slice(4, 6), c.slice(6, 8), c.slice(8, 10)].filter(Boolean).join('.');
 
 export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel, onArancel, derecho, onFallo }: Props) {
   const [lineas, setLineas] = useState<Linea[] | null>(null);
@@ -143,7 +144,10 @@ export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel
               {arancel.avisos.map((a) => <li key={a}>⚠ {a}</li>)}
             </ul>
           )}
-          <p className="mt-3 text-[11px] text-muted-foreground">{es ? 'Fuente' : 'Source'}: {arancel.fuente}, {es ? 'consultada en vivo' : 'queried live'}.</p>
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            {es ? 'Fuente' : 'Source'}: {arancel.fuente}
+            {arancel.vivo === false ? (es ? ', arancel oficial descargado.' : ', official tariff file.') : es ? ', consultada en vivo.' : ', queried live.'}
+          </p>
         </div>
       ) : cargando ? (
         <p className="text-sm text-muted-foreground">{es ? 'Consultando el arancel del destino…' : 'Querying the destination tariff…'}</p>
