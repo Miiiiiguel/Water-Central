@@ -17,7 +17,19 @@ describe('los aranceles descargados', () => {
     expect(arancelLocal('BR', '61091000')?.general?.texto).toBe('35%');
     expect(arancelLocal('MX', '61091003')?.general?.texto).toBe('35%');
     expect(arancelLocal('PE', '6109100031')?.general?.texto).toBe('11%');
+    expect(arancelLocal('CA', '6109100012')?.general?.texto).toBe('18%');
   });
+
+  it('Canadá: la línea de 10 dígitos hereda la tasa de su item, y lo que va en CAD no se calcula', () => {
+    const l = lineasLocales('CA', '610910')!;
+    expect(l.map((x) => x.codigo)).toContain('6109100012');
+    expect(l.every((x) => x.codigo.length === 10)).toBe(true);
+    expect(arancelLocal('CA', '0101210000')?.general?.libre).toBe(true);
+    expect(arancelLocal('CA', '61091000')).toBeNull(); // el item se declara con su sufijo
+    const cad = cargarArancel('CA')!.lineas.find((r) => /^\d+(\.\d+)?¢\/kg$/.test(r.fila.t ?? ''))!;
+    expect(arancelLocal('CA', cad.fila.c)?.general?.calculable).toBe(false);
+    expect(arancelLocal('CA', cad.fila.c)?.general?.motivo).toMatch(/CAD/);
+    expect(tasaLocal('N/A').tasa).toBeNull();  });
 
   it('el café sin tostar de México paga 45 %, y lo exento es 0 %', () => {
     expect(arancelLocal('MX', '09012199')?.general?.texto).toBe('45%');

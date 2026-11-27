@@ -15,7 +15,7 @@ import { PAISES, UNION_EUROPEA } from './paises';
 export type FuenteArancel = 'hts' | 'uk' | 'xi' | 'local' | 'manual';
 
 /** Los países con su arancel oficial descargado (server/aranceles). */
-export const CON_ARANCEL_LOCAL = new Set(['MX', 'CO', 'CL', 'PE', 'BR', 'AR', 'UY', 'PY']);
+export const CON_ARANCEL_LOCAL = new Set(['MX', 'CA', 'CO', 'CL', 'PE', 'BR', 'AR', 'UY', 'PY']);
 
 export interface Destino {
   iso: string;
@@ -60,8 +60,7 @@ export const DESTINOS_PRINCIPALES = [
 
 /**
  * Los destinos de la calculadora ROI: los mercados con arancel oficial
- * cargado. Canadá entra con la tarifa escrita a mano mientras se carga el
- * suyo (la CBSA no deja descargarlo desde servidores en la nube).
+ * cargado.
  */
 export const DESTINOS_ROI: Array<{ grupo: string; grupoEn: string; isos: string[] }> = [
   { grupo: 'Norteamérica', grupoEn: 'North America', isos: ['US', 'MX', 'CA'] },

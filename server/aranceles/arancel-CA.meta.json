@@ -1,0 +1,11 @@
+{
+ "pais": "Canadá",
+ "fuente": "Customs Tariff (Schedule, capítulos 1 a 99) de la Agencia de Servicios Fronterizos de Canadá (CBSA), edición 2026",
+ "url": "https://www.cbsa-asfc.gc.ca/trade-commerce/tariff-tarif/",
+ "idioma": "en",
+ "nota": "Tarifa NMF (Most-Favoured-Nation), sin tratado. Con acuerdo comercial (CUSMA/T-MEC con EE. UU. y México; TLC con Colombia, Perú, Chile, Panamá, Honduras, Costa Rica; CPTPP; CETA con la UE) la mayoría de los productos entra con 0 %.",
+ "filas": 16215,
+ "lineas": 10991,
+ "con_tasa": 10990,
+ "descargado": "2026-11-27"
+}

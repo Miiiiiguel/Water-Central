@@ -51,6 +51,7 @@ interface Indice {
 /** Qué archivo usa cada país de destino. */
 export const ARANCEL_DE: Record<string, string> = {
   MX: 'MX',
+  CA: 'CA',
   CO: 'CO',
   CL: 'CL',
   PE: 'PE',
@@ -60,6 +61,9 @@ export const ARANCEL_DE: Record<string, string> = {
   UY: 'MERCOSUR',
   PY: 'MERCOSUR',
 };
+
+/** Los aranceles cuyas tarifas específicas no están en USD. */
+const MONEDA_LOCAL: Record<string, string> = { CA: 'dólares canadienses (CAD)' };
 
 /** La UE: el arancel común descargado, para cuando la consulta en vivo no responde. */
 export const ARANCEL_UE = 'UE';
@@ -145,6 +149,8 @@ export function lineasLocales(id: string, hs6: string): LineaLocal[] | null {
 export function tasaLocal(texto: string | null): { tasa: Tasa | null; aviso: string | null } {
   if (texto === null || texto.trim() === '') return { tasa: null, aviso: null };
   const t = texto.trim();
+  // "N/A" (Canadá): el arancel no publica una tarifa NMF para esa línea.
+  if (/^n\/a$/i.test(t)) return { tasa: null, aviso: null };
   if (/^ex\.?$/i.test(t)) return { tasa: { ...parseTasa('0%'), texto: 'Exento (0 %)' }, aviso: null };
   const bk = /^(\d+(?:\.\d+)?)%\s*(BK|BIT)$/i.exec(t);
   if (bk) {
@@ -170,7 +176,15 @@ export function arancelLocal(id: string, codigo: string): ArancelLocal | null {
   const idx = cargarArancel(id);
   const reg = idx?.porCodigo.get(codigo);
   if (!idx || !reg || !reg.fila.f) return null;
-  const { tasa, aviso } = tasaLocal(reg.fila.t);
+  const leida = tasaLocal(reg.fila.t);
+  const { aviso } = leida;
+  let { tasa } = leida;
+  // Las tarifas por kilo, litro o tonelada de Canadá van en dólares
+  // canadienses (y "¢" son centavos canadienses): el cálculo, que trabaja en
+  // USD, no las usa como si fueran de EE. UU.
+  if (tasa && MONEDA_LOCAL[id] && tasa.componentes.some((c) => c.tipo === 'especifico')) {
+    tasa = { ...tasa, componentes: [], calculable: false, necesita: [], motivo: `Tarifa en ${MONEDA_LOCAL[id]} por unidad: confírmala con tu agente de aduanas.` };
+  }
   const avisos = [
     ...(aviso ? [aviso] : []),
     ...(tasa === null ? ['Esta línea no trae tarifa publicada en el archivo oficial: confírmala con tu agente de aduanas.'] : []),

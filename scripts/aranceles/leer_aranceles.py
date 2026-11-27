@@ -218,7 +218,114 @@ def ue():
     write('UE', rows, {'pais': 'Unión Europea (27 países)', 'fuente': 'Arancel común de la UE (TARIC, derecho de terceros países), tomado de la API pública del UK Trade Tariff para Irlanda del Norte (XI), que aplica el arancel de la UE', 'url': 'https://www.trade-tariff.service.gov.uk/xi/', 'idioma': 'en', 'nota': 'Derecho de terceros países (NMF). Con acuerdo comercial (p. ej. Colombia, Perú, Ecuador, México, Chile, Centroamérica) muchos productos entran con 0 %.'})
     print('  ', busca(rows, '610910'))
 
-for nombre, fn in [('CL', chile), ('PE', peru), ('CO', colombia), ('BR', brasil), ('MX', mexico), ('UE', ue)]:
+# ---------------- Canadá ----------------
+# El PDF oficial de la CBSA (Customs Tariff, 01-99), pasado a texto con
+# `pdftotext -layout`. La tasa NMF está en el "tariff item" de 8 dígitos; la
+# línea que se declara es el número de clasificación de 10 (item + sufijo
+# estadístico SS), que hereda la tasa de su item.
+CA_ITEM = re.compile(r'^(\s*)(\d{4}\.\d{2}(?:\.\d{2})?)(?:\s(\d{2}))?\s+(\S.*)$')
+# Las siglas de los tratados ("UST, MXT, CPUKT: N/A") que pdftotext a veces pega a la tasa.
+CA_SIGLAS = re.compile(r'\b[A-Z]{1,5}T\s*:\s*(?:N/A|Free|\d[\d.]*%)|\b[A-Z]{1,5}T\b\s*[,:]?')
+CA_PARTIDA = re.compile(r'^\s*(\d{2})\.(\d{2})\s{2,}(\S.*)$')
+CA_SS = re.compile(r'^\s*(\d{2})\s+(-[\s-]*\S.*)$')
+CA_GRUPO = re.compile(r'^\s+(-[\s-]*\S.*)$')
+CA_TASA = re.compile(r'^(Free|N/A|\d|\$|\d+(?:\.\d+)?¢)')
+CA_UNIDAD = re.compile(r'^(?:[A-Z]{3}|-)$')
+
+def ca_trozos(linea):
+    """Los textos de la línea separados por 2+ espacios, con su columna."""
+    return [(m.start(), m.group(0)) for m in re.finditer(r'\S+(?: \S+)*', linea)]
+
+def ca_desc(t):
+    t = re.sub(r'\s*\.{3,}.*$', '', t)          # puntos guía y la unidad al final
+    return dashes(t)
+
+def canada():
+    lineas = open(f'{D}/ca/ca.txt', encoding='utf-8').read().split('\n')
+    rows = []; tabla = False; vistos = {}
+    pref_col = None
+    abierta = None      # la fila cuya descripción puede seguir en la línea de abajo
+    tasa_col = None     # columna de la tasa NMF del último item (para tasas en varias líneas)
+    item = None         # el último item de 8 dígitos y su tasa
+    for ln in lineas:
+        st = ln.strip()
+        if not st: abierta = None; tasa_col = None; continue
+        if 'Description of Goods' in ln: tabla = True; abierta = None; continue
+        if re.fullmatch(r'Chapter \d+', st) or st in ('Note.', 'Notes.'): tabla = False; abierta = None; continue
+        if not tabla: continue
+        if re.match(r'^(Issued|Revised) ', st) or st.startswith('CUSTOMS TARIFF') or re.fullmatch(r'\d{2} - \S+', st) \
+           or re.match(r'^(Tariff|Item)\b', st) or st.startswith('Unit of'):
+            abierta = None; continue
+        m = CA_ITEM.match(ln)
+        # Los items van pegados al margen; un código más adentro es texto
+        # ("... of tariff item 8509.40.90 or 8509.80.90").
+        if m and len(m.group(1)) <= 8:
+            codigo = m.group(2).replace('.', ''); ss = m.group(3)
+            ya = vistos.get(codigo + (ss or ''))
+            if ya is not None:
+                # El mismo item repetido al cambiar de página: sigue la misma fila.
+                abierta = ya; item = ya if len(codigo) == 8 else None; tasa_col = None; continue
+            trozos = ca_trozos(ln[m.start(4):]); base = m.start(4)
+            desc = trozos[0][1]; tasa = None; tasa_col = None
+            resto = trozos[1:]
+            if resto and CA_UNIDAD.match(resto[0][1]): resto = resto[1:]
+            if resto and CA_TASA.match(resto[0][1]):
+                tasa = resto[0][1]; tasa_col = base + resto[0][0]
+                # Donde empiezan los tratados: lo que siga a la izquierda es tasa.
+                pref_col = base + resto[1][0] if len(resto) > 1 else tasa_col + 14
+            n, d = ca_desc(desc)
+            n = max(n, 1)   # un item sin guiones es la partida misma ("2603.00.00 Copper ores")
+            if len(codigo) == 6:
+                rows.append({'c': codigo, 'n': n, 'd': d, 't': None, 'f': False})
+                item = None
+            else:
+                fila = {'c': codigo + (ss or ''), 'n': n, 'd': d, 't': tasa, 'f': bool(ss)}
+                rows.append(fila); item = fila
+            vistos[rows[-1]['c']] = rows[-1]
+            abierta = rows[-1]; continue
+        m = CA_PARTIDA.match(ln)
+        if m and len(ln) - len(ln.lstrip()) < 12:
+            rows.append({'c': m.group(1) + m.group(2), 'n': 0, 'd': ca_trozos(m.group(3))[0][1], 't': None, 'f': False})
+            abierta = rows[-1]; item = None; tasa_col = None; continue
+        m = CA_SS.match(ln)
+        if m and item is not None:
+            n, d = ca_desc(ca_trozos(m.group(2))[0][1])
+            fila = {'c': item['c'][:8] + m.group(1), 'n': n, 'd': d, 't': item['t'], 'f': True, '_hijo': True}
+            item['_padre'] = True
+            if fila['c'] in vistos: abierta = vistos[fila['c']]; continue
+            vistos[fila['c']] = fila
+            rows.append(fila); abierta = fila; continue
+        sangria = len(ln) - len(ln.lstrip())
+        trozos = ca_trozos(ln)
+        # Tasa que sigue en la línea de abajo ("241% but not" / "less than" / "$34.50/hl").
+        if tasa_col is not None and item is not None and item['t'] is not None:
+            for col, t in trozos:
+                if tasa_col - 6 <= col < pref_col - 1:
+                    item['t'] += ' ' + t
+                    for r in rows[::-1]:
+                        if r.get('_hijo') and r['c'][:8] == item['c'][:8]: r['t'] = item['t']
+                        else: break
+        m = CA_GRUPO.match(ln)
+        if m and sangria < 40 and trozos[0][1].startswith('-'):
+            n, d = ca_desc(trozos[0][1])
+            rows.append({'c': '', 'n': n, 'd': d, 't': None, 'f': False}); abierta = rows[-1]; continue
+        # Descripción que sigue en la línea de abajo.
+        if abierta is not None and sangria < 60 and trozos:
+            extra = re.sub(r'\s*\.{3,}.*$', '', trozos[0][1])
+            if extra: abierta['d'] = (abierta['d'] + ' ' + extra).strip()
+    # Un item sin sufijos estadísticos se declara tal cual.
+    for r in rows:
+        if len(r['c']) == 8 and not r.pop('_padre', False): r['f'] = True
+        r.pop('_padre', None); r.pop('_hijo', None)
+        r['d'] = re.sub(r'\s+', ' ', r['d']).strip()
+        if len(r['d']) > 300: r['d'] = r['d'][:297].rsplit(' ', 1)[0] + '…'
+        if r['t'] is not None:
+            t = re.sub(r'\s+', ' ', CA_SIGLAS.sub(' ', r['t'])).strip()
+            r['t'] = '0%' if t == 'Free' else t
+    write('CA', rows, {'pais': 'Canadá', 'fuente': 'Customs Tariff (Schedule, capítulos 1 a 99) de la Agencia de Servicios Fronterizos de Canadá (CBSA), edición 2026', 'url': 'https://www.cbsa-asfc.gc.ca/trade-commerce/tariff-tarif/', 'idioma': 'en', 'nota': 'Tarifa NMF (Most-Favoured-Nation), sin tratado. Con acuerdo comercial (CUSMA/T-MEC con EE. UU. y México; TLC con Colombia, Perú, Chile, Panamá, Honduras, Costa Rica; CPTPP; CETA con la UE) la mayoría de los productos entra con 0 %.'})
+    print('  ', busca(rows, '610910'), busca(rows, '040110'), busca(rows, '010121'))
+
+for nombre, fn in [('CL', chile), ('PE', peru), ('CO', colombia), ('BR', brasil), ('MX', mexico), ('UE', ue), ('CA', canada)]:
     if only and nombre not in only: continue
     try: fn()
     except Exception as e: print(nombre, 'ERROR', repr(e))

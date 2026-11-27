@@ -18,5 +18,7 @@ oficiales de cada aduana. Para actualizarlos (cuando un país publica cambios):
 3. Copiar `salida/<ID>.ndjson.gz` y `<ID>.meta.json` a `server/aranceles/arancel-<ID>.*`
    y correr `npx vitest run server/aranceles`.
 
-Canadá: la CBSA corta las descargas desde servidores en la nube. El archivo del
-arancel (Customs Tariff 01-99) hay que bajarlo desde un computador y subirlo.
+Canadá: la CBSA corta las descargas desde servidores en la nube. El PDF del
+arancel (Customs Tariff 01-99, p. ej. 01-99-2026-2-eng.pdf) se baja desde un
+computador, se pasa a texto con `pdftotext -layout <pdf> <datos>/ca/ca.txt` y
+`leer_aranceles.py <datos> <salida> CA` lo convierte.
