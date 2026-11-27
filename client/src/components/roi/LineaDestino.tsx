@@ -38,8 +38,11 @@ export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel
     void lineasDelDestino(destino.iso, hs6).then((r) => {
       if (!vivo) return;
       setCargando(false);
-      if (r.ok) setLineas(r.datos.lineas);
-      else setError(r.mensaje);
+      if (r.ok) {
+        setLineas(r.datos.lineas);
+        // Una sola línea: no hay nada que elegir, se consulta de una vez.
+        if (r.datos.lineas.length === 1) setElegida(r.datos.lineas[0].codigo);
+      } else setError(r.mensaje);
     });
     return () => {
       vivo = false;
@@ -135,6 +138,12 @@ export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel
       ) : cargando ? (
         <p className="text-sm text-muted-foreground">{es ? 'Consultando el arancel del destino…' : 'Querying the destination tariff…'}</p>
       ) : lineas && lineas.length > 0 ? (
+        <>
+        <p className="mb-2 text-sm font-semibold text-primary">
+          {es
+            ? `Elige la línea de tu producto en ${destino.nombre} para ver su arancel. Mientras no la elijas, el cálculo usa el supuesto del equipo (8 % si no cumple un acuerdo).`
+            : `Pick your product's line in ${destino.nombreEn} to see its duty. Until you do, the projection uses the team's assumption (8% if it does not qualify under an agreement).`}
+        </p>
         <ul className="max-h-72 divide-y divide-gray-100 overflow-y-auto rounded-xl border border-gray-200 bg-white">
           {lineas.map((l) => (
             <li key={l.codigo}>
@@ -150,6 +159,7 @@ export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel
             </li>
           ))}
         </ul>
+        </>
       ) : lineas ? (
         <p className="text-sm text-muted-foreground">
           {es ? 'El arancel del destino no tiene líneas para esta subpartida.' : 'The destination tariff has no lines for this subheading.'}
