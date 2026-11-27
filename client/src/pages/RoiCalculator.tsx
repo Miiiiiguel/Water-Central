@@ -187,7 +187,8 @@ function ScenarioToggle({
 
 function Paso({ n, title, help, children, listo = false }: { n: number; title: string; help: string; children: React.ReactNode; listo?: boolean }) {
   return (
-    <div className="mb-7 border-b border-dashed border-gray-100 pb-7 last-of-type:border-0">
+    // scroll-mt: al saltar a un paso, que no quede debajo del encabezado fijo.
+    <div id={`roi-paso-${n}`} className="mb-7 scroll-mt-24 border-b border-dashed border-gray-100 pb-7 last-of-type:border-0">
       <div className="mb-4 flex items-start gap-3">
         <span
           className={`flex h-8 w-8 flex-none items-center justify-center rounded-full text-sm font-black text-white transition-colors ${listo ? 'bg-green-500' : 'bg-primary'}`}
@@ -254,7 +255,15 @@ function ResultadoVivo({
       </div>
 
       {aviso && (
-        <p className="mt-4 rounded-2xl bg-amber-300 px-3.5 py-2.5 text-sm font-bold text-amber-950">⚠ {aviso}</p>
+        // En el celular el resultado queda lejos del paso 2: el aviso lleva hasta allá.
+        <button
+          type="button"
+          onClick={() => document.getElementById('roi-paso-2')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          className="mt-4 block w-full cursor-pointer rounded-2xl border-0 bg-amber-300 px-3.5 py-2.5 text-left text-sm font-bold text-amber-950 hover:bg-amber-200"
+        >
+          ⚠ {aviso}
+          <span className="mt-1.5 block underline underline-offset-2">{es ? 'Ir al paso 2 ↑' : 'Go to step 2 ↑'}</span>
+        </button>
       )}
 
       {conSugeridos && (

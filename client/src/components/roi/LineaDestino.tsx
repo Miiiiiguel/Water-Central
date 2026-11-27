@@ -51,8 +51,11 @@ export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel
     void lineasDelDestino(destino.iso, hs6).then((r) => {
       if (!vivo) return;
       setCargando(false);
-      if (r.ok) setLineas(r.datos.lineas);
-      else setError(r.mensaje);
+      if (r.ok) {
+        setLineas(r.datos.lineas);
+        // Una sola línea en el destino: no hay nada que elegir, se aplica sola.
+        if (r.datos.lineas.length === 1) setElegida(r.datos.lineas[0].codigo);
+      } else setError(r.mensaje);
       onFallo?.(!r.ok);
     });
     return () => {
@@ -156,7 +159,13 @@ export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel
       ) : cargando ? (
         <p className="text-sm text-muted-foreground">{es ? 'Consultando el arancel del destino…' : 'Querying the destination tariff…'}</p>
       ) : lineas && lineas.length > 0 ? (
-        <ul className="max-h-72 divide-y divide-gray-100 overflow-y-auto rounded-xl border border-gray-200 bg-white">
+        <>
+          <p className="mb-2 text-sm font-bold text-accent">
+            {es
+              ? `Toca la línea de tu producto para aplicar el arancel de ${destino.nombre} (${lineas.length} opciones):`
+              : `Tap your product's line to apply ${destino.nombreEn}'s duty (${lineas.length} options):`}
+          </p>
+          <ul className="max-h-72 divide-y divide-gray-100 overflow-y-auto rounded-xl border border-gray-200 bg-white">
           {lineas.map((l) => (
             <li key={l.codigo}>
               <button
@@ -171,6 +180,7 @@ export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel
             </li>
           ))}
         </ul>
+        </>
       ) : lineas ? (
         <p className="text-sm text-muted-foreground">
           {es ? 'El arancel del destino no tiene líneas para esta subpartida.' : 'The destination tariff has no lines for this subheading.'}
