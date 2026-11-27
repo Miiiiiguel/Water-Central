@@ -24,6 +24,8 @@ export interface FilaArancel {
   d: string;
   t: string | null;
   f: boolean;
+  /** El texto original en inglés, si `d` ya está en español (scripts/aranceles/traducir_es.py). */
+  o?: string;
 }
 
 export interface MetaArancel {
@@ -46,6 +48,8 @@ interface Indice {
   meta: MetaArancel;
   lineas: Registro[];
   porCodigo: Map<string, Registro>;
+  /** Los textos de las filas que siguen en inglés (sin `o`). */
+  enIngles: Set<string>;
 }
 
 /** Qué archivo usa cada país de destino. */
@@ -82,6 +86,7 @@ function limpiar(d: string): string {
 export function construir(filas: FilaArancel[], meta: MetaArancel): Indice {
   const lineas: Registro[] = [];
   const porCodigo = new Map<string, Registro>();
+  const enIngles = new Set<string>();
   // Pila de ancestros por nivel, como en el HTS.
   const pila: FilaArancel[] = [];
   for (const fila of filas) {
@@ -92,10 +97,11 @@ export function construir(filas: FilaArancel[], meta: MetaArancel): Indice {
     const ruta = partes.filter((d, i) => i === 0 || d.toLowerCase() !== partes[i - 1].toLowerCase());
     const reg: Registro = { fila, ruta };
     if (fila.c) porCodigo.set(fila.c, reg);
+    if (fila.o === undefined && fila.d.trim()) enIngles.add(limpiar(fila.d));
     if (fila.f && fila.c) lineas.push(reg);
     pila.push(fila);
   }
-  return { meta, lineas, porCodigo };
+  return { meta, lineas, porCodigo, enIngles };
 }
 
 export function cargarArancel(id: string): Indice | null {
@@ -200,6 +206,29 @@ export function arancelLocal(id: string, codigo: string): ArancelLocal | null {
     fuente: idx.meta.fuente,
     vivo: false,
   };
+}
+
+/** La descripción de una línea en el arancel descargado (para la UE en vivo, que llega en inglés). */
+export function descripcionLocal(id: string, codigo: string): string | null {
+  const reg = cargarArancel(id)?.porCodigo.get(codigo);
+  return reg ? reg.ruta.slice(-3).join(' › ') : null;
+}
+
+// Los aranceles publicados en inglés: lo que quedó sin traducir al
+// descargarlos se traduce al mostrarlo (server/hts/traduccion.ts), y sólo
+// se aceptan textos que de verdad están en ellos.
+const EN_INGLES = ['CA', ARANCEL_UE];
+let pendientes: Set<string> | null = null;
+
+/** ¿Es una parte de descripción, todavía en inglés, de un arancel descargado? */
+export function esDescripcionLocal(texto: string): boolean {
+  if (!pendientes) {
+    pendientes = new Set();
+    for (const id of EN_INGLES) {
+      cargarArancel(id)?.enIngles.forEach((t) => pendientes!.add(t));
+    }
+  }
+  return pendientes.has(texto.trim());
 }
 
 /** Qué hay cargado, para el panel del equipo. */

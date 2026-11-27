@@ -4,7 +4,7 @@ import { makeLimiter } from '../security';
 import { getProfileFromRequest } from '../supabaseAdmin';
 import { destino, NOMBRE_DE_FUENTE } from '../../client/src/lib/destinos';
 import { arancelDe, FalloArancelDestino, lineasDe, type Servicio } from './tradeTariff';
-import { ARANCEL_DE, ARANCEL_UE, arancelLocal, lineasLocales, resumenAranceles } from '../aranceles/store';
+import { ARANCEL_DE, ARANCEL_UE, arancelLocal, descripcionLocal, lineasLocales, resumenAranceles } from '../aranceles/store';
 import { UNION_EUROPEA } from '../../client/src/lib/paises';
 
 // El arancel de los países de destino que no son EE. UU. (el de EE. UU.
@@ -38,6 +38,14 @@ const UE = new Set(UNION_EUROPEA);
 /** El arancel descargado que sirve para ese destino, si hay. */
 const localDe = (iso: string): string | null => ARANCEL_DE[iso] ?? (UE.has(iso) ? ARANCEL_UE : null);
 
+/**
+ * La UE en vivo responde en inglés: la descripción sale del arancel común
+ * descargado, que ya está en español. Si la línea no está ahí, la de la
+ * consulta.
+ */
+const enEspanolLocal = (local: string | null, codigo: string, original: string): string =>
+  (local && descripcionLocal(local, codigo)) || original;
+
 destinosRouter.get('/destinos/:iso/lineas', limite, async (req, res) => {
   const iso = String(req.params.iso);
   const servicio = servicioDe(iso);
@@ -53,7 +61,7 @@ destinosRouter.get('/destinos/:iso/lineas', limite, async (req, res) => {
   try {
     const lineas = await lineasDe(servicio!, p.data.hs6);
     res.setHeader('Cache-Control', 'public, max-age=600');
-    res.json({ lineas });
+    res.json({ lineas: lineas.map((l) => ({ ...l, descripcion: enEspanolLocal(local, l.codigo, l.descripcion) })) });
   } catch (err) {
     // La UE en vivo no respondió: el arancel común descargado.
     const lineas = local && !(err instanceof FalloArancelDestino && err.causa === 'no_existe') ? lineasLocales(local, p.data.hs6) : null;
@@ -80,7 +88,7 @@ destinosRouter.get('/destinos/:iso/linea/:codigo', limite, async (req, res) => {
   try {
     const a = await arancelDe(servicio!, codigo, p.data.origen);
     res.setHeader('Cache-Control', 'public, max-age=600');
-    res.json({ ...a, fuente: NOMBRE_DE_FUENTE[servicio!], vivo: true });
+    res.json({ ...a, descripcion: enEspanolLocal(local, codigo, a.descripcion), fuente: NOMBRE_DE_FUENTE[servicio!], vivo: true });
   } catch (err) {
     const a = local ? arancelLocal(local, codigo) : null;
     if (a) return res.json({ ...a, avisos: ['La consulta en vivo no respondió: es la tarifa general del arancel común descargado, sin la preferencial de tu origen.', ...a.avisos] });

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useEspanol } from '@/lib/useEspanol';
 import { arancelDelDestino, lineasDelDestino, type ArancelDestino, type Destino, type LineaDestino as Linea } from '@/lib/destinos';
 import { paisDeOrigen } from '@/lib/tasaArancel';
 
@@ -35,6 +36,9 @@ export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel
   // Reintentos: de la lista de líneas y de la tarifa de la línea elegida.
   const [intento, setIntento] = useState(0);
   const [intentoLinea, setIntentoLinea] = useState(0);
+  // Canadá y la UE publican en inglés: lo que no venga ya en español se traduce al mostrarlo.
+  const traducible = destino.iso === 'CA' || destino.fuente === 'xi';
+  const tr = useEspanol(es && traducible, [...(lineas ?? []).map((l) => l.descripcion), ...(arancel ? [arancel.descripcion] : [])]);
 
   // Otra subpartida u otro destino: la línea anterior ya no vale.
   useEffect(() => {
@@ -90,7 +94,7 @@ export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="font-mono text-lg font-black text-primary">{codigo10(arancel.codigo || elegida)}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{arancel.descripcion}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{tr(arancel.descripcion)}</p>
             </div>
             <button
               type="button"
@@ -162,7 +166,7 @@ export default function LineaDestino({ es, destino, hs6, origen, cumple, arancel
                 className="flex w-full cursor-pointer flex-col items-start gap-0.5 border-0 bg-transparent px-3 py-2.5 text-left hover:bg-secondary/60 disabled:opacity-60"
               >
                 <span className="font-mono text-sm font-bold text-primary">{codigo10(l.codigo)}</span>
-                <span className="text-sm text-muted-foreground">{l.descripcion}</span>
+                <span className="text-sm text-muted-foreground">{tr(l.descripcion)}</span>
               </button>
             </li>
           ))}

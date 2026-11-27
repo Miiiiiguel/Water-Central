@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronRight, FolderOpen, Search, X } from 'lucide-react';
-import { buscarPartidasConCausa, detallePartida, enEspanol, listarCapitulos, mensajeFalloHts, ramas, traducirDescripciones, type DetallePartida, type FalloHts, type ItemPartida, type Nodo } from '@/lib/hts';
+import { buscarPartidasConCausa, detallePartida, listarCapitulos, mensajeFalloHts, ramas, type DetallePartida, type FalloHts, type ItemPartida, type Nodo } from '@/lib/hts';
+import { useEspanol } from '@/lib/useEspanol';
 import { ORIGENES_FRECUENTES, PAISES_DE_ORIGEN, paisDeOrigen } from '@/lib/tasaArancel';
 
 // Elegir la partida arancelaria del producto, entre todas las del
@@ -27,24 +28,6 @@ interface Props {
   fuenteDestino?: 'linea' | 'escrita' | 'ninguna';
 }
 
-/**
- * Las descripciones del arancel en español: pide las que se están
- * mostrando y vuelve a pintar cuando llegan. Mientras tanto, inglés.
- */
-function useEspanol(es: boolean, textos: string[]): (t: string) => string {
-  const [, setVersion] = useState(0);
-  const clave = textos.join('\n');
-  useEffect(() => {
-    if (!es || !textos.length) return;
-    const control = new AbortController();
-    void traducirDescripciones(textos, control.signal).then((nuevas) => {
-      if (nuevas && !control.signal.aborted) setVersion((v) => v + 1);
-    });
-    return () => control.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [es, clave]);
-  return es ? enEspanol : (t) => t;
-}
 
 const fmt = (n: number) => (n === 0 ? '$0' : `$${n.toFixed(n < 1 ? 3 : 2)}`);
 

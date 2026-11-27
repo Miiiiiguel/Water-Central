@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { makeLimiter } from '../security';
 import { traducir, traduccionDisponible } from './traduccion';
 import { arbol, buscarPartidas, capitulos, detalle, esDescripcionDelArancel } from './consulta';
+import { esDescripcionLocal } from '../aranceles/store';
 
 // El arancel de EE. UU., consultable desde la calculadora ROI.
 //
@@ -66,7 +67,8 @@ htsRouter.post('/hts/traducir', limiteTraduccion, express.json({ limit: '64kb' }
   const p = pedidoTraduccion.safeParse(req.body);
   if (!p.success) return res.status(400).json({ error: 'pedido_invalido' });
   if (!traduccionDisponible()) return res.json({ traducciones: {} });
-  const delArancel = p.data.textos.filter((t) => esDescripcionDelArancel(t));
+  // Del arancel de EE. UU. o de los descargados en inglés (Canadá, la UE).
+  const delArancel = p.data.textos.filter((t) => esDescripcionDelArancel(t) || esDescripcionLocal(t));
   res.json({ traducciones: await traducir(delArancel) });
 });
 

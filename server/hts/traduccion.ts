@@ -23,7 +23,7 @@ const LOTE = 30;
 const ESPERA_MS = 45_000;
 const MAX_MEMORIA = 40_000;
 
-const SISTEMA = `Traduces al español descripciones del Arancel Armonizado de los Estados Unidos (HTSUS).
+const SISTEMA = `Traduces al español descripciones de aranceles de aduanas: el Arancel Armonizado de los Estados Unidos (HTSUS), el Customs Tariff de Canadá y la Nomenclatura Combinada de la Unión Europea.
 Usa la terminología de la nomenclatura del Sistema Armonizado en español, como la de los aranceles de Colombia y México:
 - "Other" → "Los demás" o "Las demás" (según el género de lo que se describe); "Of cotton" → "De algodón".
 - "nesoi" o "not elsewhere specified or included" → "no expresados ni comprendidos en otra parte".
