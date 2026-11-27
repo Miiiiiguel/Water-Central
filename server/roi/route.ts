@@ -76,6 +76,16 @@ export const entradaSchema = z.object({
   // País de origen (ISO). Las páginas viejas no lo mandan: era Colombia.
   origen: z.string().regex(/^[A-Z]{2}$/).default('CO'),
   hts: z.object({ codigo: z.string().max(20), tasa: tasaSchema }).nullable(),
+  // Descuentos en fechas especiales (Black Friday...). Las páginas viejas no los mandan.
+  promociones: z
+    .object({
+      inicioMes: z.number().int().min(1).max(12),
+      fechas: z
+        .array(z.object({ mes: z.number().int().min(1).max(12), descuento: z.number().finite().min(0).max(0.9), alza: z.number().finite().min(1).max(10) }))
+        .max(12),
+    })
+    .nullable()
+    .default(null),
 });
 
 export type EntradaRoi = z.infer<typeof entradaSchema>;
@@ -119,6 +129,7 @@ export function aInputs(e: EntradaRoi): RoiInputs {
     // + flete (CIF). Ver lib/destinos.
     dutyBase: base,
     hts: e.hts ? { codigo: e.hts.codigo, tasa: e.hts.tasa as Tasa } : null,
+    promos: e.promociones && e.promociones.fechas.length ? e.promociones : null,
   };
 }
 
@@ -185,6 +196,15 @@ export function proyeccion(e: EntradaRoi, desbloqueado: { detalle: boolean; pron
   // puede calcular entra con el estimado, nunca como $0.
   const derechoUsd = inp.hts && derecho ? (derecho.calculable ? derecho.usd : dutyPerUnit(inp)) : 0;
 
+  // Con descuentos en fechas especiales: cuánto cambian el año 1 frente a
+  // no hacerlos (con márgenes chicos, el descuento puede restar).
+  const sinPromos = inp.promos ? project({ ...inp, promos: null }) : null;
+  const efecto = (con: YearOne, sin: YearOne) => ({
+    unidades: sumar(con.units) - sumar(sin.units),
+    ventas: con.revenue - sin.revenue,
+    utilidad: con.utilidad - sin.utilidad,
+  });
+
   // Pagar el pronóstico incluye el desglose (así lo dice la oferta).
   const verDesglose = desbloqueado.detalle || desbloqueado.pronostico;
   return {
@@ -193,6 +213,7 @@ export function proyeccion(e: EntradaRoi, desbloqueado: { detalle: boolean; pron
     inversion: { ...p.investment, unidades: inp.lot },
     derecho: derecho ? { usd: derechoUsd, calculable: derecho.calculable, falta: derecho.falta } : null,
     envioAplica: inp.price >= FREE_SHIP_THRESHOLD,
+    ...(sinPromos ? { efectoPromos: { conservador: efecto(p.cons1, sinPromos.cons1), optimista: efecto(p.opt1, sinPromos.opt1) } } : {}),
     desbloqueado: { detalle: verDesglose, pronostico: desbloqueado.pronostico },
     ...(verDesglose ? { desglose: { cons: desgloseDe(p.cons1.breakdown), opt: desgloseDe(p.opt1.breakdown) } } : {}),
     ...(desbloqueado.pronostico

@@ -99,7 +99,7 @@ describe('tarifas preferenciales por país', () => {
 
   it('todo el mundo es origen, y los programas unilaterales no se aplican', () => {
     expect(PAISES_DE_ORIGEN.length).toBeGreaterThan(230);
-    expect(PAISES_DE_ORIGEN.some((p) => p.iso === 'US')).toBe(false);
+    expect(paisDeOrigen('US')?.acuerdo).toBeNull(); // origen posible para vender fuera de EE. UU.
     expect(new Set(PAISES_DE_ORIGEN.map((p) => p.iso)).size).toBe(PAISES_DE_ORIGEN.length);
     expect(paisDeOrigen('IN')).toMatchObject({ nombre: 'India', acuerdo: null });
     expect(tasaPreferencial('Free (D,E,NP)', 'KE')).toBeNull();

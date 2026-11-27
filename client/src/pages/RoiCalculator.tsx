@@ -14,6 +14,7 @@ import { MONTH_LABELS, MONTH_LABELS_EN, fmtInt, fmtMoney, fmtMoney2, pctOf, setR
 import RoiTable, { type RoiRow } from '@/components/roi/RoiTable';
 import PartidaArancel from '@/components/roi/PartidaArancel';
 import LineaDestino from '@/components/roi/LineaDestino';
+import FechasEspeciales, { aPromociones, estadoInicial as fechasIniciales } from '@/components/roi/FechasEspeciales';
 import { DESTINOS, DESTINOS_ROI, destino as destinoDe, mismoMercado, type ArancelDestino } from '@/lib/destinos';
 import type { DetallePartida } from '@/lib/hts';
 import { paisDeOrigen, parseTasa } from '@/lib/tasaArancel';
@@ -355,6 +356,7 @@ export default function RoiCalculator({ embebido = false }: { embebido?: boolean
   setRoiLocale(language);
 
   const [inputs, setInputs] = useState<RoiEntrada>(ENTRADA_INICIAL);
+  const [fechas, setFechas] = useState(() => fechasIniciales());
   const [heroScenario, setHeroScenario] = useState<Scenario>('conservador');
   const [detailScenario, setDetailScenario] = useState<Scenario>('conservador');
 
@@ -490,7 +492,7 @@ export default function RoiCalculator({ embebido = false }: { embebido?: boolean
   // nueva (se cancela).
   const [proy, setProy] = useState<Proyeccion | null>(null);
   const [sinRespuesta, setSinRespuesta] = useState(false);
-  const pedido = JSON.stringify({ ...inputs, meetsAgreement: cumple, destino: destinoIso, origen: pais, hts });
+  const pedido = JSON.stringify({ ...inputs, meetsAgreement: cumple, destino: destinoIso, origen: pais, hts, promociones: aPromociones(fechas) });
   useEffect(() => {
     const control = new AbortController();
     const reloj = window.setTimeout(() => {
@@ -952,6 +954,7 @@ export default function RoiCalculator({ embebido = false }: { embebido?: boolean
                     />
                   </div>
                 </div>
+              <FechasEspeciales es={es} estado={fechas} onChange={setFechas} efecto={proy?.efectoPromos?.[heroScenario] ?? null} />
             </Paso>
           </section>
 

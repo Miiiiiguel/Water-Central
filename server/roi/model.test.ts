@@ -232,3 +232,29 @@ describe('duty base by destination', () => {
     expect(dutyPerUnit(cif)).toBeCloseTo(0.12 * (12 + 2.415), 6);
   });
 });
+
+describe('special-date promotions', () => {
+  // Starts selling in September: month 3 is November (Black Friday).
+  const promos = { inicioMes: 9, fechas: [{ mes: 11, descuento: 0.25, alza: 2 }] };
+
+  it('lower the price and multiply the units only in that calendar month', () => {
+    const sin = project(DEFAULT_INPUTS);
+    const con = project({ ...DEFAULT_INPUTS, promos });
+    expect(con.cons1.ticket[2]).toBeCloseTo(DEFAULT_INPUTS.price * 0.75, 6);
+    expect(con.cons1.units[2]).toBe(sin.cons1.units[2] * 2);
+    expect(con.cons1.ticket[1]).toBe(DEFAULT_INPUTS.price);
+    expect(con.cons1.units[1]).toBe(sin.cons1.units[1]);
+    // Year 2 (months 13-24) has its own November, also month 3.
+    expect(con.cons2.units[2]).toBe(sin.cons2.units[2] * 2);
+    expect(con.cons2.ticket[2]).toBeCloseTo(sin.cons2.ticket[2] * 0.75, 6);
+  });
+
+  it('the commissions follow the discounted price', () => {
+    const con = project({ ...DEFAULT_INPUTS, promos });
+    expect(con.cons1.breakdown[2].platform).toBeCloseTo(DEFAULT_INPUTS.price * 0.75 * DEFAULT_INPUTS.platformPct, 6);
+  });
+
+  it('without promotions nothing changes', () => {
+    expect(project({ ...DEFAULT_INPUTS, promos: { inicioMes: 1, fechas: [] } }).cons1.saldo).toEqual(project(DEFAULT_INPUTS).cons1.saldo);
+  });
+});

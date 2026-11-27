@@ -93,6 +93,8 @@ export interface Proyeccion {
   inversion: { productCost: number; logistics: number; marketing3: number; total: number; unidades: number };
   derecho: { usd: number; calculable: boolean; falta?: string } | null;
   envioAplica: boolean;
+  /** Con descuentos en fechas especiales: lo que cambia el año 1 frente a no hacerlos. */
+  efectoPromos?: Record<Scenario, { unidades: number; ventas: number; utilidad: number }>;
   desbloqueado: { detalle: boolean; pronostico: boolean };
   desglose?: { cons: FilaDesglose[]; opt: FilaDesglose[] };
   pronostico?: { cons1: Pronostico; opt1: Pronostico; cons2: Pronostico; opt2: Pronostico };

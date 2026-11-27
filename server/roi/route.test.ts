@@ -141,3 +141,23 @@ describe('lo que viaja al navegador', () => {
     expect(entradaSchema.safeParse({ ...BASE, unitsMonth: 0 }).success).toBe(false);
   });
 });
+
+describe('descuentos en fechas especiales', () => {
+  it('una página vieja no los manda: no hay efecto', () => {
+    const e = entradaSchema.parse({ ...BASE });
+    expect(e.promociones).toBeNull();
+    expect('efectoPromos' in proyeccion(e, { detalle: false, pronostico: false })).toBe(false);
+  });
+
+  it('con Black Friday se venden más unidades y se dice cuánto cambia la ganancia', () => {
+    const e = entradaSchema.parse({ ...BASE, promociones: { inicioMes: 9, fechas: [{ mes: 11, descuento: 0.25, alza: 2 }] } });
+    const r = proyeccion(e, { detalle: false, pronostico: false });
+    expect(r.efectoPromos!.conservador.unidades).toBeGreaterThan(0);
+    const sin = proyeccion({ ...e, promociones: null }, { detalle: false, pronostico: false });
+    expect(r.efectoPromos!.conservador.utilidad).toBeCloseTo(r.resumen.cons1.utilidad - sin.resumen.cons1.utilidad, 6);
+  });
+
+  it('no acepta descuentos absurdos', () => {
+    expect(entradaSchema.safeParse({ ...BASE, promociones: { inicioMes: 9, fechas: [{ mes: 11, descuento: 1.5, alza: 2 }] } }).success).toBe(false);
+  });
+});

@@ -1,3 +1,4 @@
+import { promoDelMes, type Promociones } from '../../client/src/lib/temporadas';
 // Financial model behind the ROI calculator.
 //
 // This is Easycomex's own model, ported verbatim from the spreadsheet
@@ -126,6 +127,11 @@ export interface RoiInputs {
    * product's value) or 'cif' (UK, EU: product + international freight).
    */
   dutyBase: 'fob' | 'cif';
+  /**
+   * Discounts on special dates (Black Friday, Prime Day...): that month
+   * the price drops and more units sell. Null: no promotions.
+   */
+  promos: Promociones | null;
   /** Monthly budgets, USD. */
   adsBudget: number;
   contentBudget: number;
@@ -147,6 +153,7 @@ export const DEFAULT_INPUTS: RoiInputs = {
   litersPerUnit: 0,
   domesticShipUsd: null,
   dutyBase: 'fob',
+  promos: null,
   adsBudget: 999,
   contentBudget: 600,
   channelBudget: 999,
@@ -268,10 +275,18 @@ export function computeYear1(unitsArr: number[], inp: RoiInputs, warehousing: nu
   const breakdownArr: CostBreakdown[] = [];
   let acc = 0;
 
+  const tickets: number[] = [];
+  const unidades: number[] = [];
+
   for (let i = 0; i < unitsArr.length; i++) {
-    const u = unitsArr[i];
-    const rev = inp.price * u;
-    const bd = costBreakdown(u, inp, warehousing, totalFreight);
+    // A special-date month: lower price, more units. The price-based costs
+    // (commissions, returns, duty base stays on cost) follow the lower price.
+    const promo = promoDelMes(inp.promos, i);
+    const u = Math.round(unitsArr[i] * promo.alza);
+    const price = inp.price * (1 - promo.descuento);
+    const inpMes = promo.descuento ? { ...inp, price } : inp;
+    const rev = price * u;
+    const bd = costBreakdown(u, inpMes, warehousing, totalFreight);
     const cpu = bd.total;
     const cg = cpu * u;
     // Extra ad spend kicks in from month 4, based on last month's revenue.
@@ -287,9 +302,11 @@ export function computeYear1(unitsArr: number[], inp: RoiInputs, warehousing: nu
     utilidad.push(ut);
     saldo.push(acc);
     costUnitArr.push(cpu);
-    profitUnitArr.push(inp.price - cpu);
-    roiUnitArr.push(cpu > 0 ? (inp.price - cpu) / cpu : 0);
+    profitUnitArr.push(price - cpu);
+    roiUnitArr.push(cpu > 0 ? (price - cpu) / cpu : 0);
     breakdownArr.push(bd);
+    tickets.push(price);
+    unidades.push(u);
   }
 
   return {
@@ -298,9 +315,10 @@ export function computeYear1(unitsArr: number[], inp: RoiInputs, warehousing: nu
     utilidad: acc,
     saldo,
     // Year 2 grows from the month-7 cost, where the model is "matured".
+    // (Without the promotion: a regular month.)
     month7Cost: costPerUnit(unitsArr[6], inp, warehousing, totalFreight),
-    units: unitsArr,
-    ticket: unitsArr.map(() => inp.price),
+    units: unidades,
+    ticket: tickets,
     revenueArr: revenue,
     cogsArr: cogs,
     adsIncrArr,
@@ -343,9 +361,15 @@ export function computeYear2(unitsArr: number[], inp: RoiInputs, month7Cost: num
   let egresos = 0;
   let acc = 0;
 
+  const tickets: number[] = [];
+  const unidades: number[] = [];
+
   for (let i = 0; i < unitsArr.length; i++) {
-    const u = unitsArr[i];
-    const rev = ticket2 * u;
+    // Year 2 is months 13-24: the same calendar months as year 1.
+    const promo = promoDelMes(inp.promos, i);
+    const u = Math.round(unitsArr[i] * promo.alza);
+    const ticket = ticket2 * (1 - promo.descuento);
+    const rev = ticket * u;
     const cg = baseCost * u;
     const ads = rev * ADS_PCT_Y2;
     const eg = cg + ads + IMPREV_Y2[i];
@@ -360,14 +384,16 @@ export function computeYear2(unitsArr: number[], inp: RoiInputs, month7Cost: num
     egresosArr.push(eg);
     utilidadArr.push(ut);
     saldoArr.push(acc);
+    tickets.push(ticket);
+    unidades.push(u);
   }
 
   return {
     revenue,
     egresos,
     utilidad: revenue - egresos,
-    units: unitsArr,
-    ticket: unitsArr.map(() => ticket2),
+    units: unidades,
+    ticket: tickets,
     revenueArr,
     cogsArr,
     adsIncrArr: adsArr,

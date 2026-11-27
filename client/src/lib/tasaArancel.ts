@@ -235,13 +235,14 @@ const CON_ACUERDO_O_FRECUENTES: PaisDeOrigen[] = [
 ];
 
 /** Los que van arriba en el selector. */
-export const ORIGENES_FRECUENTES = CON_ACUERDO_O_FRECUENTES.slice(0, 19).map((p) => p.iso);
+export const ORIGENES_FRECUENTES = [...CON_ACUERDO_O_FRECUENTES.slice(0, 19).map((p) => p.iso), 'US'];
 
 export const PAISES_DE_ORIGEN: PaisDeOrigen[] = [
   ...CON_ACUERDO_O_FRECUENTES.map((p) => ({ ...p, nombreEn: paisIso(p.iso)?.en })),
-  // Todos los demás, sin acuerdo con EE. UU. Estados Unidos no: no se
-  // exporta a sí mismo.
-  ...PAISES.filter((p) => p.iso !== 'US' && !CON_ACUERDO_O_FRECUENTES.some((c) => c.iso === p.iso)).map((p) => ({
+  // Todos los demás, sin acuerdo con EE. UU. Estados Unidos también: una
+  // marca de EE. UU. que vende en México, Canadá o la UE. Si el destino es
+  // EE. UU., es su propio mercado y no paga arancel (mismoMercado).
+  ...PAISES.filter((p) => !CON_ACUERDO_O_FRECUENTES.some((c) => c.iso === p.iso)).map((p) => ({
     iso: p.iso,
     nombre: p.es,
     nombreEn: p.en,
