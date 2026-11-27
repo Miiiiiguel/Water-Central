@@ -181,17 +181,17 @@ export function leerArancel(cuerpo: unknown, servicio: Servicio, origen: string)
   if (!data || typeof data !== 'object') throw new FalloArancelDestino('respuesta_rara', 'commodity sin data', 'El arancel del destino respondió algo que no se pudo leer.');
   const todos = incluidos(cuerpo);
   const moneda = servicio === 'uk' ? 'GBP' : 'EUR';
-  const propio = servicio === 'uk' ? 'uk' : 'eu';
 
   const medidas = refs(data, 'import_measures')
     .map((r) => todos.get(`measure:${r.id}`))
     .filter((m): m is Recurso => Boolean(m))
-    // El servicio de Irlanda del Norte trae también medidas británicas:
-    // sólo cuentan las del arancel que se está leyendo.
-    .filter((m) => {
-      const o = texto(m.attributes?.origin);
-      return !o || o === propio;
-    });
+    // El servicio de Irlanda del Norte trae también medidas británicas
+    // (origin "uk"): en el arancel de la UE no cuentan. En el del Reino
+    // Unido, en cambio, casi todas las medidas vienen marcadas "eu" (el
+    // campo dice de qué base de datos salió la medida, no qué arancel
+    // es), así que ahí no se filtra: filtrarlas dejaba al Reino Unido
+    // sin ninguna tarifa.
+    .filter((m) => servicio === 'uk' || texto(m.attributes?.origin) !== 'uk');
 
   const tipoDe = (m: Recurso) => refs(m, 'measure_type')[0]?.id ?? '';
   const derechoDe = (m: Recurso) => {
@@ -202,9 +202,16 @@ export function leerArancel(cuerpo: unknown, servicio: Servicio, origen: string)
 
   const avisos: string[] = [];
 
-  // General: la medida 103 que alcanza a todos. Si hay varias con
-  // distinta tarifa, depende de una condición que no sabemos: no se elige.
-  const generales = medidas.filter((m) => tipoDe(m) === TERCER_PAIS);
+  // General: la medida 103 que alcanza a todos (erga omnes). Las 103 de
+  // una zona puntual (el Reino Unido tiene una al 0 % para las Islas del
+  // Canal) no son la general. Si quedan varias con distinta tarifa,
+  // depende de una condición que no sabemos: no se elige.
+  const tercerPais = medidas.filter((m) => tipoDe(m) === TERCER_PAIS);
+  const ergaOmnes = tercerPais.filter((m) => {
+    const id = refs(m, 'geographical_area')[0]?.id;
+    return !id || id === TODOS;
+  });
+  const generales = ergaOmnes.length ? ergaOmnes : tercerPais;
   const textosGenerales = Array.from(new Set(generales.map(derechoDe).map(limpiar).filter(Boolean)));
   let general: Tasa | null = null;
   if (textosGenerales.length === 1) general = tasaDeDestino(textosGenerales[0], moneda);

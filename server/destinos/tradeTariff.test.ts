@@ -84,6 +84,27 @@ describe('leer el arancel de una línea', () => {
     expect(leerArancel(cuerpo, 'xi', 'CO').general?.texto).toBe('12%');
   });
 
+  it('en el arancel del Reino Unido las medidas marcadas "eu" sí cuentan (así vienen casi todas)', () => {
+    const cuerpo = commodity(
+      '6109100010',
+      [
+        medida('1', '103', '1011', '12.00 %', { origin: 'eu' }),
+        medida('2', '103', '1080', '0.00 %', { origin: 'eu' }),
+        medida('3', '142', '2005', '0.00 %', { origin: 'eu' }),
+      ],
+      [...AREAS, geo('1080', 'Channel Islands')]
+    );
+    const a = leerArancel(cuerpo, 'uk', 'CO');
+    expect(a.general?.texto).toBe('12%');
+    expect(a.general?.calculable).toBe(true);
+    expect(a.preferencial?.tasa.libre).toBe(true);
+  });
+
+  it('una 103 de una zona puntual no es la tarifa general', () => {
+    const cuerpo = commodity('6109100010', [medida('1', '103', '1011', '12.00 %'), medida('2', '103', '1080', '0.00 %')], [...AREAS, geo('1080', 'Channel Islands')]);
+    expect(leerArancel(cuerpo, 'xi', 'MX').general?.texto).toBe('12%');
+  });
+
   it('una tarifa en euros por kilo no se calcula: se muestra y se pide confirmarla', () => {
     const cuerpo = commodity('1806900000', [medida('1', '103', '1011', '8.30 % + 25.20 EUR / 100 kg')], AREAS);
     const a = leerArancel(cuerpo, 'xi', 'CO');
